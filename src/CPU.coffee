@@ -1,23 +1,43 @@
-Instruction =
-	ADC: 1
-	// TODO add all instructions
-
 AddressingMode =
 	ZeroPage: 1
 	// TODO add all addressing modes
 
+Instruction =
+	ADC: 1
+	// TODO add all instructions
+
 class CPU
 	constructor(@memory): ->
+		@initAddressingModesTable()
 		@initInstructionsTable()
+		@initOperationsTable()
 		@reset()
+
+	initAddressingModesTable: ->
+		@addressingModesTable = []
+		@registerAddressingMode AddressingMode.ZeroPage, () ->
+			// TODO addressing mode code
+		// TODO add all addressing modes
+
+	registerAddressingMode: (addressingMode, computation) ->
+		@addressingModesTable[addressingMode] = computation
 
 	initInstructionsTable: ->
 		@instructionsTable = []
-		@registerInstruction 0x65 Instruction.ADC, AddressingMode.ZeroPage, 2, 2
-		// TODO add instructions for all operations codes
+		@registerInstruction Instruction.ADC, (address) ->
+			// TODO instruction code
+		// TODO add all instructions
 
-	registerInstruction: (operationCode, instruction, addressingMode, size, cycles) ->
-		@instructionsTable[operationCode] =
+	registerInstruction: (instruction, execution) ->
+		@instructionsTable[instruction] = execution
+
+	initOperationsTable: ->
+		@operationsTable = []
+		@registerOperation 0x65 Instruction.ADC, AddressingMode.ZeroPage, 2, 2
+		// TODO add all operations
+
+	registerOperation: (operationCode, instruction, addressingMode, size, cycles) ->
+		@operationsTable[operationCode] =
 			instruction: instruction
 			addressingMode: addressingMode
 			size: size
@@ -43,13 +63,19 @@ class CPU
 		@negativeFlag = 0
 
 	step: ->
-		operationCode = @read @programCounter
-		instructionData = @instructionsTable[operationCode]
-		instruction = @instructionData.instruction
-		addressingMode = @instructionData.addressingMode
-		size = @instructionData.size
-		cycles = @instructionData.cycles
+		operation = @readOperation
+		address = @computeAddress operation.addressingMode
 		// TODO implement rest
+
+	readOperation: () ->
+		operationCode = @read @programCounter
+		@operationsTable[operationCode]
+
+	computeAddress: (addressingMode) ->
+		@addressingModesTable[addressingMode]()
+
+	executeInstruction: (instruction, address) ->
+		@instructionsTable[instruction](address)
 
 	push: (value) ->
 		@stackPointer = (@stackPointer - 1) & 0xFF
