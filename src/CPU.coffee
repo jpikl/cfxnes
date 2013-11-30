@@ -24,12 +24,13 @@ Interrupt =
 
 class CPU
     constructor: (@memory) ->
+        @init()
+        @powerUp()
+
+    init: ->
         @initAddressingModesTable()
         @initInstructionsTable()
         @initOperationsTable()
-        @resetRegistres()
-        @resetFlags()
-        @resetOthers()
 
     initAddressingModesTable: ->
         @addressingModesTable = []
@@ -101,9 +102,15 @@ class CPU
             size: size
             cycles: cycles
 
+    powerUp: ->
+        @resetRegistres()
+        @resetFlags()
+        @resetVariables()
+        @resetMemory()
+
     resetRegistres: ->
         @programCounter = 0  # 16-bit
-        @stackPointer = 0xFF # 8-bit
+        @stackPointer = 0xFD # 8-bit
         @accumulator = 0     # 8-bit
         @registerX = 0       # 8-bit
         @registerY = 0       # 8-bit
@@ -111,15 +118,25 @@ class CPU
     resetFlags: ->
         @carryFlag = 0
         @zeroFlag = 0
-        @interruptDisable = 0
+        @interruptDisable = 1
         @decimalMode = 0
-        @breakCommand = 0
+        @breakCommand = 1
         @overflowFlag = 0
         @negativeFlag = 0
 
-    resetOthers: ->
+    resetVariables: ->
         @pageCrossed = false
         @requestedInterrupt = null
+
+    resetMemory: ->
+        @write address, 0xFF for address in [0...0x0800]
+        @write 0x0008, 0xF7
+        @write 0x0009, 0xEF
+        @write 0x000A, 0xDF
+        @write 0x000F, 0xBF
+        @write 0x4017, 0x00
+        @write 0x4015, 0x00
+        @write address, 0x00 for address in [0x4000...0x4010]
 
     step: ->
         @checkInterrupt()
@@ -208,9 +225,13 @@ class CPU
         @negativeFlag = (status >> 7) & 1
 
     reset: ->
-        @requestedInterrupt = Interrupt.Reset
+        @setRequestedInterrupt Interrupt.Reset
 
     requestNonMaskableInterrupt: ->
-        @requestedInterrupt = Interrupt.NMI
+        @setRequestedInterrupt Interrupt.NMI
+
+    setRequestedInterrupt: (type) ->
+        if @requestedInterrupt == null or type > @requestedInterrupt
+            @requestedInterrupt = type 
 
 module.exports = CPU
