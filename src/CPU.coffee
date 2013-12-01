@@ -34,6 +34,14 @@ Instruction =
     CMP: 18
     CPX: 19
     CPY: 20
+    DEC: 21
+    DEX: 22
+    DEY: 23
+    EOR: 24
+    INC: 25
+    INX: 26
+    INY: 27
+    JMP: 28
 
 Interrupt =
     IRQ:   1
@@ -214,7 +222,6 @@ class CPU
             @tick()
 
         @registerAddressingMode AddressingMode.Immediate, ->
-            @tick()
             @moveProgramCounter()
 
         @registerAddressingMode AddressingMode.ZeroPage, ->
@@ -223,7 +230,7 @@ class CPU
         @registerAddressingMode AddressingMode.IndexedXZeroPage, ->
             @getIndexedAddressByte @readNextProgramByte(), @registerX
 
-        @registerAddressingMode AddressingMode.IndexedXZeroPage, ->
+        @registerAddressingMode AddressingMode.IndexedYZeroPage, ->
             @getIndexedAddressByte @readNextProgramByte(), @registerY
 
         @registerAddressingMode AddressingMode.Absolute, ->
@@ -232,7 +239,7 @@ class CPU
         @registerAddressingMode AddressingMode.IndexedXAbsolute, ->
             @getIndexedAddressWord @readNextProgramWord(), @registerX
 
-        @registerAddressingMode AddressingMode.IndexedXAbsolute, ->
+        @registerAddressingMode AddressingMode.IndexedYAbsolute, ->
             @getIndexedAddressWord @readNextProgramWord(), @registerY
 
         @registerAddressingMode AddressingMode.Relative, ->
@@ -254,6 +261,7 @@ class CPU
         @addressingModesTable[addressingMode] = computation
 
     getIndexedAddressByte: (base, offset) ->
+        @tick()
         (base + offset) & 0xFF
 
     getIndexedAddressWord : (base, offset) ->
@@ -276,7 +284,7 @@ class CPU
             @accumulator = result & 0xFF
 
         @registerInstruction Instruction.AND, (address) ->
-            @accumulator = @accumulator & @readByte address
+            @accumulator &= @readByte address
             @computeZeroFlag @accumulator
             @computeNegativeFlag @accumulator
 
@@ -304,8 +312,7 @@ class CPU
             @branchIfTrue @zeroFlag == 1,  address
 
         @registerInstruction Instruction.BIT, (address) ->
-            operand = @readByte address
-            result = @accumulator & operand 
+            result = @accumulator & @readByte address
             @computeZeroFlag result
             @overflowFlag = (result >> 7) & 1 # Exception on overflow computation
             @computeNegativeFlag result
@@ -349,6 +356,46 @@ class CPU
 
         @registerInstruction Instruction.CPY, ->
             @compareRegisterAndMemory @registerY, address
+
+        @registerInstruction Instruction.DEC, (address) ->
+            result = (@readByte address) - 1
+            @computeZeroFlag result
+            @computeNegativeFlag result
+            @writeByte address, result
+
+        @registerInstruction Instruction.DEX, ->
+            @registerX--
+            @computeZeroFlag @registerX
+            @computeNegativeFlag @registerX
+
+        @registerInstruction Instruction.DEY, ->
+            @registerY--
+            @computeZeroFlag @registerY
+            @computeNegativeFlag @registerY
+
+        @registerInstruction Instruction.EOR, (address) ->
+            @accumulator ^= @readByte address
+            @computeZeroFlag @accumulator
+            @computeNegativeFlag @accumulator
+
+        @registerInstruction Instruction.INC, (address) ->
+            result = (@readByte address) + 1
+            @computeZeroFlag result
+            @computeNegativeFlag result
+            @writeByte address, result
+
+        @registerInstruction Instruction.INX, ->
+            @registerX++
+            @computeZeroFlag @registerX
+            @computeNegativeFlag @registerX
+
+        @registerInstruction Instruction.INY, ->
+            @registerY++
+            @computeZeroFlag @registerY
+            @computeNegativeFlag @registerY
+
+        @registerInstruction Instruction.JMP, (address) ->
+            @programCounter = address
 
     registerInstruction: (instruction, execution) ->
         @instructionsTable[instruction] = execution
@@ -452,6 +499,36 @@ class CPU
         @registerOperation 0xC0, Instruction.CPX, AddressingMode.Immediate
         @registerOperation 0xC4, Instruction.CPX, AddressingMode.ZeroPage
         @registerOperation 0xCC, Instruction.CPX, AddressingMode.Absolute
+
+        @registerOperation 0xC6, Instruction.DEC, AddressingMode.ZeroPage
+        @registerOperation 0xD6, Instruction.DEC, AddressingMode.IndexedXZeroPage
+        @registerOperation 0xCE, Instruction.DEC, AddressingMode.Absolute
+        @registerOperation 0xDE, Instruction.DEC, AddressingMode.IndexedXAbsolute
+
+        @registerOperation 0xCA, Instruction.DEX, AddressingMode.Implied
+
+        @registerOperation 0x88, Instruction.DEY, AddressingMode.Implied
+
+        @registerOperation 0x49, Instruction.EOR, AddressingMode.Immediate
+        @registerOperation 0x45, Instruction.EOR, AddressingMode.ZeroPage
+        @registerOperation 0x55, Instruction.EOR, AddressingMode.IndexedXZeroPage
+        @registerOperation 0x4D, Instruction.EOR, AddressingMode.Absolute
+        @registerOperation 0x5D, Instruction.EOR, AddressingMode.IndexedXAbsolute
+        @registerOperation 0x59, Instruction.EOR, AddressingMode.IndexedYAbsolute
+        @registerOperation 0x41, Instruction.EOR, AddressingMode.IndexedXIndirect
+        @registerOperation 0x51, Instruction.EOR, AddressingMode.IndirectIndexedY
+
+        @registerOperation 0xC6, Instruction.INC, AddressingMode.ZeroPage
+        @registerOperation 0xD6, Instruction.INC, AddressingMode.IndexedXZeroPage
+        @registerOperation 0xCE, Instruction.INC, AddressingMode.Absolute
+        @registerOperation 0xDE, Instruction.INC, AddressingMode.IndexedXAbsolute
+
+        @registerOperation 0xCA, Instruction.INX, AddressingMode.Implied
+
+        @registerOperation 0x88, Instruction.INY, AddressingMode.Implied
+
+        @registerOperation 0x4C, Instruction.INY, AddressingMode.Absolute
+        @registerOperation 0x6C, Instruction.INY, AddressingMode.Indirect
 
     registerOperation: (operationCode, instruction, addressingMode) ->
         @operationsTable[operationCode] = 
