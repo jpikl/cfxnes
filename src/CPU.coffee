@@ -15,7 +15,7 @@ AddressingMode =
 
 Instruction = 
     ADC: 1
-    # TODO add all instructions
+    AND: 2
 
 Interrupt =
     IRQ:   1
@@ -63,8 +63,9 @@ class CPU
             (base + @registerX) & 0xFFFF
 
         @registerAddressingMode AddressingMode.Relative, ->
-            offset = @read @programCounter + 1
-            (@programCounter + @toSigned offset) & 0xFFFF
+            offset = @toSigned @read @programCounter + 1
+            @checkPageCrossed @programCounter, offset
+            (@programCounter + offset) & 0xFFFF
 
         @registerAddressingMode AddressingMode.Indirect, ->
             @read16 @read16 @programCounter + 1
@@ -83,17 +84,57 @@ class CPU
 
     initInstructionsTable: ->
         @instructionsTable = []
+
         @registerInstruction Instruction.ADC, (address) ->
-            # TODO instruction code
-        # TODO add all instructions
+            addition = @read address
+            result = @accumulator + addition + @carryFlag
+            @computeCarryFlag result
+            @computeZeroFlag result
+            @computeOverflowFlag @accumulator @addition @result
+            @computeNegativeFlag result
+            @accumulator = result & 0xFF
+
+        @registerInstruction Instruction.AND, (address) ->
+            @accumulator = @accumulator & @read address
+            @computeZeroFlag @accumulator
+            @computeNegativeFlag @accumulator
+
+    computeCarryFlag: (result) ->
+        @carryFlag = if result > 0xFF then 1 else 0
+
+    computeZeroFlag: (result) ->
+        @zeroFlag = if (result & 0xFF) != 0 then 1 else 0
+
+    computeOverflowFlag: (operand1, operand2, result) ->
+        @overflowFlag = if (operand1 ^ result) & (operand2 ^ result) & 0x80 != 0 then 1 else 0
+
+    computeNegativeFlag: (result) ->
+        @negativeFlag = (result >> 7) & 1
 
     registerInstruction: (instruction, execution) ->
         @instructionsTable[instruction] = execution
 
     initOperationsTable: ->
         @operationsTable = []
-        @registerOperation 0x65, Instruction.ADC, AddressingMode.ZeroPage, 2, 2
-        # TODO add all operations
+
+        @registerOperation 0x69, Instruction.ADC, AddressingMode.Immediate,        2, 2
+        @registerOperation 0x65, Instruction.ADC, AddressingMode.ZeroPage,         2, 3
+        @registerOperation 0x75, Instruction.ADC, AddressingMode.IndexedXZeroPage, 2, 4
+        @registerOperation 0x6D, Instruction.ADC, AddressingMode.Absolute,         3, 4
+        @registerOperation 0x7D, Instruction.ADC, AddressingMode.IndexedXAbsolute, 3, 4
+        @registerOperation 0x79, Instruction.ADC, AddressingMode.IndexedYAbsolute, 3, 4
+        @registerOperation 0x61, Instruction.ADC, AddressingMode.IndexedXIndirect, 2, 6
+        @registerOperation 0x71, Instruction.ADC, AddressingMode.IndirectIndexedY, 2, 5
+
+        @registerOperation 0x29, Instruction.AND, AddressingMode.Immediate,        2, 2
+        @registerOperation 0x25, Instruction.AND, AddressingMode.ZeroPage,         2, 3
+        @registerOperation 0x35, Instruction.AND, AddressingMode.IndexedXZeroPage, 2, 4
+        @registerOperation 0x2D, Instruction.AND, AddressingMode.Absolute,         3, 4
+        @registerOperation 0x3D, Instruction.AND, AddressingMode.IndexedXAbsolute, 3, 4
+        @registerOperation 0x39, Instruction.AND, AddressingMode.IndexedYAbsolute, 3, 4
+        @registerOperation 0x21, Instruction.AND, AddressingMode.IndexedXIndirect, 2, 6
+        @registerOperation 0x31, Instruction.AND, AddressingMode.IndirectIndexedY, 2, 5
+        
 
     registerOperation: (operationCode, instruction, addressingMode, size, cycles) ->
         @operationsTable[operationCode] =
@@ -116,16 +157,17 @@ class CPU
         @registerY = 0       # 8-bit
 
     resetFlags: ->
-        @carryFlag = 0
-        @zeroFlag = 0
-        @interruptDisable = 1
-        @decimalMode = 0
-        @breakCommand = 1
-        @overflowFlag = 0
-        @negativeFlag = 0
+        @carryFlag = 0        # bit 0
+        @zeroFlag = 0         # bit 1
+        @interruptDisable = 1 # bit 2
+        @decimalMode = 0      # bit 3
+        @breakCommand = 1     # bit 4
+        @overflowFlag = 0     # bit 6
+        @negativeFlag = 0     # bit 7
 
     resetVariables: ->
         @pageCrossed = false
+        @branchTaken = false
         @requestedInterrupt = null
 
     resetMemory: ->
@@ -142,10 +184,14 @@ class CPU
         @checkInterrupt()
         operation = @readOperation
         address = @computeAddress operation.addressingMode
+        @executeInstruction operation.instruction address
+        @programCounter += 1 if not @branchTaken
         cycles = operation.cycles
         cycles += 1 if @pageCrossed
+        cycles += 1 if @branchTaken
         @pageCrossed = false
-        @programCounter += cycles
+        @branchTaken = false
+        cycles
 
     checkInterrupt: ->
         if requestedInterrupt? and not @interruptDisable
