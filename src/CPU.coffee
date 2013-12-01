@@ -1,3 +1,12 @@
+Bit0 = 1 << 0
+Bit1 = 1 << 1
+Bit2 = 1 << 2
+Bit3 = 1 << 3
+Bit4 = 1 << 4
+Bit5 = 1 << 5
+Bit6 = 1 << 6
+Bit7 = 1 << 7
+
 AddressingMode =
     Implied:          1
     Accumulator:      2
@@ -72,13 +81,13 @@ class CPU
         @registerY = 0       # 8-bit
 
     resetFlags: ->
-        @carryFlag = 0        # bit 0
-        @zeroFlag = 0         # bit 1
-        @interruptDisable = 1 # bit 2
-        @decimalMode = 0      # bit 3
-        @breakCommand = 1     # bit 4
-        @overflowFlag = 0     # bit 6
-        @negativeFlag = 0     # bit 7
+        @carryFlag = off       # bit 0
+        @zeroFlag = off        # bit 1
+        @interruptDisable = on # bit 2
+        @decimalMode = off     # bit 3
+        @breakCommand = on     # bit 4
+        @overflowFlag = off    # bit 6
+        @negativeFlag = off    # bit 7
 
     resetVariables: ->
         @cycle = 0
@@ -187,22 +196,24 @@ class CPU
             @tick()
 
     getStatus: ->
-        status = @carryFlag
-        status |= @zeroFlag << 1 
-        status |= @interruptDisable << 2
-        status |= @decimalMode << 3 
-        status |= @breakCommand << 4
-        status |= @overflowFlag << 6
-        status |= @negativeFlag << 7
+        status = 0
+        status &= Bit0 if @carryFlag
+        status &= Bit1 if @zeroFlag
+        status &= Bit2 if @interruptDisable
+        status &= Bit3 if @decimalMode
+        status &= Bit4 if @breakCommand
+        status &= Bit6 if @overflowFlag
+        status &= Bit7 if @negativeFlag
+        status
 
     setStatus: (status) ->
-        @carryFlag = status & 1
-        @zeroFlag = (status >> 1) & 1
-        @interruptDisable = (status >> 2) & 1
-        @decimalMode = (status >> 3) & 1
-        @breakCommand = (status >> 4) & 1
-        @overflowFlag = (status >> 6) & 1
-        @negativeFlag = (status >> 7) & 1
+        @carryFlag        = (status & Bit0) != 0
+        @zeroFlag         = (status & Bit1) != 0
+        @interruptDisable = (status & Bit2) != 0
+        @decimalMode      = (status & Bit3) != 0
+        @breakCommand     = (status & Bit4) != 0
+        @overflowFlag     = (status & Bit6) != 0
+        @negativeFlag     = (status & Bit7) != 0
 
     tick: ->
         @cycle++
@@ -284,7 +295,8 @@ class CPU
 
         @registerInstruction Instruction.ADC, (address) ->
             operand = @readByte address
-            result = @accumulator + operand + @carryFlag
+            result = @accumulator + operand
+            result++ if @carryFlag
             @computeCarryFlag result
             @computeZeroFlag result
             @computeOverflowFlag @accumulator, operand, result
@@ -311,50 +323,50 @@ class CPU
                 @accumulator = result & 0xFF
 
         @registerInstruction Instruction.BCC, (address) ->
-            @branchIfTrue @carryFlag == 0, address
+            @branchIf @carryFlag is off, address
 
         @registerInstruction Instruction.BCS, (address) ->
-            @branchIfTrue @carryFlag == 1, address
+            @branchIf @carryFlag is on, address
 
         @registerInstruction Instruction.BEQ, (address) ->
-            @branchIfTrue @zeroFlag == 1,  address
+            @branchIf @zeroFlag is on, address
 
         @registerInstruction Instruction.BIT, (address) ->
             result = @accumulator & @readByte address
             @computeZeroFlag result
-            @overflowFlag = (result >> 7) & 1 # Exception on overflow computation
+            @overflowFlag = result & Bit7 != 0 # Exception on overflow computation
             @computeNegativeFlag result
 
         @registerInstruction Instruction.BMI, (address) ->
-            @branchIfTrue @negativeFlag == 1, address
+            @branchIfTrue @negativeFlag, address
 
         @registerInstruction Instruction.BNE, (address) ->
-            @branchIfTrue @zeroFlag == 0,  address
+            @branchIfFalse @zeroFlag,  address
 
         @registerInstruction Instruction.BPL, (address) ->
-            @branchIfTrue @negativeFlag == 0,  address
+            @branchIfFalse @negativeFlag,  address
 
         @registerInstruction Instruction.BRK, ->
             @breakCommand = 1
             @handleInterrupt 0xFFFE
 
         @registerInstruction Instruction.BVC, (address) ->
-            @branchIfTrue @overflowFlag == 0,  address
+            @branchIf @overflowFlag is off, address
 
         @registerInstruction Instruction.BVS, (address) ->
-            @branchIfTrue @overflowFlag == 1,  address
+            @branchIf @overflowFlag is on,  address
 
         @registerInstruction Instruction.CLC, ->
-            @carryFlag = 0
+            @carryFlag = off
 
         @registerInstruction Instruction.CLD, ->
-            @decimalMode = 0
+            @decimalMode = off
 
         @registerInstruction Instruction.CLI, ->
-            @interruptDisable = 0
+            @interruptDisable = off
 
         @registerInstruction Instruction.CLV, ->
-            @overflowFlag = 0
+            @overflowFlag = off
 
         @registerInstruction Instruction.CMP, (address) ->
             @compareRegisterAndMemory @accumulator, address
@@ -409,18 +421,18 @@ class CPU
         @instructionsTable[instruction] = execution
 
     computeCarryFlag: (result) ->
-        @carryFlag = if result > 0xFF then 1 else 0
+        @carryFlag = result > 0xFF
 
     computeZeroFlag: (result) ->
-        @zeroFlag = if (result & 0xFF) != 0 then 1 else 0
+        @zeroFlag = result & 0xFF != 0
 
     computeOverflowFlag: (operand1, operand2, result) ->
-        @overflowFlag = if (operand1 ^ result) & (operand2 ^ result) & 0x80 != 0 then 1 else 0
+        @overflowFlag = (operand1 ^ result) & (operand2 ^ result) & Bit7 != 0
 
     computeNegativeFlag: (result) ->
-        @negativeFlag = (result >> 7) & 1
+        @negativeFlag = result & Bit7 != 0
 
-    branchIfTrue: (condition, address) ->
+    branchIf: (condition, address) ->
         if condition
             @programCounter = address
             @tick()
@@ -428,7 +440,7 @@ class CPU
     compareRegisterAndMemory: (register, address) -> 
         operand = @readByte address
         result = register - operand 
-        @carryFlag = if result >= 0 then 1 else 0 # Exception on carry computation
+        @carryFlag = result >= 0 # Exception on carry computation
         @computeZeroFlag result
         @computeNegativeFlag result
 
