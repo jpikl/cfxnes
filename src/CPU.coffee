@@ -1,26 +1,17 @@
-Bit0 = 1 << 0
-Bit1 = 1 << 1
-Bit2 = 1 << 2
-Bit3 = 1 << 3
-Bit4 = 1 << 4
-Bit5 = 1 << 5
-Bit6 = 1 << 6
-Bit7 = 1 << 7
-
 AddressingMode =
-    Implied:          1
-    Accumulator:      2
-    Immediate:        3
-    ZeroPage:         4
-    ZeroPageX: 5
-    IndexedYZeroPage: 6
-    Absolute:         7
-    AbsoluteX: 8
-    AbsoluteY: 9
-    Relative:         10
-    Indirect:         11
-    IndirectX: 12
-    IndirectY: 13
+    Implied:      1
+    Accumulator:  2
+    Immediate:    3
+    ZeroPage:     4
+    ZeroPageX:    5
+    ZeroPageY:    6
+    Absolute:     7
+    AbsoluteX:    8
+    AbsoluteY:    9
+    Relative:    10
+    Indirect:    11
+    IndirectX:   12
+    IndirectY:   13
 
 Instruction = 
     ADC:  1
@@ -55,6 +46,7 @@ Instruction =
     LDA: 30
     LDX: 31
     LDY: 32
+    LSR: 33
 
 Interrupt =
     IRQ:   1
@@ -132,7 +124,7 @@ class CPU
     handleInterrupt: (interruptVectorAddress)->
         @pushWord @programCounter
         @pushByte @getStatus()
-        @interruptDisable = 1
+        @interruptDisable = on
         @programCounter = @readWord interruptVectorAddress
 
     readOperation: ->
@@ -201,23 +193,23 @@ class CPU
 
     getStatus: ->
         status = 0
-        status |= Bit0 if @carryFlag
-        status |= Bit1 if @zeroFlag
-        status |= Bit2 if @interruptDisable
-        status |= Bit3 if @decimalMode
-        status |= Bit4 if @breakCommand
-        status |= Bit6 if @overflowFlag
-        status |= Bit7 if @negativeFlag
+        status |= (1 << 0) if @carryFlag
+        status |= (1 << 1) if @zeroFlag
+        status |= (1 << 2) if @interruptDisable
+        status |= (1 << 3) if @decimalMode
+        status |= (1 << 4) if @breakCommand
+        status |= (1 << 6) if @overflowFlag
+        status |= (1 << 7) if @negativeFlag
         status
 
     setStatus: (status) ->
-        @carryFlag        = (status & Bit0) != 0
-        @zeroFlag         = (status & Bit1) != 0
-        @interruptDisable = (status & Bit2) != 0
-        @decimalMode      = (status & Bit3) != 0
-        @breakCommand     = (status & Bit4) != 0
-        @overflowFlag     = (status & Bit6) != 0
-        @negativeFlag     = (status & Bit7) != 0
+        @carryFlag        = @isBitSet status, 0
+        @zeroFlag         = @isBitSet status, 1
+        @interruptDisable = @isBitSet status, 2
+        @decimalMode      = @isBitSet status, 3
+        @breakCommand     = @isBitSet status, 4
+        @overflowFlag     = @isBitSet status, 6
+        @negativeFlag     = @isBitSet status, 7
 
     tick: ->
         @cycle++
@@ -300,30 +292,30 @@ class CPU
         @registerInstruction Instruction.ADC, (address) ->
             operand = @readByte address
             result = @accumulator + operand
-            result++ if @carryFlag
-            @computeCarryFlag result
-            @computeZeroFlag result
-            @computeOverflowFlag @accumulator, operand, result
-            @computeNegativeFlag result
+            result++ if @carryFlag is on
+            @carryFlag = @isOverflow result
+            @zeroFlag = @isZero result
+            @overflowFlag = @isSignedOverflow @accumulator, operand, result
+            @negativeFlag = @isNegative result
             @accumulator = result & 0xFF
 
         @registerInstruction Instruction.AND, (address) ->
             @accumulator &= @readByte address
-            @computeZeroFlag @accumulator
-            @computeNegativeFlag @accumulator
+            @zeroFlag = @isZero @accumulator
+            @negativeFlag = @isNegative @accumulator
 
         @registerInstruction Instruction.ASL, (address) ->
             if address?
                 result = (@readByte address) << 1
-                @computeCarryFlag result
-                @computeZeroFlag result
-                @computeNegativeFlag result
+                @carryFlag = @isOverflow result
+                @zeroFlag = @isZero result
+                @negativeFlag = @isNegative result
                 @writeByte address, result & 0xFF
             else
                 result = @accumulator << 1
-                @computeCarryFlag result
-                @computeZeroFlag result
-                @computeNegativeFlag result
+                @carryFlag = @isOverflow result
+                @zeroFlag = @isZero result
+                @negativeFlag = @isNegative result
                 @accumulator = result & 0xFF
 
         @registerInstruction Instruction.BCC, (address) ->
@@ -337,21 +329,21 @@ class CPU
 
         @registerInstruction Instruction.BIT, (address) ->
             result = @accumulator & @readByte address
-            @computeZeroFlag result
-            @overflowFlag = result & Bit7 != 0 # Exception on overflow computation
-            @computeNegativeFlag result
+            @zeroFlag = @isZero result
+            @overflowFlag = @isBitSet result, 7
+            @negativeFlag = @isNegative result
 
         @registerInstruction Instruction.BMI, (address) ->
-            @branchIfTrue @negativeFlag, address
+            @branchIf @negativeFlag is on, address
 
         @registerInstruction Instruction.BNE, (address) ->
-            @branchIfFalse @zeroFlag,  address
+            @branchIf @zeroFlag is off, address
 
         @registerInstruction Instruction.BPL, (address) ->
-            @branchIfFalse @negativeFlag,  address
+            @branchIf @negativeFlag is off, address
 
         @registerInstruction Instruction.BRK, ->
-            @breakCommand = 1
+            @breakCommand = on
             @handleInterrupt 0xFFFE
 
         @registerInstruction Instruction.BVC, (address) ->
@@ -383,40 +375,40 @@ class CPU
 
         @registerInstruction Instruction.DEC, (address) ->
             result = (@readByte address) - 1
-            @computeZeroFlag result
-            @computeNegativeFlag result
-            @writeByte address, result
+            @zeroFlag = @isZero result
+            @negativeFlag = @isNegative result
+            @writeByte address, result & 0xFF
 
         @registerInstruction Instruction.DEX, ->
             @registerX = (@registerX - 1) & 0xFF
-            @computeZeroFlag @registerX
-            @computeNegativeFlag @registerX
+            @zeroFlag = @isZero @registerX
+            @negativeFlag = @isNegative @registerX
 
         @registerInstruction Instruction.DEY, ->
             @registerY = (@registerY - 1) & 0xFF
-            @computeZeroFlag @registerY
-            @computeNegativeFlag @registerY
+            @zeroFlag = @isZero @registerY
+            @negativeFlag = @isNegative @registerY
 
         @registerInstruction Instruction.EOR, (address) ->
             @accumulator ^= @readByte address
-            @computeZeroFlag @accumulator
-            @computeNegativeFlag @accumulator
+            @zeroFlag = @isZero @accumulator
+            @negativeFlag = @isNegative @accumulator
 
         @registerInstruction Instruction.INC, (address) ->
             result = (@readByte address) + 1
-            @computeZeroFlag result
-            @computeNegativeFlag result
+            @zeroFlag = @isZero result
+            @negativeFlag = @isNegative result
             @writeByte address, result & 0xFF
 
         @registerInstruction Instruction.INX, ->
             @registerX = (@registerX + 1) & 0xFF
-            @computeZeroFlag @registerX
-            @computeNegativeFlag @registerX
+            @zeroFlag = @isZero @registerX
+            @negativeFlag = @isNegative @registerX
 
         @registerInstruction Instruction.INY, ->
             @registerY = (@registerY + 1) & 0xFF
-            @computeZeroFlag @registerY
-            @computeNegativeFlag @registerY
+            @zeroFlag = @isZero @registerY
+            @negativeFlag = @isNegative @registerY
 
         @registerInstruction Instruction.JMP, (address) ->
             @programCounter = address
@@ -428,33 +420,50 @@ class CPU
 
         @registerInstruction Instruction.LDA, (address) ->
             @accumulator = @readByte address
-            @computeZeroFlag @accumulator
-            @computeNegativeFlag @accumulator
+            @zeroFlag = @isZero @accumulator
+            @negativeFlag = @isNegative @accumulator
 
         @registerInstruction Instruction.LDX, (address) ->
             @registerX = @readByte address
-            @computeZeroFlag @registerX
-            @computeNegativeFlag @registerX
+            @zeroFlag = @isZero @registerX
+            @negativeFlag = @isNegative @registerX
 
         @registerInstruction Instruction.LDY, (address) ->
             @registerY = @readByte address
-            @computeZeroFlag @registerY
-            @computeNegativeFlag @registerY
+            @zeroFlag = @isZero @registerY
+            @negativeFlag = @isNegative @registerY
+
+        @registerInstruction Instruction.LSR, (address) ->
+            if address?
+                result = @readByte address
+                @carryFlag = @isSetBit result, 1
+                result >>= 1
+                @zeroFlag = @isZero result
+                @negativeFlag = @isNegative result
+                @writeByte address, result
+            else
+                @carryFlag = @isSetBit @accumulator, 1
+                @accumulator >>= 1
+                @zeroFlag = @isZero result
+                @negativeFlag = @isNegative result
 
     registerInstruction: (instruction, execution) ->
         @instructionsTable[instruction] = execution
 
-    computeCarryFlag: (result) ->
-        @carryFlag = result > 0xFF
+    isBitSet: (value, bit) ->
+        value & (1 << bit) != 0
 
-    computeZeroFlag: (result) ->
-        @zeroFlag = result & 0xFF != 0
+    isZero: (value) ->
+        value & 0xFF != 0
 
-    computeOverflowFlag: (operand1, operand2, result) ->
-        @overflowFlag = (operand1 ^ result) & (operand2 ^ result) & Bit7 != 0
+    isNegative: (value) ->
+        @isBitSet value, 7
 
-    computeNegativeFlag: (result) ->
-        @negativeFlag = result & Bit7 != 0
+    isOverflow: (value) ->
+        result > 0xFF
+
+    isSignedOverflow: (operand1, operand2, result) ->
+        @isBitSet (operand1 ^ result) & (operand2 ^ result), 7
 
     branchIf: (condition, address) ->
         if condition
