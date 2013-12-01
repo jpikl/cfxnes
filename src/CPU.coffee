@@ -14,8 +14,16 @@ AddressingMode =
     IndirectIndexedY: 13
 
 Instruction = 
-    ADC: 1
-    AND: 2
+    ADC:  1
+    AND:  2
+    ASL:  3
+    BCC:  4
+    BCS:  5
+    BEQ:  6
+    BIT:  7
+    BMI:  8
+    BNE:  9
+    BPL: 10
 
 Interrupt =
     IRQ:   1
@@ -86,11 +94,11 @@ class CPU
         @instructionsTable = []
 
         @registerInstruction Instruction.ADC, (address) ->
-            addition = @read address
-            result = @accumulator + addition + @carryFlag
+            operand = @read address
+            result = @accumulator + operand + @carryFlag
             @computeCarryFlag result
             @computeZeroFlag result
-            @computeOverflowFlag @accumulator @addition @result
+            @computeOverflowFlag @accumulator, operand, @result
             @computeNegativeFlag result
             @accumulator = result & 0xFF
 
@@ -98,6 +106,45 @@ class CPU
             @accumulator = @accumulator & @read address
             @computeZeroFlag @accumulator
             @computeNegativeFlag @accumulator
+
+        @registerInstruction Instruction.ASL, (address) ->
+            if address?
+                result = (@read address) << 1
+                @computeCarryFlag result
+                @computeZeroFlag result
+                @computeNegativeFlag result
+                @write address, result & 0xFF
+            else
+                result = @accumulator << 1
+                @computeCarryFlag result
+                @computeZeroFlag result
+                @computeNegativeFlag result
+                @accumulator = result & 0xFF
+
+        @registerInstruction Instruction.BCC, (address) ->
+            @branchIfTrue, @carryFlag == 0, address
+
+        @registerInstruction Instruction.BCS, (address) ->
+            @branchIfTrue, @carryFlag == 1, address
+
+        @registerInstruction Instruction.BEQ, (address) ->
+            @branchIfTrue @zeroFlag == 1,  address
+
+        @registerInstruction Instruction.BIT, (address) ->
+            operand = @read address
+            result = @accumulator & operand 
+            @computeZeroFlag result
+            @overflowFlag = (result >> 7) & 1 # Exception on overflow computation
+            @computeNegativeFlag result
+
+        @registerInstruction Instruction.BMI, (address) ->
+            @branchIfTrue @negativeFlag == 1, address
+
+        @registerInstruction Instruction.BNE, (address) ->
+            @branchIfTrue @zeroFlag == 0,  address
+
+        @registerInstruction Instruction.BPL, (address) ->
+            @branchIfTrue @negativeFlag == 0,  address
 
     computeCarryFlag: (result) ->
         @carryFlag = if result > 0xFF then 1 else 0
@@ -110,6 +157,11 @@ class CPU
 
     computeNegativeFlag: (result) ->
         @negativeFlag = (result >> 7) & 1
+
+    branchIfTrue: -> (condition, address)
+        if condition then
+            @programCounter = address
+            @branchTaken = true
 
     registerInstruction: (instruction, execution) ->
         @instructionsTable[instruction] = execution
@@ -135,6 +187,26 @@ class CPU
         @registerOperation 0x21, Instruction.AND, AddressingMode.IndexedXIndirect, 2, 6
         @registerOperation 0x31, Instruction.AND, AddressingMode.IndirectIndexedY, 2, 5
         
+        @registerOperation 0x0A, Instruction.ASL, AddressingMode.Accumulator,      1, 2
+        @registerOperation 0x06, Instruction.ASL, AddressingMode.ZeroPage,         2, 5
+        @registerOperation 0x16, Instruction.ASL, AddressingMode.IndexedXZeroPage, 2, 6
+        @registerOperation 0x0E, Instruction.ASL, AddressingMode.Absolute,         3, 6
+        @registerOperation 0x1E, Instruction.ASL, AddressingMode.IndexedXAbsolute, 3, 7
+
+        @registerOperation 0x90, Instruction.BCC, AddressingMode.Relative,         2, 2
+
+        @registerOperation 0xB0, Instruction.BCS, AddressingMode.Relative,         2, 2
+
+        @registerOperation 0xB0, Instruction.BEQ, AddressingMode.Relative,         2, 2
+
+        @registerOperation 0x24, Instruction.BIT, AddressingMode.ZeroPage,         2, 3
+        @registerOperation 0x2C, Instruction.BIT, AddressingMode.Absolute,         3, 4
+
+        @registerOperation 0x30, Instruction.BMI, AddressingMode.Relative,         2, 2
+
+        @registerOperation 0xD0, Instruction.BNE, AddressingMode.Relative,         2, 2
+
+        @registerOperation 0x10, Instruction.BPL, AddressingMode.Relative,         2, 2
 
     registerOperation: (operationCode, instruction, addressingMode, size, cycles) ->
         @operationsTable[operationCode] =
