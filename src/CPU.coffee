@@ -12,15 +12,15 @@ AddressingMode =
     Accumulator:      2
     Immediate:        3
     ZeroPage:         4
-    IndexedXZeroPage: 5
+    ZeroPageX: 5
     IndexedYZeroPage: 6
     Absolute:         7
-    IndexedXAbsolute: 8
-    IndexedYAbsolute: 9
+    AbsoluteX: 8
+    AbsoluteY: 9
     Relative:         10
     Indirect:         11
-    IndexedXIndirect: 12
-    IndirectIndexedY: 13
+    IndirectX: 12
+    IndirectY: 13
 
 Instruction = 
     ADC:  1
@@ -51,6 +51,10 @@ Instruction =
     INX: 26
     INY: 27
     JMP: 28
+    JSR: 29
+    LDA: 30
+    LDX: 31
+    LDY: 32
 
 Interrupt =
     IRQ:   1
@@ -246,7 +250,7 @@ class CPU
         @registerAddressingMode AddressingMode.ZeroPage, ->
             @readNextProgramByte()
 
-        @registerAddressingMode AddressingMode.IndexedXZeroPage, ->
+        @registerAddressingMode AddressingMode.ZeroPageX, ->
             @getIndexedAddressByte @readNextProgramByte(), @registerX
 
         @registerAddressingMode AddressingMode.IndexedYZeroPage, ->
@@ -255,10 +259,10 @@ class CPU
         @registerAddressingMode AddressingMode.Absolute, ->
             @readNextProgramWord()
 
-        @registerAddressingMode AddressingMode.IndexedXAbsolute, ->
+        @registerAddressingMode AddressingMode.AbsoluteX, ->
             @getIndexedAddressWord @readNextProgramWord(), @registerX
 
-        @registerAddressingMode AddressingMode.IndexedYAbsolute, ->
+        @registerAddressingMode AddressingMode.AbsoluteY, ->
             @getIndexedAddressWord @readNextProgramWord(), @registerY
 
         @registerAddressingMode AddressingMode.Relative, ->
@@ -268,11 +272,11 @@ class CPU
         @registerAddressingMode AddressingMode.Indirect, ->
             @readWord @readNextProgramWord()
 
-        @registerAddressingMode AddressingMode.IndexedXIndirect, ->
+        @registerAddressingMode AddressingMode.IndirectX, ->
             address = @getIndexedAddressByte @readNextProgramByte(), @registerX
             @readWord address
 
-        @registerAddressingMode AddressingMode.IndirectIndexedY, ->
+        @registerAddressingMode AddressingMode.IndirectY, ->
             base = @readWord @readNextProgramByte()
             @getIndexedAddressWord base, @registerY
 
@@ -417,6 +421,26 @@ class CPU
         @registerInstruction Instruction.JMP, (address) ->
             @programCounter = address
 
+        @registerInstruction Instruction.JSR, (address) ->
+            @pushWord @programCounter
+            @programCounter = address
+            tick()
+
+        @registerInstruction Instruction.LDA, (address) ->
+            @accumulator = @readByte address
+            @computeZeroFlag @accumulator
+            @computeNegativeFlag @accumulator
+
+        @registerInstruction Instruction.LDX, (address) ->
+            @registerX = @readByte address
+            @computeZeroFlag @registerX
+            @computeNegativeFlag @registerX
+
+        @registerInstruction Instruction.LDY, (address) ->
+            @registerY = @readByte address
+            @computeZeroFlag @registerY
+            @computeNegativeFlag @registerY
+
     registerInstruction: (instruction, execution) ->
         @instructionsTable[instruction] = execution
 
@@ -447,105 +471,128 @@ class CPU
     initOperationsTable: ->
         @operationsTable = []
 
-        @registerOperation 0x69, Instruction.ADC, AddressingMode.Immediate,        no,  no
-        @registerOperation 0x65, Instruction.ADC, AddressingMode.ZeroPage,         no,  no
-        @registerOperation 0x75, Instruction.ADC, AddressingMode.IndexedXZeroPage, no,  no
-        @registerOperation 0x6D, Instruction.ADC, AddressingMode.Absolute,         no,  no
-        @registerOperation 0x7D, Instruction.ADC, AddressingMode.IndexedXAbsolute, no,  no
-        @registerOperation 0x79, Instruction.ADC, AddressingMode.IndexedYAbsolute, no,  no
-        @registerOperation 0x61, Instruction.ADC, AddressingMode.IndexedXIndirect, no,  no
-        @registerOperation 0x71, Instruction.ADC, AddressingMode.IndirectIndexedY, no,  no
+        @registerOperation 0x69, Instruction.ADC, AddressingMode.Immediate,   no,  no
+        @registerOperation 0x65, Instruction.ADC, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0x75, Instruction.ADC, AddressingMode.ZeroPageX,   no,  no
+        @registerOperation 0x6D, Instruction.ADC, AddressingMode.Absolute,    no,  no
+        @registerOperation 0x7D, Instruction.ADC, AddressingMode.AbsoluteX,   no,  no
+        @registerOperation 0x79, Instruction.ADC, AddressingMode.AbsoluteY,   no,  no
+        @registerOperation 0x61, Instruction.ADC, AddressingMode.IndirectX,   no,  no
+        @registerOperation 0x71, Instruction.ADC, AddressingMode.IndirectY,   no,  no
 
-        @registerOperation 0x29, Instruction.AND, AddressingMode.Immediate,        no,  no
-        @registerOperation 0x25, Instruction.AND, AddressingMode.ZeroPage,         no,  no
-        @registerOperation 0x35, Instruction.AND, AddressingMode.IndexedXZeroPage, no,  no
-        @registerOperation 0x2D, Instruction.AND, AddressingMode.Absolute,         no,  no
-        @registerOperation 0x3D, Instruction.AND, AddressingMode.IndexedXAbsolute, no,  no
-        @registerOperation 0x39, Instruction.AND, AddressingMode.IndexedYAbsolute, no,  no
-        @registerOperation 0x21, Instruction.AND, AddressingMode.IndexedXIndirect, no,  no
-        @registerOperation 0x31, Instruction.AND, AddressingMode.IndirectIndexedY, no,  no
+        @registerOperation 0x29, Instruction.AND, AddressingMode.Immediate,   no,  no
+        @registerOperation 0x25, Instruction.AND, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0x35, Instruction.AND, AddressingMode.ZeroPageX,   no,  no
+        @registerOperation 0x2D, Instruction.AND, AddressingMode.Absolute,    no,  no
+        @registerOperation 0x3D, Instruction.AND, AddressingMode.AbsoluteX,   no,  no
+        @registerOperation 0x39, Instruction.AND, AddressingMode.AbsoluteY,   no,  no
+        @registerOperation 0x21, Instruction.AND, AddressingMode.IndirectX,   no,  no
+        @registerOperation 0x31, Instruction.AND, AddressingMode.IndirectY,   no,  no
         
-        @registerOperation 0x0A, Instruction.ASL, AddressingMode.Accumulator,      no,  no
-        @registerOperation 0x06, Instruction.ASL, AddressingMode.ZeroPage,         no,  yes
-        @registerOperation 0x16, Instruction.ASL, AddressingMode.IndexedXZeroPage, no,  yes
-        @registerOperation 0x0E, Instruction.ASL, AddressingMode.Absolute,         no,  yes
-        @registerOperation 0x1E, Instruction.ASL, AddressingMode.IndexedXAbsolute, yes, yes
+        @registerOperation 0x0A, Instruction.ASL, AddressingMode.Accumulator, no,  no
+        @registerOperation 0x06, Instruction.ASL, AddressingMode.ZeroPage,    no,  yes
+        @registerOperation 0x16, Instruction.ASL, AddressingMode.ZeroPageX,   no,  yes
+        @registerOperation 0x0E, Instruction.ASL, AddressingMode.Absolute,    no,  yes
+        @registerOperation 0x1E, Instruction.ASL, AddressingMode.AbsoluteX,   yes, yes
 
-        @registerOperation 0x90, Instruction.BCC, AddressingMode.Relative,         no,  no
+        @registerOperation 0x90, Instruction.BCC, AddressingMode.Relative,    no,  no
 
-        @registerOperation 0xB0, Instruction.BCS, AddressingMode.Relative,         no,  no
+        @registerOperation 0xB0, Instruction.BCS, AddressingMode.Relative,    no,  no
 
-        @registerOperation 0xB0, Instruction.BEQ, AddressingMode.Relative,         no,  no
+        @registerOperation 0xB0, Instruction.BEQ, AddressingMode.Relative,    no,  no
 
-        @registerOperation 0x24, Instruction.BIT, AddressingMode.ZeroPage,         no,  no
-        @registerOperation 0x2C, Instruction.BIT, AddressingMode.Absolute,         no,  no
+        @registerOperation 0x24, Instruction.BIT, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0x2C, Instruction.BIT, AddressingMode.Absolute,    no,  no
 
-        @registerOperation 0x30, Instruction.BMI, AddressingMode.Relative,         no,  no
+        @registerOperation 0x30, Instruction.BMI, AddressingMode.Relative,    no,  no
 
-        @registerOperation 0xD0, Instruction.BNE, AddressingMode.Relative,         no,  no
+        @registerOperation 0xD0, Instruction.BNE, AddressingMode.Relative,    no,  no
 
-        @registerOperation 0x10, Instruction.BPL, AddressingMode.Relative,         no,  no
+        @registerOperation 0x10, Instruction.BPL, AddressingMode.Relative,    no,  no
 
-        @registerOperation 0x00, Instruction.BRK, AddressingMode.Implied,          no,  no
+        @registerOperation 0x00, Instruction.BRK, AddressingMode.Implied,     no,  no
 
-        @registerOperation 0x50, Instruction.BVC, AddressingMode.Relative,         no,  no
+        @registerOperation 0x50, Instruction.BVC, AddressingMode.Relative,    no,  no
 
-        @registerOperation 0x70, Instruction.BVS, AddressingMode.Relative,         no,  no
+        @registerOperation 0x70, Instruction.BVS, AddressingMode.Relative,    no,  no
 
-        @registerOperation 0x18, Instruction.CLC, AddressingMode.Implied,          no,  no
+        @registerOperation 0x18, Instruction.CLC, AddressingMode.Implied,     no,  no
 
-        @registerOperation 0xD8, Instruction.CLD, AddressingMode.Implied,          no,  no
+        @registerOperation 0xD8, Instruction.CLD, AddressingMode.Implied,     no,  no
 
-        @registerOperation 0x58, Instruction.CLI, AddressingMode.Implied,          no,  no
+        @registerOperation 0x58, Instruction.CLI, AddressingMode.Implied,     no,  no
 
-        @registerOperation 0xB8, Instruction.CLV, AddressingMode.Implied,          no,  no
+        @registerOperation 0xB8, Instruction.CLV, AddressingMode.Implied,     no,  no
 
-        @registerOperation 0xC9, Instruction.CMP, AddressingMode.Immediate,        no,  no
-        @registerOperation 0xC5, Instruction.CMP, AddressingMode.ZeroPage,         no,  no
-        @registerOperation 0xD5, Instruction.CMP, AddressingMode.IndexedXZeroPage, no,  no
-        @registerOperation 0xCD, Instruction.CMP, AddressingMode.Absolute,         no,  no
-        @registerOperation 0xDD, Instruction.CMP, AddressingMode.IndexedXAbsolute, no,  no
-        @registerOperation 0xD9, Instruction.CMP, AddressingMode.IndexedYAbsolute, no,  no
-        @registerOperation 0xC1, Instruction.CMP, AddressingMode.IndexedXIndirect, no,  no
-        @registerOperation 0xD1, Instruction.CMP, AddressingMode.IndirectIndexedY, no,  no
+        @registerOperation 0xC9, Instruction.CMP, AddressingMode.Immediate,   no,  no
+        @registerOperation 0xC5, Instruction.CMP, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0xD5, Instruction.CMP, AddressingMode.ZeroPageX,   no,  no
+        @registerOperation 0xCD, Instruction.CMP, AddressingMode.Absolute,    no,  no
+        @registerOperation 0xDD, Instruction.CMP, AddressingMode.AbsoluteX,   no,  no
+        @registerOperation 0xD9, Instruction.CMP, AddressingMode.AbsoluteY,   no,  no
+        @registerOperation 0xC1, Instruction.CMP, AddressingMode.IndirectX,   no,  no
+        @registerOperation 0xD1, Instruction.CMP, AddressingMode.IndirectY,   no,  no
 
-        @registerOperation 0xE0, Instruction.CPX, AddressingMode.Immediate,        no,  no
-        @registerOperation 0xE4, Instruction.CPX, AddressingMode.ZeroPage,         no,  no
-        @registerOperation 0xEC, Instruction.CPX, AddressingMode.Absolute,         no,  no
+        @registerOperation 0xE0, Instruction.CPX, AddressingMode.Immediate,   no,  no
+        @registerOperation 0xE4, Instruction.CPX, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0xEC, Instruction.CPX, AddressingMode.Absolute,    no,  no
 
-        @registerOperation 0xC0, Instruction.CPX, AddressingMode.Immediate,        no,  no
-        @registerOperation 0xC4, Instruction.CPX, AddressingMode.ZeroPage,         no,  no
-        @registerOperation 0xCC, Instruction.CPX, AddressingMode.Absolute,         no,  no
+        @registerOperation 0xC0, Instruction.CPX, AddressingMode.Immediate,   no,  no
+        @registerOperation 0xC4, Instruction.CPX, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0xCC, Instruction.CPX, AddressingMode.Absolute,    no,  no
 
-        @registerOperation 0xC6, Instruction.DEC, AddressingMode.ZeroPage,         no,  yes
-        @registerOperation 0xD6, Instruction.DEC, AddressingMode.IndexedXZeroPage, no,  yes
-        @registerOperation 0xCE, Instruction.DEC, AddressingMode.Absolute,         no,  yes
-        @registerOperation 0xDE, Instruction.DEC, AddressingMode.IndexedXAbsolute, yes, yes
+        @registerOperation 0xC6, Instruction.DEC, AddressingMode.ZeroPage,    no,  yes
+        @registerOperation 0xD6, Instruction.DEC, AddressingMode.ZeroPageX,   no,  yes
+        @registerOperation 0xCE, Instruction.DEC, AddressingMode.Absolute,    no,  yes
+        @registerOperation 0xDE, Instruction.DEC, AddressingMode.AbsoluteX,   yes, yes
 
-        @registerOperation 0xCA, Instruction.DEX, AddressingMode.Implied,          no,  no
+        @registerOperation 0xCA, Instruction.DEX, AddressingMode.Implied,     no,  no
 
-        @registerOperation 0x88, Instruction.DEY, AddressingMode.Implied,          no,  no
+        @registerOperation 0x88, Instruction.DEY, AddressingMode.Implied,     no,  no
 
-        @registerOperation 0x49, Instruction.EOR, AddressingMode.Immediate,        no,  no
-        @registerOperation 0x45, Instruction.EOR, AddressingMode.ZeroPage,         no,  no
-        @registerOperation 0x55, Instruction.EOR, AddressingMode.IndexedXZeroPage, no,  no
-        @registerOperation 0x4D, Instruction.EOR, AddressingMode.Absolute,         no,  no
-        @registerOperation 0x5D, Instruction.EOR, AddressingMode.IndexedXAbsolute, no,  no
-        @registerOperation 0x59, Instruction.EOR, AddressingMode.IndexedYAbsolute, no,  no
-        @registerOperation 0x41, Instruction.EOR, AddressingMode.IndexedXIndirect, no,  no
-        @registerOperation 0x51, Instruction.EOR, AddressingMode.IndirectIndexedY, no,  no
+        @registerOperation 0x49, Instruction.EOR, AddressingMode.Immediate,   no,  no
+        @registerOperation 0x45, Instruction.EOR, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0x55, Instruction.EOR, AddressingMode.ZeroPageX,   no,  no
+        @registerOperation 0x4D, Instruction.EOR, AddressingMode.Absolute,    no,  no
+        @registerOperation 0x5D, Instruction.EOR, AddressingMode.AbsoluteX,   no,  no
+        @registerOperation 0x59, Instruction.EOR, AddressingMode.AbsoluteY,   no,  no
+        @registerOperation 0x41, Instruction.EOR, AddressingMode.IndirectX,   no,  no
+        @registerOperation 0x51, Instruction.EOR, AddressingMode.IndirectY,   no,  no
 
-        @registerOperation 0xC6, Instruction.INC, AddressingMode.ZeroPage,         no,  yes
-        @registerOperation 0xD6, Instruction.INC, AddressingMode.IndexedXZeroPage, no,  yes
-        @registerOperation 0xCE, Instruction.INC, AddressingMode.Absolute,         no,  yes
-        @registerOperation 0xDE, Instruction.INC, AddressingMode.IndexedXAbsolute, yes, yes
+        @registerOperation 0xC6, Instruction.INC, AddressingMode.ZeroPage,    no,  yes
+        @registerOperation 0xD6, Instruction.INC, AddressingMode.ZeroPageX,   no,  yes
+        @registerOperation 0xCE, Instruction.INC, AddressingMode.Absolute,    no,  yes
+        @registerOperation 0xDE, Instruction.INC, AddressingMode.AbsoluteX,   yes, yes
 
-        @registerOperation 0xCA, Instruction.INX, AddressingMode.Implied,          no,  no
+        @registerOperation 0xCA, Instruction.INX, AddressingMode.Implied,     no,  no
 
-        @registerOperation 0x88, Instruction.INY, AddressingMode.Implied,          no,  no
+        @registerOperation 0x88, Instruction.INY, AddressingMode.Implied,     no,  no
 
-        @registerOperation 0x4C, Instruction.INY, AddressingMode.Absolute,         no,  no
-        @registerOperation 0x6C, Instruction.INY, AddressingMode.Indirect,         no,  no
+        @registerOperation 0x4C, Instruction.JMP, AddressingMode.Absolute,    no,  no
+        @registerOperation 0x6C, Instruction.JMP, AddressingMode.Indirect,    no,  no
+
+        @registerOperation 0x20, Instruction.JSR, AddressingMode.Absolute,    no,  no
+
+        @registerOperation 0xA9, Instruction.LDA, AddressingMode.Immediate,   no,  no
+        @registerOperation 0xA5, Instruction.LDA, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0xB5, Instruction.LDA, AddressingMode.ZeroPageX,   no,  no
+        @registerOperation 0xAD, Instruction.LDA, AddressingMode.Absolute,    no,  no
+        @registerOperation 0xBD, Instruction.LDA, AddressingMode.AbsoluteX,   no,  no
+        @registerOperation 0xB9, Instruction.LDA, AddressingMode.AbsoluteY,   no,  no
+        @registerOperation 0xA1, Instruction.LDA, AddressingMode.IndirectX,   no,  no
+        @registerOperation 0xB1, Instruction.LDA, AddressingMode.IndirectY,   no,  no
+
+        @registerOperation 0xA9, Instruction.LDX, AddressingMode.Immediate,   no,  no
+        @registerOperation 0xA5, Instruction.LDX, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0xB5, Instruction.LDX, AddressingMode.ZeroPageX,   no,  no
+        @registerOperation 0xAD, Instruction.LDX, AddressingMode.Absolute,    no,  no
+        @registerOperation 0xBD, Instruction.LDX, AddressingMode.AbsoluteX,   no,  no
+
+        @registerOperation 0xA9, Instruction.LDY, AddressingMode.Immediate,   no,  no
+        @registerOperation 0xA5, Instruction.LDY, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0xB5, Instruction.LDY, AddressingMode.ZeroPageX,   no,  no
+        @registerOperation 0xAD, Instruction.LDY, AddressingMode.Absolute,    no,  no
+        @registerOperation 0xBD, Instruction.LDY, AddressingMode.AbsoluteX,   no,  no
 
     registerOperation: (operationCode, instruction, addressingMode, emptyReadCycle, emptyWriteCycle) ->
         @operationsTable[operationCode] = 
