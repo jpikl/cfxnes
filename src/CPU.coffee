@@ -24,6 +24,16 @@ Instruction =
     BMI:  8
     BNE:  9
     BPL: 10
+    BRK: 11
+    BVC: 12
+    BVS: 13
+    CLC: 14
+    CLD: 15
+    CLI: 16
+    CLV: 17
+    CMP: 18
+    CPX: 19
+    CPY: 20
 
 Interrupt =
     IRQ:   1
@@ -122,10 +132,10 @@ class CPU
                 @accumulator = result & 0xFF
 
         @registerInstruction Instruction.BCC, (address) ->
-            @branchIfTrue, @carryFlag == 0, address
+            @branchIfTrue @carryFlag == 0, address
 
         @registerInstruction Instruction.BCS, (address) ->
-            @branchIfTrue, @carryFlag == 1, address
+            @branchIfTrue @carryFlag == 1, address
 
         @registerInstruction Instruction.BEQ, (address) ->
             @branchIfTrue @zeroFlag == 1,  address
@@ -146,6 +156,37 @@ class CPU
         @registerInstruction Instruction.BPL, (address) ->
             @branchIfTrue @negativeFlag == 0,  address
 
+        @registerInstruction Instruction.BRK, ->
+            @breakCommand = 1
+            @handleInterrupt 0xFFFE
+
+        @registerInstruction Instruction.BVC, (address) ->
+            @branchIfTrue @overflowFlag == 0,  address
+
+        @registerInstruction Instruction.BVS, (address) ->
+            @branchIfTrue @overflowFlag == 1,  address
+
+        @registerInstruction Instruction.CLC, ->
+            @carryFlag = 0
+
+        @registerInstruction Instruction.CLD, ->
+            @decimalMode = 0
+
+        @registerInstruction Instruction.CLI, ->
+            @interruptDisable = 0
+
+        @registerInstruction Instruction.CLV, ->
+            @overflowFlag = 0
+
+        @registerInstruction Instruction.CMP, (address) ->
+            @compareRegisterAndMemory @accumulator, address
+            
+        @registerInstruction Instruction.CPX, ->
+            @compareRegisterAndMemory @registerX, address
+
+        @registerInstruction Instruction.CPY, ->
+            @compareRegisterAndMemory @registerY, address
+
     computeCarryFlag: (result) ->
         @carryFlag = if result > 0xFF then 1 else 0
 
@@ -158,10 +199,17 @@ class CPU
     computeNegativeFlag: (result) ->
         @negativeFlag = (result >> 7) & 1
 
-    branchIfTrue: -> (condition, address)
-        if condition then
+    branchIfTrue: (condition, address) ->
+        if condition
             @programCounter = address
             @branchTaken = true
+
+    compareRegisterAndMemory: (register, address) -> 
+        operand = @read address
+        result = register - operand 
+        @carryFlag = if result >= 0 then 1 else 0 # Exception on carry computation
+        @computeZeroFlag result
+        @computeNegativeFlag result
 
     registerInstruction: (instruction, execution) ->
         @instructionsTable[instruction] = execution
@@ -207,6 +255,37 @@ class CPU
         @registerOperation 0xD0, Instruction.BNE, AddressingMode.Relative,         2, 2
 
         @registerOperation 0x10, Instruction.BPL, AddressingMode.Relative,         2, 2
+
+        @registerOperation 0x00, Instruction.BRK, AddressingMode.Implied,          1, 7
+
+        @registerOperation 0x50, Instruction.BVC, AddressingMode.Relative,         2, 2
+
+        @registerOperation 0x70, Instruction.BVS, AddressingMode.Relative,         2, 2
+
+        @registerOperation 0x18, Instruction.CLC, AddressingMode.Implied,          1, 2
+
+        @registerOperation 0xD8, Instruction.CLD, AddressingMode.Implied,          1, 2
+
+        @registerOperation 0x58, Instruction.CLI, AddressingMode.Implied,          1, 2
+
+        @registerOperation 0xB8, Instruction.CLV, AddressingMode.Implied,          1, 2
+
+        @registerOperation 0xC9, Instruction.CMP, AddressingMode.Immediate,        2, 2
+        @registerOperation 0xC5, Instruction.CMP, AddressingMode.ZeroPage,         2, 3
+        @registerOperation 0xD5, Instruction.CMP, AddressingMode.IndexedXZeroPage, 2, 4
+        @registerOperation 0xCD, Instruction.CMP, AddressingMode.Absolute,         3, 4
+        @registerOperation 0xDD, Instruction.CMP, AddressingMode.IndexedXAbsolute, 3, 4
+        @registerOperation 0xD9, Instruction.CMP, AddressingMode.IndexedYAbsolute, 3, 4
+        @registerOperation 0xC1, Instruction.CMP, AddressingMode.IndexedXIndirect, 2, 6
+        @registerOperation 0xD1, Instruction.CMP, AddressingMode.IndirectIndexedY, 2, 5
+
+        @registerOperation 0xE0, Instruction.CPX, AddressingMode.Immediate,        2, 2
+        @registerOperation 0xE4, Instruction.CPX, AddressingMode.ZeroPage,         2, 3
+        @registerOperation 0xEC, Instruction.CPX, AddressingMode.Absolute,         3, 4
+
+        @registerOperation 0xC0, Instruction.CPX, AddressingMode.Immediate,        2, 2
+        @registerOperation 0xC4, Instruction.CPX, AddressingMode.ZeroPage,         2, 3
+        @registerOperation 0xCC, Instruction.CPX, AddressingMode.Absolute,         3, 4        
 
     registerOperation: (operationCode, instruction, addressingMode, size, cycles) ->
         @operationsTable[operationCode] =
