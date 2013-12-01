@@ -197,13 +197,13 @@ class CPU
 
     getStatus: ->
         status = 0
-        status &= Bit0 if @carryFlag
-        status &= Bit1 if @zeroFlag
-        status &= Bit2 if @interruptDisable
-        status &= Bit3 if @decimalMode
-        status &= Bit4 if @breakCommand
-        status &= Bit6 if @overflowFlag
-        status &= Bit7 if @negativeFlag
+        status |= Bit0 if @carryFlag
+        status |= Bit1 if @zeroFlag
+        status |= Bit2 if @interruptDisable
+        status |= Bit3 if @decimalMode
+        status |= Bit4 if @breakCommand
+        status |= Bit6 if @overflowFlag
+        status |= Bit7 if @negativeFlag
         status
 
     setStatus: (status) ->
@@ -217,7 +217,7 @@ class CPU
 
     tick: ->
         @cycle++
-        @ppu.tick() for [1...3]
+        @ppu.tick() for [1..3]
         @apu.tick()
         undefined
 
@@ -384,12 +384,12 @@ class CPU
             @writeByte address, result
 
         @registerInstruction Instruction.DEX, ->
-            @registerX--
+            @registerX = (@registerX - 1) & 0xFF
             @computeZeroFlag @registerX
             @computeNegativeFlag @registerX
 
         @registerInstruction Instruction.DEY, ->
-            @registerY--
+            @registerY = (@registerY - 1) & 0xFF
             @computeZeroFlag @registerY
             @computeNegativeFlag @registerY
 
@@ -402,15 +402,15 @@ class CPU
             result = (@readByte address) + 1
             @computeZeroFlag result
             @computeNegativeFlag result
-            @writeByte address, result
+            @writeByte address, result & 0xFF
 
         @registerInstruction Instruction.INX, ->
-            @registerX++
+            @registerX = (@registerX + 1) & 0xFF
             @computeZeroFlag @registerX
             @computeNegativeFlag @registerX
 
         @registerInstruction Instruction.INY, ->
-            @registerY++
+            @registerY = (@registerY + 1) & 0xFF
             @computeZeroFlag @registerY
             @computeNegativeFlag @registerY
 
