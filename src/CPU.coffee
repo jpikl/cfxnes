@@ -50,6 +50,160 @@ class CPU
         @initInstructionsTable()
         @initOperationsTable()
 
+    powerUp: ->
+        @resetRegistres()
+        @resetFlags()
+        @resetVariables()
+        @resetMemory()
+
+    resetRegistres: ->
+        @programCounter = 0  # 16-bit
+        @stackPointer = 0xFD # 8-bit
+        @accumulator = 0     # 8-bit
+        @registerX = 0       # 8-bit
+        @registerY = 0       # 8-bit
+
+    resetFlags: ->
+        @carryFlag = 0        # bit 0
+        @zeroFlag = 0         # bit 1
+        @interruptDisable = 1 # bit 2
+        @decimalMode = 0      # bit 3
+        @breakCommand = 1     # bit 4
+        @overflowFlag = 0     # bit 6
+        @negativeFlag = 0     # bit 7
+
+    resetVariables: ->
+        @cycle = 0
+        @pageCrossed = false
+        @requestedInterrupt = null
+
+    resetMemory: ->
+        @writeByte address, 0xFF for address in [0...0x0800]
+        @writeByte 0x0008, 0xF7
+        @writeByte 0x0009, 0xEF
+        @writeByte 0x000A, 0xDF
+        @writeByte 0x000F, 0xBF
+        @writeByte 0x4017, 0x00
+        @writeByte 0x4015, 0x00
+        @writeByte address, 0x00 for address in [0x4000...0x4010]
+
+    step: ->
+        @resolveInterrupt()
+        operation = @readOperation()
+        addressingMode = operation.addressingMode
+        instruction = operation.instruction
+        address = @computeAddress addressingMode
+        @executeInstruction instruction address
+
+    resolveInterrupt: ->
+        if @requestedInterrupt? and not @interruptDisable
+            switch @requestedInterrupt
+                when Interrupt.IRQ   then @handleInterrupt 0xFFFE
+                when Interrupt.NMI   then @handleInterrupt 0xFFFA
+                when Interrupt.Reset then @handleInterrupt 0xFFFC
+            requestedInterrupt = null
+            @tick()
+            @tick()
+
+    handleInterrupt: (interruptVectorAddress)->
+        @pushWord @programCounter
+        @pushByte @getStatus()
+        @interruptDisable = 1
+        @programCounter = @readWord interruptVectorAddress
+
+    readOperation: ->
+        operationCode = @readNextProgramByte()
+        @operationsTable[operationCode]
+
+    readNextProgramByte: ->
+        @readByte @moveProgramCounter()
+
+    readNextProgramWord: ->
+        @readWord @moveProgramCounter 2
+
+    moveProgramCounter: (size = 1) ->
+        prevValue = @programCounter
+        @programCounter = (@programCounter + size) & 0xFFFF
+        prevValue
+
+    computeAddress: (addressingMode) ->
+        @addressingModesTable[addressingMode]()
+
+    executeInstruction: (instruction, address) ->
+        @instructionsTable[instruction](address)
+
+    readByte: (address) ->
+        @tick()
+        @memory.read address
+
+    readWord: (address) ->
+        @resolvePageCrossed()
+        (@readByte address + 1) << 8 | @readByte address
+
+    writeByte: (address, value) ->
+        @tick()
+        @memory.write address, value
+
+    writeWord: (address, value) ->
+        @resolvePageCrossed()
+        @writeByte address, value & 0xFF
+        @writeByte address + 1, value >> 8
+
+    pushByte: (value) ->
+        @writeByte 0x100 + @stackPointer, value
+        @stackPointer = (@stackPointer - 1) & 0xFF
+
+    pushWord: (value) ->
+        @pushByte (value >> 8) & 0xFF
+        @pushByte value & 0xFF
+
+    popByte: ->
+        @stackPointer = (@stackPointer + 1) & 0xFF
+        @readByte 0x100 + @stackPointer
+
+    popWord: ->
+        result = @popByte()
+        result |= @popByte() << 8
+
+    resolvePageCrossed: ->
+        if @pageCrossed
+            tick()
+            @pageCrossed = false
+
+    getStatus: ->
+        status = @carryFlag
+        status |= @zeroFlag << 1 
+        status |= @interruptDisable << 2
+        status |= @decimalMode << 3 
+        status |= @breakCommand << 4
+        status |= @overflowFlag << 6
+        status |= @negativeFlag << 7
+
+    setStatus: (status) ->
+        @carryFlag = status & 1
+        @zeroFlag = (status >> 1) & 1
+        @interruptDisable = (status >> 2) & 1
+        @decimalMode = (status >> 3) & 1
+        @breakCommand = (status >> 4) & 1
+        @overflowFlag = (status >> 6) & 1
+        @negativeFlag = (status >> 7) & 1
+
+    tick: ->
+        @cycle++
+        @ppu.tick() for [1...3]
+        @apu.tick()
+        undefined
+
+    reset: ->
+        @setRequestedInterrupt Interrupt.Reset
+
+    requestNonMaskableInterrupt: ->
+        @setRequestedInterrupt Interrupt.NMI
+
+    setRequestedInterrupt: (type) ->
+        if @requestedInterrupt == null or type > @requestedInterrupt
+            @requestedInterrupt = type 
+
     initAddressingModesTable: ->
         @addressingModesTable = []
 
@@ -61,53 +215,53 @@ class CPU
 
         @registerAddressingMode AddressingMode.Immediate, ->
             @tick()
-            @programCounter++
+            @moveProgramCounter()
 
         @registerAddressingMode AddressingMode.ZeroPage, ->
             @readNextProgramByte()
 
         @registerAddressingMode AddressingMode.IndexedXZeroPage, ->
-            @computeIndexedAddressByte @readNextProgramByte(), @registerX
+            @getIndexedAddressByte @readNextProgramByte(), @registerX
 
         @registerAddressingMode AddressingMode.IndexedXZeroPage, ->
-            @computeIndexedAddressByte @readNextProgramByte(), @registerY
+            @getIndexedAddressByte @readNextProgramByte(), @registerY
 
         @registerAddressingMode AddressingMode.Absolute, ->
             @readNextProgramWord()
 
         @registerAddressingMode AddressingMode.IndexedXAbsolute, ->
-            @computeIndexedAddressWord  @readNextProgramWord(), @registerX
+            @getIndexedAddressWord @readNextProgramWord(), @registerX
 
         @registerAddressingMode AddressingMode.IndexedXAbsolute, ->
-            @computeIndexedAddressWord  @readNextProgramWord(), @registerY
+            @getIndexedAddressWord @readNextProgramWord(), @registerY
 
         @registerAddressingMode AddressingMode.Relative, ->
-            offset = @toSigned @readNextProgramByte()
-            @computeIndexedAddressWord @programCounter, offset
+            offset = @getSignedByte @readNextProgramByte()
+            @getIndexedAddressWord @programCounter, offset
 
         @registerAddressingMode AddressingMode.Indirect, ->
             @readWord @readNextProgramWord()
 
         @registerAddressingMode AddressingMode.IndexedXIndirect, ->
-            address = @computeIndexedAddressByte @readNextProgramByte(), @registerX
+            address = @getIndexedAddressByte @readNextProgramByte(), @registerX
             @readWord address
 
         @registerAddressingMode AddressingMode.IndirectIndexedY, ->
             base = @readWord @readNextProgramByte()
-            @computeIndexedAddressWord base, @registerY
-
-    computeIndexedAddressByte: (base, offset) ->
-        (base + offset) & 0xFF
-
-    computeIndexedAddressWord : (base, offset) ->
-        @checkPageCrossed base, offset
-        (base + offset) & 0xFFFF
-
-    checkPageCrossed: (base, offset) ->
-        @tick() if base & 0xFF00 != (base + offset) & 0xFF00
+            @getIndexedAddressWord base, @registerY
 
     registerAddressingMode: (addressingMode, computation) ->
         @addressingModesTable[addressingMode] = computation
+
+    getIndexedAddressByte: (base, offset) ->
+        (base + offset) & 0xFF
+
+    getIndexedAddressWord : (base, offset) ->
+        @pageCrossed = base & 0xFF00 != (base + offset) & 0xFF00
+        (base + offset) & 0xFFFF
+
+    getSignedByte: (value) ->
+        if value < 0x80 then value else value - 0xFF
 
     initInstructionsTable: ->
         @instructionsTable = []
@@ -117,7 +271,7 @@ class CPU
             result = @accumulator + operand + @carryFlag
             @computeCarryFlag result
             @computeZeroFlag result
-            @computeOverflowFlag @accumulator, operand, @result
+            @computeOverflowFlag @accumulator, operand, result
             @computeNegativeFlag result
             @accumulator = result & 0xFF
 
@@ -196,6 +350,9 @@ class CPU
         @registerInstruction Instruction.CPY, ->
             @compareRegisterAndMemory @registerY, address
 
+    registerInstruction: (instruction, execution) ->
+        @instructionsTable[instruction] = execution
+
     computeCarryFlag: (result) ->
         @carryFlag = if result > 0xFF then 1 else 0
 
@@ -220,8 +377,8 @@ class CPU
         @computeZeroFlag result
         @computeNegativeFlag result
 
-    registerInstruction: (instruction, execution) ->
-        @instructionsTable[instruction] = execution
+    emptyStackReadCycle: ->
+        tick()
 
     initOperationsTable: ->
         @operationsTable = []
@@ -300,149 +457,5 @@ class CPU
         @operationsTable[operationCode] = 
             instruction: instruction
             addressingMode: addressingMode
-
-    powerUp: ->
-        @resetRegistres()
-        @resetFlags()
-        @resetVariables()
-        @resetMemory()
-
-    resetRegistres: ->
-        @programCounter = 0  # 16-bit
-        @stackPointer = 0xFD # 8-bit
-        @accumulator = 0     # 8-bit
-        @registerX = 0       # 8-bit
-        @registerY = 0       # 8-bit
-
-    resetFlags: ->
-        @carryFlag = 0        # bit 0
-        @zeroFlag = 0         # bit 1
-        @interruptDisable = 1 # bit 2
-        @decimalMode = 0      # bit 3
-        @breakCommand = 1     # bit 4
-        @overflowFlag = 0     # bit 6
-        @negativeFlag = 0     # bit 7
-
-    resetVariables: ->
-        @cycle = 0
-        @requestedInterrupt = null
-
-    resetMemory: ->
-        @writeByte address, 0xFF for address in [0...0x0800]
-        @writeByte 0x0008, 0xF7
-        @writeByte 0x0009, 0xEF
-        @writeByte 0x000A, 0xDF
-        @writeByte 0x000F, 0xBF
-        @writeByte 0x4017, 0x00
-        @writeByte 0x4015, 0x00
-        @writeByte address, 0x00 for address in [0x4000...0x4010]
-
-    tick: ->
-        @cycle++
-        @ppu.tick() for [1...3]
-        @apu.tick()
-        undefined
-
-    step: ->
-        @checkInterrupt()
-        operation = @readOperation()
-        address = @computeAddress operation.addressingMode
-        @executeInstruction operation.instruction address
-
-    checkInterrupt: ->
-        if @requestedInterrupt? and not @interruptDisable
-            switch @requestedInterrupt
-                when Interrupt.IRQ   then @handleInterrupt 0xFFFE
-                when Interrupt.NMI   then @handleInterrupt 0xFFFA
-                when Interrupt.Reset then @handleInterrupt 0xFFFC
-            requestedInterrupt = null
-            @tick()
-            @tick()
-
-    handleInterrupt: (interruptVectorAddress)->
-        @pushWord @programCounter
-        @pushByte @getStatus()
-        @interruptDisable = 1
-        @programCounter = @readWord interruptVectorAddress
-
-    readOperation: ->
-        operationCode = @readNextProgramByte()
-        @operationsTable[operationCode]
-
-    readNextProgramByte: ->
-        @readByte @programCounter++
-
-    readNextProgramWord: ->
-        result = @readWord @programCounter
-        @programCounter += 2
-        result
-
-    computeAddress: (addressingMode) ->
-        @addressingModesTable[addressingMode]()
-
-    executeInstruction: (instruction, address) ->
-        @instructionsTable[instruction](address)
-
-    pushByte: (value) ->
-        @stackPointer = (@stackPointer - 1) & 0xFF
-        @writeByte 0x100 + @stackPointer, value
-
-    pushWord: (value) ->
-        @pushByte (value >> 8) & 0xFF
-        @pushByte value & 0xFF
-
-    popByte: ->
-        @stackPointer = (@stackPointer + 1) & 0xFF
-        @readByte 0x100 + @stackPointer
-
-    popWord: ->
-        result = @popByte()
-        result |= @popByte() << 8
-
-    readByte: (address) ->
-        @tick()
-        @memory.read address
-
-    readWord: (address) ->
-        (@readByte address + 1) << 8 | @readByte address
-
-    writeByte: (address, value) ->
-        @tick()
-        @memory.write address, value
-
-    writeWord: (address, value) ->
-        @writeByte address, value & 0xFF
-        @writeByte address + 1, value >> 8
-
-    toSigned: (value) ->
-        if value < 0x80 then value else value - 0xFF
-
-    getStatus: ->
-        status = @carryFlag
-        status |= @zeroFlag << 1 
-        status |= @interruptDisable << 2
-        status |= @decimalMode << 3 
-        status |= @breakCommand << 4
-        status |= @overflowFlag << 6
-        status |= @negativeFlag << 7
-
-    setStatus: (status) ->
-        @carryFlag = status & 1
-        @zeroFlag = (status >> 1) & 1
-        @interruptDisable = (status >> 2) & 1
-        @decimalMode = (status >> 3) & 1
-        @breakCommand = (status >> 4) & 1
-        @overflowFlag = (status >> 6) & 1
-        @negativeFlag = (status >> 7) & 1
-
-    reset: ->
-        @setRequestedInterrupt Interrupt.Reset
-
-    requestNonMaskableInterrupt: ->
-        @setRequestedInterrupt Interrupt.NMI
-
-    setRequestedInterrupt: (type) ->
-        if @requestedInterrupt == null or type > @requestedInterrupt
-            @requestedInterrupt = type 
 
 module.exports = CPU
