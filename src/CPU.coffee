@@ -66,6 +66,19 @@ Instruction =
     ROL: 41
     RTI: 42
     RTS: 43
+    SBC: 44
+    SEC: 45
+    SED: 46
+    SEI: 47
+    LDA: 48
+    LDX: 49
+    LDY: 50
+    TAX: 51
+    TAY: 52
+    TSX: 53
+    TXA: 54
+    TXS: 55
+    TYA: 56
 
 Interrupt =
     IRQ:   1
@@ -533,6 +546,62 @@ class CPU
             tick()
             tick()
 
+        @registerInstruction Instruction.RTS, (address) ->
+            operand = @readByte address
+            result = @accumulator - operand
+            result-- if @carryFlag is off
+            @carryFlag = not @isOverflow result
+            @zeroFlag = @isZero result
+            @overflowFlag = @isSignedOverflow @accumulator, operand, result
+            @negativeFlag = @isNegative result
+            @accumulator = result & 0xFF
+
+        @registerInstruction Instruction.SEC, ->
+            @carryFlag = on
+
+        @registerInstruction Instruction.SED, ->
+            @decimalMode = on
+
+        @registerInstruction Instruction.SEI, ->
+            @interruptDisable = on
+
+        @registerInstruction Instruction.LDA, (address) ->
+            @writeByte address @accumulator
+
+        @registerInstruction Instruction.LDX, (address) ->
+            @writeByte address @registerX
+
+        @registerInstruction Instruction.LDY, (address) ->
+            @writeByte address @registerY
+
+        @registerInstruction Instruction.TAX, ->
+            @registerX = @accumulator
+            @zeroFlag = @isZero @registerX
+            @negativeFlag = @isNegative @registerX
+
+        @registerInstruction Instruction.TAY, ->
+            @registerY = @accumulator
+            @zeroFlag = @isZero @registerY
+            @negativeFlag = @isNegative @registerY
+
+        @registerInstruction Instruction.TSX, ->
+            @registerX = @stackPointer
+            @zeroFlag = @isZero @registerX
+            @negativeFlag = @isNegative @registerX
+
+        @registerInstruction Instruction.TXA, ->
+            @accumulator = @registerX
+            @zeroFlag = @isZero @accumulator
+            @negativeFlag = @isNegative @accumulator
+
+        @registerInstruction Instruction.TXS, ->
+            @stackPointer = @registerX
+
+        @registerInstruction Instruction.TYA, ->
+            @accumulator = @registerY
+            @zeroFlag = @isZero @accumulator
+            @negativeFlag = @isNegative @accumulator
+
     registerInstruction: (instruction, execution) ->
         @instructionsTable[instruction] = execution
 
@@ -559,7 +628,7 @@ class CPU
     compareRegisterAndMemory: (register, address) -> 
         operand = @readByte address
         result = register - operand 
-        @carryFlag = result >= 0 # Exception on carry computation
+        @carryFlag = result >= 0
         @computeZeroFlag result
         @computeNegativeFlag result
 
@@ -679,9 +748,9 @@ class CPU
 
         @registerOperation 0xA9, Instruction.LDX, AddressingMode.Immediate,   no,  no
         @registerOperation 0xA5, Instruction.LDX, AddressingMode.ZeroPage,    no,  no
-        @registerOperation 0xB5, Instruction.LDX, AddressingMode.ZeroPageX,   no,  no
+        @registerOperation 0xB5, Instruction.LDX, AddressingMode.ZeroPageY,   no,  no
         @registerOperation 0xAD, Instruction.LDX, AddressingMode.Absolute,    no,  no
-        @registerOperation 0xBD, Instruction.LDX, AddressingMode.AbsoluteX,   no,  no
+        @registerOperation 0xBD, Instruction.LDX, AddressingMode.AbsoluteY,   no,  no
 
         @registerOperation 0xA9, Instruction.LDY, AddressingMode.Immediate,   no,  no
         @registerOperation 0xA5, Instruction.LDY, AddressingMode.ZeroPage,    no,  no
@@ -729,6 +798,49 @@ class CPU
         @registerOperation 0x40, Instruction.RTI, AddressingMode.Implied,     no,  no
 
         @registerOperation 0x60, Instruction.RTS, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0xE9, Instruction.SBC, AddressingMode.Immediate,   no,  no
+        @registerOperation 0xE5, Instruction.SBC, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0xF5, Instruction.SBC, AddressingMode.ZeroPageX,   no,  no
+        @registerOperation 0xED, Instruction.SBC, AddressingMode.Absolute,    no,  no
+        @registerOperation 0xFD, Instruction.SBC, AddressingMode.AbsoluteX,   no,  no
+        @registerOperation 0xF9, Instruction.SBC, AddressingMode.AbsoluteY,   no,  no
+        @registerOperation 0xE1, Instruction.SBC, AddressingMode.IndirectX,   no,  no
+        @registerOperation 0xF1, Instruction.SBC, AddressingMode.IndirectY,   no,  no
+
+        @registerOperation 0x38, Instruction.SEC, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0xF8, Instruction.SED, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0x78, Instruction.SEI, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0x85, Instruction.STA, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0x95, Instruction.STA, AddressingMode.ZeroPageX,   no,  no
+        @registerOperation 0x8D, Instruction.STA, AddressingMode.Absolute,    no,  no
+        @registerOperation 0x9D, Instruction.STA, AddressingMode.AbsoluteX,   yes, no
+        @registerOperation 0x99, Instruction.STA, AddressingMode.AbsoluteY,   yes, no
+        @registerOperation 0x81, Instruction.STA, AddressingMode.IndirectX,   no,  no
+        @registerOperation 0x91, Instruction.STA, AddressingMode.IndirectY,   yes, no
+
+        @registerOperation 0x86, Instruction.STX, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0x96, Instruction.STX, AddressingMode.ZeroPageY,   no,  no
+        @registerOperation 0x8E, Instruction.STX, AddressingMode.Absolute,    no,  no
+
+        @registerOperation 0x84, Instruction.STY, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0x94, Instruction.STY, AddressingMode.ZeroPageX,   no,  no
+        @registerOperation 0x8C, Instruction.STY, AddressingMode.Absolute,    no,  no
+
+        @registerOperation 0xAA, Instruction.TAX, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0xA8, Instruction.TAY, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0xBA, Instruction.TSX, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0x8A, Instruction.TXA, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0x9A, Instruction.TXS, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0x98, Instruction.TYA, AddressingMode.Implied,     no,  no
 
     registerOperation: (operationCode, instruction, addressingMode, emptyReadCycle, emptyWriteCycle) ->
         @operationsTable[operationCode] = 
