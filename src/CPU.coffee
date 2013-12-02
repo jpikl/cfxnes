@@ -1,3 +1,12 @@
+Bit0 = 1 << 0
+Bit1 = 1 << 1
+Bit2 = 1 << 2
+Bit3 = 1 << 3
+Bit4 = 1 << 4
+Bit5 = 1 << 5
+Bit6 = 1 << 6
+Bit7 = 1 << 7
+
 AddressingMode =
     Implied:      1
     Accumulator:  2
@@ -203,13 +212,13 @@ class CPU
 
     getStatus: ->
         status = 0
-        status |= (1 << 0) if @carryFlag
-        status |= (1 << 1) if @zeroFlag
-        status |= (1 << 2) if @interruptDisable
-        status |= (1 << 3) if @decimalMode
-        status |= (1 << 4) if @breakCommand
-        status |= (1 << 6) if @overflowFlag
-        status |= (1 << 7) if @negativeFlag
+        status |= Bit0 if @carryFlag
+        status |= Bit1 if @zeroFlag
+        status |= Bit2 if @interruptDisable
+        status |= Bit3 if @decimalMode
+        status |= Bit4 if @breakCommand
+        status |= Bit6 if @overflowFlag
+        status |= Bit7 if @negativeFlag
         status
 
     setStatus: (status) ->
@@ -486,14 +495,14 @@ class CPU
                 result = @readByte address
                 @carryFlag = @isSetBit result, 7
                 result = (result << 1) & 0xFF
-                result |= 1 if oldCarryFlag is on
+                result |= Bit1 if oldCarryFlag is on
                 @zeroFlag = @isZero result
                 @negativeFlag = @isNegative result
                 @writeByte address, result
             else
                 @carryFlag = @isSetBit @accumulator, 7
                 @accumulator = (@accumulator << 1) & 0xFF
-                @accumulator |= 1 if oldCarryFlag is on
+                @accumulator |= Bit1 if oldCarryFlag is on
                 @zeroFlag = @isZero result
                 @negativeFlag = @isNegative result
 
@@ -503,14 +512,14 @@ class CPU
                 result = @readByte address
                 @carryFlag = @isSetBit result, 0
                 result = result >> 1
-                result |= (1 << 7) if oldCarryFlag is on
+                result |= Bit7 if oldCarryFlag is on
                 @zeroFlag = @isZero result
                 @negativeFlag = @isNegative result
                 @writeByte address, result
             else
                 @carryFlag = @isSetBit @accumulator, 0
                 @accumulator = @accumulator >> 1
-                @accumulator |= (1 << 7) if oldCarryFlag is on
+                @accumulator |= Bit7 if oldCarryFlag is on
                 @zeroFlag = @isZero result
                 @negativeFlag = @isNegative result
 
