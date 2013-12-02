@@ -47,6 +47,16 @@ Instruction =
     LDX: 31
     LDY: 32
     LSR: 33
+    NOP: 34
+    ORA: 35
+    PHA: 36
+    PHP: 37
+    PLA: 38
+    PLP: 39
+    ROR: 40
+    ROL: 41
+    RTI: 42
+    RTS: 43
 
 Interrupt =
     IRQ:   1
@@ -447,6 +457,73 @@ class CPU
                 @zeroFlag = @isZero result
                 @negativeFlag = @isNegative result
 
+        @registerInstruction Instruction.NOP, ->
+
+        @registerInstruction Instruction.ORA, (address) ->
+            @accumulator |= @readByte address
+            @zeroFlag = @isZero @accumulator
+            @negativeFlag = @isNegative @accumulator
+
+        @registerInstruction Instruction.PHA, ->
+            @pushByte @accumulator
+
+        @registerInstruction Instruction.PHP, ->
+            @pushByte @getStatus()
+
+        @registerInstruction Instruction.PLA, ->
+            @accumulator = @popByte()
+            @zeroFlag = @isZero @accumulator
+            @negativeFlag = @isNegative @accumulator
+            @tick()
+
+        @registerInstruction Instruction.PLP, ->
+            @setStatus @popByte
+            @tick()
+
+        @registerInstruction Instruction.ROL, (address) ->
+            oldCarryFlag = @carryFlag
+            if address?
+                result = @readByte address
+                @carryFlag = @isSetBit result, 7
+                result = (result << 1) & 0xFF
+                result |= 1 if oldCarryFlag is on
+                @zeroFlag = @isZero result
+                @negativeFlag = @isNegative result
+                @writeByte address, result
+            else
+                @carryFlag = @isSetBit @accumulator, 7
+                @accumulator = (@accumulator << 1) & 0xFF
+                @accumulator |= 1 if oldCarryFlag is on
+                @zeroFlag = @isZero result
+                @negativeFlag = @isNegative result
+
+        @registerInstruction Instruction.ROR, (address) ->
+            oldCarryFlag = @carryFlag
+            if address?
+                result = @readByte address
+                @carryFlag = @isSetBit result, 0
+                result = result >> 1
+                result |= (1 << 7) if oldCarryFlag is on
+                @zeroFlag = @isZero result
+                @negativeFlag = @isNegative result
+                @writeByte address, result
+            else
+                @carryFlag = @isSetBit @accumulator, 0
+                @accumulator = @accumulator >> 1
+                @accumulator |= (1 << 7) if oldCarryFlag is on
+                @zeroFlag = @isZero result
+                @negativeFlag = @isNegative result
+
+        @registerInstruction Instruction.RTI, ->
+            @setStatus @popByte()
+            @programCounter = @popWord()
+            tick()
+
+        @registerInstruction Instruction.RTS, ->
+            @programCounter = @popWord()
+            tick()
+            tick()
+
     registerInstruction: (instruction, execution) ->
         @instructionsTable[instruction] = execution
 
@@ -602,6 +679,47 @@ class CPU
         @registerOperation 0xB5, Instruction.LDY, AddressingMode.ZeroPageX,   no,  no
         @registerOperation 0xAD, Instruction.LDY, AddressingMode.Absolute,    no,  no
         @registerOperation 0xBD, Instruction.LDY, AddressingMode.AbsoluteX,   no,  no
+
+        @registerOperation 0xA9, Instruction.LSR, AddressingMode.Immediate,   no,  no
+        @registerOperation 0xA5, Instruction.LSR, AddressingMode.ZeroPage,    no,  yes
+        @registerOperation 0xB5, Instruction.LSR, AddressingMode.ZeroPageX,   no,  yes
+        @registerOperation 0xAD, Instruction.LSR, AddressingMode.Absolute,    no,  yes
+        @registerOperation 0xBD, Instruction.LSR, AddressingMode.AbsoluteX,   yes, yes
+
+        @registerOperation 0xEA, Instruction.NOP, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0x09, Instruction.ORA, AddressingMode.Immediate,   no,  no
+        @registerOperation 0x05, Instruction.ORA, AddressingMode.ZeroPage,    no,  no
+        @registerOperation 0x15, Instruction.ORA, AddressingMode.ZeroPageX,   no,  no
+        @registerOperation 0x0D, Instruction.ORA, AddressingMode.Absolute,    no,  no
+        @registerOperation 0x1D, Instruction.ORA, AddressingMode.AbsoluteX,   no,  no
+        @registerOperation 0x19, Instruction.ORA, AddressingMode.AbsoluteY,   no,  no
+        @registerOperation 0x01, Instruction.ORA, AddressingMode.IndirectX,   no,  no
+        @registerOperation 0x11, Instruction.ORA, AddressingMode.IndirectY,   no,  no
+
+        @registerOperation 0x48, Instruction.PHA, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0x08, Instruction.PHO, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0x68, Instruction.PLA, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0x28, Instruction.PLP, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0x2A, Instruction.ROL, AddressingMode.Immediate,   no,  no
+        @registerOperation 0x26, Instruction.ROL, AddressingMode.ZeroPage,    no,  yes
+        @registerOperation 0x36, Instruction.ROL, AddressingMode.ZeroPageX,   no,  yes
+        @registerOperation 0x2E, Instruction.ROL, AddressingMode.Absolute,    no,  yes
+        @registerOperation 0x3E, Instruction.ROL, AddressingMode.AbsoluteX,   yes, yes
+
+        @registerOperation 0x6A, Instruction.ROR, AddressingMode.Immediate,   no,  no
+        @registerOperation 0x66, Instruction.ROR, AddressingMode.ZeroPage,    no,  yes
+        @registerOperation 0x76, Instruction.ROR, AddressingMode.ZeroPageX,   no,  yes
+        @registerOperation 0x6E, Instruction.ROR, AddressingMode.Absolute,    no,  yes
+        @registerOperation 0x7E, Instruction.ROR, AddressingMode.AbsoluteX,   yes, yes
+
+        @registerOperation 0x40, Instruction.RTI, AddressingMode.Implied,     no,  no
+
+        @registerOperation 0x60, Instruction.RTS, AddressingMode.Implied,     no,  no
 
     registerOperation: (operationCode, instruction, addressingMode, emptyReadCycle, emptyWriteCycle) ->
         @operationsTable[operationCode] = 
