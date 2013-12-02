@@ -12,39 +12,6 @@ Bit6 = 1 << 6
 Bit7 = 1 << 7
 
 ###########################################################
-# Addressing modes IDs
-###########################################################
-
-AddressingMode =
-    Implied:      1
-    Accumulator:  2
-    Immediate:    3
-    ZeroPage:     4
-    ZeroPageX:    5
-    ZeroPageY:    6
-    Absolute:     7
-    AbsoluteX:    8
-    AbsoluteY:    9
-    Relative:    10
-    Indirect:    11
-    IndirectX:   12
-    IndirectY:   13
-
-###########################################################
-# Instruction IDs
-###########################################################
-
-Instruction = 
-    ADC:  1, AND:  2, ASL:  3, BCC:  4, BCS:  5, BEQ:  6, BIT:  7 
-    BMI:  8, BNE:  9, BPL: 10, BRK: 11, BVC: 12, BVS: 13, CLC: 14
-    CLD: 15, CLI: 16, CLV: 17, CMP: 18, CPX: 19, CPY: 20, DEC: 21 
-    DEX: 22, DEY: 23, EOR: 24, INC: 25, INX: 26, INY: 27, JMP: 28
-    JSR: 29, LDA: 30, LDX: 31, LDY: 32, LSR: 33, NOP: 34, ORA: 35 
-    PHA: 36, PHP: 37, PLA: 38, PLP: 39, ROR: 40, ROL: 41, RTI: 42
-    RTS: 43, SBC: 44, SEC: 45, SED: 46, SEI: 47, LDA: 48, LDX: 49 
-    LDY: 50, TAX: 51, TAY: 52, TSX: 53, TXA: 54, TXS: 55, TYA: 56
-
-###########################################################
 # Interrupt types
 ###########################################################
 
@@ -111,13 +78,14 @@ class CPU
 
     step: ->
         @resolveInterrupt()
-        operation = @readOperation()
-        @emptyReadCycle = operation.emptyReadCycle
+
+        operation        = @readOperation()
+        instruction      = operation.instruction
+        addressingMode   = operation.addressingMode
+        @emptyReadCycle  = operation.emptyReadCycle
         @emptyWriteCycle = operation.emptyWriteCycle
-        addressingMode = operation.addressingMode
-        instruction = operation.instruction
-        address = @computeAddress addressingMode
-        @executeInstruction instruction address
+
+        instruction addressingMode()
 
     ###########################################################
     # Program execution
@@ -137,12 +105,6 @@ class CPU
         prevValue = @programCounter
         @programCounter = (@programCounter + size) & 0xFFFF
         prevValue
-
-    computeAddress: (addressingMode) ->
-        @addressingModesTable[addressingMode]()
-
-    executeInstruction: (instruction, address) ->
-        @instructionsTable[instruction](address)
 
     ###########################################################
     # Interrupt handling
@@ -264,85 +226,66 @@ class CPU
             @requestedInterrupt = type 
 
     ###########################################################
-    # Lookup tables initialization
+    # Basic addressing modes
     ###########################################################
 
-    init: ->
-        @initAddressingModesTable()
-        @initInstructionsTable()
-        @initOperationsTable()
+    impliedMode: =>
+        @tick()
+
+    accumulatorMode: =>
+        @tick()
+
+    immediateMode: =>
+        @moveProgramCounter()
 
     ###########################################################
-    # Addressing modes
+    # Zero page addressing modes
     ###########################################################
 
-    initAddressingModesTable: ->
-        @addressingModesTable = []
+    zeroPageMode: =>
+        @readNextProgramByte()
 
-        ###########################################################
-        # Basic modes
-        ###########################################################
+    zeroPageXMode: =>
+        @getIndexedAddressByte @readNextProgramByte(), @registerX
 
-        @registerAddressingMode AddressingMode.Implied, ->
-            @tick()
+    zeroPageYMode: =>
+        @getIndexedAddressByte @readNextProgramByte(), @registerY
 
-        @registerAddressingMode AddressingMode.Accumulator, ->
-            @tick()
+    ###########################################################
+    # Absolute addressing modes
+    ###########################################################
 
-        @registerAddressingMode AddressingMode.Immediate, ->
-            @moveProgramCounter()
+    absoluteMode: =>
+        @readNextProgramWord()
 
-        ###########################################################
-        # Zero page modes
-        ###########################################################
+    absoluteXMode: =>
+        @getIndexedAddressWord @readNextProgramWord(), @registerX
 
-        @registerAddressingMode AddressingMode.ZeroPage, ->
-            @readNextProgramByte()
+    absoluteYMode: =>
+        @getIndexedAddressWord @readNextProgramWord(), @registerY
 
-        @registerAddressingMode AddressingMode.ZeroPageX, ->
-            @getIndexedAddressByte @readNextProgramByte(), @registerX
+    ###########################################################
+    # Relative addressing mode
+    ###########################################################
 
-        @registerAddressingMode AddressingMode.IndexedYZeroPage, ->
-            @getIndexedAddressByte @readNextProgramByte(), @registerY
+    relativeMode: =>
+        offset = @getSignedByte @readNextProgramByte()
+        @getIndexedAddressWord @programCounter, offset
 
-        ###########################################################
-        # Absolute modes
-        ###########################################################
+    ###########################################################
+    # Indirect addressing modes
+    ###########################################################
 
-        @registerAddressingMode AddressingMode.Absolute, ->
-            @readNextProgramWord()
+    indirectMode: =>
+        @readWord @readNextProgramWord()
 
-        @registerAddressingMode AddressingMode.AbsoluteX, ->
-            @getIndexedAddressWord @readNextProgramWord(), @registerX
+    indirectXMode: =>
+        address = @getIndexedAddressByte @readNextProgramByte(), @registerX
+        @readWord address
 
-        @registerAddressingMode AddressingMode.AbsoluteY, ->
-            @getIndexedAddressWord @readNextProgramWord(), @registerY
-
-        ###########################################################
-        # Relative mode
-        ###########################################################
-
-        @registerAddressingMode AddressingMode.Relative, ->
-            offset = @getSignedByte @readNextProgramByte()
-            @getIndexedAddressWord @programCounter, offset
-
-        ###########################################################
-        # Indirect modes
-        ###########################################################
-
-        @registerAddressingMode AddressingMode.Indirect, ->
-            @readWord @readNextProgramWord()
-
-        @registerAddressingMode AddressingMode.IndirectX, ->
-            address = @getIndexedAddressByte @readNextProgramByte(), @registerX
-            @readWord address
-
-        @registerAddressingMode AddressingMode.IndirectY, ->
-            base = @readWord @readNextProgramByte()
-            @getIndexedAddressWord base, @registerY
-
-    registerAddressingMode: (addressingMode, computation) ->
-        @addressingModesTable[addressingMode] = computation
+    indirectYMode: =>
+        base = @readWord @readNextProgramByte()
+        @getIndexedAddressWord base, @registerY
 
     ###########################################################
     # Address computation
@@ -360,376 +303,365 @@ class CPU
         if value < 0x80 then value else value - 0xFF
 
     ###########################################################
-    # Instructions
+    # No operation instruction
     ###########################################################
 
-    initInstructionsTable: ->
-        @instructionsTable = []
+    NOP: =>
 
-        ###########################################################
-        # No operation instruction
-        ###########################################################
+    ###########################################################
+    # Clear flag instructions
+    ###########################################################
 
-        @registerInstruction Instruction.NOP, ->
+    CLC: =>
+        @carryFlag = off
 
-        ###########################################################
-        # Clear flag instructions
-        ###########################################################
+    CLI: =>
+        @interruptDisable = off
 
-        @registerInstruction Instruction.CLC, ->
-            @carryFlag = off
+    CLD: =>
+        @decimalMode = off
 
-        @registerInstruction Instruction.CLI, ->
-            @interruptDisable = off
+    CLV: =>
+        @overflowFlag = off
 
-        @registerInstruction Instruction.CLD, ->
-            @decimalMode = off
+    ###########################################################
+    # Set flag instructions
+    ###########################################################
 
-        @registerInstruction Instruction.CLV, ->
-            @overflowFlag = off
+    SEC: =>
+        @carryFlag = on
 
-        ###########################################################
-        # Set flag instructions
-        ###########################################################
+    SEI: =>
+        @interruptDisable = on
 
-        @registerInstruction Instruction.SEC, ->
-            @carryFlag = on
+    SED: =>
+        @decimalMode = on
 
-        @registerInstruction Instruction.SEI, ->
-            @interruptDisable = on
+    ###########################################################
+    # Memory write instructions
+    ###########################################################
+    
+    STA: (address) =>
+        @writeByte address @accumulator
 
-        @registerInstruction Instruction.SED, ->
-            @decimalMode = on
+    STX: (address) =>
+        @writeByte address @registerX
 
-        ###########################################################
-        # Memory write instructions
-        ###########################################################
+    STY: (address) =>
+        @writeByte address @registerY
+
+    ###########################################################
+    # Memory read instructions
+    ###########################################################
+
+    LDA: (address) =>
+        @accumulator = @readByte address
+        @zeroFlag = @isZero @accumulator
+        @negativeFlag = @isNegative @accumulator
+
+    LDX: (address) =>
+        @registerX = @readByte address
+        @zeroFlag = @isZero @registerX
+        @negativeFlag = @isNegative @registerX
+
+    LDY: (address) =>
+        @registerY = @readByte address
+        @zeroFlag = @isZero @registerY
+        @negativeFlag = @isNegative @registerY
+
+    ###########################################################
+    # Register transfer instructions
+    ###########################################################
+
+    TAX: =>
+        @registerX = @accumulator
+        @zeroFlag = @isZero @registerX
+        @negativeFlag = @isNegative @registerX
+
+    TAY: =>
+        @registerY = @accumulator
+        @zeroFlag = @isZero @registerY
+        @negativeFlag = @isNegative @registerY
+
+    TXA: =>
+        @accumulator = @registerX
+        @zeroFlag = @isZero @accumulator
+        @negativeFlag = @isNegative @accumulator
+
+    TYA: =>
+        @accumulator = @registerY
+        @zeroFlag = @isZero @accumulator
+        @negativeFlag = @isNegative @accumulator
+
+    TSX: =>
+        @registerX = @stackPointer
+        @zeroFlag = @isZero @registerX
+        @negativeFlag = @isNegative @registerX
+
+    TXS: =>
+        @stackPointer = @registerX
+
+    ###########################################################
+    # Stack push instructions
+    ###########################################################
+
+    PHA: =>
+        @pushByte @accumulator
+
+    PHP: =>
+        @pushByte @getStatus()
+
+    ###########################################################
+    # Stack pop instructions
+    ###########################################################
+
+    PLA: =>
+        @accumulator = @popByte()
+        @zeroFlag = @isZero @accumulator
+        @negativeFlag = @isNegative @accumulator
+        @tick()
+
+    PLP: =>
+        @setStatus @popByte
+        @tick()
+
+    ###########################################################
+    # Accumulator bitwise instructions
+    ###########################################################
+
+    AND: (address) =>
+        @accumulator &= @readByte address
+        @zeroFlag = @isZero @accumulator
+        @negativeFlag = @isNegative @accumulator
+
+    ORA: (address) =>
+        @accumulator |= @readByte address
+        @zeroFlag = @isZero @accumulator
+        @negativeFlag = @isNegative @accumulator
+
+    EOR: (address) =>
+        @accumulator ^= @readByte address
+        @zeroFlag = @isZero @accumulator
+        @negativeFlag = @isNegative @accumulator
+
+    BIT: (address) =>
+        result = @accumulator & @readByte address
+        @zeroFlag = @isZero result
+        @overflowFlag = @isBitSet result, 7
+        @negativeFlag = @isNegative result
+
+    ###########################################################
+    # Increment instructions
+    ###########################################################
+
+    INC: (address) =>
+        result = (@readByte address) + 1
+        @zeroFlag = @isZero result
+        @negativeFlag = @isNegative result
+        @writeByte address, result & 0xFF
+
+    INX: =>
+        @registerX = (@registerX + 1) & 0xFF
+        @zeroFlag = @isZero @registerX
+        @negativeFlag = @isNegative @registerX
+
+    INY: =>
+        @registerY = (@registerY + 1) & 0xFF
+        @zeroFlag = @isZero @registerY
+        @negativeFlag = @isNegative @registerY
+
+    ###########################################################
+    # Decrement instructions
+    ###########################################################
+
+    DEC: (address) =>
+        result = (@readByte address) - 1
+        @zeroFlag = @isZero result
+        @negativeFlag = @isNegative result
+        @writeByte address, result & 0xFF
+
+    DEX: =>
+        @registerX = (@registerX - 1) & 0xFF
+        @zeroFlag = @isZero @registerX
+        @negativeFlag = @isNegative @registerX
+
+    DEY: =>
+        @registerY = (@registerY - 1) & 0xFF
+        @zeroFlag = @isZero @registerY
+        @negativeFlag = @isNegative @registerY
+
+    ###########################################################
+    # Comparison instructions
+    ###########################################################
+
+    CMP: (address) =>
+        @compareRegisterAndMemory @accumulator, address
         
-        @registerInstruction Instruction.STA, (address) ->
-            @writeByte address @accumulator
+    CPX: =>
+        @compareRegisterAndMemory @registerX, address
 
-        @registerInstruction Instruction.STX, (address) ->
-            @writeByte address @registerX
+    CPY: =>
+        @compareRegisterAndMemory @registerY, address
 
-        @registerInstruction Instruction.STY, (address) ->
-            @writeByte address @registerY
+    compareRegisterAndMemory: (register, address) -> 
+        operand = @readByte address
+        result = register - operand 
+        @carryFlag = result >= 0
+        @computeZeroFlag result
+        @computeNegativeFlag result
 
-        ###########################################################
-        # Memory read instructions
-        ###########################################################
+    ###########################################################
+    # Branching instructions
+    ###########################################################
 
-        @registerInstruction Instruction.LDA, (address) ->
-            @accumulator = @readByte address
-            @zeroFlag = @isZero @accumulator
-            @negativeFlag = @isNegative @accumulator
+    BCC: (address) =>
+        @branchIf @carryFlag is off, address
 
-        @registerInstruction Instruction.LDX, (address) ->
-            @registerX = @readByte address
-            @zeroFlag = @isZero @registerX
-            @negativeFlag = @isNegative @registerX
+    BCS: (address) =>
+        @branchIf @carryFlag is on, address
 
-        @registerInstruction Instruction.LDY, (address) ->
-            @registerY = @readByte address
-            @zeroFlag = @isZero @registerY
-            @negativeFlag = @isNegative @registerY
+    BNE: (address) =>
+        @branchIf @zeroFlag is off, address
 
-        ###########################################################
-        # Register transfer instructions
-        ###########################################################
+    BEQ: (address) =>
+        @branchIf @zeroFlag is on, address
 
-        @registerInstruction Instruction.TAX, ->
-            @registerX = @accumulator
-            @zeroFlag = @isZero @registerX
-            @negativeFlag = @isNegative @registerX
+    BVC: (address) =>
+        @branchIf @overflowFlag is off, address
 
-        @registerInstruction Instruction.TAY, ->
-            @registerY = @accumulator
-            @zeroFlag = @isZero @registerY
-            @negativeFlag = @isNegative @registerY
+    BVS: (address) =>
+        @branchIf @overflowFlag is on,  address
 
-        @registerInstruction Instruction.TXA, ->
-            @accumulator = @registerX
-            @zeroFlag = @isZero @accumulator
-            @negativeFlag = @isNegative @accumulator
+    BMI: (address) =>
+        @branchIf @negativeFlag is on, address
 
-        @registerInstruction Instruction.TYA, ->
-            @accumulator = @registerY
-            @zeroFlag = @isZero @accumulator
-            @negativeFlag = @isNegative @accumulator
+    BPL: (address) =>
+        @branchIf @negativeFlag is off, address
 
-        @registerInstruction Instruction.TSX, ->
-            @registerX = @stackPointer
-            @zeroFlag = @isZero @registerX
-            @negativeFlag = @isNegative @registerX
-
-        @registerInstruction Instruction.TXS, ->
-            @stackPointer = @registerX
-
-        ###########################################################
-        # Stack push instructions
-        ###########################################################
-
-        @registerInstruction Instruction.PHA, ->
-            @pushByte @accumulator
-
-        @registerInstruction Instruction.PHP, ->
-            @pushByte @getStatus()
-
-        ###########################################################
-        # Stack pop instructions
-        ###########################################################
-
-        @registerInstruction Instruction.PLA, ->
-            @accumulator = @popByte()
-            @zeroFlag = @isZero @accumulator
-            @negativeFlag = @isNegative @accumulator
+    branchIf: (condition, address) ->
+        if condition
+            @programCounter = address
             @tick()
 
-        @registerInstruction Instruction.PLP, ->
-            @setStatus @popByte
-            @tick()
+    ###########################################################
+    # Jump / subroutine instructions
+    ###########################################################
 
-        ###########################################################
-        # Accumulator bitwise instructions
-        ###########################################################
+    JMP: (address) =>
+        @programCounter = address
 
-        @registerInstruction Instruction.AND, (address) ->
-            @accumulator &= @readByte address
-            @zeroFlag = @isZero @accumulator
-            @negativeFlag = @isNegative @accumulator
+    JSR: (address) =>
+        @pushWord @programCounter
+        @programCounter = address
+        tick()
 
-        @registerInstruction Instruction.ORA, (address) ->
-            @accumulator |= @readByte address
-            @zeroFlag = @isZero @accumulator
-            @negativeFlag = @isNegative @accumulator
+    RTS: =>
+        @programCounter = @popWord()
+        tick()
+        tick()
 
-        @registerInstruction Instruction.EOR, (address) ->
-            @accumulator ^= @readByte address
-            @zeroFlag = @isZero @accumulator
-            @negativeFlag = @isNegative @accumulator
+    ###########################################################
+    # Interrupt control instructions
+    ###########################################################
 
-        @registerInstruction Instruction.BIT, (address) ->
-            result = @accumulator & @readByte address
-            @zeroFlag = @isZero result
-            @overflowFlag = @isBitSet result, 7
-            @negativeFlag = @isNegative result
+    BRK: =>
+        @breakCommand = on
+        @handleInterrupt 0xFFFE
 
-        ###########################################################
-        # Increment instructions
-        ###########################################################
+    RTI: =>
+        @setStatus @popByte()
+        @programCounter = @popWord()
+        tick()
 
-        @registerInstruction Instruction.INC, (address) ->
-            result = (@readByte address) + 1
-            @zeroFlag = @isZero result
-            @negativeFlag = @isNegative result
-            @writeByte address, result & 0xFF
+    ###########################################################
+    # Addition / subtraction instructions
+    ###########################################################
 
-        @registerInstruction Instruction.INX, ->
-            @registerX = (@registerX + 1) & 0xFF
-            @zeroFlag = @isZero @registerX
-            @negativeFlag = @isNegative @registerX
+    ADC: (address) =>
+        operand = @readByte address
+        result = @accumulator + operand
+        result++ if @carryFlag is on
+        @carryFlag = @isOverflow result
+        @zeroFlag = @isZero result
+        @overflowFlag = @isSignedOverflow @accumulator, operand, result
+        @negativeFlag = @isNegative result
+        @accumulator = result & 0xFF
 
-        @registerInstruction Instruction.INY, ->
-            @registerY = (@registerY + 1) & 0xFF
-            @zeroFlag = @isZero @registerY
-            @negativeFlag = @isNegative @registerY
+    SBC: (address) =>
+        operand = @readByte address
+        result = @accumulator - operand
+        result-- if @carryFlag is off
+        @carryFlag = not @isOverflow result
+        @zeroFlag = @isZero result
+        @overflowFlag = @isSignedOverflow @accumulator, operand, result
+        @negativeFlag = @isNegative result
+        @accumulator = result & 0xFF
 
-        ###########################################################
-        # Decrement instructions
-        ###########################################################
+    ###########################################################
+    # Shifting instructions
+    ###########################################################
 
-        @registerInstruction Instruction.DEC, (address) ->
-            result = (@readByte address) - 1
-            @zeroFlag = @isZero result
-            @negativeFlag = @isNegative result
-            @writeByte address, result & 0xFF
-
-        @registerInstruction Instruction.DEX, ->
-            @registerX = (@registerX - 1) & 0xFF
-            @zeroFlag = @isZero @registerX
-            @negativeFlag = @isNegative @registerX
-
-        @registerInstruction Instruction.DEY, ->
-            @registerY = (@registerY - 1) & 0xFF
-            @zeroFlag = @isZero @registerY
-            @negativeFlag = @isNegative @registerY
-
-        ###########################################################
-        # Comparison instructions
-        ###########################################################
-
-        @registerInstruction Instruction.CMP, (address) ->
-            @compareRegisterAndMemory @accumulator, address
-            
-        @registerInstruction Instruction.CPX, ->
-            @compareRegisterAndMemory @registerX, address
-
-        @registerInstruction Instruction.CPY, ->
-            @compareRegisterAndMemory @registerY, address
-
-        compareRegisterAndMemory: (register, address) -> 
-            operand = @readByte address
-            result = register - operand 
-            @carryFlag = result >= 0
-            @computeZeroFlag result
-            @computeNegativeFlag result
-
-        ###########################################################
-        # Branching instructions
-        ###########################################################
-
-        @registerInstruction Instruction.BCC, (address) ->
-            @branchIf @carryFlag is off, address
-
-        @registerInstruction Instruction.BCS, (address) ->
-            @branchIf @carryFlag is on, address
-
-        @registerInstruction Instruction.BNE, (address) ->
-            @branchIf @zeroFlag is off, address
-
-        @registerInstruction Instruction.BEQ, (address) ->
-            @branchIf @zeroFlag is on, address
-
-        @registerInstruction Instruction.BVC, (address) ->
-            @branchIf @overflowFlag is off, address
-
-        @registerInstruction Instruction.BVS, (address) ->
-            @branchIf @overflowFlag is on,  address
-
-        @registerInstruction Instruction.BMI, (address) ->
-            @branchIf @negativeFlag is on, address
-
-        @registerInstruction Instruction.BPL, (address) ->
-            @branchIf @negativeFlag is off, address
-
-        branchIf: (condition, address) ->
-            if condition
-                @programCounter = address
-                @tick()
-
-        ###########################################################
-        # Jump / subroutine instructions
-        ###########################################################
-
-        @registerInstruction Instruction.JMP, (address) ->
-            @programCounter = address
-
-        @registerInstruction Instruction.JSR, (address) ->
-            @pushWord @programCounter
-            @programCounter = address
-            tick()
-
-        @registerInstruction Instruction.RTS, ->
-            @programCounter = @popWord()
-            tick()
-            tick()
-
-        ###########################################################
-        # Interrupt control instructions
-        ###########################################################
-
-        @registerInstruction Instruction.BRK, ->
-            @breakCommand = on
-            @handleInterrupt 0xFFFE
-
-        @registerInstruction Instruction.RTI, ->
-            @setStatus @popByte()
-            @programCounter = @popWord()
-            tick()
-
-        ###########################################################
-        # Addition / subtraction instructions
-        ###########################################################
-
-        @registerInstruction Instruction.ADC, (address) ->
-            operand = @readByte address
-            result = @accumulator + operand
-            result++ if @carryFlag is on
+    ASL: (address) =>
+        if address?
+            result = (@readByte address) << 1
             @carryFlag = @isOverflow result
             @zeroFlag = @isZero result
-            @overflowFlag = @isSignedOverflow @accumulator, operand, result
             @negativeFlag = @isNegative result
-            @accumulator = result & 0xFF
-
-        @registerInstruction Instruction.SBC, (address) ->
-            operand = @readByte address
-            result = @accumulator - operand
-            result-- if @carryFlag is off
-            @carryFlag = not @isOverflow result
+            @writeByte address, result & 0xFF
+        else
+            result = @accumulator << 1
+            @carryFlag = @isOverflow result
             @zeroFlag = @isZero result
-            @overflowFlag = @isSignedOverflow @accumulator, operand, result
             @negativeFlag = @isNegative result
             @accumulator = result & 0xFF
 
-        ###########################################################
-        # Shifting instructions
-        ###########################################################
+    LSR: (address) =>
+        if address?
+            result = @readByte address
+            @carryFlag = @isBitSet result, 1
+            result >>= 1
+            @zeroFlag = @isZero result
+            @negativeFlag = @isNegative result
+            @writeByte address, result
+        else
+            @carryFlag = @isBitSet @accumulator, 1
+            @accumulator >>= 1
+            @zeroFlag = @isZero result
+            @negativeFlag = @isNegative result
 
-        @registerInstruction Instruction.ASL, (address) ->
-            if address?
-                result = (@readByte address) << 1
-                @carryFlag = @isOverflow result
-                @zeroFlag = @isZero result
-                @negativeFlag = @isNegative result
-                @writeByte address, result & 0xFF
-            else
-                result = @accumulator << 1
-                @carryFlag = @isOverflow result
-                @zeroFlag = @isZero result
-                @negativeFlag = @isNegative result
-                @accumulator = result & 0xFF
+    ROL: (address) =>
+        oldCarryFlag = @carryFlag
+        if address?
+            result = @readByte address
+            @carryFlag = @isBitSet result, 7
+            result = (result << 1) & 0xFF
+            result |= Bit1 if oldCarryFlag is on
+            @zeroFlag = @isZero result
+            @negativeFlag = @isNegative result
+            @writeByte address, result
+        else
+            @carryFlag = @isBitSet @accumulator, 7
+            @accumulator = (@accumulator << 1) & 0xFF
+            @accumulator |= Bit1 if oldCarryFlag is on
+            @zeroFlag = @isZero result
+            @negativeFlag = @isNegative result
 
-        @registerInstruction Instruction.LSR, (address) ->
-            if address?
-                result = @readByte address
-                @carryFlag = @isSetBit result, 1
-                result >>= 1
-                @zeroFlag = @isZero result
-                @negativeFlag = @isNegative result
-                @writeByte address, result
-            else
-                @carryFlag = @isSetBit @accumulator, 1
-                @accumulator >>= 1
-                @zeroFlag = @isZero result
-                @negativeFlag = @isNegative result
-
-        @registerInstruction Instruction.ROL, (address) ->
-            oldCarryFlag = @carryFlag
-            if address?
-                result = @readByte address
-                @carryFlag = @isSetBit result, 7
-                result = (result << 1) & 0xFF
-                result |= Bit1 if oldCarryFlag is on
-                @zeroFlag = @isZero result
-                @negativeFlag = @isNegative result
-                @writeByte address, result
-            else
-                @carryFlag = @isSetBit @accumulator, 7
-                @accumulator = (@accumulator << 1) & 0xFF
-                @accumulator |= Bit1 if oldCarryFlag is on
-                @zeroFlag = @isZero result
-                @negativeFlag = @isNegative result
-
-        @registerInstruction Instruction.ROR, (address) ->
-            oldCarryFlag = @carryFlag
-            if address?
-                result = @readByte address
-                @carryFlag = @isSetBit result, 0
-                result = result >> 1
-                result |= Bit7 if oldCarryFlag is on
-                @zeroFlag = @isZero result
-                @negativeFlag = @isNegative result
-                @writeByte address, result
-            else
-                @carryFlag = @isSetBit @accumulator, 0
-                @accumulator = @accumulator >> 1
-                @accumulator |= Bit7 if oldCarryFlag is on
-                @zeroFlag = @isZero result
-                @negativeFlag = @isNegative result
-
-
-    registerInstruction: (instruction, execution) ->
-        @instructionsTable[instruction] = execution
+    ROR: (address) =>
+        oldCarryFlag = @carryFlag
+        if address?
+            result = @readByte address
+            @carryFlag = @isBitSet result, 0
+            result = result >> 1
+            result |= Bit7 if oldCarryFlag is on
+            @zeroFlag = @isZero result
+            @negativeFlag = @isNegative result
+            @writeByte address, result
+        else
+            @carryFlag = @isBitSet @accumulator, 0
+            @accumulator = @accumulator >> 1
+            @accumulator |= Bit7 if oldCarryFlag is on
+            @zeroFlag = @isZero result
+            @negativeFlag = @isNegative result
 
     ###########################################################
     # Flags computation
@@ -751,265 +683,265 @@ class CPU
         @isBitSet (operand1 ^ result) & (operand2 ^ result), 7
 
     ###########################################################
-    # Operations
+    # Operations table initialization
     ###########################################################
 
-    initOperationsTable: ->
+    init: ->
         @operationsTable = []
 
         ###########################################################
         # No operation instruction
         ###########################################################
 
-        @registerOperation 0xEA, Instruction.NOP, AddressingMode.Implied, no, no
+        @registerOperation 0xEA, @NOP, @impliedMode, no, no
         
         ###########################################################
         # Clear flag instructions
         ###########################################################
 
-        @registerOperation 0x18, Instruction.CLC, AddressingMode.Implied, no, no
-        @registerOperation 0x58, Instruction.CLI, AddressingMode.Implied, no, no
-        @registerOperation 0xD8, Instruction.CLD, AddressingMode.Implied, no, no
-        @registerOperation 0xB8, Instruction.CLV, AddressingMode.Implied, no, no
+        @registerOperation 0x18, @CLC, @impliedMode, no, no
+        @registerOperation 0x58, @CLI, @impliedMode, no, no
+        @registerOperation 0xD8, @CLD, @impliedMode, no, no
+        @registerOperation 0xB8, @CLV, @impliedMode, no, no
 
         ###########################################################
         # Set flag instructions
         ###########################################################
 
-        @registerOperation 0x38, Instruction.SEC, AddressingMode.Implied, no, no
-        @registerOperation 0x78, Instruction.SEI, AddressingMode.Implied, no, no
-        @registerOperation 0xF8, Instruction.SED, AddressingMode.Implied, no, no
+        @registerOperation 0x38, @SEC, @impliedMode, no, no
+        @registerOperation 0x78, @SEI, @impliedMode, no, no
+        @registerOperation 0xF8, @SED, @impliedMode, no, no
 
         ###########################################################
         # Memory write instructions
         ###########################################################
 
-        @registerOperation 0x85, Instruction.STA, AddressingMode.ZeroPage,  no,  no
-        @registerOperation 0x95, Instruction.STA, AddressingMode.ZeroPageX, no,  no
-        @registerOperation 0x8D, Instruction.STA, AddressingMode.Absolute,  no,  no
-        @registerOperation 0x9D, Instruction.STA, AddressingMode.AbsoluteX, yes, no
-        @registerOperation 0x99, Instruction.STA, AddressingMode.AbsoluteY, yes, no
-        @registerOperation 0x81, Instruction.STA, AddressingMode.IndirectX, no,  no
-        @registerOperation 0x91, Instruction.STA, AddressingMode.IndirectY, yes, no
+        @registerOperation 0x85, @STA, @zeroPageMode,  no,  no
+        @registerOperation 0x95, @STA, @zeroPageXMode, no,  no
+        @registerOperation 0x8D, @STA, @absoluteMode,  no,  no
+        @registerOperation 0x9D, @STA, @absoluteXMode, yes, no
+        @registerOperation 0x99, @STA, @absoluteYMode, yes, no
+        @registerOperation 0x81, @STA, @indirectXMode, no,  no
+        @registerOperation 0x91, @STA, @indirectYMode, yes, no
 
-        @registerOperation 0x86, Instruction.STX, AddressingMode.ZeroPage,  no,  no
-        @registerOperation 0x96, Instruction.STX, AddressingMode.ZeroPageY, no,  no
-        @registerOperation 0x8E, Instruction.STX, AddressingMode.Absolute,  no,  no
+        @registerOperation 0x86, @STX, @zeroPageMode,  no,  no
+        @registerOperation 0x96, @STX, @zeroPageYMode, no,  no
+        @registerOperation 0x8E, @STX, @absoluteMode,  no,  no
 
-        @registerOperation 0x84, Instruction.STY, AddressingMode.ZeroPage,  no,  no
-        @registerOperation 0x94, Instruction.STY, AddressingMode.ZeroPageX, no,  no
-        @registerOperation 0x8C, Instruction.STY, AddressingMode.Absolute,  no,  no
+        @registerOperation 0x84, @STY, @zeroPageMode,  no,  no
+        @registerOperation 0x94, @STY, @zeroPageXMode, no,  no
+        @registerOperation 0x8C, @STY, @absoluteMode,  no,  no
 
         ###########################################################
         # Memory read instructions
         ###########################################################
 
-        @registerOperation 0xA9, Instruction.LDA, AddressingMode.Immediate, no, no
-        @registerOperation 0xA5, Instruction.LDA, AddressingMode.ZeroPage,  no, no
-        @registerOperation 0xB5, Instruction.LDA, AddressingMode.ZeroPageX, no, no
-        @registerOperation 0xAD, Instruction.LDA, AddressingMode.Absolute,  no, no
-        @registerOperation 0xBD, Instruction.LDA, AddressingMode.AbsoluteX, no, no
-        @registerOperation 0xB9, Instruction.LDA, AddressingMode.AbsoluteY, no, no
-        @registerOperation 0xA1, Instruction.LDA, AddressingMode.IndirectX, no, no
-        @registerOperation 0xB1, Instruction.LDA, AddressingMode.IndirectY, no, no
+        @registerOperation 0xA9, @LDA, @immediateMode, no, no
+        @registerOperation 0xA5, @LDA, @zeroPageMode,  no, no
+        @registerOperation 0xB5, @LDA, @zeroPageXMode, no, no
+        @registerOperation 0xAD, @LDA, @absoluteMode,  no, no
+        @registerOperation 0xBD, @LDA, @absoluteXMode, no, no
+        @registerOperation 0xB9, @LDA, @absoluteYMode, no, no
+        @registerOperation 0xA1, @LDA, @indirectXMode, no, no
+        @registerOperation 0xB1, @LDA, @indirectYMode, no, no
 
-        @registerOperation 0xA9, Instruction.LDX, AddressingMode.Immediate, no, no
-        @registerOperation 0xA5, Instruction.LDX, AddressingMode.ZeroPage,  no, no
-        @registerOperation 0xB5, Instruction.LDX, AddressingMode.ZeroPageY, no, no
-        @registerOperation 0xAD, Instruction.LDX, AddressingMode.Absolute,  no, no
-        @registerOperation 0xBD, Instruction.LDX, AddressingMode.AbsoluteY, no, no
+        @registerOperation 0xA9, @LDX, @immediateMode, no, no
+        @registerOperation 0xA5, @LDX, @zeroPageMode,  no, no
+        @registerOperation 0xB5, @LDX, @zeroPageYMode, no, no
+        @registerOperation 0xAD, @LDX, @absoluteMode,  no, no
+        @registerOperation 0xBD, @LDX, @absoluteYMode, no, no
 
-        @registerOperation 0xA9, Instruction.LDY, AddressingMode.Immediate, no, no
-        @registerOperation 0xA5, Instruction.LDY, AddressingMode.ZeroPage,  no, no
-        @registerOperation 0xB5, Instruction.LDY, AddressingMode.ZeroPageX, no, no
-        @registerOperation 0xAD, Instruction.LDY, AddressingMode.Absolute,  no, no
-        @registerOperation 0xBD, Instruction.LDY, AddressingMode.AbsoluteX, no, no
+        @registerOperation 0xA9, @LDY, @immediateMode, no, no
+        @registerOperation 0xA5, @LDY, @zeroPageMode,  no, no
+        @registerOperation 0xB5, @LDY, @zeroPageXMode, no, no
+        @registerOperation 0xAD, @LDY, @absoluteMode,  no, no
+        @registerOperation 0xBD, @LDY, @absoluteXMode, no, no
 
         ###########################################################
         # Register transfer instructions
         ###########################################################
 
-        @registerOperation 0xAA, Instruction.TAX, AddressingMode.Implied, no, no
-        @registerOperation 0xA8, Instruction.TAY, AddressingMode.Implied, no, no
-        @registerOperation 0x8A, Instruction.TXA, AddressingMode.Implied, no, no
-        @registerOperation 0x98, Instruction.TYA, AddressingMode.Implied, no, no
-        @registerOperation 0x9A, Instruction.TXS, AddressingMode.Implied, no, no
-        @registerOperation 0xBA, Instruction.TSX, AddressingMode.Implied, no, no
+        @registerOperation 0xAA, @TAX, @impliedMode, no, no
+        @registerOperation 0xA8, @TAY, @impliedMode, no, no
+        @registerOperation 0x8A, @TXA, @impliedMode, no, no
+        @registerOperation 0x98, @TYA, @impliedMode, no, no
+        @registerOperation 0x9A, @TXS, @impliedMode, no, no
+        @registerOperation 0xBA, @TSX, @impliedMode, no, no
 
         ###########################################################
         # Stack push instructions
         ###########################################################
 
-        @registerOperation 0x48, Instruction.PHA, AddressingMode.Implied, no, no
-        @registerOperation 0x08, Instruction.PHP, AddressingMode.Implied, no, no
+        @registerOperation 0x48, @PHA, @impliedMode, no, no
+        @registerOperation 0x08, @PHP, @impliedMode, no, no
 
         ###########################################################
         # Stack pull instructions
         ###########################################################
 
-        @registerOperation 0x68, Instruction.PLA, AddressingMode.Implied, no, no
-        @registerOperation 0x28, Instruction.PLP, AddressingMode.Implied, no, no
+        @registerOperation 0x68, @PLA, @impliedMode, no, no
+        @registerOperation 0x28, @PLP, @impliedMode, no, no
 
         ###########################################################
         # Accumulator bitwise instructions
         ###########################################################
 
-        @registerOperation 0x29, Instruction.AND, AddressingMode.Immediate, no, no
-        @registerOperation 0x25, Instruction.AND, AddressingMode.ZeroPage,  no, no
-        @registerOperation 0x35, Instruction.AND, AddressingMode.ZeroPageX, no, no
-        @registerOperation 0x2D, Instruction.AND, AddressingMode.Absolute,  no, no
-        @registerOperation 0x3D, Instruction.AND, AddressingMode.AbsoluteX, no, no
-        @registerOperation 0x39, Instruction.AND, AddressingMode.AbsoluteY, no, no
-        @registerOperation 0x21, Instruction.AND, AddressingMode.IndirectX, no, no
-        @registerOperation 0x31, Instruction.AND, AddressingMode.IndirectY, no, no
+        @registerOperation 0x29, @AND, @immediateMode, no, no
+        @registerOperation 0x25, @AND, @zeroPageMode,  no, no
+        @registerOperation 0x35, @AND, @zeroPageXMode, no, no
+        @registerOperation 0x2D, @AND, @absoluteMode,  no, no
+        @registerOperation 0x3D, @AND, @absoluteXMode, no, no
+        @registerOperation 0x39, @AND, @absoluteYMode, no, no
+        @registerOperation 0x21, @AND, @indirectXMode, no, no
+        @registerOperation 0x31, @AND, @indirectYMode, no, no
 
-        @registerOperation 0x49, Instruction.EOR, AddressingMode.Immediate, no, no
-        @registerOperation 0x45, Instruction.EOR, AddressingMode.ZeroPage,  no, no
-        @registerOperation 0x55, Instruction.EOR, AddressingMode.ZeroPageX, no, no
-        @registerOperation 0x4D, Instruction.EOR, AddressingMode.Absolute,  no, no
-        @registerOperation 0x5D, Instruction.EOR, AddressingMode.AbsoluteX, no, no
-        @registerOperation 0x59, Instruction.EOR, AddressingMode.AbsoluteY, no, no
-        @registerOperation 0x41, Instruction.EOR, AddressingMode.IndirectX, no, no
-        @registerOperation 0x51, Instruction.EOR, AddressingMode.IndirectY, no, no
+        @registerOperation 0x49, @EOR, @immediateMode, no, no
+        @registerOperation 0x45, @EOR, @zeroPageMode,  no, no
+        @registerOperation 0x55, @EOR, @zeroPageXMode, no, no
+        @registerOperation 0x4D, @EOR, @absoluteMode,  no, no
+        @registerOperation 0x5D, @EOR, @absoluteXMode, no, no
+        @registerOperation 0x59, @EOR, @absoluteYMode, no, no
+        @registerOperation 0x41, @EOR, @indirectXMode, no, no
+        @registerOperation 0x51, @EOR, @indirectYMode, no, no
 
-        @registerOperation 0x09, Instruction.ORA, AddressingMode.Immediate, no, no
-        @registerOperation 0x05, Instruction.ORA, AddressingMode.ZeroPage,  no, no
-        @registerOperation 0x15, Instruction.ORA, AddressingMode.ZeroPageX, no, no
-        @registerOperation 0x0D, Instruction.ORA, AddressingMode.Absolute,  no, no
-        @registerOperation 0x1D, Instruction.ORA, AddressingMode.AbsoluteX, no, no
-        @registerOperation 0x19, Instruction.ORA, AddressingMode.AbsoluteY, no, no
-        @registerOperation 0x01, Instruction.ORA, AddressingMode.IndirectX, no, no
-        @registerOperation 0x11, Instruction.ORA, AddressingMode.IndirectY, no, no
+        @registerOperation 0x09, @ORA, @immediateMode, no, no
+        @registerOperation 0x05, @ORA, @zeroPageMode,  no, no
+        @registerOperation 0x15, @ORA, @zeroPageXMode, no, no
+        @registerOperation 0x0D, @ORA, @absoluteMode,  no, no
+        @registerOperation 0x1D, @ORA, @absoluteXMode, no, no
+        @registerOperation 0x19, @ORA, @absoluteYMode, no, no
+        @registerOperation 0x01, @ORA, @indirectXMode, no, no
+        @registerOperation 0x11, @ORA, @indirectYMode, no, no
 
-        @registerOperation 0x24, Instruction.BIT, AddressingMode.ZeroPage,  no, no
-        @registerOperation 0x2C, Instruction.BIT, AddressingMode.Absolute,  no, no
+        @registerOperation 0x24, @BIT, @zeroPageMode,  no, no
+        @registerOperation 0x2C, @BIT, @absoluteMode,  no, no
 
         ###########################################################
         # Increment instructions
         ###########################################################
 
-        @registerOperation 0xC6, Instruction.INC, AddressingMode.ZeroPage,  no,  yes
-        @registerOperation 0xD6, Instruction.INC, AddressingMode.ZeroPageX, no,  yes
-        @registerOperation 0xCE, Instruction.INC, AddressingMode.Absolute,  no,  yes
-        @registerOperation 0xDE, Instruction.INC, AddressingMode.AbsoluteX, yes, yes
+        @registerOperation 0xC6, @INC, @zeroPageMode,  no,  yes
+        @registerOperation 0xD6, @INC, @zeroPageXMode, no,  yes
+        @registerOperation 0xCE, @INC, @absoluteMode,  no,  yes
+        @registerOperation 0xDE, @INC, @absoluteXMode, yes, yes
 
-        @registerOperation 0xCA, Instruction.INX, AddressingMode.Implied,   no,  no
-        @registerOperation 0x88, Instruction.INY, AddressingMode.Implied,   no,  no
+        @registerOperation 0xCA, @INX, @impliedMode,   no,  no
+        @registerOperation 0x88, @INY, @impliedMode,   no,  no
 
         ###########################################################
         # Decrement instructions
         ###########################################################
 
-        @registerOperation 0xC6, Instruction.DEC, AddressingMode.ZeroPage,  no,  yes
-        @registerOperation 0xD6, Instruction.DEC, AddressingMode.ZeroPageX, no,  yes
-        @registerOperation 0xCE, Instruction.DEC, AddressingMode.Absolute,  no,  yes
-        @registerOperation 0xDE, Instruction.DEC, AddressingMode.AbsoluteX, yes, yes
+        @registerOperation 0xC6, @DEC, @zeroPageMode,  no,  yes
+        @registerOperation 0xD6, @DEC, @zeroPageXMode, no,  yes
+        @registerOperation 0xCE, @DEC, @absoluteMode,  no,  yes
+        @registerOperation 0xDE, @DEC, @absoluteXMode, yes, yes
 
-        @registerOperation 0xCA, Instruction.DEX, AddressingMode.Implied,   no,  no
-        @registerOperation 0x88, Instruction.DEY, AddressingMode.Implied,   no,  no
+        @registerOperation 0xCA, @DEX, @impliedMode,   no,  no
+        @registerOperation 0x88, @DEY, @impliedMode,   no,  no
 
         ###########################################################
         # Comparison instructions
         ###########################################################
 
-        @registerOperation 0xC9, Instruction.CMP, AddressingMode.Immediate, no, no
-        @registerOperation 0xC5, Instruction.CMP, AddressingMode.ZeroPage,  no, no
-        @registerOperation 0xD5, Instruction.CMP, AddressingMode.ZeroPageX, no, no
-        @registerOperation 0xCD, Instruction.CMP, AddressingMode.Absolute,  no, no
-        @registerOperation 0xDD, Instruction.CMP, AddressingMode.AbsoluteX, no, no
-        @registerOperation 0xD9, Instruction.CMP, AddressingMode.AbsoluteY, no, no
-        @registerOperation 0xC1, Instruction.CMP, AddressingMode.IndirectX, no, no
-        @registerOperation 0xD1, Instruction.CMP, AddressingMode.IndirectY, no, no
+        @registerOperation 0xC9, @CMP, @immediateMode, no, no
+        @registerOperation 0xC5, @CMP, @zeroPageMode,  no, no
+        @registerOperation 0xD5, @CMP, @zeroPageXMode, no, no
+        @registerOperation 0xCD, @CMP, @absoluteMode,  no, no
+        @registerOperation 0xDD, @CMP, @absoluteXMode, no, no
+        @registerOperation 0xD9, @CMP, @absoluteYMode, no, no
+        @registerOperation 0xC1, @CMP, @indirectXMode, no, no
+        @registerOperation 0xD1, @CMP, @indirectYMode, no, no
 
-        @registerOperation 0xE0, Instruction.CPX, AddressingMode.Immediate, no, no
-        @registerOperation 0xE4, Instruction.CPX, AddressingMode.ZeroPage,  no, no
-        @registerOperation 0xEC, Instruction.CPX, AddressingMode.Absolute,  no, no
+        @registerOperation 0xE0, @CPX, @immediateMode, no, no
+        @registerOperation 0xE4, @CPX, @zeroPageMode,  no, no
+        @registerOperation 0xEC, @CPX, @absoluteMode,  no, no
 
-        @registerOperation 0xC0, Instruction.CPY, AddressingMode.Immediate, no, no
-        @registerOperation 0xC4, Instruction.CPY, AddressingMode.ZeroPage,  no, no
-        @registerOperation 0xCC, Instruction.CPY, AddressingMode.Absolute,  no, no
+        @registerOperation 0xC0, @CPY, @immediateMode, no, no
+        @registerOperation 0xC4, @CPY, @zeroPageMode,  no, no
+        @registerOperation 0xCC, @CPY, @absoluteMode,  no, no
 
         ###########################################################
         # Branching instructions
         ###########################################################
 
-        @registerOperation 0x90, Instruction.BCC, AddressingMode.Relative, no, no
-        @registerOperation 0xB0, Instruction.BCS, AddressingMode.Relative, no, no
+        @registerOperation 0x90, @BCC, @relativeMode, no, no
+        @registerOperation 0xB0, @BCS, @relativeMode, no, no
 
-        @registerOperation 0xD0, Instruction.BNE, AddressingMode.Relative, no, no
-        @registerOperation 0xB0, Instruction.BEQ, AddressingMode.Relative, no, no
+        @registerOperation 0xD0, @BNE, @relativeMode, no, no
+        @registerOperation 0xB0, @BEQ, @relativeMode, no, no
         
-        @registerOperation 0x50, Instruction.BVC, AddressingMode.Relative, no, no
-        @registerOperation 0x70, Instruction.BVS, AddressingMode.Relative, no, no
+        @registerOperation 0x50, @BVC, @relativeMode, no, no
+        @registerOperation 0x70, @BVS, @relativeMode, no, no
 
-        @registerOperation 0x30, Instruction.BMI, AddressingMode.Relative, no, no
-        @registerOperation 0x10, Instruction.BPL, AddressingMode.Relative, no, no
+        @registerOperation 0x30, @BMI, @relativeMode, no, no
+        @registerOperation 0x10, @BPL, @relativeMode, no, no
         
         ###########################################################
         # Jump / subroutine instructions
         ###########################################################
 
-        @registerOperation 0x4C, Instruction.JMP, AddressingMode.Absolute, no, no
-        @registerOperation 0x6C, Instruction.JMP, AddressingMode.Indirect, no, no
-        @registerOperation 0x20, Instruction.JSR, AddressingMode.Absolute, no, no
-        @registerOperation 0x60, Instruction.RTS, AddressingMode.Implied,  no, no
+        @registerOperation 0x4C, @JMP, @absoluteMode, no, no
+        @registerOperation 0x6C, @JMP, @indirectMode, no, no
+        @registerOperation 0x20, @JSR, @absoluteMode, no, no
+        @registerOperation 0x60, @RTS, @impliedMode,  no, no
 
         ###########################################################
         # Interrupt control instructions
         ###########################################################
 
-        @registerOperation 0x00, Instruction.BRK, AddressingMode.Implied, no, no
-        @registerOperation 0x40, Instruction.RTI, AddressingMode.Implied, no, no
+        @registerOperation 0x00, @BRK, @impliedMode, no, no
+        @registerOperation 0x40, @RTI, @impliedMode, no, no
 
         ###########################################################
         # Addition / subtraction instructions
         ###########################################################
         
-        @registerOperation 0x69, Instruction.ADC, AddressingMode.Immediate, no, no
-        @registerOperation 0x65, Instruction.ADC, AddressingMode.ZeroPage,  no, no
-        @registerOperation 0x75, Instruction.ADC, AddressingMode.ZeroPageX, no, no
-        @registerOperation 0x6D, Instruction.ADC, AddressingMode.Absolute,  no, no
-        @registerOperation 0x7D, Instruction.ADC, AddressingMode.AbsoluteX, no, no
-        @registerOperation 0x79, Instruction.ADC, AddressingMode.AbsoluteY, no, no
-        @registerOperation 0x61, Instruction.ADC, AddressingMode.IndirectX, no, no
-        @registerOperation 0x71, Instruction.ADC, AddressingMode.IndirectY, no, no
+        @registerOperation 0x69, @ADC, @immediateMode, no, no
+        @registerOperation 0x65, @ADC, @zeroPageMode,  no, no
+        @registerOperation 0x75, @ADC, @zeroPageXMode, no, no
+        @registerOperation 0x6D, @ADC, @absoluteMode,  no, no
+        @registerOperation 0x7D, @ADC, @absoluteXMode, no, no
+        @registerOperation 0x79, @ADC, @absoluteYMode, no, no
+        @registerOperation 0x61, @ADC, @indirectXMode, no, no
+        @registerOperation 0x71, @ADC, @indirectYMode, no, no
 
-        @registerOperation 0xE9, Instruction.SBC, AddressingMode.Immediate, no, no
-        @registerOperation 0xE5, Instruction.SBC, AddressingMode.ZeroPage,  no, no
-        @registerOperation 0xF5, Instruction.SBC, AddressingMode.ZeroPageX, no, no
-        @registerOperation 0xED, Instruction.SBC, AddressingMode.Absolute,  no, no
-        @registerOperation 0xFD, Instruction.SBC, AddressingMode.AbsoluteX, no, no
-        @registerOperation 0xF9, Instruction.SBC, AddressingMode.AbsoluteY, no, no
-        @registerOperation 0xE1, Instruction.SBC, AddressingMode.IndirectX, no, no
-        @registerOperation 0xF1, Instruction.SBC, AddressingMode.IndirectY, no, no
+        @registerOperation 0xE9, @SBC, @immediateMode, no, no
+        @registerOperation 0xE5, @SBC, @zeroPageMode,  no, no
+        @registerOperation 0xF5, @SBC, @zeroPageXMode, no, no
+        @registerOperation 0xED, @SBC, @absoluteMode,  no, no
+        @registerOperation 0xFD, @SBC, @absoluteXMode, no, no
+        @registerOperation 0xF9, @SBC, @absoluteYMode, no, no
+        @registerOperation 0xE1, @SBC, @indirectXMode, no, no
+        @registerOperation 0xF1, @SBC, @indirectYMode, no, no
 
         ###########################################################
         # Shifting instructions
         ###########################################################
         
-        @registerOperation 0x0A, Instruction.ASL, AddressingMode.Accumulator, no,  no
-        @registerOperation 0x06, Instruction.ASL, AddressingMode.ZeroPage,    no,  yes
-        @registerOperation 0x16, Instruction.ASL, AddressingMode.ZeroPageX,   no,  yes
-        @registerOperation 0x0E, Instruction.ASL, AddressingMode.Absolute,    no,  yes
-        @registerOperation 0x1E, Instruction.ASL, AddressingMode.AbsoluteX,   yes, yes
+        @registerOperation 0x0A, @ASL, @accumulatorMode, no,  no
+        @registerOperation 0x06, @ASL, @zeroPageMode,    no,  yes
+        @registerOperation 0x16, @ASL, @zeroPageXMode,   no,  yes
+        @registerOperation 0x0E, @ASL, @absoluteMode,    no,  yes
+        @registerOperation 0x1E, @ASL, @absoluteXMode,   yes, yes
 
-        @registerOperation 0xA9, Instruction.LSR, AddressingMode.Immediate,   no,  no
-        @registerOperation 0xA5, Instruction.LSR, AddressingMode.ZeroPage,    no,  yes
-        @registerOperation 0xB5, Instruction.LSR, AddressingMode.ZeroPageX,   no,  yes
-        @registerOperation 0xAD, Instruction.LSR, AddressingMode.Absolute,    no,  yes
-        @registerOperation 0xBD, Instruction.LSR, AddressingMode.AbsoluteX,   yes, yes
+        @registerOperation 0xA9, @LSR, @accumulatorMode, no,  no
+        @registerOperation 0xA5, @LSR, @zeroPageMode,    no,  yes
+        @registerOperation 0xB5, @LSR, @zeroPageXMode,   no,  yes
+        @registerOperation 0xAD, @LSR, @absoluteMode,    no,  yes
+        @registerOperation 0xBD, @LSR, @absoluteXMode,   yes, yes
 
-        @registerOperation 0x2A, Instruction.ROL, AddressingMode.Immediate,   no,  no
-        @registerOperation 0x26, Instruction.ROL, AddressingMode.ZeroPage,    no,  yes
-        @registerOperation 0x36, Instruction.ROL, AddressingMode.ZeroPageX,   no,  yes
-        @registerOperation 0x2E, Instruction.ROL, AddressingMode.Absolute,    no,  yes
-        @registerOperation 0x3E, Instruction.ROL, AddressingMode.AbsoluteX,   yes, yes
+        @registerOperation 0x2A, @ROL, @accumulatorMode, no,  no
+        @registerOperation 0x26, @ROL, @zeroPageMode,    no,  yes
+        @registerOperation 0x36, @ROL, @zeroPageXMode,   no,  yes
+        @registerOperation 0x2E, @ROL, @absoluteMode,    no,  yes
+        @registerOperation 0x3E, @ROL, @absoluteXMode,   yes, yes
 
-        @registerOperation 0x6A, Instruction.ROR, AddressingMode.Immediate,   no,  no
-        @registerOperation 0x66, Instruction.ROR, AddressingMode.ZeroPage,    no,  yes
-        @registerOperation 0x76, Instruction.ROR, AddressingMode.ZeroPageX,   no,  yes
-        @registerOperation 0x6E, Instruction.ROR, AddressingMode.Absolute,    no,  yes
-        @registerOperation 0x7E, Instruction.ROR, AddressingMode.AbsoluteX,   yes, yes
+        @registerOperation 0x6A, @ROR, @accumulatorMode, no,  no
+        @registerOperation 0x66, @ROR, @zeroPageMode,    no,  yes
+        @registerOperation 0x76, @ROR, @zeroPageXMode,   no,  yes
+        @registerOperation 0x6E, @ROR, @absoluteMode,    no,  yes
+        @registerOperation 0x7E, @ROR, @absoluteXMode,   yes, yes
 
     registerOperation: (operationCode, instruction, addressingMode, emptyReadCycle, emptyWriteCycle) ->
         @operationsTable[operationCode] = 
