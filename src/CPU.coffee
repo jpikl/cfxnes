@@ -693,255 +693,255 @@ class CPU
         # No operation instruction
         ###########################################################
 
-        @registerOperation 0xEA, @NOP, @impliedMode, no, no
+        @registerOperation 0xEA, @NOP, @impliedMode, no, no # 2 cycles
         
         ###########################################################
         # Clear flag instructions
         ###########################################################
 
-        @registerOperation 0x18, @CLC, @impliedMode, no, no
-        @registerOperation 0x58, @CLI, @impliedMode, no, no
-        @registerOperation 0xD8, @CLD, @impliedMode, no, no
-        @registerOperation 0xB8, @CLV, @impliedMode, no, no
+        @registerOperation 0x18, @CLC, @impliedMode, no, no # 2 cycles
+        @registerOperation 0x58, @CLI, @impliedMode, no, no # 2 cycles
+        @registerOperation 0xD8, @CLD, @impliedMode, no, no # 2 cycles
+        @registerOperation 0xB8, @CLV, @impliedMode, no, no # 2 cycles
 
         ###########################################################
         # Set flag instructions
         ###########################################################
 
-        @registerOperation 0x38, @SEC, @impliedMode, no, no
-        @registerOperation 0x78, @SEI, @impliedMode, no, no
-        @registerOperation 0xF8, @SED, @impliedMode, no, no
+        @registerOperation 0x38, @SEC, @impliedMode, no, no # 2 cycles
+        @registerOperation 0x78, @SEI, @impliedMode, no, no # 2 cycles
+        @registerOperation 0xF8, @SED, @impliedMode, no, no # 2 cycles
 
         ###########################################################
         # Memory write instructions
         ###########################################################
 
-        @registerOperation 0x85, @STA, @zeroPageMode,  no,  no
-        @registerOperation 0x95, @STA, @zeroPageXMode, no,  no
-        @registerOperation 0x8D, @STA, @absoluteMode,  no,  no
-        @registerOperation 0x9D, @STA, @absoluteXMode, yes, no
-        @registerOperation 0x99, @STA, @absoluteYMode, yes, no
-        @registerOperation 0x81, @STA, @indirectXMode, no,  no
-        @registerOperation 0x91, @STA, @indirectYMode, yes, no
+        @registerOperation 0x85, @STA, @zeroPageMode,  no,  no # 3 cycles
+        @registerOperation 0x95, @STA, @zeroPageXMode, no,  no # 4 cycles
+        @registerOperation 0x8D, @STA, @absoluteMode,  no,  no # 4 cycles
+        @registerOperation 0x9D, @STA, @absoluteXMode, yes, no # 5 cycles
+        @registerOperation 0x99, @STA, @absoluteYMode, yes, no # 5 cycles
+        @registerOperation 0x81, @STA, @indirectXMode, no,  no # 6 cycles
+        @registerOperation 0x91, @STA, @indirectYMode, yes, no # 6 cycles
 
-        @registerOperation 0x86, @STX, @zeroPageMode,  no,  no
-        @registerOperation 0x96, @STX, @zeroPageYMode, no,  no
-        @registerOperation 0x8E, @STX, @absoluteMode,  no,  no
+        @registerOperation 0x86, @STX, @zeroPageMode,  no,  no # 3 cycles
+        @registerOperation 0x96, @STX, @zeroPageYMode, no,  no # 4 cycles
+        @registerOperation 0x8E, @STX, @absoluteMode,  no,  no # 4 cycles
 
-        @registerOperation 0x84, @STY, @zeroPageMode,  no,  no
-        @registerOperation 0x94, @STY, @zeroPageXMode, no,  no
-        @registerOperation 0x8C, @STY, @absoluteMode,  no,  no
+        @registerOperation 0x84, @STY, @zeroPageMode,  no,  no # 3 cycles
+        @registerOperation 0x94, @STY, @zeroPageXMode, no,  no # 4 cycles
+        @registerOperation 0x8C, @STY, @absoluteMode,  no,  no # 4 cycles
 
         ###########################################################
         # Memory read instructions
         ###########################################################
 
-        @registerOperation 0xA9, @LDA, @immediateMode, no, no
-        @registerOperation 0xA5, @LDA, @zeroPageMode,  no, no
-        @registerOperation 0xB5, @LDA, @zeroPageXMode, no, no
-        @registerOperation 0xAD, @LDA, @absoluteMode,  no, no
-        @registerOperation 0xBD, @LDA, @absoluteXMode, no, no
-        @registerOperation 0xB9, @LDA, @absoluteYMode, no, no
-        @registerOperation 0xA1, @LDA, @indirectXMode, no, no
-        @registerOperation 0xB1, @LDA, @indirectYMode, no, no
+        @registerOperation 0xA9, @LDA, @immediateMode, no, no # 2      cycles
+        @registerOperation 0xA5, @LDA, @zeroPageMode,  no, no # 3      cycles
+        @registerOperation 0xB5, @LDA, @zeroPageXMode, no, no # 4      cycles
+        @registerOperation 0xAD, @LDA, @absoluteMode,  no, no # 4      cycles
+        @registerOperation 0xBD, @LDA, @absoluteXMode, no, no # 4 (+1) cycles
+        @registerOperation 0xB9, @LDA, @absoluteYMode, no, no # 4 (+1) cycles
+        @registerOperation 0xA1, @LDA, @indirectXMode, no, no # 6      cycles
+        @registerOperation 0xB1, @LDA, @indirectYMode, no, no # 5 (+1) cycles
 
-        @registerOperation 0xA9, @LDX, @immediateMode, no, no
-        @registerOperation 0xA5, @LDX, @zeroPageMode,  no, no
-        @registerOperation 0xB5, @LDX, @zeroPageYMode, no, no
-        @registerOperation 0xAD, @LDX, @absoluteMode,  no, no
-        @registerOperation 0xBD, @LDX, @absoluteYMode, no, no
+        @registerOperation 0xA2, @LDX, @immediateMode, no, no # 2      cycles
+        @registerOperation 0xA6, @LDX, @zeroPageMode,  no, no # 3      cycles
+        @registerOperation 0xB6, @LDX, @zeroPageYMode, no, no # 4      cycles
+        @registerOperation 0xAE, @LDX, @absoluteMode,  no, no # 4      cycles
+        @registerOperation 0xBE, @LDX, @absoluteYMode, no, no # 4 (+1) cycles
 
-        @registerOperation 0xA9, @LDY, @immediateMode, no, no
-        @registerOperation 0xA5, @LDY, @zeroPageMode,  no, no
-        @registerOperation 0xB5, @LDY, @zeroPageXMode, no, no
-        @registerOperation 0xAD, @LDY, @absoluteMode,  no, no
-        @registerOperation 0xBD, @LDY, @absoluteXMode, no, no
+        @registerOperation 0xA0, @LDY, @immediateMode, no, no # 2      cycles
+        @registerOperation 0xA4, @LDY, @zeroPageMode,  no, no # 3      cycles
+        @registerOperation 0xB4, @LDY, @zeroPageXMode, no, no # 4      cycles
+        @registerOperation 0xAC, @LDY, @absoluteMode,  no, no # 4      cycles
+        @registerOperation 0xBC, @LDY, @absoluteXMode, no, no # 4 (+1) cycles
 
         ###########################################################
         # Register transfer instructions
         ###########################################################
 
-        @registerOperation 0xAA, @TAX, @impliedMode, no, no
-        @registerOperation 0xA8, @TAY, @impliedMode, no, no
-        @registerOperation 0x8A, @TXA, @impliedMode, no, no
-        @registerOperation 0x98, @TYA, @impliedMode, no, no
-        @registerOperation 0x9A, @TXS, @impliedMode, no, no
-        @registerOperation 0xBA, @TSX, @impliedMode, no, no
+        @registerOperation 0xAA, @TAX, @impliedMode, no, no # 2 cycles
+        @registerOperation 0xA8, @TAY, @impliedMode, no, no # 2 cycles
+        @registerOperation 0x8A, @TXA, @impliedMode, no, no # 2 cycles
+        @registerOperation 0x98, @TYA, @impliedMode, no, no # 2 cycles
+        @registerOperation 0x9A, @TXS, @impliedMode, no, no # 2 cycles
+        @registerOperation 0xBA, @TSX, @impliedMode, no, no # 2 cycles
 
         ###########################################################
         # Stack push instructions
         ###########################################################
 
-        @registerOperation 0x48, @PHA, @impliedMode, no, no
-        @registerOperation 0x08, @PHP, @impliedMode, no, no
+        @registerOperation 0x48, @PHA, @impliedMode, no, no # 3 cycles
+        @registerOperation 0x08, @PHP, @impliedMode, no, no # 3 cycles
 
         ###########################################################
         # Stack pull instructions
         ###########################################################
 
-        @registerOperation 0x68, @PLA, @impliedMode, no, no
-        @registerOperation 0x28, @PLP, @impliedMode, no, no
+        @registerOperation 0x68, @PLA, @impliedMode, no, no # 4 cycles
+        @registerOperation 0x28, @PLP, @impliedMode, no, no # 4 cycles
 
         ###########################################################
         # Accumulator bitwise instructions
         ###########################################################
 
-        @registerOperation 0x29, @AND, @immediateMode, no, no
-        @registerOperation 0x25, @AND, @zeroPageMode,  no, no
-        @registerOperation 0x35, @AND, @zeroPageXMode, no, no
-        @registerOperation 0x2D, @AND, @absoluteMode,  no, no
-        @registerOperation 0x3D, @AND, @absoluteXMode, no, no
-        @registerOperation 0x39, @AND, @absoluteYMode, no, no
-        @registerOperation 0x21, @AND, @indirectXMode, no, no
-        @registerOperation 0x31, @AND, @indirectYMode, no, no
+        @registerOperation 0x29, @AND, @immediateMode, no, no # 2      cycles
+        @registerOperation 0x25, @AND, @zeroPageMode,  no, no # 3      cycles
+        @registerOperation 0x35, @AND, @zeroPageXMode, no, no # 4      cycles
+        @registerOperation 0x2D, @AND, @absoluteMode,  no, no # 4      cycles
+        @registerOperation 0x3D, @AND, @absoluteXMode, no, no # 4 (+1) cycles
+        @registerOperation 0x39, @AND, @absoluteYMode, no, no # 4 (+1) cycles
+        @registerOperation 0x21, @AND, @indirectXMode, no, no # 6      cycles
+        @registerOperation 0x31, @AND, @indirectYMode, no, no # 5 (+1) cycles
 
-        @registerOperation 0x49, @EOR, @immediateMode, no, no
-        @registerOperation 0x45, @EOR, @zeroPageMode,  no, no
-        @registerOperation 0x55, @EOR, @zeroPageXMode, no, no
-        @registerOperation 0x4D, @EOR, @absoluteMode,  no, no
-        @registerOperation 0x5D, @EOR, @absoluteXMode, no, no
-        @registerOperation 0x59, @EOR, @absoluteYMode, no, no
-        @registerOperation 0x41, @EOR, @indirectXMode, no, no
-        @registerOperation 0x51, @EOR, @indirectYMode, no, no
+        @registerOperation 0x09, @ORA, @immediateMode, no, no # 2      cycles
+        @registerOperation 0x05, @ORA, @zeroPageMode,  no, no # 3      cycles
+        @registerOperation 0x15, @ORA, @zeroPageXMode, no, no # 4      cycles
+        @registerOperation 0x0D, @ORA, @absoluteMode,  no, no # 4      cycles
+        @registerOperation 0x1D, @ORA, @absoluteXMode, no, no # 4 (+1) cycles
+        @registerOperation 0x19, @ORA, @absoluteYMode, no, no # 4 (+1) cycles
+        @registerOperation 0x01, @ORA, @indirectXMode, no, no # 6      cycles
+        @registerOperation 0x11, @ORA, @indirectYMode, no, no # 5 (+1) cycles
 
-        @registerOperation 0x09, @ORA, @immediateMode, no, no
-        @registerOperation 0x05, @ORA, @zeroPageMode,  no, no
-        @registerOperation 0x15, @ORA, @zeroPageXMode, no, no
-        @registerOperation 0x0D, @ORA, @absoluteMode,  no, no
-        @registerOperation 0x1D, @ORA, @absoluteXMode, no, no
-        @registerOperation 0x19, @ORA, @absoluteYMode, no, no
-        @registerOperation 0x01, @ORA, @indirectXMode, no, no
-        @registerOperation 0x11, @ORA, @indirectYMode, no, no
+        @registerOperation 0x49, @EOR, @immediateMode, no, no # 2      cycles
+        @registerOperation 0x45, @EOR, @zeroPageMode,  no, no # 3      cycles
+        @registerOperation 0x55, @EOR, @zeroPageXMode, no, no # 4      cycles
+        @registerOperation 0x4D, @EOR, @absoluteMode,  no, no # 4      cycles
+        @registerOperation 0x5D, @EOR, @absoluteXMode, no, no # 4 (+1) cycles
+        @registerOperation 0x59, @EOR, @absoluteYMode, no, no # 4 (+1) cycles
+        @registerOperation 0x41, @EOR, @indirectXMode, no, no # 6      cycles
+        @registerOperation 0x51, @EOR, @indirectYMode, no, no # 5 (+1) cycles
 
-        @registerOperation 0x24, @BIT, @zeroPageMode,  no, no
-        @registerOperation 0x2C, @BIT, @absoluteMode,  no, no
+        @registerOperation 0x24, @BIT, @zeroPageMode,  no, no # 3      cycles
+        @registerOperation 0x2C, @BIT, @absoluteMode,  no, no # 4      cycles
 
         ###########################################################
         # Increment instructions
         ###########################################################
 
-        @registerOperation 0xC6, @INC, @zeroPageMode,  no,  yes
-        @registerOperation 0xD6, @INC, @zeroPageXMode, no,  yes
-        @registerOperation 0xCE, @INC, @absoluteMode,  no,  yes
-        @registerOperation 0xDE, @INC, @absoluteXMode, yes, yes
+        @registerOperation 0xE6, @INC, @zeroPageMode,  no,  yes # 5 cycles
+        @registerOperation 0xF6, @INC, @zeroPageXMode, no,  yes # 6 cycles
+        @registerOperation 0xEE, @INC, @absoluteMode,  no,  yes # 6 cycles
+        @registerOperation 0xFE, @INC, @absoluteXMode, yes, yes # 7 cycles
 
-        @registerOperation 0xCA, @INX, @impliedMode,   no,  no
-        @registerOperation 0x88, @INY, @impliedMode,   no,  no
+        @registerOperation 0xE8, @INX, @impliedMode,   no,  no  # 2 cycles
+        @registerOperation 0xC8, @INY, @impliedMode,   no,  no  # 2 cycles
 
         ###########################################################
         # Decrement instructions
         ###########################################################
 
-        @registerOperation 0xC6, @DEC, @zeroPageMode,  no,  yes
-        @registerOperation 0xD6, @DEC, @zeroPageXMode, no,  yes
-        @registerOperation 0xCE, @DEC, @absoluteMode,  no,  yes
-        @registerOperation 0xDE, @DEC, @absoluteXMode, yes, yes
+        @registerOperation 0xC6, @DEC, @zeroPageMode,  no,  yes # 5 cycles
+        @registerOperation 0xD6, @DEC, @zeroPageXMode, no,  yes # 6 cycles
+        @registerOperation 0xCE, @DEC, @absoluteMode,  no,  yes # 6 cycles
+        @registerOperation 0xDE, @DEC, @absoluteXMode, yes, yes # 7 cycles
 
-        @registerOperation 0xCA, @DEX, @impliedMode,   no,  no
-        @registerOperation 0x88, @DEY, @impliedMode,   no,  no
+        @registerOperation 0xCA, @DEX, @impliedMode,   no,  no  #  cycles
+        @registerOperation 0x88, @DEY, @impliedMode,   no,  no  #  cycles
 
         ###########################################################
         # Comparison instructions
         ###########################################################
 
-        @registerOperation 0xC9, @CMP, @immediateMode, no, no
-        @registerOperation 0xC5, @CMP, @zeroPageMode,  no, no
-        @registerOperation 0xD5, @CMP, @zeroPageXMode, no, no
-        @registerOperation 0xCD, @CMP, @absoluteMode,  no, no
-        @registerOperation 0xDD, @CMP, @absoluteXMode, no, no
-        @registerOperation 0xD9, @CMP, @absoluteYMode, no, no
-        @registerOperation 0xC1, @CMP, @indirectXMode, no, no
-        @registerOperation 0xD1, @CMP, @indirectYMode, no, no
+        @registerOperation 0xC9, @CMP, @immediateMode, no, no # 2      cycles
+        @registerOperation 0xC5, @CMP, @zeroPageMode,  no, no # 3      cycles
+        @registerOperation 0xD5, @CMP, @zeroPageXMode, no, no # 4      cycles
+        @registerOperation 0xCD, @CMP, @absoluteMode,  no, no # 4      cycles
+        @registerOperation 0xDD, @CMP, @absoluteXMode, no, no # 4 (+1) cycles
+        @registerOperation 0xD9, @CMP, @absoluteYMode, no, no # 4 (+1) cycles
+        @registerOperation 0xC1, @CMP, @indirectXMode, no, no # 6      cycles
+        @registerOperation 0xD1, @CMP, @indirectYMode, no, no # 5 (+1) cycles
 
-        @registerOperation 0xE0, @CPX, @immediateMode, no, no
-        @registerOperation 0xE4, @CPX, @zeroPageMode,  no, no
-        @registerOperation 0xEC, @CPX, @absoluteMode,  no, no
+        @registerOperation 0xE0, @CPX, @immediateMode, no, no # 2      cycles
+        @registerOperation 0xE4, @CPX, @zeroPageMode,  no, no # 3      cycles
+        @registerOperation 0xEC, @CPX, @absoluteMode,  no, no # 4      cycles
 
-        @registerOperation 0xC0, @CPY, @immediateMode, no, no
-        @registerOperation 0xC4, @CPY, @zeroPageMode,  no, no
-        @registerOperation 0xCC, @CPY, @absoluteMode,  no, no
+        @registerOperation 0xC0, @CPY, @immediateMode, no, no # 2      cycles
+        @registerOperation 0xC4, @CPY, @zeroPageMode,  no, no # 3      cycles
+        @registerOperation 0xCC, @CPY, @absoluteMode,  no, no # 4      cycles
 
         ###########################################################
         # Branching instructions
         ###########################################################
 
-        @registerOperation 0x90, @BCC, @relativeMode, no, no
-        @registerOperation 0xB0, @BCS, @relativeMode, no, no
+        @registerOperation 0x90, @BCC, @relativeMode, no, no # 2 (+1/+2) cycles
+        @registerOperation 0xB0, @BCS, @relativeMode, no, no # 2 (+1/+2) cycles
 
-        @registerOperation 0xD0, @BNE, @relativeMode, no, no
-        @registerOperation 0xB0, @BEQ, @relativeMode, no, no
+        @registerOperation 0xD0, @BNE, @relativeMode, no, no # 2 (+1/+2) cycles
+        @registerOperation 0xF0, @BEQ, @relativeMode, no, no # 2 (+1/+2) cycles
         
-        @registerOperation 0x50, @BVC, @relativeMode, no, no
-        @registerOperation 0x70, @BVS, @relativeMode, no, no
+        @registerOperation 0x50, @BVC, @relativeMode, no, no # 2 (+1/+2) cycles
+        @registerOperation 0x70, @BVS, @relativeMode, no, no # 2 (+1/+2) cycles
 
-        @registerOperation 0x30, @BMI, @relativeMode, no, no
-        @registerOperation 0x10, @BPL, @relativeMode, no, no
+        @registerOperation 0x30, @BMI, @relativeMode, no, no # 2 (+1/+2) cycles
+        @registerOperation 0x10, @BPL, @relativeMode, no, no # 2 (+1/+2) cycles
         
         ###########################################################
         # Jump / subroutine instructions
         ###########################################################
 
-        @registerOperation 0x4C, @JMP, @absoluteMode, no, no
-        @registerOperation 0x6C, @JMP, @indirectMode, no, no
-        @registerOperation 0x20, @JSR, @absoluteMode, no, no
-        @registerOperation 0x60, @RTS, @impliedMode,  no, no
+        @registerOperation 0x4C, @JMP, @absoluteMode, no, no # 3 cycles
+        @registerOperation 0x6C, @JMP, @indirectMode, no, no # 5 cycles
+        @registerOperation 0x20, @JSR, @absoluteMode, no, no # 6 cycles
+        @registerOperation 0x60, @RTS, @impliedMode,  no, no # 6 cycles
 
         ###########################################################
         # Interrupt control instructions
         ###########################################################
 
-        @registerOperation 0x00, @BRK, @impliedMode, no, no
-        @registerOperation 0x40, @RTI, @impliedMode, no, no
+        @registerOperation 0x00, @BRK, @impliedMode, no, no # 7 cycles
+        @registerOperation 0x40, @RTI, @impliedMode, no, no # 6 cycles
 
         ###########################################################
         # Addition / subtraction instructions
         ###########################################################
         
-        @registerOperation 0x69, @ADC, @immediateMode, no, no
-        @registerOperation 0x65, @ADC, @zeroPageMode,  no, no
-        @registerOperation 0x75, @ADC, @zeroPageXMode, no, no
-        @registerOperation 0x6D, @ADC, @absoluteMode,  no, no
-        @registerOperation 0x7D, @ADC, @absoluteXMode, no, no
-        @registerOperation 0x79, @ADC, @absoluteYMode, no, no
-        @registerOperation 0x61, @ADC, @indirectXMode, no, no
-        @registerOperation 0x71, @ADC, @indirectYMode, no, no
+        @registerOperation 0x69, @ADC, @immediateMode, no, no # 2      cycles
+        @registerOperation 0x65, @ADC, @zeroPageMode,  no, no # 3      cycles
+        @registerOperation 0x75, @ADC, @zeroPageXMode, no, no # 4      cycles
+        @registerOperation 0x6D, @ADC, @absoluteMode,  no, no # 4      cycles
+        @registerOperation 0x7D, @ADC, @absoluteXMode, no, no # 4 (+1) cycles
+        @registerOperation 0x79, @ADC, @absoluteYMode, no, no # 4 (+1) cycles
+        @registerOperation 0x61, @ADC, @indirectXMode, no, no # 6      cycles
+        @registerOperation 0x71, @ADC, @indirectYMode, no, no # 5 (+1) cycles
 
-        @registerOperation 0xE9, @SBC, @immediateMode, no, no
-        @registerOperation 0xE5, @SBC, @zeroPageMode,  no, no
-        @registerOperation 0xF5, @SBC, @zeroPageXMode, no, no
-        @registerOperation 0xED, @SBC, @absoluteMode,  no, no
-        @registerOperation 0xFD, @SBC, @absoluteXMode, no, no
-        @registerOperation 0xF9, @SBC, @absoluteYMode, no, no
-        @registerOperation 0xE1, @SBC, @indirectXMode, no, no
-        @registerOperation 0xF1, @SBC, @indirectYMode, no, no
+        @registerOperation 0xE9, @SBC, @immediateMode, no, no # 2      cycles
+        @registerOperation 0xE5, @SBC, @zeroPageMode,  no, no # 3      cycles
+        @registerOperation 0xF5, @SBC, @zeroPageXMode, no, no # 4      cycles
+        @registerOperation 0xED, @SBC, @absoluteMode,  no, no # 4      cycles
+        @registerOperation 0xFD, @SBC, @absoluteXMode, no, no # 4 (+1) cycles
+        @registerOperation 0xF9, @SBC, @absoluteYMode, no, no # 4 (+1) cycles
+        @registerOperation 0xE1, @SBC, @indirectXMode, no, no # 6      cycles
+        @registerOperation 0xF1, @SBC, @indirectYMode, no, no # 5 (+1) cycles
 
         ###########################################################
         # Shifting instructions
         ###########################################################
         
-        @registerOperation 0x0A, @ASL, @accumulatorMode, no,  no
-        @registerOperation 0x06, @ASL, @zeroPageMode,    no,  yes
-        @registerOperation 0x16, @ASL, @zeroPageXMode,   no,  yes
-        @registerOperation 0x0E, @ASL, @absoluteMode,    no,  yes
-        @registerOperation 0x1E, @ASL, @absoluteXMode,   yes, yes
+        @registerOperation 0x0A, @ASL, @accumulatorMode, no,  no  # 2 cycles
+        @registerOperation 0x06, @ASL, @zeroPageMode,    no,  yes # 5 cycles
+        @registerOperation 0x16, @ASL, @zeroPageXMode,   no,  yes # 6 cycles
+        @registerOperation 0x0E, @ASL, @absoluteMode,    no,  yes # 6 cycles
+        @registerOperation 0x1E, @ASL, @absoluteXMode,   yes, yes # 7 cycles
 
-        @registerOperation 0xA9, @LSR, @accumulatorMode, no,  no
-        @registerOperation 0xA5, @LSR, @zeroPageMode,    no,  yes
-        @registerOperation 0xB5, @LSR, @zeroPageXMode,   no,  yes
-        @registerOperation 0xAD, @LSR, @absoluteMode,    no,  yes
-        @registerOperation 0xBD, @LSR, @absoluteXMode,   yes, yes
+        @registerOperation 0x4A, @LSR, @accumulatorMode, no,  no  # 2 cycles
+        @registerOperation 0x46, @LSR, @zeroPageMode,    no,  yes # 5 cycles
+        @registerOperation 0x56, @LSR, @zeroPageXMode,   no,  yes # 6 cycles
+        @registerOperation 0x4E, @LSR, @absoluteMode,    no,  yes # 6 cycles
+        @registerOperation 0x5E, @LSR, @absoluteXMode,   yes, yes # 7 cycles
 
-        @registerOperation 0x2A, @ROL, @accumulatorMode, no,  no
-        @registerOperation 0x26, @ROL, @zeroPageMode,    no,  yes
-        @registerOperation 0x36, @ROL, @zeroPageXMode,   no,  yes
-        @registerOperation 0x2E, @ROL, @absoluteMode,    no,  yes
-        @registerOperation 0x3E, @ROL, @absoluteXMode,   yes, yes
+        @registerOperation 0x2A, @ROL, @accumulatorMode, no,  no  # 2 cycles
+        @registerOperation 0x26, @ROL, @zeroPageMode,    no,  yes # 5 cycles
+        @registerOperation 0x36, @ROL, @zeroPageXMode,   no,  yes # 6 cycles
+        @registerOperation 0x2E, @ROL, @absoluteMode,    no,  yes # 6 cycles
+        @registerOperation 0x3E, @ROL, @absoluteXMode,   yes, yes # 7 cycles
 
-        @registerOperation 0x6A, @ROR, @accumulatorMode, no,  no
-        @registerOperation 0x66, @ROR, @zeroPageMode,    no,  yes
-        @registerOperation 0x76, @ROR, @zeroPageXMode,   no,  yes
-        @registerOperation 0x6E, @ROR, @absoluteMode,    no,  yes
-        @registerOperation 0x7E, @ROR, @absoluteXMode,   yes, yes
+        @registerOperation 0x6A, @ROR, @accumulatorMode, no,  no  # 2 cycles
+        @registerOperation 0x66, @ROR, @zeroPageMode,    no,  yes # 5 cycles
+        @registerOperation 0x76, @ROR, @zeroPageXMode,   no,  yes # 6 cycles
+        @registerOperation 0x6E, @ROR, @absoluteMode,    no,  yes # 6 cycles
+        @registerOperation 0x7E, @ROR, @absoluteXMode,   yes, yes # 7 cycles
 
     registerOperation: (operationCode, instruction, addressingMode, emptyReadCycle, emptyWriteCycle) ->
         @operationsTable[operationCode] = 
