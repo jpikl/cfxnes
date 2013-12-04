@@ -613,70 +613,45 @@ class CPU
         @accumulator = result & 0xFF
 
     ###########################################################
-    # Shifting instructions
+    # Shifting / rotation instructions
     ###########################################################
 
     ASL: (address) =>
-        if address?
-            result = (@readByte address) << 1
-            @carryFlag = @isOverflow result
-            @zeroFlag = @isZero result
-            @negativeFlag = @isNegative result
-            @writeByte address, result & 0xFF
-        else
-            result = @accumulator << 1
-            @carryFlag = @isOverflow result
-            @zeroFlag = @isZero result
-            @negativeFlag = @isNegative result
-            @accumulator = result & 0xFF
+        @rotateAccumulatorOrMemory address, @rotateLeft, false
 
     LSR: (address) =>
-        if address?
-            result = @readByte address
-            @carryFlag = @isBitSet result, 1
-            result >>= 1
-            @zeroFlag = @isZero result
-            @negativeFlag = @isNegative result
-            @writeByte address, result
-        else
-            @carryFlag = @isBitSet @accumulator, 1
-            @accumulator >>= 1
-            @zeroFlag = @isZero result
-            @negativeFlag = @isNegative result
+        @rotateAccumulatorOrMemory address, @rotateRight, false
 
     ROL: (address) =>
-        oldCarryFlag = @carryFlag
-        if address?
-            result = @readByte address
-            @carryFlag = @isBitSet result, 7
-            result = (result << 1) & 0xFF
-            result |= Bit1 if oldCarryFlag is on
-            @zeroFlag = @isZero result
-            @negativeFlag = @isNegative result
-            @writeByte address, result
-        else
-            @carryFlag = @isBitSet @accumulator, 7
-            @accumulator = (@accumulator << 1) & 0xFF
-            @accumulator |= Bit1 if oldCarryFlag is on
-            @zeroFlag = @isZero result
-            @negativeFlag = @isNegative result
+        @rotateAccumulatorOrMemory address, @rotateLeft, true
 
     ROR: (address) =>
-        oldCarryFlag = @carryFlag
+        @rotateAccumulatorOrMemory address, @rotateRight, true
+
+    rotateAccumulatorOrMemory: (address, rotation, transferCarry) ->
         if address?
-            result = @readByte address
-            @carryFlag = @isBitSet result, 0
-            result = result >> 1
-            result |= Bit7 if oldCarryFlag is on
-            @zeroFlag = @isZero result
-            @negativeFlag = @isNegative result
+            operand = @readByte address
+            result = rotation operand, transferCarry
             @writeByte address, result
         else
-            @carryFlag = @isBitSet @accumulator, 0
-            @accumulator = @accumulator >> 1
-            @accumulator |= Bit7 if oldCarryFlag is on
-            @zeroFlag = @isZero result
-            @negativeFlag = @isNegative result
+            @accumulator = rotation @accumulator, transferCarry
+
+    rotateLeft: (value, transferCarry) =>
+        value <<= 1
+        value |= Bit1 if transferCarry and @carryFlag is on
+        @carryFlag = @isOverflow value
+        @zeroFlag = @isZero value
+        @negativeFlag = @isNegative value
+        value & 0xFF
+
+    rotateRight: (value, transferCarry) =>
+        oldCarryFlag = @carryFlag
+        @carryFlag = @isBitSet value, 1
+        value >>= 1
+        value |= Bit7 if transferCarry and oldCarryFlag is on
+        @zeroFlag = @isZero value
+        @negativeFlag = @isNegative value
+        value & 0xFF
 
     ###########################################################
     # Flags computation
