@@ -39,20 +39,22 @@ class CPU
         @resetFlags()
         @resetVariables()
         @resetMemory()
+        @reset() # Causes reset interrupt on start.
 
     resetRegistres: ->
         @programCounter = 0  # 16-bit
-        @stackPointer = 0xFD # 8-bit
-        @accumulator = 0     # 8-bit
-        @registerX = 0       # 8-bit
-        @registerY = 0       # 8-bit
+        @stackPointer = 0xFD #  8-bit
+        @accumulator = 0     #  8-bit
+        @registerX = 0       #  8-bit
+        @registerY = 0       #  8-bit
 
     resetFlags: ->
         @carryFlag = off       # bit 0
         @zeroFlag = off        # bit 1
         @interruptDisable = on # bit 2
         @decimalMode = off     # bit 3
-        @breakCommand = on     # bit 4
+        # Bit 4 (break command flag) is virtual (exists only as a copy on stack).
+        # Bit 5 is pushed on stack as '1' during BRK/PHP instructions and IRQ/NMI interrupts.
         @overflowFlag = off    # bit 6
         @negativeFlag = off    # bit 7
 
@@ -63,14 +65,14 @@ class CPU
         @requestedInterrupt = null
 
     resetMemory: ->
-        @writeByte address, 0xFF for address in [0...0x0800]
-        @writeByte 0x0008, 0xF7
-        @writeByte 0x0009, 0xEF
-        @writeByte 0x000A, 0xDF
-        @writeByte 0x000F, 0xBF
-        @writeByte 0x4017, 0x00
-        @writeByte 0x4015, 0x00
-        @writeByte address, 0x00 for address in [0x4000...0x4010]
+        @memory.write address, 0xFF for address in [0...0x0800]
+        @memory.write 0x0008, 0xF7
+        @memory.write 0x0009, 0xEF
+        @memory.write 0x000A, 0xDF
+        @memory.write 0x000F, 0xBF
+        @memory.write 0x4017, 0x00
+        @memory.write 0x4015, 0x00
+        @memory.write address, 0x00 for address in [0x4000...0x4010]
 
     ###########################################################
     # Execution step
@@ -102,29 +104,43 @@ class CPU
         @readWord @moveProgramCounter 2
 
     moveProgramCounter: (size = 1) ->
-        prevValue = @programCounter
+        previousValue = @programCounter
         @programCounter = (@programCounter + size) & 0xFFFF
-        prevValue
+        previousValue
 
     ###########################################################
     # Interrupt handling
     ###########################################################
 
     resolveInterrupt: ->
-        if @requestedInterrupt? and not @interruptDisable
+        if @requestedInterrupt? and not @isRequestedInterruptDisabled()
             switch @requestedInterrupt
-                when Interrupt.IRQ   then @handleInterrupt 0xFFFE
-                when Interrupt.NMI   then @handleInterrupt 0xFFFA
-                when Interrupt.Reset then @handleInterrupt 0xFFFC
-            requestedInterrupt = null
+                when Interrupt.IRQ   then handleIRQ() 
+                when Interrupt.NMI   then handleNMI()
+                when Interrupt.Reset then handleReset()
             @tick()
-            @tick()
+            @tick() # To make totally 7 cycles together with interrupt handler.
+            requestedInterrupt = false
 
-    handleInterrupt: (interruptVectorAddress)->
+    isRequestedInterruptDisabled: ->
+        @requestedInterrupt == Interrupt.IRQ and @interruptDisable is on
+
+    handleIRQ: ->
         @pushWord @programCounter
-        @pushByte @getStatus()
+        @pushByte @getStatus() | Bit5
+        @interruptDisable = on # Is set after pushing the CPU status on stack.
+        @programCounter = @readWord 0xFFFE
+
+    handleNMI: ->
+        @pushWord @programCounter
+        @pushByte @getStatus() | Bit5
+        @interruptDisable = on # Is set after pushing the CPU status on stack. 
+        @programCounter = @readWord 0xFFFA
+
+    handleReset: ->
+        @stackPointer -= 3 # Does not write on stack, just decrements its pointer.
         @interruptDisable = on
-        @programCounter = @readWord interruptVectorAddress
+        @programCounter = @readWord 0xFFFC
 
     ###########################################################
     # Memory reading / writing
@@ -170,13 +186,13 @@ class CPU
     ###########################################################
 
     resolveReadCycles: ->
-        tick()
+        @tick()
         if @emptyReadCycle
             @emptyReadCycle = no
             @tick()
 
     resolveWriteCycles: ->
-        tick()
+        @tick()
         if @emptyWriteCycle
             @emptyWriteCycle = no
             @tick()
@@ -197,7 +213,6 @@ class CPU
         status |= Bit1 if @zeroFlag
         status |= Bit2 if @interruptDisable
         status |= Bit3 if @decimalMode
-        status |= Bit4 if @breakCommand
         status |= Bit6 if @overflowFlag
         status |= Bit7 if @negativeFlag
         status
@@ -207,7 +222,6 @@ class CPU
         @zeroFlag         = @isBitSet status, 1
         @interruptDisable = @isBitSet status, 2
         @decimalMode      = @isBitSet status, 3
-        @breakCommand     = @isBitSet status, 4
         @overflowFlag     = @isBitSet status, 6
         @negativeFlag     = @isBitSet status, 7
 
@@ -296,7 +310,7 @@ class CPU
         (base + offset) & 0xFF
 
     getIndexedAddressWord : (base, offset) ->
-        @emptyReadCycle = yes if base & 0xFF00 != (base + offset) & 0xFF00 # Page crossed
+        @emptyReadCycle = yes if (base & 0xFF00) != ((base + offset) & 0xFF00) # Page crossed
         (base + offset) & 0xFFFF
 
     getSignedByte: (value) ->
@@ -409,7 +423,7 @@ class CPU
         @pushByte @accumulator
 
     PHP: =>
-        @pushByte @getStatus()
+        @pushByte @getStatus() | Bit4 | Bit5 # Pushes status with bit 4 (break command flag) and bit 5 on.
 
     ###########################################################
     # Stack pop instructions
@@ -422,7 +436,7 @@ class CPU
         @tick()
 
     PLP: =>
-        @setStatus @popByte
+        @setStatus @popByte()
         @tick()
 
     ###########################################################
@@ -447,7 +461,7 @@ class CPU
     BIT: (address) =>
         result = @accumulator & @readByte address
         @zeroFlag = @isZero result
-        @overflowFlag = @isBitSet result, 7
+        @overflowFlag = @isBitSet result, 6
         @negativeFlag = @isNegative result
 
     ###########################################################
@@ -505,10 +519,10 @@ class CPU
 
     compareRegisterAndMemory: (register, address) -> 
         operand = @readByte address
-        result = register - operand 
-        @carryFlag = result >= 0
-        @computeZeroFlag result
-        @computeNegativeFlag result
+        result = register - operand
+        @carryFlag = not @isNegative result
+        @zeroFlag = @isZero result
+        @negativeFlag = @isNegative result
 
     ###########################################################
     # Branching instructions
@@ -532,11 +546,11 @@ class CPU
     BVS: (address) =>
         @branchIf @overflowFlag is on,  address
 
-    BMI: (address) =>
-        @branchIf @negativeFlag is on, address
-
     BPL: (address) =>
         @branchIf @negativeFlag is off, address
+
+    BMI: (address) =>
+        @branchIf @negativeFlag is on, address
 
     branchIf: (condition, address) ->
         if condition
@@ -553,25 +567,26 @@ class CPU
     JSR: (address) =>
         @pushWord @programCounter
         @programCounter = address
-        tick()
+        @tick()
 
     RTS: =>
         @programCounter = @popWord()
-        tick()
-        tick()
+        @tick()
+        @tick()
 
     ###########################################################
     # Interrupt control instructions
     ###########################################################
 
     BRK: =>
-        @breakCommand = on
-        @handleInterrupt 0xFFFE
+        @pushWord @programCounter
+        @pushByte @getStatus() | Bit4 | Bit5 # Pushes status with bit 4 (break command flag) and bit 5 on.
+        @programCounter = @readWord 0xFFFE
 
     RTI: =>
         @setStatus @popByte()
         @programCounter = @popWord()
-        tick()
+        @tick()
 
     ###########################################################
     # Addition / subtraction instructions
@@ -668,10 +683,10 @@ class CPU
     ###########################################################
 
     isBitSet: (value, bit) ->
-        value & (1 << bit) != 0
+        (value & (1 << bit)) != 0
 
     isZero: (value) ->
-        value & 0xFF != 0
+        (value & 0xFF) == 0
 
     isNegative: (value) ->
         @isBitSet value, 7
@@ -680,7 +695,7 @@ class CPU
         result > 0xFF
 
     isSignedOverflow: (operand1, operand2, result) ->
-        @isBitSet (operand1 ^ result) & (operand2 ^ result), 7
+        not @isBitSet (operand1 ^ result) & (operand2 ^ result), 7
 
     ###########################################################
     # Operations table initialization
@@ -874,8 +889,8 @@ class CPU
         @registerOperation 0x50, @BVC, @relativeMode, no, no # 2 (+1/+2) cycles
         @registerOperation 0x70, @BVS, @relativeMode, no, no # 2 (+1/+2) cycles
 
-        @registerOperation 0x30, @BMI, @relativeMode, no, no # 2 (+1/+2) cycles
         @registerOperation 0x10, @BPL, @relativeMode, no, no # 2 (+1/+2) cycles
+        @registerOperation 0x30, @BMI, @relativeMode, no, no # 2 (+1/+2) cycles
         
         ###########################################################
         # Jump / subroutine instructions
