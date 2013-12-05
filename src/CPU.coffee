@@ -151,7 +151,8 @@ class CPU
         @memory.read address
 
     readWord: (address) ->
-        (@readByte address + 1) << 8 | @readByte address
+        highByte = @readByte (address + 1) & 0xFFFF
+        highByte << 8 | @readByte address
 
     writeByte: (address, value) ->
         @resolveWriteCycles()
@@ -159,7 +160,7 @@ class CPU
 
     writeWord: (address, value) ->
         @writeByte address, value & 0xFF
-        @writeByte address + 1, value >> 8
+        @writeByte (address + 1) & 0xFFFF, value >> 8
 
     ###########################################################
     # Stack pushing / pulling
@@ -283,8 +284,9 @@ class CPU
     ###########################################################
 
     relativeMode: =>
+        base = (@programCounter + 1) & 0xFFFF # We need to get address of the next instruction
         offset = @getSignedByte @readNextProgramByte()
-        @getIndexedAddressWord @programCounter, offset
+        @getIndexedAddressWord base, offset
 
     ###########################################################
     # Indirect addressing modes
@@ -294,8 +296,7 @@ class CPU
         @readWord @readNextProgramWord()
 
     indirectXMode: =>
-        address = @getIndexedAddressByte @readNextProgramByte(), @registerX
-        @readWord address
+        @readWord @zeroPageXMode()
 
     indirectYMode: =>
         base = @readWord @readNextProgramByte()
@@ -306,15 +307,18 @@ class CPU
     ###########################################################
 
     getIndexedAddressByte: (base, offset) ->
-        @emptyReadCycle = yes
+        @emptyReadCycle = yes # Included here instead of in operations table just for simplification.
         (base + offset) & 0xFF
 
     getIndexedAddressWord : (base, offset) ->
-        @emptyReadCycle = yes if (base & 0xFF00) != ((base + offset) & 0xFF00) # Page crossed
+        @emptyReadCycle = yes if @isPageCrossed base, offset
         (base + offset) & 0xFFFF
 
+    isPageCrossed: (base, offset) ->
+        (base & 0xFF00) != ((base + offset) & 0xFF00)
+
     getSignedByte: (value) ->
-        if value < 0x80 then value else value - 0xFF
+        if value >= 0x80 then value - 0x100 else value
 
     ###########################################################
     # No operation instruction
