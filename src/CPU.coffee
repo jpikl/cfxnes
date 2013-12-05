@@ -120,7 +120,7 @@ class CPU
                 when Interrupt.Reset then handleReset()
             @tick()
             @tick() # To make totally 7 cycles together with interrupt handler.
-            requestedInterrupt = false
+            requestedInterrupt = null
 
     isRequestedInterruptDisabled: ->
         @requestedInterrupt == Interrupt.IRQ and @interruptDisable is on
