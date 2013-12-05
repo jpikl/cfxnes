@@ -437,11 +437,9 @@ class CPU
         @accumulator = @popByte()
         @zeroFlag = @isZero @accumulator
         @negativeFlag = @isNegative @accumulator
-        @tick()
 
     PLP: =>
         @setStatus @popByte()
-        @tick()
 
     ###########################################################
     # Accumulator bitwise instructions
@@ -571,11 +569,9 @@ class CPU
     JSR: (address) =>
         @pushWord @programCounter
         @programCounter = address
-        @tick()
 
     RTS: =>
         @programCounter = @popWord()
-        @tick()
         @tick()
 
     ###########################################################
@@ -590,7 +586,6 @@ class CPU
     RTI: =>
         @setStatus @popByte()
         @programCounter = @popWord()
-        @tick()
 
     ###########################################################
     # Addition / subtraction instructions
@@ -773,8 +768,8 @@ class CPU
         # Stack pull instructions
         ###########################################################
 
-        @registerOperation 0x68, @PLA, @impliedMode, no, no # 4 cycles
-        @registerOperation 0x28, @PLP, @impliedMode, no, no # 4 cycles
+        @registerOperation 0x68, @PLA, @impliedMode, yes, no # 4 cycles
+        @registerOperation 0x28, @PLP, @impliedMode, yes, no # 4 cycles
 
         ###########################################################
         # Accumulator bitwise instructions
@@ -831,8 +826,8 @@ class CPU
         @registerOperation 0xCE, @DEC, @absoluteMode,  no,  yes # 6 cycles
         @registerOperation 0xDE, @DEC, @absoluteXMode, yes, yes # 7 cycles
 
-        @registerOperation 0xCA, @DEX, @impliedMode,   no,  no  #  cycles
-        @registerOperation 0x88, @DEY, @impliedMode,   no,  no  #  cycles
+        @registerOperation 0xCA, @DEX, @impliedMode,   no,  no  # 2 cycles
+        @registerOperation 0x88, @DEY, @impliedMode,   no,  no  # 2 cycles
 
         ###########################################################
         # Comparison instructions
@@ -875,17 +870,17 @@ class CPU
         # Jump / subroutine instructions
         ###########################################################
 
-        @registerOperation 0x4C, @JMP, @absoluteMode, no, no # 3 cycles
-        @registerOperation 0x6C, @JMP, @indirectMode, no, no # 5 cycles
-        @registerOperation 0x20, @JSR, @absoluteMode, no, no # 6 cycles
-        @registerOperation 0x60, @RTS, @impliedMode,  no, no # 6 cycles
+        @registerOperation 0x4C, @JMP, @absoluteMode, no,  no # 3 cycles
+        @registerOperation 0x6C, @JMP, @indirectMode, no,  no # 5 cycles
+        @registerOperation 0x20, @JSR, @absoluteMode, yes, no # 6 cycles
+        @registerOperation 0x60, @RTS, @impliedMode,  yes, no # 6 cycles
 
         ###########################################################
         # Interrupt control instructions
         ###########################################################
 
-        @registerOperation 0x00, @BRK, @impliedMode, no, no # 7 cycles
-        @registerOperation 0x40, @RTI, @impliedMode, no, no # 6 cycles
+        @registerOperation 0x00, @BRK, @impliedMode, no,  no # 7 cycles
+        @registerOperation 0x40, @RTI, @impliedMode, yes, no # 6 cycles
 
         ###########################################################
         # Addition / subtraction instructions
