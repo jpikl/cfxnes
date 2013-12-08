@@ -26,7 +26,7 @@ Interrupt =
 
 class CPU
 
-    constructor: (@memory, @ppu, @apu) ->
+    constructor: (@memory, @ppu, @papu) ->
         @init()
         @powerUp()
     
@@ -201,7 +201,7 @@ class CPU
     tick: ->
         @cycle++
         @ppu.tick() for [1..3]
-        @apu.tick()
+        @papu.tick()
         undefined
 
     ###########################################################
