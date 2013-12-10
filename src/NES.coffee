@@ -1,32 +1,20 @@
+CPU           = require "./CPU"
+CPUMemory     = require "./CPUMemory"
+MapperFactory = require "./MapperFactory"
+
 class NES
 
     constructor: ->
+        @ppuMemory = null
         @ppu = null
         @papu = null
         @cpuMemory = new CPUMemory @ppu
         @cpu = new CPU @cpuMemory, @ppu, @papu
 
     insertCartridge: (cartridge) ->
-        @cartridge = cartridge
-        @cpuMemory.setCartridge cartridge
-
-    removeCartridge: ->
-        @cartridge = null
-        @insertCartridge null
-
-    loadCartridgeRAM: ->
-        @cartridge.loadRAM()
-
-    saveCartridgeRAM: ->
-        @cartridge.saveRAM()
+        mapper = MapperFactory.createMapper cartridge
+        @ppuMemory.setMMC mapper
+        @cpuMemory.setMMC mapper
 
     pressReset: ->
         @cpu.reset()
-
-    getController1: ->
-
-    getController2: ->
-
-    saveState: ->
-
-    loadState: ->

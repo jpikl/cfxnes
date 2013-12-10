@@ -1,16 +1,20 @@
+Cartridge = require "./Cartridge"
+
 class AbstractLoader
 
-    @hasSignature (reader, bytes...) ->
+    @containsSignature (reader, bytes...) ->
         header = reader.read bytes.length
         for byte, i in bytes
             return false if byte != header[i]
         return true
 
     constructor: (@reader) ->
-        @mapperFactory = require "./MapperFactory"
-        
-    reset: ->
+
+    createCartridge: ->
+        @cartridge = new Cartridge
         @reader.reset()
+        @initCartdidge()
+        @cartridge
 
     readByte: ->
         (@readArray 1)[0]
@@ -22,10 +26,10 @@ class AbstractLoader
         result
 
     checkSignature: (bytes...) ->
-        if not Loader.hasSignature @reader, bytes...
+        if not Loader.containsSignature @reader, bytes...
             throw "Invalid file signature."
 
-    createMapper: (id) ->
-        @mapperFactory.createMapper id
+    isBitSet: (value, bit) ->
+        (value & (1 << bit)) != 0
 
 modules.export = AbstractLoader

@@ -8,13 +8,10 @@ class LoaderFactory
         @loaderClasses.push require "./loaders/#{name}"
 
     createLoader: (reader) ->
-        try
-            for loaderClass in loaderClasses
-                reader.reset()
-                if loaderClass.supports reader
-                    return new loaderClass reader
-            throw "Unsupported cartridge ROM format."
-        finally
-            reader.close()
+        for loaderClass in loaderClasses
+            reader.reset()
+            if loaderClass.supportsInput reader
+                return new loaderClass reader
+        throw "Unsupported cartridge ROM format."
 
 module.exports = new LoaderFactory

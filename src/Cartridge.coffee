@@ -1,14 +1,17 @@
+LoaderFactory     = require "./LoaderFactory"
+ArrayBufferReader = require "./readers/ArrayBufferReader"
+ServerFileReader  = require "./readers/ServerFileReader"
+
 class Cartridge
 
-    constructor: (reader) ->
-        loaderFactory = require "./LoaderFactory"
-        loader = loaderFactory.createLoader reader
-        loader.load this
+    @fromArrayBuffer: (arrayBuffer) ->
+        @fromReader new ArrayBufferReader arrayBuffer
 
-    read: (address) ->
-        @mapper.read this, address
+    @fromServerFile: (filePath) ->
+        @fromReader new ServerFileReader filePath    
 
-    write: (address, value) ->
-        @mapper.write this, address, value
+    @fromReader: (reader) ->
+        loader = LoaderFactory.createLoader reader
+        loader.createCartridge()
 
-    saveRAM: ->
+module.exports = Cartridge

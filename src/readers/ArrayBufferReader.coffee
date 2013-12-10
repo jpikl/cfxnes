@@ -14,7 +14,4 @@ class ArrayBufferReader
         @position = end
         result
 
-    close: ->
-        @view = null
-
 module.exports = ArrayBufferReader

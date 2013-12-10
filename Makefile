@@ -1,6 +1,6 @@
 SRC_DIR   = src
 BUILD_DIR = build
-MAIN_FILE = NES.js
+MAIN_FILE = Main.js
 OUT_FILE  = NESCoffee.js
 OPT_LEVEL = ADVANCED_OPTIMIZATIONS
 

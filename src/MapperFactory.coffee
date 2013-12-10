@@ -7,10 +7,11 @@ class MapperFactory
     registerMapper: (id, name) ->
         @mapperClasses[id] = require "./mappers/#{name}"
 
-    createMapper: (id) ->
-        mapperClass = @mapperClasses[id]
+    createMapper: (cartridge) ->
+        mapperId = cartridge.mapperId
+        mapperClass = @mapperClasses[mapperId]
         if not mapperClass?
-            throw "Unsupported mapper (id: #{id})."
-        return new mapperClass
+            throw "Unsupported mapper (id: #{mapperId})."
+        return new mapperClass cartridge
 
 module.exports = new MapperFactory

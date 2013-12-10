@@ -29,7 +29,7 @@ class CPU
     constructor: (@memory, @ppu, @papu) ->
         @init()
         @powerUp()
-    
+
     ###########################################################
     # Power-up state
     ###########################################################
@@ -115,7 +115,7 @@ class CPU
     resolveInterrupt: ->
         if @requestedInterrupt? and not @isRequestedInterruptDisabled()
             switch @requestedInterrupt
-                when Interrupt.IRQ   then handleIRQ() 
+                when Interrupt.IRQ   then handleIRQ()
                 when Interrupt.NMI   then handleNMI()
                 when Interrupt.Reset then handleReset()
             @tick()
@@ -134,7 +134,7 @@ class CPU
     handleNMI: ->
         @pushWord @programCounter
         @pushByte @getStatus() | Bit5
-        @interruptDisable = on # Is set after pushing the CPU status on stack. 
+        @interruptDisable = on # Is set after pushing the CPU status on stack.
         @programCounter = @readWord 0xFFFA
 
     handleReset: ->
@@ -238,7 +238,7 @@ class CPU
 
     setRequestedInterrupt: (type) ->
         if @requestedInterrupt == null or type > @requestedInterrupt
-            @requestedInterrupt = type 
+            @requestedInterrupt = type
 
     ###########################################################
     # Basic addressing modes
@@ -358,7 +358,7 @@ class CPU
     ###########################################################
     # Memory write instructions
     ###########################################################
-    
+
     STA: (address) =>
         @writeByte address @accumulator
 
@@ -512,14 +512,14 @@ class CPU
 
     CMP: (address) =>
         @compareRegisterAndMemory @accumulator, address
-        
+
     CPX: =>
         @compareRegisterAndMemory @registerX, address
 
     CPY: =>
         @compareRegisterAndMemory @registerY, address
 
-    compareRegisterAndMemory: (register, address) -> 
+    compareRegisterAndMemory: (register, address) ->
         operand = @readByte address
         result = register - operand
         @carryFlag = not @isNegative result
@@ -683,7 +683,7 @@ class CPU
         ###########################################################
 
         @registerOperation 0xEA, @NOP, @impliedMode, no, no # 2 cycles
-        
+
         ###########################################################
         # Clear flag instructions
         ###########################################################
@@ -859,13 +859,13 @@ class CPU
 
         @registerOperation 0xD0, @BNE, @relativeMode, no, no # 2 (+1/+2) cycles
         @registerOperation 0xF0, @BEQ, @relativeMode, no, no # 2 (+1/+2) cycles
-        
+
         @registerOperation 0x50, @BVC, @relativeMode, no, no # 2 (+1/+2) cycles
         @registerOperation 0x70, @BVS, @relativeMode, no, no # 2 (+1/+2) cycles
 
         @registerOperation 0x10, @BPL, @relativeMode, no, no # 2 (+1/+2) cycles
         @registerOperation 0x30, @BMI, @relativeMode, no, no # 2 (+1/+2) cycles
-        
+
         ###########################################################
         # Jump / subroutine instructions
         ###########################################################
@@ -885,7 +885,7 @@ class CPU
         ###########################################################
         # Addition / subtraction instructions
         ###########################################################
-        
+
         @registerOperation 0x69, @ADC, @immediateMode, no, no # 2      cycles
         @registerOperation 0x65, @ADC, @zeroPageMode,  no, no # 3      cycles
         @registerOperation 0x75, @ADC, @zeroPageXMode, no, no # 4      cycles
@@ -907,7 +907,7 @@ class CPU
         ###########################################################
         # Shifting instructions
         ###########################################################
-        
+
         @registerOperation 0x0A, @ASL, @accumulatorMode, no,  no  # 2 cycles
         @registerOperation 0x06, @ASL, @zeroPageMode,    no,  yes # 5 cycles
         @registerOperation 0x16, @ASL, @zeroPageXMode,   no,  yes # 6 cycles
@@ -933,7 +933,7 @@ class CPU
         @registerOperation 0x7E, @ROR, @absoluteXMode,   yes, yes # 7 cycles
 
     registerOperation: (operationCode, instruction, addressingMode, emptyReadCycle, emptyWriteCycle) ->
-        @operationsTable[operationCode] = 
+        @operationsTable[operationCode] =
             instruction: instruction
             addressingMode: addressingMode
             emptyReadCycle: emptyReadCycle

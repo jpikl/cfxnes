@@ -1,29 +1,31 @@
 class NROMMapper
 
-    read: (cartridge, address) ->
+    constructor: (@cartridge) ->
+
+    cpuRead: (address) ->
         if address >= 0x8000 
-            @readPRGROM cartridge, address 
+            @readROM address 
         else 
             0
 
-    write: (cartridge, address, value) ->
+    cpuWrite: (address, value) ->
         if address >= 0x8000
-            @writePRGROM cartridge, address
+            @writeROM address
 
-    readPRGROM: (cartridge, address) ->
-        bank = @getPRGROMBank cartridge, address
-        bank[@getPRGROMOffset address]
+    readROM: (address) ->
+        bank = @getROMBank address
+        bank[@getROMOffset address]
 
-    writePRGROM: (cartridge, address, value) ->
-        bank = @getPRGROMBank cartridge, address
-        bank[@getPRGROMOffset address] = value
+    writeROM: (address, value) ->
+        bank = @getROMBank address
+        bank[@getROMOffset address] = value
 
-    getPRGROMBank: (cartridge, address) ->
-        banksCount = cartridge.PRGROMBanks.length
+    getROMBank: (address) ->
+        banksCount = @cartridge.ROMBanks.length
         bankIndex = if address < 0xC000 or banksCount == 1 then 0 else 1
-        cartridge.PRGROMBanks[bankIndex]
+        @cartridge.ROMBanks[bankIndex]
 
-    getPRGROMOffset: (address) ->
+    getROMOffset: (address) ->
         address & 0x7FFF
 
 module.exports = NROMMapper

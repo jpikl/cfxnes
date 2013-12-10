@@ -10,8 +10,5 @@ class ServerFileReader
 
     read: (size) ->
         @stream.read size
-
-    close: ->
-        @stream = null
         
 module.exports = ServerFileReader
