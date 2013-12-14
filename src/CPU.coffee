@@ -26,7 +26,7 @@ Interrupt =
 
 class CPU
 
-    constructor: (@memory, @ppu, @papu) ->
+    constructor: (@cpuMemory, @ppu, @papu) ->
         @init()
         @powerUp()
 
@@ -65,14 +65,14 @@ class CPU
         @requestedInterrupt = null
 
     resetMemory: ->
-        @memory.write address, 0xFF for address in [0...0x0800]
-        @memory.write 0x0008, 0xF7
-        @memory.write 0x0009, 0xEF
-        @memory.write 0x000A, 0xDF
-        @memory.write 0x000F, 0xBF
-        @memory.write 0x4017, 0x00
-        @memory.write 0x4015, 0x00
-        @memory.write address, 0x00 for address in [0x4000...0x4010]
+        @cpuMemory.write address, 0xFF for address in [0...0x0800]
+        @cpuMemory.write 0x0008, 0xF7
+        @cpuMemory.write 0x0009, 0xEF
+        @cpuMemory.write 0x000A, 0xDF
+        @cpuMemory.write 0x000F, 0xBF
+        @cpuMemory.write 0x4017, 0x00
+        @cpuMemory.write 0x4015, 0x00
+        @cpuMemory.write address, 0x00 for address in [0x4000...0x4010]
 
     ###########################################################
     # Execution step
@@ -148,7 +148,7 @@ class CPU
 
     readByte: (address) ->
         @resolveReadCycles()
-        @memory.read address
+        @cpuMemory.read address
 
     readWord: (address) ->
         highByte = @readByte (address + 1) & 0xFFFF
@@ -156,7 +156,7 @@ class CPU
 
     writeByte: (address, value) ->
         @resolveWriteCycles()
-        @memory.write address, value
+        @cpuMemory.write address, value
 
     writeWord: (address, value) ->
         @writeByte address, value & 0xFF

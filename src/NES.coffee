@@ -1,20 +1,16 @@
-CPU           = require "./CPU"
-CPUMemory     = require "./CPUMemory"
-MapperFactory = require "./MapperFactory"
-
 class NES
-
-    constructor: ->
-        @ppuMemory = null
-        @ppu = null
-        @papu = null
-        @cpuMemory = new CPUMemory @ppu
-        @cpu = new CPU @cpuMemory, @ppu, @papu
+    
+    constructor: (@cpu, @cpuMemory, @ppu, @ppuMemory, @mapperFactory) ->
 
     insertCartridge: (cartridge) ->
-        mapper = MapperFactory.createMapper cartridge
+        mapper = @mapperFactory.createMapper cartridge
         @ppuMemory.setMMC mapper
         @cpuMemory.setMMC mapper
 
     pressReset: ->
         @cpu.reset()
+
+    step: ->
+        @cpu.step()
+
+module.exports = NES

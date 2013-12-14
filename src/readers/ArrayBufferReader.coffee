@@ -1,17 +1,15 @@
-class ArrayBufferReader
+AbstractReader = require "./AbstractReader"
+
+class ArrayBufferReader extends AbstractReader
 
     constructor: (buffer) ->
+        super()
         @view = new Unit8Array buffer
-        @reset()
 
-    reset: ->
-        @position = 0
+    getLength: ->
+        @view.length
 
-    read: (size) ->
-        size ?= @view.length
-        end = Math.min @position + size, @view.length
-        result = @view.subarray @position, end
-        @position = end
-        result
+    getData: (start, end) ->
+        @view.subarray start, end
 
 module.exports = ArrayBufferReader

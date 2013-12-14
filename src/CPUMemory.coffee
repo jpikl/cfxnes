@@ -60,9 +60,9 @@ class CPUMemory
     ###########################################################
 
     readMMC: (address) ->
-        @mmc.cpuRead address
+        @mmc.cpuRead address if @mmc?
 
-    writeMMC: (address) ->
-        @mmc.cpuWrite address, value
+    writeMMC: (address, value) ->
+        @mmc.cpuWrite address, value if @mmc?
 
 module.exports = CPUMemory

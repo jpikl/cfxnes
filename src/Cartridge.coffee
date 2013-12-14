@@ -4,6 +4,8 @@ ServerFileReader  = require "./readers/ServerFileReader"
 
 class Cartridge
 
+    @loaderFactory = new LoaderFactory
+
     @fromArrayBuffer: (arrayBuffer) ->
         @fromReader new ArrayBufferReader arrayBuffer
 
@@ -11,7 +13,7 @@ class Cartridge
         @fromReader new ServerFileReader filePath    
 
     @fromReader: (reader) ->
-        loader = LoaderFactory.createLoader reader
-        loader.createCartridge()
+        loader = @loaderFactory.createLoader reader
+        loader.loadCartridge new Cartridge
 
 module.exports = Cartridge

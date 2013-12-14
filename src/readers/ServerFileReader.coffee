@@ -1,14 +1,16 @@
-fs = require "fs"
+FileSystem     = require "fs"
+AbstractReader = require "./AbstractReader"
 
-class ServerFileReader
+class ServerFileReader extends AbstractReader
 
     constructor: (@path) ->  
-        @reset()
+        super()
+        @data = FileSystem.readFileSync @path
 
-    reset: ->
-        @stream = fs.createReadStream @path
+    getLength: ->
+        @data.length
 
-    read: (size) ->
-        @stream.read size
+    getData: (start, end) ->
+        @data[index] for index in [start...end]
         
 module.exports = ServerFileReader

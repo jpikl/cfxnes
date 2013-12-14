@@ -7,7 +7,7 @@ class INESLoader extends AbstractLoader
     @supportsInput: (reader) ->
         @containsSignature reader, INES_SIGNATURE
 
-    initCartridge: ->
+    readCartridge: ->
         @readHeader()
         @readTrainer()
         @readROMBanks()
@@ -72,3 +72,5 @@ class INESLoader extends AbstractLoader
     readVROMBanks: ->
         count = @cartridge.VROMBanksCount
         @cartridge.VROMBanks = @readArray 0x2000 for [1..count] # Each bank is 8 KB
+
+module.exports = INESLoader

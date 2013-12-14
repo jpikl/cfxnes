@@ -1,8 +1,8 @@
-Cartridge = require "./Cartridge"
+Cartridge = require "../Cartridge"
 
 class AbstractLoader
 
-    @containsSignature (reader, bytes...) ->
+    @containsSignature: (reader, bytes) ->
         header = reader.read bytes.length
         for byte, i in bytes
             return false if byte != header[i]
@@ -10,10 +10,10 @@ class AbstractLoader
 
     constructor: (@reader) ->
 
-    createCartridge: ->
-        @cartridge = new Cartridge
+    loadCartridge: (cartridge) ->
+        @cartridge = cartridge ? {}
         @reader.reset()
-        @initCartdidge()
+        @readCartridge()
         @cartridge
 
     readByte: ->
@@ -26,10 +26,10 @@ class AbstractLoader
         result
 
     checkSignature: (bytes...) ->
-        if not Loader.containsSignature @reader, bytes...
+        if not AbstractLoader.containsSignature @reader, bytes...
             throw "Invalid file signature."
 
     isBitSet: (value, bit) ->
         (value & (1 << bit)) != 0
 
-modules.export = AbstractLoader
+module.exports = AbstractLoader
