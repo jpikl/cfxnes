@@ -188,7 +188,7 @@ class DebugCPU extends CPU
         "SEI", "ADC", "NOP", "RRA", "NOP", "ADC", "ROR", "RRA"
         "NOP", "STA", "NOP", "SAX", "STY", "STA", "STX", "SAX"
         "DEY", "NOP", "TXA", "ANE", "STY", "STA", "STX", "SAX"
-        "BBC", "STA", "???", "SHA", "STY", "STA", "STX", "SAX"
+        "BCC", "STA", "???", "SHA", "STY", "STA", "STX", "SAX"
         "TYA", "STA", "TXS", "SHS", "SHY", "STA", "SHX", "SHA"
         "LDY", "LDA", "LDX", "LAX", "LDY", "LDA", "LDX", "LAX"
         "TAY", "LDA", "TAX", "LXA", "LDY", "LDA", "LDX", "LAX"

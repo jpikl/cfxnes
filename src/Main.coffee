@@ -13,10 +13,13 @@ dependencies =
 
 if process?.argv[2] == "-d"
     dependencies.cpu.module = "debug/DebugCPU"
+    testFile = process.argv[3]
+    totalSteps = parseInt process.argv[4]
 
 injector = new Injector dependencies
-
-cartridge = Cartridge.fromServerFile "./nestest.nes"
 nes = injector.getInstance "nes"
-nes.insertCartridge cartridge
-nes.step() for [1..1000]
+
+if testFile?
+    cartridge = Cartridge.fromServerFile testFile
+    nes.insertCartridge cartridge
+    nes.step() for [1..totalSteps]
