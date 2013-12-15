@@ -42,21 +42,21 @@ class CPU
         @reset() # Causes reset interrupt on start.
 
     resetRegistres: ->
-        @programCounter = 0  # 16-bit
-        @stackPointer = 0xFD #  8-bit
-        @accumulator = 0     #  8-bit
-        @registerX = 0       #  8-bit
-        @registerY = 0       #  8-bit
+        @programCounter = 0 # 16-bit
+        @stackPointer = 0   #  8-bit
+        @accumulator = 0    #  8-bit
+        @registerX = 0      #  8-bit
+        @registerY = 0      #  8-bit
 
     resetFlags: ->
-        @carryFlag = off       # bit 0
-        @zeroFlag = off        # bit 1
-        @interruptDisable = on # bit 2
-        @decimalMode = off     # bit 3
+        @carryFlag = off        # bit 0
+        @zeroFlag = off         # bit 1
+        @interruptDisable = off # bit 2
+        @decimalMode = off      # bit 3
         # Bit 4 (break command flag) is virtual (exists only as a copy on stack).
         # Bit 5 is pushed on stack as '1' during BRK/PHP instructions and IRQ/NMI interrupts.
-        @overflowFlag = off    # bit 6
-        @negativeFlag = off    # bit 7
+        @overflowFlag = off     # bit 6
+        @negativeFlag = off     # bit 7
 
     resetVariables: ->
         @cycle = 0
@@ -95,7 +95,9 @@ class CPU
 
     readOperation: ->
         operationCode = @readNextProgramByte()
-        @operationsTable[operationCode]
+        operation = @operationsTable[operationCode]
+        throw "Unsupported operation (code: 0x#{@byteAsHex operationCode})" unless operation?
+        operation
 
     readNextProgramByte: ->
         @readByte @moveProgramCounter()
@@ -171,7 +173,7 @@ class CPU
         @stackPointer = (@stackPointer - 1) & 0xFF
 
     pushWord: (value) ->
-        @pushByte (value >> 8) & 0xFF
+        @pushByte value >> 8
         @pushByte value & 0xFF
 
     popByte: ->
@@ -179,8 +181,7 @@ class CPU
         @readByte 0x100 + @stackPointer
 
     popWord: ->
-        result = @popByte()
-        result |= @popByte() << 8
+        @popByte() | @popByte() << 8
 
     ###########################################################
     # Memory reading / writing cycles handling
@@ -360,13 +361,13 @@ class CPU
     ###########################################################
 
     STA: (address) =>
-        @writeByte address @accumulator
+        @writeByte address, @accumulator
 
     STX: (address) =>
-        @writeByte address @registerX
+        @writeByte address, @registerX
 
     STY: (address) =>
-        @writeByte address @registerY
+        @writeByte address, @registerY
 
     ###########################################################
     # Memory read instructions
@@ -666,7 +667,7 @@ class CPU
         @isBitSet value, 7
 
     isOverflow: (value) ->
-        result > 0xFF
+        value > 0xFF
 
     isSignedOverflow: (operand1, operand2, result) ->
         not @isBitSet (operand1 ^ result) & (operand2 ^ result), 7
@@ -938,5 +939,18 @@ class CPU
             addressingMode: addressingMode
             emptyReadCycle: emptyReadCycle
             emptyWriteCycle: emptyWriteCycle
+
+    ###########################################################
+    # Formatting utilities
+    ###########################################################
+
+    byteAsHex: (byte) ->
+        hex = (byte.toString 16).toUpperCase()
+        if hex.length == 1 then "0" + hex else hex
+
+    wordAsHex: (word, putSpace) ->
+        hex1 = @byteAsHex word & 0xFF
+        hex2 = @byteAsHex word >> 8
+        hex2 + hex1
 
 module.exports = CPU

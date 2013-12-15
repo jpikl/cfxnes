@@ -11,10 +11,7 @@ class DebugCPU extends CPU
     ###########################################################
 
     readOperation: ->
-        @instructionAddress = @programCounter
-        @instructionByte1 = @cpuMemory.read @programCounter
-        @instructionByte2 = @cpuMemory.read (@programCounter + 1) & 0xFFFF
-        @instructionByte3 = @cpuMemory.read (@programCounter + 2) & 0xFFFF
+        @currentAddress = @programCounter
         super()
 
     ###########################################################
@@ -22,91 +19,151 @@ class DebugCPU extends CPU
     ###########################################################
 
     impliedMode: =>
+        result = super()
         @logOperation 1
-        super()
+        result
 
     accumulatorMode: =>
+        result = super()
         @logOperation 1
-        super()
+        result
 
     immediateMode: =>
+        result = super()
         @logOperation 2
-        super()
+        result
 
     ###########################################################
     # Zero page addressing modes
     ###########################################################
 
     zeroPageMode: =>
+        result = super()
         @logOperation 2
-        super()
+        result
 
     zeroPageXMode: =>
+        result = super()
         @logOperation 2
-        super()
+        result
 
     zeroPageYMode: =>
+        result = super()
         @logOperation 2
-        super()
+        result
 
     ###########################################################
     # Absolute addressing modes
     ###########################################################
 
     absoluteMode: =>
+        result = super()
         @logOperation 3
-        super()
+        result
 
     absoluteXMode: =>
+        result = super()
         @logOperation 3
-        super()
+        result
 
     absoluteYMode: =>
+        result = super()
         @logOperation 3
-        super()
+        result
 
     ###########################################################
     # Relative addressing mode
     ###########################################################
 
     relativeMode: =>
+        result = super()
         @logOperation 2
-        super()
+        result
 
     ###########################################################
     # Indirect addressing modes
     ###########################################################
 
     indirectMode: =>
+        result = super()
         @logOperation 3
-        super()
+        result
 
     indirectXMode: =>
+        result = super()
         @logOperation 2
-        super()
+        result
 
     indirectYMode: =>
+        result = super()
         @logOperation 2
-        super()
+        result
 
     ###########################################################
     # Logging utilities
     ###########################################################
 
     logOperation: (instructionSize) ->
-        address = @wordAsHex @instructionAddress
-        byte1 = @byteAsHex @instructionByte1
-        byte2 = if instructionSize > 1 then @byteAsHex @instructionByte2 else "  "
-        byte3 = if instructionSize > 2 then @byteAsHex @instructionByte3 else "  "
-        Util.print "#{address}  #{byte1} #{byte2} #{byte2}  \n"
+        @logInstructionAddress()
+        @logInstructionData instructionSize
+        @logInstructionCode()
+        Util.print "\n"
 
-    byteAsHex: (byte) ->
-        hex = (byte.toString 16).toUpperCase()
-        if hex.length == 1 then "0" + hex else hex
+    logInstructionAddress: ->
+        Util.print "#{@wordAsHex @currentAddress}  "
 
-    wordAsHex: (word, putSpace) ->
-        hex1 = @byteAsHex word & 0xFF
-        hex2 = @byteAsHex word >> 8
-        hex2 + hex1
+    logInstructionData: (instructionSize) ->
+        @logInstructionByte offset, instructionSize for offset in [0..2]
+
+    logInstructionByte: (offset, size) ->
+        if offset < size
+            Util.print "#{@byteAsHex @getInstructionByte offset} "
+        else
+            Util.print "   "
+
+    logInstructionCode: ->
+        Util.print " #{@instructionCodes[@getInstructionByte 0]} "
+
+    getInstructionByte: (offset) ->
+        @cpuMemory.read (@currentAddress + offset) & 0xFFFF
+
+    ###########################################################
+    # Instruction codes
+    ###########################################################
+
+    instructionCodes: [
+        "BRK", "ORA", "???", "SLO", "NOP", "ORA", "ASL", "SLO"
+        "PHP", "ORA", "ASL", "ANC", "NOP", "ORA", "ASL", "SLO"
+        "BPL", "ORA", "???", "SLO", "NOP", "ORA", "ASL", "SLO"
+        "CLC", "ORA", "NOP", "SLO", "NOP", "ORA", "ASL", "SLO"
+        "JSR", "AND", "???", "RLA", "BIT", "AND", "ROL", "RLA"
+        "PLP", "AND", "ROL", "ANC", "BIT", "AND", "ROL", "RLA"
+        "BMI", "AND", "???", "RLA", "NOP", "AND", "ROL", "RLA"
+        "SEC", "AND", "NOP", "RLA", "NOP", "AND", "ROL", "RLA"
+        "RTI", "EOR", "???", "SRE", "NOP", "EOR", "LSR", "SRE"
+        "PHA", "EOR", "LSR", "ASR", "JMP", "EOR", "LSR", "SRE"
+        "BVC", "EOR", "???", "SRE", "NOP", "EOR", "LSR", "SRE"
+        "CLI", "EOR", "NOP", "SRE", "NOP", "EOR", "LSR", "SRE"
+        "RTS", "ADC", "???", "RRA", "NOP", "ADC", "ROR", "RRA"
+        "PLA", "ADC", "ROR", "ARR", "JMP", "ADC", "ROR", "RRA"
+        "BVS", "ADC", "???", "RRA", "NOP", "ADC", "ROR", "RRA"
+        "SEI", "ADC", "NOP", "RRA", "NOP", "ADC", "ROR", "RRA"
+        "NOP", "STA", "NOP", "SAX", "STY", "STA", "STX", "SAX"
+        "DEY", "NOP", "TXA", "ANE", "STY", "STA", "STX", "SAX"
+        "BBC", "STA", "???", "SHA", "STY", "STA", "STX", "SAX"
+        "TYA", "STA", "TXS", "SHS", "SHY", "STA", "SHX", "SHA"
+        "LDY", "LDA", "LDX", "LAX", "LDY", "LDA", "LDX", "LAX"
+        "TAY", "LDA", "TAX", "LXA", "LDY", "LDA", "LDX", "LAX"
+        "BCS", "LDA", "???", "LAX", "LDY", "LDA", "LDX", "LAX"
+        "CLV", "LDA", "TSX", "LAS", "LDY", "LDA", "LDX", "LAX"
+        "CPY", "CMP", "NOP", "DCP", "CPY", "CMP", "DEC", "DCP"
+        "INY", "CMP", "DEX", "SBX", "CPY", "CMP", "DEC", "DCP"
+        "BNE", "CMP", "???", "DCP", "NOP", "CMP", "DEC", "DCP"
+        "CLD", "CMP", "NOP", "DCP", "NOP", "CMP", "DEC", "DCP"
+        "CPX", "SBC", "NOP", "ISB", "CPX", "SBC", "INC", "ISB"
+        "INX", "SBC", "NOP", "SBC", "CPX", "SBC", "INC", "ISB"
+        "BEQ", "SBC", "???", "ISB", "NOP", "SBC", "INC", "ISB"
+        "SED", "SBC", "NOP", "ISB", "NOP", "SBC", "INC", "ISB"
+    ]
 
 module.exports = DebugCPU
