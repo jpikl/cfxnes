@@ -140,9 +140,11 @@ class CPU
         @programCounter = @readWord 0xFFFA
 
     handleReset: ->
-        @stackPointer -= 3 # Does not write on stack, just decrements its pointer.
+        @stackPointer = (@stackPointer - 3) & 0xFF # Does not write on stack, just decrements its pointer.
         @interruptDisable = on
         @programCounter = @readWord 0xFFFC
+        @programCounter = 0xC000
+        @interruptDisable = off
 
     ###########################################################
     # Memory reading / writing
@@ -514,10 +516,10 @@ class CPU
     CMP: (address) =>
         @compareRegisterAndMemory @accumulator, address
 
-    CPX: =>
+    CPX: (address) =>
         @compareRegisterAndMemory @registerX, address
 
-    CPY: =>
+    CPY: (address) =>
         @compareRegisterAndMemory @registerY, address
 
     compareRegisterAndMemory: (register, address) ->

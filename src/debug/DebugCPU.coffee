@@ -5,127 +5,152 @@ class DebugCPU extends CPU
 
     constructor: (cpuMemory, ppu, papu) ->
         super(cpuMemory, ppu, papu)
-
-    ###########################################################
-    # Program execution
-    ###########################################################
-
-    readOperation: ->
-        @currentAddress = @programCounter
-        super()
+        @startLogging()
 
     ###########################################################
     # Basic addressing modes
     ###########################################################
 
     impliedMode: =>
-        result = super()
-        @logOperation 1
-        result
+        @processAddressingMode "imp", super(), "N", 1
 
     accumulatorMode: =>
-        result = super()
-        @logOperation 1
-        result
+        @processAddressingMode "acc", super(), "N", 1
 
     immediateMode: =>
-        result = super()
-        @logOperation 2
-        result
+        @processAddressingMode "imm", super(), "I", 2
 
     ###########################################################
     # Zero page addressing modes
     ###########################################################
 
     zeroPageMode: =>
-        result = super()
-        @logOperation 2
-        result
+        @processAddressingMode "zpg", super(), "B", 2
 
     zeroPageXMode: =>
-        result = super()
-        @logOperation 2
-        result
+        @processAddressingMode "zpx", super(), "B", 2
 
     zeroPageYMode: =>
-        result = super()
-        @logOperation 2
-        result
+        @processAddressingMode "zpy", super(), "B", 2
 
     ###########################################################
     # Absolute addressing modes
     ###########################################################
 
     absoluteMode: =>
-        result = super()
-        @logOperation 3
-        result
+        @processAddressingMode "abs", super(), "W", 3
 
     absoluteXMode: =>
-        result = super()
-        @logOperation 3
-        result
+        @processAddressingMode "abx", super(), "W", 3
 
     absoluteYMode: =>
-        result = super()
-        @logOperation 3
-        result
+        @processAddressingMode "aby", super(), "W", 3
 
     ###########################################################
     # Relative addressing mode
     ###########################################################
 
     relativeMode: =>
-        result = super()
-        @logOperation 2
-        result
+        @processAddressingMode "rel", super(), "W", 2
 
     ###########################################################
     # Indirect addressing modes
     ###########################################################
 
     indirectMode: =>
-        result = super()
-        @logOperation 3
-        result
+        @processAddressingMode "ind", super(), "W", 3
 
     indirectXMode: =>
-        result = super()
-        @logOperation 2
-        result
+        @processAddressingMode "inx", super(), "W", 2
 
     indirectYMode: =>
-        result = super()
-        @logOperation 2
-        result
+        @processAddressingMode "iny", super(), "W", 2
 
     ###########################################################
-    # Logging utilities
+    # Logging
     ###########################################################
 
-    logOperation: (instructionSize) ->
-        @logInstructionAddress()
-        @logInstructionData instructionSize
-        @logInstructionCode()
-        Util.print "\n"
+    processAddressingMode: (addressingModeName, effectiveAddress, addressType, instructionSize) -> 
+        @logOperation addressingModeName, effectiveAddress, addressType, instructionSize
+        effectiveAddress
 
-    logInstructionAddress: ->
-        Util.print "#{@wordAsHex @currentAddress}  "
+    startLogging: ->
+        @logLines = 0
+        @logHeader()
 
-    logInstructionData: (instructionSize) ->
-        @logInstructionByte offset, instructionSize for offset in [0..2]
+    logHeader: ->
+        Util.puts "/-------+------+----------+-----+-----+------------+---------------------------+--------------------------\\"
+        Util.puts "|  Cyc  |  PC  | B1 B2 B3 | OP  | AM  | Adr / Val  |        Registers          |           Flags          |"
 
-    logInstructionByte: (offset, size) ->
-        if offset < size
-            Util.print "#{@byteAsHex @getInstructionByte offset} "
+    logOperation: (addressingModeName, effectiveAddress, addressType, instructionSize) ->
+        instructionAddress = (@programCounter - instructionSize) & 0xFFFF
+        instructionData = [
+            @cpuMemory.read instructionAddress
+            @cpuMemory.read (instructionAddress + 1) & 0xFFFF
+            @cpuMemory.read (instructionAddress + 2) & 0xFFFF
+        ]
+        @logSeparator()
+        @logCyclesCount()
+        @logInstructionAddress instructionAddress
+        @logInstructionData instructionData, instructionSize
+        @logInstructionCode instructionData[0]
+        @logAddressingMode addressingModeName
+        @logAddressingDetails effectiveAddress, addressType
+        @logRegisters()
+        @logFlags()
+
+    logSeparator: ->
+        if (@logLines++ % 4) == 0
+            Util.puts "|-------|------|----------|-----|-----|------------|---------------------------|--------------------------|"
+
+    logCyclesCount: ->
+        result = "        #{@cycle} "
+        Util.print "|" + result[result.length - 7 ...]
+
+    logInstructionAddress: (address) ->
+        Util.print "| #{@wordAsHex address} | "
+
+    logInstructionData: (data, size) ->
+        @logInstructionByte data[offset], offset < size for offset in [0..2]
+
+    logInstructionByte: (byte, visible) ->
+        if visible
+            Util.print "#{@byteAsHex byte} "
         else
             Util.print "   "
 
-    logInstructionCode: ->
-        Util.print " #{@instructionCodes[@getInstructionByte 0]} "
+    logInstructionCode: (operationCode) ->
+        Util.print "| #{@instructionCodes[operationCode]} |"
 
-    getInstructionByte: (offset) ->
-        @cpuMemory.read (@currentAddress + offset) & 0xFFFF
+    logAddressingMode: (name) ->
+        Util.print " #{name} | "
+
+    logAddressingDetails: (address, type) ->
+        Util.print ("#{@getAddressingDetails address, type}          ")[0...10] + " | "
+
+    getAddressingDetails: (address, type) ->
+        switch type
+            when "N" then ""
+            when "I" then "##{@byteAsHex @cpuMemory.read address}"
+            when "B" then "$#{@byteAsHex address} = #{@byteAsHex @cpuMemory.read address}"
+            when "W" then "$#{@wordAsHex address} = #{@byteAsHex @cpuMemory.read address}"
+
+    logRegisters: ->
+        Util.print "A:#{@byteAsHex @accumulator} "
+        Util.print "X:#{@byteAsHex @registerX} "
+        Util.print "Y:#{@byteAsHex @registerY} "
+        Util.print "P:#{@byteAsHex @getStatus()} "
+        Util.print "SP:#{@byteAsHex @stackPointer} | "
+
+    logFlags: ->
+        Util.print "C#{@booleanAsCheckBox @carryFlag} "
+        Util.print "I#{@booleanAsCheckBox @interruptDisable} "
+        Util.print "D#{@booleanAsCheckBox @decimalMode} "
+        Util.print "O#{@booleanAsCheckBox @overflowFlag} "
+        Util.print "N#{@booleanAsCheckBox @negativeFlag} |\n"
+
+    booleanAsCheckBox: (value) ->
+        if value then "[X]" else "[ ]"
 
     ###########################################################
     # Instruction codes

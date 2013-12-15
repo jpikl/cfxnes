@@ -19,4 +19,4 @@ injector = new Injector dependencies
 cartridge = Cartridge.fromServerFile "./nestest.nes"
 nes = injector.getInstance "nes"
 nes.insertCartridge cartridge
-nes.step() for [1..100]
+nes.step() for [1..1000]
