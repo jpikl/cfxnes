@@ -568,11 +568,11 @@ class CPU
         @programCounter = address
 
     JSR: (address) =>
-        @pushWord @programCounter
+        @pushWord (@programCounter - 1) & 0xFFFF # The pushed address must be the end of the current instruction.
         @programCounter = address
 
     RTS: =>
-        @programCounter = @popWord()
+        @programCounter = (@popWord() + 1) & 0xFFFF # We decremented the address when pushing it during JSR.
         @tick()
 
     ###########################################################
@@ -643,7 +643,7 @@ class CPU
 
     rotateRight: (value, transferCarry) =>
         oldCarryFlag = @carryFlag
-        @carryFlag = @isBitSet value, 1
+        @carryFlag = @isBitSet value, 0
         value >>= 1
         value |= Bit7 if transferCarry and oldCarryFlag is on
         @zeroFlag = @isZero value
