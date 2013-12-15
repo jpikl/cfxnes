@@ -1,5 +1,5 @@
-Cartridge = require "../src/Cartridge"
-Injector  = require "../src/utils/Injector"
+Cartridge = require "../../src/Cartridge"
+Injector  = require "../../src/utils/Injector"
 
 testFile = process.argv[2]
 totalSteps = parseInt process.argv[3]
