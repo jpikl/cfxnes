@@ -7,6 +7,11 @@ class DebugCPU extends CPU
         super(cpuMemory, ppu, papu)
         @startLogging()
 
+    handleReset: ->
+        super()
+        #@interruptDisable = on
+        @programCounter = 0xC000
+
     ###########################################################
     # Basic addressing modes
     ###########################################################
@@ -79,8 +84,8 @@ class DebugCPU extends CPU
         @logHeader()
 
     logHeader: ->
-        Util.puts "/-------+------+----------+-----+-----+------------+---------------------------+--------------------------\\"
-        Util.puts "|  Cyc  |  PC  | B1 B2 B3 | OP  | AM  | Adr / Val  |        Registers          |           Flags          |"
+        Util.puts "/-------+-------+------+----------+-----+-----+------------+---------------------------+-----------------\\"
+        Util.puts "|     # |  Cyc  |  PC  | D0 D1 D2 | OP  | AM  | Adr / Val  |        Registers          |      Flags      |"
 
     logOperation: (addressingModeName, effectiveAddress, addressType, instructionSize) ->
         instructionAddress = (@programCounter - instructionSize) & 0xFFFF
@@ -90,6 +95,7 @@ class DebugCPU extends CPU
             @cpuMemory.read (instructionAddress + 2) & 0xFFFF
         ]
         @logSeparator()
+        @logLinesCount()
         @logCyclesCount()
         @logInstructionAddress instructionAddress
         @logInstructionData instructionData, instructionSize
@@ -101,7 +107,11 @@ class DebugCPU extends CPU
 
     logSeparator: ->
         if (@logLines++ % 4) == 0
-            Util.puts "|-------|------|----------|-----|-----|------------|---------------------------|--------------------------|"
+            Util.puts "|-------|-------|------|----------|-----|-----|------------|---------------------------|-----------------|"
+
+    logLinesCount: ->
+        result = "        #{@logLines} "
+        Util.print "|" + result[result.length - 7 ...]
 
     logCyclesCount: ->
         result = "        #{@cycle} "
@@ -143,14 +153,17 @@ class DebugCPU extends CPU
         Util.print "SP:#{@byteAsHex @stackPointer} | "
 
     logFlags: ->
-        Util.print "C#{@booleanAsCheckBox @carryFlag} "
-        Util.print "I#{@booleanAsCheckBox @interruptDisable} "
-        Util.print "D#{@booleanAsCheckBox @decimalMode} "
-        Util.print "O#{@booleanAsCheckBox @overflowFlag} "
-        Util.print "N#{@booleanAsCheckBox @negativeFlag} |\n"
+        Util.print "#{@booleanAsText @negativeFlag, 'N'} "
+        Util.print "#{@booleanAsText @overflowFlag, 'V'} "
+        Util.print "? "
+        Util.print "? "
+        Util.print "#{@booleanAsText @decimalMode, 'D'} "
+        Util.print "#{@booleanAsText @interruptDisable, 'I'} "
+        Util.print "#{@booleanAsText @zeroFlag, 'Z'} "
+        Util.print "#{@booleanAsText @carryFlag, 'C'} |\n"
 
-    booleanAsCheckBox: (value) ->
-        if value then "[X]" else "[ ]"
+    booleanAsText: (value, char) ->
+        if value then char else "."
 
     ###########################################################
     # Instruction codes

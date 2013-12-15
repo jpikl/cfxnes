@@ -129,13 +129,13 @@ class CPU
 
     handleIRQ: ->
         @pushWord @programCounter
-        @pushByte @getStatus() | Bit5
+        @pushByte @getStatus()
         @interruptDisable = on # Is set after pushing the CPU status on stack.
         @programCounter = @readWord 0xFFFE
 
     handleNMI: ->
         @pushWord @programCounter
-        @pushByte @getStatus() | Bit5
+        @pushByte @getStatus()
         @interruptDisable = on # Is set after pushing the CPU status on stack.
         @programCounter = @readWord 0xFFFA
 
@@ -143,8 +143,6 @@ class CPU
         @stackPointer = (@stackPointer - 3) & 0xFF # Does not write on stack, just decrements its pointer.
         @interruptDisable = on
         @programCounter = @readWord 0xFFFC
-        @programCounter = 0xC000
-        @interruptDisable = off
 
     ###########################################################
     # Memory reading / writing
@@ -212,7 +210,7 @@ class CPU
     ###########################################################
 
     getStatus: ->
-        status = 0
+        status = Bit5 # Bit 5 is alway set on when pushing status on stack.
         status |= Bit0 if @carryFlag
         status |= Bit1 if @zeroFlag
         status |= Bit2 if @interruptDisable
@@ -430,7 +428,7 @@ class CPU
         @pushByte @accumulator
 
     PHP: =>
-        @pushByte @getStatus() | Bit4 | Bit5 # Pushes status with bit 4 (break command flag) and bit 5 on.
+        @pushByte @getStatus() | Bit4 # Pushes status with bit 4 on (break command flag).
 
     ###########################################################
     # Stack pop instructions
@@ -464,10 +462,10 @@ class CPU
         @negativeFlag = @isNegative @accumulator
 
     BIT: (address) =>
-        result = @accumulator & @readByte address
-        @zeroFlag = @isZero result
-        @overflowFlag = @isBitSet result, 6
-        @negativeFlag = @isNegative result
+        value = @readByte address
+        @zeroFlag = @isZero @accumulator & value
+        @overflowFlag = @isBitSet value, 6
+        @negativeFlag = @isNegative value
 
     ###########################################################
     # Increment instructions
@@ -525,9 +523,9 @@ class CPU
     compareRegisterAndMemory: (register, address) ->
         operand = @readByte address
         result = register - operand
-        @carryFlag = not @isNegative result
+        @carryFlag = result >= 0 # Unsigned comparison (bit 8 is actually the result sign).
         @zeroFlag = @isZero result
-        @negativeFlag = @isNegative result
+        @negativeFlag = @isNegative result # Not a signed comparison (just checks bit 7).
 
     ###########################################################
     # Branching instructions
@@ -583,7 +581,7 @@ class CPU
 
     BRK: =>
         @pushWord @programCounter
-        @pushByte @getStatus() | Bit4 | Bit5 # Pushes status with bit 4 (break command flag) and bit 5 on.
+        @pushByte @getStatus() | Bit4 # Pushes status with bit 4 on (break command flag).
         @programCounter = @readWord 0xFFFE
 
     RTI: =>
@@ -596,19 +594,16 @@ class CPU
 
     ADC: (address) =>
         operand = @readByte address
-        result = @accumulator + operand
-        result++ if @carryFlag is on
-        @carryFlag = @isOverflow result
-        @zeroFlag = @isZero result
-        @overflowFlag = @isSignedOverflow @accumulator, operand, result
-        @negativeFlag = @isNegative result
-        @accumulator = result & 0xFF
+        @addValueToAccumulator operand
 
     SBC: (address) =>
         operand = @readByte address
-        result = @accumulator - operand
-        result-- if @carryFlag is off
-        @carryFlag = not @isOverflow result
+        @addValueToAccumulator operand ^ 0xFF # Together with carry incremment makes negative operand.
+
+    addValueToAccumulator: (operand) ->
+        result = @accumulator + operand
+        result++ if @carryFlag is on
+        @carryFlag = @isOverflow result
         @zeroFlag = @isZero result
         @overflowFlag = @isSignedOverflow @accumulator, operand, result
         @negativeFlag = @isNegative result
@@ -669,10 +664,10 @@ class CPU
         @isBitSet value, 7
 
     isOverflow: (value) ->
-        value > 0xFF
+        (value & 0xFFFF) > 0xFF
 
     isSignedOverflow: (operand1, operand2, result) ->
-        not @isBitSet (operand1 ^ result) & (operand2 ^ result), 7
+        @isBitSet (operand1 ^ result) & (operand2 ^ result), 7
 
     ###########################################################
     # Operations table initialization
