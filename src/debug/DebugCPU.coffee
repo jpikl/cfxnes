@@ -9,7 +9,6 @@ class DebugCPU extends CPU
 
     handleReset: ->
         super()
-        #@interruptDisable = on
         @programCounter = 0xC000
 
     ###########################################################
@@ -85,7 +84,8 @@ class DebugCPU extends CPU
 
     logHeader: ->
         Util.puts "/-------+-------+------+----------+-----+-----+------------+---------------------------+-----------------\\"
-        Util.puts "|     # |  Cyc  |  PC  | D0 D1 D2 | OP  | AM  | Adr / Val  |        Registers          |      Flags      |"
+        Util.puts "|     # |  Cyc  |  PC  | D0 D1 D2 | OP  | AM  | Addr / Val |        Registers          |      Flags      |"
+        Util.puts "|-------|-------|------|----------|-----|-----|------------|---------------------------|-----------------|"
 
     logOperation: (addressingModeName, effectiveAddress, addressType, instructionSize) ->
         instructionAddress = (@programCounter - instructionSize) & 0xFFFF
@@ -94,7 +94,6 @@ class DebugCPU extends CPU
             @cpuMemory.read (instructionAddress + 1) & 0xFFFF
             @cpuMemory.read (instructionAddress + 2) & 0xFFFF
         ]
-        @logSeparator()
         @logLinesCount()
         @logCyclesCount()
         @logInstructionAddress instructionAddress
@@ -105,12 +104,8 @@ class DebugCPU extends CPU
         @logRegisters()
         @logFlags()
 
-    logSeparator: ->
-        if (@logLines++ % 4) == 0
-            Util.puts "|-------|-------|------|----------|-----|-----|------------|---------------------------|-----------------|"
-
     logLinesCount: ->
-        result = "        #{@logLines} "
+        result = "        #{@logLines++} "
         Util.print "|" + result[result.length - 7 ...]
 
     logCyclesCount: ->
