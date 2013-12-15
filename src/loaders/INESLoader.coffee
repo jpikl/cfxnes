@@ -67,10 +67,10 @@ class INESLoader extends AbstractLoader
 
     readROMBanks: ->
         count = @cartridge.ROMBanksCount
-        @cartridge.ROMBanks = @readArray 0x4000 for [1..count] # Each bank is 16 KB
+        @cartridge.ROMBanks = (@readArray 0x4000 for [1..count]) # Each bank is 16 KB
 
     readVROMBanks: ->
         count = @cartridge.VROMBanksCount
-        @cartridge.VROMBanks = @readArray 0x2000 for [1..count] # Each bank is 8 KB
+        @cartridge.VROMBanks = (@readArray 0x2000 for [1..count]) # Each bank is 8 KB
 
 module.exports = INESLoader

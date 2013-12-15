@@ -35,6 +35,6 @@ class Injector
     getConstructorParameters: (clazz) ->
         constructor = clazz.toString()
         matches = constructor.match /^function\s*[^\(]*\(\s*([^\)]*)\)/m
-        if matches[1] then matches[1].split ", " else []
+        if matches?[1] then matches[1].split ", " else []
 
 module.exports = Injector

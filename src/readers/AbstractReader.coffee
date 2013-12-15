@@ -11,6 +11,6 @@ class AbstractReader
 
     movePosition: (size) ->
         size ?= @getLength()
-        position = Math.min @position + size, @getLength()
+        @position = Math.min @position + size, @getLength()
 
 module.exports = AbstractReader

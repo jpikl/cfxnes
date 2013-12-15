@@ -15,13 +15,13 @@ class CPUMemory
     ###########################################################
 
     read: (address) ->
-        switch address
+        switch
             when address < 0x2000 then @readRAM address
             when address < 0x4020 then @readIO  address
             else                       @readMMC address
 
     write: (address, value) ->
-        switch address
+        switch
             when address < 0x2000 then @writeRAM address, value
             when address < 0x4020 then @writeIO  address, value
             else                       @writeMMC address, value

@@ -115,12 +115,12 @@ class CPU
     resolveInterrupt: ->
         if @requestedInterrupt? and not @isRequestedInterruptDisabled()
             switch @requestedInterrupt
-                when Interrupt.IRQ   then handleIRQ()
-                when Interrupt.NMI   then handleNMI()
-                when Interrupt.Reset then handleReset()
+                when Interrupt.IRQ   then @handleIRQ()
+                when Interrupt.NMI   then @handleNMI()
+                when Interrupt.Reset then @handleReset()
             @tick()
             @tick() # To make totally 7 cycles together with interrupt handler.
-            requestedInterrupt = null
+            @requestedInterrupt = null
 
     isRequestedInterruptDisabled: ->
         @requestedInterrupt == Interrupt.IRQ and @interruptDisable is on

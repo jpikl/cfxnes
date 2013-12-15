@@ -26,6 +26,6 @@ class NROMMapper
         @cartridge.ROMBanks[bankIndex]
 
     getROMOffset: (address) ->
-        address & 0x7FFF
+        address & 0x3FFF
 
 module.exports = NROMMapper
