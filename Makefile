@@ -19,7 +19,7 @@ optimize: compress
 	closure --compilation_level $(OPT_LEVEL) $(BUILD_DIR)/$(OUT_FILE) > $(OUT_FILE)
 
 debug: compile
-	node --debug-brk $(BUILD_DIR)/$(MAIN_FILE) -d
+	node --debug-brk $(BUILD_DIR)/$(MAIN_FILE) test/cputest/nestest.nes 8000
 
 clean:
 	rm -rf $(BUILD_DIR)

@@ -1,15 +1,19 @@
+Util = require "./utils/Util"
+
 ###########################################################
-# Bit constants
+# Local imports
 ###########################################################
 
-Bit0 = 1 << 0
-Bit1 = 1 << 1
-Bit2 = 1 << 2
-Bit3 = 1 << 3
-Bit4 = 1 << 4
-Bit5 = 1 << 5
-Bit6 = 1 << 6
-Bit7 = 1 << 7
+Bit0      = Util.Bit0
+Bit1      = Util.Bit1
+Bit2      = Util.Bit2
+Bit3      = Util.Bit3
+Bit4      = Util.Bit4
+Bit5      = Util.Bit5
+Bit6      = Util.Bit6
+Bit7      = Util.Bit7
+isBitSet  = Util.isBitSet
+byteAsHex = Util.byteAsHex
 
 ###########################################################
 # Interrupt types
@@ -59,20 +63,20 @@ class CPU
         @negativeFlag = off     # bit 7
 
     resetVariables: ->
-        @cycle = 0
+        @cyclesCount = 0
         @emptyReadCycle = no
         @emptyWriteCycle = no
         @requestedInterrupt = null
 
     resetMemory: ->
-        @cpuMemory.write address, 0xFF for address in [0...0x0800]
-        @cpuMemory.write 0x0008, 0xF7
-        @cpuMemory.write 0x0009, 0xEF
-        @cpuMemory.write 0x000A, 0xDF
-        @cpuMemory.write 0x000F, 0xBF
-        @cpuMemory.write 0x4017, 0x00
-        @cpuMemory.write 0x4015, 0x00
-        @cpuMemory.write address, 0x00 for address in [0x4000...0x4010]
+        @write address, 0xFF for address in [0...0x0800]
+        @write 0x0008, 0xF7
+        @write 0x0009, 0xEF
+        @write 0x000A, 0xDF
+        @write 0x000F, 0xBF
+        @write 0x4017, 0x00
+        @write 0x4015, 0x00
+        @write address, 0x00 for address in [0x4000...0x4010]
 
     ###########################################################
     # Execution step
@@ -80,7 +84,13 @@ class CPU
 
     step: ->
         @resolveInterrupt()
+        @executeInstruction()
 
+    ###########################################################
+    # Program execution
+    ###########################################################
+
+    executeInstruction: ->
         operation        = @readOperation()
         instruction      = operation.instruction
         addressingMode   = operation.addressingMode
@@ -89,14 +99,10 @@ class CPU
 
         instruction addressingMode()
 
-    ###########################################################
-    # Program execution
-    ###########################################################
-
     readOperation: ->
         operationCode = @readNextProgramByte()
         operation = @operationsTable[operationCode]
-        throw "Unsupported operation (code: 0x#{@byteAsHex operationCode})" unless operation?
+        throw "Unsupported operation (code: 0x#{byteAsHex operationCode})" unless operation?
         operation
 
     readNextProgramByte: ->
@@ -141,6 +147,7 @@ class CPU
 
     handleReset: ->
         @stackPointer = (@stackPointer - 3) & 0xFF # Does not write on stack, just decrements its pointer.
+        @tick() for [1..3]
         @interruptDisable = on
         @programCounter = @readWord 0xFFFC
 
@@ -148,17 +155,23 @@ class CPU
     # Memory reading / writing
     ###########################################################
 
+    read: (address) ->
+        @cpuMemory.read address
+
     readByte: (address) ->
         @resolveReadCycles()
-        @cpuMemory.read address
+        @read address
 
     readWord: (address) ->
         highByte = @readByte (address + 1) & 0xFFFF
         highByte << 8 | @readByte address
 
+    write: (address, value) ->
+        @cpuMemory.write address, value
+
     writeByte: (address, value) ->
         @resolveWriteCycles()
-        @cpuMemory.write address, value
+        @write address, value
 
     writeWord: (address, value) ->
         @writeByte address, value & 0xFF
@@ -200,7 +213,7 @@ class CPU
             @tick()
 
     tick: ->
-        @cycle++
+        @cyclesCount++
         @ppu.tick() for [1..3]
         @papu.tick()
         undefined
@@ -220,12 +233,12 @@ class CPU
         status
 
     setStatus: (status) ->
-        @carryFlag        = @isBitSet status, 0
-        @zeroFlag         = @isBitSet status, 1
-        @interruptDisable = @isBitSet status, 2
-        @decimalMode      = @isBitSet status, 3
-        @overflowFlag     = @isBitSet status, 6
-        @negativeFlag     = @isBitSet status, 7
+        @carryFlag        = isBitSet status, 0
+        @zeroFlag         = isBitSet status, 1
+        @interruptDisable = isBitSet status, 2
+        @decimalMode      = isBitSet status, 3
+        @overflowFlag     = isBitSet status, 6
+        @negativeFlag     = isBitSet status, 7
 
     ###########################################################
     # CPU input signals
@@ -464,7 +477,7 @@ class CPU
     BIT: (address) =>
         value = @readByte address
         @zeroFlag = @isZero @accumulator & value
-        @overflowFlag = @isBitSet value, 6
+        @overflowFlag = isBitSet value, 6
         @negativeFlag = @isNegative value
 
     ###########################################################
@@ -635,7 +648,7 @@ class CPU
 
     rotateLeft: (value, transferCarry) =>
         value <<= 1
-        value |= Bit1 if transferCarry and @carryFlag is on
+        value |= Bit0 if transferCarry and @carryFlag
         @carryFlag = @isOverflow value
         @zeroFlag = @isZero value
         @negativeFlag = @isNegative value
@@ -643,9 +656,9 @@ class CPU
 
     rotateRight: (value, transferCarry) =>
         oldCarryFlag = @carryFlag
-        @carryFlag = @isBitSet value, 0
+        @carryFlag = isBitSet value, 0
         value >>= 1
-        value |= Bit7 if transferCarry and oldCarryFlag is on
+        value |= Bit7 if transferCarry and oldCarryFlag
         @zeroFlag = @isZero value
         @negativeFlag = @isNegative value
         value & 0xFF
@@ -654,20 +667,17 @@ class CPU
     # Flags computation
     ###########################################################
 
-    isBitSet: (value, bit) ->
-        (value & (1 << bit)) != 0
-
     isZero: (value) ->
         (value & 0xFF) == 0
 
     isNegative: (value) ->
-        @isBitSet value, 7
+        isBitSet value, 7
 
     isOverflow: (value) ->
         (value & 0xFFFF) > 0xFF
 
     isSignedOverflow: (operand1, operand2, result) ->
-        @isBitSet (operand1 ^ result) & (operand2 ^ result), 7
+        isBitSet (operand1 ^ result) & (operand2 ^ result), 7
 
     ###########################################################
     # Operations table initialization
@@ -936,18 +946,5 @@ class CPU
             addressingMode: addressingMode
             emptyReadCycle: emptyReadCycle
             emptyWriteCycle: emptyWriteCycle
-
-    ###########################################################
-    # Formatting utilities
-    ###########################################################
-
-    byteAsHex: (byte) ->
-        hex = (byte.toString 16).toUpperCase()
-        if hex.length == 1 then "0" + hex else hex
-
-    wordAsHex: (word, putSpace) ->
-        hex1 = @byteAsHex word & 0xFF
-        hex2 = @byteAsHex word >> 8
-        hex2 + hex1
 
 module.exports = CPU

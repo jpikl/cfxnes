@@ -2,8 +2,18 @@ class Injector
 
     constructor: (configuration) ->
         @dependencies = []
-        for name of configuration
-            @dependencies[name] = configuration[name]
+        for name, value of @resolveConfiguration configuration
+            @dependencies[name] = value
+
+    resolveConfiguration: (configuration) ->
+        if typeof configuration is "string"
+            configuration = require configuration
+        if typeof configuration is "function"
+            if configuration.constructor?
+                configuration = new configuration
+            else
+                configuration = configuration()
+        configuration
 
     getDependency: (name) ->
         dependency = @dependencies[name]
@@ -30,7 +40,7 @@ class Injector
 
     getClass: (name) ->
         dependency = @getDependency name
-        dependency.clazz ?= require "../#{dependency.module}" 
+        dependency.clazz ?= require "../../#{dependency.module}" 
 
     getConstructorParameters: (clazz) ->
         constructor = clazz.toString()
