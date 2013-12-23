@@ -5,7 +5,7 @@ NLT_LOG_RAW = nintendulator.log
 NLT_LOG_FMT = nintendulator-formatted.log
 NCF_LOG_RAW = nescoffee.log
 NCF_LOG_FMT = nescoffee-formatted.log
-STEPS       = 3100
+STEPS       = 8000
 
 compare: generate format
 	vimdiff $(NLT_LOG_FMT) $(NCF_LOG_FMT)
