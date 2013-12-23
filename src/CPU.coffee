@@ -602,6 +602,15 @@ class CPU
     SLO: (address) =>
         @storeValueIntoAccumulator @accumulator | @ASL address
 
+    SRE: (address) =>
+        @storeValueIntoAccumulator @accumulator ^ @LSR address
+
+    RLA: (address) =>
+        @storeValueIntoAccumulator @accumulator & @ROL address
+        
+    RRA: (address) =>
+        @addValueToAccumulator @ROR address
+
     ###########################################################
     # Instruction helper functions
     ###########################################################
@@ -1016,6 +1025,30 @@ class CPU
         @registerOperation 0x1B, @SLO, @absoluteYMode, yes, yes # 7 cycles (undocumented operation)
         @registerOperation 0x03, @SLO, @indirectXMode, yes, yes # 8 cycles (undocumented operation)
         @registerOperation 0x13, @SLO, @indirectYMode, yes, yes # 8 cycles (undocumented operation)
+
+        @registerOperation 0x47, @SRE, @zeroPageMode,  no,  yes # 5 cycles (undocumented operation)
+        @registerOperation 0x57, @SRE, @zeroPageXMode, no,  yes # 6 cycles (undocumented operation)
+        @registerOperation 0x4F, @SRE, @absoluteMode,  no,  yes # 6 cycles (undocumented operation)
+        @registerOperation 0x5F, @SRE, @absoluteXMode, yes, yes # 7 cycles (undocumented operation)
+        @registerOperation 0x5B, @SRE, @absoluteYMode, yes, yes # 7 cycles (undocumented operation)
+        @registerOperation 0x43, @SRE, @indirectXMode, yes, yes # 8 cycles (undocumented operation)
+        @registerOperation 0x53, @SRE, @indirectYMode, yes, yes # 8 cycles (undocumented operation)
+
+        @registerOperation 0x27, @RLA, @zeroPageMode,  no,  yes # 5 cycles (undocumented operation)
+        @registerOperation 0x37, @RLA, @zeroPageXMode, no,  yes # 6 cycles (undocumented operation)
+        @registerOperation 0x2F, @RLA, @absoluteMode,  no,  yes # 6 cycles (undocumented operation)
+        @registerOperation 0x3F, @RLA, @absoluteXMode, yes, yes # 7 cycles (undocumented operation)
+        @registerOperation 0x3B, @RLA, @absoluteYMode, yes, yes # 7 cycles (undocumented operation)
+        @registerOperation 0x23, @RLA, @indirectXMode, yes, yes # 8 cycles (undocumented operation)
+        @registerOperation 0x33, @RLA, @indirectYMode, yes, yes # 8 cycles (undocumented operation)
+
+        @registerOperation 0x67, @RRA, @zeroPageMode,  no,  yes # 5 cycles (undocumented operation)
+        @registerOperation 0x77, @RRA, @zeroPageXMode, no,  yes # 6 cycles (undocumented operation)
+        @registerOperation 0x6F, @RRA, @absoluteMode,  no,  yes # 6 cycles (undocumented operation)
+        @registerOperation 0x7F, @RRA, @absoluteXMode, yes, yes # 7 cycles (undocumented operation)
+        @registerOperation 0x7B, @RRA, @absoluteYMode, yes, yes # 7 cycles (undocumented operation)
+        @registerOperation 0x63, @RRA, @indirectXMode, yes, yes # 8 cycles (undocumented operation)
+        @registerOperation 0x73, @RRA, @indirectYMode, yes, yes # 8 cycles (undocumented operation)
 
     registerOperation: (operationCode, instruction, addressingMode, emptyReadCycle, emptyWriteCycle) ->
         @operationsTable[operationCode] =

@@ -114,6 +114,9 @@ class DebugCPU extends CPU
     DCP: (address) => @logInstruction "DCP", super(address)
     ISB: (address) => @logInstruction "ISB", super(address)
     SLO: (address) => @logInstruction "SLO", super(address)
+    SRE: (address) => @logInstruction "SRE", super(address)
+    RLA: (address) => @logInstruction "RLA", super(address)
+    RRA: (address) => @logInstruction "RRA", super(address)
 
     ###########################################################
     # Logging
