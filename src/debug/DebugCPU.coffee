@@ -89,7 +89,6 @@ class DebugCPU extends CPU
     DEC: (address) => @logInstruction "DEC", super(address)
     DEX: (address) => @logInstruction "DEX", super(address)
     DEY: (address) => @logInstruction "DEY", super(address)
-    DCP: (address) => @logInstruction "DCP", super(address)
     CMP: (address) => @logInstruction "CMP", super(address)
     CPX: (address) => @logInstruction "CPX", super(address)
     CPY: (address) => @logInstruction "CPY", super(address)
@@ -112,6 +111,9 @@ class DebugCPU extends CPU
     LSR: (address) => @logInstruction "LSR", super(address)
     ROL: (address) => @logInstruction "ROL", super(address)
     ROR: (address) => @logInstruction "ROR", super(address)
+    DCP: (address) => @logInstruction "DCP", super(address)
+    ISB: (address) => @logInstruction "ISB", super(address)
+    SLO: (address) => @logInstruction "SLO", super(address)
 
     ###########################################################
     # Logging
