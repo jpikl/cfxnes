@@ -166,6 +166,10 @@ class CPU
         highByte = @readByte (address + 1) & 0xFFFF
         highByte << 8 | @readByte address
 
+    readWordFromZeroPage: (address) ->
+        highByte = @readByte (address + 1) & 0x00FF
+        highByte << 8 | @readByte address
+
     write: (address, value) ->
         @cpuMemory.write address, value
 
@@ -310,10 +314,10 @@ class CPU
         @readWord @readNextProgramWord()
 
     indirectXMode: =>
-        @readWord @zeroPageXMode()
+        @readWordFromZeroPage @zeroPageXMode()
 
     indirectYMode: =>
-        base = @readWord @readNextProgramByte()
+        base = @readWordFromZeroPage @readNextProgramByte()
         @getIndexedAddressWord base, @registerY
 
     ###########################################################

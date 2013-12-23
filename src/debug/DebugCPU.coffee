@@ -115,6 +115,7 @@ class DebugCPU extends CPU
     ###########################################################
 
     startLogging: ->
+        @logHeader()
         @linesCount = 0
         @formatterMethods = [
             @formatLinesCount
@@ -128,8 +129,6 @@ class DebugCPU extends CPU
             @formatRegisters
             @formatFlags
         ]
-        @logHeader()
-
 
     logHeader: ->
         println "/-------+-------+------+----------+-----+---+-----+------------+---------------------------+-----------------\\"
@@ -147,7 +146,6 @@ class DebugCPU extends CPU
 
     logOperationBefore: ->
         @cyclesCountBefore = @cyclesCount
-        @requestedInterruptBefore = @requestedInterrupt
         @registers = [ @accumulator, @registerX, @registerY, @getStatus(), @stackPointer ]
         @flags = [ @negativeFlag, @overflowFlag, false, false, @decimalMode, @interruptDisable, @zeroFlag, @carryFlag ]
         @instructionAddress = @programCounter
@@ -158,14 +156,10 @@ class DebugCPU extends CPU
         ]
 
     logOperationAfter: ->
-        @instructionCycles = @cyclesCount - @cyclesCountBefore
-        @instructionCycles -= 7 if @interruptHandlerExecuted()
         @linesCount++
+        @instructionCycles = @cyclesCount - @cyclesCountBefore
         result = (method() for method in @formatterMethods)
         println "| #{result.join ' | '} |"
-
-    interruptHandlerExecuted: ->
-        @requestedInterruptBefore and not @requestedInterrupt
 
     ###########################################################
     # Formatting
