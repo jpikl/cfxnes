@@ -394,52 +394,52 @@ class CPU
     ###########################################################
 
     LDA: (address) =>
-        @accumulator = @readByte address
-        @zeroFlag = @isZero @accumulator
-        @negativeFlag = @isNegative @accumulator
+        @storeValueIntoAccumulator @readByte address
 
     LDX: (address) =>
-        @registerX = @readByte address
-        @zeroFlag = @isZero @registerX
-        @negativeFlag = @isNegative @registerX
+        @storeValueIntoRegisterX @readByte address
+
+    LDY: (address) =>
+        @storeValueIntoRegisterY @readByte address
 
     LAX: (address) =>
         @LDA address
         @registerX = @accumulator
 
-    LDY: (address) =>
-        @registerY = @readByte address
-        @zeroFlag = @isZero @registerY
-        @negativeFlag = @isNegative @registerY
+    storeValueIntoAccumulator: (value) ->
+        @accumulator = value
+        @updateZeroAndNegativeFlag value
+
+    storeValueIntoRegisterX: (value) ->
+        @registerX = value
+        @updateZeroAndNegativeFlag value
+
+    storeValueIntoRegisterY: (value) ->
+        @registerY = value
+        @updateZeroAndNegativeFlag value
+
+    storeValueIntoMemory: (address, value) ->
+        @updateZeroAndNegativeFlag value
+        @writeByte address, value
 
     ###########################################################
     # Register transfer instructions
     ###########################################################
 
     TAX: =>
-        @registerX = @accumulator
-        @zeroFlag = @isZero @registerX
-        @negativeFlag = @isNegative @registerX
+        @storeValueIntoRegisterX @accumulator
 
     TAY: =>
-        @registerY = @accumulator
-        @zeroFlag = @isZero @registerY
-        @negativeFlag = @isNegative @registerY
+        @storeValueIntoRegisterY @accumulator
 
     TXA: =>
-        @accumulator = @registerX
-        @zeroFlag = @isZero @accumulator
-        @negativeFlag = @isNegative @accumulator
+        @storeValueIntoAccumulator @registerX
 
     TYA: =>
-        @accumulator = @registerY
-        @zeroFlag = @isZero @accumulator
-        @negativeFlag = @isNegative @accumulator
+        @storeValueIntoAccumulator @registerY
 
     TSX: =>
-        @registerX = @stackPointer
-        @zeroFlag = @isZero @registerX
-        @negativeFlag = @isNegative @registerX
+        @storeValueIntoRegisterX @stackPointer
 
     TXS: =>
         @stackPointer = @registerX
@@ -459,9 +459,7 @@ class CPU
     ###########################################################
 
     PLA: =>
-        @accumulator = @popByte()
-        @zeroFlag = @isZero @accumulator
-        @negativeFlag = @isNegative @accumulator
+        @storeValueIntoAccumulator @popByte()
 
     PLP: =>
         @setStatus @popByte()
@@ -471,19 +469,13 @@ class CPU
     ###########################################################
 
     AND: (address) =>
-        @accumulator &= @readByte address
-        @zeroFlag = @isZero @accumulator
-        @negativeFlag = @isNegative @accumulator
+        @storeValueIntoAccumulator @accumulator & @readByte address
 
     ORA: (address) =>
-        @accumulator |= @readByte address
-        @zeroFlag = @isZero @accumulator
-        @negativeFlag = @isNegative @accumulator
+        @storeValueIntoAccumulator @accumulator | @readByte address
 
     EOR: (address) =>
-        @accumulator ^= @readByte address
-        @zeroFlag = @isZero @accumulator
-        @negativeFlag = @isNegative @accumulator
+        @storeValueIntoAccumulator @accumulator ^ @readByte address
 
     BIT: (address) =>
         value = @readByte address
@@ -496,43 +488,26 @@ class CPU
     ###########################################################
 
     INC: (address) =>
-        result = (@readByte address) + 1
-        @zeroFlag = @isZero result
-        @negativeFlag = @isNegative result
-        @writeByte address, result & 0xFF
+        @storeValueIntoMemory address, ((@readByte address) + 1) & 0xFF
 
     INX: =>
-        @registerX = (@registerX + 1) & 0xFF
-        @zeroFlag = @isZero @registerX
-        @negativeFlag = @isNegative @registerX
+        @storeValueIntoRegisterX (@registerX + 1) & 0xFF
 
     INY: =>
-        @registerY = (@registerY + 1) & 0xFF
-        @zeroFlag = @isZero @registerY
-        @negativeFlag = @isNegative @registerY
+        @storeValueIntoRegisterY (@registerY + 1) & 0xFF
 
     ###########################################################
     # Decrement instructions
     ###########################################################
 
     DEC: (address) =>
-        result = (@readByte address) - 1
-        @zeroFlag = @isZero result
-        @negativeFlag = @isNegative result
-        @writeByte address, result & 0xFF
+        @storeValueIntoMemory address, ((@readByte address) - 1) & 0xFF
 
     DEX: =>
-        @registerX = (@registerX - 1) & 0xFF
-        @zeroFlag = @isZero @registerX
-        @negativeFlag = @isNegative @registerX
+        @storeValueIntoRegisterX (@registerX - 1) & 0xFF
 
     DEY: =>
-        @registerY = (@registerY - 1) & 0xFF
-        @zeroFlag = @isZero @registerY
-        @negativeFlag = @isNegative @registerY
-
-    DCP: (address) =>
-        @compareRegisterAndOperand @accumulator, @DEC address
+        @storeValueIntoRegisterY (@registerY - 1) & 0xFF
 
     ###########################################################
     # Comparison instructions
@@ -553,8 +528,7 @@ class CPU
     compareRegisterAndOperand: (register, operand) ->
         result = register - operand
         @carryFlag = result >= 0 # Unsigned comparison (bit 8 is actually the result sign).
-        @zeroFlag = @isZero result
-        @negativeFlag = @isNegative result # Not a signed comparison (just checks bit 7).
+        @updateZeroAndNegativeFlag result # Not a signed comparison
 
     ###########################################################
     # Branching instructions
@@ -633,10 +607,8 @@ class CPU
         result = @accumulator + operand
         result++ if @carryFlag is on
         @carryFlag = @isOverflow result
-        @zeroFlag = @isZero result
         @overflowFlag = @isSignedOverflow @accumulator, operand, result
-        @negativeFlag = @isNegative result
-        @accumulator = result & 0xFF
+        @storeValueIntoAccumulator result & 0xFF
 
     ###########################################################
     # Shifting / rotation instructions
@@ -658,16 +630,15 @@ class CPU
         if address?
             operand = @readByte address
             result = rotation operand, transferCarry
-            @writeByte address, result
+            @storeValueIntoMemory address, result
         else
-            @accumulator = rotation @accumulator, transferCarry
+            result = rotation @accumulator, transferCarry
+            @storeValueIntoAccumulator result
 
     rotateLeft: (value, transferCarry) =>
         value <<= 1
         value |= Bit0 if transferCarry and @carryFlag
         @carryFlag = @isOverflow value
-        @zeroFlag = @isZero value
-        @negativeFlag = @isNegative value
         value & 0xFF
 
     rotateRight: (value, transferCarry) =>
@@ -675,13 +646,26 @@ class CPU
         @carryFlag = isBitSet value, 0
         value >>= 1
         value |= Bit7 if transferCarry and oldCarryFlag
-        @zeroFlag = @isZero value
-        @negativeFlag = @isNegative value
         value & 0xFF
+
+    ###########################################################
+    # Hybrid instructions
+    ###########################################################
+
+    DCP: (address) =>
+        @compareRegisterAndOperand @accumulator, @DEC address
+
+    ISB: (address) =>
+        operand = @INC address
+        @addValueToAccumulator operand ^ 0xFF # Together with carry incremment makes negative operand.
 
     ###########################################################
     # Flags computation
     ###########################################################
+
+    updateZeroAndNegativeFlag: (value) ->
+        @zeroFlag = @isZero value
+        @negativeFlag = @isNegative value
 
     isZero: (value) ->
         (value & 0xFF) == 0
@@ -801,18 +785,18 @@ class CPU
         @registerOperation 0xAE, @LDX, @absoluteMode,  no, no # 4      cycles
         @registerOperation 0xBE, @LDX, @absoluteYMode, no, no # 4 (+1) cycles
 
+        @registerOperation 0xA0, @LDY, @immediateMode, no, no # 2      cycles
+        @registerOperation 0xA4, @LDY, @zeroPageMode,  no, no # 3      cycles
+        @registerOperation 0xB4, @LDY, @zeroPageXMode, no, no # 4      cycles
+        @registerOperation 0xAC, @LDY, @absoluteMode,  no, no # 4      cycles
+        @registerOperation 0xBC, @LDY, @absoluteXMode, no, no # 4 (+1) cycles
+
         @registerOperation 0xA7, @LAX, @zeroPageMode,  no, no, # 3      cycles (undocumented operation)
         @registerOperation 0xB7, @LAX, @zeroPageYMode, no, no, # 4      cycles (undocumented operation)
         @registerOperation 0xAF, @LAX, @absoluteMode,  no, no, # 4      cycles (undocumented operation)
         @registerOperation 0xBF, @LAX, @absoluteYMode, no, no, # 4 (+1) cycles (undocumented operation)
         @registerOperation 0xA3, @LAX, @indirectXMode, no, no, # 6      cycles (undocumented operation)
         @registerOperation 0xB3, @LAX, @indirectYMode, no, no, # 5 (+1) cycles (undocumented operation)
-
-        @registerOperation 0xA0, @LDY, @immediateMode, no, no # 2      cycles
-        @registerOperation 0xA4, @LDY, @zeroPageMode,  no, no # 3      cycles
-        @registerOperation 0xB4, @LDY, @zeroPageXMode, no, no # 4      cycles
-        @registerOperation 0xAC, @LDY, @absoluteMode,  no, no # 4      cycles
-        @registerOperation 0xBC, @LDY, @absoluteXMode, no, no # 4 (+1) cycles
 
         ###########################################################
         # Register transfer instructions
@@ -895,16 +879,7 @@ class CPU
         @registerOperation 0xDE, @DEC, @absoluteXMode, yes, yes # 7 cycles
 
         @registerOperation 0xCA, @DEX, @impliedMode,   no,  no  # 2 cycles
-
         @registerOperation 0x88, @DEY, @impliedMode,   no,  no  # 2 cycles
-
-        @registerOperation 0xC7, @DCP, @zeroPageMode,  no,  yes # 5    cycles (undocumented operation)
-        @registerOperation 0xD7, @DCP, @zeroPageXMode, no,  yes # 6    cycles (undocumented operation)
-        @registerOperation 0xCF, @DCP, @absoluteMode,  no,  yes # 6    cycles (undocumented operation)
-        @registerOperation 0xDF, @DCP, @absoluteXMode, yes, yes # 7    cycles (undocumented operation)
-        @registerOperation 0xDB, @DCP, @absoluteYMode, yes, yes # 7    cycles (undocumented operation)
-        @registerOperation 0xC3, @DCP, @indirectXMode, yes, yes # 8    cycles (undocumented operation)
-        @registerOperation 0xD3, @DCP, @indirectYMode, yes, yes # 8    cycles (undocumented operation)
 
         ###########################################################
         # Comparison instructions
@@ -1009,6 +984,26 @@ class CPU
         @registerOperation 0x76, @ROR, @zeroPageXMode,   no,  yes # 6 cycles
         @registerOperation 0x6E, @ROR, @absoluteMode,    no,  yes # 6 cycles
         @registerOperation 0x7E, @ROR, @absoluteXMode,   yes, yes # 7 cycles
+
+        ###################################################################
+        # Hybrid instructions
+        ###################################################################
+
+        @registerOperation 0xC7, @DCP, @zeroPageMode,  no,  yes # 5 cycles (undocumented operation)
+        @registerOperation 0xD7, @DCP, @zeroPageXMode, no,  yes # 6 cycles (undocumented operation)
+        @registerOperation 0xCF, @DCP, @absoluteMode,  no,  yes # 6 cycles (undocumented operation)
+        @registerOperation 0xDF, @DCP, @absoluteXMode, yes, yes # 7 cycles (undocumented operation)
+        @registerOperation 0xDB, @DCP, @absoluteYMode, yes, yes # 7 cycles (undocumented operation)
+        @registerOperation 0xC3, @DCP, @indirectXMode, yes, yes # 8 cycles (undocumented operation)
+        @registerOperation 0xD3, @DCP, @indirectYMode, yes, yes # 8 cycles (undocumented operation)
+
+        @registerOperation 0xE7, @ISB, @zeroPageMode,  no,  yes # 5 cycles (undocumented operation)
+        @registerOperation 0xF7, @ISB, @zeroPageXMode, no,  yes # 6 cycles (undocumented operation)
+        @registerOperation 0xEF, @ISB, @absoluteMode,  no,  yes # 6 cycles (undocumented operation)
+        @registerOperation 0xFF, @ISB, @absoluteXMode, yes, yes # 7 cycles (undocumented operation)
+        @registerOperation 0xFB, @ISB, @absoluteYMode, yes, yes # 7 cycles (undocumented operation)
+        @registerOperation 0xE3, @ISB, @indirectXMode, yes, yes # 8 cycles (undocumented operation)
+        @registerOperation 0xF3, @ISB, @indirectYMode, yes, yes # 8 cycles (undocumented operation)
 
     registerOperation: (operationCode, instruction, addressingMode, emptyReadCycle, emptyWriteCycle) ->
         @operationsTable[operationCode] =
