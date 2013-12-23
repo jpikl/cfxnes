@@ -166,8 +166,8 @@ class CPU
         highByte = @readByte (address + 1) & 0xFFFF
         highByte << 8 | @readByte address
 
-    readWordFromZeroPage: (address) ->
-        highByte = @readByte (address + 1) & 0x00FF
+    readWordFromSamePage: (address) ->
+        highByte = @readByte address & 0xFF00 | (address + 1) & 0x00FF
         highByte << 8 | @readByte address
 
     write: (address, value) ->
@@ -311,13 +311,13 @@ class CPU
     ###########################################################
 
     indirectMode: =>
-        @readWord @readNextProgramWord()
+        @readWordFromSamePage @readNextProgramWord()
 
     indirectXMode: =>
-        @readWordFromZeroPage @zeroPageXMode()
+        @readWordFromSamePage @zeroPageXMode()
 
     indirectYMode: =>
-        base = @readWordFromZeroPage @readNextProgramByte()
+        base = @readWordFromSamePage @readNextProgramByte()
         @getIndexedAddressWord base, @registerY
 
     ###########################################################
@@ -531,6 +531,9 @@ class CPU
         @zeroFlag = @isZero @registerY
         @negativeFlag = @isNegative @registerY
 
+    DCP: (address) =>
+        @compareRegisterAndOperand @accumulator, @DEC address
+
     ###########################################################
     # Comparison instructions
     ###########################################################
@@ -543,9 +546,6 @@ class CPU
 
     CPY: (address) =>
         @compareRegisterAndMemory @registerY, address
-
-    DCP: (address) =>
-        @compareRegisterAndOperand @accumulator, @DEC address
 
     compareRegisterAndMemory: (register, address) ->
         @compareRegisterAndOperand register, @readByte address
@@ -706,24 +706,39 @@ class CPU
         # No operation instruction
         ###########################################################
 
-        @registerOperation 0x04, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0x0C, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0x14, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0x1A, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0x1C, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0x3A, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0x3C, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0x5A, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0x5C, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0x7A, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0x7C, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0x80, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0x89, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0xDA, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0xDC, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0xEA, @NOP, @impliedMode, no, no # 2 cycles
-        @registerOperation 0xFA, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
-        @registerOperation 0xFC, @NOP, @impliedMode, no, no # 2 cycles (undocumented operation)
+        @registerOperation 0x1A, @NOP, @impliedMode,   no, no # 2 cycles (undocumented operation)
+        @registerOperation 0x3A, @NOP, @impliedMode,   no, no # 2 cycles (undocumented operation)
+        @registerOperation 0x5A, @NOP, @impliedMode,   no, no # 2 cycles (undocumented operation)
+        @registerOperation 0x7A, @NOP, @impliedMode,   no, no # 2 cycles (undocumented operation)
+        @registerOperation 0xDA, @NOP, @impliedMode,   no, no # 2 cycles (undocumented operation)
+        @registerOperation 0xEA, @NOP, @impliedMode,   no, no # 2 cycles
+        @registerOperation 0xFA, @NOP, @impliedMode,   no, no # 2 cycles (undocumented operation)
+
+        @registerOperation 0x80, @NOP, @immediateMode, no, no # 2 cycles (undocumented operation)
+        @registerOperation 0x82, @NOP, @immediateMode, no, no # 2 cycles (undocumented operation)
+        @registerOperation 0x89, @NOP, @immediateMode, no, no # 2 cycles (undocumented operation)
+        @registerOperation 0xC2, @NOP, @immediateMode, no, no # 2 cycles (undocumented operation)
+        @registerOperation 0xE2, @NOP, @immediateMode, no, no # 2 cycles (undocumented operation)
+
+        @registerOperation 0x04, @NOP, @zeroPageMode,  no, no # 3 cycles (undocumented operation)
+        @registerOperation 0x44, @NOP, @zeroPageMode,  no, no # 3 cycles (undocumented operation)
+        @registerOperation 0x64, @NOP, @zeroPageMode,  no, no # 3 cycles (undocumented operation)
+
+        @registerOperation 0x14, @NOP, @zeroPageXMode, no, no # 4 cycles (undocumented operation)
+        @registerOperation 0x34, @NOP, @zeroPageXMode, no, no # 4 cycles (undocumented operation)
+        @registerOperation 0x54, @NOP, @zeroPageXMode, no, no # 4 cycles (undocumented operation)
+        @registerOperation 0x74, @NOP, @zeroPageXMode, no, no # 4 cycles (undocumented operation)
+        @registerOperation 0xD4, @NOP, @zeroPageXMode, no, no # 4 cycles (undocumented operation)
+        @registerOperation 0xF4, @NOP, @zeroPageXMode, no, no # 4 cycles (undocumented operation)
+
+        @registerOperation 0x0C, @NOP, @absoluteMode,  no, no # 4 cycles (undocumented operation)
+        
+        @registerOperation 0x1C, @NOP, @absoluteXMode, no, no # 5 cycles (undocumented operation)
+        @registerOperation 0x3C, @NOP, @absoluteXMode, no, no # 5 cycles (undocumented operation)
+        @registerOperation 0x5C, @NOP, @absoluteXMode, no, no # 5 cycles (undocumented operation)
+        @registerOperation 0x7C, @NOP, @absoluteXMode, no, no # 5 cycles (undocumented operation)
+        @registerOperation 0xDC, @NOP, @absoluteXMode, no, no # 5 cycles (undocumented operation)
+        @registerOperation 0xFC, @NOP, @absoluteXMode, no, no # 5 cycles (undocumented operation)
 
         ###########################################################
         # Clear flag instructions
@@ -758,10 +773,10 @@ class CPU
         @registerOperation 0x96, @STX, @zeroPageYMode, no,  no # 4 cycles
         @registerOperation 0x8E, @STX, @absoluteMode,  no,  no # 4 cycles
 
-        @registerOperation 0x87, @STX, @zeroPageMode,  no,  no # 3 cycles (undocumented operation)
-        @registerOperation 0x97, @STX, @zeroPageYMode, no,  no # 4 cycles (undocumented operation)
-        @registerOperation 0x8F, @STX, @absoluteMode,  no,  no # 4 cycles (undocumented operation)
-        @registerOperation 0x83, @STX, @indirectXMode, no,  no # 6 cycles (undocumented operation)
+        @registerOperation 0x87, @SAX, @zeroPageMode,  no,  no # 3 cycles (undocumented operation)
+        @registerOperation 0x97, @SAX, @zeroPageYMode, no,  no # 4 cycles (undocumented operation)
+        @registerOperation 0x8F, @SAX, @absoluteMode,  no,  no # 4 cycles (undocumented operation)
+        @registerOperation 0x83, @SAX, @indirectXMode, no,  no # 6 cycles (undocumented operation)
 
         @registerOperation 0x84, @STY, @zeroPageMode,  no,  no # 3 cycles
         @registerOperation 0x94, @STY, @zeroPageXMode, no,  no # 4 cycles
@@ -787,9 +802,9 @@ class CPU
         @registerOperation 0xBE, @LDX, @absoluteYMode, no, no # 4 (+1) cycles
 
         @registerOperation 0xA7, @LAX, @zeroPageMode,  no, no, # 3      cycles (undocumented operation)
-        @registerOperation 0xB7, @LAX, @zeroPageXMode, no, no, # 4      cycles (undocumented operation)
+        @registerOperation 0xB7, @LAX, @zeroPageYMode, no, no, # 4      cycles (undocumented operation)
         @registerOperation 0xAF, @LAX, @absoluteMode,  no, no, # 4      cycles (undocumented operation)
-        @registerOperation 0xBF, @LAX, @absoluteXMode, no, no, # 4 (+1) cycles (undocumented operation)
+        @registerOperation 0xBF, @LAX, @absoluteYMode, no, no, # 4 (+1) cycles (undocumented operation)
         @registerOperation 0xA3, @LAX, @indirectXMode, no, no, # 6      cycles (undocumented operation)
         @registerOperation 0xB3, @LAX, @indirectYMode, no, no, # 5 (+1) cycles (undocumented operation)
 
@@ -880,7 +895,16 @@ class CPU
         @registerOperation 0xDE, @DEC, @absoluteXMode, yes, yes # 7 cycles
 
         @registerOperation 0xCA, @DEX, @impliedMode,   no,  no  # 2 cycles
+
         @registerOperation 0x88, @DEY, @impliedMode,   no,  no  # 2 cycles
+
+        @registerOperation 0xC7, @DCP, @zeroPageMode,  no,  yes # 5    cycles (undocumented operation)
+        @registerOperation 0xD7, @DCP, @zeroPageXMode, no,  yes # 6    cycles (undocumented operation)
+        @registerOperation 0xCF, @DCP, @absoluteMode,  no,  yes # 6    cycles (undocumented operation)
+        @registerOperation 0xDF, @DCP, @absoluteXMode, yes, yes # 7    cycles (undocumented operation)
+        @registerOperation 0xDB, @DCP, @absoluteYMode, yes, yes # 7    cycles (undocumented operation)
+        @registerOperation 0xC3, @DCP, @indirectXMode, yes, yes # 8    cycles (undocumented operation)
+        @registerOperation 0xD3, @DCP, @indirectYMode, yes, yes # 8    cycles (undocumented operation)
 
         ###########################################################
         # Comparison instructions
@@ -902,14 +926,6 @@ class CPU
         @registerOperation 0xC0, @CPY, @immediateMode, no, no # 2      cycles
         @registerOperation 0xC4, @CPY, @zeroPageMode,  no, no # 3      cycles
         @registerOperation 0xCC, @CPY, @absoluteMode,  no, no # 4      cycles
-
-        @registerOperation 0xC7, @DCP, @zeroPageMode,  no,  yes # 5    cycles (undocumented operation)
-        @registerOperation 0xD7, @DCP, @zeroPageXMode, no,  yes # 6    cycles (undocumented operation)
-        @registerOperation 0xCF, @DCP, @absoluteMode,  no,  yes # 6    cycles (undocumented operation)
-        @registerOperation 0xDF, @DCP, @absoluteXMode, yes, yes # 7    cycles (undocumented operation)
-        @registerOperation 0xDA, @DCP, @absoluteYMode, yes, yes # 7    cycles (undocumented operation)
-        @registerOperation 0xC3, @DCP, @indirectXMode, yes, yes # 8    cycles (undocumented operation)
-        @registerOperation 0xD3, @DCP, @indirectYMode, yes, yes # 8    cycles (undocumented operation)
 
         ###########################################################
         # Branching instructions
