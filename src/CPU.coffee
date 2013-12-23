@@ -407,22 +407,6 @@ class CPU
         @storeValueIntoAccumulator value
         @storeValueIntoRegisterX value
 
-    storeValueIntoAccumulator: (value) ->
-        @updateZeroAndNegativeFlag value
-        @accumulator = value
-
-    storeValueIntoRegisterX: (value) ->
-        @updateZeroAndNegativeFlag value
-        @registerX = value
-
-    storeValueIntoRegisterY: (value) ->
-        @updateZeroAndNegativeFlag value
-        @registerY = value
-
-    storeValueIntoMemory: (address, value) ->
-        @updateZeroAndNegativeFlag value
-        @writeByte address, value
-
     ###########################################################
     # Register transfer instructions
     ###########################################################
@@ -523,14 +507,6 @@ class CPU
     CPY: (address) =>
         @compareRegisterAndMemory @registerY, address
 
-    compareRegisterAndMemory: (register, address) ->
-        @compareRegisterAndOperand register, @readByte address
-
-    compareRegisterAndOperand: (register, operand) ->
-        result = register - operand
-        @carryFlag = result >= 0 # Unsigned comparison (bit 8 is actually the result sign).
-        @updateZeroAndNegativeFlag result # Not a signed comparison
-
     ###########################################################
     # Branching instructions
     ###########################################################
@@ -558,11 +534,6 @@ class CPU
 
     BMI: (address) =>
         @branchIf @negativeFlag is on, address
-
-    branchIf: (condition, address) ->
-        if condition
-            @programCounter = address
-            @tick()
 
     ###########################################################
     # Jump / subroutine instructions
@@ -597,19 +568,10 @@ class CPU
     ###########################################################
 
     ADC: (address) =>
-        operand = @readByte address
-        @addValueToAccumulator operand
+        @addValueToAccumulator @readByte address
 
     SBC: (address) =>
-        operand = @readByte address
-        @addValueToAccumulator operand ^ 0xFF # Together with carry incremment makes negative operand.
-
-    addValueToAccumulator: (operand) ->
-        result = @accumulator + operand
-        result++ if @carryFlag is on
-        @carryFlag = @isOverflow result
-        @overflowFlag = @isSignedOverflow @accumulator, operand, result
-        @storeValueIntoAccumulator result & 0xFF
+        @addValueToAccumulator (@readByte address) ^ 0xFF # Together with carry incremment makes negative operand.
 
     ###########################################################
     # Shifting / rotation instructions
@@ -627,10 +589,62 @@ class CPU
     ROR: (address) =>
         @rotateAccumulatorOrMemory address, @rotateRight, true
 
+    ###########################################################
+    # Hybrid instructions
+    ###########################################################
+
+    DCP: (address) =>
+        @compareRegisterAndOperand @accumulator, @DEC address
+
+    ISB: (address) =>
+        @addValueToAccumulator (@INC address) ^ 0xFF # Together with carry incremment makes negative operand.
+
+    SLO: (address) =>
+        @storeValueIntoAccumulator @accumulator | @ASL address
+
+    ###########################################################
+    # Instruction helper functions
+    ###########################################################
+
+    storeValueIntoAccumulator: (value) ->
+        @updateZeroAndNegativeFlag value
+        @accumulator = value
+
+    storeValueIntoRegisterX: (value) ->
+        @updateZeroAndNegativeFlag value
+        @registerX = value
+
+    storeValueIntoRegisterY: (value) ->
+        @updateZeroAndNegativeFlag value
+        @registerY = value
+
+    storeValueIntoMemory: (address, value) ->
+        @updateZeroAndNegativeFlag value
+        @writeByte address, value
+
+    addValueToAccumulator: (operand) ->
+        result = @accumulator + operand
+        result++ if @carryFlag is on
+        @carryFlag = @isOverflow result
+        @overflowFlag = @isSignedOverflow @accumulator, operand, result
+        @storeValueIntoAccumulator result & 0xFF
+
+    compareRegisterAndMemory: (register, address) ->
+        @compareRegisterAndOperand register, @readByte address
+
+    compareRegisterAndOperand: (register, operand) ->
+        result = register - operand
+        @carryFlag = result >= 0 # Unsigned comparison (bit 8 is actually the result sign).
+        @updateZeroAndNegativeFlag result # Not a signed comparison
+
+    branchIf: (condition, address) ->
+        if condition
+            @programCounter = address
+            @tick()
+
     rotateAccumulatorOrMemory: (address, rotation, transferCarry) ->
         if address?
-            operand = @readByte address
-            result = rotation operand, transferCarry
+            result = rotation (@readByte address), transferCarry
             @storeValueIntoMemory address, result
         else
             result = rotation @accumulator, transferCarry
@@ -649,26 +663,13 @@ class CPU
         value |= Bit7 if transferCarry and oldCarryFlag
         value & 0xFF
 
-    ###########################################################
-    # Hybrid instructions
-    ###########################################################
-
-    DCP: (address) =>
-        @compareRegisterAndOperand @accumulator, @DEC address
-
-    ISB: (address) =>
-        @addValueToAccumulator (@INC address) ^ 0xFF # Together with carry incremment makes negative operand.
-
-    SLO: (address) =>
-        @storeValueIntoAccumulator @accumulator | @ASL address
+    updateZeroAndNegativeFlag: (value) ->
+        @zeroFlag = @isZero value
+        @negativeFlag = @isNegative value
 
     ###########################################################
     # Flags computation
     ###########################################################
-
-    updateZeroAndNegativeFlag: (value) ->
-        @zeroFlag = @isZero value
-        @negativeFlag = @isNegative value
 
     isZero: (value) ->
         (value & 0xFF) == 0
