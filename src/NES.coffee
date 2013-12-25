@@ -10,6 +10,9 @@ class NES
     pressReset: ->
         @cpu.reset()
 
+    pressPowerOn: ->
+        @cpu.powerOn()
+
     step: ->
         @cpu.step()
 

@@ -1,31 +1,79 @@
+Util = require "../utils/Util"
+
+wordAsHex = Util.wordAsHex
+
+###########################################################
+# Basic ROM mapper
+###########################################################
+
 class NROMMapper
 
     constructor: (@cartridge) ->
 
+    ###########################################################
+    # CPU reading / writing
+    ###########################################################
+
     cpuRead: (address) ->
-        if address >= 0x8000 
-            @readROM address 
-        else 
-            0
+        switch
+            when address >= 0x8000 then @readROM address 
+            when address >= 0x6000 then @readSRAM address
+            when address >= 0x4020 then @readExpansionROM address
+            else throw "Illegal state (CPU is trying to read from 0x#{wordAsHex address} using MMC)."
 
     cpuWrite: (address, value) ->
-        if address >= 0x8000
-            @writeROM address
+        switch
+            when address >= 0x8000 then @writeROM address, value
+            when address >= 0x6000 then @writeSRAM address, value
+            when address >= 0x4020 then @writeExpansionROM address, value
+            else throw "Illegal state (CPU is trying to write to 0x#{wordAsHex address} using MMC)."
+
+    ###########################################################
+    # ROM reading / writing
+    ###########################################################
 
     readROM: (address) ->
-        bank = @getROMBank address
-        bank[@getROMOffset address]
+        @cartridge.ROMBanks[@getROMBank address][@getROMOffset address]
 
     writeROM: (address, value) ->
-        bank = @getROMBank address
-        bank[@getROMOffset address] = value
+        @cartridge.ROMBanks[@getROMBank address][@getROMOffset address] = value
 
     getROMBank: (address) ->
-        banksCount = @cartridge.ROMBanks.length
-        bankIndex = if address < 0xC000 or banksCount == 1 then 0 else 1
-        @cartridge.ROMBanks[bankIndex]
+        if address < 0xC000 or @cartridge.ROMBanks.length == 1 then 0 else 1
 
     getROMOffset: (address) ->
         address & 0x3FFF
+
+    ###########################################################
+    # SRAM reading / writing
+    ###########################################################
+
+    readSRAM: (address) ->
+        if @cartridge.hasSRAM
+            @cartridge.SRAMBanks[@getSRAMBank address][@getSRAMOffset address]
+        else
+            0
+
+    writeSRAM: (address, value) ->
+        if @cartridge.hasSRAM
+            @cartridge.SRAMBanks[@getSRAMBank address][@getSRAMOffset address] = value
+        else
+            0
+
+    getSRAMBank: (address) ->
+        0
+
+    getSRAMOffset: (address) ->
+        address & 0x1FFF
+
+    ###########################################################
+    # Expansion ROM reading / writing
+    ###########################################################
+
+    readExpansionROM: ->
+        0
+
+    writeExpansionROM: ->
+        0
 
 module.exports = NROMMapper

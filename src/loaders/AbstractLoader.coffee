@@ -1,5 +1,9 @@
 Cartridge = require "../Cartridge"
 
+###########################################################
+# Base implementation for all loaders
+###########################################################
+
 class AbstractLoader
 
     @containsSignature: (reader, bytes) ->
@@ -10,11 +14,30 @@ class AbstractLoader
 
     constructor: (@reader) ->
 
+    ###########################################################
+    # Cartridge creation functions
+    ###########################################################
+
     loadCartridge: (cartridge) ->
         @cartridge = cartridge ? {}
         @reader.reset()
         @readCartridge()
+        @initCartridge()
         @cartridge
+
+    initCartridge: ->
+        @initSRAM()
+
+    initSRAM: ->
+        if @cartridge.hasSRAM
+            @cartridge.SRAMBanks = (@createEmptySRAMBank() for [1..@cartridge.SRAMBanksCount])
+
+    createEmptySRAMBank: ->
+        0 for [0...0x2000]
+
+    ###########################################################
+    # Helper functions
+    ###########################################################
 
     readByte: ->
         (@readArray 1)[0]
@@ -28,8 +51,5 @@ class AbstractLoader
     checkSignature: (bytes...) ->
         if not AbstractLoader.containsSignature @reader, bytes...
             throw "Invalid file signature."
-
-    isBitSet: (value, bit) ->
-        (value & (1 << bit)) != 0
 
 module.exports = AbstractLoader

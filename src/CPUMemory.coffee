@@ -31,12 +31,12 @@ class CPUMemory
     ###########################################################
 
     readRAM: (address) ->
-        @ram[@getRAMAddress address]
+        @ram[@getRAMOffset address]
 
     writeRAM: (address, value) ->
-        @ram[@getRAMAddress address] = value
+        @ram[@getRAMOffset address] = value
 
-    getRAMAddress: (address) ->
+    getRAMOffset: (address) ->
         address & 0x07FF # Mirroring of [0...0x0800] in [0...0x2000]
 
     ###########################################################
@@ -60,9 +60,9 @@ class CPUMemory
     ###########################################################
 
     readMMC: (address) ->
-        @mmc.cpuRead address if @mmc?
+        @mmc?.cpuRead address
 
     writeMMC: (address, value) ->
-        @mmc.cpuWrite address, value if @mmc?
+        @mmc?.cpuWrite address, value
 
 module.exports = CPUMemory
