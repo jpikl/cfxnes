@@ -35,7 +35,7 @@ class CPU
         @powerUp()
 
     ###########################################################
-    # Power-up state
+    # Power-up state initialization
     ###########################################################
 
     powerUp: ->
@@ -179,7 +179,7 @@ class CPU
 
     writeWord: (address, value) ->
         @writeByte address, value & 0xFF
-        @writeByte (address + 1) & 0xFFFF, value >> 8
+        @writeByte (address + 1) & 0xFFFF, value >>> 8
 
     ###########################################################
     # Stack pushing / pulling
@@ -190,7 +190,7 @@ class CPU
         @stackPointer = (@stackPointer - 1) & 0xFF
 
     pushWord: (value) ->
-        @pushByte value >> 8
+        @pushByte value >>> 8
         @pushByte value & 0xFF
 
     popByte: ->
@@ -668,7 +668,7 @@ class CPU
     rotateRight: (value, transferCarry) =>
         oldCarryFlag = @carryFlag
         @carryFlag = isBitSet value, 0
-        value >>= 1
+        value >>>= 1
         value |= Bit7 if transferCarry and oldCarryFlag
         value & 0xFF
 

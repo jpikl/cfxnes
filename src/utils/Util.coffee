@@ -28,7 +28,7 @@ Util =
 
     wordAsHex: (word, putSpace) ->
         hex1 = Util.byteAsHex word & 0xFF
-        hex2 = Util.byteAsHex word >> 8
+        hex2 = Util.byteAsHex word >>> 8
         hex2 + hex1
 
     fillLeft: (value, width, character = " ") ->

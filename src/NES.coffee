@@ -7,11 +7,11 @@ class NES
         @ppuMemory.setMMC mapper
         @cpuMemory.setMMC mapper
 
+    pressPower: ->
+        @cpu.powerUp()
+
     pressReset: ->
         @cpu.reset()
-
-    pressPowerOn: ->
-        @cpu.powerOn()
 
     step: ->
         @cpu.step()

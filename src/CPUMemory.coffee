@@ -37,7 +37,7 @@ class CPUMemory
         @ram[@getRAMOffset address] = value
 
     getRAMOffset: (address) ->
-        address & 0x07FF # Mirroring of [0...0x0800] in [0...0x2000]
+        address & 0x07FF # Mirroring of [$0000-$0800] in [$0000-$2000]
 
     ###########################################################
     # IO registers reading / writing
@@ -45,15 +45,14 @@ class CPUMemory
 
     readIO: (address) ->
         address = @getIOAddress address
-        # TODO implement
+        0 # TODO implement
 
     writeIO: (address, value) ->
         address = @getIOAddress address
-        # TODO implement
+        value # TODO implement
 
     getIOAddress: (address) ->
-        # Mirroring of [0x2000...0x2008] in [0x2000...0x4000]
-        if address < 0x4000 then address & 0x2007 else address
+        if address < 0x4000 then address & 0x2007 else address # Mirroring of [$2000-$2008] in [$2000-$4000]
 
     ###########################################################
     # MMC reading / writing

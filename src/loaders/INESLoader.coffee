@@ -48,7 +48,7 @@ class INESLoader extends AbstractLoader
         @cartridge.hasTrainer = isBitSet controlByte1, 2
         @cartridge.hasVsUnisistem = isBitSet controlByte2, 0
         @cartridge.hasPlayChoice = isBitSet controlByte2, 1
-        @cartridge.mapperId = (controlByte2 & 0xF0) | (controlByte1 >> 4)
+        @cartridge.mapperId = (controlByte2 & 0xF0) | (controlByte1 >>> 4)
         
     readSRAMBanksCount: ->
         @cartridge.SRAMBanksCount = Math.min 1, @readByte() # At least 1 bank always (compatibility purposes)
