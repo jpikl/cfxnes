@@ -1,28 +1,11 @@
-Util = require "./utils/Util"
+Types = require "./Types"
+Util  = require "./utils/Util"
 
-###########################################################
-# Local imports
-###########################################################
-
-Bit0      = Util.Bit0
-Bit1      = Util.Bit1
-Bit2      = Util.Bit2
-Bit3      = Util.Bit3
-Bit4      = Util.Bit4
-Bit5      = Util.Bit5
-Bit6      = Util.Bit6
-Bit7      = Util.Bit7
 isBitSet  = Util.isBitSet
 byteAsHex = Util.byteAsHex
+Interrupt = Types.Interrupt
 
-###########################################################
-# Interrupt types
-###########################################################
-
-Interrupt =
-    IRQ:   1
-    NMI:   2
-    Reset: 3
+[ BIT_0, BIT_1, BIT_2, BIT_3, BIT_4, BIT_5, BIT_6, BIT_7 ] = Util.generateBits 0, 7
 
 ###########################################################
 # Central processing unit
@@ -30,22 +13,23 @@ Interrupt =
 
 class CPU
 
-    constructor: (@cpuMemory, @ppu, @papu) ->
-        @init()
-        @powerUp()
+    @inject: [ "cpuMemory", "ppu", "papu" ]
+
+    constructor: ->
+        @initOperationsTable()
 
     ###########################################################
     # Power-up state initialization
     ###########################################################
 
     powerUp: ->
-        @resetRegistres()
+        @resetRegisters()
         @resetFlags()
         @resetVariables()
         @resetMemory()
         @reset() # Causes reset interrupt on start.
 
-    resetRegistres: ->
+    resetRegisters: ->
         @programCounter = 0 # 16-bit
         @stackPointer = 0   #  8-bit
         @accumulator = 0    #  8-bit
@@ -125,13 +109,13 @@ class CPU
             switch @requestedInterrupt
                 when Interrupt.IRQ   then @handleIRQ()
                 when Interrupt.NMI   then @handleNMI()
-                when Interrupt.Reset then @handleReset()
+                when Interrupt.RESET then @handleReset()
             @tick()
             @tick() # To make totally 7 cycles together with interrupt handler.
             @requestedInterrupt = null
 
     isRequestedInterruptDisabled: ->
-        @requestedInterrupt == Interrupt.IRQ and @interruptDisable is on
+        @requestedInterrupt is Interrupt.IRQ and @interruptDisable is on
 
     handleIRQ: ->
         @pushWord @programCounter
@@ -227,13 +211,13 @@ class CPU
     ###########################################################
 
     getStatus: ->
-        status = Bit5 # Bit 5 is alway set on when pushing status on stack.
-        status |= Bit0 if @carryFlag
-        status |= Bit1 if @zeroFlag
-        status |= Bit2 if @interruptDisable
-        status |= Bit3 if @decimalMode
-        status |= Bit6 if @overflowFlag
-        status |= Bit7 if @negativeFlag
+        status = BIT_5 # Bit 5 is alway set on when pushing status on stack.
+        status |= BIT_0 if @carryFlag
+        status |= BIT_1 if @zeroFlag
+        status |= BIT_2 if @interruptDisable
+        status |= BIT_3 if @decimalMode
+        status |= BIT_6 if @overflowFlag
+        status |= BIT_7 if @negativeFlag
         status
 
     setStatus: (status) ->
@@ -249,13 +233,13 @@ class CPU
     ###########################################################
 
     reset: ->
-        @setRequestedInterrupt Interrupt.Reset
+        @setRequestedInterrupt Interrupt.RESET
 
     requestNonMaskableInterrupt: ->
         @setRequestedInterrupt Interrupt.NMI
 
     setRequestedInterrupt: (type) ->
-        if @requestedInterrupt == null or type > @requestedInterrupt
+        if @requestedInterrupt is null or type > @requestedInterrupt
             @requestedInterrupt = type
 
     ###########################################################
@@ -437,7 +421,7 @@ class CPU
         @pushByte @accumulator
 
     PHP: =>
-        @pushByte @getStatus() | Bit4 # Pushes status with bit 4 on (break command flag).
+        @pushByte @getStatus() | BIT_4 # Pushes status with bit 4 on (break command flag).
 
     ###########################################################
     # Stack pop instructions
@@ -556,7 +540,7 @@ class CPU
 
     BRK: =>
         @pushWord @programCounter
-        @pushByte @getStatus() | Bit4 # Pushes status with bit 4 on (break command flag).
+        @pushByte @getStatus() | BIT_4 # Pushes status with bit 4 on (break command flag).
         @programCounter = @readWord 0xFFFE
 
     RTI: =>
@@ -661,7 +645,7 @@ class CPU
 
     rotateLeft: (value, transferCarry) =>
         value <<= 1
-        value |= Bit0 if transferCarry and @carryFlag
+        value |= BIT_0 if transferCarry and @carryFlag
         @carryFlag = @isOverflow value
         value & 0xFF
 
@@ -669,7 +653,7 @@ class CPU
         oldCarryFlag = @carryFlag
         @carryFlag = isBitSet value, 0
         value >>>= 1
-        value |= Bit7 if transferCarry and oldCarryFlag
+        value |= BIT_7 if transferCarry and oldCarryFlag
         value & 0xFF
 
     updateZeroAndNegativeFlag: (value) ->
@@ -696,7 +680,7 @@ class CPU
     # Operations table initialization
     ###########################################################
 
-    init: ->
+    initOperationsTable: ->
         @operationsTable = []
 
         ###########################################################

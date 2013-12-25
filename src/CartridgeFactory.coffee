@@ -3,7 +3,7 @@ LocalFileReader   = require "./readers/LocalFileReader"
 
 class CartridgeFactory
 
-    constructor: (@loaderFactory) ->
+    @inject: [ "loaderFactory" ]
     
     fromArrayBuffer: (arrayBuffer) ->
         @fromReader new ArrayBufferReader arrayBuffer

@@ -4,7 +4,9 @@
 
 class CPUMemory
 
-    constructor: (@ppu) ->
+    @inject: [ "ppu" ]
+
+    constructor: ->
         @ram = (0 for [0...0x07FF])
 
     setMMC: (mmc) ->

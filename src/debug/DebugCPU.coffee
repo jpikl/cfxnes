@@ -1,24 +1,19 @@
 CPU  = require "../CPU"
 Util = require "../utils/Util"
 
-###########################################################
-# Local imports
-###########################################################
-
 byteAsHex = Util.byteAsHex
 wordAsHex = Util.wordAsHex
 fillLeft  = Util.fillLeft
 fillRight = Util.fillRight
-println   = Util.println
 
 ###########################################################
-# Debug CPU
+# CPU with debugging printouts
 ###########################################################
 
 class DebugCPU extends CPU
 
-    constructor: (cpuMemory, ppu, papu) ->
-        super(cpuMemory, ppu, papu)
+    constructor: ->
+        super()
         @startLogging()
 
     ###########################################################
@@ -139,9 +134,9 @@ class DebugCPU extends CPU
         ]
 
     logHeader: ->
-        println "/-------+-------+------+----------+-----+---+-----+------------+---------------------------+-----------------\\"
-        println "|     # |  Cyc  |  PC  | D0 D1 D2 | OP  | C | AM  | Addr / Val |        Registers          |      Flags      |"
-        println "|-------|-------|------|----------|-----|---|-----|------------|---------------------------|-----------------|"
+        console.log "/-------+-------+------+----------+-----+---+-----+------------+---------------------------+-----------------\\"
+        console.log "|     # |  Cyc  |  PC  | D0 D1 D2 | OP  | C | AM  | Addr / Val |        Registers          |      Flags      |"
+        console.log "|-------|-------|------|----------|-----|---|-----|------------|---------------------------|-----------------|"
 
     logAddressingMode: (name, result) ->
         @addressingModeName = name
@@ -167,7 +162,7 @@ class DebugCPU extends CPU
         @linesCount++
         @instructionCycles = @cyclesCount - @cyclesCountBefore
         result = (method() for method in @formatterMethods)
-        println "| #{result.join ' | '} |"
+        console.log "| #{result.join ' | '} |"
 
     ###########################################################
     # Formatting

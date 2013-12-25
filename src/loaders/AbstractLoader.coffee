@@ -28,7 +28,7 @@ class AbstractLoader
 
     initSRAM: ->
         if @cartridge.hasSRAM
-            @cartridge.SRAMBanks = (@createEmptySRAMBank() for [1..@cartridge.SRAMBanksCount])
+            @cartridge.sramBanks = (@createEmptySRAMBank() for [1..@cartridge.sramBanksCount])
 
     createEmptySRAMBank: ->
         0 for [0...0x2000]

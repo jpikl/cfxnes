@@ -1,6 +1,8 @@
-Util = require "../utils/Util"
+Types = require "../Types"
+Util =  require "../utils/Util"
 
 wordAsHex = Util.wordAsHex
+Mirroring = Types.Mirroring
 
 ###########################################################
 # Basic ROM mapper
@@ -9,7 +11,7 @@ wordAsHex = Util.wordAsHex
 class NROMMapper
 
     constructor: (@cartridge) ->
-        @vram = (0 for [0...0x4000]) # Max. 16KB of VRAM (not all is used)
+        @vram = (0 for [0...0x4000]) # Max. 16KB of VRAM (not all is used).
 
     ###########################################################
     # CPU reading / writing
@@ -34,10 +36,10 @@ class NROMMapper
     ###########################################################
 
     readROM: (address) ->
-        @cartridge.ROMBanks[@getROMBank address][@getROMOffset address]
+        @cartridge.romBanks[@getROMBank address][@getROMOffset address]
 
     getROMBank: (address) ->
-        if address < 0xC000 or @cartridge.ROMBanks.length == 1 then 0 else 1
+        if address < 0xC000 or @cartridge.romBanks.length == 1 then 0 else 1
 
     getROMOffset: (address) ->
         address & 0x3FFF
@@ -48,13 +50,13 @@ class NROMMapper
 
     readSRAM: (address) ->
         if @cartridge.hasSRAM
-            @cartridge.SRAMBanks[@getSRAMBank address][@getSRAMOffset address]
+            @cartridge.sramBanks[@getSRAMBank address][@getSRAMOffset address]
         else
             0
 
     writeSRAM: (address, value) ->
         if @cartridge.hasSRAM
-            @cartridge.SRAMBanks[@getSRAMBank address][@getSRAMOffset address] = value
+            @cartridge.sramBanks[@getSRAMBank address][@getSRAMOffset address] = value
         else
             value
 
@@ -101,10 +103,11 @@ class NROMMapper
         @vram[@getPalleteAddress address] = value
 
     getPalleteAddress: (address) ->
-        address & 0x3F1F # Mirroring of [$3F00-$3F1F] in [$3F00-$3FFF]
+        address &= 0x3F1F                                   # Mirroring of [$3F00-$3F1F] in [$3F00-$3FFF]
+        if (address & 0x0003) == 0 then 0x3F00 else address # $3F00, $3F04, ..., $3F1C share the same value
 
     ###########################################################
-    # Names/attributes table reading / writing
+    # Names & attributes table reading / writing
     ###########################################################
 
     readNamesTable: (address) ->
@@ -116,10 +119,10 @@ class NROMMapper
     getNamesTableAddress: (address) ->
         # Area [$2000-$2EFF] from [$2EFF-$2FFF] is mirrored in [$3000-$3EFF]
         switch getMirroring()
-            when Mirroring.Horizontal   then (address & 0x23FF) | (address & 0x0800) >>> 1 # [1|1|2|2] in [$2000-$2FFF]
-            when Mirroring.Vertical     then (address & 0x27FF)                            # [1|2|1|2] in [$2000-$2FFF]
-            when Mirroring.SingleScreen then (address & 0x23FF)                            # [1|1|1|1] in [$2000-$2FFF]
-            when Mirroring.FourScreen   then (address & 0x2FFF)                            # [1|2|3|4] in [$2000-$2FFF]
+            when Mirroring.SINGLE_SCREEN then (address & 0x23FF)                            # [1|1|1|1] in [$2000-$2FFF]
+            when Mirroring.HORIZONTAL    then (address & 0x23FF) | (address & 0x0800) >>> 1 # [1|1|2|2] in [$2000-$2FFF]
+            when Mirroring.VERTICAL      then (address & 0x27FF)                            # [1|2|1|2] in [$2000-$2FFF]
+            when Mirroring.FOUR_SCREEN   then (address & 0x2FFF)                            # [1|2|3|4] in [$2000-$2FFF]
 
     getMirroring: ->
         @cartridge.mirroring
@@ -145,7 +148,7 @@ class NROMMapper
     ###########################################################
 
     readVROM: (address) ->
-        @cartridge.VROMBanks[@getVROMBank address][address]
+        @cartridge.vromBanks[@getVROMBank address][address]
 
     getVROMBank: (address) ->
         0

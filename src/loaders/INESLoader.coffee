@@ -1,9 +1,16 @@
 AbstractLoader = require "./AbstractLoader"
+Types          = require "../Types"
 Util           = require "../utils/Util"
 
-isBitSet = Util.isBitSet
+Mirroring      = Types.Mirroring
+TVSystem       = Types.TVSystem
+isBitSet       = Util.isBitSet
 
 INES_SIGNATURE = [ 0x4E, 0x45, 0x53, 0x1A ] # "NES^Z"
+
+###########################################################
+# Loader for iNES ROM format
+###########################################################
 
 class INESLoader extends AbstractLoader
 
@@ -16,6 +23,10 @@ class INESLoader extends AbstractLoader
         @readROMBanks()   #  16KB x number of ROM banks
         @readVROMBanks()  #   8KB x number of VROM banks
 
+    ###########################################################
+    # Header reading
+    ###########################################################
+
     readHeader: ->
         @checkSignature INES_SIGNATURE # 4B [$00-$03]
         @readROMBanksCount()           # 1B [$04]
@@ -27,22 +38,22 @@ class INESLoader extends AbstractLoader
         @readRestOfHeader()            # 5B [$0B-$0F]
 
     readROMBanksCount: ->
-        @cartridge.ROMBanksCount  = @readByte()
+        @cartridge.romBanksCount  = @readByte()
 
     readVROMBanksCount: ->
-        @cartridge.VROMBanksCount = @readByte() 
-        @cartridge.hasVRAM = @cartridge.VROMBanksCount == 0
+        @cartridge.vromBanksCount = @readByte() 
+        @cartridge.hasVRAM = @cartridge.vromBanksCount == 0
 
     readControlBytes: ->
         controlByte1 = @readByte()
         controlByte2 = @readByte()
 
         if isBitSet controlByte1, 3
-            @cartridge.mirroring = "FourScreen" # TODO make enum
+            @cartridge.mirroring = Mirroring.FOUR_SCREEN
         else if isBitSet controlByte1, 0
-            @cartridge.mirroring = "Vertical"
+            @cartridge.mirroring = Mirroring.VERTICAL
         else
-            @cartridge.mirroring = "Horizontal"
+            @cartridge.mirroring = Mirroring.HORIZONTAL
 
         @cartridge.hasBattery = isBitSet controlByte1, 1
         @cartridge.hasTrainer = isBitSet controlByte1, 2
@@ -51,11 +62,11 @@ class INESLoader extends AbstractLoader
         @cartridge.mapperId = (controlByte2 & 0xF0) | (controlByte1 >>> 4)
         
     readSRAMBanksCount: ->
-        @cartridge.SRAMBanksCount = Math.min 1, @readByte() # At least 1 bank always (compatibility purposes)
+        @cartridge.sramBanksCount = Math.min 1, @readByte() # At least 1 bank always (compatibility purposes)
 
     readFlags9: ->
         flags = @readByte()
-        @cartridge.TVSystem = if isBitSet flags, 0 then "PAL" else "NTSC" # TODO make enum
+        @cartridge.tvSystem = if isBitSet flags, 0 then TVSystem.PAL else TVSystem.NTSC
 
     readFlags10: ->
         flags = @readByte()
@@ -65,17 +76,21 @@ class INESLoader extends AbstractLoader
     readRestOfHeader: ->
         @readArray 5
 
+    ###########################################################
+    # Data reading
+    ###########################################################
+
     readTrainer: ->
         @cartridge.trainer = @readArray 0x200 if @cartridge.hasTrainer # 512B
 
     readROMBanks: ->
-        @cartridge.ROMBanks = (@readROMBank() for [1..@cartridge.ROMBanksCount])
+        @cartridge.romBanks = (@readROMBank() for [1..@cartridge.romBanksCount])
 
     readROMBank: ->
         @readArray 0x4000 # 16KB
 
     readVROMBanks: ->
-        @cartridge.VROMBanks = (@readVROMBank() for [1..@cartridge.VROMBanksCount])
+        @cartridge.vromBanks = (@readVROMBank() for [1..@cartridge.vromBanksCount])
 
     readVROMBank: ->
         @readArray 0x2000 # 8KB

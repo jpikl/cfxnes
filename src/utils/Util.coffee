@@ -1,19 +1,11 @@
-util = require "util"
-
 Util =
 
     ###########################################################
-    # Bit contants and operations
+    # Bit utitlities
     ###########################################################
 
-    Bit0: 1 << 0
-    Bit1: 1 << 1
-    Bit2: 1 << 2
-    Bit3: 1 << 3
-    Bit4: 1 << 4
-    Bit5: 1 << 5
-    Bit6: 1 << 6
-    Bit7: 1 << 7
+    generateBits: (from, to) ->
+        (1 << bit) for bit in [from..to]
 
     isBitSet: (value, bit) -> 
         (value & (1 << bit)) != 0
@@ -38,13 +30,5 @@ Util =
     fillRight: (value, width, character = " ") ->
         result = value + (Array(size + 1).join " ")
         result[...size]
-
-    ###########################################################
-    # Printing
-    ###########################################################
-
-    print: util.print
-    
-    println: util.puts
 
 module.exports = Util

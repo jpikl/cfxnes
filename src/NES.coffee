@@ -1,7 +1,7 @@
 class NES
-    
-    constructor: (@cpu, @cpuMemory, @ppu, @ppuMemory, @mapperFactory) ->
 
+    @inject: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "mapperFactory" ]
+        
     insertCartridge: (cartridge) ->
         mapper = @mapperFactory.createMapper cartridge
         @ppuMemory.setMMC mapper
