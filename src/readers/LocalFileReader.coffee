@@ -1,7 +1,7 @@
 FileSystem     = require "fs"
 AbstractReader = require "./AbstractReader"
 
-class ServerFileReader extends AbstractReader
+class LocalFileReader extends AbstractReader
 
     constructor: (@path) ->  
         super()
@@ -13,4 +13,4 @@ class ServerFileReader extends AbstractReader
     getData: (start, end) ->
         @data[index] for index in [start...end]
         
-module.exports = ServerFileReader
+module.exports = LocalFileReader

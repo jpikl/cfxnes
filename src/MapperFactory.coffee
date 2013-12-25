@@ -10,8 +10,7 @@ class MapperFactory
     createMapper: (cartridge) ->
         mapperId = cartridge.mapperId
         mapperClass = @mapperClasses[mapperId]
-        if mapperClass is null
-            throw "Unsupported mapper (id: #{mapperId})."
+        throw "Unsupported mapper (id: #{mapperId})." unless mapperClass?
         return new mapperClass cartridge
 
 module.exports = MapperFactory
