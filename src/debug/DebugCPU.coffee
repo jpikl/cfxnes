@@ -148,7 +148,7 @@ class DebugCPU extends CPU
 
     logOperationBefore: ->
         @cyclesCountBefore = @cyclesCount
-        @registers = [ @accumulator, @registerX, @registerY, @getStatusRegister(), @stackPointer ]
+        @registers = [ @accumulator, @registerX, @registerY, @getStatus(), @stackPointer ]
         @flags = [ @negativeFlag, @overflowFlag, false, false, @decimalMode, @interruptDisable, @zeroFlag, @carryFlag ]
         @instructionAddress = @programCounter
         @instructionData = [

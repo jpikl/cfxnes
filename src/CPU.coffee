@@ -10,7 +10,7 @@ Interrupt = Types.Interrupt
 
 class CPU
 
-    @inject: [ "cpuMemory", "ppu", "papu" ]
+    @inject: [ "cpuMemory", "ppu", "apu" ]
 
     constructor: ->
         @initOperationsTable()
@@ -31,7 +31,7 @@ class CPU
         @accumulator = 0     #  8-bit
         @registerX = 0       #  8-bit
         @registerY = 0       #  8-bit
-        @setStatusRegister 0 #  8-bit
+        @setStatus 0 #  8-bit
 
     resetVariables: ->
         @cyclesCount = 0
@@ -89,7 +89,7 @@ class CPU
 
     saveStateBeforeInterrupt: ->
         @pushWord @programCounter
-        @pushByte @getStatusRegister()
+        @pushByte @getStatus()
 
     enterInterruptHandler: (address) ->
         @interruptDisable = 1
@@ -193,14 +193,14 @@ class CPU
     tick: ->
         @cyclesCount++
         @ppu.tick() for [1..3]
-        @papu.tick()
+        @apu.tick()
         undefined
 
     ###########################################################
     # CPU status reading / writing
     ###########################################################
 
-    getStatusRegister: ->
+    getStatus: ->
         @carryFlag             | # Bit 0
         @zeroFlag         << 1 | # Bit 1
         @interruptDisable << 2 | # Bit 2
@@ -209,7 +209,7 @@ class CPU
         @overflowFlag     << 6 | # Bit 6
         @negativeFlag     << 7   # Bit 7
 
-    setStatusRegister: (value) ->
+    setStatus: (value) ->
         @carryFlag        =  value        & 0x01 # Bit 0
         @zeroFlag         = (value >>> 1) & 0x01 # Bit 1
         @interruptDisable = (value >>> 2) & 0x01 # Bit 2
@@ -410,7 +410,7 @@ class CPU
         @pushByte @accumulator
 
     PHP: =>
-        @pushByte @getStatusRegister() | 0x10 # Pushes status with bit 4 on (break command flag).
+        @pushByte @getStatus() | 0x10 # Pushes status with bit 4 on (break command flag).
 
     ###########################################################
     # Stack pop instructions
@@ -420,7 +420,7 @@ class CPU
         @storeValueIntoAccumulator @popByte()
 
     PLP: =>
-        @setStatusRegister @popByte()
+        @setStatus @popByte()
 
     ###########################################################
     # Accumulator bitwise instructions
@@ -529,11 +529,11 @@ class CPU
 
     BRK: =>
         @pushWord @programCounter
-        @pushByte @getStatusRegister() | 0x10 # Pushes status with bit 4 on (break command flag).
+        @pushByte @getStatus() | 0x10 # Pushes status with bit 4 on (break command flag).
         @programCounter = @readWord 0xFFFE
 
     RTI: =>
-        @setStatusRegister @popByte()
+        @setStatus @popByte()
         @programCounter = @popWord()
 
     ###########################################################

@@ -11,6 +11,15 @@ Mirroring = Types.Mirroring
 class NROMMapper
 
     constructor: (@cartridge) ->
+
+    ###########################################################
+    # Power-up state initialization
+    ###########################################################
+
+    powerUp: ->
+        @resetVRAM()
+
+    resetVRAM: ->
         @vram = (0 for [0...0x4000]) # Max. 16KB of VRAM (not all is used).
 
     ###########################################################

@@ -4,13 +4,20 @@
 
 class CPUMemory
 
-    @inject: [ "ppu" ]
+    @inject: [ "ppu", "apu" ]
 
-    constructor: ->
-        @ram = (0 for [0...0x07FF])
-
-    setMMC: (mmc) ->
+    connectToMMC: (mmc) ->
         @mmc = mmc
+
+    ###########################################################
+    # Power-up state initialization
+    ###########################################################
+
+    powerUp: ->
+        @resetRAM()
+
+    resetRAM: ->
+        @ram = (0 for [0...0x07FF])
 
     ###########################################################
     # Generic reading / writing
@@ -46,12 +53,22 @@ class CPUMemory
     ###########################################################
 
     readIO: (address) ->
-        address = @getIOAddress address
-        0 # TODO implement
+        switch @getIOAddress address
+            when 0x2002 then @ppu.readStatus()
+            when 0x2004 then @ppu.readOAMData()
+            when 0x2007 then @ppu.readData()
+            else 0
 
     writeIO: (address, value) ->
-        address = @getIOAddress address
-        value # TODO implement
+        switch @getIOAddress address
+            when 0x2000 then @ppu.writeControl value
+            when 0x2001 then @ppu.writeMask value
+            when 0x2003 then @ppu.writeOAMAddress value
+            when 0x2004 then @ppu.writeOAMData value
+            when 0x2005 then @ppu.writeScroll value
+            when 0x2006 then @ppu.writeAddress value
+            when 0x2007 then @ppu.writeData value
+            else value
 
     getIOAddress: (address) ->
         if address < 0x4000 then address & 0x2007 else address # Mirroring of [$2000-$2008] in [$2000-$4000]

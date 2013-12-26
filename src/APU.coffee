@@ -1,29 +1,23 @@
 ###########################################################
-# PPU memory
+# Audio processing unit
 ###########################################################
 
-class PPUMemory
-
-    connectToMMC: (mmc) ->
-        @mmc = mmc
+class APU
 
     ###########################################################
     # Power-up state initialization
     ###########################################################
 
     powerUp: ->
+        @resetRegisters()
+
+    resetRegisters: ->
+        # TODO
 
     ###########################################################
-    # MMC reading / writing
+    # Sound generation
     ###########################################################
 
-    read: (address) ->
-        @mmc.ppuRead @getVRAMAddress address
+    tick: ->
 
-    write: (address, value) ->
-        @mmc.ppuWrite @getVRAMAddress address, value
-
-    getVRAMAddress: (address) ->
-        address & 0x3FFF # Mirroring of [$0000-$3FFF] in [$0000-$FFFF]
-
-module.exports = PPUMemory
+module.exports = APU

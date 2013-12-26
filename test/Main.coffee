@@ -10,6 +10,6 @@ cartridgeFactory = injector.getInstance "cartridgeFactory"
 cartridge = cartridgeFactory.fromLocalFile cartridgeFile
 
 nes = injector.getInstance "nes"
-nes.insertCartridge cartridge
 nes.pressPower()
+nes.insertCartridge cartridge
 nes.step() for [1..totalSteps]

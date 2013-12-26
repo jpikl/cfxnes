@@ -7,7 +7,7 @@ class BaseConfig
     nes:              { module: "src/NES",              singleton: true }
     cpu:              { module: "src/CPU",              singleton: true }
     ppu:              { module: "src/PPU",              singleton: true }
-    papu:             { module: "src/PAPU",             singleton: true }
+    apu:              { module: "src/APU",              singleton: true }
     cpuMemory:        { module: "src/CPUMemory",        singleton: true }
     ppuMemory:        { module: "src/PPUMemory",        singleton: true }
     cartridgeFactory: { module: "src/CartridgeFactory", singleton: true }
