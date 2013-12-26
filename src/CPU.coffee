@@ -72,7 +72,7 @@ class CPU
             @requestedInterrupt = null
 
     isRequestedInterruptDisabled: ->
-        @requestedInterrupt is Interrupt.IRQ and @interruptDisable
+        @interruptDisable and @requestedInterrupt is Interrupt.IRQ
 
     handleIRQ: ->
         @saveStateBeforeInterrupt()
@@ -205,7 +205,7 @@ class CPU
         @zeroFlag         << 1 | # Bit 1
         @interruptDisable << 2 | # Bit 2
         @decimalMode      << 3 | # Bit 3
-        1                 << 5 | # Bit 5 is alway set on when pushing status on stack.
+        1                 << 5 | # Bit 5 (always set on when pushing status on stack)
         @overflowFlag     << 6 | # Bit 6
         @negativeFlag     << 7   # Bit 7
 

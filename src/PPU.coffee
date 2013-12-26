@@ -93,7 +93,7 @@ class PPU
         @objectAttributeMemory[@oamAddress] # Does not increment the address
 
     writeOAMData: (value) ->
-        @objectAttributeMemory[@oamAddress] = value if not @renderingInProgress()
+        @objectAttributeMemory[@oamAddress] = value if not @isRenderingInProgress()
         @oamAddress = (@oamAddress + 1) & 0xFF # Always increments the address
         value
 
@@ -118,8 +118,8 @@ class PPU
         if @isPalleteAddress address then @vramReadBuffer else oldBufferContent # Delayed read outside the pallete memory area
 
     writeData: (value) ->
-        address = @incrementAddress()                                 # Always increments the address
-        @ppuMemory.write address, value if not @renderingInProgress() # Only during VBLANK or disabled rendering
+        address = @incrementAddress()                                   # Always increments the address
+        @ppuMemory.write address, value if not @isRenderingInProgress() # Only during VBLANK or disabled rendering
         value
 
     incrementAddress: ->
@@ -155,7 +155,7 @@ class PPU
     getMonochromeColorIndex: (index) ->
         index & 0x30
 
-    renderingInProgress: ->
+    isRenderingInProgress: ->
         not @vblankInProgress and (@spritesVisible or @backgroundVisible)
 
     tick: ->
