@@ -1,4 +1,4 @@
-CONF_FILE   = ../../test/cputest/TestConfig
+CONF_FILE   = ../../test/nestest/TestConfig
 TEST_FILE   = ../Main.coffee
 TEST_ROM    = ../../roms/nestest.nes
 NLT_LOG_RAW = nintendulator.log

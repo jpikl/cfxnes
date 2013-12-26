@@ -1,6 +1,10 @@
 FileSystem     = require "fs"
 AbstractReader = require "./AbstractReader"
 
+###########################################################
+# Reader for local file
+###########################################################
+
 class LocalFileReader extends AbstractReader
 
     constructor: (@path) ->  

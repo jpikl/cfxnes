@@ -1,3 +1,7 @@
+###########################################################
+# Nintendo Entertainment System
+###########################################################
+
 class NES
 
     @inject: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "mapperFactory" ]

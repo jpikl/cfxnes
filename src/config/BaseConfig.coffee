@@ -1,3 +1,7 @@
+###########################################################
+# Basic dependency configuration
+###########################################################
+
 class BaseConfig
 
     nes:              { module: "src/NES",              singleton: true }

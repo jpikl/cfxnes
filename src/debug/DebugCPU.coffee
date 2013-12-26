@@ -1,10 +1,9 @@
-CPU  = require "../CPU"
-Util = require "../utils/Util"
+CPU    = require "../CPU"
+Format = require "../utils/Format"
 
-byteAsHex = Util.byteAsHex
-wordAsHex = Util.wordAsHex
-fillLeft  = Util.fillLeft
-fillRight = Util.fillRight
+byteAsHex = Format.byteAsHex
+wordAsHex = Format.wordAsHex
+fillLeft  = Format.fillLeft
 
 ###########################################################
 # CPU with debugging printouts
@@ -149,7 +148,7 @@ class DebugCPU extends CPU
 
     logOperationBefore: ->
         @cyclesCountBefore = @cyclesCount
-        @registers = [ @accumulator, @registerX, @registerY, @getStatus(), @stackPointer ]
+        @registers = [ @accumulator, @registerX, @registerY, @getStatusRegister(), @stackPointer ]
         @flags = [ @negativeFlag, @overflowFlag, false, false, @decimalMode, @interruptDisable, @zeroFlag, @carryFlag ]
         @instructionAddress = @programCounter
         @instructionData = [

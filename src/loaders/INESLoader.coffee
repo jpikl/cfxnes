@@ -1,10 +1,8 @@
 AbstractLoader = require "./AbstractLoader"
 Types          = require "../Types"
-Util           = require "../utils/Util"
 
 Mirroring      = Types.Mirroring
 TVSystem       = Types.TVSystem
-isBitSet       = Util.isBitSet
 
 INES_SIGNATURE = [ 0x4E, 0x45, 0x53, 0x1A ] # "NES^Z"
 
@@ -48,17 +46,17 @@ class INESLoader extends AbstractLoader
         controlByte1 = @readByte()
         controlByte2 = @readByte()
 
-        if isBitSet controlByte1, 3
+        if controlByte1 & 0x08
             @cartridge.mirroring = Mirroring.FOUR_SCREEN
-        else if isBitSet controlByte1, 0
+        else if controlByte1 & 0x01
             @cartridge.mirroring = Mirroring.VERTICAL
         else
             @cartridge.mirroring = Mirroring.HORIZONTAL
 
-        @cartridge.hasBattery = isBitSet controlByte1, 1
-        @cartridge.hasTrainer = isBitSet controlByte1, 2
-        @cartridge.hasVsUnisistem = isBitSet controlByte2, 0
-        @cartridge.hasPlayChoice = isBitSet controlByte2, 1
+        @cartridge.hasBattery = (controlByte1 & 0x02) != 0
+        @cartridge.hasTrainer = (controlByte1 & 0x04) != 0
+        @cartridge.hasVsUnisistem = (controlByte2 & 0x01) != 0
+        @cartridge.hasPlayChoice = (controlByte2 & 0x02) != 0
         @cartridge.mapperId = (controlByte2 & 0xF0) | (controlByte1 >>> 4)
         
     readSRAMBanksCount: ->
@@ -66,12 +64,12 @@ class INESLoader extends AbstractLoader
 
     readFlags9: ->
         flags = @readByte()
-        @cartridge.tvSystem = if isBitSet flags, 0 then TVSystem.PAL else TVSystem.NTSC
+        @cartridge.tvSystem = if flags & 0x01 then TVSystem.PAL else TVSystem.NTSC
 
     readFlags10: ->
         flags = @readByte()
-        @cartridge.hasSRAM = isBitSet flags, 4
-        @cartridge.hasBUSConflicts = isBitSet flags, 5
+        @cartridge.hasSRAM = (flags & 0x10) == 0
+        @cartridge.hasBUSConflicts = (flags & 0x20) != 0
 
     readRestOfHeader: ->
         @readArray 5

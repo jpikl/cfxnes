@@ -1,5 +1,9 @@
 AbstractReader = require "./AbstractReader"
 
+###########################################################
+# Reader for array buffer
+###########################################################
+
 class ArrayBufferReader extends AbstractReader
 
     constructor: (buffer) ->

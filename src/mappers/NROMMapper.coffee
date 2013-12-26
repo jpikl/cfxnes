@@ -1,7 +1,7 @@
 Types = require "../Types"
-Util =  require "../utils/Util"
+Format =  require "../utils/Format"
 
-wordAsHex = Util.wordAsHex
+wordAsHex = Format.wordAsHex
 Mirroring = Types.Mirroring
 
 ###########################################################
