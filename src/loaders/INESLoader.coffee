@@ -16,7 +16,7 @@ class INESLoader extends AbstractLoader
         @containsSignature reader, INES_SIGNATURE
 
     readCartridge: ->
-        @readHeader()     #  16 B [$0000-000F]
+        @readHeader()     #  16 B [$0000-$000F]
         @readTrainer()    # 512 B (optional)
         @readROMBanks()   #  16KB x number of ROM banks
         @readVROMBanks()  #   8KB x number of VROM banks

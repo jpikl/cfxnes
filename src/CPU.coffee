@@ -31,7 +31,7 @@ class CPU
         @accumulator = 0     #  8-bit
         @registerX = 0       #  8-bit
         @registerY = 0       #  8-bit
-        @setStatus 0 #  8-bit
+        @setStatus 0         #  8-bit
 
     resetVariables: ->
         @cyclesCount = 0
@@ -544,7 +544,7 @@ class CPU
         @addValueToAccumulator @readByte address
 
     SBC: (address) =>
-        @addValueToAccumulator (@readByte address) ^ 0xFF # Together with carry incremment makes negative operand.
+        @addValueToAccumulator (@readByte address) ^ 0xFF # Together with internal carry incremment makes negative operand.
 
     ###########################################################
     # Shifting / rotation instructions
@@ -570,7 +570,7 @@ class CPU
         @compareRegisterAndOperand @accumulator, @DEC address
 
     ISB: (address) =>
-        @addValueToAccumulator (@INC address) ^ 0xFF # Together with carry incremment makes negative operand.
+        @addValueToAccumulator (@INC address) ^ 0xFF # Together with internal carry incremment makes negative operand.
 
     SLO: (address) =>
         @storeValueIntoAccumulator @accumulator | @ASL address

@@ -10,7 +10,13 @@ Mirroring = Types.Mirroring
 
 class NROMMapper
 
-    constructor: (@cartridge) ->
+    constructor: (cartridge) ->
+        @romBanks = cartridge.romBanks
+        @vromBanks = cartridge.vromBanks
+        @vramEnabled = cartridge.hasVRAM
+        @sramEnabled = cartridge.hasSRAM
+        @sramBanks = cartridge.sramBanks
+        @mirroring = cartridge.mirroring
 
     ###########################################################
     # Power-up state initialization
@@ -45,10 +51,10 @@ class NROMMapper
     ###########################################################
 
     readROM: (address) ->
-        @cartridge.romBanks[@getROMBank address][@getROMOffset address]
+        @romBanks[@getROMBank address][@getROMOffset address]
 
     getROMBank: (address) ->
-        if address < 0xC000 or @cartridge.romBanks.length == 1 then 0 else 1
+        if address < 0xC000 or @romBanks.length == 1 then 0 else 1
 
     getROMOffset: (address) ->
         address & 0x3FFF
@@ -58,14 +64,14 @@ class NROMMapper
     ###########################################################
 
     readSRAM: (address) ->
-        if @cartridge.hasSRAM
-            @cartridge.sramBanks[@getSRAMBank address][@getSRAMOffset address]
+        if @sramEnabled
+            @sramBanks[@getSRAMBank address][@getSRAMOffset address]
         else
             0
 
     writeSRAM: (address, value) ->
-        if @cartridge.hasSRAM
-            @cartridge.sramBanks[@getSRAMBank address][@getSRAMOffset address] = value
+        if @sramEnabled
+            @sramBanks[@getSRAMBank address][@getSRAMOffset address] = value
         else
             value
 
@@ -134,20 +140,20 @@ class NROMMapper
             when Mirroring.FOUR_SCREEN   then (address & 0x2FFF)                            # [1|2|3|4] in [$2000-$2FFF]
 
     getMirroring: ->
-        @cartridge.mirroring
+        @mirroring
 
     ###########################################################
     # Patterns table reading / writing
     ###########################################################
 
     readPatternsTable: (address) ->
-        if @cartridge.hasVRAM
+        if @vramEnabled
             @vram[address]
         else
             @readVROM address
 
     writePatternsTable: (address, value) ->
-        if @cartridge.hasVRAM
+        if @vramEnabled
             @vram[address] = value
         else
             value # Read-only
@@ -157,7 +163,7 @@ class NROMMapper
     ###########################################################
 
     readVROM: (address) ->
-        @cartridge.vromBanks[@getVROMBank address][address]
+        @vromBanks[@getVROMBank address][address]
 
     getVROMBank: (address) ->
         0

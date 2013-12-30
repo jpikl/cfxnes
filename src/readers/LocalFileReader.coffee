@@ -15,6 +15,6 @@ class LocalFileReader extends AbstractReader
         @data.length
 
     getData: (start, end) ->
-        @data[index] for index in [start...end]
+        @data[start...end]
         
 module.exports = LocalFileReader
