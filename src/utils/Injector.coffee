@@ -21,7 +21,7 @@ class Injector
         configuration
 
     readConfiguration: (module) ->
-        require module
+        require "../#{module}"
 
     buildConfiguration: (builder) ->
         if builder.constructor? then new builder else builder()
@@ -37,7 +37,7 @@ class Injector
 
     getClass: (name) ->
         dependency = @getDependency(name)
-        dependency.clazz ?= require "../../#{dependency.module}" 
+        dependency.clazz ?= require "../#{dependency.module}" 
 
     getInstance: (name) ->
         if @isSingleton name

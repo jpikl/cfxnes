@@ -4,10 +4,10 @@
 
 class AbstractLoader
 
-    @containsSignature: (reader, bytes) ->
-        header = reader.read bytes.length
-        for byte, i in bytes
-            return false if byte != header[i]
+    @containsSignature: (reader, signature) ->
+        header = reader.read signature.length
+        for signatureByte, i in signature
+            return false if signatureByte != header[i]
         return true
 
     constructor: (@reader) ->

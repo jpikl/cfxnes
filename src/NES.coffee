@@ -2,10 +2,15 @@
 # Nintendo Entertainment System
 ###########################################################
 
+FRAME_SIZE = 256 * 250 *
+
 class NES
 
     @inject: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "mapperFactory" ]
         
+    constructor: ->
+        @whiteNoise = (0xFF for i in [0 ... 256 * 240 * 4])
+
     insertCartridge: (cartridge) ->
         @mmc = @mapperFactory.createMapper cartridge
         @mmc.powerUp()
@@ -22,6 +27,18 @@ class NES
 
     pressReset: ->
         @cpu.reset()
+
+    renderFrame: ->
+        if @mmc? then @renderFrameUsingPPU() else @renderWhiteNoise()
+
+    renderWhiteNoise: ->
+        for i in [0...@whiteNoise.length] by 4
+           @whiteNoise[i] = @whiteNoise[i + 1] = @whiteNoise[i + 2] = 0xFF * Math.random()
+        @whiteNoise
+
+    renderFrameUsingPPU: ->
+        @step() until @ppu.isFrameAvailable()
+        @ppu.readFrame()
 
     step: ->
         @cpu.step()

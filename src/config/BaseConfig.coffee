@@ -4,14 +4,14 @@
 
 class BaseConfig
 
-    nes:              { module: "src/NES",              singleton: true }
-    cpu:              { module: "src/CPU",              singleton: true }
-    ppu:              { module: "src/PPU",              singleton: true }
-    apu:              { module: "src/APU",              singleton: true }
-    cpuMemory:        { module: "src/CPUMemory",        singleton: true }
-    ppuMemory:        { module: "src/PPUMemory",        singleton: true }
-    cartridgeFactory: { module: "src/CartridgeFactory", singleton: true }
-    loaderFactory:    { module: "src/LoaderFactory",    singleton: true }
-    mapperFactory:    { module: "src/MapperFactory",    singleton: true }
+    "nes":              { module: "NES",              singleton: true }
+    "cpu":              { module: "CPU",              singleton: true }
+    "ppu":              { module: "PPU",              singleton: true }
+    "apu":              { module: "APU",              singleton: true }
+    "cpuMemory":        { module: "CPUMemory",        singleton: true }
+    "ppuMemory":        { module: "PPUMemory",        singleton: true }
+    "cartridgeFactory": { module: "CartridgeFactory", singleton: true }
+    "loaderFactory":    { module: "LoaderFactory",    singleton: true }
+    "mapperFactory":    { module: "MapperFactory",    singleton: true }
 
 module.exports = BaseConfig
