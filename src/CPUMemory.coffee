@@ -6,8 +6,14 @@ class CPUMemory
 
     @inject: [ "ppu", "apu" ]
 
-    connectToMMC: (mmc) ->
+    setMMC: (mmc) ->
         @mmc = mmc
+
+    setInputDevice1: (device) ->
+        @inputDevice1 = device
+
+    setInputDevice2: (device) ->
+        @inputDevice2 = device
 
     ###########################################################
     # Power-up state initialization
@@ -15,6 +21,7 @@ class CPUMemory
 
     powerUp: ->
         @resetRAM()
+        @inputDeviceStrobe = 0
 
     resetRAM: ->
         @ram = (0 for [0...0x07FF])
@@ -57,6 +64,8 @@ class CPUMemory
             when 0x2002 then @ppu.readStatus()
             when 0x2004 then @ppu.readOAMData()
             when 0x2007 then @ppu.readData()
+            when 0x4016 then readInputDevice1()
+            when 0x4017 then readInputDevice2()
             else 0
 
     writeIO: (address, value) ->
@@ -68,10 +77,30 @@ class CPUMemory
             when 0x2005 then @ppu.writeScroll value
             when 0x2006 then @ppu.writeAddress value
             when 0x2007 then @ppu.writeData value
+            when 0x4016 then @writeInputDevice value
+            when 0x4017 then @writeInputDevice value
             else value
 
     getIOAddress: (address) ->
         if address < 0x4000 then address & 0x2007 else address # Mirroring of [$2000-$2008] in [$2000-$4000]
+
+    ###########################################################
+    # Input device reading / writing
+    ###########################################################
+
+    readInputDevice1: ->
+        if @inputDevice1? then @inputDevice1.read() else 0
+
+    readInputDevice2: ->
+        if @inputDevice2? then @inputDevice2.read() else 0
+
+    writeInputDevice: (value) ->
+        strobe = value & 0x01
+        if strobe and not @inputDeviceStrobe
+            @inputDevice1?.strobe()
+            @inputDevice2?.strobe()
+        @inputDeviceStrobe = strobe
+        value
 
     ###########################################################
     # MMC reading / writing

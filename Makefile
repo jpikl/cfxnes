@@ -1,8 +1,10 @@
+export NODE_PATH = /usr/lib/node_modules/
+
 SRC_DIR   = src
 BUILD_DIR = build
 MAIN_FILE = Main.js
 OUT_FILE  = NESCoffee.js
-OPT_LEVEL = ADVANCED_OPTIMIZATIONS
+OPT_LEVEL = SIMPLE_OPTIMIZATIONS
 
 INCLUDES = Main.js \
            NES.js \
@@ -21,6 +23,8 @@ INCLUDES = Main.js \
            mappers/NROMMapper.js \
            readers/AbstractReader.js \
            readers/ArrayBufferReader.js \
+           controllers/Joypad.js \
+           controllers/Zapper.js \
            utils/Format.js \
            utils/Injector.js
 

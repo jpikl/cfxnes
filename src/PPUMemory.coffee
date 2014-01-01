@@ -4,7 +4,7 @@
 
 class PPUMemory
 
-    connectToMMC: (mmc) ->
+    setMMC: (mmc) ->
         @mmc = mmc
 
     ###########################################################

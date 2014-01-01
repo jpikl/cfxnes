@@ -5,7 +5,7 @@
 class CartridgeFactory
 
     @inject: [ "loaderFactory" ]
-    
+
     fromArrayBuffer: (arrayBuffer) ->
         ArrayBufferReader = require "./readers/ArrayBufferReader"
         @fromReader new ArrayBufferReader arrayBuffer
