@@ -1,123 +1,129 @@
 Injector = require "./utils/Injector"
 Joypad   = require "./controllers/Joypad"
 Zapper   = require "./controllers/Zapper"
+Binder   = require "./Binder"
 
-FPS = 60
+SCREEN_FPS    = 60.0988
+SCREEN_WIDTH  = 256
+SCREEN_HEIGHT = 240
 
-injector = new Injector "./config/BaseConfig"
+joypadButtonNameToId =
+    "a":      Joypad.BUTTON_A
+    "b":      Joypad.BUTTON_B
+    "select": Joypad.BUTTON_SELECT
+    "start":  Joypad.BUTTON_START
+    "up":     Joypad.BUTTON_UP
+    "down":   Joypad.BUTTON_DOWN
+    "left":   Joypad.BUTTON_LEFT
+    "right":  Joypad.BUTTON_RIGHT
 
-nes = injector.getInstance "nes"
-nes.pressPower()
+class NESCoffee
 
-devices1 = joypad: new Joypad, zapper: new Zapper
-devices2 = joypad: new Joypad, zapper: new Zapper
+    ###########################################################
+    # Initialization
+    ###########################################################
 
-###########################################################
-# Keyboard events
-###########################################################
+    constructor: (canvasID) ->
+        @initCanvas canvasID
+        @initConsole()
+        @initControls()
+        @pressPower()
 
-keyboardMapping = 
-    88: devices1.joypad.setButtonPressed.bind this, Joypad.BUTTON_A      # X
-    89: devices1.joypad.setButtonPressed.bind this, Joypad.BUTTON_B      # Y
-    90: devices1.joypad.setButtonPressed.bind this, Joypad.BUTTON_B      # Z
-    16: devices1.joypad.setButtonPressed.bind this, Joypad.BUTTON_SELECT # Shift
-    13: devices1.joypad.setButtonPressed.bind this, Joypad.BUTTON_START  # Enter
-    38: devices1.joypad.setButtonPressed.bind this, Joypad.BUTTON_UP     # Up
-    40: devices1.joypad.setButtonPressed.bind this, Joypad.BUTTON_DOWN   # Down
-    37: devices1.joypad.setButtonPressed.bind this, Joypad.BUTTON_LEFT   # Left
-    39: devices1.joypad.setButtonPressed.bind this, Joypad.BUTTON_RIGHT  # Right
+    ###########################################################
+    # Initialization
+    ###########################################################
 
-processKeyEvent = (event, keyDown) ->
-    event or= window.event
-    keyCode = event.keyCode or event.which
-    callback = keyboardMapping[keyCode]
-    callback keyDown if callback?
+    initCanvas: (canvasID) ->
+        @canvas = document.getElementById canvasID
+        throw "No element with ID='#{canvasID}' exists." unless @canvas?
+        @canvas.width = SCREEN_WIDTH
+        @canvas.height = SCREEN_HEIGHT
+        @context = @canvas.getContext "2d"
+        @imageData = @context.createImageData SCREEN_WIDTH, SCREEN_HEIGHT
 
-document.onkeydown = (event) ->
-    processKeyEvent event, true
+    initConsole: ->
+        injector = new Injector "./config/BaseConfig"
+        @nes = injector.getInstance "nes"
+        @inputDevices =
+            1: { joypad: new Joypad, zapper: new Zapper }
+            2: { joypad: new Joypad, zapper: new Zapper }
 
-document.onkeyup = (event) ->
-    processKeyEvent event, false
+    initControls: ->
+        @binder = new Binder
+        @unbindCallbacks =
+            1: { joypad: null, zapper: null}
+            2: { joypad: null, zapper: null}
 
-###########################################################
-# Mouse events
-###########################################################
-
-mouseMapping =
-    1: devices2.zapper.setTriggerPressed # Left button
-
-processMouseEvent = (event, buttonDown) ->
-    event or= window.event
-    button = event.button or event.which
-    callback = mouseMapping[button]
-    callback buttonDown if callback?
-
-window.onmousedown = (event) ->
-    processMouseEvent event, true
-
-window.onmouseup = (event) ->
-    processMouseEvent event, false
-
-mouseX = 0
-mouseY = 0
-
-window.onmousemove = (event) ->
-    event or= window.event
-    mouseX = event.clientX
-    mouseY = event.clientY
-
-###########################################################
-# Main loop
-###########################################################
-
-window.onload = ->
-    canvas = document.getElementById "screen"
-    context = canvas.getContext "2d"
-    imageData = context.createImageData 256, 240
-
-    drawFrame = ->
-        imageData.data.set nes.renderFrame()
-        context.putImageData imageData, 0, 0
-
-    isMousePointingOnLightPixel = ->
-        rect = canvas.getBoundingClientRect()
-        x = ~~(mouseX - rect.left)
-        y = ~~(mouseY - rect.top)
-        return false if x < 0 or x >= 256 or y < 0 or y >= 240
-        dataPosition = y * 240 + x
-        r = imageData.data[dataPosition]
-        g = imageData.data[dataPosition + 1]
-        b = imageData.data[dataPosition + 2]
-        r > 32 and g > 32 and b > 32
-
-    updateZapper = ->
-        lightDetected = isMousePointingOnLightPixel()
-        devices2["zapper"].setLightDetected lightDetected
-
-    emulationStep = ->
-        drawFrame()
-        updateZapper()
-
-    setInterval emulationStep, 1000 / FPS
-
-###########################################################
-# Public API
-###########################################################
-
-window.NESCoffee =
+    ###########################################################
+    # Inputs & controls
+    ###########################################################
 
     pressPower: ->
-        nes.pressPower()
+        @nes.pressPower()
 
     pressReset: ->
-        nes.pressReset()
+        @nes.pressReset()
 
     insertCartridge: (url) ->
         cartridgeFactory = injector.getInstance "cartridgeFactory"
         # TODO
 
-    setInputDevice1: (name) ->
-        nes.setInputDevice1 devices1[name] or null
+    connectInputDevice: (port, device) ->
+        device = @inputDevices[port]?[device] or null
+        @nes.connectInputDevice port, device
 
-    setInputDevice2: (name) ->
-        nes.setInputDevice2 devices2[name] or null
+    ###########################################################
+    # Controls binding
+    ###########################################################
+
+    bindControl: (port, device, button, srcDevice, srcButton) ->
+        callback = @getInputDeviceCallback port, device, button
+        @binder.bindControl srcDevice, srcButton, callback
+        @unbindCallbacks[port]?[device]?[button] = -> @binder.unbindControl srcDevice, srcButton
+
+    unbindControl: (port, device, button) ->
+        @unbindCallbacks[port]?[device]?[button]?()
+
+    getInputDeviceCallback: (port, device, button) ->
+        if device is "joypad"
+            button = joypadButtonNameToId[button.toLowerCase()] or 0
+            @inputDevices[port]?.joypad.setButtonPressed.bind this, button
+        else if device is "zapper"
+            @inputDevices[port]?.zapper.setTriggerPressed.bind this
+
+    ###########################################################
+    # Emulation main loop
+    ###########################################################
+
+    startEmulation: ->
+        @intervalID = setInterval @emulationStep, 1000 / SCREEN_FPS
+
+    stopEmulation: ->
+        clearInterval @intervalID
+        @intervalID = null
+
+    emulationStep: =>
+        @drawFrame()
+        @updateZapper()
+
+    drawFrame: ->
+        @imageData.data.set @nes.renderFrame()
+        @context.putImageData @imageData, 0, 0
+
+    updateZapper: ->
+        lightDetected = @isMousePointingOnLightPixel()
+        @inputDevices[1].zapper.setLightDetected lightDetected
+        @inputDevices[2].zapper.setLightDetected lightDetected
+
+    isMousePointingOnLightPixel: ->
+        rect = @canvas.getBoundingClientRect()
+        x = ~~(@binder.mouseX - rect.left)
+        y = ~~(@binder.mouseY - rect.top)
+        return false if x < 0 or x >= SCREEN_WIDTH or y < 0 or y >= SCREEN_HEIGHT
+        dataPosition = y * SCREEN_HEIGHT + x
+        r = @imageData.data[dataPosition]
+        g = @imageData.data[dataPosition + 1]
+        b = @imageData.data[dataPosition + 2]
+        r > 32 and g > 32 and b > 32
+
+window.NESCoffee = NESCoffee

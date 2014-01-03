@@ -4,9 +4,6 @@
 
 class PPUMemory
 
-    setMMC: (mmc) ->
-        @mmc = mmc
-
     ###########################################################
     # Power-up state initialization
     ###########################################################
@@ -14,8 +11,11 @@ class PPUMemory
     powerUp: ->
 
     ###########################################################
-    # MMC reading / writing
+    # MMC acceess
     ###########################################################
+
+    setMMC: (mmc) ->
+        @mmc = mmc
 
     read: (address) ->
         @mmc.ppuRead @getVRAMAddress address

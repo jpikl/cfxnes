@@ -11,11 +11,9 @@ class NES
     constructor: ->
         @whiteNoise = (0xFF for i in [0 ... 256 * 240 * 4])
 
-    insertCartridge: (cartridge) ->
-        @mmc = @mapperFactory.createMapper cartridge
-        @mmc.powerUp()
-        @ppuMemory.setMMC @mmc
-        @cpuMemory.setMMC @mmc
+    ###########################################################
+    # Inputs & controls
+    ###########################################################
 
     pressPower: ->
         @mmc?.powerUp()
@@ -28,11 +26,18 @@ class NES
     pressReset: ->
         @cpu.reset()
 
-    setInputDevice1: (device) ->
-        @cpuMemory.setInputDevice1 device
+    insertCartridge: (cartridge) ->
+        @mmc = @mapperFactory.createMapper cartridge
+        @mmc.powerUp()
+        @ppuMemory.setMMC @mmc
+        @cpuMemory.setMMC @mmc
 
-    setInputDevice2: (device) ->
-        @cpuMemory.setInputDevice2 device
+    connectInputDevice: (port, device) ->
+        @cpuMemory.setInputDevice port, device
+
+    ###########################################################
+    # Emulation & video ouput
+    ###########################################################
 
     renderFrame: ->
         if @mmc? then @renderFrameUsingPPU() else @renderWhiteNoise()

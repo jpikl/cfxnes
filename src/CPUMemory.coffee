@@ -6,22 +6,16 @@ class CPUMemory
 
     @inject: [ "ppu", "apu" ]
 
-    setMMC: (mmc) ->
-        @mmc = mmc
-
-    setInputDevice1: (device) ->
-        @inputDevice1 = device
-
-    setInputDevice2: (device) ->
-        @inputDevice2 = device
-
+    constructor: ->
+        @inputDevices = 1: null, 2: null
+  
     ###########################################################
     # Power-up state initialization
     ###########################################################
 
     powerUp: ->
         @resetRAM()
-        @inputDeviceStrobe = 0
+        @inputDevicesStrobe = 0
 
     resetRAM: ->
         @ram = (0 for [0...0x07FF])
@@ -43,7 +37,7 @@ class CPUMemory
             else                       @writeMMC address, value
 
     ###########################################################
-    # RAM reading / writing
+    # RAM acceess
     ###########################################################
 
     readRAM: (address) ->
@@ -56,7 +50,7 @@ class CPUMemory
         address & 0x07FF # Mirroring of [$0000-$0800] in [$0000-$2000]
 
     ###########################################################
-    # IO registers reading / writing
+    # IO registers acceess
     ###########################################################
 
     readIO: (address) ->
@@ -64,8 +58,8 @@ class CPUMemory
             when 0x2002 then @ppu.readStatus()
             when 0x2004 then @ppu.readOAMData()
             when 0x2007 then @ppu.readData()
-            when 0x4016 then readInputDevice1()
-            when 0x4017 then readInputDevice2()
+            when 0x4016 then @readInputDevice 1
+            when 0x4017 then @readInputDevice 2
             else 0
 
     writeIO: (address, value) ->
@@ -85,26 +79,29 @@ class CPUMemory
         if address < 0x4000 then address & 0x2007 else address # Mirroring of [$2000-$2008] in [$2000-$4000]
 
     ###########################################################
-    # Input device reading / writing
+    # Input devices acceess
     ###########################################################
 
-    readInputDevice1: ->
-        if @inputDevice1? then @inputDevice1.read() else 0
+    setInputDevice: (port, device) ->
+        @inputDevices[port] = device
 
-    readInputDevice2: ->
-        if @inputDevice2? then @inputDevice2.read() else 0
+    readInputDevice: (port) ->
+        @inputDevices[port]?.read() or 0
 
     writeInputDevice: (value) ->
         strobe = value & 0x01
-        if strobe and not @inputDeviceStrobe
-            @inputDevice1?.strobe()
-            @inputDevice2?.strobe()
-        @inputDeviceStrobe = strobe
+        if strobe and not @inputDevicesStrobe
+            @inputDevices[1]?.strobe()
+            @inputDevices[2]?.strobe()
+        @inputDevicesStrobe = strobe
         value
 
     ###########################################################
-    # MMC reading / writing
+    # MMC acceess
     ###########################################################
+
+    setMMC: (mmc) ->
+        @mmc = mmc
 
     readMMC: (address) ->
         @mmc?.cpuRead address

@@ -7,6 +7,7 @@ OUT_FILE  = NESCoffee.js
 OPT_LEVEL = SIMPLE_OPTIMIZATIONS
 
 INCLUDES = Main.js \
+		   Binder.js \
            NES.js \
            APU.js \
            CPU.js \

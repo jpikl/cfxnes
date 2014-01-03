@@ -5,8 +5,22 @@
     <title>NES Coffee</title>
     <script type="text/javascript" src="NESCoffee.js"></script>
     <script type="text/javascript">
-      NESCoffee.setInputDevice1("joypad");
-      NESCoffee.setInputDevice2("zapper");
+      window.onload = function() {
+        var nesCoffee = new NESCoffee("screen");
+        nesCoffee.connectInputDevice(1, "joypad");
+        nesCoffee.bindControl(1, "joypad", "A", "keyboard", "x");
+        nesCoffee.bindControl(1, "joypad", "B", "keyboard", "y");
+        nesCoffee.bindControl(1, "joypad", "B", "keyboard", "z");
+        nesCoffee.bindControl(1, "joypad", "start", "keyboard", "enter");
+        nesCoffee.bindControl(1, "joypad", "select", "keyboard", "shift");
+        nesCoffee.bindControl(1, "joypad", "up", "keyboard", "up");
+        nesCoffee.bindControl(1, "joypad", "down", "keyboard", "down");
+        nesCoffee.bindControl(1, "joypad", "left", "keyboard", "left");
+        nesCoffee.bindControl(1, "joypad", "right", "keyboard", "right");
+        nesCoffee.connectInputDevice(2, "zapper");
+        nesCoffee.bindControl(2, "zapper", "trigger", "mouse", "left");
+        nesCoffee.startEmulation();
+      }
     </script>
     <style>
       #screen-wrapper { 
@@ -21,9 +35,7 @@
   </head>
   <body>
     <div id="screen-wrapper">
-      <canvas id="screen" width="256" height="240">
-        Your browser does not support canvas.
-      </canvas>
+      <canvas id="screen">Your browser does not support canvas.</canvas>
     </div>
   </body>
 </html>
