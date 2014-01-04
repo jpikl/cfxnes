@@ -48,7 +48,7 @@ writeOutput """
             if (typeof module == "undefined") {
                 throw "Module '" + name + "' not found";
             } else if (typeof module == "function") {
-                module = module();
+                module = module.call(this);
                 modules[fullName] = module;
             }
             return module;
@@ -74,7 +74,7 @@ for file in inputFiles
         """
 
 writeOutput """
-        modules["#{entryFile}"]();
+        modules["#{entryFile}"].call(this);
         """
 
 closeOutput()

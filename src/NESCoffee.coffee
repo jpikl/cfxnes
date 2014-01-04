@@ -17,7 +17,7 @@ joypadButtonNameToId =
     "left":   Joypad.BUTTON_LEFT
     "right":  Joypad.BUTTON_RIGHT
 
-class NESCoffee
+class @NESCoffee
 
     constructor: (@canvas) ->
         throw "Canvas element or its ID was not specified." unless @canvas?
@@ -174,5 +174,3 @@ class NESCoffee
         g = @framebuffer.data[dataPosition + 1]
         b = @framebuffer.data[dataPosition + 2]
         r > 32 and g > 32 and b > 32
-
-window.NESCoffee = NESCoffee
