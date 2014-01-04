@@ -2,8 +2,6 @@
 # Nintendo Entertainment System
 ###########################################################
 
-FRAME_SIZE = 256 * 250 *
-
 class NES
 
     @inject: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "mapperFactory" ]
