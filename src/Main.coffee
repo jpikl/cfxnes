@@ -19,12 +19,11 @@ joypadButtonNameToId =
 
 class NESCoffee
 
-    ###########################################################
-    # Initialization
-    ###########################################################
-
-    constructor: (canvasID) ->
-        @initCanvas canvasID
+    constructor: (@canvas) ->
+        throw "Canvas element or its ID was not specified." unless @canvas?
+        @initCanvas()
+        @initRenderer()
+        @initFramebuffer()
         @initConsole()
         @initControls()
         @pressPower()
@@ -33,19 +32,18 @@ class NESCoffee
     # Initialization
     ###########################################################
 
-    initCanvas: (canvasID) ->
-        @canvas = document.getElementById canvasID
-        throw "No element with ID='#{canvasID}' exists." unless @canvas?
+    initCanvas: ->
         @canvas.width = SCREEN_WIDTH
         @canvas.height = SCREEN_HEIGHT
-        @clearCanvas()
-        @imageData = @context.createImageData SCREEN_WIDTH, SCREEN_HEIGHT
 
-    clearCanvas: ->
-        @context = @canvas.getContext "2d"
-        @context.rect(0, 0, SCREEN_WIDTH, SCREEN_WIDTH)
-        @context.fillStyle = "black"
-        @context.fill()
+    initRenderer: ->
+        @renderer = @canvas.getContext "2d"
+        @renderer.rect(0, 0, SCREEN_WIDTH, SCREEN_WIDTH)
+        @renderer.fillStyle = "black"
+        @renderer.fill()
+
+    initFramebuffer: ->
+        @framebuffer = @renderer.createImageData SCREEN_WIDTH, SCREEN_HEIGHT
 
     initConsole: ->
         injector = new Injector "./config/BaseConfig"
@@ -62,7 +60,7 @@ class NESCoffee
         @unbindCallbacks2 = keyboard: {}, mouse: {}
 
     ###########################################################
-    # Inputs & controls
+    # Inputs
     ###########################################################
 
     pressPower: ->
@@ -71,9 +69,10 @@ class NESCoffee
     pressReset: ->
         @nes.pressReset()
 
-    insertCartridge: (url) ->
+    insertCartridge: (arrayBuffer) ->
         cartridgeFactory = injector.getInstance "cartridgeFactory"
-        # TODO
+        cartridge = cartridgeFactory.fromArrayBuffer arrayBuffer
+        @nes.insertCartridge arrayBuffer
 
     connectInputDevice: (port, device) ->
         device = @inputDevices[port]?[device] or null
@@ -97,16 +96,16 @@ class NESCoffee
         @unbindCallbacks2[srcDevice]?[srcButton]?()
         @unbindCallbacks2[srcDevice]?[srcButton] = callback
 
-    unbindControl: (port, device, button) ->
-        @unbindCallbacks1[port]?[device]?[button]?()
-        @unbindCallbacks1[port]?[device]?[button] = null
-
     getInputDeviceCallback: (port, device, button) ->
         if device is "joypad"
             button = joypadButtonNameToId[button.toLowerCase()] or 0
             @inputDevices[port]?.joypad.setButtonPressed.bind this, button
         else if device is "zapper"
             @inputDevices[port]?.zapper.setTriggerPressed.bind this
+
+    unbindControl: (port, device, button) ->
+        @unbindCallbacks1[port]?[device]?[button]?()
+        @unbindCallbacks1[port]?[device]?[button] = null
 
     ###########################################################
     # Input recording
@@ -131,8 +130,8 @@ class NESCoffee
         @updateZapper()
 
     drawFrame: ->
-        @imageData.data.set @nes.renderFrame()
-        @context.putImageData @imageData, 0, 0
+        @framebuffer.data.set @nes.renderFrame()
+        @renderer.putImageData @framebuffer, 0, 0
 
     updateZapper: ->
         lightDetected = @isMousePointingOnLightPixel()
@@ -145,9 +144,9 @@ class NESCoffee
         y = ~~(@binder.mouseY - rect.top)
         return false if x < 0 or x >= SCREEN_WIDTH or y < 0 or y >= SCREEN_HEIGHT
         dataPosition = y * SCREEN_HEIGHT + x
-        r = @imageData.data[dataPosition]
-        g = @imageData.data[dataPosition + 1]
-        b = @imageData.data[dataPosition + 2]
+        r = @framebuffer.data[dataPosition]
+        g = @framebuffer.data[dataPosition + 1]
+        b = @framebuffer.data[dataPosition + 2]
         r > 32 and g > 32 and b > 32
 
 window.NESCoffee = NESCoffee
