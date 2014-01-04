@@ -2,9 +2,16 @@
 # Picture processing unit
 ###########################################################
 
+WIDTH = 256
+HEIGHT = 240
+
 class PPU
 
     @inject: [ "ppuMemory", "cpu" ]
+
+    constructor: ->
+        @framebuffer = for i in [0 ... WIDTH * HEIGHT * 4]
+            if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
 
     ###########################################################
     # Power-up state initialization
@@ -157,6 +164,12 @@ class PPU
 
     isRenderingInProgress: ->
         not @vblankInProgress and (@spritesVisible or @backgroundVisible)
+
+    isFrameAvailable: ->
+        true
+    
+    readFrame: ->
+        @framebuffer
 
     tick: ->
 

@@ -1,6 +1,10 @@
 $(document).ready ->
     nesCoffee = new NESCoffee $("#video-output")[0]
 
+    ###########################################################
+    # Emulation
+    ###########################################################
+
     @startEmulator = ->
         nesCoffee.startEmulation()
         $("#start-emulator").addClass "hidden"
@@ -14,6 +18,10 @@ $(document).ready ->
     @setVideoScale = (scale) ->
         nesCoffee.setVideoScale scale
         $("#video-scale").prop "value", scale
+
+    ###########################################################
+    # Controllers selection & binding
+    ###########################################################
 
     @setController = (port, device) ->
         nesCoffee.connectInputDevice 1, device
@@ -33,6 +41,41 @@ $(document).ready ->
         nesCoffee.recordInput (srcDevice, srcButton) ->
             bindControl port, device, button, srcDevice, srcButton
             $("#record-dialog").dialog "close"
+
+    ###########################################################
+    # ROM loading
+    ###########################################################
+
+    @allowFileDrop = (event) ->
+        event.preventDefault()  # Disable default action (opening file in the browser).
+        event.stopPropagation() # Disable parent elements notification.
+        event.dataTransfer.dropEffect = 'copy' # Changes cursor to show we are copying file.
+
+    @handleDroppedFile = (event) ->
+        event.preventDefault()
+        event.stopPropagation()
+        file = event.dataTransfer.files[0]
+        insertCartridgeAsFile file if file
+
+    @handleSelectedFile = (event) ->
+        file = event.target.files[0]
+        insertCartridgeAsFile file if file
+
+    insertCartridgeAsFile = (file) ->
+        reader = new FileReader
+        reader.onload = (event) -> insertCartridge event.target.result
+        reader.onerror = (event) -> alert event.target.error
+        reader.readAsArrayBuffer file
+
+    insertCartridge = (arrayBuffer) ->
+        try
+            nesCoffee.insertCartridge arrayBuffer
+        catch error
+            alert error
+
+    ###########################################################
+    # Initialization
+    ###########################################################
 
     @setController 1, "joypad"
     @setController 2, "zapper"

@@ -8,7 +8,7 @@ class ArrayBufferReader extends AbstractReader
 
     constructor: (buffer) ->
         super()
-        @view = new Unit8Array buffer
+        @view = new Uint8Array buffer
 
     getLength: ->
         @view.length

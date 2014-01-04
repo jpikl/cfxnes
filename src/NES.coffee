@@ -40,7 +40,7 @@ class NES
     ###########################################################
 
     renderFrame: ->
-        if @mmc? then @renderFrameUsingPPU() else @renderWhiteNoise()
+        if @mmc then @renderFrameUsingPPU() else @renderWhiteNoise()
 
     renderWhiteNoise: ->
         for i in [0...@whiteNoise.length] by 4

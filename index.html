@@ -10,7 +10,7 @@
         <script type="text/javascript" src="js/NESCoffeeBundled.js"></script>
         <script type="text/javascript" src="js/UI.js"></script>
     </head>
-    <body>
+    <body ondragover="allowFileDrop(event)" ondrop="handleDroppedFile(event)">
         <h1>NESCoffee</h1>
         <canvas id="video-output">Your browser does not support canvas.</canvas>
         <div class="section">
@@ -27,6 +27,11 @@
                     <option value="4">4x</option>
                 </select>
             </div>
+        </div>
+        <div class="section">
+            <button onclick="$('#rom-file-input').click()">Open ROM file</button> 
+            or drop it anywhere inside this window.
+            <input type="file" id="rom-file-input" onchange="handleSelectedFile(event)"/>
         </div>
         <p id="record-dialog">Press key or mouse button...</p>
         <div class="section">

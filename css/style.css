@@ -18,6 +18,10 @@ label {
     display: none;
 }
 
+#rom-file-input {
+    display: none;
+}
+
 .hidden {
     display: none !important;
 }

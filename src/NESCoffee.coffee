@@ -44,11 +44,12 @@ class @NESCoffee
     initFramebuffer: ->
         @framebuffer = @renderer.createImageData SCREEN_WIDTH, SCREEN_HEIGHT
         for i in [0..@framebuffer.data.length]
-            @framebuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF
+            @framebuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
 
     initConsole: ->
         injector = new Injector "./config/BaseConfig"
         @nes = injector.getInstance "nes"
+        @cartridgeFactory = injector.getInstance "cartridgeFactory"
         @inputDevices =
             1: { joypad: new Joypad, zapper: new Zapper }
             2: { joypad: new Joypad, zapper: new Zapper }
@@ -71,9 +72,8 @@ class @NESCoffee
         @nes.pressReset()
 
     insertCartridge: (arrayBuffer) ->
-        cartridgeFactory = injector.getInstance "cartridgeFactory"
-        cartridge = cartridgeFactory.fromArrayBuffer arrayBuffer
-        @nes.insertCartridge arrayBuffer
+        cartridge = @cartridgeFactory.fromArrayBuffer arrayBuffer
+        @nes.insertCartridge cartridge
 
     connectInputDevice: (port, device) ->
         device = @inputDevices[port]?[device] or null
