@@ -162,8 +162,8 @@ class NESCoffee
 
     isMousePointingOnLightPixel: ->
         rect = @canvas.getBoundingClientRect()
-        x = ~~(@binder.mouseX - rect.left)
-        y = ~~(@binder.mouseY - rect.top)
+        x = ~~(@binder.mouseX - rect.left) / @canvasScale
+        y = ~~(@binder.mouseY - rect.top) / @canvasScale
         return false if x < 0 or x >= SCREEN_WIDTH or y < 0 or y >= SCREEN_HEIGHT
         dataPosition = y * SCREEN_HEIGHT + x
         r = @framebuffer.data[dataPosition]
