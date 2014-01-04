@@ -27,6 +27,7 @@ class NESCoffee
         @initConsole()
         @initControls()
         @pressPower()
+        @drawFrame()
 
     ###########################################################
     # Initialization
@@ -35,15 +36,15 @@ class NESCoffee
     initCanvas: ->
         @canvas.width = SCREEN_WIDTH
         @canvas.height = SCREEN_HEIGHT
+        @canvasScale = 1
 
     initRenderer: ->
         @renderer = @canvas.getContext "2d"
-        @renderer.rect(0, 0, SCREEN_WIDTH, SCREEN_WIDTH)
-        @renderer.fillStyle = "black"
-        @renderer.fill()
 
     initFramebuffer: ->
         @framebuffer = @renderer.createImageData SCREEN_WIDTH, SCREEN_HEIGHT
+        for i in [0..@framebuffer.data.length]
+            @framebuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF
 
     initConsole: ->
         injector = new Injector "./config/BaseConfig"
@@ -77,6 +78,16 @@ class NESCoffee
     connectInputDevice: (port, device) ->
         device = @inputDevices[port]?[device] or null
         @nes.connectInputDevice port, device
+
+    ###########################################################
+    # Output
+    ###########################################################
+
+    setVideoScale: (scale) ->
+        @canvas.width = scale * SCREEN_WIDTH
+        @canvas.height = scale * SCREEN_HEIGHT
+        @canvasScale = scale
+        @drawFrame()
 
     ###########################################################
     # Controls binding
@@ -126,12 +137,23 @@ class NESCoffee
         @intervalID = null
 
     emulationStep: =>
+        @renderFrame()
         @drawFrame()
         @updateZapper()
 
-    drawFrame: ->
+    renderFrame: ->
         @framebuffer.data.set @nes.renderFrame()
+
+    drawFrame: ->
         @renderer.putImageData @framebuffer, 0, 0
+        @redrawScaledCanvas() if @canvasScale > 1
+
+    redrawScaledCanvas: ->
+        @renderer.imageSmoothingEnabled = false
+        @renderer.mozImageSmoothingEnabled = false
+        @renderer.oImageSmoothingEnabled = false
+        @renderer.webkitImageSmoothingEnabled = false
+        @renderer.drawImage @canvas, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, @canvas.width, @canvas.height
 
     updateZapper: ->
         lightDetected = @isMousePointingOnLightPixel()

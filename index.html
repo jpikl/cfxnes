@@ -11,10 +11,24 @@
             $(document).ready(function() {
                 var nesCoffee = new NESCoffee($("#video-output")[0]);
 
+                startEmulator = function() {
+                    nesCoffee.startEmulation();
+                    $("#start-emulator").addClass("hidden");
+                    $("#stop-emulator").removeClass("hidden");
+                }
+
+                stopEmulator = function() {
+                    nesCoffee.stopEmulation();
+                    $("#start-emulator").removeClass("hidden");
+                    $("#stop-emulator").addClass("hidden");
+                }
+
+                setVideoScale = function(scale) {
+                    nesCoffee.setVideoScale(scale);
+                    $("#video-scale").prop("value", scale);
+                }
+
                 setController = function(port, device) {
-                    if (typeof device.value == "string") {
-                        device = device.value;
-                    }
                     nesCoffee.connectInputDevice(1, device);
                     $("#controller-" + port).prop("value", device);
                     $("#joypad-" + port).addClass("hidden");
@@ -39,18 +53,6 @@
                     });
                 }
 
-                startEmulator = function() {
-                    nesCoffee.startEmulation();
-                    $("#start-emulator").addClass("hidden");
-                    $("#stop-emulator").removeClass("hidden");
-                }
-
-                stopEmulator = function() {
-                    nesCoffee.stopEmulation();
-                    $("#start-emulator").removeClass("hidden");
-                    $("#stop-emulator").addClass("hidden");
-                }
-
                 setController(1, "joypad");
                 setController(2, "zapper");
 
@@ -64,6 +66,7 @@
                 bindControl(1, "joypad", "right", "keyboard", "right");
                 bindControl(2, "zapper", "trigger", "mouse", "left");
 
+                setVideoScale(1);
                 stopEmulator();
             });
         </script>
@@ -113,15 +116,26 @@
         <h1>NESCoffee</h1>
         <canvas id="video-output">Your browser does not support canvas.</canvas>
         <div class="section">
-            <button id="start-emulator" onclick="startEmulator()">Run emulator</button>
-            <button id="stop-emulator" onclick="stopEmulator()">Pause emulator</button>
+            <div class="sub-section">
+                <button id="start-emulator" onclick="startEmulator()">Run emulator</button>
+                <button id="stop-emulator" onclick="stopEmulator()">Pause emulator</button>
+            </div>
+            <div class="sub-section">
+                <label for="video-scale">Screen scale</label>
+                <select id="video-scale" onchange="setVideoScale(this.value)">
+                    <option value="1">1x</option>
+                    <option value="2">2x</option>
+                    <option value="3">3x</option>
+                    <option value="4">4x</option>
+                </select>
+            </div>
         </div>
         <p id="record-dialog">Press key or mouse button...</p>
         <div class="section">
             <div class="sub-section">
                 <div class="section">
                     <label for="controller-1">Controller&nbsp;1</label>
-                    <select id="controller-1" onchange="setController(1, this)">
+                    <select id="controller-1" onchange="setController(1, this.value)">
                         <option value="none">None</option>
                         <option value="joypad" selected="selected">Joypad</option>
                         <option value="zapper">Zapper</option>
@@ -184,7 +198,7 @@
             <div class="sub-section">
                 <div class="section">
                     <label for="controller-2">Controller&nbsp;2</label>
-                    <select id="controller-2" onchange="setController(2, this)">
+                    <select id="controller-2" onchange="setController(2, this.value)">
                         <option value="none">None</option>
                         <option value="joypad" selected="selected">Joypad</option>
                         <option value="zapper">Zapper</option>
