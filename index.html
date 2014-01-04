@@ -4,113 +4,11 @@
         <meta charset="UTF-8">
         <title>NES Coffee</title>
         <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css"/>
+        <link rel="stylesheet" type="text/css" href="css/style.css"/>
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
         <script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-        <script type="text/javascript" src="NESCoffee.js"></script>
-        <script type="text/javascript">
-            $(document).ready(function() {
-                var nesCoffee = new NESCoffee($("#video-output")[0]);
-
-                startEmulator = function() {
-                    nesCoffee.startEmulation();
-                    $("#start-emulator").addClass("hidden");
-                    $("#stop-emulator").removeClass("hidden");
-                }
-
-                stopEmulator = function() {
-                    nesCoffee.stopEmulation();
-                    $("#start-emulator").removeClass("hidden");
-                    $("#stop-emulator").addClass("hidden");
-                }
-
-                setVideoScale = function(scale) {
-                    nesCoffee.setVideoScale(scale);
-                    $("#video-scale").prop("value", scale);
-                }
-
-                setController = function(port, device) {
-                    nesCoffee.connectInputDevice(1, device);
-                    $("#controller-" + port).prop("value", device);
-                    $("#joypad-" + port).addClass("hidden");
-                    $("#zapper-" + port).addClass("hidden");
-                    $("#" + device + "-" + port).removeClass("hidden");
-                }
-
-                bindControl = function(port, device, button, srcDevice, srcButton) {
-                    var labelId = "#" + device + "-" + port + "-" + button;
-                    var name = nesCoffee.bindControl(port, device, button, srcDevice, srcButton, function() {
-                        $(labelId).html("---");
-                    });
-                    $(labelId).html(name);
-                }
-
-                recordControl = function(port, device, button) {
-                    $("#record-dialog").dialog({ dialogClass: "record-dialog", 
-                        width: 320, height: 90, modal: true, draggable: false });
-                    nesCoffee.recordInput(function(srcDevice, srcButton) {
-                        bindControl(port, device, button, srcDevice, srcButton);
-                        $("#record-dialog").dialog("close");
-                    });
-                }
-
-                setController(1, "joypad");
-                setController(2, "zapper");
-
-                bindControl(1, "joypad", "a", "keyboard", "x");
-                bindControl(1, "joypad", "b", "keyboard", "z");
-                bindControl(1, "joypad", "start", "keyboard", "enter");
-                bindControl(1, "joypad", "select", "keyboard", "shift");
-                bindControl(1, "joypad", "up", "keyboard", "up");
-                bindControl(1, "joypad", "down", "keyboard", "down");
-                bindControl(1, "joypad", "left", "keyboard", "left");
-                bindControl(1, "joypad", "right", "keyboard", "right");
-                bindControl(2, "zapper", "trigger", "mouse", "left");
-
-                setVideoScale(1);
-                stopEmulator();
-            });
-        </script>
-        <style>
-            body {
-                font-family: Arial;
-            }
-            label {
-                font-weight: bold;
-                margin-right: 8px;
-            }
-            #video-output {
-                display: block;
-                border: 1px solid black;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            #record-dialog, .record-dialog .ui-dialog-titlebar {
-                display: none;
-            }
-            .hidden {
-                display: none !important;
-            }
-            .section {
-                display: table;
-                margin-top: 16px;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            .sub-section {
-                display: table-cell;
-                padding: 0px 10px 0px 10px;
-            }
-            .binding {
-                display: table;
-            }
-            .binding-item {
-                display: table-row;
-            }
-            .binding-item > * {
-                display: table-cell;
-                padding: 0px 5px 0px 5px;
-            }
-        </style>
+        <script type="text/javascript" src="js/NESCoffeeBundled.js"></script>
+        <script type="text/javascript" src="js/UI.js"></script>
     </head>
     <body>
         <h1>NESCoffee</h1>

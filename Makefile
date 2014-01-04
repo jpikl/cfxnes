@@ -1,12 +1,13 @@
 export NODE_PATH = /usr/lib/node_modules/
 
-SRC_DIR   = src
-BUILD_DIR = build
-MAIN_FILE = Main.js
-OUT_FILE  = NESCoffee.js
-OPT_LEVEL = SIMPLE_OPTIMIZATIONS
+SRC_DIR     = src
+BUILD_DIR   = js
+MAIN_FILE   = NESCoffee.js
+BUNDLE_FILE = NESCoffeeBundled.js
+OPT_FILE    = NESCoffeeOptimized.js
+OPT_LEVEL   = SIMPLE_OPTIMIZATIONS
 
-INCLUDES = Main.js \
+INCLUDES = NESCoffee.js \
 		   Binder.js \
            NES.js \
            APU.js \
@@ -29,7 +30,7 @@ INCLUDES = Main.js \
            utils/Format.js \
            utils/Injector.js
 
-all: compile optimize
+all: optimize
 
 init:
 	mkdir -p $(BUILD_DIR)
@@ -37,12 +38,11 @@ init:
 compile: init
 	coffee --compile --output $(BUILD_DIR) $(SRC_DIR)
 
-compress: compile
-	coffee tools/bundle.coffee --directory $(BUILD_DIR) $(INCLUDES) --entry $(MAIN_FILE) --output $(OUT_FILE)
+bundle: compile
+	coffee tools/bundle.coffee --directory $(BUILD_DIR) $(INCLUDES) --entry $(MAIN_FILE) --output $(BUNDLE_FILE)
 
-optimize: compress
-	closure --compilation_level $(OPT_LEVEL) $(BUILD_DIR)/$(OUT_FILE) > $(OUT_FILE)
+optimize: bundle
+	cd $(BUILD_DIR) && closure --compilation_level $(OPT_LEVEL) $(BUNDLE_FILE) > $(OPT_FILE)
 
 clean:
 	rm -rf $(BUILD_DIR)
-	rm -rf $(OUT_FILE)
