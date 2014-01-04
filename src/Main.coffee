@@ -85,22 +85,21 @@ class NESCoffee
 
     bindControl: (port, device, button, srcDevice, srcButton, unbindCallback) ->
         binder = @binder
-
-        @unbindCallbacks1[port]?[device]?[button]?()
-        @unbindCallbacks1[port]?[device]?[button] = -> 
+        @replaceUnbindCallback port, device, button, srcDevice, srcButton, ->
             binder.unbindControl srcDevice, srcButton
             unbindCallback()
-
-        @unbindCallbacks2[srcDevice]?[srcButton]?()
-        @unbindCallbacks2[srcDevice]?[srcButton] = ->
-            binder.unbindControl srcDevice, srcButton
-            unbindCallback()
-
         callback = @getInputDeviceCallback port, device, button
         @binder.bindControl srcDevice, srcButton, callback
 
+    replaceUnbindCallback: (port, device, button, srcDevice, srcButton, callback) ->
+        @unbindCallbacks1[port]?[device]?[button]?()
+        @unbindCallbacks1[port]?[device]?[button] = callback
+        @unbindCallbacks2[srcDevice]?[srcButton]?()
+        @unbindCallbacks2[srcDevice]?[srcButton] = callback
+
     unbindControl: (port, device, button) ->
         @unbindCallbacks1[port]?[device]?[button]?()
+        @unbindCallbacks1[port]?[device]?[button] = null
 
     getInputDeviceCallback: (port, device, button) ->
         if device is "joypad"
@@ -108,6 +107,13 @@ class NESCoffee
             @inputDevices[port]?.joypad.setButtonPressed.bind this, button
         else if device is "zapper"
             @inputDevices[port]?.zapper.setTriggerPressed.bind this
+
+    ###########################################################
+    # Input recording
+    ###########################################################
+
+    recordInput: (callback) ->
+        @binder.recordInput callback
 
     ###########################################################
     # Emulation main loop

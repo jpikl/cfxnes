@@ -3,56 +3,56 @@
   <head>
     <meta charset="UTF-8">
     <title>NES Coffee</title>
+    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css"/>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <script type="text/javascript" src="build/NESCoffee.js"></script>
     <script type="text/javascript">
-      window.onload = function() {
+      $(document).ready(function() {
         var nesCoffee = new NESCoffee("screen");
-
-        setElementProperty = function(elementID, property, value) {
-          var element =  document.getElementById(elementID);
-          if (element != null) {
-            element[property] = value
-          }
-        }
-
-        setElementStyle = function(elementID, style, value) {
-          var element =  document.getElementById(elementID);
-          if (element != null) {
-            element.style[style] = value
-          }
-        }
 
         setController = function(port, device) {
           if (typeof device.value == "string") {
             device = device.value;
           }
           nesCoffee.connectInputDevice(1, device);
-          setElementProperty("controller-" + port, "value", device);
-          setElementStyle("joypad-" + port, "display", "none")
-          setElementStyle("zapper-" + port, "display", "none")
-          setElementStyle(device + "-" + port, "display", "table")
+          $("#controller-" + port).prop("value", device);
+          $("#joypad-" + port).css("display", "none");
+          $("#zapper-" + port).css("display", "none");
+          $("#" + device + "-" + port).css("display", "table");
         }
 
         bindControl = function(port, device, button, srcDevice, srcButton) {
           var name = nesCoffee.bindControl(port, device, button, srcDevice, srcButton, function() {
-            setElementProperty(device + "-" + port + "-" + button, "innerHTML", "---");
+            $("#" + device + "-" + port + "-" + button).html("---");
           });
-          setElementProperty(device + "-" + port + "-" + button, "innerHTML", name);
+          $("#" + device + "-" + port + "-" + button).html(name);
         }
 
-        startEmulation = function() {
-          setElementStyle("start-emulator", "display", "none");
-          setElementStyle("stop-emulator", "display", "table");
+        recordControl = function(port, device, button) {
+          $("#record-dialog").dialog({ dialogClass: "record-dialog", width: 320, height: 90, 
+            modal: true, draggable: false });
+          nesCoffee.recordInput(function(srcDevice, srcButton) {
+            bindControl(port, device, button, srcDevice, srcButton);
+            $("#record-dialog").dialog("close");
+          });
+        }
+
+        startEmulator = function() {
           nesCoffee.startEmulation();
+          $("#start-emulator").css("display", "none");
+          $("#stop-emulator").css("display", "table");
         }
 
-        stopEmulation = function() {
-          setElementStyle("start-emulator", "display", "table");
-          setElementStyle("stop-emulator", "display", "none");
+        stopEmulator = function() {
           nesCoffee.stopEmulation();
+          $("#start-emulator").css("display", "table");
+          $("#stop-emulator").css("display", "none");
         }
 
         setController(1, "joypad");
+        setController(2, "zapper");
+
         bindControl(1, "joypad", "a", "keyboard", "x");
         bindControl(1, "joypad", "b", "keyboard", "z");
         bindControl(1, "joypad", "start", "keyboard", "enter");
@@ -61,17 +61,26 @@
         bindControl(1, "joypad", "down", "keyboard", "down");
         bindControl(1, "joypad", "left", "keyboard", "left");
         bindControl(1, "joypad", "right", "keyboard", "right");
-        setController(2, "zapper");
         bindControl(2, "zapper", "trigger", "mouse", "left");
-        stopEmulation();
-      }
+
+        stopEmulator();
+
+        $("#record-dialog").css("display", "none");
+      });
     </script>
     <style>
+      body {
+        font-family: Arial;
+      }
       label {
         font-weight: bold;
+        margin-right: 8px;
       }
       #screen {
         border: 1px solid black;
+      }
+      .record-dialog .ui-dialog-titlebar {
+        display: none;
       }
       .centered {
         display: table;
@@ -105,15 +114,15 @@
     <h1>NESCoffee</h1>
     <canvas id="screen" class="centered">Your browser does not support canvas.</canvas>
     <div class="centered top-space">
-      <button id="start-emulator" onclick="startEmulation();">Run emulator</button>
-      <button id="stop-emulator" onclick="stopEmulation();">Pause emulator</button>
+      <button id="start-emulator" onclick="startEmulator()">Run emulator</button>
+      <button id="stop-emulator" onclick="stopEmulator()">Pause emulator</button>
     </div>
     <div>
       <div class="left-column">
         <div class="left-content">
           <div class="centered top-space">
             <label for="controller-1">Controller&nbsp;1</label>
-            <select id="controller-1" onchange="setController(1, this);">
+            <select id="controller-1" onchange="setController(1, this)">
               <option value="none">None</option>
               <option value="joypad" selected="selected">Joypad</option>
               <option value="zapper">Zapper</option>
@@ -123,42 +132,42 @@
             <div>
               <label for="joypad-1-b">B:</label>
               <span id="joypad-1-b">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(1, 'joypad', 'b')">Change</button>
             </div>
             <div>
               <label for="joypad-1-a">A:</label>
               <span id="joypad-1-a">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(1, 'joypad', 'a')">Change</button>
             </div>
             <div>
               <label for="joypad-1-select">Select:</label>
               <span id="joypad-1-select">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(1, 'joypad', 'select')">Change</button>
             </div>
             <div>
               <label for="joypad-1-start">Start:</label>
               <span id="joypad-1-start">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(1, 'joypad', 'start')">Change</button>
             </div>
             <div>
               <label for="joypad-1-up">Up:</label>
               <span id="joypad-1-up">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(1, 'joypad', 'up')">Change</button>
             </div>
             <div>
               <label for="joypad-1-down">Down:</label>
               <span id="joypad-1-down">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(1, 'joypad', 'down')">Change</button>
             </div>
             <div>
               <label for="joypad-1-left">Left:</label>
               <span id="joypad-1-left">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(1, 'joypad', 'left')">Change</button>
             </div>
             <div>
               <label for="joypad-1-right">Right</label>
               <span id="joypad-1-right">---:</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(1, 'joypad', 'right')">Change</button>
             </div>
           </div>
           <div id="zapper-1" class="top-space">
@@ -169,7 +178,7 @@
             <div>
               <label for="zapper-1-trigger">Trigger:</label>
               <span id="zapper-1-trigger">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(1, 'zapper', 'trigger')">Change</button>
             </div>
           </div>
         </div>
@@ -178,7 +187,7 @@
         <div class="right-content">
           <div class="centered top-space">
             <label for="controller-2">Controller&nbsp;2</label>
-            <select id="controller-2" onchange="setController(2, this);">
+            <select id="controller-2" onchange="setController(2, this)">
               <option value="none">None</option>
               <option value="joypad" selected="selected">Joypad</option>
               <option value="zapper">Zapper</option>
@@ -188,42 +197,42 @@
             <div>
               <label for="joypad-2-b">B:</label>
               <span id="joypad-2-b">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(2, 'joypad', 'b')">Change</button>
             </div>
             <div>
               <label for="joypad-2-a">A:</label>
               <span id="joypad-2-a">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(2, 'joypad', 'a')">Change</button>
             </div>
             <div>
               <label for="joypad-2-select">Select:</label>
               <span id="joypad-2-select">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(2, 'joypad', 'select')">Change</button>
             </div>
             <div>
               <label for="joypad-2-start">Start:</label>
               <span id="joypad-2-start">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(2, 'joypad', 'start')">Change</button>
             </div>
             <div>
               <label for="joypad-2-up">Up:</label>
               <span id="joypad-2-up">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(2, 'joypad', 'up')">Change</button>
             </div>
             <div>
               <label for="joypad-2-down">Down:</label>
               <span id="joypad-2-down">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(2, 'joypad', 'down')">Change</button>
             </div>
             <div>
-              <label for="joypad-2-left">Left:</label>
+              <label for="joypad-2-left">Right:</label>
               <span id="joypad-2-left">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(2, 'joypad', 'left')">Change</button>
             </div>
             <div>
               <label for="joypad-2-right">Right</label>
               <span id="joypad-2-right">---:</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(2, 'joypad', 'right')">Change</button>
             </div>
           </div>
           <div id="zapper-2" class="top-space">
@@ -234,11 +243,12 @@
             <div>
               <label for="zapper-2-trigger">Trigger:</label>
               <span id="zapper-2-trigger">---</span>
-              <button>Rebind</button>
+              <button onclick="recordControl(2, 'zapper', 'trigger')">Change</button>
             </div>
           </div>
         </div>
       </div>
+      <p id="record-dialog">Press key or mouse button...</p>
     </div>
   </body>
 </html>
