@@ -80,16 +80,6 @@ class NESCoffee
         @nes.connectInputDevice port, device
 
     ###########################################################
-    # Output
-    ###########################################################
-
-    setVideoScale: (scale) ->
-        @canvas.width = scale * SCREEN_WIDTH
-        @canvas.height = scale * SCREEN_HEIGHT
-        @canvasScale = scale
-        @drawFrame()
-
-    ###########################################################
     # Controls binding
     ###########################################################
 
@@ -141,6 +131,10 @@ class NESCoffee
         @drawFrame()
         @updateZapper()
 
+    ###########################################################
+    # Video rendering
+    ###########################################################
+
     renderFrame: ->
         @framebuffer.data.set @nes.renderFrame()
 
@@ -154,6 +148,16 @@ class NESCoffee
         @renderer.oImageSmoothingEnabled = false
         @renderer.webkitImageSmoothingEnabled = false
         @renderer.drawImage @canvas, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, @canvas.width, @canvas.height
+
+    setVideoScale: (scale) ->
+        @canvas.width = scale * SCREEN_WIDTH
+        @canvas.height = scale * SCREEN_HEIGHT
+        @canvasScale = scale
+        @drawFrame()
+
+    ###########################################################
+    # Zapper light detection
+    ###########################################################
 
     updateZapper: ->
         lightDetected = @isMousePointingOnLightPixel()
