@@ -38,8 +38,14 @@ class NESCoffee
         throw "No element with ID='#{canvasID}' exists." unless @canvas?
         @canvas.width = SCREEN_WIDTH
         @canvas.height = SCREEN_HEIGHT
-        @context = @canvas.getContext "2d"
+        @clearCanvas()
         @imageData = @context.createImageData SCREEN_WIDTH, SCREEN_HEIGHT
+
+    clearCanvas: ->
+        @context = @canvas.getContext "2d"
+        @context.rect(0, 0, SCREEN_WIDTH, SCREEN_WIDTH)
+        @context.fillStyle = "black"
+        @context.fill()
 
     initConsole: ->
         injector = new Injector "./config/BaseConfig"
@@ -50,9 +56,10 @@ class NESCoffee
 
     initControls: ->
         @binder = new Binder
-        @unbindCallbacks =
-            1: { joypad: null, zapper: null}
-            2: { joypad: null, zapper: null}
+        @unbindCallbacks1 =
+            1: { joypad: {}, zapper: {} }
+            2: { joypad: {}, zapper: {} }
+        @unbindCallbacks2 = keyboard: {}, mouse: {}
 
     ###########################################################
     # Inputs & controls
@@ -76,13 +83,24 @@ class NESCoffee
     # Controls binding
     ###########################################################
 
-    bindControl: (port, device, button, srcDevice, srcButton) ->
+    bindControl: (port, device, button, srcDevice, srcButton, unbindCallback) ->
+        binder = @binder
+
+        @unbindCallbacks1[port]?[device]?[button]?()
+        @unbindCallbacks1[port]?[device]?[button] = -> 
+            binder.unbindControl srcDevice, srcButton
+            unbindCallback()
+
+        @unbindCallbacks2[srcDevice]?[srcButton]?()
+        @unbindCallbacks2[srcDevice]?[srcButton] = ->
+            binder.unbindControl srcDevice, srcButton
+            unbindCallback()
+
         callback = @getInputDeviceCallback port, device, button
         @binder.bindControl srcDevice, srcButton, callback
-        @unbindCallbacks[port]?[device]?[button] = -> @binder.unbindControl srcDevice, srcButton
 
     unbindControl: (port, device, button) ->
-        @unbindCallbacks[port]?[device]?[button]?()
+        @unbindCallbacks1[port]?[device]?[button]?()
 
     getInputDeviceCallback: (port, device, button) ->
         if device is "joypad"

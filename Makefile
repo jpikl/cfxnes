@@ -38,7 +38,7 @@ compile: init
 	coffee --compile --output $(BUILD_DIR) $(SRC_DIR)
 
 compress: compile
-	coffee bundle.coffee --directory $(BUILD_DIR) $(INCLUDES) --entry $(MAIN_FILE) --output $(OUT_FILE)
+	coffee tools/bundle.coffee --directory $(BUILD_DIR) $(INCLUDES) --entry $(MAIN_FILE) --output $(OUT_FILE)
 
 optimize: compress
 	closure --compilation_level $(OPT_LEVEL) $(BUILD_DIR)/$(OUT_FILE) > $(OUT_FILE)

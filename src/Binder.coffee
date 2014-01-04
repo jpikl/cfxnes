@@ -1,4 +1,4 @@
-keyNameToCode = 
+keyCodes = 
     "0": 48, "1": 49, "2": 50, "3": 51, "4": 52, "5": 53, "6": 54, "7": 55, "8": 56, "9": 57
     "a": 65, "b": 66, "c": 67, "d": 68, "e": 69, "f": 70, "g": 71, "h": 72, "i": 73, "j": 74
     "k": 75, "l": 76, "m": 77, "n": 78, "o": 79, "p": 80, "q": 81, "r": 82, "s": 83, "t": 84
@@ -14,10 +14,20 @@ keyNameToCode =
     "numpad-5": 101, "numpad-6": 102, "numpad-7": 103, "numpad-8": 104, "numpad-9": 105
     "multiply": 106, "add": 107, "subtract": 109, "decimal-point": 110, "divide": 111
 
-mouseNameToButton = 
+getKeyName = (key) ->
+    words = key.split "-"
+    words[i] = word[0].toUpperCase() + word[1..] for word, i in words when word.length > 0
+    words.join " "
+
+buttonCodes = 
     "left": 1
     "right": 2
     "middle": 3
+
+buttonNames = 
+    "left": "Left mouse button"
+    "right": "Right mouse button"
+    "middle": "Middle mouse button"
 
 class Binder
 
@@ -52,29 +62,28 @@ class Binder
         else if device == "mouse"
             @bindMouse button, callback
 
-    unbindControl:  (device, button, callback) ->
+    unbindControl:  (device, button) ->
         if device == "keyboard"
             @unbindKeyboard button
         else if device == "mouse"
             @unbindMouse button
 
     bindKeyboard: (key, callback) ->
-        @keyboardMapping[@getKeyCodeFromName key] = callback
+        key = key.toLowerCase()
+        @keyboardMapping[keyCodes[key]] = callback
+        getKeyName key
 
     unbindKeyboard: (key) ->
-        @keyboardMapping[@getKeyCodeFromName key] = null
-
-    getKeyCodeFromName: (name) ->
-        keyNameToCode[name.toLowerCase()]
+        key = key.toLowerCase()
+        @keyboardMapping[keyCodes[key]] = null
 
     bindMouse: (button, callback) ->
-        @mouseMapping[@getMouseButtonFromName button] = callback
+        button = button.toLowerCase()
+        @mouseMapping[buttonCodes[button]] = callback
+        buttonNames[button]
 
     unbindMouse: (button, callback) ->
-        @mouseMapping[@getMouseButtonFromName button] = null
-
-    getMouseButtonFromName: (name) ->
-        mouseNameToButton[name.toLowerCase()]
+        @mouseMapping[buttonCodes[button]] = null
 
     ###########################################################
     # Keyboard events handling

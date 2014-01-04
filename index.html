@@ -3,39 +3,242 @@
   <head>
     <meta charset="UTF-8">
     <title>NES Coffee</title>
-    <script type="text/javascript" src="NESCoffee.js"></script>
+    <script type="text/javascript" src="build/NESCoffee.js"></script>
     <script type="text/javascript">
       window.onload = function() {
         var nesCoffee = new NESCoffee("screen");
-        nesCoffee.connectInputDevice(1, "joypad");
-        nesCoffee.bindControl(1, "joypad", "A", "keyboard", "x");
-        nesCoffee.bindControl(1, "joypad", "B", "keyboard", "y");
-        nesCoffee.bindControl(1, "joypad", "B", "keyboard", "z");
-        nesCoffee.bindControl(1, "joypad", "start", "keyboard", "enter");
-        nesCoffee.bindControl(1, "joypad", "select", "keyboard", "shift");
-        nesCoffee.bindControl(1, "joypad", "up", "keyboard", "up");
-        nesCoffee.bindControl(1, "joypad", "down", "keyboard", "down");
-        nesCoffee.bindControl(1, "joypad", "left", "keyboard", "left");
-        nesCoffee.bindControl(1, "joypad", "right", "keyboard", "right");
-        nesCoffee.connectInputDevice(2, "zapper");
-        nesCoffee.bindControl(2, "zapper", "trigger", "mouse", "left");
-        nesCoffee.startEmulation();
+
+        setElementProperty = function(elementID, property, value) {
+          var element =  document.getElementById(elementID);
+          if (element != null) {
+            element[property] = value
+          }
+        }
+
+        setElementStyle = function(elementID, style, value) {
+          var element =  document.getElementById(elementID);
+          if (element != null) {
+            element.style[style] = value
+          }
+        }
+
+        setController = function(port, device) {
+          if (typeof device.value == "string") {
+            device = device.value;
+          }
+          nesCoffee.connectInputDevice(1, device);
+          setElementProperty("controller-" + port, "value", device);
+          setElementStyle("joypad-" + port, "display", "none")
+          setElementStyle("zapper-" + port, "display", "none")
+          setElementStyle(device + "-" + port, "display", "table")
+        }
+
+        bindControl = function(port, device, button, srcDevice, srcButton) {
+          var name = nesCoffee.bindControl(port, device, button, srcDevice, srcButton, function() {
+            setElementProperty(device + "-" + port + "-" + button, "innerHTML", "---");
+          });
+          setElementProperty(device + "-" + port + "-" + button, "innerHTML", name);
+        }
+
+        startEmulation = function() {
+          setElementStyle("start-emulator", "display", "none");
+          setElementStyle("stop-emulator", "display", "table");
+          nesCoffee.startEmulation();
+        }
+
+        stopEmulation = function() {
+          setElementStyle("start-emulator", "display", "table");
+          setElementStyle("stop-emulator", "display", "none");
+          nesCoffee.stopEmulation();
+        }
+
+        setController(1, "joypad");
+        bindControl(1, "joypad", "a", "keyboard", "x");
+        bindControl(1, "joypad", "b", "keyboard", "z");
+        bindControl(1, "joypad", "start", "keyboard", "enter");
+        bindControl(1, "joypad", "select", "keyboard", "shift");
+        bindControl(1, "joypad", "up", "keyboard", "up");
+        bindControl(1, "joypad", "down", "keyboard", "down");
+        bindControl(1, "joypad", "left", "keyboard", "left");
+        bindControl(1, "joypad", "right", "keyboard", "right");
+        setController(2, "zapper");
+        bindControl(2, "zapper", "trigger", "mouse", "left");
+        stopEmulation();
       }
     </script>
     <style>
-      #screen-wrapper { 
-        margin: auto; 
-        position: relative; 
-        top: 64px; 
-        width: 256px; 
-        height: 240px; 
-        border: 1px solid black; 
+      label {
+        font-weight: bold;
+      }
+      #screen {
+        border: 1px solid black;
+      }
+      .centered {
+        display: table;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .top-space {
+        margin-top: 16px;
+      }
+      .left-column {
+        float: left;
+        width: 49%;
+      }
+      .right-column {
+        float: right;
+        width: 49%;
+      }
+      .left-content {
+        display: table;
+        margin-left: auto;
+        width: 300px;
+      }
+      .right-content {
+        display: table;
+        margin-right: auto;
+        width: 300px;
       }
     </style>
   </head>
   <body>
-    <div id="screen-wrapper">
-      <canvas id="screen">Your browser does not support canvas.</canvas>
+    <h1>NESCoffee</h1>
+    <canvas id="screen" class="centered">Your browser does not support canvas.</canvas>
+    <div class="centered top-space">
+      <button id="start-emulator" onclick="startEmulation();">Run emulator</button>
+      <button id="stop-emulator" onclick="stopEmulation();">Pause emulator</button>
+    </div>
+    <div>
+      <div class="left-column">
+        <div class="left-content">
+          <div class="centered top-space">
+            <label for="controller-1">Controller&nbsp;1</label>
+            <select id="controller-1" onchange="setController(1, this);">
+              <option value="none">None</option>
+              <option value="joypad" selected="selected">Joypad</option>
+              <option value="zapper">Zapper</option>
+            </select>
+          </div>
+          <div id="joypad-1" class="top-space">
+            <div>
+              <label for="joypad-1-b">B:</label>
+              <span id="joypad-1-b">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-1-a">A:</label>
+              <span id="joypad-1-a">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-1-select">Select:</label>
+              <span id="joypad-1-select">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-1-start">Start:</label>
+              <span id="joypad-1-start">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-1-up">Up:</label>
+              <span id="joypad-1-up">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-1-down">Down:</label>
+              <span id="joypad-1-down">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-1-left">Left:</label>
+              <span id="joypad-1-left">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-1-right">Right</label>
+              <span id="joypad-1-right">---:</span>
+              <button>Rebind</button>
+            </div>
+          </div>
+          <div id="zapper-1" class="top-space">
+            <div>
+              <label for="zapper-1-light-detector">Light detector:</label>
+              <span id="zapper-1-light-detector">Mouse cursor</span>
+            </div>
+            <div>
+              <label for="zapper-1-trigger">Trigger:</label>
+              <span id="zapper-1-trigger">---</span>
+              <button>Rebind</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right-column">
+        <div class="right-content">
+          <div class="centered top-space">
+            <label for="controller-2">Controller&nbsp;2</label>
+            <select id="controller-2" onchange="setController(2, this);">
+              <option value="none">None</option>
+              <option value="joypad" selected="selected">Joypad</option>
+              <option value="zapper">Zapper</option>
+            </select>
+          </div>
+          <div id="joypad-2" class="top-space">
+            <div>
+              <label for="joypad-2-b">B:</label>
+              <span id="joypad-2-b">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-2-a">A:</label>
+              <span id="joypad-2-a">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-2-select">Select:</label>
+              <span id="joypad-2-select">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-2-start">Start:</label>
+              <span id="joypad-2-start">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-2-up">Up:</label>
+              <span id="joypad-2-up">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-2-down">Down:</label>
+              <span id="joypad-2-down">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-2-left">Left:</label>
+              <span id="joypad-2-left">---</span>
+              <button>Rebind</button>
+            </div>
+            <div>
+              <label for="joypad-2-right">Right</label>
+              <span id="joypad-2-right">---:</span>
+              <button>Rebind</button>
+            </div>
+          </div>
+          <div id="zapper-2" class="top-space">
+            <div>
+              <label for="zapper-2-light-detector">Light detector:</label>
+              <span id="zapper-2-light-detector">Mouse cursor</span>
+            </div>
+            <div>
+              <label for="zapper-2-trigger">Trigger:</label>
+              <span id="zapper-2-trigger">---</span>
+              <button>Rebind</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
