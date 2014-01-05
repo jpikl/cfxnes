@@ -14,6 +14,10 @@ label {
     margin-right: auto;
 }
 
+#video-scale {
+    margin-right: 15px;
+}
+
 #record-dialog, .record-dialog .ui-dialog-titlebar {
     display: none;
 }

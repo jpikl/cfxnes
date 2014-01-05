@@ -119,17 +119,29 @@ class @NESCoffee
     # Emulation main loop
     ###########################################################
 
-    startEmulation: ->
+    start: ->
         @intervalID = setInterval @emulationStep, 1000 / SCREEN_FPS
 
-    stopEmulation: ->
+    stop: ->
         clearInterval @intervalID
         @intervalID = null
+
+    isRunning: ->
+        @intervalID != null
 
     emulationStep: =>
         @renderFrame()
         @drawFrame()
         @updateZapper()
+        @computeFPS()
+
+    computeFPS: ->
+        previousEmulationTime = @emulationTime or 0
+        @emulationTime = +new Date
+        @emulationFPS = 1000 / (@emulationTime - previousEmulationTime)
+
+    getFPS: ->
+        @emulationFPS
 
     ###########################################################
     # Video rendering

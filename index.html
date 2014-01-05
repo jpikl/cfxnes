@@ -14,19 +14,21 @@
         <h1>NESCoffee</h1>
         <canvas id="video-output">Your browser does not support canvas.</canvas>
         <div class="section">
-            <div class="sub-section">
-                <button id="start-emulator" onclick="startEmulator()">Run emulator</button>
-                <button id="stop-emulator" onclick="stopEmulator()">Pause emulator</button>
-            </div>
-            <div class="sub-section">
-                <label for="video-scale">Screen scale</label>
-                <select id="video-scale" onchange="setVideoScale(this.value)">
-                    <option value="1">1x</option>
-                    <option value="2">2x</option>
-                    <option value="3">3x</option>
-                    <option value="4">4x</option>
-                </select>
-            </div>
+            <button id="start-emulator" onclick="startEmulator()">Run emulator</button>
+            <button id="stop-emulator" onclick="stopEmulator()">Pause emulator</button>
+            <button onclick="pressPower()">Power</button>
+            <button onclick="pressReset()">Reset</button>
+        </div>
+        <div class="section">
+            <label for="video-scale">Screen scale</label>
+            <select id="video-scale" onchange="setVideoScale(this.value)">
+                <option value="1">1x</option>
+                <option value="2">2x</option>
+                <option value="3">3x</option>
+                <option value="4">4x</option>
+            </select>
+            <label for="fps-value">FPS:</label>
+            <span id="fps-value"></span>
         </div>
         <div class="section">
             <button onclick="$('#rom-file-input').click()">Open ROM file</button> 

@@ -6,18 +6,31 @@ $(document).ready ->
     ###########################################################
 
     @startEmulator = ->
-        nesCoffee.startEmulation()
+        nesCoffee.start()
         $("#start-emulator").addClass "hidden"
         $("#stop-emulator").removeClass "hidden"
+        updateFPS()
 
     @stopEmulator = ->
-        nesCoffee.stopEmulation()
+        nesCoffee.stop()
         $("#start-emulator").removeClass "hidden"
         $("#stop-emulator").addClass "hidden"
+        updateFPS()
+
+    @pressPower = ->
+        nesCoffee.pressPower()
+
+    @pressReset = ->
+        nesCoffee.pressReset()
 
     @setVideoScale = (scale) ->
         nesCoffee.setVideoScale scale
         $("#video-scale").prop "value", scale
+
+    updateFPS = ->
+        fps = if nesCoffee.isRunning() then "#{~~nesCoffee.getFPS()}" else "--"
+        fps = " " + fps if fps.length == 1
+        $("#fps-value").html fps
 
     ###########################################################
     # Controllers selection & binding
@@ -92,3 +105,5 @@ $(document).ready ->
 
     @setVideoScale 1
     @stopEmulator()
+
+    setInterval updateFPS, 1000
