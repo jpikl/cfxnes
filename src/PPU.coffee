@@ -20,6 +20,7 @@ class PPU
     powerUp: ->
         @resetOAM()
         @resetRegisters()
+        @resetVariables()
 
     resetOAM: ->
         @objectAttributeMemory = (0 for [0..0x100]) # 256B
@@ -31,6 +32,13 @@ class PPU
         @oamAddress = 0
         @vramAddress = 0
         @vramReadBuffer = 0
+
+    resetVariables: ->
+        @selectedNameTableIndex = 0
+        @coarseXScroll = 0
+        @coarseYScroll = 0
+        @fineXScroll = 0
+        @fineYScroll = 0
 
     ###########################################################
     # Control register
@@ -111,12 +119,25 @@ class PPU
     writeScroll: (value) ->
         @writeAddress value # Uses the same register as VRAM addressing
 
+    updateScrollingDataFromVRAMAddress: ->
+        @coarseXScroll =           @vramAddress        & 0x1E # Bits 0-4
+        @coarseYScroll =          (@vramAddress >>  5) & 0x1E # Bits 5-9
+        @selectedNameTableIndex = (@vramAddress >> 10) & 0x03 # Bits 10,11
+        @fineYScroll =            (@vramAddress >> 12) & 0x07 # Bits 12-14
+
+    updateVRAMAddressFromScrollingData: ->
+        @vramAddress = @coarseXScroll                | # Bits 0-4
+                       @coarseYScroll          <<  5 | # Bits 5-9
+                       @selectedNameTableIndex << 10 | # Bits 10,11
+                       @fineYScroll            << 12   # Bits 12-14
+
     ###########################################################
     # VRAM access
     ###########################################################
 
     writeAddress: (address) ->
         @vramAddress = (@vramAddress << 8 | address) & 0xFFFF
+        @updateScrollingDataFromVRAMAddress()
         address
 
     readData: ->
@@ -153,7 +174,7 @@ class PPU
         @ppuMemory.write address, value
 
     isPalleteAddress: (address) ->
-        address & 0x3F00
+        (address & 0x3F00) == 0x3F00
 
     ###########################################################
     # Rendering
@@ -172,6 +193,21 @@ class PPU
         @framebuffer
 
     tick: ->
-        
+
+    incrementXScroll: ->
+        @fineXScroll = (@fineXScroll + 1) & 0x07
+        if @fineXScroll is 0 # Fine X scroll overflow
+            @coarseXScroll = (@coarseXScroll + 1) & 0x1E
+            if @coarseXScroll is 0 # Coarse X scroll overflow
+                @selectedNameTableIndex ^= 0x01 # Switch horizontal nametable
+        @updateVRAMAddressFromScrollingData()
+
+    incrementYScroll: ->
+        @fineYScroll = (@fineYScroll + 1) & 0x07
+        if @fineYScroll is 0 # Fine X scroll overflow
+            @coarseYScroll = (@coarseYScroll + 1) & 0x1E
+            if @coarseYScroll is 0 # Coarse X scroll overflow
+                @selectedNameTableIndex ^= 0x02 # Switch vertical nametable
+        @updateVRAMAddressFromScrollingData()
 
 module.exports = PPU
