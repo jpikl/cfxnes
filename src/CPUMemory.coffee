@@ -4,7 +4,7 @@
 
 class CPUMemory
 
-    @inject: [ "ppu", "apu" ]
+    @inject: [ "ppu", "apu", "dma" ]
 
     constructor: ->
         @inputDevices = 1: null, 2: null
@@ -71,6 +71,7 @@ class CPUMemory
             when 0x2005 then @ppu.writeScroll value
             when 0x2006 then @ppu.writeAddress value
             when 0x2007 then @ppu.writeData value
+            when 0x4014 then @dma.writeAddress value
             when 0x4016 then @writeInputDevice value
             when 0x4017 then @writeInputDevice value
             else value

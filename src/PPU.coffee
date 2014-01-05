@@ -172,5 +172,6 @@ class PPU
         @framebuffer
 
     tick: ->
+        
 
 module.exports = PPU

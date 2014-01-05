@@ -10,7 +10,7 @@ Interrupt = Types.Interrupt
 
 class CPU
 
-    @inject: [ "cpuMemory", "ppu", "apu" ]
+    @inject: [ "cpuMemory", "ppu", "apu", "dma" ]
 
     constructor: ->
         @initOperationsTable()
@@ -192,6 +192,7 @@ class CPU
 
     tick: ->
         @cyclesCount++
+        @dma.tick()
         @ppu.tick() for [1..3]
         @apu.tick()
         undefined

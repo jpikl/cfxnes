@@ -60,7 +60,7 @@ class INESLoader extends AbstractLoader
         @cartridge.mapperId = (controlByte2 & 0xF0) | (controlByte1 >>> 4)
         
     readSRAMBanksCount: ->
-        @cartridge.sramBanksCount = Math.min 1, @readByte() # At least 1 bank always (compatibility purposes)
+        @cartridge.sramBanksCount = Math.max 1, @readByte() # At least 1 bank always (compatibility purposes)
 
     readFlags9: ->
         flags = @readByte()
