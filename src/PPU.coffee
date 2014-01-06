@@ -116,32 +116,43 @@ class PPU
     ###########################################################
 
     writeScroll: (value) ->
-        @writeAddress value # Uses the same register as VRAM addressing
+        # Uses the same register as VRAM addressing. 
+        # The register has the following structure: $0yyy.NNYY.YYYX.XXXX
+        #   yyy = fine Y scroll (y position of active row of rendered tile)
+        #    NN = index of active name table
+        # YYYYY = coarse Y scroll (y position of rendered tile in name table)
+        # XXXXX = coarse X scroll (x position of rendered tile in name table)
+        @writeAddress value 
 
     incrementFineXScroll: ->
-        @fineXScroll = (@fineXScroll + 1) & 0x07
-        @incrementCoarseXScroll() if @fineXScroll is 0 # Fine X scroll overflow
+        if @fineXScroll is 7
+            @fineXScroll = 0
+            @incrementCoarseXScroll()
+        else
+            @fineXScroll++
 
     incrementCoarseXScroll: ->
-        coarseXScroll =   @vramAddress         & 0x1E # Bits 0-4
-        coarseYScroll =  (@vramAddress >>>  5) & 0x1E # Bits 5-9
-        nameTableIndex = (@vramAddress >>> 10) & 0x03 # Bits 10,11
-        fineYScroll =    (@vramAddress >>> 12) & 0x07 # Bits 12-14
+        if (@vramAddress & 0x001F) is 0x001F # if coarseScrollX is 31
+            @vramAddress &= 0xFFE0           #     coarseScrollX = 0
+            @vramAddress ^= 0x0400           #     nameTableBit0 = not nameTableBit0
+        else                                 # else
+            @vramAddress += 0x0001           #     coarseScrollX++
 
-        coarseXScroll = (coarseXScroll + 1) & 0x1E
-        if coarseXScroll is 0 # Coarse X scroll overflow (incrementation from 31)
-            @selectedNameTableIndex ^= 0x01 # Switch horizontal name table
-            @fineYScroll = (@fineYScroll + 1) & 0x07
-            if @fineYScroll is 30 # Fine X scroll overflow (incrementation from 29)
-                @fineYScroll = 0
-                @coarseYScroll = (@coarseYScroll + 1) & 0x1E
-                if @coarseYScroll is 0 # Coarse X scroll overflow
-                    @selectedNameTableIndex ^= 0x02 # Switch vertical name table
+    incrementFineYScroll: ->
+        if (@vramAddress & 0x7000) is 0x7000 # if fineScrollY is 7
+            @vramAddress &= 0x0FFF           #     fineScrollY = 0
+            @incrementCoarseYScroll()        #     incrementCoarseYScroll()
+        else                                 # else
+            @vramAddress += 0x1000           #     fineScrollY++
 
-        @vramAddress = coarseXScroll        | # Bits 0-4
-                       coarseYScroll  <<  5 | # Bits 5-9
-                       nameTableIndex << 10 | # Bits 10,11
-                       fineYScroll    << 12   # Bits 12-14
+    incrementCoarseYScroll: ->
+        if (@vramAddress & 0x03E0) is 0x03E0      # if coarseScrollY is 31
+            @vramAddress &= 0xFC1F                #     coarseScrollY = 0
+        else if (@vramAddress & 0x03E0) is 0x03A0 # else if coarseScrollY is 29
+            @vramAddress &= 0xFC1F                #     coarseScrollY = 0
+            @vramAddress ^= 0x0800                #     nameTableBit1 = not nameTableBit1
+        else                                      # else
+            @vramAddress += 0x0020                #     coarseScrollY++
 
     ###########################################################
     # VRAM access
@@ -187,6 +198,9 @@ class PPU
     isPalleteAddress: (address) ->
         (address & 0x3F00) == 0x3F00
 
+    getMonochromeColorIndex: (index) ->
+        index & 0x30
+
     ###########################################################
     # Rendering
     ###########################################################
@@ -199,17 +213,19 @@ class PPU
         0 <= @scanline <= 239 and 1 <= @cycle <= 256
 
     renderFramePixel: ->
+        @firstPixelIsRendered = @scanline is 0 and @cycle is 1
         xPosition = @cycle - 1
         yPosition = @scanline
         spriteColor = @renderSpritePixel() if @spritesVisible
         backgroundColor = @renderBackgroundPixel() if @backgroundVisible
         # TODO get RGB values of color and put them into framebuffer
+        @incrementFineYScroll() if @cycle is 256
         @incrementFineXScroll()
 
     renderBackgroundPixel: ->
-        # Optimization - we compute this only when coarse scroll X changes.
-        if @fineXScroll is 0
-            # VRAM address regiater following structure: $0yyy.NNYY.YYYX.XXXX
+        # Optimization - we compute this only when coarse scroll X was incremented.
+        if @fineXScroll is 0 or @firstPixelIsRendered
+            # VRAM address register following structure: $0yyy.NNYY.YYYX.XXXX
             #   yyy = fine Y scroll (y position of active row of rendered tile)
             #    NN = index of active name table
             # YYYYY = coarse Y scroll (y position of rendered tile in name table)
@@ -232,8 +248,8 @@ class PPU
             @colorBit2Row = @read colorBit2RowAddress
         colorBit1 = (@colorBit1Row >>> @fineXScroll) & 0x01
         colorBit2 = ((@colorBit2Row >>> @fineXScroll) & 0x01) << 1
-        # Optimization - we compute this only when coarse scroll X is incremented by 4.
-        if (@vramAddress & 0x0003) is 0
+        # Optimization - we compute this only when coarse scroll X was incremented 4 times.
+        if (@vramAddress & 0x0003) is 0 or @firstPixelIsRendered
             # We compute pointer to attribute table as $2.NN11.11YY.Y.XXX
             # where YYY and XXX are 3 upper bits of YYYYY and XXXXX.
             # Each attribute applies to area of 4x4 tiles (that's why we removed 2 lower bits of YYYYY and XXXXX).
@@ -242,7 +258,7 @@ class PPU
             attributeAddress = attributeTableAddress + attributeNumber
             attribute = @read attributeAddress
             # Attribute has format $3322.1100. where 00, 11, 22, 33 are two upper color bits
-            # for one of 2x2 subarea of 4x4 tile area.
+            # for one of 2x2 subarea of the 4x4 tile area.
             # We have to find in which subarea are we in. This is decided by bit 1 of YYYYY and XXXXX values.
             subareaNumber = (@vramAddress >>> 5) & 0x02 | (@vramAddress >>> 1) & 0x01
             @colorBits43 = ((attribute >>> subareaNumber) & 0x03) << 2
@@ -265,17 +281,16 @@ class PPU
         @scanline = -1 if @scanline is 262
         @vblankInProgress = 241 <= @scanline <= 260
         @cpu.nonMaskableInterrupt() if @scanline is 241 and @vblankGeneratesNMI
+        @frameAvailable = true if @scanline is 241
 
     readFrame: ->
+        @frameAvailable = false
         @framebuffer
 
     isFrameAvailable: ->
-        true
+        @frameAvailable
 
     isRenderingInProgress: ->
         not @vblankInProgress and (@spritesVisible or @backgroundVisible)
-
-    getMonochromeColorIndex: (index) ->
-        index & 0x30    
 
 module.exports = PPU
