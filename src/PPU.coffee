@@ -207,42 +207,46 @@ class PPU
         @incrementFineXScroll()
 
     renderBackgroundPixel: ->
-        # VRAM address regiater following structure: $0yyy.NNYY.YYYX.XXXX
-        #   yyy = fine Y scroll (y position of active row of rendered tile)
-        #    NN = index of active name table
-        # YYYYY = coarse Y scroll (y position of rendered tile in name table)
-        # XXXXX = coarse X scroll (x position of rendered tile in name table)
-        # $2.NNYY.YYYX.XXXX is pointer into active name table,
-        # where is saved currently rendered background tile (pattern number).
-        patternNumberAddress = 0x2000 | (@vramAddress & 0x0FFF)
-        patternNumer = @read patternNumberAddress
-        # Based on control bit, we select 1 of 2 pattern tables (0x0000 or 0x1000).
-        # Then we find address of pattern inside this table.
-        patternTableAddress = @backgroundPatternTableIndex << 24
-        patternAddress = patternTableAddress + patternNumer
-        # Each pattern consists from two 8x8 bit matrixes (16B).
-        # Each 8x8 matrix is a bitmap containing 1 of 2 lower color bits.
-        # We read 1 bit from each bitmap on position specified by fine X,Y scroll.
-        fineYScroll = (@vramAddress >>> 12) & 0x07
-        colorBit1RowAddress = patternAddress + fineYScroll
-        colorBit2RowAddress = color1RowAddress + 0x08
-        colorBit2Row = @read color1RowAddress
-        colorBit2Row = @read color2RowAddress
-        colorBit1 = (colorBit1Row >>> @fineXScroll) & 0x01
-        colorBit2 = (colorBit2Row >>> @fineXScroll) & 0x01
-        # We compute pointer to attribute table as $2.NN11.11YY.Y.XXX
-        # where YYY and XXX are 3 upper bits of YYYYY and XXXXX.
-        # Each attribute applies to area of 4x4 tiles (that's why we removed 2 lower bits of YYYYY and XXXXX).
-        attributeTableAddress = (patternNumberAddress & 0xFC00) | 0x03C0
-        attributeNumber = (patternNumberAddress >>> 4) & 0x38 | (patternNumberAddress >>> 2) & 0x07
-        attributeAddress = attributeTableAddress + attributeNumber
-        attribute = @read attributeAddress
-        # Attribute has format $3322.1100. where 00, 11, 22, 33 are two upper color bits
-        # for one of 2x2 subarea of 4x4 tile area.
-        # We have to find in which subarea are we in. This is decided by bit 1 of YYYYY and XXXXX values.
-        subareaNumber = (patternNumberAddress >>> 5) & 0x02 | (patternNumberAddress >>> 1) & 0x01
-        colorBits43 = (attribute >>> subareaNumber) & 0x03
-        color = colorBits43 << 2 | colorBit2 << 1 | colorBit1
+        # Optimization - we compute this only when coarse scroll X changes.
+        if @fineXScroll is 0
+            # VRAM address regiater following structure: $0yyy.NNYY.YYYX.XXXX
+            #   yyy = fine Y scroll (y position of active row of rendered tile)
+            #    NN = index of active name table
+            # YYYYY = coarse Y scroll (y position of rendered tile in name table)
+            # XXXXX = coarse X scroll (x position of rendered tile in name table)
+            # $2.NNYY.YYYX.XXXX is pointer into active name table,
+            # where is saved currently rendered background tile (pattern number).
+            patternNumberAddress = 0x2000 | (@vramAddress & 0x0FFF)
+            patternNumer = @read patternNumberAddress
+            # Based on control bit, we select 1 of 2 pattern tables (0x0000 or 0x1000).
+            # Then we find address of pattern inside this table.
+            patternTableAddress = @backgroundPatternTableIndex << 24
+            patternAddress = patternTableAddress + patternNumer
+            # Each pattern consists from two 8x8 bit matrixes (16B).
+            # Each 8x8 matrix is a bitmap containing 1 of 2 lower color bits.
+            # We read 1 bit from each bitmap on position specified by fine X,Y scroll.
+            fineYScroll = (@vramAddress >>> 12) & 0x07
+            colorBit1RowAddress = patternAddress + fineYScroll
+            colorBit2RowAddress = colorBit1RowAddress + 0x08
+            @colorBit1Row = @read colorBit1RowAddress
+            @colorBit2Row = @read colorBit2RowAddress
+        colorBit1 = (@colorBit1Row >>> @fineXScroll) & 0x01
+        colorBit2 = ((@colorBit2Row >>> @fineXScroll) & 0x01) << 1
+        # Optimization - we compute this only when coarse scroll X is incremented by 4.
+        if (@vramAddress & 0x0003) is 0
+            # We compute pointer to attribute table as $2.NN11.11YY.Y.XXX
+            # where YYY and XXX are 3 upper bits of YYYYY and XXXXX.
+            # Each attribute applies to area of 4x4 tiles (that's why we removed 2 lower bits of YYYYY and XXXXX).
+            attributeTableAddress = 0x2000 | (@vramAddress & 0x0C00) | 0x03C0
+            attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
+            attributeAddress = attributeTableAddress + attributeNumber
+            attribute = @read attributeAddress
+            # Attribute has format $3322.1100. where 00, 11, 22, 33 are two upper color bits
+            # for one of 2x2 subarea of 4x4 tile area.
+            # We have to find in which subarea are we in. This is decided by bit 1 of YYYYY and XXXXX values.
+            subareaNumber = (@vramAddress >>> 5) & 0x02 | (@vramAddress >>> 1) & 0x01
+            @colorBits43 = ((attribute >>> subareaNumber) & 0x03) << 2
+        color = @colorBits43 | colorBit2 | colorBit1
         # This 4-bit color value is actualy index to background color palette,
         # so we have to read 1 of 16 entries from that palette.
         @read 0x3F00 + color
