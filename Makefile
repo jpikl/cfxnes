@@ -13,6 +13,7 @@ INCLUDES = NESCoffee.js \
            APU.js \
            CPU.js \
            CPUMemory.js \
+           DMA.js \
            PPU.js \
            PPUMemory.js \
            CartridgeFactory.js \
