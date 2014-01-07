@@ -7,7 +7,7 @@ SCREEN_FPS    = 60.0988
 SCREEN_WIDTH  = 256
 SCREEN_HEIGHT = 240
 
-joypadButtonNameToId =
+joypadButtonToId =
     "a":      Joypad.BUTTON_A
     "b":      Joypad.BUTTON_B
     "select": Joypad.BUTTON_SELECT
@@ -43,7 +43,7 @@ class @NESCoffee
 
     initFramebuffer: ->
         @framebuffer = @renderer.createImageData SCREEN_WIDTH, SCREEN_HEIGHT
-        for i in [0..@framebuffer.data.length]
+        for i in [0...@framebuffer.data.length]
             @framebuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
 
     initConsole: ->
@@ -99,7 +99,7 @@ class @NESCoffee
 
     getInputDeviceCallback: (port, device, button) ->
         if device is "joypad"
-            button = joypadButtonNameToId[button.toLowerCase()] or 0
+            button = joypadButtonToId[button.toLowerCase()] or 0
             @inputDevices[port]?.joypad.setButtonPressed.bind this, button
         else if device is "zapper"
             @inputDevices[port]?.zapper.setTriggerPressed.bind this

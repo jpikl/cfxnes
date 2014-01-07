@@ -21,7 +21,7 @@ class PPUMemory
         @mmc.ppuRead @getVRAMAddress address
 
     write: (address, value) ->
-        @mmc.ppuWrite @getVRAMAddress address, value
+        @mmc.ppuWrite (@getVRAMAddress address), value
 
     getVRAMAddress: (address) ->
         address & 0x3FFF # Mirroring of [$0000-$3FFF] in [$0000-$FFFF]

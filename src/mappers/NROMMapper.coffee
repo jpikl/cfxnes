@@ -133,7 +133,7 @@ class NROMMapper
 
     getNamesTableAddress: (address) ->
         # Area [$2000-$2EFF] from [$2EFF-$2FFF] is mirrored in [$3000-$3EFF]
-        switch getMirroring()
+        switch @getMirroring()
             when Mirroring.SINGLE_SCREEN then (address & 0x23FF)                            # [1|1|1|1] in [$2000-$2FFF]
             when Mirroring.HORIZONTAL    then (address & 0x23FF) | (address & 0x0800) >>> 1 # [1|1|2|2] in [$2000-$2FFF]
             when Mirroring.VERTICAL      then (address & 0x27FF)                            # [1|2|1|2] in [$2000-$2FFF]
