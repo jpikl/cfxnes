@@ -31,6 +31,7 @@ closeOutput = if outputFd? then fs.closeSync.bind this, outputFd else ( -> )
 
 writeOutput """
     var modules = {};
+    var results = {};
 
     var createRequire = function(basePath) {
         return function(path) {
@@ -44,14 +45,15 @@ writeOutput """
             });
             var name = parts.join("/");
             var fullName = name + ".js";
-            var module = modules[fullName];
+            var result = results[fullName];
             if (typeof module == "undefined") {
-                throw "Module '" + name + "' not found";
-            } else if (typeof module == "function") {
-                module = module.call(this);
-                modules[fullName] = module;
+                var module = modules[fullName];
+                if (typeof module == "undefined") {
+                    throw "Module '" + name + "' not found";
+                }
+                result = results[fullName] = module.call(this);
             }
-            return module;
+            return result;
         };
     }
 
