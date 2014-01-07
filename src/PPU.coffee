@@ -253,9 +253,9 @@ class PPU
             patternNumberAddress = 0x2000 | (@vramAddress & 0x0FFF)
             patternNumer = @read patternNumberAddress
             # Based on control bit, we select 1 of 2 pattern tables (0x0000 or 0x1000).
-            # Then we find address of pattern inside this table.
+            # Then we find address of pattern inside this table (each pattern has 16B).
             patternTableAddress = @backgroundPatternTableIndex << 24
-            patternAddress = patternTableAddress + patternNumer
+            patternAddress = patternTableAddress + (patternNumer << 4)
             # Each pattern consists from two 8x8 bit matrixes (16B).
             # Each 8x8 matrix is a bitmap containing 1 of 2 lower color bits.
             # We read 1 bit from each bitmap on position specified by fine X,Y scroll.
@@ -264,8 +264,9 @@ class PPU
             colorBit2RowAddress = colorBit1RowAddress + 0x08
             @colorBit1Row = @read colorBit1RowAddress
             @colorBit2Row = @read colorBit2RowAddress
-        colorBit1 = (@colorBit1Row >>> @fineXScroll) & 0x01
-        colorBit2 = ((@colorBit2Row >>> @fineXScroll) & 0x01) << 1
+        inverseFineXScroll = @fineXScroll ^ 0x07 # inverseFineScrollX = 7 - fineXScroll
+        colorBit1 =  (@colorBit1Row >>> inverseFineXScroll) & 0x01
+        colorBit2 = ((@colorBit2Row >>> inverseFineXScroll) & 0x01) << 1
         # Optimization - we compute this only when coarse scroll X was incremented 4 times.
         if (@vramAddress & 0x0003) is 0 or @firstPixelIsRendered
             # We compute pointer to attribute table as $2.NN11.11YY.Y.XXX
