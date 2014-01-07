@@ -41,7 +41,7 @@ class Binder
     resetState: ->
         @mouseX = 0
         @mouseY = 0
-        @recordNexEvent = no
+        @recordNextEvent = no
         @keyboardMapping = {}
         @mouseMapping = {}
 
@@ -87,11 +87,11 @@ class Binder
     ###########################################################
 
     recordInput: (callback) ->
-        @recordNexEvent = yes
+        @recordNextEvent = yes
         @recordCallback = callback
 
     finishRecording: (device, button) ->
-        @recordNexEvent = no
+        @recordNextEvent = no
         @recordCallback device, button
 
     ###########################################################
@@ -106,8 +106,9 @@ class Binder
 
     processKeyEvent: (event, keyDown) ->
         event or= window.event
+        event.preventDefault()
         key = keyCodeToName[event.keyCode or event.which] or "unknown"
-        if @recordNexEvent
+        if @recordNextEvent
             @finishRecording "keyboard", key
         else
             @keyboardMapping[key]?(keyDown)
@@ -131,7 +132,7 @@ class Binder
     processMouseEvent: (event, buttonDown) ->
         event or= window.event
         button = buttonNumberToName[event.button or event.which] or "unknown"
-        if @recordNexEvent
+        if @recordNextEvent
             @finishRecording "mouse", button
         else
             @mouseMapping[button]?(buttonDown)

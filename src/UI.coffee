@@ -37,7 +37,7 @@ $(document).ready ->
     ###########################################################
 
     @setController = (port, device) ->
-        nesCoffee.connectInputDevice 1, device
+        nesCoffee.connectInputDevice port, device
         $("#controller-" + port).prop "value", device
         $("#joypad-" + port).addClass "hidden"
         $("#zapper-" + port).addClass "hidden"

@@ -15,7 +15,7 @@ class Joypad
         @readPosition = 0
 
     strobe: ->
-        readPosition = 0
+        @readPosition = 0
 
     read: ->
         @buttonStates[@moveReadPosition()]
