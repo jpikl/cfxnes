@@ -55,7 +55,7 @@ class @NESCoffee
             2: { joypad: new Joypad, zapper: new Zapper }
 
     initControls: ->
-        @binder = new Binder
+        @binder = new Binder @getCanvasRect
         @unbindCallbacks1 =
             1: { joypad: {}, zapper: {} }
             2: { joypad: {}, zapper: {} }
@@ -154,6 +154,9 @@ class @NESCoffee
         @renderer.putImageData @framebuffer, 0, 0
         @redrawScaledCanvas() if @canvasScale > 1
 
+    getCanvasRect: =>
+        @canvas.getBoundingClientRect()
+
     redrawScaledCanvas: ->
         @renderer.imageSmoothingEnabled = false
         @renderer.mozImageSmoothingEnabled = false
@@ -177,7 +180,7 @@ class @NESCoffee
         @inputDevices[2].zapper.setLightDetected lightDetected
 
     isMousePointingOnLightPixel: ->
-        rect = @canvas.getBoundingClientRect()
+        rect = @getCanvasRect()
         x = ~~(@binder.mouseX - rect.left) / @canvasScale
         y = ~~(@binder.mouseY - rect.top) / @canvasScale
         return false if x < 0 or x >= SCREEN_WIDTH or y < 0 or y >= SCREEN_HEIGHT

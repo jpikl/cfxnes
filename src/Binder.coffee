@@ -30,7 +30,7 @@ getButtonDescription = (button) ->
 
 class Binder
 
-    constructor: ->
+    constructor: (@getMouseRect) ->
         @resetState()
         @registerEventListeners()
 
@@ -106,12 +106,13 @@ class Binder
 
     processKeyEvent: (event, keyDown) ->
         event or= window.event
-        event.preventDefault()
         key = keyCodeToName[event.keyCode or event.which] or "unknown"
         if @recordNextEvent
+            event.preventDefault()
             @finishRecording "keyboard", key
-        else
-            @keyboardMapping[key]?(keyDown)
+        else if @keyboardMapping[key]
+            event.preventDefault()
+            @keyboardMapping[key](keyDown)
 
 
     ###########################################################
@@ -133,8 +134,16 @@ class Binder
         event or= window.event
         button = buttonNumberToName[event.button or event.which] or "unknown"
         if @recordNextEvent
+            event.preventDefault()
             @finishRecording "mouse", button
-        else
-            @mouseMapping[button]?(buttonDown)
+        else if @mouseMapping[button] and @isMouseInActiveArea()
+            event.preventDefault()
+            @mouseMapping[button](buttonDown)
+
+    isMouseInActiveArea: ->
+        rect = @getMouseRect()
+        @mouseX >= rect.left and @mouseX <= rect.right and
+        @mouseY >= rect.top  and @mouseY <= rect.bottom
+
 
 module.exports = Binder
