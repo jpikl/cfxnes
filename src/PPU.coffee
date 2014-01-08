@@ -51,9 +51,9 @@ class PPU
         @setMask 0          #  8-bit
         @setStatus 0        #  8-bit
         @oamAddress = 0     # 15-bit
-        @vramReadBuffer = 0 #  8-bit
-        @vramAddress = 0    # 15-bit also known as 'Loopy_V'
         @tempAddress = 0    # 15-bit also known as 'Loopy_T'
+        @vramAddress = 0    # 15-bit also known as 'Loopy_V'
+        @vramReadBuffer = 0 #  8-bit
         @writeToogle = 0    #  1-bit        
         @fineXScroll = 0    #  3-bit
 
@@ -67,7 +67,7 @@ class PPU
 
     writeControl: (value) ->
         @setControl value
-        @tempAddress = (@vramAddress & 0xF3FF) | (value & 0x03) << 10 # T[11,10] = C[1,0]
+        @tempAddress = (@tempAddress & 0xF3FF) | (value & 0x03) << 10 # T[11,10] = C[1,0]
         value
 
     setControl: (value) ->
@@ -99,7 +99,7 @@ class PPU
 
     readStatus: ->
         value = @getStatus()
-        @vblankInProgress = 0
+        @vblankStarted = 0
         @writeToogle = 0
         value
 
@@ -107,13 +107,13 @@ class PPU
         @vramWritesIgnored     << 4 | # S[4]
         @spriteScalineOverflow << 5 | # S[5]
         @spriteZeroHit         << 6 | # S[6]
-        @vblankInProgress      << 7   # S[7]
+        @vblankStarted         << 7   # S[7]
 
     setStatus: (value) ->
         @vramWritesIgnored     = (value >>> 4) & 0x01 # S[4]
         @spriteScalineOverflow = (value >>> 5) & 0x01 # S[5]
         @spriteZeroHit         = (value >>> 6) & 0x01 # S[6]
-        @vblankInProgress      = (value >>> 7)        # S[7]
+        @vblankStarted         = (value >>> 7)        # S[7]
 
     ###########################################################
     # Object attribute memory access
@@ -142,6 +142,7 @@ class PPU
         else            # 2nd write
             addressLow = address
             @tempAddress = (@tempAddress & 0xFF00) | addressLow  # Low bits  [7-0]
+            @vramAddress = @tempAddress
         address
 
     readData: ->
@@ -197,14 +198,14 @@ class PPU
 
     writeScroll: (value) ->
         @writeToogle = not @writeToogle
-        if @writeToogle # 1st write
+        if @writeToogle # 1st write (x scroll)
             @fineXScroll = value & 0x07
-            coarseXScroll = value >> 3
+            coarseXScroll = value >>> 3
             @tempAddress = (@tempAddress & 0xFFE0) | coarseXScroll
-        else            # 2nd write
+        else            # 2nd write (y scroll)
             fineYScroll = (value & 0x07) << 12
-            coarseYScroll = (value & 0xF1) << 2
-            @tempAddress = (@tempAddress & 0x18C0) | coarseYScroll | fineYScroll
+            coarseYScroll = (value & 0xF8) << 2
+            @tempAddress = (@tempAddress & 0x0C1F) | coarseYScroll | fineYScroll
         value
 
     copyHorizontalScrollBits: ->
@@ -248,15 +249,18 @@ class PPU
     ###########################################################
 
     tick: ->
-        @renderFramePixel() if @isRenderingScanlineCycle()
         @updateScrolling() if @isRenderingEnabled()
+        @renderFramePixel() if @isRenderingScanlineCycle()
         @incrementCycle()
 
     isRenderingScanlineCycle: ->
         0 <= @scanline <= 239 and 1 <= @cycle <= 256
     
     isRenderingInProgress: ->
-        not @vblankInProgress and @isRenderingEnabled()
+        not @isVBlank() and @isRenderingEnabled()
+
+    isVBlank: ->
+        241 <= @scanline <= 260
 
     isRenderingEnabled: ->
         @spritesVisible or @backgroundVisible
@@ -330,7 +334,7 @@ class PPU
         @incrementFineXScroll() if 1 <= @cycle <= 256 # Increments coarse X scroll each 8th fine X scroll increment
         @incrementCoarseXScroll() if @cyle is 328 or @cycle is 336 # Extra coarse X scroll
         @copyHorizontalScrollBits() if @cycle is 257
-        @copyVerticalScrollBits() if 280 <= @cycle <= 304
+        @copyVerticalScrollBits() if @scanline is -1 and 280 <= @cycle <= 304
 
     incrementCycle: ->
         @cycle++
@@ -339,10 +343,13 @@ class PPU
     incementScanline: ->
         @cycle = 0
         @scanline++
-        @scanline = -1 if @scanline is 262
-        @vblankInProgress = 241 <= @scanline <= 260
-        @cpu.nonMaskableInterrupt() if @scanline is 241 and @vblankGeneratesNMI
-        @frameAvailable = true if @scanline is 241
+        if @scanline is 241
+            @vblankStarted = 1
+            @frameAvailable = true
+            @cpu.nonMaskableInterrupt() if @vblankGeneratesNMI
+        else if @scanline is 262
+            @vblankStarted = 0
+            @scanline = -1
 
     readFrame: ->
         @frameAvailable = false
