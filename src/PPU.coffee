@@ -249,11 +249,11 @@ class PPU
     ###########################################################
 
     tick: ->
-        @updateScrolling() if @isRenderingEnabled()
-        @renderFramePixel() if @isRenderingScanlineCycle()
+        @updateScrolling() if @isRenderingInProgress()
+        @renderFramePixel() if @isRenderingCycle()
         @incrementCycle()
 
-    isRenderingScanlineCycle: ->
+    isRenderingCycle: ->
         0 <= @scanline <= 239 and 1 <= @cycle <= 256
     
     isRenderingInProgress: ->
@@ -331,8 +331,7 @@ class PPU
 
     updateScrolling: ->
         @incrementFineYScroll() if @cycle is 256
-        @incrementFineXScroll() if 1 <= @cycle <= 256 # Increments coarse X scroll each 8th fine X scroll increment
-        @incrementCoarseXScroll() if @cyle is 328 or @cycle is 336 # Extra coarse X scroll
+        @incrementFineXScroll() if 1 <= @cycle <= 256
         @copyHorizontalScrollBits() if @cycle is 257
         @copyVerticalScrollBits() if @scanline is -1 and 280 <= @cycle <= 304
 
