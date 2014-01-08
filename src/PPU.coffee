@@ -47,13 +47,15 @@ class PPU
         @objectAttributeMemory = (0 for [0..0x100]) # 256B
 
     resetRegisters: ->
-        @setControl 0       # 8-bit
-        @setMask 0          # 8-bit
-        @setStatus 0        # 8-bit
-        @oamAddress = 0     # 16-bit
-        @vramAddress = 0    # 16-bit
-        @vramReadBuffer = 0 # 8-bit
-        @fineXScroll = 0    # 3-bit
+        @setControl 0       #  8-bit
+        @setMask 0          #  8-bit
+        @setStatus 0        #  8-bit
+        @oamAddress = 0     # 15-bit
+        @vramReadBuffer = 0 #  8-bit
+        @vramAddress = 0    # 15-bit also known as 'Loopy_V'
+        @tempAddress = 0    # 15-bit also known as 'Loopy_T'
+        @writeToogle = 0    #  1-bit        
+        @fineXScroll = 0    #  3-bit
 
     resetVariables: ->
         @scanline = -1 # Total 262+1 scanlines (-1..261)
@@ -65,16 +67,15 @@ class PPU
 
     writeControl: (value) ->
         @setControl value
-        # Bits 0,1 (name table index) are copied into bits 10,11 of VRAM address register
-        @vramAddress = (@vramAddress & 0xF3FF) | (value & 0x03) << 10
+        @tempAddress = (@vramAddress & 0xF3FF) | (value & 0x03) << 10 # T[11,10] = C[1,0]
         value
 
     setControl: (value) ->
-        @bigAddressIncrement         = (value >>> 2) & 0x01 # Bit 2
-        @spritesPatternTableIndex    = (value >>> 3) & 0x01 # Bit 3
-        @backgroundPatternTableIndex = (value >>> 4) & 0x01 # Bit 4
-        @bigSprites                  = (value >>> 5) & 0x01 # Bit 5
-        @vblankGeneratesNMI          = (value >>> 7)        # Bit 7
+        @bigAddressIncrement         = (value >>> 2) & 0x01 # C[2]
+        @spritesPatternTableIndex    = (value >>> 3) & 0x01 # C[3]
+        @backgroundPatternTableIndex = (value >>> 4) & 0x01 # C[4]
+        @bigSprites                  = (value >>> 5) & 0x01 # C[5]
+        @vblankGeneratesNMI          = (value >>> 7)        # C[7]
 
     ###########################################################
     # Mask register
@@ -85,12 +86,12 @@ class PPU
         value
 
     setMask: (value) ->
-        @monochromeMode            =  value        & 0x01  # Bit  0
-        @noSpriteClipping          = (value >>> 1) & 0x01  # Bit  1
-        @noBackgroundClipping      = (value >>> 2) & 0x01  # Bit  2
-        @backgroundVisible         = (value >>> 3) & 0x01  # Bit  3
-        @spritesVisible            = (value >>> 4) & 0x01  # Bit  4
-        @backgroundColorsIntensity = (value >>> 5)         # Bits 5-7
+        @monochromeMode            =  value        & 0x01  # M[0]
+        @noSpriteClipping          = (value >>> 1) & 0x01  # M[1]
+        @noBackgroundClipping      = (value >>> 2) & 0x01  # M[2]
+        @backgroundVisible         = (value >>> 3) & 0x01  # M[3]
+        @spritesVisible            = (value >>> 4) & 0x01  # M[4]
+        @backgroundColorsIntensity = (value >>> 5)         # M[7-5]
 
     ###########################################################
     # Status register
@@ -98,24 +99,21 @@ class PPU
 
     readStatus: ->
         value = @getStatus()
-        # @clearFlagsAffectedByStatus()
+        @vblankInProgress = 0
+        @writeToogle = 0
         value
 
-    clearFlagsAffectedByStatus: ->
-        @vblankInProgress = 0
-        @vramAddress = 0
-
     getStatus: ->
-        @vramWritesIgnored     << 4 | # Bit 4
-        @spriteScalineOverflow << 5 | # Bit 5
-        @spriteZeroHit         << 6 | # Bit 6
-        @vblankInProgress      << 7   # Bit 7
+        @vramWritesIgnored     << 4 | # S[4]
+        @spriteScalineOverflow << 5 | # S[5]
+        @spriteZeroHit         << 6 | # S[6]
+        @vblankInProgress      << 7   # S[7]
 
     setStatus: (value) ->
-        @vramWritesIgnored         = (value >>> 4) & 0x01 # Bit 4
-        @spriteScalineOverflow     = (value >>> 5) & 0x01 # Bit 5
-        @spriteZeroHit             = (value >>> 6) & 0x01 # Bit 6
-        @vblankInProgress          = (value >>> 7)        # Bit 7
+        @vramWritesIgnored     = (value >>> 4) & 0x01 # S[4]
+        @spriteScalineOverflow = (value >>> 5) & 0x01 # S[5]
+        @spriteZeroHit         = (value >>> 6) & 0x01 # S[6]
+        @vblankInProgress      = (value >>> 7)        # S[7]
 
     ###########################################################
     # Object attribute memory access
@@ -125,25 +123,95 @@ class PPU
         @oamAddress = address
 
     readOAMData: ->
-        @objectAttributeMemory[@oamAddress] # Does not increment the address
+        @objectAttributeMemory[@oamAddress] # Read does not increment the address.
 
     writeOAMData: (value) ->
         @objectAttributeMemory[@oamAddress] = value if not @isRenderingInProgress()
-        @oamAddress = (@oamAddress + 1) & 0xFF # Always increments the address
+        @oamAddress = (@oamAddress + 1) & 0xFF # Write always increments the address.
         value
+
+    ###########################################################
+    # VRAM access
+    ###########################################################
+
+    writeAddress: (address) ->
+        @writeToogle = not @writeToogle
+        if @writeToogle # 1st write
+            addressHigh = (address & 0x3F) << 8
+            @tempAddress = (@tempAddress & 0x00FF) | addressHigh # High bits [13-8] (bit 14 is cleared)
+        else            # 2nd write
+            addressLow = address
+            @tempAddress = (@tempAddress & 0xFF00) | addressLow  # Low bits  [7-0]
+        address
+
+    readData: ->
+        address = @incrementAddress()
+        oldBufferContent = @vramReadBuffer
+        @vramReadBuffer = @read address                                         # Always increments the address
+        if @isPalleteAddress address then @vramReadBuffer else oldBufferContent # Delayed read outside the pallete memory area
+
+    writeData: (value) ->
+        address = @incrementAddress()                                   # Always increments the address
+        @ppuMemory.write address, value if not @isRenderingInProgress() # Only during VBLANK or disabled rendering
+        value
+
+    incrementAddress: ->
+        previousAddress = @vramAddress
+        @vramAddress = (@vramAddress + @getAddressIncrement()) & 0xFFFF
+        previousAddress
+
+    getAddressIncrement: ->
+        if @bigAddressIncrement then 0x20 else 0x01
+
+
+    ###########################################################
+    # Internal VRAM access
+    ###########################################################
+
+    read: (address) ->
+        value = @ppuMemory.read address
+        if @monochromeMode and @isPalleteAddress address
+            @getMonochromeColor value
+        else
+            value
+
+    write: (address, value) ->
+        @ppuMemory.write address, value
+
+    isPalleteAddress: (address) ->
+        (address & 0x3F00) == 0x3F00
+
+    getMonochromeColor: (index) ->
+        index & 0x30
 
     ###########################################################
     # Scrolling
     ###########################################################
 
+    # Uses the same register as VRAM addressing. 
+    # The register has the following structure: $0yyy.NNYY.YYYX.XXXX
+    #   yyy = fine Y scroll (y position of active row of rendered tile)
+    #    NN = index of active name table
+    # YYYYY = coarse Y scroll (y position of rendered tile in name table)
+    # XXXXX = coarse X scroll (x position of rendered tile in name table)
+
     writeScroll: (value) ->
-        # Uses the same register as VRAM addressing. 
-        # The register has the following structure: $0yyy.NNYY.YYYX.XXXX
-        #   yyy = fine Y scroll (y position of active row of rendered tile)
-        #    NN = index of active name table
-        # YYYYY = coarse Y scroll (y position of rendered tile in name table)
-        # XXXXX = coarse X scroll (x position of rendered tile in name table)
-        @writeAddress value 
+        @writeToogle = not @writeToogle
+        if @writeToogle # 1st write
+            @fineXScroll = value & 0x07
+            coarseXScroll = value >> 3
+            @tempAddress = (@tempAddress & 0xFFE0) | coarseXScroll
+        else            # 2nd write
+            fineYScroll = (value & 0x07) << 12
+            coarseYScroll = (value & 0xF1) << 2
+            @tempAddress = (@tempAddress & 0x18C0) | coarseYScroll | fineYScroll
+        value
+
+    copyHorizontalScrollBits: ->
+        @vramAddress = (@vramAddress & 0x7BE0) | (@tempAddress & 0x041F) # V[10,4-0] = T[10,4-0]
+
+    copyVerticalScrollBits: ->
+        @vramAddress = (@vramAddress & 0x041F) | (@tempAddress & 0x7BE0) # V[14-11,9-5] = T[14-11,9-5]
 
     incrementFineXScroll: ->
         if @fineXScroll is 7
@@ -176,73 +244,33 @@ class PPU
             @vramAddress += 0x0020                #     coarseScrollY++
 
     ###########################################################
-    # VRAM access
-    ###########################################################
-
-    writeAddress: (address) ->
-        @vramAddress = (@vramAddress << 8 | address) & 0xFFFF
-        address
-
-    readData: ->
-        oldBufferContent = @vramReadBuffer
-        @vramReadBuffer = @read @incrementAddress()                             # Always increments the address
-        if @isPalleteAddress address then @vramReadBuffer else oldBufferContent # Delayed read outside the pallete memory area
-
-    writeData: (value) ->
-        address = @incrementAddress()                                   # Always increments the address
-        @ppuMemory.write address, value if not @isRenderingInProgress() # Only during VBLANK or disabled rendering
-        value
-
-    incrementAddress: ->
-        previousAddress = @vramAddress
-        @vramAddress = (@vramAddress + @getAddressIncrement()) & 0xFFFF
-        previousAddress
-
-    getAddressIncrement: ->
-        if @bigAddressIncrement then 0x20 else 0x01
-
-
-    ###########################################################
-    # Internal VRAM access
-    ###########################################################
-
-    read: (address) ->
-        value = @ppuMemory.read address
-        if @isPalleteAddress address and @monochromeMode
-            @getMonochromeColorIndex value
-        else
-            value
-
-    write: (address, value) ->
-        @ppuMemory.write address, value
-
-    isPalleteAddress: (address) ->
-        (address & 0x3F00) == 0x3F00
-
-    getMonochromeColorIndex: (index) ->
-        index & 0x30
-
-    ###########################################################
     # Rendering
     ###########################################################
 
     tick: ->
         @renderFramePixel() if @isRenderingScanlineCycle()
+        @updateScrolling() if @isRenderingEnabled()
         @incrementCycle()
 
     isRenderingScanlineCycle: ->
         0 <= @scanline <= 239 and 1 <= @cycle <= 256
     
+    isRenderingInProgress: ->
+        not @vblankInProgress and @isRenderingEnabled()
+
+    isRenderingEnabled: ->
+        @spritesVisible or @backgroundVisible
+
     renderFramePixel: ->
-        @firstPixelIsRendered = @scanline is 0 and @cycle is 1
-        @framebufferPosition = 0 if @firstPixelIsRendered
-        spriteColor = @renderSpritePixel() if @spritesVisible
+        @frameStart = @scanline is 0 and @cycle is 1
+        @framebufferPosition = 0 if @frameStart
         backgroundColor = @renderBackgroundPixel() if @backgroundVisible
-        @setFramePixel backgroundColor or 0
+        spriteColor = @renderSpritePixel() if @spritesVisible
+        @setFramePixel spriteColor or backgroundColor or 0 # TODO rendering priority
 
     renderBackgroundPixel: ->
         # Optimization - we compute this only when coarse scroll X was incremented.
-        if @fineXScroll is 0 or @firstPixelIsRendered
+        if @fineXScroll is 0 or @frameStart
             # VRAM address register following structure: $0yyy.NNYY.YYYX.XXXX
             #   yyy = fine Y scroll (y position of active row of rendered tile)
             #    NN = index of active name table
@@ -268,11 +296,11 @@ class PPU
         colorBit1 =  (@colorBit1Row >>> inverseFineXScroll) & 0x01
         colorBit2 = ((@colorBit2Row >>> inverseFineXScroll) & 0x01) << 1
         # Optimization - we compute this only when coarse scroll X was incremented 4 times.
-        if (@vramAddress & 0x0003) is 0 or @firstPixelIsRendered
+        if (@vramAddress & 0x0003) is 0 or @frameStart
             # We compute pointer to attribute table as $2.NN11.11YY.Y.XXX
             # where YYY and XXX are 3 upper bits of YYYYY and XXXXX.
             # Each attribute applies to area of 4x4 tiles (that's why we removed 2 lower bits of YYYYY and XXXXX).
-            attributeTableAddress = 0x2000 | (@vramAddress & 0x0C00) | 0x03C0
+            attributeTableAddress = 0x23C0 | (@vramAddress & 0x0C00)
             attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
             attributeAddress = attributeTableAddress + attributeNumber
             attribute = @read attributeAddress
@@ -281,9 +309,6 @@ class PPU
             # We have to find in which subarea are we in. This is decided by bit 1 of YYYYY and XXXXX values.
             subareaNumber = (@vramAddress >>> 5) & 0x02 | (@vramAddress >>> 1) & 0x01
             @colorBits43 = ((attribute >>> subareaNumber) & 0x03) << 2
-        # Increment scroll coordinates only when background is rendered
-        @incrementFineYScroll() if @cycle is 256
-        @incrementFineXScroll()
         # This 4-bit color value is actualy index to background color palette,
         # so we have to read 1 of 16 entries from that palette.
         color = @colorBits43 | colorBit2 | colorBit1
@@ -299,6 +324,13 @@ class PPU
         @framebuffer[@framebufferPosition++] = RGBA_COLORS[color++]
         @framebuffer[@framebufferPosition++] = RGBA_COLORS[color]
         @framebufferPosition++ # Alpha is always 0xFF
+
+    updateScrolling: ->
+        @incrementFineYScroll() if @cycle is 256
+        @incrementFineXScroll() if 1 <= @cycle <= 256 # Increments coarse X scroll each 8th fine X scroll increment
+        @incrementCoarseXScroll() if @cyle is 328 or @cycle is 336 # Extra coarse X scroll
+        @copyHorizontalScrollBits() if @cycle is 257
+        @copyVerticalScrollBits() if 280 <= @cycle <= 304
 
     incrementCycle: ->
         @cycle++
@@ -318,8 +350,5 @@ class PPU
 
     isFrameAvailable: ->
         @frameAvailable
-
-    isRenderingInProgress: ->
-        not @vblankInProgress and (@spritesVisible or @backgroundVisible)
 
 module.exports = PPU
