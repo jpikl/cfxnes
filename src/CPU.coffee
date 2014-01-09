@@ -54,8 +54,11 @@ class CPU
     ###########################################################
 
     step: ->
-        @resolveInterrupt()
-        @executeInstruction()
+        if @dma.isTransferInProgress()
+            @tick() # CPU can't access memory during DMA (empty cycle).
+        else
+            @resolveInterrupt()
+            @executeInstruction()
 
     ###########################################################
     # Interrupt handling
