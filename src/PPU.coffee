@@ -170,11 +170,13 @@ class PPU
     ###########################################################
 
     read: (address) ->
-        value = @ppuMemory.read address
-        if @monochromeMode and @isPalleteAddress address
-            @getMonochromeColor value
-        else
+        if @isPalleteAddress address
+            address = 0x3F00 if @isBackdropColorAddress address
+            value = @ppuMemory.read address
+            value &= 0x30 if @monochromeMode
             value
+        else
+            @ppuMemory.read address
 
     write: (address, value) ->
         @ppuMemory.write address, value
@@ -182,8 +184,8 @@ class PPU
     isPalleteAddress: (address) ->
         (address & 0x3F00) == 0x3F00
 
-    getMonochromeColor: (color) ->
-        color & 0x30
+    isBackdropColorAddress: (address) ->
+        (address & 0x0003) is 0 and not @isVBlank()
 
     ###########################################################
     # Scrolling
@@ -250,9 +252,13 @@ class PPU
     ###########################################################
 
     tick: ->
-        @updateScrolling() if @isRenderingInProgress()
+        @startFrame() if @isFirstRenderingCycle()
         @renderFramePixel() if @isRenderingCycle()
+        @updateScrolling() if @isRenderingInProgress()
         @incrementCycle()
+
+    isFirstRenderingCycle: ->
+        @scanline is 0 and @cycle is 1
 
     isRenderingCycle: ->
         0 <= @scanline <= 239 and 1 <= @cycle <= 256
@@ -266,9 +272,13 @@ class PPU
     isRenderingEnabled: ->
         @spritesVisible or @backgroundVisible
 
+    startFrame: ->
+        @framePosition = 0
+        @fetchCurrentPattern()
+        @fetchCurrentAttribute()
+        @fetchCurrentPalette()
+
     renderFramePixel: ->
-        @frameStart = @scanline is 0 and @cycle is 1
-        @framePosition = 0 if @frameStart
         backgroundColor = @renderBackgroundPixel() if @backgroundVisible
         spriteColor = @renderSpritePixel() if @spritesVisible
         @setFramePixel backgroundColor or 0 # TODO rendering priority
@@ -299,30 +309,42 @@ class PPU
     # Palette numbers PP are defined for 2x2 tile areas. These numbers
     # are store as attributes in attribute tables. Each attribute (1B) contains
     # total 4 palette numbers for bigger 4x4 tile area as value 3322.1100
-    #   33 = palette number for bottom right 2x2 area.
-    #   22 = palette number for bottom left 2x2 area.
+    #   00 = palette number for top left 2x2 area
     #   11 = palette number for top right 2x2 area
-    #   00 = palette number for top left 2x2 area.
+    #   22 = palette number for bottom left 2x2 area
+    #   33 = palette number for bottom right 2x2 area
     # Address of an attribute can be constructed as 0010.NN11.11YY.YXXX
+    #    YYY = 3 upper bits of YYYYY
+    #    XXX = 3 upper bits of XXXXX
+    # 2x2 area number can be constructed as YX
+    #    Y = bit 1 of YYYYY
+    #    X = bit 1 of XXXXX
 
     renderBackgroundPixel: ->
-        if @fineXScroll is 0 or @frameStart # When coarse scroll X was incremented.
-            patternNumer = @read 0x2000 | @vramAddress & 0x0FFF
-            patternTableAddress = @backgroundPatternTableIndex << 12
-            patternAddress = patternTableAddress + (patternNumer << 4)
-            fineYScroll = (@vramAddress >>> 12) & 0x07
-            @layer1Row = @read patternAddress + fineYScroll
-            @layer2Row = @read patternAddress + fineYScroll + 8
+        @fetchCurrentPattern() if @fineXScroll is 0 # When coarse scroll X was incremented.
         bitNumber = @fineXScroll ^ 0x07 # 7 - fineXScroll
-        colorSelect1 =  (@layer1Row >>> bitNumber) & 0x01
-        colorSelect2 = ((@layer2Row >>> bitNumber) & 0x01) << 1
-        if (@vramAddress & 0x0003) is 0 or @frameStart # When coarse scroll X was incremented 4 times.
-            attributeTableAddress = 0x23C0 | (@vramAddress & 0x0C00)
-            attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
-            attribute = @read attributeTableAddress + attributeNumber
-            areaNumber = (@vramAddress >>> 5) & 0x02 | (@vramAddress >>> 1) & 0x01
-            @paletteSelect = ((attribute >>> areaNumber) & 0x03) << 2
+        colorSelect1 =  (@patternLayer1Row >>> bitNumber) & 0x01
+        colorSelect2 = ((@patternLayer2Row >>> bitNumber) & 0x01) << 1
         @read 0x3F00 | @paletteSelect | colorSelect2 | colorSelect1
+
+    fetchCurrentPattern: ->
+        patternNumer = @read 0x2000 | @vramAddress & 0x0FFF
+        patternTableAddress = @backgroundPatternTableIndex << 12
+        patternAddress = patternTableAddress + (patternNumer << 4)
+        fineYScroll = (@vramAddress >>> 12) & 0x07
+        @patternLayer1Row = @read patternAddress + fineYScroll
+        @patternLayer2Row = @read patternAddress + fineYScroll + 8
+        @fetchCurrentPalette() if (@vramAddress & 0x0001) is 0 # When coarse scroll was incremented by 2
+
+    fetchCurrentPalette: ->
+        @fetchCurrentAttribute() if (@vramAddress & 0x0002) is 0 # When coarse scroll was incremented by 4
+        areaSelect = (@vramAddress >>> 4) & 0x04 | @vramAddress & 0x02
+        @paletteSelect = ((@attribute >>> areaSelect) & 0x03) << 2
+
+    fetchCurrentAttribute: ->
+        attributeTableAddress = 0x23C0 | @vramAddress & 0x0C00
+        attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
+        @attribute = @read attributeTableAddress + attributeNumber
 
     renderSpritePixel: ->
         color = 0 # TODO implement sprite rendering
@@ -386,13 +408,13 @@ class PPU
     renderPatternTile: (baseX, baseY, address) ->
         for rowNumber in [0...8]
             y = baseY + rowNumber
-            layer1Row = @read address + rowNumber
-            layer2Row = @read address + rowNumber + 8
+            patternLayer1Row = @read address + rowNumber
+            patternLayer2Row = @read address + rowNumber + 8
             for columnNumber in [0...8]
                 x = baseX + columnNumber
                 bitPosition = columnNumber ^ 0x07
-                colorSelect1 =  (layer1Row >> bitPosition) & 0x01
-                colorSelect2 = ((layer2Row >> bitPosition) & 0x01) << 1
+                colorSelect1 =  (patternLayer1Row >> bitPosition) & 0x01
+                colorSelect2 = ((patternLayer2Row >> bitPosition) & 0x01) << 1
                 color = @read 0x3F00 | colorSelect2 | colorSelect1
                 @setFramePixelOnPosition x, y, color
 

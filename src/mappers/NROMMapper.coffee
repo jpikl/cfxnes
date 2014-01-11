@@ -118,7 +118,7 @@ class NROMMapper
         @vram[@getPalleteAddress address] = value
 
     getPalleteAddress: (address) ->
-        address &= 0x3F0F if (address & 0x0003) == 0 # $3F10/$3F14/$3F18/$3F1C are mirrorors or $3F00/$3F04/$3F08$/3F0C
+        address &= 0x3F0F if (address & 0x0003) is 0 # $3F10/$3F14/$3F18/$3F1C are mirrorors or $3F00/$3F04/$3F08$/3F0C.
         address &  0x3F1F                            # Mirroring of [$3F00-$3F1F] in [$3F00-$3FFF]
 
     ###########################################################
