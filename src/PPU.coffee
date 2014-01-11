@@ -30,7 +30,7 @@ class PPU
     @inject: [ "ppuMemory", "cpu" ]
 
     constructor: ->
-        @framebufferPosition = 0
+        @framePosition = 0
         @framebuffer = for i in [0 ... WIDTH * HEIGHT * 4]
             if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 00.00.00.FF
 
@@ -182,19 +182,20 @@ class PPU
     isPalleteAddress: (address) ->
         (address & 0x3F00) == 0x3F00
 
-    getMonochromeColor: (index) ->
-        index & 0x30
+    getMonochromeColor: (color) ->
+        color & 0x30
 
     ###########################################################
     # Scrolling
     ###########################################################
 
-    # Uses the same register as VRAM addressing. 
-    # The register has the following structure: $0yyy.NNYY.YYYX.XXXX
-    #   yyy = fine Y scroll (y position of active row of rendered tile)
-    #    NN = index of active name table
-    # YYYYY = coarse Y scroll (y position of rendered tile in name table)
-    # XXXXX = coarse X scroll (x position of rendered tile in name table)
+    # The position of currently rendered pattern and its pixel is stored in
+    # VRAM address register with following structure: 0yyy.NNYY.YYYX.XXXX.
+    #     yyy = fine Y scroll (y pixel position within pattern)
+    #      NN = index of active name table (where pattern numbers are stored)
+    #   YYYYY = coarse Y scroll (y position of pattern number in name table)
+    #   XXXXX = coarse X scroll (x position of pattern number in name table)
+    # Fine X scroll (x pixel position within pattern) has its own register.
 
     writeScroll: (value) ->
         @writeToogle = not @writeToogle
@@ -267,66 +268,72 @@ class PPU
 
     renderFramePixel: ->
         @frameStart = @scanline is 0 and @cycle is 1
-        @framebufferPosition = 0 if @frameStart
+        @framePosition = 0 if @frameStart
         backgroundColor = @renderBackgroundPixel() if @backgroundVisible
         spriteColor = @renderSpritePixel() if @spritesVisible
-        @setFramePixel spriteColor or backgroundColor or 0 # TODO rendering priority
+        @setFramePixel backgroundColor or 0 # TODO rendering priority
+
+    # Colors are saved at addresses with structure 0111.1111.000S.PPCC.
+    #    S = 0 for background, 1 for sprites
+    #   PP = palette number
+    #   CC = color number
+    #
+    # The position of currently rendered pattern and its pixel is stored in
+    # VRAM address register with following structure: 0yyy.NNYY.YYYX.XXXX.
+    #     yyy = fine Y scroll (y pixel position within pattern)
+    #      NN = index of active name table (where pattern numbers are stored)
+    #   YYYYY = coarse Y scroll (y position of pattern number in name table)
+    #   XXXXX = coarse X scroll (x position of pattern number in name table)
+    # Fine X scroll (x pixel position within pattern) has its own register.
+    # Address of a pattern number can be constructed as 0010.NNYY.YYYX.XXXX.
+    #
+    # Pattern number used as an offset into one of pattern tables at 
+    # 0x0000 and 0x1000, where patterns are stored. We can construct 
+    # this address as 00T.0000.PPPP.0000
+    #      T = pattern table selection bit
+    #   PPPP = pattern number
+    #
+    # Each pattern is 16B long and consits from two 8x8 matricies.
+    # Each 8x8 matrix contains 1 bit of CC (color number) for pattern pixels.
+    #
+    # Palette numbers PP are defined for 2x2 tile areas. These numbers
+    # are store as attributes in attribute tables. Each attribute (1B) contains
+    # total 4 palette numbers for bigger 4x4 tile area as value 3322.1100
+    #   33 = palette number for bottom right 2x2 area.
+    #   22 = palette number for bottom left 2x2 area.
+    #   11 = palette number for top right 2x2 area
+    #   00 = palette number for top left 2x2 area.
+    # Address of an attribute can be constructed as 0010.NN11.11YY.YXXX
 
     renderBackgroundPixel: ->
-        # Optimization - we compute this only when coarse scroll X was incremented.
-        if @fineXScroll is 0 or @frameStart
-            # VRAM address register following structure: $0yyy.NNYY.YYYX.XXXX
-            #   yyy = fine Y scroll (y position of active row of rendered tile)
-            #    NN = index of active name table
-            # YYYYY = coarse Y scroll (y position of rendered tile in name table)
-            # XXXXX = coarse X scroll (x position of rendered tile in name table)
-            # $2.NNYY.YYYX.XXXX is pointer into active name table,
-            # where is saved currently rendered background tile (pattern number).
-            patternNumer = @read 0x2000 | (@vramAddress & 0x0FFF)
-            # Based on control bit, we select 1 of 2 pattern tables (0x0000 or 0x1000).
-            # Then we find address of pattern inside this table (each pattern has 16B).
-            patternTableAddress = @backgroundPatternTableIndex << 24
+        if @fineXScroll is 0 or @frameStart # When coarse scroll X was incremented.
+            patternNumer = @read 0x2000 | @vramAddress & 0x0FFF
+            patternTableAddress = @backgroundPatternTableIndex << 12
             patternAddress = patternTableAddress + (patternNumer << 4)
-            # Each pattern consists from two 8x8 bit matrices (total 16B).
-            # Each 8x8 matrix is a bitmap defining 1 bit of a color of pattern's pixels.
-            # We read 1 bit from each bitmap on position specified by fine X, Y scroll.
             fineYScroll = (@vramAddress >>> 12) & 0x07
-            colorBit1RowAddress = patternAddress + fineYScroll
-            colorBit2RowAddress = colorBit1RowAddress + 8
-            @colorBit1Row = @read colorBit1RowAddress
-            @colorBit2Row = @read colorBit2RowAddress
-        colorBitNumber = @fineXScroll ^ 0x07 # 7 - fineXScroll
-        colorBit1 =  (@colorBit1Row >>> colorBitNumber) & 0x01
-        colorBit2 = ((@colorBit2Row >>> colorBitNumber) & 0x01) << 1
-        # Optimization - we compute this only when coarse scroll X was incremented 4 times.
-        if (@vramAddress & 0x0003) is 0 or @frameStart
-            # We compute pointer to attribute table as $2.NN11.11YY.Y.XXX
-            # where YYY and XXX are 3 upper bits of YYYYY and XXXXX.
-            # Each attribute applies to area of 4x4 tiles (that's why we removed 2 lower bits of YYYYY and XXXXX).
+            @layer1Row = @read patternAddress + fineYScroll
+            @layer2Row = @read patternAddress + fineYScroll + 8
+        bitNumber = @fineXScroll ^ 0x07 # 7 - fineXScroll
+        colorSelect1 =  (@layer1Row >>> bitNumber) & 0x01
+        colorSelect2 = ((@layer2Row >>> bitNumber) & 0x01) << 1
+        if (@vramAddress & 0x0003) is 0 or @frameStart # When coarse scroll X was incremented 4 times.
             attributeTableAddress = 0x23C0 | (@vramAddress & 0x0C00)
             attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
-            attributeAddress = attributeTableAddress + attributeNumber
-            attribute = @read attributeAddress
-            # Attribute has format $3322.1100. where 00, 11, 22, 33 contains palette number
-            # for one of 2x2 subarea of the 4x4 tile area.
-            # We have to find in which subarea are we in. This is decided by bit 1 of YYYYY and XXXXX values.
-            subareaNumber = (@vramAddress >>> 5) & 0x02 | (@vramAddress >>> 1) & 0x01
-            @paletteOffset = ((attribute >>> subareaNumber) & 0x03) << 2
-        # The result color address has the following structure : 111.1111.0000.PPCC
-        # PP = palette number
-        # CC = color number
-        @read 0x3F00 | @paletteOffset | colorBit2 | colorBit1
+            attribute = @read attributeTableAddress + attributeNumber
+            areaNumber = (@vramAddress >>> 5) & 0x02 | (@vramAddress >>> 1) & 0x01
+            @paletteSelect = ((attribute >>> areaNumber) & 0x03) << 2
+        @read 0x3F00 | @paletteSelect | colorSelect2 | colorSelect1
 
     renderSpritePixel: ->
         color = 0 # TODO implement sprite rendering
         @read 0x3F10 + color
 
     setFramePixel: (color) ->
-        color <<= 2 # Each RGBA color is 4B
-        @framebuffer[@framebufferPosition++] = RGBA_COLORS[color++]
-        @framebuffer[@framebufferPosition++] = RGBA_COLORS[color++]
-        @framebuffer[@framebufferPosition++] = RGBA_COLORS[color]
-        @framebufferPosition++ # Alpha is always 0xFF
+        colorPosition = color << 2 # Each RGBA color is 4B.
+        @framebuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
+        @framebuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
+        @framebuffer[@framePosition++] = RGBA_COLORS[colorPosition]
+        @framePosition++ # Skip alpha because it was already set to 0xFF.
 
     updateScrolling: ->
         @incrementFineYScroll() if @cycle is 256
@@ -384,9 +391,9 @@ class PPU
             for columnNumber in [0...8]
                 x = baseX + columnNumber
                 bitPosition = columnNumber ^ 0x07
-                offsetBit1 =  (layer1Row >> bitPosition) & 0x01
-                offsetBit2 = ((layer2Row >> bitPosition) & 0x01) << 1
-                color = @read 0x3F00 | offsetBit1 | offsetBit2
+                colorSelect1 =  (layer1Row >> bitPosition) & 0x01
+                colorSelect2 = ((layer2Row >> bitPosition) & 0x01) << 1
+                color = @read 0x3F00 | colorSelect2 | colorSelect1
                 @setFramePixelOnPosition x, y, color
 
     renderPalettes: ->
