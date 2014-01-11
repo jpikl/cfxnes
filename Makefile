@@ -40,7 +40,7 @@ compile: init
 	coffee --compile --output $(BUILD_DIR) $(SRC_DIR)
 
 bundle: compile
-	coffee tools/bundle.coffee --directory $(BUILD_DIR) $(INCLUDES) --entry $(MAIN_FILE) --output $(BUNDLE_FILE)
+	coffee tools/Bundler.coffee --directory $(BUILD_DIR) --entry $(MAIN_FILE) --output $(BUNDLE_FILE) $(INCLUDES)
 
 optimize: bundle
 	cd $(BUILD_DIR) && closure --compilation_level $(OPT_LEVEL) $(BUNDLE_FILE) > $(OPT_FILE)
