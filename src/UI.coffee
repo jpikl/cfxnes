@@ -32,6 +32,9 @@ $(document).ready ->
         fps = " " + fps if fps.length == 1
         $("#fps-value").html fps
 
+    @setVideoDebug = (enabled) ->
+        nesCoffee.setVideoDebug enabled
+
     ###########################################################
     # Controllers selection & binding
     ###########################################################
@@ -83,6 +86,7 @@ $(document).ready ->
     insertCartridge = (arrayBuffer) ->
         try
             nesCoffee.insertCartridge arrayBuffer
+            nesCoffee.pressPower()
         catch error
             alert error
 

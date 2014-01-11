@@ -282,23 +282,22 @@ class PPU
             # XXXXX = coarse X scroll (x position of rendered tile in name table)
             # $2.NNYY.YYYX.XXXX is pointer into active name table,
             # where is saved currently rendered background tile (pattern number).
-            patternNumberAddress = 0x2000 | (@vramAddress & 0x0FFF)
-            patternNumer = @read patternNumberAddress
+            patternNumer = @read 0x2000 | (@vramAddress & 0x0FFF)
             # Based on control bit, we select 1 of 2 pattern tables (0x0000 or 0x1000).
             # Then we find address of pattern inside this table (each pattern has 16B).
             patternTableAddress = @backgroundPatternTableIndex << 24
             patternAddress = patternTableAddress + (patternNumer << 4)
-            # Each pattern consists from two 8x8 bit matrixes (16B).
-            # Each 8x8 matrix is a bitmap containing 1 of 2 lower color bits.
-            # We read 1 bit from each bitmap on position specified by fine X,Y scroll.
+            # Each pattern consists from two 8x8 bit matrices (total 16B).
+            # Each 8x8 matrix is a bitmap defining 1 bit of a color of pattern's pixels.
+            # We read 1 bit from each bitmap on position specified by fine X, Y scroll.
             fineYScroll = (@vramAddress >>> 12) & 0x07
             colorBit1RowAddress = patternAddress + fineYScroll
-            colorBit2RowAddress = colorBit1RowAddress + 0x08
+            colorBit2RowAddress = colorBit1RowAddress + 8
             @colorBit1Row = @read colorBit1RowAddress
             @colorBit2Row = @read colorBit2RowAddress
-        inverseFineXScroll = @fineXScroll ^ 0x07 # inverseFineScrollX = 7 - fineXScroll
-        colorBit1 =  (@colorBit1Row >>> inverseFineXScroll) & 0x01
-        colorBit2 = ((@colorBit2Row >>> inverseFineXScroll) & 0x01) << 1
+        colorBitNumber = @fineXScroll ^ 0x07 # 7 - fineXScroll
+        colorBit1 =  (@colorBit1Row >>> colorBitNumber) & 0x01
+        colorBit2 = ((@colorBit2Row >>> colorBitNumber) & 0x01) << 1
         # Optimization - we compute this only when coarse scroll X was incremented 4 times.
         if (@vramAddress & 0x0003) is 0 or @frameStart
             # We compute pointer to attribute table as $2.NN11.11YY.Y.XXX
@@ -308,15 +307,15 @@ class PPU
             attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
             attributeAddress = attributeTableAddress + attributeNumber
             attribute = @read attributeAddress
-            # Attribute has format $3322.1100. where 00, 11, 22, 33 are two upper color bits
+            # Attribute has format $3322.1100. where 00, 11, 22, 33 contains palette number
             # for one of 2x2 subarea of the 4x4 tile area.
             # We have to find in which subarea are we in. This is decided by bit 1 of YYYYY and XXXXX values.
             subareaNumber = (@vramAddress >>> 5) & 0x02 | (@vramAddress >>> 1) & 0x01
-            @colorBits43 = ((attribute >>> subareaNumber) & 0x03) << 2
-        # This 4-bit color value is actualy index to background color palette,
-        # so we have to read 1 of 16 entries from that palette.
-        color = @colorBits43 | colorBit2 | colorBit1
-        @read 0x3F00 + color
+            @paletteOffset = ((attribute >>> subareaNumber) & 0x03) << 2
+        # The result color address has the following structure : 111.1111.0000.PPCC
+        # PP = palette number
+        # CC = color number
+        @read 0x3F00 | @paletteOffset | colorBit2 | colorBit1
 
     renderSpritePixel: ->
         color = 0 # TODO implement sprite rendering
@@ -352,9 +351,62 @@ class PPU
 
     readFrame: ->
         @frameAvailable = false
+        @renderDebugFrame() if @debugMode # Rewrites the current frame.
         @framebuffer
 
     isFrameAvailable: ->
         @frameAvailable
+
+    ###########################################################
+    # Debug rendering
+    ###########################################################
+
+    setDebugMode: (enabled) ->
+        @debugMode = enabled
+
+    renderDebugFrame: ->
+        @renderPatterns()
+        @renderPalettes()
+
+    renderPatterns: ->
+        for tileY in [0...16]
+            baseY = tileY << 3
+            for tileX in [0...32]
+                baseX = tileX << 3
+                address = ((tileX & 0x10) << 4 | tileY << 4 | tileX & 0x0F) << 4
+                @renderPatternTile baseX, baseY, address
+
+    renderPatternTile: (baseX, baseY, address) ->
+        for rowNumber in [0...8]
+            y = baseY + rowNumber
+            layer1Row = @read address + rowNumber
+            layer2Row = @read address + rowNumber + 8
+            for columnNumber in [0...8]
+                x = baseX + columnNumber
+                bitPosition = columnNumber ^ 0x07
+                offsetBit1 =  (layer1Row >> bitPosition) & 0x01
+                offsetBit2 = ((layer2Row >> bitPosition) & 0x01) << 1
+                color = @read 0x3F00 | offsetBit1 | offsetBit2
+                @setFramePixelOnPosition x, y, color
+
+    renderPalettes: ->
+        for tileY in [0...4]
+            baseY = 128 + tileY * 28
+            for tileX in [0...8]
+                baseX = tileX << 5
+                color = @read 0x3F00 | (tileY << 3) | tileX
+                @renderPaletteTile baseX, baseY, color
+
+    renderPaletteTile: (baseX, baseY, color) ->
+        for y in [baseY ... baseY + 28]
+            for x in [baseX ... baseX + 32]
+                @setFramePixelOnPosition x, y, color        
+
+    setFramePixelOnPosition: (x, y, color) ->
+        colorPosition = color << 2
+        framePosition = ((y << 8) + x) << 2
+        @framebuffer[framePosition++] = RGBA_COLORS[colorPosition++]
+        @framebuffer[framePosition++] = RGBA_COLORS[colorPosition++]
+        @framebuffer[framePosition++] = RGBA_COLORS[colorPosition++]
 
 module.exports = PPU

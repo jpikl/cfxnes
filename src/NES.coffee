@@ -52,4 +52,7 @@ class NES
     step: ->
         @cpu.step()
 
+    setVideoDebug: (enabled) ->
+        @ppu.setDebugMode enabled
+
 module.exports = NES

@@ -29,6 +29,8 @@
             </select>
             <label for="fps-value">FPS:</label>
             <span id="fps-value"></span>
+            <input id="video-debug" type="checkbox" onchange="setVideoDebug(this.checked)"/>
+            <label for="video-debug">Show patterns and palettes</label>
         </div>
         <div class="section">
             <button onclick="$('#rom-file-input').click()">Open ROM file</button> 

@@ -144,7 +144,7 @@ class @NESCoffee
         @emulationFPS
 
     ###########################################################
-    # Video rendering
+    # Video output
     ###########################################################
 
     renderFrame: ->
@@ -169,6 +169,9 @@ class @NESCoffee
         @canvas.height = scale * SCREEN_HEIGHT
         @canvasScale = scale
         @drawFrame()
+
+    setVideoDebug: (enabled) ->
+        @nes.setVideoDebug enabled
 
     ###########################################################
     # Zapper light detection

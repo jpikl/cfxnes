@@ -14,7 +14,7 @@ label {
     margin-right: auto;
 }
 
-#video-scale {
+#video-scale, #fps-value {
     margin-right: 15px;
 }
 
