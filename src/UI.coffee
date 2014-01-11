@@ -86,7 +86,8 @@ $(document).ready ->
     insertCartridge = (arrayBuffer) ->
         try
             nesCoffee.insertCartridge arrayBuffer
-            nesCoffee.pressPower()
+            document.pressPower()
+            document.startEmulator() if not nesCoffee.isRunning()
         catch error
             alert error
 
