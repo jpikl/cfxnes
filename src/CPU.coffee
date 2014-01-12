@@ -65,7 +65,7 @@ class CPU
     ###########################################################
 
     resolveInterrupt: ->
-        if @requestedInterrupt? and not @isRequestedInterruptDisabled()
+        if @requestedInterrupt isnt null and not @isRequestedInterruptDisabled()
             switch @requestedInterrupt
                 when Interrupt.IRQ   then @handleIRQ()
                 when Interrupt.NMI   then @handleNMI()
@@ -609,8 +609,7 @@ class CPU
         @writeByte address, value
 
     addValueToAccumulator: (operand) ->
-        result = @accumulator + operand
-        result++ if @carryFlag
+        result = @accumulator + operand + @carryFlag
         @carryFlag = (result >>> 8) & 0x01
         @overflowFlag = (((@accumulator ^ result) & (operand ^ result)) >>> 7) & 0x01 # Signed overflow
         @storeValueIntoAccumulator result & 0xFF
@@ -637,17 +636,14 @@ class CPU
             @storeValueIntoAccumulator result
 
     rotateLeft: (value, transferCarry) =>
-        value <<= 1
-        value |= 0x01 if transferCarry and @carryFlag
+        value = value << 1 | transferCarry & @carryFlag
         @carryFlag = value >>> 8
         value & 0xFF
 
     rotateRight: (value, transferCarry) =>
         oldCarryFlag = @carryFlag
         @carryFlag = value & 0x01
-        value >>>= 1
-        value |= 0x80 if transferCarry and oldCarryFlag
-        value & 0xFF
+        value >>> 1 | (transferCarry & oldCarryFlag) << 7
 
     updateZeroAndNegativeFlag: (value) ->
         @zeroFlag = (value & 0xFF) == 0
