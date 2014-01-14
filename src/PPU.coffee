@@ -44,22 +44,26 @@ class PPU
         @resetVariables()
 
     resetOAM: ->
-        @objectAttributeMemory = (0 for [0..0x100]) # 256B
+        @objectAttributeMemory = (0 for [0..0x100])  # 256B
 
     resetRegisters: ->
-        @setControl 0       #  8-bit
-        @setMask 0          #  8-bit
-        @setStatus 0        #  8-bit
-        @oamAddress = 0     # 15-bit
-        @tempAddress = 0    # 15-bit also known as 'Loopy_T'
-        @vramAddress = 0    # 15-bit also known as 'Loopy_V'
-        @vramReadBuffer = 0 #  8-bit
-        @writeToogle = 0    #  1-bit        
-        @fineXScroll = 0    #  3-bit
+        @setControl 0        #  8-bit
+        @setMask 0           #  8-bit
+        @setStatus 0         #  8-bit
+        @oamAddress = 0      # 15-bit
+        @tempAddress = 0     # 15-bit also known as 'Loopy_T'
+        @vramAddress = 0     # 15-bit also known as 'Loopy_V'
+        @vramReadBuffer = 0  #  8-bit
+        @writeToogle = 0     #  1-bit        
+        @fineXScroll = 0     #  3-bit
+        @tempFineXScroll = 0 #  3-bit
 
     resetVariables: ->
         @scanline = -1 # Total 262+1 scanlines (-1..261)
         @cycle = 0     # Total 341 cycles per scanline (0..340)
+        @spriteAddresses = []
+        @spriteZeroRendered = false
+        @spriteInFront = false
 
     ###########################################################
     # Control register
@@ -123,7 +127,9 @@ class PPU
         @oamAddress = address
 
     readOAMData: ->
-        @objectAttributeMemory[@oamAddress] # Read does not increment the address.
+        value = @objectAttributeMemory[@oamAddress]   # Read does not increment the address.
+        value &= 0xE3 if (@oamAddress & 0x03) is 0x02 # Clear bits 2-4 when reading byte 2 of a sprite (these bits are not stored in OAM).
+        value
 
     writeOAMData: (value) ->
         @objectAttributeMemory[@oamAddress] = value if not @isRenderingInProgress()
@@ -202,7 +208,7 @@ class PPU
     writeScroll: (value) ->
         @writeToogle = not @writeToogle
         if @writeToogle # 1st write (x scroll)
-            @fineXScroll = value & 0x07
+            @tempFineXScroll = value & 0x07
             coarseXScroll = value >>> 3
             @tempAddress = (@tempAddress & 0xFFE0) | coarseXScroll
         else            # 2nd write (y scroll)
@@ -212,6 +218,7 @@ class PPU
         value
 
     copyHorizontalScrollBits: ->
+        @fineXScroll = @tempFineXScroll
         @vramAddress = (@vramAddress & 0x7BE0) | (@tempAddress & 0x041F) # V[10,4-0] = T[10,4-0]
 
     copyVerticalScrollBits: ->
@@ -253,7 +260,7 @@ class PPU
 
     tick: ->
         @startFrame() if @isFirstRenderingCycle()
-        @renderFramePixel() if @isRenderingCycle()
+        @updateFramePixel() if @isRenderingCycle()
         @updateScrolling() if @isRenderingInProgress()
         @incrementCycle()
 
@@ -272,17 +279,74 @@ class PPU
     isRenderingEnabled: ->
         @spritesVisible or @backgroundVisible
 
+    isFrameAvailable: ->
+        @frameAvailable
+
     startFrame: ->
         @framePosition = 0
-        @fetchCurrentPattern()
-        @fetchCurrentAttribute()
-        @fetchCurrentPalette()
+        @fetchPattern()
+        @fetchAttribute()
+        @fetchPalette()
+
+    readFrame: ->
+        @frameAvailable = false
+        @renderDebugFrame() if @debugMode # Rewrites the current frame.
+        @framebuffer
+
+    updateFramePixel: ->
+        colorAddress = 0x3F00 | @renderFramePixel()
+        @setFramePixel @read colorAddress
+
+    setFramePixel: (color) ->
+        colorPosition = color << 2 # Each RGBA color is 4B.
+        @framebuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
+        @framebuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
+        @framebuffer[@framePosition++] = RGBA_COLORS[colorPosition]
+        @framePosition++ # Skip alpha because it was already set to 0xFF.
 
     renderFramePixel: ->
-        backgroundColor = @renderBackgroundPixel() if @backgroundVisible
-        spriteColor = @renderSpritePixel() if @spritesVisible
-        @setFramePixel backgroundColor or 0 # TODO rendering priority
+        backgroundColor = if @backgroundVisible then @renderBackgroundPixel() else 0
+        spriteColor = if @spritesVisible then @renderSpritePixel() else 0
+        if (spriteColor & 0x03) and (backgroundColor & 0x03) # Both bagckground and sprite pixels are visible
+            @spriteZeroHit |= @spriteZeroRendered
+            if @spriteInFront then spriteColor else backgroundColor
+        else if spriteColor & 0x03 # Sprite pixel is visible
+            spriteColor
+        else
+            backgroundColor
 
+    updateScrolling: ->
+        @incrementFineYScroll() if @cycle is 256
+        @incrementFineXScroll() if 1 <= @cycle <= 256
+        @copyHorizontalScrollBits() if @cycle is 257
+        @copyVerticalScrollBits() if @scanline is -1 and 280 <= @cycle <= 304
+
+    incrementCycle: ->
+        @cycle++
+        @incementScanline() if @cycle is 341
+
+    incementScanline: ->
+        @cycle = 0
+        @scanline++
+        if @scanline is 241
+            @enterVBlank()
+        else if @scanline is 262
+            @leaveVBlank()
+
+    enterVBlank: ->
+        @vblankStarted = 1
+        @frameAvailable = true
+        @cpu.nonMaskableInterrupt() if @vblankGeneratesNMI
+
+    leaveVBlank: ->
+        @vblankStarted = 0
+        @spriteZeroHit = 0
+        @scanline = -1
+
+    ###########################################################
+    # Background rendering
+    ###########################################################
+    
     # Colors are saved at addresses with structure 0111.1111.000S.PPCC.
     #    S = 0 for background, 1 for sprites
     #   PP = palette number
@@ -321,70 +385,80 @@ class PPU
     #    X = bit 1 of XXXXX
 
     renderBackgroundPixel: ->
-        @fetchCurrentPattern() if @fineXScroll is 0 # When coarse scroll X was incremented.
+        @fetchPattern() if @fineXScroll is 0 # When coarse scroll X was incremented.
         bitNumber = @fineXScroll ^ 0x07 # 7 - fineXScroll
         colorSelect1 =  (@patternLayer1Row >>> bitNumber) & 0x01
         colorSelect2 = ((@patternLayer2Row >>> bitNumber) & 0x01) << 1
-        @read 0x3F00 | @paletteSelect | colorSelect2 | colorSelect1
+        0x3F00 | @paletteSelect | colorSelect2 | colorSelect1
 
-    fetchCurrentPattern: ->
+    fetchPattern: ->
+        @fetchPalette() if (@vramAddress & 0x0001) is 0 # When coarse scroll was incremented by 2
         patternNumer = @read 0x2000 | @vramAddress & 0x0FFF
         patternTableAddress = @backgroundPatternTableIndex << 12
         patternAddress = patternTableAddress + (patternNumer << 4)
         fineYScroll = (@vramAddress >>> 12) & 0x07
         @patternLayer1Row = @read patternAddress + fineYScroll
         @patternLayer2Row = @read patternAddress + fineYScroll + 8
-        @fetchCurrentPalette() if (@vramAddress & 0x0001) is 0 # When coarse scroll was incremented by 2
 
-    fetchCurrentPalette: ->
-        @fetchCurrentAttribute() if (@vramAddress & 0x0002) is 0 # When coarse scroll was incremented by 4
+    fetchPalette: ->
+        @fetchAttribute() if (@vramAddress & 0x0002) is 0 # When coarse scroll was incremented by 4
         areaSelect = (@vramAddress >>> 4) & 0x04 | @vramAddress & 0x02
         @paletteSelect = ((@attribute >>> areaSelect) & 0x03) << 2
 
-    fetchCurrentAttribute: ->
+    fetchAttribute: ->
         attributeTableAddress = 0x23C0 | @vramAddress & 0x0C00
         attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
         @attribute = @read attributeTableAddress + attributeNumber
 
+    ###########################################################
+    # Sprite rendering
+    ###########################################################
+
     renderSpritePixel: ->
-        color = 0 # TODO implement sprite rendering
-        @read 0x3F10 + color
+        # TODO rewrite and optimize this
+        @fetchSprites() if @cycle is 1
+        @spriteZeroRendered = false
+        currentX = @cycle
+        currentY = @scanline
+        heightMask = if @bigSprites then 0x0F else 0x07
+        for address in @spriteAddresses
+            innerX = currentX - @objectAttributeMemory[address + 3]
+            if 0 <= innerX <= 7
+                innerY = currentY - @objectAttributeMemory[address]
+                tile = @objectAttributeMemory[address + 1]
+                attributes = @objectAttributeMemory[address + 2]
+                innerX ^= 0x07 if not (attributes & 0x40)
+                innerY ^= heightMask if attributes & 0x80
+                patternTableIndex = if @bigSprites then tile & 0x01 else @spritesPatternTableIndex
+                patternTableAddress = patternTableIndex << 12
+                patternNumber = tile
+                if innerY >= 8
+                    patternNumber++
+                    innerY -= 8
+                patternAddress = patternTableAddress + (patternNumber << 4)
+                patternLayer1Row = @read patternAddress + innerY
+                patternLayer2Row = @read patternAddress + innerY + 8
+                colorSelect1 =  (patternLayer1Row >>> innerX) & 0x01
+                colorSelect2 = ((patternLayer2Row >>> innerX) & 0x01) << 1
+                colorSelect = colorSelect2 | colorSelect1
+                if colorSelect
+                    @spriteZeroRendered ||= address is 0
+                    @spriteInFront = (attributes & 0x20) is 0
+                    paletteSelect = (attributes & 0x03) << 2
+                    return 0x10 | paletteSelect | colorSelect
+        return 0
 
-    setFramePixel: (color) ->
-        colorPosition = color << 2 # Each RGBA color is 4B.
-        @framebuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
-        @framebuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
-        @framebuffer[@framePosition++] = RGBA_COLORS[colorPosition]
-        @framePosition++ # Skip alpha because it was already set to 0xFF.
-
-    updateScrolling: ->
-        @incrementFineYScroll() if @cycle is 256
-        @incrementFineXScroll() if 1 <= @cycle <= 256
-        @copyHorizontalScrollBits() if @cycle is 257
-        @copyVerticalScrollBits() if @scanline is -1 and 280 <= @cycle <= 304
-
-    incrementCycle: ->
-        @cycle++
-        @incementScanline() if @cycle is 341
-
-    incementScanline: ->
-        @cycle = 0
-        @scanline++
-        if @scanline is 241
-            @vblankStarted = 1
-            @frameAvailable = true
-            @cpu.nonMaskableInterrupt() if @vblankGeneratesNMI
-        else if @scanline is 262
-            @vblankStarted = 0
-            @scanline = -1
-
-    readFrame: ->
-        @frameAvailable = false
-        @renderDebugFrame() if @debugMode # Rewrites the current frame.
-        @framebuffer
-
-    isFrameAvailable: ->
-        @frameAvailable
+    fetchSprites: ->
+        @spriteScalineOverflow = 0
+        @spriteAddresses = []
+        bottomY = @scanline
+        topY = Math.max 0, @scanline - (if @bigSprites then 16 else 8)
+        for spriteY, address in @objectAttributeMemory by 4
+            if topY < spriteY <= bottomY
+                @spriteAddresses.push address
+                if @spriteAddresses.length >= 8
+                    @spriteScalineOverflow = 1
+                    return
 
     ###########################################################
     # Debug rendering
