@@ -90,12 +90,12 @@ class PPU
         value
 
     setMask: (value) ->
-        @monochromeMode            =  value        & 0x01  # M[0]
-        @noSpriteClipping          = (value >>> 1) & 0x01  # M[1]
-        @noBackgroundClipping      = (value >>> 2) & 0x01  # M[2]
-        @backgroundVisible         = (value >>> 3) & 0x01  # M[3]
-        @spritesVisible            = (value >>> 4) & 0x01  # M[4]
-        @backgroundColorsIntensity = (value >>> 5)         # M[7-5]
+        @monochromeMode            =    value        & 0x01  #  M[0]
+        @spriteClipping            = !((value >>> 1) & 0x01) # !M[1]
+        @backgroundClipping        = !((value >>> 2) & 0x01) # !M[2]
+        @backgroundVisible         =   (value >>> 3) & 0x01  #  M[3]
+        @spritesVisible            =   (value >>> 4) & 0x01  #  M[4]
+        @backgroundColorsIntensity =   (value >>> 5)         #  M[7-5]
 
     ###########################################################
     # Status register
@@ -305,8 +305,8 @@ class PPU
         @framePosition++ # Skip alpha because it was already set to 0xFF.
 
     renderFramePixel: ->
-        backgroundColor = if @backgroundVisible then @renderBackgroundPixel() else 0
-        spriteColor = if @spritesVisible then @renderSpritePixel() else 0
+        backgroundColor = @renderBackgroundPixel()
+        spriteColor = @renderSpritePixel()
         if (spriteColor & 0x03) and (backgroundColor & 0x03) # Both bagckground and sprite pixels are visible
             @spriteZeroHit |= @spriteZeroRendered
             if @spriteInFront then spriteColor else backgroundColor
@@ -386,6 +386,7 @@ class PPU
 
     renderBackgroundPixel: ->
         @fetchPattern() if @fineXScroll is 0 # When coarse scroll X was incremented.
+        return 0 if not @backgroundVisible or @cycle < 9 and @backgroundClipping
         bitNumber = @fineXScroll ^ 0x07 # 7 - fineXScroll
         colorSelect1 =  (@patternLayer1Row >>> bitNumber) & 0x01
         colorSelect2 = ((@patternLayer2Row >>> bitNumber) & 0x01) << 1
@@ -417,9 +418,10 @@ class PPU
     renderSpritePixel: ->
         # TODO rewrite and optimize this
         @fetchSprites() if @cycle is 1
+        return 0 if not @spritesVisible or @cycle < 9 and @spriteClipping
         @spriteZeroRendered = false
-        currentX = @cycle
-        currentY = @scanline
+        currentX = @cycle - 1
+        currentY = @scanline - 1
         heightMask = if @bigSprites then 0x0F else 0x07
         for address in @spriteAddresses
             innerX = currentX - @objectAttributeMemory[address + 3]
@@ -451,8 +453,8 @@ class PPU
     fetchSprites: ->
         @spriteScalineOverflow = 0
         @spriteAddresses = []
-        bottomY = @scanline
-        topY = Math.max 0, @scanline - (if @bigSprites then 16 else 8)
+        bottomY = @scanline - 1
+        topY = Math.max 0, bottomY - (if @bigSprites then 16 else 8)
         for spriteY, address in @objectAttributeMemory by 4
             if topY < spriteY <= bottomY
                 @spriteAddresses.push address
