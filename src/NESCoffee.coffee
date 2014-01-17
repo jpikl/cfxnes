@@ -96,7 +96,6 @@ class @NESCoffee
         @binder.bindControl srcDevice, srcButton, callback
 
     replaceUnbindCallback: (port, device, button, srcDevice, srcButton, callback) ->
-        @unbindCallbacks1[port]?[device]?[button]?()
         @unbindCallbacks1[port]?[device]?[button] = callback
         @unbindCallbacks2[srcDevice]?[srcButton]?()
         @unbindCallbacks2[srcDevice]?[srcButton] = callback
