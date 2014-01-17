@@ -386,7 +386,7 @@ class PPU
 
     renderBackgroundPixel: ->
         @fetchPattern() if @fineXScroll is 0 # When coarse scroll X was incremented.
-        return 0 if not @backgroundVisible or @cycle < 9 and @backgroundClipping
+        return 0 if not @backgroundVisible or (@cycle < 9 and @backgroundClipping)
         bitNumber = @fineXScroll ^ 0x07 # 7 - fineXScroll
         colorSelect1 =  (@patternLayer1Row >>> bitNumber) & 0x01
         colorSelect2 = ((@patternLayer2Row >>> bitNumber) & 0x01) << 1
@@ -415,10 +415,23 @@ class PPU
     # Sprite rendering
     ###########################################################
 
+    # Before each scanline, the first 8 visible sprites on that scanline are fetched into
+    # secondary OAM. Each sprite has 4B of data.
+    #
+    # Byte 0 - y screen coordinate (decremented by 1, because rendering of fetched sprites is delayed)
+    # Byte 1 - pattern number PPPP.PPPT (if 8x16 sprites are enabled, bit T selects the pattern table, 
+    #          otherwise it is seleted by bit 4 of control register)
+    # Byte 2 - attributes VHP0.00CC
+    #   V = vertical mirroring enabled
+    #   H = horizontal mirroring enabled
+    #   P = sprite priority (0 - in front of background, 1 - behind background)
+    #   C = color palette number
+    # Byte 3 = x screen coordinate
+
     renderSpritePixel: ->
         # TODO rewrite and optimize this
         @fetchSprites() if @cycle is 1
-        return 0 if not @spritesVisible or @cycle < 9 and @spriteClipping
+        return 0 if not @spritesVisible or (@cycle < 9 and @spriteClipping)
         @spriteZeroRendered = false
         currentX = @cycle - 1
         currentY = @scanline - 1
@@ -427,13 +440,12 @@ class PPU
             innerX = currentX - @objectAttributeMemory[address + 3]
             if 0 <= innerX <= 7
                 innerY = currentY - @objectAttributeMemory[address]
-                tile = @objectAttributeMemory[address + 1]
+                patternNumber = @objectAttributeMemory[address + 1]
                 attributes = @objectAttributeMemory[address + 2]
                 innerX ^= 0x07 if not (attributes & 0x40)
                 innerY ^= heightMask if attributes & 0x80
-                patternTableIndex = if @bigSprites then tile & 0x01 else @spritesPatternTableIndex
+                patternTableIndex = if @bigSprites then patternNumber & 0x01 else @spritesPatternTableIndex
                 patternTableAddress = patternTableIndex << 12
-                patternNumber = tile
                 if innerY >= 8
                     patternNumber++
                     innerY -= 8
