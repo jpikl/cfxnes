@@ -10,7 +10,7 @@ class NES
         @whiteNoise = (0xFF for i in [0 ... 256 * 240 * 4])
 
     ###########################################################
-    # Inputs & controls
+    # Inputs
     ###########################################################
 
     pressPower: ->
@@ -34,7 +34,7 @@ class NES
         @cpuMemory.setInputDevice port, device
 
     ###########################################################
-    # Emulation & video ouput
+    # Video ouput and emulation
     ###########################################################
 
     renderFrame: ->

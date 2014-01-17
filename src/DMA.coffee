@@ -2,29 +2,31 @@
 # Direct memory access unit
 ###########################################################
 
+TOTAL_DMA_CYCLES = 0x200 # Total 512 CPU cycles for DMA transfer.
+
 class DMA
 
     @inject: [ "cpuMemory" ]
 
     powerUp: ->
-        @cycle = 0x200
+        @cyclesCount = TOTAL_DMA_CYCLES
 
     writeAddress: (address) ->
-        @cycle = 0
+        @cyclesCount = 0
         @baseAddress = address << 8 # Source memory address (multiplied by 0x100)
         @cpuMemory.write 0x2003, 0  # Destination OAM address
         address
 
     tick: ->
         if @isTransferInProgress()
-            @cycle++
-            @transferData() if @cycle & 0x01  # Each even cycle.
+            @cyclesCount++
+            @transferData() if @cyclesCount & 1  # Each even cyclesCount.
 
     isTransferInProgress: ->
-        @cycle < 0x200 # Total 512 CPU cycles.
+        @cyclesCount < TOTAL_DMA_CYCLES 
 
     transferData: ->
-        address = @baseAddress + (@cycle >> 1)
+        address = @baseAddress + (@cyclesCount >> 1)
         data = @cpuMemory.read address
         @cpuMemory.write 0x2004, data # Automatically increments destination address
 

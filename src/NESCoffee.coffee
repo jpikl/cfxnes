@@ -17,6 +17,10 @@ joypadButtonToId =
     "left":   Joypad.BUTTON_LEFT
     "right":  Joypad.BUTTON_RIGHT
 
+###########################################################
+# NESCoffee main class
+###########################################################
+
 class @NESCoffee
 
     constructor: (@canvas) ->
@@ -116,7 +120,7 @@ class @NESCoffee
         @binder.recordInput callback
 
     ###########################################################
-    # Emulation main loop
+    # Emulation
     ###########################################################
 
     start: ->

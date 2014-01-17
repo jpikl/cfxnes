@@ -90,7 +90,7 @@ class CPUMemory
         @inputDevices[port]?.read() or 0
 
     writeInputDevice: (value) ->
-        strobe = value & 0x01
+        strobe = value & 1
         if strobe and not @inputDevicesStrobe
             @inputDevices[1]?.strobe()
             @inputDevices[2]?.strobe()

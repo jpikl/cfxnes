@@ -7,7 +7,7 @@ TVSystem       = Types.TVSystem
 INES_SIGNATURE = [ 0x4E, 0x45, 0x53, 0x1A ] # "NES^Z"
 
 ###########################################################
-# Loader for iNES ROM format
+# Loader for the iNES ROM format
 ###########################################################
 
 class INESLoader extends AbstractLoader

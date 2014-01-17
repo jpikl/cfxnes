@@ -1,5 +1,5 @@
 ###########################################################
-# Factory for loaders
+# Factory for loader creation
 ###########################################################
 
 class LoaderFactory

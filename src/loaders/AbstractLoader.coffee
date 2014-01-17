@@ -1,5 +1,5 @@
 ###########################################################
-# Base implementation for all loaders
+# Base class for all loaders
 ###########################################################
 
 class AbstractLoader

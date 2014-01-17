@@ -1,5 +1,5 @@
 ###########################################################
-# Factory for mappers
+# Factory for mapper creation
 ###########################################################
 
 class MapperFactory

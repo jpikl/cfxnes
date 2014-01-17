@@ -28,6 +28,10 @@ getKeyDescription = (key) ->
 getButtonDescription = (button) ->
     button[0].toUpperCase() + button[1..] + " mouse button"
 
+###########################################################
+# Keyboard/mouse event handler and mapper
+###########################################################
+
 class Binder
 
     constructor: (@getMouseRect) ->

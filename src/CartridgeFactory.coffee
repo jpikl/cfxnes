@@ -1,5 +1,5 @@
 ###########################################################
-# Factory for cartridges
+# Factory for cartridge creation
 ###########################################################
 
 class CartridgeFactory

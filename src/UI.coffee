@@ -36,7 +36,7 @@ $(document).ready ->
         nesCoffee.setVideoDebug enabled
 
     ###########################################################
-    # Controllers selection & binding
+    # Controls
     ###########################################################
 
     @setController = (port, device) ->
