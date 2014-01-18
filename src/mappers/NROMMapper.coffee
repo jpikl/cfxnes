@@ -41,17 +41,20 @@ class NROMMapper
 
     cpuWrite: (address, value) ->
         switch
-            when address >= 0x8000 then value # Read-only
+            when address >= 0x8000 then @writeROM address, value
             when address >= 0x6000 then @writeSRAM address, value
             when address >= 0x4020 then @writeEXRAM address, value
             else throw "Illegal state (CPU is trying to write to 0x#{wordAsHex address} using MMC)."
 
     ###########################################################
-    # ROM reading
+    # ROM reading / writing
     ###########################################################
 
     readROM: (address) ->
         @romBanks[@getROMBank address][@getROMOffset address]
+
+    writeROM: (address, value) ->
+         value # Read-only
 
     getROMBank: (address) ->
         if address < 0xC000 or @romBanks.length == 1 then 0 else 1
