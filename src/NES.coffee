@@ -33,6 +33,9 @@ class NES
     connectInputDevice: (port, device) ->
         @cpuMemory.setInputDevice port, device
 
+    getConnectedInputDevice: (port) ->
+        @cpuMemory.getInputDevice port
+
     ###########################################################
     # Video ouput and emulation
     ###########################################################

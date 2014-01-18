@@ -86,6 +86,9 @@ class CPUMemory
     setInputDevice: (port, device) ->
         @inputDevices[port] = device
 
+    getInputDevice: (port) ->
+        @inputDevices[port]
+
     readInputDevice: (port) ->
         @inputDevices[port]?.read() or 0
 

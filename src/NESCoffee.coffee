@@ -1,6 +1,5 @@
 Injector = require "./utils/Injector"
 Joypad   = require "./controllers/Joypad"
-Zapper   = require "./controllers/Zapper"
 Binder   = require "./Binder"
 
 SCREEN_FPS    = 60.0988
@@ -51,12 +50,12 @@ class @NESCoffee
             @framebuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
 
     initConsole: ->
-        injector = new Injector "./config/BaseConfig"
-        @nes = injector.getInstance "nes"
-        @cartridgeFactory = injector.getInstance "cartridgeFactory"
+        @injector = new Injector "./config/BaseConfig"
+        @nes = @injector.getInstance "nes"
+        @cartridgeFactory = @injector.getInstance "cartridgeFactory"
         @inputDevices =
-            1: { joypad: injector.getInstance("joypad"), zapper: injector.getInstance("zapper") }
-            2: { joypad: injector.getInstance("joypad"), zapper: injector.getInstance("zapper") }
+            1: { joypad: @injector.getInstance("joypad"), zapper: @injector.getInstance("zapper") }
+            2: { joypad: @injector.getInstance("joypad"), zapper: @injector.getInstance("zapper") }
 
     initControls: ->
         @binder = new Binder @getCanvasRect
@@ -82,6 +81,12 @@ class @NESCoffee
     connectInputDevice: (port, device) ->
         device = @inputDevices[port]?[device] or null
         @nes.connectInputDevice port, device
+
+    getConnectedInputDevice: (port) ->
+        device = @nes.getConnectedInputDevice port
+        if      device instanceof @injector.getClass "joypad" then "joypad"
+        else if device instanceof @injector.getClass "zapper" then "zapper"
+        else    null
 
     ###########################################################
     # Controls binding

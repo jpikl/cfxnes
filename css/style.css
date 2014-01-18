@@ -26,6 +26,10 @@ label {
     display: none;
 }
 
+.zapper-area {
+    cursor: crosshair;
+}
+
 .hidden {
     display: none !important;
 }

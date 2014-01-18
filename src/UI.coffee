@@ -45,6 +45,18 @@ $(document).ready ->
         $("#joypad-" + port).addClass "hidden"
         $("#zapper-" + port).addClass "hidden"
         $("#" + device + "-" + port).removeClass "hidden"
+        resetZapperCursor()
+
+    resetZapperCursor = ->
+        if isZapperConnected()
+            $("#video-output").addClass "zapper-area"
+        else
+            $("#video-output").removeClass "zapper-area"
+
+    isZapperConnected = ->
+        device1 = nesCoffee.getConnectedInputDevice 1
+        device2 = nesCoffee.getConnectedInputDevice 2
+        device1 is "zapper" or device2 is "zapper"
 
     @bindControl = bindControl = (port, device, button, srcDevice, srcButton) ->
         labelId = "#" + device + "-" + port + "-" + button
