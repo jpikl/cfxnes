@@ -44,26 +44,25 @@ class PPU
         @resetVariables()
 
     resetOAM: ->
-        @objectAttributeMemory = (0 for [0..0x100])  # 256B
+        @primaryOAM = (0 for [0..0x100])  # 256B
+        @secondaryOAM = []
 
     resetRegisters: ->
-        @setControl 0        #  8-bit
-        @setMask 0           #  8-bit
-        @setStatus 0         #  8-bit
-        @oamAddress = 0      # 15-bit
-        @tempAddress = 0     # 15-bit also known as 'Loopy_T'
-        @vramAddress = 0     # 15-bit also known as 'Loopy_V'
-        @vramReadBuffer = 0  #  8-bit
-        @writeToogle = 0     #  1-bit        
-        @fineXScroll = 0     #  3-bit
-        @tempFineXScroll = 0 #  3-bit
+        @setControl 0       #  8-bit
+        @setMask 0          #  8-bit
+        @setStatus 0        #  8-bit
+        @oamAddress = 0     # 15-bit
+        @tempAddress = 0    # 15-bit also known as 'Loopy_T'
+        @vramAddress = 0    # 15-bit also known as 'Loopy_V'
+        @vramReadBuffer = 0 #  8-bit
+        @writeToogle = 0    #  1-bit
+        @fineXScroll = 0    #  3-bit
+        @tempXScroll = 0    #  3-bit
 
     resetVariables: ->
         @scanline = -1 # Total 262+1 scanlines (-1..261)
         @cycle = 0     # Total 341 cycles per scanline (0..340)
-        @spriteAddresses = []
-        @spriteZeroRendered = false
-        @spriteInFront = false
+        @renderedSprite = null
 
     ###########################################################
     # Control register
@@ -75,11 +74,11 @@ class PPU
         value
 
     setControl: (value) ->
-        @bigAddressIncrement         = (value >>> 2) & 0x01 # C[2]
-        @spritesPatternTableIndex    = (value >>> 3) & 0x01 # C[3]
-        @backgroundPatternTableIndex = (value >>> 4) & 0x01 # C[4]
-        @bigSprites                  = (value >>> 5) & 0x01 # C[5]
-        @vblankGeneratesNMI          = (value >>> 7)        # C[7]
+        @bigAddressIncrement   = (value >>> 2) & 1      # C[2]
+        @spPatternTableAddress = (value  << 9) & 0x1000 # C[3] -> 0x0000 / 0x1000
+        @bgPatternTableAddress = (value  << 8) & 0x1000 # C[4] -> 0x0000 / 0x1000
+        @bigSprites            = (value >>> 5) & 1      # C[5]
+        @vblankGeneratesNMI    = (value >>> 7)          # C[7]
 
     ###########################################################
     # Mask register
@@ -90,12 +89,14 @@ class PPU
         value
 
     setMask: (value) ->
-        @monochromeMode            =    value        & 0x01  #  M[0]
-        @spriteClipping            = !((value >>> 1) & 0x01) # !M[1]
-        @backgroundClipping        = !((value >>> 2) & 0x01) # !M[2]
-        @backgroundVisible         =   (value >>> 3) & 0x01  #  M[3]
-        @spritesVisible            =   (value >>> 4) & 0x01  #  M[4]
-        @backgroundColorsIntensity =   (value >>> 5)         #  M[7-5]
+        @monochromeMode     =    value        & 1  #  M[0]
+        @backgroundClipping = !((value >>> 1) & 1) # !M[1]
+        @spriteClipping     = !((value >>> 2) & 1) # !M[2]
+        @backgroundVisible  =   (value >>> 3) & 1  #  M[3]
+        @spritesVisible     =   (value >>> 4) & 1  #  M[4]
+        @intensifyReds      =   (value >>> 5) & 1  #  M[5]
+        @intensifyGreens    =   (value >>> 6) & 1  #  M[6]
+        @intensifyBlues     =   (value >>> 7)     #   M[7]
 
     ###########################################################
     # Status register
@@ -114,10 +115,10 @@ class PPU
         @vblankStarted         << 7   # S[7]
 
     setStatus: (value) ->
-        @vramWritesIgnored     = (value >>> 4) & 0x01 # S[4]
-        @spriteScalineOverflow = (value >>> 5) & 0x01 # S[5]
-        @spriteZeroHit         = (value >>> 6) & 0x01 # S[6]
-        @vblankStarted         = (value >>> 7)        # S[7]
+        @vramWritesIgnored     = (value >>> 4) & 1 # S[4]
+        @spriteScalineOverflow = (value >>> 5) & 1 # S[5]
+        @spriteZeroHit         = (value >>> 6) & 1 # S[6]
+        @vblankStarted         = (value >>> 7)     # S[7]
 
     ###########################################################
     # Object attribute memory access
@@ -127,12 +128,12 @@ class PPU
         @oamAddress = address
 
     readOAMData: ->
-        value = @objectAttributeMemory[@oamAddress]   # Read does not increment the address.
-        value &= 0xE3 if (@oamAddress & 0x03) is 0x02 # Clear bits 2-4 when reading byte 2 of a sprite (these bits are not stored in OAM).
+        value = @primaryOAM[@oamAddress]   # Read does not increment the address.
+        value &= 0xE3 if (@oamAddress & 0x03) is 2 # Clear bits 2-4 when reading byte 2 of a sprite (these bits are not stored in OAM).
         value
 
     writeOAMData: (value) ->
-        @objectAttributeMemory[@oamAddress] = value if not @isRenderingInProgress()
+        @primaryOAM[@oamAddress] = value if not @isRenderingInProgress()
         @oamAddress = (@oamAddress + 1) & 0xFF # Write always increments the address.
         value
 
@@ -158,8 +159,8 @@ class PPU
         if @isPalleteAddress address then @vramReadBuffer else oldBufferContent # Delayed read outside the pallete memory area
 
     writeData: (value) ->
-        address = @incrementAddress()                                   # Always increments the address
-        @ppuMemory.write address, value if not @isRenderingInProgress() # Only during VBLANK or disabled rendering
+        address = @incrementAddress()                         # Always increments the address
+        @write address, value if not @isRenderingInProgress() # Only during VBLANK or disabled rendering
         value
 
     incrementAddress: ->
@@ -168,7 +169,7 @@ class PPU
         previousAddress
 
     getAddressIncrement: ->
-        if @bigAddressIncrement then 0x20 else 0x01
+        if @bigAddressIncrement then 0x20 else 0x01 # Vertical/horizontal move in pattern table.
 
 
     ###########################################################
@@ -208,7 +209,7 @@ class PPU
     writeScroll: (value) ->
         @writeToogle = not @writeToogle
         if @writeToogle # 1st write (x scroll)
-            @tempFineXScroll = value & 0x07
+            @tempXScroll = value & 0x07
             coarseXScroll = value >>> 3
             @tempAddress = (@tempAddress & 0xFFE0) | coarseXScroll
         else            # 2nd write (y scroll)
@@ -218,7 +219,7 @@ class PPU
         value
 
     copyHorizontalScrollBits: ->
-        @fineXScroll = @tempFineXScroll
+        @fineXScroll = @tempXScroll
         @vramAddress = (@vramAddress & 0x7BE0) | (@tempAddress & 0x041F) # V[10,4-0] = T[10,4-0]
 
     copyVerticalScrollBits: ->
@@ -308,8 +309,8 @@ class PPU
         backgroundColor = @renderBackgroundPixel()
         spriteColor = @renderSpritePixel()
         if (spriteColor & 0x03) and (backgroundColor & 0x03) # Both bagckground and sprite pixels are visible
-            @spriteZeroHit |= @spriteZeroRendered
-            if @spriteInFront then spriteColor else backgroundColor
+            @spriteZeroHit ||= @renderedSprite.zeroSprite
+            if @renderedSprite.inFront then spriteColor else backgroundColor
         else if spriteColor & 0x03 # Sprite pixel is visible
             spriteColor
         else
@@ -387,16 +388,15 @@ class PPU
     renderBackgroundPixel: ->
         @fetchPattern() if @fineXScroll is 0 # When coarse scroll X was incremented.
         return 0 if not @backgroundVisible or (@cycle < 9 and @backgroundClipping)
-        bitNumber = @fineXScroll ^ 0x07 # 7 - fineXScroll
-        colorSelect1 =  (@patternLayer1Row >>> bitNumber) & 0x01
-        colorSelect2 = ((@patternLayer2Row >>> bitNumber) & 0x01) << 1
+        columnNumber = @fineXScroll ^ 0x07 # 7 - fineXScroll
+        colorSelect1 =  (@patternLayer1Row >>> columnNumber) & 1
+        colorSelect2 = ((@patternLayer2Row >>> columnNumber) & 1) << 1
         0x3F00 | @paletteSelect | colorSelect2 | colorSelect1
 
     fetchPattern: ->
         @fetchPalette() if (@vramAddress & 0x0001) is 0 # When coarse scroll was incremented by 2
         patternNumer = @read 0x2000 | @vramAddress & 0x0FFF
-        patternTableAddress = @backgroundPatternTableIndex << 12
-        patternAddress = patternTableAddress + (patternNumer << 4)
+        patternAddress = @bgPatternTableAddress + (patternNumer << 4)
         fineYScroll = (@vramAddress >>> 12) & 0x07
         @patternLayer1Row = @read patternAddress + fineYScroll
         @patternLayer2Row = @read patternAddress + fineYScroll + 8
@@ -429,50 +429,51 @@ class PPU
     # Byte 3 = x screen coordinate
 
     renderSpritePixel: ->
-        # TODO rewrite and optimize this
         @fetchSprites() if @cycle is 1
+        @renderedSprite = null
         return 0 if not @spritesVisible or (@cycle < 9 and @spriteClipping)
-        @spriteZeroRendered = false
-        currentX = @cycle - 1
-        currentY = @scanline - 1
-        heightMask = if @bigSprites then 0x0F else 0x07
-        for address in @spriteAddresses
-            innerX = currentX - @objectAttributeMemory[address + 3]
-            if 0 <= innerX <= 7
-                innerY = currentY - @objectAttributeMemory[address]
-                patternNumber = @objectAttributeMemory[address + 1]
-                attributes = @objectAttributeMemory[address + 2]
-                innerX ^= 0x07 if not (attributes & 0x40)
-                innerY ^= heightMask if attributes & 0x80
-                patternTableIndex = if @bigSprites then patternNumber & 0x01 else @spritesPatternTableIndex
-                patternTableAddress = patternTableIndex << 12
-                if innerY >= 8
-                    patternNumber++
-                    innerY -= 8
-                patternAddress = patternTableAddress + (patternNumber << 4)
-                patternLayer1Row = @read patternAddress + innerY
-                patternLayer2Row = @read patternAddress + innerY + 8
-                colorSelect1 =  (patternLayer1Row >>> innerX) & 0x01
-                colorSelect2 = ((patternLayer2Row >>> innerX) & 0x01) << 1
-                colorSelect = colorSelect2 | colorSelect1
-                if colorSelect
-                    @spriteZeroRendered ||= address is 0
-                    @spriteInFront = (attributes & 0x20) is 0
-                    paletteSelect = (attributes & 0x03) << 2
-                    return 0x10 | paletteSelect | colorSelect
+        rightX = @cycle - 1
+        leftX = rightX - 8
+        for sprite in @secondaryOAM when leftX <= sprite.x <= rightX
+            columnNumber = rightX - sprite.x
+            columnNumber ^= 0x07 if not sprite.horizontalFlip
+            colorSelect1 =  (sprite.patternLayer1Row >>> columnNumber) & 1
+            colorSelect2 = ((sprite.patternLayer2Row >>> columnNumber) & 1) << 1
+            colorSelect = colorSelect2 | colorSelect1
+            if colorSelect
+                @renderedSprite = sprite
+                return sprite.paletteSelect | colorSelect
         return 0
 
     fetchSprites: ->
+        @secondaryOAM = []
         @spriteScalineOverflow = 0
-        @spriteAddresses = []
+        spriteHeight = if @bigSprites then 16 else 8
         bottomY = @scanline - 1
-        topY = Math.max 0, bottomY - (if @bigSprites then 16 else 8)
-        for spriteY, address in @objectAttributeMemory by 4
-            if topY < spriteY <= bottomY
-                @spriteAddresses.push address
-                if @spriteAddresses.length >= 8
-                    @spriteScalineOverflow = 1
-                    return
+        topY = Math.max 0, bottomY - spriteHeight
+        for spriteY, address in @primaryOAM by 4 when topY < spriteY <= bottomY
+            @fetchSprite address, spriteHeight, bottomY - spriteY
+            if @secondaryOAM.length >= 8
+                @spriteScalineOverflow = 1
+                return
+
+    fetchSprite: (address, height, rowNumber) ->
+        patternNumber = @primaryOAM[++address]
+        patternTableAddress = if @bigSprites then (patternNumber & 1) << 12 else @spPatternTableAddress
+        attributes = @primaryOAM[++address]
+        rowNumber = height - rowNumber - 1 if attributes & 0x80 # Vertical flip
+        if rowNumber >= 8
+            rowNumber -= 8
+            patternNumber++
+        patternAddress = patternTableAddress + (patternNumber << 4)
+        @secondaryOAM.push
+            x:                @primaryOAM[++address]
+            horizontalFlip:   attributes & 0x40
+            paletteSelect:    0x10 | (attributes & 0x03) << 2
+            inFront:          (attributes & 0x20) is 0
+            zeroSprite:       address is 3 # 0 before multiple incrementation
+            patternLayer1Row: @read patternAddress + rowNumber
+            patternLayer2Row: @read patternAddress + rowNumber + 8
 
     ###########################################################
     # Debug rendering
