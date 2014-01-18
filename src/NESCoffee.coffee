@@ -156,7 +156,13 @@ class @NESCoffee
     ###########################################################
 
     renderFrame: ->
-        @framebuffer.data.set @nes.renderFrame()
+        srcBuffer = @nes.renderFrame()
+        dstBuffer = @framebuffer.data
+        if dstBuffer.set
+            dstBuffer.set srcBuffer
+        else
+            dstBuffer[i] = value for value, i in srcBuffer # Because of Internet Explorer
+        undefined
 
     drawFrame: ->
         @renderer.putImageData @framebuffer, 0, 0
