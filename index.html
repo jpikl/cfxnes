@@ -12,6 +12,10 @@
     </head>
     <body ondragover="allowFileDrop(event)" ondrop="handleDroppedFile(event)">
         <h1>NESCoffee</h1>
+        <p>A Nintendo Entertainment System emulator written in CoffeeScript.</p>
+        <p>NESCoffee is in early development, so it isn't still working corectly (only few games are playable). 
+           The overall performance is also quite slow. Try out <a href="http://fir.sh/projects/jsnes/">JSNES</a> 
+           as an better alternative.</p>
         <canvas id="video-output">Your browser does not support canvas.</canvas>
         <div class="section">
             <button id="start-emulator" onclick="startEmulator()">Run emulator</button>
