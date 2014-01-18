@@ -4,19 +4,26 @@
 
 class Zapper
 
+    @inject: [ "ppu" ]
+
     constructor: ->
-        @triggerState = 0
-        @detectorState = 0
+        @triggerPressed = 0
+        @screenX = 0
+        @screenY = 0
 
     strobe: ->
 
     read: ->
-        @triggerState << 4 | !@detectorState << 3
+        @triggerPressed << 4 | !@isLightDetected() << 3
+
+    isLightDetected: ->
+        @screenX and @screenY and @ppu.isLightPixel @screenX, @screenY
 
     setTriggerPressed: (pressed) =>
-        @triggerState = pressed
+        @triggerPressed = pressed
 
-    setLightDetected: (detected) ->
-        @detectorState = detected
+    setScreenPosition: (x, y) ->
+        @screenX = x
+        @screenY = y
 
 module.exports = Zapper

@@ -283,6 +283,11 @@ class PPU
     isFrameAvailable: ->
         @frameAvailable
 
+    isLightPixel: (x, y) ->
+        return false if y < @scanline - 5 or y >= @scanline # Screen luminance decreases in time.
+        position = (y * WIDTH + x) << 2
+        @framebuffer[position++] or @framebuffer[position++] or @framebuffer[position]
+
     startFrame: ->
         @framePosition = 0
         @fetchPattern()

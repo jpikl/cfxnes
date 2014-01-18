@@ -55,8 +55,8 @@ class @NESCoffee
         @nes = injector.getInstance "nes"
         @cartridgeFactory = injector.getInstance "cartridgeFactory"
         @inputDevices =
-            1: { joypad: new Joypad, zapper: new Zapper }
-            2: { joypad: new Joypad, zapper: new Zapper }
+            1: { joypad: injector.getInstance("joypad"), zapper: injector.getInstance("zapper") }
+            2: { joypad: injector.getInstance("joypad"), zapper: injector.getInstance("zapper") }
 
     initControls: ->
         @binder = new Binder @getCanvasRect
@@ -181,17 +181,10 @@ class @NESCoffee
     ###########################################################
 
     updateZapper: ->
-        lightDetected = @isMousePointingOnLightPixel()
-        @inputDevices[1].zapper.setLightDetected lightDetected
-        @inputDevices[2].zapper.setLightDetected lightDetected
-
-    isMousePointingOnLightPixel: ->
         rect = @getCanvasRect()
-        x = ~~(@binder.mouseX - rect.left) / @canvasScale
-        y = ~~(@binder.mouseY - rect.top) / @canvasScale
-        return false if x < 0 or x >= SCREEN_WIDTH or y < 0 or y >= SCREEN_HEIGHT
-        dataPosition = y * SCREEN_HEIGHT + x
-        r = @framebuffer.data[dataPosition]
-        g = @framebuffer.data[dataPosition + 1]
-        b = @framebuffer.data[dataPosition + 2]
-        r > 32 and g > 32 and b > 32
+        x = ~~((@binder.mouseX - rect.left) / @canvasScale)
+        y = ~~((@binder.mouseY - rect.top - 1) / @canvasScale)
+        x = 0 if x < 0 or x >= SCREEN_WIDTH
+        y = 0 if y < 0 or y >= SCREEN_HEIGHT
+        @inputDevices[1].zapper.setScreenPosition x, y
+        @inputDevices[2].zapper.setScreenPosition x, y
