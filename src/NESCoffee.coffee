@@ -78,11 +78,11 @@ class @NESCoffee
         cartridge = @cartridgeFactory.fromArrayBuffer arrayBuffer
         @nes.insertCartridge cartridge
 
-    connectInputDevice: (port, device) ->
+    setInputDevice: (port, device) ->
         device = @inputDevices[port]?[device] or null
         @nes.connectInputDevice port, device
 
-    getConnectedInputDevice: (port) ->
+    getInputDevice: (port) ->
         device = @nes.getConnectedInputDevice port
         if      device instanceof @injector.getClass "joypad" then "joypad"
         else if device instanceof @injector.getClass "zapper" then "zapper"
@@ -128,7 +128,7 @@ class @NESCoffee
     ###########################################################
 
     start: ->
-        @intervalID = setInterval @emulationStep, 1000 / SCREEN_FPS
+        @intervalID = setInterval @step, 1000 / SCREEN_FPS
 
     stop: ->
         clearInterval @intervalID
@@ -137,7 +137,7 @@ class @NESCoffee
     isRunning: ->
         @intervalID != null
 
-    emulationStep: =>
+    step: =>
         @renderFrame()
         @drawFrame()
         @updateZapper()

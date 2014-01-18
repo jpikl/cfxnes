@@ -34,13 +34,14 @@ $(document).ready ->
 
     @setVideoDebug = (enabled) ->
         nesCoffee.setVideoDebug enabled
+        nesCoffee.step() if not nesCoffee.isRunning() # To refresh screen
 
     ###########################################################
     # Controls
     ###########################################################
 
     @setController = (port, device) ->
-        nesCoffee.connectInputDevice port, device
+        nesCoffee.setInputDevice port, device
         $("#controller-" + port).prop "value", device
         $("#joypad-" + port).addClass "hidden"
         $("#zapper-" + port).addClass "hidden"
@@ -54,8 +55,8 @@ $(document).ready ->
             $("#video-output").removeClass "zapper-area"
 
     isZapperConnected = ->
-        device1 = nesCoffee.getConnectedInputDevice 1
-        device2 = nesCoffee.getConnectedInputDevice 2
+        device1 = nesCoffee.getInputDevice 1
+        device2 = nesCoffee.getInputDevice 2
         device1 is "zapper" or device2 is "zapper"
 
     @bindControl = bindControl = (port, device, button, srcDevice, srcButton) ->

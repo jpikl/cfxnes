@@ -96,7 +96,7 @@ class PPU
         @spritesVisible     =   (value >>> 4) & 1  #  M[4]
         @intensifyReds      =   (value >>> 5) & 1  #  M[5]
         @intensifyGreens    =   (value >>> 6) & 1  #  M[6]
-        @intensifyBlues     =   (value >>> 7)     #   M[7]
+        @intensifyBlues     =   (value >>> 7)      #  M[7]
 
     ###########################################################
     # Status register
