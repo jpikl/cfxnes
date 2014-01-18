@@ -464,7 +464,10 @@ class PPU
 
     fetchSprite: (address, height, rowNumber) ->
         patternNumber = @primaryOAM[++address]
-        patternTableAddress = if @bigSprites then (patternNumber & 1) << 12 else @spPatternTableAddress
+        patternTableAddress = @spPatternTableAddress
+        if @bigSprites
+            patternTableAddress = (patternNumber & 1) << 12
+            patternNumber &= 0xFE
         attributes = @primaryOAM[++address]
         rowNumber = height - rowNumber - 1 if attributes & 0x80 # Vertical flip
         if rowNumber >= 8
