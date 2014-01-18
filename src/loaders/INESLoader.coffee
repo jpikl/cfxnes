@@ -82,13 +82,13 @@ class INESLoader extends AbstractLoader
         @cartridge.trainer = @readArray 0x200 if @cartridge.hasTrainer # 512B
 
     readROMBanks: ->
-        @cartridge.romBanks = (@readROMBank() for [1..@cartridge.romBanksCount])
+        @cartridge.romBanks = (@readROMBank() for [0...@cartridge.romBanksCount])
 
     readROMBank: ->
         @readArray 0x4000 # 16KB
 
     readVROMBanks: ->
-        @cartridge.vromBanks = (@readVROMBank() for [1..@cartridge.vromBanksCount])
+        @cartridge.vromBanks = (@readVROMBank() for [0...@cartridge.vromBanksCount])
 
     readVROMBank: ->
         @readArray 0x2000 # 8KB
