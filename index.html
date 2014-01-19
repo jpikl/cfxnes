@@ -13,9 +13,9 @@
     <body ondragover="allowFileDrop(event)" ondrop="handleDroppedFile(event)">
         <h1>NESCoffee</h1>
         <p>A Nintendo Entertainment System emulator written in CoffeeScript.</p>
-        <p>NESCoffee is in early development, so it isn't still working corectly (only few games are playable). 
+        <p>NESCoffee is in early development, so it still isn't working corectly (only few games are playable). 
            The overall performance is also quite slow. Try out <a href="http://fir.sh/projects/jsnes/">JSNES</a> 
-           as an better alternative.</p>
+           as a better alternative.</p>
         <canvas id="video-output">Your browser does not support canvas.</canvas>
         <div class="section">
             <button id="start-emulator" onclick="startEmulator()">Run emulator</button>
@@ -36,12 +36,14 @@
             <input id="video-debug" type="checkbox" onchange="setVideoDebug(this.checked)"/>
             <label for="video-debug">Show patterns and palettes</label>
         </div>
-        <div class="section">
-            <button onclick="$('#rom-file-input').click()">Open ROM file</button> 
-            or drop it anywhere inside this window.
-            <input type="file" id="rom-file-input" onchange="handleSelectedFile(event)"/>
+        <div id="roms-section" class="section">
+            Browse <a href="javascript:void(0)" onclick="showROMsDialog()">Game Library</a> or
+            <button onclick="$('#rom-file-input').click()">Select ROM file</button> of your game. 
+            <input type="file" id="rom-file-input" onchange="handleSelectedFile(event)"/></br>
+            You can also drop ROM files directly inside this window to load them.
         </div>
         <p id="record-dialog">Press key or mouse button...</p>
+        <p id="roms-dialog"></p>
         <div class="section">
             <div class="sub-section">
                 <div class="section">

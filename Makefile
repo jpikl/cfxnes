@@ -1,11 +1,14 @@
 export NODE_PATH = /usr/lib/node_modules/
 
-SRC_DIR     = src
-BUILD_DIR   = js
-MAIN_FILE   = NESCoffee.js
-BUNDLE_FILE = NESCoffeeBundled.js
-OPT_FILE    = NESCoffeeOptimized.js
-OPT_LEVEL   = SIMPLE_OPTIMIZATIONS
+SRC_DIR      = src
+BUILD_DIR    = js
+MAIN_FILE    = NESCoffee.js
+BUNDLE_FILE  = NESCoffeeBundled.js
+OPT_FILE     = NESCoffeeOptimized.js
+OPT_LEVEL    = SIMPLE_OPTIMIZATIONS
+SERVER_DIR   = ../nescoffee-heroku
+DEPLOY_DIR   = $(SERVER_DIR)/public/
+DEPLOY_FILES = $(BUILD_DIR)/$(OPT_FILE) $(BUILD_DIR)/UI.js css/*.css index.html
 
 INCLUDES = NESCoffee.js \
 		   Binder.js \
@@ -45,6 +48,16 @@ bundle: compile
 
 optimize: bundle
 	cd $(BUILD_DIR) && closure --compilation_level $(OPT_LEVEL) $(BUNDLE_FILE) > $(OPT_FILE)
+
+deploy: bundle
+	cp --parents $(DEPLOY_FILES) $(DEPLOY_DIR)
+	sed -i "s/$(BUNDLE_FILE)/$(OPT_FILE)/g" $(DEPLOY_DIR)/index.html
+
+run: deploy
+	cd $(SERVER_DIR) && coffee Application.coffee
+
+publish: deploy
+	cd $(DEPLOY_DIR) && git add . && git commit && git push
 
 clean:
 	rm -rf $(BUILD_DIR)
