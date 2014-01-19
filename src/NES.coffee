@@ -7,7 +7,7 @@ class NES
     @inject: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "mapperFactory" ]
 
     constructor: ->
-        @whiteNoise = (0xFF for i in [0 ... 256 * 240 * 4])
+        @videoDebug = false
 
     ###########################################################
     # Inputs
@@ -30,6 +30,9 @@ class NES
         @ppuMemory.setMMC @mmc
         @cpuMemory.setMMC @mmc
 
+    isCartridgeInserted: ->
+        @mmc?
+
     connectInputDevice: (port, device) ->
         @cpuMemory.setInputDevice port, device
 
@@ -40,22 +43,26 @@ class NES
     # Video ouput and emulation
     ###########################################################
 
-    renderFrame: ->
-        if @mmc then @renderFrameUsingPPU() else @renderWhiteNoise()
+    renderFrame: (buffer) ->
+        if @isCartridgeInserted()
+            @renderNormalFrame buffer 
+        else 
+            @renderWhiteNoise buffer
 
-    renderWhiteNoise: ->
-        for i in [0...@whiteNoise.length] by 4
-           @whiteNoise[i] = @whiteNoise[i + 1] = @whiteNoise[i + 2] = 0xFF * Math.random()
-        @whiteNoise
+    renderWhiteNoise: (buffer) ->
+        for i in [0...buffer.length] by 4
+           buffer[i] = buffer[i + 1] = buffer[i + 2] = 0xFF * Math.random()
+        undefined
 
-    renderFrameUsingPPU: ->
-        @step() until @ppu.isFrameAvailable()
-        @ppu.readFrame()
+    renderNormalFrame: (buffer) ->
+        @ppu.setFrameBuffer buffer
+        @cpu.step() until @ppu.isFrameAvailable()
+        @ppu.renderDebugFrame() if @videoDebug # Overrides buffer
 
     step: ->
         @cpu.step()
 
     setVideoDebug: (enabled) ->
-        @ppu.setDebugMode enabled
+        @videoDebug = enabled
 
 module.exports = NES

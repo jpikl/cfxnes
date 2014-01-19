@@ -29,11 +29,6 @@ class PPU
 
     @inject: [ "ppuMemory", "cpu" ]
 
-    constructor: ->
-        @framePosition = 0
-        @framebuffer = for i in [0 ... WIDTH * HEIGHT * 4]
-            if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 00.00.00.FF
-
     ###########################################################
     # Power-up state initialization
     ###########################################################
@@ -286,7 +281,11 @@ class PPU
     isLightPixel: (x, y) ->
         return false if y < @scanline - 5 or y >= @scanline # Screen luminance decreases in time.
         position = (y * WIDTH + x) << 2
-        @framebuffer[position++] or @framebuffer[position++] or @framebuffer[position]
+        @frameBuffer[position++] or @frameBuffer[position++] or @frameBuffer[position]
+
+    setFrameBuffer: (buffer) ->
+        @frameBuffer = buffer
+        @frameAvailable = false
 
     startFrame: ->
         @framePosition = 0
@@ -294,20 +293,15 @@ class PPU
         @fetchAttribute()
         @fetchPalette()
 
-    readFrame: ->
-        @frameAvailable = false
-        @renderDebugFrame() if @debugMode # Rewrites the current frame.
-        @framebuffer
-
     updateFramePixel: ->
         colorAddress = 0x3F00 | @renderFramePixel()
         @setFramePixel @read colorAddress
 
     setFramePixel: (color) ->
         colorPosition = color << 2 # Each RGBA color is 4B.
-        @framebuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
-        @framebuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
-        @framebuffer[@framePosition++] = RGBA_COLORS[colorPosition]
+        @frameBuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
+        @frameBuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
+        @frameBuffer[@framePosition++] = RGBA_COLORS[colorPosition]
         @framePosition++ # Skip alpha because it was already set to 0xFF.
 
     renderFramePixel: ->
@@ -487,9 +481,6 @@ class PPU
     # Debug rendering
     ###########################################################
 
-    setDebugMode: (enabled) ->
-        @debugMode = enabled
-
     renderDebugFrame: ->
         @renderPatterns()
         @renderPalettes()
@@ -531,8 +522,8 @@ class PPU
     setFramePixelOnPosition: (x, y, color) ->
         colorPosition = color << 2
         framePosition = ((y << 8) + x) << 2
-        @framebuffer[framePosition++] = RGBA_COLORS[colorPosition++]
-        @framebuffer[framePosition++] = RGBA_COLORS[colorPosition++]
-        @framebuffer[framePosition++] = RGBA_COLORS[colorPosition++]
+        @frameBuffer[framePosition++] = RGBA_COLORS[colorPosition++]
+        @frameBuffer[framePosition++] = RGBA_COLORS[colorPosition++]
+        @frameBuffer[framePosition++] = RGBA_COLORS[colorPosition++]
 
 module.exports = PPU

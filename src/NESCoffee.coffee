@@ -45,9 +45,9 @@ class @NESCoffee
         @renderer = @canvas.getContext "2d"
 
     initFramebuffer: ->
-        @framebuffer = @renderer.createImageData SCREEN_WIDTH, SCREEN_HEIGHT
-        for i in [0...@framebuffer.data.length]
-            @framebuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
+        @frameBuffer = @renderer.createImageData SCREEN_WIDTH, SCREEN_HEIGHT
+        for i in [0...@frameBuffer.data.length]
+            @frameBuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
 
     initConsole: ->
         @injector = new Injector "./config/BaseConfig"
@@ -156,16 +156,10 @@ class @NESCoffee
     ###########################################################
 
     renderFrame: ->
-        srcBuffer = @nes.renderFrame()
-        dstBuffer = @framebuffer.data
-        if dstBuffer.set
-            dstBuffer.set srcBuffer
-        else
-            dstBuffer[i] = value for value, i in srcBuffer # Because of Internet Explorer
-        undefined
+        @nes.renderFrame @frameBuffer.data
 
     drawFrame: ->
-        @renderer.putImageData @framebuffer, 0, 0
+        @renderer.putImageData @frameBuffer, 0, 0
         @redrawScaledCanvas() if @canvasScale > 1
 
     getCanvasRect: =>
