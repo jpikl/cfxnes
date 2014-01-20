@@ -255,25 +255,18 @@ class PPU
     ###########################################################
 
     tick: ->
-        @startFrame() if @isFirstRenderingCycle()
         @updateFramePixel() if @isRenderingCycle()
         @updateScrolling() if @isRenderingInProgress()
         @incrementCycle()
-
-    isFirstRenderingCycle: ->
-        @scanline is 0 and @cycle is 1
 
     isRenderingCycle: ->
         0 <= @scanline <= 239 and 1 <= @cycle <= 256
     
     isRenderingInProgress: ->
-        not @isVBlank() and @isRenderingEnabled()
+        not @isVBlank() and (@spritesVisible or @backgroundVisible)
 
     isVBlank: ->
         241 <= @scanline <= 260
-
-    isRenderingEnabled: ->
-        @spritesVisible or @backgroundVisible
 
     isFrameAvailable: ->
         @frameAvailable
@@ -287,22 +280,20 @@ class PPU
         @frameBuffer = buffer
         @frameAvailable = false
 
-    startFrame: ->
-        @framePosition = 0
-        @fetchPattern()
-        @fetchAttribute()
-        @fetchPalette()
-
     updateFramePixel: ->
+        @startScanline() if @cycle is 1
         colorAddress = 0x3F00 | @renderFramePixel()
         @setFramePixel @read colorAddress
 
-    setFramePixel: (color) ->
-        colorPosition = color << 2 # Each RGBA color is 4B.
-        @frameBuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
-        @frameBuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
-        @frameBuffer[@framePosition++] = RGBA_COLORS[colorPosition]
-        @framePosition++ # Skip alpha because it was already set to 0xFF.
+    startScanline: ->
+        @startFrame() if @scanline is 0
+        @fetchPattern()
+        @fetchAttribute()
+        @fetchPalette()
+        @fetchSprites()
+
+    startFrame: ->
+        @framePosition = 0
 
     renderFramePixel: ->
         backgroundColor = @renderBackgroundPixel()
@@ -315,11 +306,21 @@ class PPU
         else
             backgroundColor
 
+    setFramePixel: (color) ->
+        colorPosition = color << 2 # Each RGBA color is 4B.
+        @frameBuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
+        @frameBuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
+        @frameBuffer[@framePosition++] = RGBA_COLORS[colorPosition]
+        @framePosition++ # Skip alpha because it was already set to 0xFF.
+
     updateScrolling: ->
-        @incrementFineYScroll() if @cycle is 256
-        @incrementFineXScroll() if 1 <= @cycle <= 256
-        @copyHorizontalScrollBits() if @cycle is 257
-        @copyVerticalScrollBits() if @scanline is -1 and 280 <= @cycle <= 304
+        if 1 <= @cycle <= 256
+            @incrementFineXScroll()
+            @incrementFineYScroll() if @cycle is 256
+        else if @cycle is 257
+            @copyHorizontalScrollBits()
+        else if @scanline is -1 and 280 <= @cycle <= 304
+            @copyVerticalScrollBits() 
 
     incrementCycle: ->
         @cycle++
@@ -386,7 +387,7 @@ class PPU
 
     renderBackgroundPixel: ->
         @fetchPattern() if @fineXScroll is 0 # When coarse scroll X was incremented.
-        return 0 if not @backgroundVisible or (@cycle < 9 and @backgroundClipping)
+        return 0 if not @backgroundVisible or @backgroundClipping and @cycle < 9
         columnNumber = @fineXScroll ^ 0x07 # 7 - fineXScroll
         colorSelect1 =  (@patternLayer1Row >>> columnNumber) & 1
         colorSelect2 = ((@patternLayer2Row >>> columnNumber) & 1) << 1
@@ -428,9 +429,8 @@ class PPU
     # Byte 3 = x screen coordinate
 
     renderSpritePixel: ->
-        @fetchSprites() if @cycle is 1
         @renderedSprite = null
-        return 0 if not @spritesVisible or (@cycle < 9 and @spriteClipping)
+        return 0 if not @spritesVisible or @spriteClipping and @cycle < 9
         rightX = @cycle - 1
         leftX = rightX - 8
         for sprite in @secondaryOAM when leftX <= sprite.x <= rightX
@@ -452,9 +452,8 @@ class PPU
         topY = Math.max 0, bottomY - spriteHeight
         for spriteY, address in @primaryOAM by 4 when topY < spriteY <= bottomY
             @fetchSprite address, spriteHeight, bottomY - spriteY
-            if @secondaryOAM.length >= 8
-                @spriteScalineOverflow = 1
-                return
+            @spriteScalineOverflow = 1 if @secondaryOAM.length is 8 
+            # We allow more than 8 sprites on scanline, otherwise it looks ugly in some games.
 
     fetchSprite: (address, height, rowNumber) ->
         patternNumber = @primaryOAM[++address]
