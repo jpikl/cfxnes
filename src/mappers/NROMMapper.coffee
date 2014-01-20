@@ -17,6 +17,7 @@ class NROMMapper
         @sramEnabled = cartridge.hasSRAM
         @sramBanks = cartridge.sramBanks
         @mirroring = cartridge.mirroring
+        @reset()
 
     ###########################################################
     # Power-up state initialization
@@ -24,9 +25,12 @@ class NROMMapper
 
     powerUp: ->
         @resetVRAM()
+        @reset()
 
     resetVRAM: ->
         @vram = (0 for [0...0x4000]) # Max. 16KB of VRAM (not all is used).
+
+    reset: ->
 
     ###########################################################
     # CPU reading / writing

@@ -23,6 +23,7 @@ class NES
 
     pressReset: ->
         @cpu.reset()
+        @mmc?.reset()
 
     insertCartridge: (cartridge) ->
         @mmc = @mapperFactory.createMapper cartridge

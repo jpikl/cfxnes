@@ -28,6 +28,7 @@ INCLUDES = NESCoffee.js \
            loaders/INESLoader.js \
            mappers/NROMMapper.js \
            mappers/UNROMMapper.js \
+           mappers/CNROMMapper.js \
            readers/AbstractReader.js \
            readers/ArrayBufferReader.js \
            controllers/Joypad.js \

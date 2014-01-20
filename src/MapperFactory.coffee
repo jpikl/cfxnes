@@ -8,6 +8,7 @@ class MapperFactory
         @mapperClasses = []
         @registerMapper 0x00, "NROMMapper"
         @registerMapper 0x02, "UNROMMapper"
+        @registerMapper 0x03, "CNROMMapper"
 
     registerMapper: (id, name) ->
         @mapperClasses[id] = require "./mappers/#{name}"

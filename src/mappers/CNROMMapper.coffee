@@ -4,23 +4,26 @@ NROMMapper = require "./NROMMapper"
 # UNROM mapper
 ###########################################################
 
-class UNROMMapper extends NROMMapper
+class CNROMMapper extends NROMMapper
 
     constructor: (cartridge) ->
         super cartridge
 
     reset: ->
-        @selectedROMBank = 0
+        @selectedVROMBank = 0
 
     ###########################################################
-    # ROM reading / writing
+    # ROM writing
     ###########################################################
 
     writeROM: (address, value) ->
-        mask = if @romBanks.length > 8 then 0x0F else 0x07
-        @selectedROMBank = value & mask
+        @selectedVROMBank = value & 0x03
 
-    getROMBank: (address) ->
-        if address < 0xC000 then @selectedROMBank else @romBanks.length - 1
+    ###########################################################
+    # VROM reading
+    ###########################################################
 
-module.exports = UNROMMapper
+    getVROMBank: (address) ->
+        @selectedVROMBank
+
+module.exports = CNROMMapper
