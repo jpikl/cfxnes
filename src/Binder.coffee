@@ -140,9 +140,8 @@ class Binder
         if @recordNextEvent
             event.preventDefault()
             @finishRecording "mouse", button
-        else if @mouseMapping[button] and @isMouseInActiveArea()
-            event.preventDefault()
-            @mouseMapping[button](buttonDown)
+        else if @isMouseInActiveArea()
+            @mouseMapping[button]?(buttonDown)
 
     isMouseInActiveArea: ->
         rect = @getMouseRect()
