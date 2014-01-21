@@ -50,7 +50,7 @@ bundle: compile
 optimize: bundle
 	cd $(BUILD_DIR) && closure --compilation_level $(OPT_LEVEL) $(BUNDLE_FILE) > $(OPT_FILE)
 
-deploy: bundle
+deploy: optimize
 	cp --parents $(DEPLOY_FILES) $(DEPLOY_DIR)
 	sed -i "s/$(BUNDLE_FILE)/$(OPT_FILE)/g" $(DEPLOY_DIR)/index.html
 
