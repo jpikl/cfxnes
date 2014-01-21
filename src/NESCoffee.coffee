@@ -22,7 +22,7 @@ joypadButtonToId =
 
 class @NESCoffee
 
-    constructor: (@canvas) ->
+    constructor: (@canvas, @mode = "Base") ->
         throw "Canvas element or its ID was not specified." unless @canvas?
         @initCanvas()
         @initRenderer()
@@ -50,7 +50,7 @@ class @NESCoffee
             @frameBuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
 
     initConsole: ->
-        @injector = new Injector "./config/BaseConfig"
+        @injector = new Injector "./config/#{@mode}Config"
         @nes = @injector.getInstance "nes"
         @cartridgeFactory = @injector.getInstance "cartridgeFactory"
         @inputDevices =

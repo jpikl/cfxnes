@@ -18,7 +18,7 @@ Format =
         result[result.length - width ...]
 
     fillRight: (value, width, character = " ") ->
-        result = value + (Array(size + 1).join " ")
-        result[...size]
+        result = value + (Array(width + 1).join " ")
+        result[...width]
 
 module.exports = Format
