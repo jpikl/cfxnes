@@ -29,6 +29,7 @@ class @NESCoffee
         @initFramebuffer()
         @initConsole()
         @initControls()
+        @initFPS()
         @pressPower()
         @drawFrame()
 
@@ -63,6 +64,11 @@ class @NESCoffee
             1: { joypad: {}, zapper: {} }
             2: { joypad: {}, zapper: {} }
         @unbindCallbacks2 = keyboard: {}, mouse: {}
+
+    initFPS: ->
+        @fpsBuffer = (0 for [1..10])
+        @fpsIndex = 0
+        @fpsTime = 0
 
     ###########################################################
     # Inputs
@@ -144,12 +150,13 @@ class @NESCoffee
         @computeFPS()
 
     computeFPS: ->
-        previousEmulationTime = @emulationTime or 0
-        @emulationTime = +new Date
-        @emulationFPS = 1000 / (@emulationTime - previousEmulationTime)
+        timeNow = Date.now()
+        @fpsBuffer[@fpsIndex] = 1000 / (timeNow - @fpsTime)
+        @fpsIndex = (@fpsIndex + 1) % @fpsBuffer.length
+        @fpsTime = timeNow
 
     getFPS: ->
-        @emulationFPS
+        (@fpsBuffer.reduce (a, b) -> a + b) / @fpsBuffer.length
 
     ###########################################################
     # Video output
