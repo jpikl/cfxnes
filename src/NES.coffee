@@ -56,7 +56,7 @@ class NES
         undefined
 
     renderNormalFrame: (buffer) ->
-        @ppu.setFrameBuffer buffer
+        @ppu.startFrame buffer
         @cpu.step() until @ppu.isFrameAvailable()
         @ppu.renderDebugFrame() if @videoDebug # Overrides buffer
 

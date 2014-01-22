@@ -276,7 +276,8 @@ class PPU
         position = (y * WIDTH + x) << 2
         @frameBuffer[position++] or @frameBuffer[position++] or @frameBuffer[position]
 
-    setFrameBuffer: (buffer) ->
+    startFrame: (buffer) ->
+        @framePosition = 0
         @frameBuffer = buffer
         @frameAvailable = false
 
@@ -286,14 +287,10 @@ class PPU
         @setFramePixel @read colorAddress
 
     startScanline: ->
-        @startFrame() if @scanline is 0
         @fetchPattern()
         @fetchAttribute()
         @fetchPalette()
         @fetchSprites()
-
-    startFrame: ->
-        @framePosition = 0
 
     renderFramePixel: ->
         backgroundColor = @renderBackgroundPixel()
