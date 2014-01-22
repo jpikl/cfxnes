@@ -6,9 +6,6 @@ NROMMapper = require "./NROMMapper"
 
 class CNROMMapper extends NROMMapper
 
-    constructor: (cartridge) ->
-        super cartridge
-
     reset: ->
         @selectedVROMBank = 0
 
