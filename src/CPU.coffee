@@ -65,7 +65,7 @@ class CPU
     ###########################################################
 
     resolveInterrupt: ->
-        if @requestedInterrupt isnt null and not @isRequestedInterruptDisabled()
+        if @requestedInterrupt and not @isRequestedInterruptDisabled()
             switch @requestedInterrupt
                 when Interrupt.IRQ   then @handleIRQ()
                 when Interrupt.NMI   then @handleNMI()

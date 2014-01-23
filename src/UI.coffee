@@ -6,7 +6,7 @@ $(document).ready ->
     # Emulation
     ###########################################################
 
-    @startEmulator = ->
+    @startEmulator = =>
         nesCoffee.start()
         setVisible $("#start-emulator"), false
         setVisible $("#stop-emulator"), true
@@ -64,9 +64,12 @@ $(document).ready ->
             dialogClass: "record-dialog"
             width: 320, height: 90
             modal: true, draggable: false
+        resumeEmulator = @startEmulator if nesCoffee.isRunning()
+        @stopEmulator()
         nesCoffee.recordInput (srcDevice, srcButton) ->
             bindControl port, device, button, srcDevice, srcButton
             $("#record-dialog").dialog "close"
+            resumeEmulator?()
 
     ###########################################################
     # ROM loading
