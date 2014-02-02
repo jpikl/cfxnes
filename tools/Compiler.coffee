@@ -249,8 +249,8 @@ createInlinedCode = (call, func) ->
         if modified[pos] or (not args[pos].isValue() and usesCount[pos] isnt 1)
             oldName = parameters[pos]
             newName = "__tmp_#{oldName}_#{uniqueId++}__"
-            block.insertExpression createAssignment(newName, args[pos])
             block.renameLiterals oldName, newName
+            block.insertExpression createAssignment(newName, args[pos])
         else
             block.replaceLiterals parameters[pos], args[pos]
     new Value(new Parens(block))
