@@ -41,10 +41,10 @@ class CPUMemory
     ###########################################################
 
     readRAM: (address) ->
-        @ram[@getRAMOffset address]
+        @ram[@_getRAMOffset address]
 
     writeRAM: (address, value) ->
-        @ram[@getRAMOffset address] = value
+        @ram[@_getRAMOffset address] = value
 
     getRAMOffset: (address) ->
         address & 0x07FF # Mirroring of [$0000-$0800] in [$0000-$2000]

@@ -31,6 +31,10 @@ class NROMMapper
         @vram = (0 for [0...0x4000]) # Max. 16KB of VRAM (not all is used).
 
     reset: ->
+        @upperROMBank = @romBanks[@romBanks.length - 1]
+        @lowerROMBank = @romBanks[0]
+        @vromBank = @vromBanks[0]
+        @sramBank = @sramBanks[0]
 
     ###########################################################
     # CPU reading / writing
@@ -55,13 +59,13 @@ class NROMMapper
     ###########################################################
 
     readROM: (address) ->
-        @romBanks[@getROMBank address][@getROMOffset address]
+        if address < 0xC000
+            @lowerROMBank[@_getROMOffset address]
+        else
+            @upperROMBank[@_getROMOffset address]
 
     writeROM: (address, value) ->
          value # Read-only
-
-    getROMBank: (address) ->
-        if address < 0xC000 or @romBanks.length == 1 then 0 else 1
 
     getROMOffset: (address) ->
         address & 0x3FFF
@@ -72,18 +76,15 @@ class NROMMapper
 
     readSRAM: (address) ->
         if @sramEnabled
-            @sramBanks[@getSRAMBank address][@getSRAMOffset address]
+            @sramBank[@_getSRAMOffset address]
         else
             0
 
     writeSRAM: (address, value) ->
         if @sramEnabled
-            @sramBanks[@getSRAMBank address][@getSRAMOffset address] = value
+            @sramBank[@_getSRAMOffset address] = value
         else
             value
-
-    getSRAMBank: (address) ->
-        0
 
     getSRAMOffset: (address) ->
         address & 0x1FFF
@@ -154,22 +155,12 @@ class NROMMapper
         if @vramEnabled
             @vram[address]
         else
-            @readVROM address
+            @vromBank[address]
 
     writePatternsTable: (address, value) ->
         if @vramEnabled
             @vram[address] = value
         else
             value # Read-only
-
-    ###########################################################
-    # VROM reading
-    ###########################################################
-
-    readVROM: (address) ->
-        @vromBanks[@getVROMBank address][address]
-
-    getVROMBank: (address) ->
-        0
 
 module.exports = NROMMapper
