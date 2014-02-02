@@ -25,16 +25,14 @@ class CPUMemory
     ###########################################################
 
     read: (address) ->
-        switch
-            when address < 0x2000 then @_readRAM address
-            when address < 0x4020 then @_readIO  address
-            else                       @_readMMC address
+        if      address < 0x2000 then @_readRAM address
+        else if address < 0x4020 then @_readIO  address
+        else                          @_readMMC address
 
     write: (address, value) ->
-        switch
-            when address < 0x2000 then @_writeRAM address, value
-            when address < 0x4020 then @_writeIO  address, value
-            else                       @_writeMMC address, value
+        if      address < 0x2000 then @_writeRAM address, value
+        else if address < 0x4020 then @_writeIO  address, value
+        else                          @_writeMMC address, value
 
     ###########################################################
     # RAM acceess
@@ -54,7 +52,7 @@ class CPUMemory
     ###########################################################
 
     readIO: (address) ->
-        switch @getIOAddress address
+        switch @_getIOAddress address
             when 0x2002 then @ppu.readStatus()
             when 0x2004 then @ppu.readOAMData()
             when 0x2007 then @ppu.readData()
@@ -63,7 +61,7 @@ class CPUMemory
             else 0
 
     writeIO: (address, value) ->
-        switch @getIOAddress address
+        switch @_getIOAddress address
             when 0x2000 then @ppu.writeControl value
             when 0x2001 then @ppu.writeMask value
             when 0x2003 then @ppu.writeOAMAddress value
