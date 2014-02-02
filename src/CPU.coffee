@@ -118,10 +118,10 @@ class CPU
         operation
 
     readNextProgramByte: ->
-        @readByte @moveProgramCounter 1
+        @_readByte @_moveProgramCounter 1
 
     readNextProgramWord: ->
-        @readWord @moveProgramCounter 2
+        @_readWord @_moveProgramCounter 2
 
     moveProgramCounter: (size = 1) ->
         previousValue = @programCounter
@@ -136,46 +136,46 @@ class CPU
         @cpuMemory.read address
 
     readByte: (address) ->
-        @_resolveReadCycles()
+        @resolveReadCycles()
         @_read address
 
     readWord: (address) ->
-        highByte = @readByte (address + 1) & 0xFFFF
-        highByte << 8 | @readByte address
+        highByte = @_readByte (address + 1) & 0xFFFF
+        highByte << 8 | @_readByte address
 
     readWordFromSamePage: (address) ->
-        highByte = @readByte address & 0xFF00 | (address + 1) & 0x00FF
-        highByte << 8 | @readByte address
+        highByte = @_readByte address & 0xFF00 | (address + 1) & 0x00FF
+        highByte << 8 | @_readByte address
 
     write: (address, value) ->
         @cpuMemory.write address, value
 
     writeByte: (address, value) ->
-        @_resolveWriteCycles()
+        @resolveWriteCycles()
         @_write address, value
 
     writeWord: (address, value) ->
-        @writeByte address, value & 0xFF
-        @writeByte (address + 1) & 0xFFFF, value >>> 8
+        @_writeByte address, value & 0xFF
+        @_writeByte (address + 1) & 0xFFFF, value >>> 8
 
     ###########################################################
     # Stack pushing / pulling
     ###########################################################
 
     pushByte: (value) ->
-        @writeByte 0x100 + @stackPointer, value
+        @_writeByte 0x100 + @stackPointer, value
         @stackPointer = (@stackPointer - 1) & 0xFF
 
     pushWord: (value) ->
-        @pushByte value >>> 8
-        @pushByte value & 0xFF
+        @_pushByte value >>> 8
+        @_pushByte value & 0xFF
 
     popByte: ->
         @stackPointer = (@stackPointer + 1) & 0xFF
-        @readByte 0x100 + @stackPointer
+        @_readByte 0x100 + @stackPointer
 
     popWord: ->
-        @popByte() | @popByte() << 8
+        @_popByte() | @_popByte() << 8
 
     ###########################################################
     # Memory reading / writing cycles handling
@@ -196,7 +196,9 @@ class CPU
     tick: ->
         @cyclesCount++
         @dma.tick()
-        @ppu.tick() for [1..3]
+        @ppu.tick()
+        @ppu.tick()
+        @ppu.tick()
         @apu.tick()
         undefined
 
@@ -240,13 +242,13 @@ class CPU
     ###########################################################
 
     impliedMode: =>
-        @tick()
+        @_tick()
 
     accumulatorMode: =>
-        @tick()
+        @_tick()
 
     immediateMode: =>
-        @moveProgramCounter()
+        @_moveProgramCounter 1
 
     ###########################################################
     # Zero page addressing modes
@@ -288,13 +290,13 @@ class CPU
     ###########################################################
 
     indirectMode: =>
-        @readWordFromSamePage @_readNextProgramWord()
+        @_readWordFromSamePage @_readNextProgramWord()
 
     indirectXMode: =>
-        @readWordFromSamePage @zeroPageXMode()
+        @_readWordFromSamePage @zeroPageXMode()
 
     indirectYMode: =>
-        base = @readWordFromSamePage @_readNextProgramByte()
+        base = @_readWordFromSamePage @_readNextProgramByte()
         @_getIndexedAddressWord base, @registerY
 
     ###########################################################
@@ -354,32 +356,32 @@ class CPU
     ###########################################################
 
     STA: (address) =>
-        @writeByte address, @accumulator
+        @_writeByte address, @accumulator
 
     STX: (address) =>
-        @writeByte address, @registerX
+        @_writeByte address, @registerX
 
     SAX: (address) =>
-        @writeByte address, @accumulator & @registerX
+        @_writeByte address, @accumulator & @registerX
 
     STY: (address) =>
-        @writeByte address, @registerY
+        @_writeByte address, @registerY
 
     ###########################################################
     # Memory read instructions
     ###########################################################
 
     LDA: (address) =>
-        @_storeValueIntoAccumulator @readByte address
+        @_storeValueIntoAccumulator @_readByte address
 
     LDX: (address) =>
-        @_storeValueIntoRegisterX @readByte address
+        @_storeValueIntoRegisterX @_readByte address
 
     LDY: (address) =>
-        @_storeValueIntoRegisterY @readByte address
+        @_storeValueIntoRegisterY @_readByte address
 
     LAX: (address) =>
-        value = @readByte address
+        value = @_readByte address
         @_storeValueIntoAccumulator value
         @_storeValueIntoRegisterX value
 
@@ -413,7 +415,7 @@ class CPU
         @_pushByte @accumulator
 
     PHP: =>
-        @_pushByte @getStatus() | 0x10 # Pushes status with bit 4 on (break command flag).
+        @_pushByte @_getStatus() | 0x10 # Pushes status with bit 4 on (break command flag).
 
     ###########################################################
     # Stack pop instructions
@@ -423,23 +425,23 @@ class CPU
         @_storeValueIntoAccumulator @_popByte()
 
     PLP: =>
-        @setStatus @_popByte()
+        @_setStatus @_popByte()
 
     ###########################################################
     # Accumulator bitwise instructions
     ###########################################################
 
     AND: (address) =>
-        @_storeValueIntoAccumulator @accumulator & @readByte address
+        @_storeValueIntoAccumulator @accumulator & @_readByte address
 
     ORA: (address) =>
-        @_storeValueIntoAccumulator @accumulator | @readByte address
+        @_storeValueIntoAccumulator @accumulator | @_readByte address
 
     EOR: (address) =>
-        @_storeValueIntoAccumulator @accumulator ^ @readByte address
+        @_storeValueIntoAccumulator @accumulator ^ @_readByte address
 
     BIT: (address) =>
-        value = @readByte address
+        value = @_readByte address
         @zeroFlag = (@accumulator & value) == 0
         @overflowFlag = (value >>> 6) & 1
         @negativeFlag = (value >>> 7) & 1
@@ -449,7 +451,7 @@ class CPU
     ###########################################################
 
     INC: (address) =>
-        @_storeValueIntoMemory address, ((@readByte address) + 1) & 0xFF
+        @_storeValueIntoMemory address, ((@_readByte address) + 1) & 0xFF
 
     INX: =>
         @_storeValueIntoRegisterX (@registerX + 1) & 0xFF
@@ -462,7 +464,7 @@ class CPU
     ###########################################################
 
     DEC: (address) =>
-        @_storeValueIntoMemory address, ((@readByte address) - 1) & 0xFF
+        @_storeValueIntoMemory address, ((@_readByte address) - 1) & 0xFF
 
     DEX: =>
         @_storeValueIntoRegisterX (@registerX - 1) & 0xFF
@@ -524,7 +526,7 @@ class CPU
 
     RTS: =>
         @programCounter = (@_popWord() + 1) & 0xFFFF # We decremented the address when pushing it during JSR.
-        @tick()
+        @_tick()
 
     ###########################################################
     # Interrupt control instructions
@@ -532,11 +534,11 @@ class CPU
 
     BRK: =>
         @_pushWord @programCounter
-        @_pushByte @getStatus() | 0x10 # Pushes status with bit 4 on (break command flag).
-        @programCounter = @readWord 0xFFFE
+        @_pushByte @_getStatus() | 0x10 # Pushes status with bit 4 on (break command flag).
+        @programCounter = @_readWord 0xFFFE
 
     RTI: =>
-        @setStatus @_popByte()
+        @_setStatus @_popByte()
         @programCounter = @_popWord()
 
     ###########################################################
@@ -544,10 +546,10 @@ class CPU
     ###########################################################
 
     ADC: (address) =>
-        @_addValueToAccumulator @readByte address
+        @_addValueToAccumulator @_readByte address
 
     SBC: (address) =>
-        @_addValueToAccumulator (@readByte address) ^ 0xFF # Together with internal carry incremment makes negative operand.
+        @_addValueToAccumulator (@_readByte address) ^ 0xFF # Together with internal carry incremment makes negative operand.
 
     ###########################################################
     # Shifting / rotation instructions
@@ -605,7 +607,7 @@ class CPU
 
     storeValueIntoMemory: (address, value) ->
         @_updateZeroAndNegativeFlag value
-        @writeByte address, value
+        @_writeByte address, value
 
     addValueToAccumulator: (operand) ->
         result = @accumulator + operand + @carryFlag
@@ -614,7 +616,7 @@ class CPU
         @_storeValueIntoAccumulator result & 0xFF
 
     compareRegisterAndMemory: (register, address) ->
-        @_compareRegisterAndOperand register, @readByte address
+        @_compareRegisterAndOperand register, @_readByte address
 
     compareRegisterAndOperand: (register, operand) ->
         result = register - operand
@@ -624,11 +626,11 @@ class CPU
     branchIf: (condition, address) ->
         if condition
             @programCounter = address
-            @tick()
+            @_tick()
 
     rotateAccumulatorOrMemory: (address, rotation, transferCarry) ->
         if address?
-            result = rotation (@readByte address), transferCarry
+            result = rotation (@_readByte address), transferCarry
             @_storeValueIntoMemory address, result
         else
             result = rotation @accumulator, transferCarry

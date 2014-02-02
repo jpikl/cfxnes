@@ -1,3 +1,5 @@
+export NODE_PATH = /usr/lib/node_modules/
+
 CONF_FILE   = ../test/nestest/TestConfig
 TEST_FILE   = ../Main.coffee
 TEST_ROM    = ../../roms/nestest.nes
