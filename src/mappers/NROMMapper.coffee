@@ -42,7 +42,7 @@ class NROMMapper
 
     cpuRead: (address) ->
         switch
-            when address >= 0x8000 then @readROM address 
+            when address >= 0x8000 then @_readROM address 
             when address >= 0x6000 then @readSRAM address
             when address >= 0x4020 then @readEXRAM address
             else throw "Illegal state (CPU is trying to read from 0x#{wordAsHex address} using MMC)."
@@ -105,29 +105,31 @@ class NROMMapper
 
     ppuRead: (address) ->
         switch
-            when address >= 0x3F00 then @readPallete address
-            when address >= 0x2000 then @readNamesTable address
-            else                        @readPatternsTable address
+            when address >= 0x3F00 then @_readPallete address
+            when address >= 0x2000 then @_readNamesTable address
+            else                        @_readPatternsTable address
 
     ppuWrite: (address, value) ->
         switch
-            when address >= 0x3F00 then @writePallete address, value
-            when address >= 0x2000 then @writeNamesTable address, value
-            else                        @writePatternsTable address, value
+            when address >= 0x3F00 then @_writePallete address, value
+            when address >= 0x2000 then @_writeNamesTable address, value
+            else                        @_writePatternsTable address, value
 
     ###########################################################
     # Pallete reading / writing
     ###########################################################
 
     readPallete: (address) ->
-        @vram[@getPalleteAddress address]
+        @vram[@_getPalleteAddress address]
 
     writePallete: (address, value) ->
-        @vram[@getPalleteAddress address] = value
+        @vram[@_getPalleteAddress address] = value
 
     getPalleteAddress: (address) ->
-        address &= 0x3F0F if (address & 0x0003) is 0 # $3F10/$3F14/$3F18/$3F1C are mirrorors or $3F00/$3F04/$3F08$/3F0C.
-        address &  0x3F1F                            # Mirroring of [$3F00-$3F1F] in [$3F00-$3FFF]
+        if (address & 0x0003)
+            address & 0x3F1F # Mirroring of [$3F00-$3F1F] in [$3F00-$3FFF]
+        else
+            address & 0x3F0F # $3F10/$3F14/$3F18/$3F1C are mirrorors or $3F00/$3F04/$3F08$/3F0C.
 
     ###########################################################
     # Names & attributes table reading / writing
