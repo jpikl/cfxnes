@@ -128,7 +128,7 @@ class PPU
         value
 
     writeOAMData: (value) ->
-        @primaryOAM[@oamAddress] = value if not @isRenderingInProgress()
+        @primaryOAM[@oamAddress] = value if not @_isRenderingInProgress()
         @oamAddress = (@oamAddress + 1) & 0xFF # Write always increments the address.
         value
 
@@ -148,19 +148,19 @@ class PPU
         address
 
     readData: ->
-        address = @incrementAddress()
+        address = @_incrementAddress()
         oldBufferContent = @vramReadBuffer
         @vramReadBuffer = @_read address                                         # Always increments the address
-        if @isPalleteAddress address then @vramReadBuffer else oldBufferContent # Delayed read outside the pallete memory area
+        if @_isPalleteAddress address then @vramReadBuffer else oldBufferContent # Delayed read outside the pallete memory area
 
     writeData: (value) ->
-        address = @incrementAddress()                         # Always increments the address
-        @write address, value if not @isRenderingInProgress() # Only during VBLANK or disabled rendering
+        address = @_incrementAddress()                          # Always increments the address
+        @_write address, value if not @_isRenderingInProgress() # Only during VBLANK or disabled rendering
         value
 
     incrementAddress: ->
         previousAddress = @vramAddress
-        @vramAddress = (@vramAddress + @getAddressIncrement()) & 0xFFFF
+        @vramAddress = (@vramAddress + @_getAddressIncrement()) & 0xFFFF
         previousAddress
 
     getAddressIncrement: ->
@@ -223,7 +223,7 @@ class PPU
     incrementFineXScroll: ->
         if @fineXScroll is 7
             @fineXScroll = 0
-            @incrementCoarseXScroll()
+            @_incrementCoarseXScroll()
         else
             @fineXScroll++
 
@@ -488,6 +488,7 @@ class PPU
                 baseX = tileX << 3
                 address = ((tileX & 0x10) << 4 | tileY << 4 | tileX & 0x0F) << 4
                 @renderPatternTile baseX, baseY, address
+        undefined
 
     renderPatternTile: (baseX, baseY, address) ->
         for rowNumber in [0...8]
@@ -501,6 +502,7 @@ class PPU
                 colorSelect2 = ((patternLayer2Row >> bitPosition) & 0x01) << 1
                 color = @_read 0x3F00 | colorSelect2 | colorSelect1
                 @setFramePixelOnPosition x, y, color
+        undefined
 
     renderPalettes: ->
         for tileY in [0...4]
@@ -509,11 +511,13 @@ class PPU
                 baseX = tileX << 5
                 color = @_read 0x3F00 | (tileY << 3) | tileX
                 @renderPaletteTile baseX, baseY, color
+        undefined
 
     renderPaletteTile: (baseX, baseY, color) ->
         for y in [baseY ... baseY + 28]
             for x in [baseX ... baseX + 32]
-                @setFramePixelOnPosition x, y, color        
+                @setFramePixelOnPosition x, y, color
+        undefined
 
     setFramePixelOnPosition: (x, y, color) ->
         colorPosition = color << 2
