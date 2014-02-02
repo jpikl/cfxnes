@@ -1,3 +1,5 @@
+#!/usr/bin/coffee
+
 fs       = require "fs"
 path     = require "path"
 optimist = require "optimist"

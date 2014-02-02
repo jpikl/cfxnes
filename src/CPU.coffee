@@ -57,7 +57,7 @@ class CPU
         if @dma.isTransferInProgress()
             @tick() # CPU can't access memory during DMA (empty cycle).
         else
-            @resolveInterrupt()
+            @_resolveInterrupt()
             @executeInstruction()
 
     ###########################################################
@@ -65,7 +65,7 @@ class CPU
     ###########################################################
 
     resolveInterrupt: ->
-        if @requestedInterrupt and not @isRequestedInterruptDisabled()
+        if @requestedInterrupt and not @_isRequestedInterruptDisabled()
             switch @requestedInterrupt
                 when Interrupt.IRQ   then @handleIRQ()
                 when Interrupt.NMI   then @handleNMI()
@@ -118,10 +118,10 @@ class CPU
         operation
 
     readNextProgramByte: ->
-        @readByte @moveProgramCounter 1
+        @_readByte @_moveProgramCounter 1
 
     readNextProgramWord: ->
-        @readWord @moveProgramCounter 2
+        @_readWord @_moveProgramCounter 2
 
     moveProgramCounter: (size = 1) ->
         previousValue = @programCounter
@@ -136,46 +136,46 @@ class CPU
         @cpuMemory.read address
 
     readByte: (address) ->
-        @resolveReadCycles()
-        @read address
+        @_resolveReadCycles()
+        @_read address
 
     readWord: (address) ->
-        highByte = @readByte (address + 1) & 0xFFFF
-        highByte << 8 | @readByte address
+        highByte = @_readByte (address + 1) & 0xFFFF
+        highByte << 8 | @_readByte address
 
     readWordFromSamePage: (address) ->
-        highByte = @readByte address & 0xFF00 | (address + 1) & 0x00FF
-        highByte << 8 | @readByte address
+        highByte = @_readByte address & 0xFF00 | (address + 1) & 0x00FF
+        highByte << 8 | @_readByte address
 
     write: (address, value) ->
         @cpuMemory.write address, value
 
     writeByte: (address, value) ->
-        @resolveWriteCycles()
-        @write address, value
+        @_resolveWriteCycles()
+        @_write address, value
 
     writeWord: (address, value) ->
-        @writeByte address, value & 0xFF
-        @writeByte (address + 1) & 0xFFFF, value >>> 8
+        @_writeByte address, value & 0xFF
+        @_writeByte (address + 1) & 0xFFFF, value >>> 8
 
     ###########################################################
     # Stack pushing / pulling
     ###########################################################
 
     pushByte: (value) ->
-        @writeByte 0x100 + @stackPointer, value
+        @_writeByte 0x100 + @stackPointer, value
         @stackPointer = (@stackPointer - 1) & 0xFF
 
     pushWord: (value) ->
-        @pushByte value >>> 8
-        @pushByte value & 0xFF
+        @_pushByte value >>> 8
+        @_pushByte value & 0xFF
 
     popByte: ->
         @stackPointer = (@stackPointer + 1) & 0xFF
-        @readByte 0x100 + @stackPointer
+        @_readByte 0x100 + @stackPointer
 
     popWord: ->
-        @popByte() | @popByte() << 8
+        @_popByte() | @_popByte() << 8
 
     ###########################################################
     # Memory reading / writing cycles handling
@@ -240,39 +240,39 @@ class CPU
     ###########################################################
 
     impliedMode: =>
-        @tick()
+        @_tick()
 
     accumulatorMode: =>
-        @tick()
+        @_tick()
 
     immediateMode: =>
-        @moveProgramCounter()
+        @_moveProgramCounter 1
 
     ###########################################################
     # Zero page addressing modes
     ###########################################################
 
     zeroPageMode: =>
-        @readNextProgramByte()
+        @_readNextProgramByte()
 
     zeroPageXMode: =>
-        @getIndexedAddressByte @readNextProgramByte(), @registerX
+        @_getIndexedAddressByte @_readNextProgramByte(), @registerX
 
     zeroPageYMode: =>
-        @getIndexedAddressByte @readNextProgramByte(), @registerY
+        @_getIndexedAddressByte @_readNextProgramByte(), @registerY
 
     ###########################################################
     # Absolute addressing modes
     ###########################################################
 
     absoluteMode: =>
-        @readNextProgramWord()
+        @_readNextProgramWord()
 
     absoluteXMode: =>
-        @getIndexedAddressWord @readNextProgramWord(), @registerX
+        @_getIndexedAddressWord @_readNextProgramWord(), @registerX
 
     absoluteYMode: =>
-        @getIndexedAddressWord @readNextProgramWord(), @registerY
+        @_getIndexedAddressWord @_readNextProgramWord(), @registerY
 
     ###########################################################
     # Relative addressing mode
@@ -280,22 +280,22 @@ class CPU
 
     relativeMode: =>
         base = (@programCounter + 1) & 0xFFFF # We need to get address of the next instruction
-        offset = @getSignedByte @readNextProgramByte()
-        @getIndexedAddressWord base, offset
+        offset = @_getSignedByte @_readNextProgramByte()
+        @_getIndexedAddressWord base, offset
 
     ###########################################################
     # Indirect addressing modes
     ###########################################################
 
     indirectMode: =>
-        @readWordFromSamePage @readNextProgramWord()
+        @_readWordFromSamePage @_readNextProgramWord()
 
     indirectXMode: =>
-        @readWordFromSamePage @zeroPageXMode()
+        @_readWordFromSamePage @zeroPageXMode()
 
     indirectYMode: =>
-        base = @readWordFromSamePage @readNextProgramByte()
-        @getIndexedAddressWord base, @registerY
+        base = @_readWordFromSamePage @_readNextProgramByte()
+        @_getIndexedAddressWord base, @registerY
 
     ###########################################################
     # Address computation
@@ -305,7 +305,7 @@ class CPU
         (base + offset) & 0xFF
 
     getIndexedAddressWord : (base, offset) ->
-        @emptyReadCycles = 1 if @isPageCrossed base, offset
+        @emptyReadCycles = 1 if @_isPageCrossed base, offset
         (base + offset) & 0xFFFF
 
     isPageCrossed: (base, offset) ->

@@ -1,3 +1,5 @@
+#!/usr/bin/coffee
+
 Parser  = require "coffee-script/lib/coffee-script/parser"
 Command = require "coffee-script/lib/coffee-script/command"
 Nodes   = require "coffee-script/lib/coffee-script/nodes"
@@ -20,6 +22,8 @@ parse = Parser.parser.parse
 baseContext = "__no_class__"
 uniqueId = 0
 
+MAX_RECURSION = 10
+
 Base::clone = ->
     clone(this)
 
@@ -39,12 +43,18 @@ Base::hasChild = (id) ->
 
 Base::replaceChild = (oldChild, newChild) ->
     for name in @children
-        if @[name] is oldChild
+        child = @[name]
+        if child is oldChild
             @[name] = newChild
             return
+        else if child instanceof Array
+            for value, i in child
+                if value is oldChild
+                    child[i] = newChild
+                    return
 
 Base::getLiteralValue = ->
-    @getChild(Literal).getValue()
+    @getChild(Literal)?.getValue()
 
 Base::isCall = ->
     this instanceof Call
@@ -128,19 +138,19 @@ Base::isSelfMethodCall = ->
     @isMethodCall() and @getMethodTarget() is "this"
 
 Call::getFunctionName = ->
-    @getFunction().getLiteralValue()
+    @getFunction()?.getLiteralValue()
 
 Call::getFunction = ->
     @getChild(0)
 
 Call::getMethodName = ->
-    @getMethod().getLiteralValue()
+    @getMethod()?.getLiteralValue()
 
 Call::getMethodTarget = ->
-    @getChild(0).getLiteralValue()
+    @getChild(0)?.getLiteralValue()
 
 Call::getMethod = ->
-    @getChild(0).getChild(Access)
+    @getChild(0)?.getChild(Access)
 
 Call::getArguments = ->
     args = []
@@ -187,7 +197,9 @@ Parser.parser.parse = (source) ->
 modifyAST = (ast) ->
     functions = findFunctions ast
     level = 0
-    level++ while level < 10 and inlineFunctions ast, functions
+    while level < MAX_RECURSION and inlineCallExists ast
+        inlineFunctions ast, functions
+        level++ 
     ast
 
 findFunctions = (ast, functions = {}, context = baseContext) ->
@@ -199,8 +211,15 @@ findFunctions = (ast, functions = {}, context = baseContext) ->
             functions[context][node.getName()] = node.getBody()
     functions
 
+inlineCallExists = (ast) ->
+    exists = false
+    ast.traverseChildren true, (child) ->
+        exists or= child.isInlineCall()
+        not exists
+    exists
+
 inlineFunctions = (ast, functions, context = baseContext) ->
-    ast.traverseChildren true, (node) ->
+    ast.eachChild (node) ->
         if node.isClass()
             inlineFunctions node.getBody(), functions, node.getName()
         else if node.isInlineCall()
@@ -208,10 +227,9 @@ inlineFunctions = (ast, functions, context = baseContext) ->
             func = functions[context]?[node.getName()]
             throw "Unable to inline '#{node.getName()}' (function not found)." unless func?
             ast.replaceChild node, createInlinedCode(node, func)
-            true
         else
             inlineFunctions node, functions, context
-    false
+        true
 
 createInlinedCode = (call, func) ->
     args = call.getArguments()
@@ -228,12 +246,12 @@ createInlinedCode = (call, func) ->
             usesCount[position]++ if position >= 0
         true
     for pos in [args.length - 1 .. 0] by -1
-        if modified[pos] or (not arg.isValue() and usesCount[pos] isnt 1)
+        if modified[pos] or (not args[pos].isValue() and usesCount[pos] isnt 1)
             oldName = parameters[pos]
             newName = "__tmp_#{oldName}_#{uniqueId++}__"
             block.insertExpression createAssignment(newName, args[pos])
             block.renameLiterals oldName, newName
-        else if not arg.isValue() and usesCount[pos] is 1
+        else
             block.replaceLiterals parameters[pos], args[pos]
     new Value(new Parens(block))
 

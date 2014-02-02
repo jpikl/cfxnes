@@ -10,7 +10,7 @@ STEPS       = 8991
 all: test
 
 generate:
-	@coffee $(TEST_FILE) $(CONF_FILE) $(TEST_ROM) $(STEPS) > $(NCF_LOG_RAW)
+	@../../tools/Compiler.coffee $(TEST_FILE) $(CONF_FILE) $(TEST_ROM) $(STEPS) > $(NCF_LOG_RAW)
 
 format: generate
 	@sed "s/^\(.\{20\}\).\{27\}\(.\{26\}\).*$$/\1\2/g" $(NLT_LOG_RAW) | sed "s/\*/ /g" | head -n $(STEPS) > $(NLT_LOG_FMT)
