@@ -11,10 +11,17 @@ Class   = Nodes.Class
 Code    = Nodes.Code
 Literal = Nodes.Literal
 Obj     = Nodes.Obj
+Op      = Nodes.Op
+Param   = Nodes.Param
+Parens  = Nodes.Parens
 Value   = Nodes.Value
 
 parse = Parser.parser.parse
 baseContext = "__no_class__"
+uniqueId = 0
+
+Base::clone = ->
+    clone(this)
 
 Base::getChild = (id) ->
     result = null
@@ -30,11 +37,53 @@ Base::getChild = (id) ->
 Base::hasChild = (id) ->
     @getChild(id) isnt null
 
+Base::replaceChild = (oldChild, newChild) ->
+    for name in @children
+        if @[name] is oldChild
+            @[name] = newChild
+            return
+
 Base::getLiteralValue = ->
-    @getChild(Literal).value
+    @getChild(Literal).getValue()
+
+Base::isCall = ->
+    this instanceof Call
+
+Base::isInlineCall = ->
+    (@isFunctionCall() or @isSelfMethodCall()) and @getBareName()[0] is "_"
 
 Base::isClass = ->
     this instanceof Class
+
+Base::Assign = ->
+    this instanceof Assign
+
+Base::isFunction = ->
+    @Assign() and @hasChild(Code)
+
+Base::isParameter = ->
+    this instanceof Param
+
+Base::isValue = ->
+    this instanceof Value
+
+Base::isModifingInstruction = ->
+    @Assign() or @isModifingOperation()
+
+Base::isModifingOperation = ->
+    @isIncrementation() or @isDecrementation()
+
+Base::isIncrementation = ->
+    @isOperation() and @getOperator() is "++"
+
+Base::isDecrementation = ->
+    @isOperation() and @getOperator() is "--"
+
+Base::isOperation = ->
+    this instanceof Op
+
+Base::isLiteral = ->
+    this instanceof Literal
 
 Class::getName = ->
     @getChild(Value).getLiteralValue()
@@ -42,20 +91,20 @@ Class::getName = ->
 Class::getBody = ->
     @getChild(Block).getChild(Value).getChild(Obj)
 
-Base::isFunction = ->
-    this instanceof Assign and @hasChild(Code)
-
 Assign::getName = ->
     @getChild(Value).getLiteralValue()
 
 Assign::getBody = ->
     @getChild(Code)
 
-Base::isCall = ->
-    this instanceof Call
+Code::getParameterNames = ->
+    names = []
+    @eachChild (child) ->
+        names.push child.getLiteralValue() if child.isParameter()
+    names
 
-Call::isInlineCall = ->
-    (@isFunctionCall() or @isSelfMethodCall()) and @getBareName()[0] is "_"
+Code::getBlock = ->
+    @getChild(Block)
 
 Call::getName = ->
     if @isInlineCall()
@@ -69,13 +118,13 @@ Call::getBareName = ->
     else
         @getFunctionName()
 
-Call::isFunctionCall = ->
+Base::isFunctionCall = ->
     @isCall() and @getMethod() is null
 
-Call::isMethodCall = ->
+Base::isMethodCall = ->
     @isCall() and @getMethod() isnt null
 
-Call::isSelfMethodCall = ->
+Base::isSelfMethodCall = ->
     @isMethodCall() and @getMethodTarget() is "this"
 
 Call::getFunctionName = ->
@@ -92,6 +141,45 @@ Call::getMethodTarget = ->
 
 Call::getMethod = ->
     @getChild(0).getChild(Access)
+
+Call::getArguments = ->
+    args = []
+    position = 0
+    @eachChild (child) ->
+        args.push child if position++ > 0
+    args
+
+Assign::getVariableName = ->
+    @getChild(0).getLiteralValue()
+
+Op::getOperator = ->
+    @operator
+
+Op::getVariableName = ->
+    @first.getLiteralValue()
+
+Literal::getValue = ->
+    @value
+
+Literal::setValue = (value) ->
+    @value = value
+
+Block::insertExpression = (node) ->
+    @expressions.unshift node
+
+Block::renameLiterals = (oldName, newName) ->
+    @traverseChildren true, (node) ->
+        node.setValue(newName) if node.isLiteral() and node.getValue() is oldName
+
+Block::replaceLiterals = (name, replacement) ->
+    replaceLiterals this, name, replacement
+
+replaceLiterals = (node, name, replacement) ->
+    node.eachChild (child) ->
+        if child.isValue() and child.getLiteralValue() is name
+            node.replaceChild child, replacement
+        else
+            replaceLiterals child, name, replacement
 
 Parser.parser.parse = (source) ->
     modifyAST parse.call this, source
@@ -115,9 +203,52 @@ inlineFunctions = (ast, functions, context = baseContext) ->
     ast.traverseChildren true, (node) ->
         if node.isClass()
             inlineFunctions node.getBody(), functions, node.getName()
-        else if node.isCall() and node.isInlineCall()
+        else if node.isInlineCall()
             context = baseContext unless node.isMethodCall()
-            # TODO inline it!
+            func = functions[context]?[node.getName()]
+            throw "Unable to inline '#{node.getName()}' (function not found)." unless func?
+            ast.replaceChild node, createInlinedCode(node, func)
+            true
+        else
+            inlineFunctions node, functions, context
     false
+
+createInlinedCode = (call, func) ->
+    args = call.getArguments()
+    modified = (arg.isModifingOperation() for arg in args)
+    usesCount = (0 for [0...args.length])
+    parameters = func.getParameterNames()
+    block = func.getBlock().clone()
+    block.traverseChildren true, (node) ->
+        if node.isModifingInstruction()
+            position = parameters.indexOf node.getVariableName()
+            modified[position] = true if position >= 0
+        if node.isLiteral()
+            position = parameters.indexOf node.getValue()
+            usesCount[position]++ if position >= 0
+        true
+    for pos in [args.length - 1 .. 0] by -1
+        if modified[pos] or (not arg.isValue() and usesCount[pos] isnt 1)
+            oldName = parameters[pos]
+            newName = "__tmp_#{oldName}_#{uniqueId++}__"
+            block.insertExpression createAssignment(newName, args[pos])
+            block.renameLiterals oldName, newName
+        else if not arg.isValue() and usesCount[pos] is 1
+            block.replaceLiterals parameters[pos], args[pos]
+    new Value(new Parens(block))
+
+createAssignment = (name, value) ->
+    variable = new Value(new Literal(name))
+    new Assign(variable, value)
+
+clone = (source) ->
+    if source is null or typeof source isnt "object"
+        return source
+    if source instanceof Array
+        return (clone(value) for value in source)
+    copy = { __proto__: source.__proto__ }
+    for key, value of source
+        copy[clone(key)] = clone(value) if source.hasOwnProperty key
+    copy
 
 Command.run()
