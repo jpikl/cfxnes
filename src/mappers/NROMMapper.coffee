@@ -16,7 +16,7 @@ class NROMMapper
         @vramEnabled = cartridge.hasVRAM
         @sramEnabled = cartridge.hasSRAM
         @sramBanks = cartridge.sramBanks
-        @mirroring = cartridge.mirroring
+        @setMirroring cartridge.mirroring
         @reset()
 
     ###########################################################
@@ -139,10 +139,22 @@ class NROMMapper
 
     getNamesTableAddress: (address) ->
         # Area [$2000-$2EFF] from [$2EFF-$2FFF] is mirrored in [$3000-$3EFF]
-        if      @mirroring is Mirroring.SINGLE_SCREEN then (address & 0x23FF)                            # [1|1|1|1] in [$2000-$2FFF]
-        else if @mirroring is Mirroring.HORIZONTAL    then (address & 0x23FF) | (address & 0x0800) >>> 1 # [1|1|2|2] in [$2000-$2FFF]
-        else if @mirroring is Mirroring.VERTICAL      then (address & 0x27FF)                            # [1|2|1|2] in [$2000-$2FFF]
-        else if @mirroring is Mirroring.FOUR_SCREEN   then (address & 0x2FFF)                            # [1|2|3|4] in [$2000-$2FFF]
+        (address & @mirroringMask1) | (address & @mirroringMask2) >> 1
+
+    setMirroring: (mirroring) ->
+        switch mirroring
+            when Mirroring.SINGLE_SCREEN # [1|1|1|1] in [$2000-$2FFF]
+                @mirroringMask1 = 0x23FF
+                @mirroringMask2 = 0x0000
+            when Mirroring.HORIZONTAL    # [1|1|2|2] in [$2000-$2FFF]
+                @mirroringMask1 = 0x23FF
+                @mirroringMask2 = 0x0800
+            when Mirroring.VERTICAL      # [1|2|1|2] in [$2000-$2FFF]
+                @mirroringMask1 = 0x27FF
+                @mirroringMask2 = 0x0000
+            when Mirroring.FOUR_SCREEN   # [1|2|3|4] in [$2000-$2FFF]
+                @mirroringMask1 = 0x2FFF
+                @mirroringMask2 = 0x0000
 
     ###########################################################
     # Patterns table reading / writing

@@ -173,10 +173,8 @@ class PPU
 
     read: (address) ->
         if @_isPalleteAddress address
-            address = 0x3F00 if @_isBackdropColorAddress address
-            value = @ppuMemory.read address
-            value &= 0x30 if @monochromeMode
-            value
+            value = @ppuMemory.read @_getColorAddress address
+            if @monochromeMode then value & 0x30 else value
         else
             @ppuMemory.read address
 
@@ -185,6 +183,9 @@ class PPU
 
     isPalleteAddress: (address) ->
         (address & 0x3F00) == 0x3F00
+
+    getColorAddress: (address) ->
+        if @_isBackdropColorAddress address then 0x3F00 else address
 
     isBackdropColorAddress: (address) ->
         (address & 0x0003) is 0 and not @_isVBlank()
@@ -451,6 +452,7 @@ class PPU
             @fetchSprite address, spriteHeight, bottomY - spriteY
             @spriteScalineOverflow = 1 if @secondaryOAM.length is 8 
             # We allow more than 8 sprites on scanline, otherwise it looks ugly in some games.
+        undefined
 
     fetchSprite: (address, height, rowNumber) ->
         patternNumber = @primaryOAM[++address]
