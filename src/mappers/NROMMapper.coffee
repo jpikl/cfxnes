@@ -41,14 +41,14 @@ class NROMMapper
     ###########################################################
 
     cpuRead: (address) ->
-        if      address >= 0x8000 then @_readROM address 
-        else if address >= 0x6000 then @_readSRAM address
+        if      address >= 0x8000 then @$readROM address 
+        else if address >= 0x6000 then @$readSRAM address
         else if address >= 0x4020 then @readEXRAM address
         else    throw "Illegal state (CPU is trying to read from 0x#{wordAsHex address} using MMC)."
 
     cpuWrite: (address, value) ->
         if      address >= 0x8000 then @writeROM address, value
-        else if address >= 0x6000 then @_writeSRAM address, value
+        else if address >= 0x6000 then @$writeSRAM address, value
         else if address >= 0x4020 then @writeEXRAM address, value
         else    throw "Illegal state (CPU is trying to write to 0x#{wordAsHex address} using MMC)."
 
@@ -58,9 +58,9 @@ class NROMMapper
 
     readROM: (address) ->
         if address < 0xC000
-            @lowerROMBank[@_getROMOffset address]
+            @lowerROMBank[@$getROMOffset address]
         else
-            @upperROMBank[@_getROMOffset address]
+            @upperROMBank[@$getROMOffset address]
 
     writeROM: (address, value) ->
          value # Read-only
@@ -74,13 +74,13 @@ class NROMMapper
 
     readSRAM: (address) ->
         if @sramEnabled
-            @sramBank[@_getSRAMOffset address]
+            @sramBank[@$getSRAMOffset address]
         else
             0
 
     writeSRAM: (address, value) ->
         if @sramEnabled
-            @sramBank[@_getSRAMOffset address] = value
+            @sramBank[@$getSRAMOffset address] = value
         else
             value
 
@@ -102,24 +102,24 @@ class NROMMapper
     ###########################################################
 
     ppuRead: (address) ->
-        if      address >= 0x3F00 then @_readPallete address
-        else if address >= 0x2000 then @_readNamesTable address
-        else                           @_readPatternsTable address
+        if      address >= 0x3F00 then @$readPallete address
+        else if address >= 0x2000 then @$readNamesTable address
+        else                           @$readPatternsTable address
 
     ppuWrite: (address, value) ->
-        if      address >= 0x3F00 then @_writePallete address, value
-        else if address >= 0x2000 then @_writeNamesTable address, value
-        else                           @_writePatternsTable address, value
+        if      address >= 0x3F00 then @$writePallete address, value
+        else if address >= 0x2000 then @$writeNamesTable address, value
+        else                           @$writePatternsTable address, value
 
     ###########################################################
     # Pallete reading / writing
     ###########################################################
 
     readPallete: (address) ->
-        @vram[@_getPalleteAddress address]
+        @vram[@$getPalleteAddress address]
 
     writePallete: (address, value) ->
-        @vram[@_getPalleteAddress address] = value
+        @vram[@$getPalleteAddress address] = value
 
     getPalleteAddress: (address) ->
         if (address & 0x0003)

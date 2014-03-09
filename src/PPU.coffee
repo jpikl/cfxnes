@@ -128,7 +128,7 @@ class PPU
         value
 
     writeOAMData: (value) ->
-        @primaryOAM[@oamAddress] = value if not @_isRenderingInProgress()
+        @primaryOAM[@oamAddress] = value if not @$isRenderingInProgress()
         @oamAddress = (@oamAddress + 1) & 0xFF # Write always increments the address.
         value
 
@@ -148,19 +148,19 @@ class PPU
         address
 
     readData: ->
-        address = @_incrementAddress()
+        address = @$incrementAddress()
         oldBufferContent = @vramReadBuffer
-        @vramReadBuffer = @_read address                                         # Always increments the address
-        if @_isPalleteAddress address then @vramReadBuffer else oldBufferContent # Delayed read outside the pallete memory area
+        @vramReadBuffer = @$read address                                         # Always increments the address
+        if @$isPalleteAddress address then @vramReadBuffer else oldBufferContent # Delayed read outside the pallete memory area
 
     writeData: (value) ->
-        address = @_incrementAddress()                          # Always increments the address
-        @_write address, value if not @_isRenderingInProgress() # Only during VBLANK or disabled rendering
+        address = @$incrementAddress()                          # Always increments the address
+        @$write address, value if not @$isRenderingInProgress() # Only during VBLANK or disabled rendering
         value
 
     incrementAddress: ->
         previousAddress = @vramAddress
-        @vramAddress = (@vramAddress + @_getAddressIncrement()) & 0xFFFF
+        @vramAddress = (@vramAddress + @$getAddressIncrement()) & 0xFFFF
         previousAddress
 
     getAddressIncrement: ->
@@ -172,8 +172,8 @@ class PPU
     ###########################################################
 
     read: (address) ->
-        if @_isPalleteAddress address
-            value = @ppuMemory.read @_getColorAddress address
+        if @$isPalleteAddress address
+            value = @ppuMemory.read @$getColorAddress address
             if @monochromeMode then value & 0x30 else value
         else
             @ppuMemory.read address
@@ -185,10 +185,10 @@ class PPU
         (address & 0x3F00) == 0x3F00
 
     getColorAddress: (address) ->
-        if @_isBackdropColorAddress address then 0x3F00 else address
+        if @$isBackdropColorAddress address then 0x3F00 else address
 
     isBackdropColorAddress: (address) ->
-        (address & 0x0003) is 0 and not @_isVBlank()
+        (address & 0x0003) is 0 and not @$isVBlank()
 
     ###########################################################
     # Scrolling
@@ -224,7 +224,7 @@ class PPU
     incrementFineXScroll: ->
         if @fineXScroll is 7
             @fineXScroll = 0
-            @_incrementCoarseXScroll()
+            @$incrementCoarseXScroll()
         else
             @fineXScroll++
 
@@ -256,15 +256,15 @@ class PPU
     ###########################################################
 
     tick: ->
-        @_updateFramePixel() if @_isRenderingCycle()
-        @_updateScrolling() if @_isRenderingInProgress()
-        @_incrementCycle()
+        @$updateFramePixel() if @$isRenderingCycle()
+        @$updateScrolling() if @$isRenderingInProgress()
+        @$incrementCycle()
 
     isRenderingCycle: ->
         0 <= @scanline <= 239 and 1 <= @cycle <= 256
     
     isRenderingInProgress: ->
-        not @_isVBlank() and (@spritesVisible or @backgroundVisible)
+        not @$isVBlank() and (@spritesVisible or @backgroundVisible)
 
     isVBlank: ->
         241 <= @scanline <= 260
@@ -285,7 +285,7 @@ class PPU
     updateFramePixel: ->
         @startScanline() if @cycle is 1
         colorAddress = 0x3F00 | @renderFramePixel()
-        @setFramePixel @_read colorAddress
+        @setFramePixel @$read colorAddress
 
     startScanline: ->
         @fetchPattern()
@@ -313,12 +313,12 @@ class PPU
 
     updateScrolling: ->
         if 1 <= @cycle <= 256
-            @_incrementFineXScroll()
+            @$incrementFineXScroll()
             @incrementFineYScroll() if @cycle is 256
         else if @cycle is 257
             @copyHorizontalScrollBits()
         else if @scanline is -1 and 280 <= @cycle <= 304
-            @_copyVerticalScrollBits() 
+            @$copyVerticalScrollBits() 
 
     incrementCycle: ->
         @cycle++
@@ -393,11 +393,11 @@ class PPU
 
     fetchPattern: ->
         @fetchPalette() if (@vramAddress & 0x0001) is 0 # When coarse scroll was incremented by 2
-        patternNumer = @_read 0x2000 | @vramAddress & 0x0FFF
+        patternNumer = @$read 0x2000 | @vramAddress & 0x0FFF
         patternAddress = @bgPatternTableAddress + (patternNumer << 4)
         fineYScroll = (@vramAddress >>> 12) & 0x07
-        @patternLayer1Row = @_read patternAddress + fineYScroll
-        @patternLayer2Row = @_read patternAddress + fineYScroll + 8
+        @patternLayer1Row = @$read patternAddress + fineYScroll
+        @patternLayer2Row = @$read patternAddress + fineYScroll + 8
 
     fetchPalette: ->
         @fetchAttribute() if (@vramAddress & 0x0002) is 0 # When coarse scroll was incremented by 4
@@ -407,7 +407,7 @@ class PPU
     fetchAttribute: ->
         attributeTableAddress = 0x23C0 | @vramAddress & 0x0C00
         attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
-        @attribute = @_read attributeTableAddress + attributeNumber
+        @attribute = @$read attributeTableAddress + attributeNumber
 
     ###########################################################
     # Sprite rendering
@@ -472,8 +472,8 @@ class PPU
             paletteSelect:    0x10 | (attributes & 0x03) << 2
             inFront:          (attributes & 0x20) is 0
             zeroSprite:       address is 3 # 0 before multiple incrementation
-            patternLayer1Row: @_read patternAddress + rowNumber
-            patternLayer2Row: @_read patternAddress + rowNumber + 8
+            patternLayer1Row: @$read patternAddress + rowNumber
+            patternLayer2Row: @$read patternAddress + rowNumber + 8
 
     ###########################################################
     # Debug rendering
@@ -495,14 +495,14 @@ class PPU
     renderPatternTile: (baseX, baseY, address) ->
         for rowNumber in [0...8]
             y = baseY + rowNumber
-            patternLayer1Row = @_read address + rowNumber
-            patternLayer2Row = @_read address + rowNumber + 8
+            patternLayer1Row = @$read address + rowNumber
+            patternLayer2Row = @$read address + rowNumber + 8
             for columnNumber in [0...8]
                 x = baseX + columnNumber
                 bitPosition = columnNumber ^ 0x07
                 colorSelect1 =  (patternLayer1Row >> bitPosition) & 0x01
                 colorSelect2 = ((patternLayer2Row >> bitPosition) & 0x01) << 1
-                color = @_read 0x3F00 | colorSelect2 | colorSelect1
+                color = @$read 0x3F00 | colorSelect2 | colorSelect1
                 @setFramePixelOnPosition x, y, color
         undefined
 
@@ -511,7 +511,7 @@ class PPU
             baseY = 128 + tileY * 28
             for tileX in [0...8]
                 baseX = tileX << 5
-                color = @_read 0x3F00 | (tileY << 3) | tileX
+                color = @$read 0x3F00 | (tileY << 3) | tileX
                 @renderPaletteTile baseX, baseY, color
         undefined
 

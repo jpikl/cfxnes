@@ -24,6 +24,12 @@ uniqueId = 0
 
 MAX_RECURSION = 10
 
+isInlineCallName = (name) ->
+    name.length > 1 and name[0] is "$"
+
+fixInlineCallName = (name) ->
+    name[1..]
+
 Base::clone = ->
     clone(this)
 
@@ -60,7 +66,7 @@ Base::isCall = ->
     this instanceof Call
 
 Base::isInlineCall = ->
-    (@isFunctionCall() or @isSelfMethodCall()) and @getBareName()[0] is "_"
+    (@isFunctionCall() or @isSelfMethodCall()) and isInlineCallName @getBareName()
 
 Base::isClass = ->
     this instanceof Class
@@ -118,7 +124,7 @@ Code::getBlock = ->
 
 Call::getName = ->
     if @isInlineCall()
-        @getBareName()[1..]
+        fixInlineCallName @getBareName()
     else
         @getBareName()
 
