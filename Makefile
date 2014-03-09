@@ -42,7 +42,7 @@ init:
 	mkdir -p $(BUILD_DIR)
 
 compile: init
-	tools/Compiler.coffee --compile --output $(BUILD_DIR) $(SRC_DIR)
+	tools/Compiler.coffee --inline --compile --output $(BUILD_DIR) $(SRC_DIR)
 
 bundle: compile
 	tools/Bundler.coffee --directory $(BUILD_DIR) --entry $(MAIN_FILE) --output $(BUNDLE_FILE) $(INCLUDES)

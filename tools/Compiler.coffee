@@ -18,11 +18,17 @@ Param   = Nodes.Param
 Parens  = Nodes.Parens
 Value   = Nodes.Value
 
+MAX_RECURSION = 10
+
 parse = Parser.parser.parse
 baseContext = "__no_class__"
 uniqueId = 0
 
-MAX_RECURSION = 10
+inliningEnabled = false
+for i in [process.argv.length - 1 .. 0]
+    if process.argv[i] is "--inline"
+        inliningEnabled = true
+        process.argv.splice i, 1
 
 isInlineCallName = (name) ->
     name.length > 1 and name[0] is "$"
@@ -61,6 +67,9 @@ Base::replaceChild = (oldChild, newChild) ->
 
 Base::getLiteralValue = ->
     @getChild(Literal)?.getValue()
+
+Base::setLiteralValue = (value) ->
+    @getChild(Literal).setValue value
 
 Base::isCall = ->
     this instanceof Call
@@ -134,6 +143,15 @@ Call::getBareName = ->
     else
         @getFunctionName()
 
+Call::setBareName = (name) ->
+    if @isMethodCall()
+        @setMethodName name
+    else
+        @setFunctionName name
+
+Call::unmakeInline = ->
+    @setBareName fixInlineCallName @getBareName()
+
 Base::isFunctionCall = ->
     @isCall() and @getMethod() is null
 
@@ -146,11 +164,17 @@ Base::isSelfMethodCall = ->
 Call::getFunctionName = ->
     @getFunction()?.getLiteralValue()
 
+Call::setFunctionName = (name) ->
+    @getFunction().setLiteralValue name
+
 Call::getFunction = ->
     @getChild(0)
 
 Call::getMethodName = ->
     @getMethod()?.getLiteralValue()
+
+Call::setMethodName = (name) ->
+    @getMethod().setLiteralValue name
 
 Call::getMethodTarget = ->
     @getChild(0)?.getLiteralValue()
@@ -229,10 +253,14 @@ inlineFunctions = (ast, functions, context = baseContext) ->
         if node.isClass()
             inlineFunctions node.getBody(), functions, node.getName()
         else if node.isInlineCall()
-            context = baseContext unless node.isMethodCall()
-            func = functions[context]?[node.getName()]
-            throw "Unable to inline '#{node.getName()}' (function not found)." unless func?
-            ast.replaceChild node, createInlinedCode(node, func)
+            if inliningEnabled
+                context = baseContext unless node.isMethodCall()
+                func = functions[context]?[node.getName()]
+                throw "Unable to inline '#{node.getName()}' (function not found)." unless func?
+                ast.replaceChild node, createInlinedCode(node, func)
+            else
+                node.unmakeInline()
+                inlineFunctions node, functions, context
         else
             inlineFunctions node, functions, context
         true
