@@ -21,4 +21,9 @@ Format =
         result = value + (Array(width + 1).join " ")
         result[...width]
 
+    capitalize: (value) ->
+        words = value.split(' ')
+        words = words.map (word) -> word[0].toUpperCase() + word[1..-1].toLowerCase()
+        words.join ' '
+
 module.exports = Format

@@ -1,10 +1,13 @@
 Injector = require "./utils/Injector"
 Joypad   = require "./controllers/Joypad"
+Format   = require "./utils/Format"
 Binder   = require "./Binder"
 
 SCREEN_FPS    = 60.0988
 SCREEN_WIDTH  = 256
 SCREEN_HEIGHT = 240
+
+capitalize = Format.capitalize
 
 joypadButtonToId =
     "a":      Joypad.BUTTON_A
@@ -22,7 +25,7 @@ joypadButtonToId =
 
 class @NESCoffee
 
-    constructor: (@canvas, @mode = "Base") ->
+    constructor: (@canvas, @mode = "base") ->
         throw "Canvas element or its ID was not specified." unless @canvas?
         @initCanvas()
         @initRenderer()
@@ -30,6 +33,7 @@ class @NESCoffee
         @initConsole()
         @initControls()
         @initFPS()
+        @setVideoPalette()
         @pressPower()
         @drawFrame()
 
@@ -51,7 +55,7 @@ class @NESCoffee
             @frameBuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
 
     initConsole: ->
-        @injector = new Injector "./config/#{@mode}Config"
+        @injector = new Injector "./config/#{capitalize @mode}Config"
         @nes = @injector.getInstance "nes"
         @cartridgeFactory = @injector.getInstance "cartridgeFactory"
         @inputDevices =
@@ -85,7 +89,7 @@ class @NESCoffee
         @nes.insertCartridge cartridge
 
     setInputDevice: (port, device) ->
-        device = @inputDevices[port]?[device] or null
+        device = @inputDevices[port]?[device] or null if typeof device is "string"
         @nes.connectInputDevice port, device
 
     getInputDevice: (port) ->
@@ -184,6 +188,10 @@ class @NESCoffee
         @canvas.height = scale * SCREEN_HEIGHT
         @canvasScale = scale
         @drawFrame()
+
+    setVideoPalette: (palette = "default") ->
+        palette = require "./paletts/#{capitalize palette}Palette" if typeof palette is "string"
+        @nes.setVideoPalette palette
 
     setVideoDebug: (enabled) ->
         @nes.setVideoDebug enabled

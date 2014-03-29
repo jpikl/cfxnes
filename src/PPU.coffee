@@ -5,26 +5,6 @@
 WIDTH  = 256
 HEIGHT = 240
 
-RGBA_COLORS = [           
-    # R0    G0    B0    A0    R1    G1    B1    A1    R2    G2    B2    A2    R3    G3    B3    A3
-    0x75, 0x75, 0x75, 0xFF, 0x27, 0x1B, 0x8F, 0xFF, 0x00, 0x00, 0xAB, 0xFF, 0x47, 0x00, 0x9F, 0xFF # +00
-    0x8F, 0x00, 0x77, 0xFF, 0xAB, 0x00, 0x13, 0xFF, 0xA7, 0x00, 0x00, 0xFF, 0x7F, 0x0B, 0x00, 0xFF # +04
-    0x43, 0x2F, 0x00, 0xFF, 0x00, 0x47, 0x00, 0xFF, 0x00, 0x51, 0x00, 0xFF, 0x00, 0x3F, 0x17, 0xFF # +08
-    0x1B, 0x3F, 0x5F, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF # +0C
-    0xBC, 0xBC, 0xBC, 0xFF, 0x00, 0x73, 0xEF, 0xFF, 0x23, 0x3B, 0xEF, 0xFF, 0x83, 0x00, 0xF3, 0xFF # +10
-    0xBF, 0x00, 0xBF, 0xFF, 0xE7, 0x00, 0x5B, 0xFF, 0xDB, 0x2B, 0x00, 0xFF, 0xCB, 0x4F, 0x0F, 0xFF # +14
-    0x8B, 0x73, 0x00, 0xFF, 0x00, 0x97, 0x00, 0xFF, 0x00, 0xAB, 0x00, 0xFF, 0x00, 0x93, 0x3B, 0xFF # +18
-    0x00, 0x83, 0x8B, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF # +1C
-    0xFF, 0xFF, 0xFF, 0xFF, 0x3F, 0xBF, 0xFF, 0xFF, 0x5F, 0x97, 0xFF, 0xFF, 0xA7, 0x8B, 0xFD, 0xFF # +20
-    0xF7, 0x7B, 0xFF, 0xFF, 0xFF, 0x77, 0xB7, 0xFF, 0xFF, 0x77, 0x63, 0xFF, 0xFF, 0x9B, 0x3B, 0xFF # +24
-    0xF3, 0xBF, 0x3F, 0xFF, 0x83, 0xD3, 0x13, 0xFF, 0x4F, 0xDF, 0x4B, 0xFF, 0x58, 0xF8, 0x98, 0xFF # +28
-    0x00, 0xEB, 0xDB, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF # +2C
-    0xFF, 0xFF, 0xFF, 0xFF, 0xAB, 0xE7, 0xFF, 0xFF, 0xC7, 0xD7, 0xFF, 0xFF, 0xD7, 0xCB, 0xFF, 0xFF # +30
-    0xFF, 0xC7, 0xFF, 0xFF, 0xFF, 0xC7, 0xDB, 0xFF, 0xFF, 0xBF, 0xB3, 0xFF, 0xFF, 0xDB, 0xAB, 0xFF # +34
-    0xFF, 0xE7, 0xA3, 0xFF, 0xE3, 0xFF, 0xA3, 0xFF, 0xAB, 0xF3, 0xBF, 0xFF, 0xB3, 0xFF, 0xCF, 0xFF # +38
-    0x9F, 0xFF, 0xF3, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF # +3C
-]
-
 class PPU
 
     @inject: [ "ppuMemory", "cpu" ]
@@ -58,6 +38,15 @@ class PPU
         @scanline = -1 # Total 262+1 scanlines (-1..261)
         @cycle = 0     # Total 341 cycles per scanline (0..340)
         @renderedSprite = null
+
+    setColorPalette: (rgbData) ->
+        @colorPalette = []    # Mapping of NES colors to RGBA colors
+        for rgb, i in rgbData # Eeach color from input is ecoded as one number 0xRRGGBB
+            colorStart = i << 2
+            @colorPalette[colorStart]     = (rgb >>> 16) & 0xFF # Red
+            @colorPalette[colorStart + 1] = (rgb >>>  8) & 0xFF # Green
+            @colorPalette[colorStart + 2] =  rgb         & 0xFF # Blue
+            @colorPalette[colorStart + 3] =  0xFF               # Alpha
 
     ###########################################################
     # Control register
@@ -151,7 +140,7 @@ class PPU
         address = @$incrementAddress()
         oldBufferContent = @vramReadBuffer
         @vramReadBuffer = @$read address                                         # Always increments the address
-        if @$isPalleteAddress address then @vramReadBuffer else oldBufferContent # Delayed read outside the pallete memory area
+        if @$isPaletteAddress address then @vramReadBuffer else oldBufferContent # Delayed read outside the palette memory area
 
     writeData: (value) ->
         address = @$incrementAddress()                          # Always increments the address
@@ -172,7 +161,7 @@ class PPU
     ###########################################################
 
     read: (address) ->
-        if @$isPalleteAddress address
+        if @$isPaletteAddress address
             value = @ppuMemory.read @$getColorAddress address
             if @monochromeMode then value & 0x30 else value
         else
@@ -181,7 +170,7 @@ class PPU
     write: (address, value) ->
         @ppuMemory.write address, value
 
-    isPalleteAddress: (address) ->
+    isPaletteAddress: (address) ->
         (address & 0x3F00) == 0x3F00
 
     getColorAddress: (address) ->
@@ -275,7 +264,7 @@ class PPU
     isLightPixel: (x, y) ->
         return false if y < @scanline - 5 or y >= @scanline # Screen luminance decreases in time.
         position = (y * WIDTH + x) << 2
-        @frameBuffer[position++] or @frameBuffer[position++] or @frameBuffer[position]
+        @frameBuffer[position++] > 0x12 or @frameBuffer[position++] > 0x12 or @frameBuffer[position] > 0x12
 
     startFrame: (buffer) ->
         @framePosition = 0
@@ -306,9 +295,9 @@ class PPU
 
     setFramePixel: (color) ->
         colorPosition = color << 2 # Each RGBA color is 4B.
-        @frameBuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
-        @frameBuffer[@framePosition++] = RGBA_COLORS[colorPosition++]
-        @frameBuffer[@framePosition++] = RGBA_COLORS[colorPosition]
+        @frameBuffer[@framePosition++] = @colorPalette[colorPosition++]
+        @frameBuffer[@framePosition++] = @colorPalette[colorPosition++]
+        @frameBuffer[@framePosition++] = @colorPalette[colorPosition]
         @framePosition++ # Skip alpha because it was already set to 0xFF.
 
     updateScrolling: ->
@@ -524,8 +513,8 @@ class PPU
     setFramePixelOnPosition: (x, y, color) ->
         colorPosition = color << 2
         framePosition = ((y << 8) + x) << 2
-        @frameBuffer[framePosition++] = RGBA_COLORS[colorPosition++]
-        @frameBuffer[framePosition++] = RGBA_COLORS[colorPosition++]
-        @frameBuffer[framePosition++] = RGBA_COLORS[colorPosition++]
+        @frameBuffer[framePosition++] = @colorPalette[colorPosition++]
+        @frameBuffer[framePosition++] = @colorPalette[colorPosition++]
+        @frameBuffer[framePosition++] = @colorPalette[colorPosition++]
 
 module.exports = PPU

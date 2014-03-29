@@ -35,7 +35,10 @@ INCLUDES = NESCoffee.js \
            controllers/Joypad.js \
            controllers/Zapper.js \
            utils/Format.js \
-           utils/Injector.js
+           utils/Injector.js \
+           paletts/BrightPalette.js \
+           paletts/DefaultPalette.js \
+           paletts/RealisticPalette.js
 
 all: optimize
 

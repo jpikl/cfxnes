@@ -33,9 +33,17 @@ $(document).ready ->
         nesCoffee.setVideoScale scale
         $("#video-scale").prop "value", scale
 
+    @setVideoPalette = (palette) ->
+        nesCoffee.setVideoPalette palette
+        $("#video-palette").prop "value", palette
+        refreshScreen()
+
     @setVideoDebug = (enabled) ->
         nesCoffee.setVideoDebug enabled
-        nesCoffee.step() if not nesCoffee.isRunning() # To refresh screen
+        refreshScreen()
+
+    refreshScreen = ->
+        nesCoffee.step() if not nesCoffee.isRunning()
 
     ###########################################################
     # Controls
@@ -184,6 +192,7 @@ $(document).ready ->
     @bindControl 2, "zapper", "trigger", "mouse", "left"
 
     @setVideoScale 1
+    @setVideoPalette "default"
     @stopEmulator()
 
     setInterval updateFPS, 1000
