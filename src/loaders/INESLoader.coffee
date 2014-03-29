@@ -16,10 +16,11 @@ class INESLoader extends AbstractLoader
         @containsSignature reader, INES_SIGNATURE
 
     readCartridge: ->
-        @readHeader()     #  16 B [$0000-$000F]
-        @readTrainer()    # 512 B (optional)
-        @readROMBanks()   #  16KB x number of ROM banks
-        @readVROMBanks()  #   8KB x number of VROM banks
+        @readHeader()  #  16 B [$0000-$000F]
+        @readTrainer() # 512 B (optional)
+        @readROM()     #  16KB x number of units
+        @readVROM()    #   8KB x number of units
+        @createSRAM()  #   8KB x number of units
 
     ###########################################################
     # Header reading
@@ -27,20 +28,20 @@ class INESLoader extends AbstractLoader
 
     readHeader: ->
         @checkSignature INES_SIGNATURE # 4B [$00-$03]
-        @readROMBanksCount()           # 1B [$04]
-        @readVROMBanksCount()          # 1B [$05]
+        @readROMSize()                 # 1B [$04]
+        @readVROMSize()                # 1B [$05]
         @readControlBytes()            # 2B [$06,$07]
-        @readSRAMBanksCount()          # 1B [$08]
+        @readSRAMSize()                # 1B [$08]
         @readFlags9()                  # 1B [$09]
         @readFlags10()                 # 1B [$0A]
         @readRestOfHeader()            # 5B [$0B-$0F]
 
-    readROMBanksCount: ->
-        @cartridge.romBanksCount  = @readByte()
+    readROMSize: ->
+        @cartridge.romSize  = @readByte() * 0x4000 # N x 16KB
 
-    readVROMBanksCount: ->
-        @cartridge.vromBanksCount = @readByte() 
-        @cartridge.hasVRAM = @cartridge.vromBanksCount == 0
+    readVROMSize: ->
+        @cartridge.vromSize = @readByte() * 0x2000 # N x 8KB
+        @cartridge.hasVRAM = @cartridge.vromSize == 0
 
     readControlBytes: ->
         controlByte1 = @readByte()
@@ -59,8 +60,9 @@ class INESLoader extends AbstractLoader
         @cartridge.hasPlayChoice = (controlByte2 & 0x02) != 0
         @cartridge.mapperId = (controlByte2 & 0xF0) | (controlByte1 >>> 4)
         
-    readSRAMBanksCount: ->
-        @cartridge.sramBanksCount = Math.max 1, @readByte() # At least 1 bank always (compatibility purposes)
+    readSRAMSize: ->
+        unitsCount = Math.max 1, @readByte() # At least 1 unit (compatibility purposes)
+        @cartridge.sramSize = unitsCount * 0x2000 # N x 8KB
 
     readFlags9: ->
         flags = @readByte()
@@ -81,16 +83,13 @@ class INESLoader extends AbstractLoader
     readTrainer: ->
         @cartridge.trainer = @readArray 0x200 if @cartridge.hasTrainer # 512B
 
-    readROMBanks: ->
-        @cartridge.romBanks = (@readROMBank() for [0...@cartridge.romBanksCount])
+    readROM: ->
+        @cartridge.rom = @readArray @cartridge.romSize
 
-    readROMBank: ->
-        @readArray 0x4000 # 16KB
+    readVROM: ->
+        @cartridge.vrom = @readArray @cartridge.vromSize
 
-    readVROMBanks: ->
-        @cartridge.vromBanks = (@readVROMBank() for [0...@cartridge.vromBanksCount])
-
-    readVROMBank: ->
-        @readArray 0x2000 # 8KB
+    createSRAM: ->
+        @cartridge.sram = (0 for [0...@cartridge.sramSize])
 
 module.exports = INESLoader

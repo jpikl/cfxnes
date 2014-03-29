@@ -11,7 +11,17 @@ class CNROMMapper extends NROMMapper
     ###########################################################
 
     writeROM: (address, value) ->
-        @vromBank = @vromBanks[value & 0x03]
+        @vromBankBase = (value & 0x03) * 0x2000 # Select 8KB VROM bank (0..7)
         value
+
+    ###########################################################
+    # VROM reading
+    ###########################################################
+
+    resetVROM: ->
+        @vromBankBase = 0
+
+    readVROM: (address) ->
+        @vrom[@vromBankBase | address]
 
 module.exports = CNROMMapper

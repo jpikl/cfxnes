@@ -20,18 +20,7 @@ class AbstractLoader
         @cartridge = cartridge ? {}
         @reader.reset()
         @readCartridge()
-        @initCartridge()
         @cartridge
-
-    initCartridge: ->
-        @initSRAM()
-
-    initSRAM: ->
-        if @cartridge.hasSRAM
-            @cartridge.sramBanks = (@createEmptySRAMBank() for [0...@cartridge.sramBanksCount])
-
-    createEmptySRAMBank: ->
-        0 for [0...0x2000]
 
     ###########################################################
     # Helper functions
