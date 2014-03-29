@@ -122,7 +122,7 @@ $(document).ready ->
     downloadROMsList = ->
         setROMsDialogMessage "Downloading game list..."
         $.getJSON("roms/")
-            .fail(-> setROMsDialogMessage "Error: Unable to download games list!")
+            .fail(-> setROMsDialogMessage "Error: Unable to download game list!")
             .done((data) -> setROMsDialogList data)
 
     setROMsDialogMessage = (message) ->
