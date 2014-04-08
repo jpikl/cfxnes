@@ -30,7 +30,7 @@ class NROMMapper
         @resetROM()
         @resetVROM()
         @resetVRAM()
-    
+
     resetROM: ->
         # For mappers to implement.
 
@@ -45,7 +45,7 @@ class NROMMapper
     ###########################################################
 
     cpuRead: (address) ->
-        if      address >= 0x8000 then @readROM address 
+        if      address >= 0x8000 then @readROM address
         else if address >= 0x6000 then @readSRAM address
         else if address >= 0x4020 then @readEXRAM address
         else    throw "Illegal state (CPU is trying to read from 0x#{wordAsHex address} using MMC)."
@@ -123,7 +123,7 @@ class NROMMapper
         if (address & 0x0003)
             address & 0x3F1F # Mirroring of [$3F00-$3F1F] in [$3F00-$3FFF]
         else
-            address & 0x3F0F # $3F10/$3F14/$3F18/$3F1C are mirrorors or $3F00/$3F04/$3F08$/3F0C.
+            address & 0x3F0F # $3F10/$3F14/$3F18/$3F1C are mirrorors of $3F00/$3F04/$3F08$/3F0C.
 
     ###########################################################
     # Names & attributes table reading / writing
@@ -136,7 +136,7 @@ class NROMMapper
         @vram[@$getNamesTableAddress address] = value
 
     getNamesTableAddress: (address) ->
-        # Area [$2000-$2EFF] from [$2EFF-$2FFF] is mirrored in [$3000-$3EFF]
+        # Area [$2000-$2EFF] from [$2000-$2FFF] is mirrored in [$3000-$3EFF]
         (address & @mirroringMask1) | (address & @mirroringMask2) >> 1
 
     setMirroring: (mirroring) ->

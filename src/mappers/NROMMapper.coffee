@@ -11,15 +11,13 @@ class NROMMapper extends AbstractMapper
     ###########################################################
 
     resetROM: ->
-        @mirrorLowerROMBank = @rom.length <= 0x4000 # Check if we have 16KB or 32KB ROM
+        # Check if we have 16KB or 32KB ROM
+        if @rom.length <= 0x4000
+            @romMask = 0x3FFF
+        else
+            @romMask = 0x7FFF
 
     readROM: (address) ->
-        @rom[@$getROMOffset address]
-
-    getROMOffset: (address) ->
-        if @mirrorLowerROMBank
-            address & 0x3FFF 
-        else
-            address & 0x7FFF 
+        @rom[address & @romMask]
 
 module.exports = NROMMapper
