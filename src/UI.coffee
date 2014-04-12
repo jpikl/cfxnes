@@ -1,5 +1,5 @@
 $(document).ready ->
-    
+
     nesCoffee = new NESCoffee $("#video-output")[0]
 
     ###########################################################
@@ -63,7 +63,7 @@ $(document).ready ->
 
     @bindControl = bindControl = (port, device, button, srcDevice, srcButton) ->
         labelId = "#" + device + "-" + port + "-" + button
-        name = nesCoffee.bindControl port, device, button, srcDevice, srcButton, -> 
+        name = nesCoffee.bindControl port, device, button, srcDevice, srcButton, ->
             $(labelId).html "---"
         $(labelId).html name
 
@@ -181,8 +181,8 @@ $(document).ready ->
     @setController 1, "joypad"
     @setController 2, "zapper"
 
-    @bindControl 1, "joypad", "a", "keyboard", "x"
-    @bindControl 1, "joypad", "b", "keyboard", "z"
+    @bindControl 1, "joypad", "a", "keyboard", "c"
+    @bindControl 1, "joypad", "b", "keyboard", "x"
     @bindControl 1, "joypad", "start", "keyboard", "enter"
     @bindControl 1, "joypad", "select", "keyboard", "shift"
     @bindControl 1, "joypad", "up", "keyboard", "up"
