@@ -11,11 +11,11 @@
         <script type="text/javascript" src="js/UI.js"></script>
     </head>
     <body ondragover="allowFileDrop(event)" ondrop="handleDroppedFile(event)">
-        <h1>NESCoffee</h1>
+        <h1><img class="logo" src="img/logo-transparent.png" alt="NESCoffee logo"/>NESCoffee</h1>
         <p>A Nintendo Entertainment System emulator written in CoffeeScript.</p>
-        <p>NESCoffee is in early development, so it still isn't working corectly (only few games are playable). 
-           The overall performance is also quite slow (at least 1.7 GHz CPU and the <b>latest Google Chrome</b> 
-           are required). Try out  <a href="http://fir.sh/projects/jsnes/">JSNES</a> as a better alternative. 
+        <p>NESCoffee is in early development, so it still isn't working corectly (only few games are playable).
+           The overall performance is also quite slow (at least 1.7 GHz CPU and the <b>latest Google Chrome</b>
+           are required). Try out  <a href="http://fir.sh/projects/jsnes/">JSNES</a> as a better alternative.
            The source code is available at <a href="https://bitbucket.org/jpikl/nescoffee">bitbucket</a>.</p>
         <canvas id="video-output">Your browser does not support canvas.</canvas>
         <div class="section">
@@ -45,7 +45,7 @@
         </div>
         <div id="roms-section" class="section">
             Browse <a href="javascript:void(0)" onclick="showROMsDialog()">Game Library</a> or
-            <button onclick="$('#rom-file-input').click()">Select ROM file</button> of your game. 
+            <button onclick="$('#rom-file-input').click()">Select ROM file</button> of your game.
             <input type="file" id="rom-file-input" onchange="handleSelectedFile(event)"/></br>
             You can also drop ROM files directly inside this window to load them.
         </div>

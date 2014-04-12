@@ -8,7 +8,7 @@ OPT_FILE     = NESCoffeeOptimized.js
 OPT_LEVEL    = SIMPLE_OPTIMIZATIONS
 SERVER_DIR   = ../nescoffee-heroku
 DEPLOY_DIR   = $(SERVER_DIR)/public/
-DEPLOY_FILES = $(BUILD_DIR)/$(OPT_FILE) $(BUILD_DIR)/UI.js css/*.css index.html
+DEPLOY_FILES = $(BUILD_DIR)/$(OPT_FILE) $(BUILD_DIR)/UI.js css/*.css img/* index.html
 
 INCLUDES = NESCoffee.js \
 		   Binder.js \
