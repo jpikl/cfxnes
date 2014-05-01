@@ -4,6 +4,10 @@ fs       = require "fs"
 path     = require "path"
 optimist = require "optimist"
 
+###########################################################
+# Command line options
+###########################################################
+
 argv = optimist
     .usage("Merge multiple NodeJS modules into one.\nUsage: $0 [options] input-files...")
     .string("entry")
@@ -24,12 +28,20 @@ if argv.help or argv._.length == 0
     optimist.showHelp()
     return 1
 
+###########################################################
+# Configuration
+###########################################################
+
 process.chdir argv.directory if argv.directory?
 inputFiles = argv._
 entryFile = argv.entry or inputFiles[inputFiles.length - 1]
 outputFd = fs.openSync argv.output, "w" if argv.output?
 writeOutput = if outputFd? then fs.writeSync.bind this, outputFd else console.log
 closeOutput = if outputFd? then fs.closeSync.bind this, outputFd else ( -> )
+
+###########################################################
+# Output generation
+###########################################################
 
 writeOutput """
     var modules = {};

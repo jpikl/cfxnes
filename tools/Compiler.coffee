@@ -4,6 +4,10 @@ Parser  = require "coffee-script/lib/coffee-script/parser"
 Command = require "coffee-script/lib/coffee-script/command"
 Nodes   = require "coffee-script/lib/coffee-script/nodes"
 
+###########################################################
+# AST classes
+###########################################################
+
 Access  = Nodes.Access
 Assign  = Nodes.Assign
 Base    = Nodes.Base
@@ -18,6 +22,10 @@ Param   = Nodes.Param
 Parens  = Nodes.Parens
 Value   = Nodes.Value
 
+###########################################################
+# Configuration
+###########################################################
+
 MAX_RECURSION = 10
 
 parse = Parser.parser.parse
@@ -30,11 +38,9 @@ for i in [process.argv.length - 1 .. 0]
         inliningEnabled = true
         process.argv.splice i, 1
 
-isInlineCallName = (name) ->
-    name.length > 1 and name[0] is "$"
-
-fixInlineCallName = (name) ->
-    name[1..]
+###########################################################
+# AST - core methods
+###########################################################
 
 Base::clone = ->
     clone(this)
@@ -65,38 +71,34 @@ Base::replaceChild = (oldChild, newChild) ->
                     child[i] = newChild
                     return
 
+###########################################################
+# AST - literals and values
+###########################################################
+
+Base::isLiteral = ->
+    this instanceof Literal
+
+Base::isValue = ->
+    this instanceof Value
+
 Base::getLiteralValue = ->
     @getChild(Literal)?.getValue()
 
 Base::setLiteralValue = (value) ->
     @getChild(Literal).setValue value
 
-Base::isCall = ->
-    this instanceof Call
+Literal::getValue = ->
+    @value
 
-Base::isInlineCall = ->
-    (@isFunctionCall() or @isSelfMethodCall()) and isInlineCallName @getBareName()
+Literal::setValue = (value) ->
+    @value = value
 
-Base::isClass = ->
-    this instanceof Class
+###########################################################
+# AST - operations
+###########################################################
 
-Base::Assign = ->
-    this instanceof Assign
-
-Base::isFunction = ->
-    @Assign() and @hasChild(Code)
-
-Base::isParameter = ->
-    this instanceof Param
-
-Base::isValue = ->
-    this instanceof Value
-
-Base::isModifingInstruction = ->
-    @Assign() or @isModifingOperation()
-
-Base::isModifingOperation = ->
-    @isIncrementation() or @isDecrementation()
+Base::isOperation = ->
+    this instanceof Op
 
 Base::isIncrementation = ->
     @isOperation() and @getOperator() is "++"
@@ -104,23 +106,64 @@ Base::isIncrementation = ->
 Base::isDecrementation = ->
     @isOperation() and @getOperator() is "--"
 
-Base::isOperation = ->
-    this instanceof Op
+Base::isModifingOperation = ->
+    @isIncrementation() or @isDecrementation()
 
-Base::isLiteral = ->
-    this instanceof Literal
+Base::isModifingInstruction = ->
+    @isAssign() or @isModifingOperation()
 
-Class::getName = ->
-    @getChild(Value).getLiteralValue()
+Op::getOperator = ->
+    @operator
 
-Class::getBody = ->
-    @getChild(Block).getChild(Value).getChild(Obj)
+Op::getVariableName = ->
+    @first.getLiteralValue()
+
+###########################################################
+# AST - assignment
+###########################################################
+
+Base::isAssign = ->
+    this instanceof Assign
 
 Assign::getName = ->
     @getChild(Value).getLiteralValue()
 
 Assign::getBody = ->
     @getChild(Code)
+
+Assign::getVariableName = ->
+    @getChild(0).getLiteralValue()
+
+###########################################################
+# AST - blocks
+###########################################################
+
+Block::insertExpression = (node) ->
+    @expressions.unshift node
+
+Block::renameLiterals = (oldName, newName) ->
+    @traverseChildren true, (node) ->
+        node.setValue(newName) if node.isLiteral() and node.getValue() is oldName
+
+Block::replaceLiterals = (name, replacement) ->
+    replaceLiterals this, name, replacement
+
+replaceLiterals = (node, name, replacement) ->
+    node.eachChild (child) ->
+        if child.isValue() and child.getLiteralValue() is name
+            node.replaceChild child, replacement
+        else
+            replaceLiterals child, name, replacement
+
+###########################################################
+# AST - functions
+###########################################################
+
+Base::isFunction = ->
+    @isAssign() and @hasChild(Code)
+
+Base::isParameter = ->
+    this instanceof Param
 
 Code::getParameterNames = ->
     names = []
@@ -130,6 +173,16 @@ Code::getParameterNames = ->
 
 Code::getBlock = ->
     @getChild(Block)
+
+###########################################################
+# AST - calls
+###########################################################
+
+Base::isCall = ->
+    this instanceof Call
+
+Base::isInlineCall = ->
+    (@isFunctionCall() or @isSelfMethodCall()) and isInlineCallName @getBareName()
 
 Call::getName = ->
     if @isInlineCall()
@@ -149,17 +202,25 @@ Call::setBareName = (name) ->
     else
         @setFunctionName name
 
+Call::getArguments = ->
+    args = []
+    position = 0
+    @eachChild (child) ->
+        args.push child if position++ > 0
+    args
+
 Call::unmakeInline = ->
     @setBareName fixInlineCallName @getBareName()
+
+###########################################################
+# AST - function calls
+###########################################################
 
 Base::isFunctionCall = ->
     @isCall() and @getMethod() is null
 
-Base::isMethodCall = ->
-    @isCall() and @getMethod() isnt null
-
-Base::isSelfMethodCall = ->
-    @isMethodCall() and @getMethodTarget() is "this"
+Call::getFunction = ->
+    @getChild(0)
 
 Call::getFunctionName = ->
     @getFunction()?.getLiteralValue()
@@ -167,8 +228,18 @@ Call::getFunctionName = ->
 Call::setFunctionName = (name) ->
     @getFunction().setLiteralValue name
 
-Call::getFunction = ->
-    @getChild(0)
+###########################################################
+# AST - method calls
+###########################################################
+
+Base::isMethodCall = ->
+    @isCall() and @getMethod() isnt null
+
+Base::isSelfMethodCall = ->
+    @isMethodCall() and @getMethodTarget() is "this"
+
+Call::getMethod = ->
+    @getChild(0)?.getChild(Access)
 
 Call::getMethodName = ->
     @getMethod()?.getLiteralValue()
@@ -179,47 +250,22 @@ Call::setMethodName = (name) ->
 Call::getMethodTarget = ->
     @getChild(0)?.getLiteralValue()
 
-Call::getMethod = ->
-    @getChild(0)?.getChild(Access)
+###########################################################
+# AST - classes
+###########################################################
 
-Call::getArguments = ->
-    args = []
-    position = 0
-    @eachChild (child) ->
-        args.push child if position++ > 0
-    args
+Base::isClass = ->
+    this instanceof Class
 
-Assign::getVariableName = ->
-    @getChild(0).getLiteralValue()
+Class::getName = ->
+    @getChild(Value).getLiteralValue()
 
-Op::getOperator = ->
-    @operator
+Class::getBody = ->
+    @getChild(Block).getChild(Value).getChild(Obj)
 
-Op::getVariableName = ->
-    @first.getLiteralValue()
-
-Literal::getValue = ->
-    @value
-
-Literal::setValue = (value) ->
-    @value = value
-
-Block::insertExpression = (node) ->
-    @expressions.unshift node
-
-Block::renameLiterals = (oldName, newName) ->
-    @traverseChildren true, (node) ->
-        node.setValue(newName) if node.isLiteral() and node.getValue() is oldName
-
-Block::replaceLiterals = (name, replacement) ->
-    replaceLiterals this, name, replacement
-
-replaceLiterals = (node, name, replacement) ->
-    node.eachChild (child) ->
-        if child.isValue() and child.getLiteralValue() is name
-            node.replaceChild child, replacement
-        else
-            replaceLiterals child, name, replacement
+###########################################################
+# Modified CoffeeScript parser
+###########################################################
 
 Parser.parser.parse = (source) ->
     modifyAST parse.call this, source
@@ -229,7 +275,7 @@ modifyAST = (ast) ->
     level = 0
     while level < MAX_RECURSION and inlineCallExists ast
         inlineFunctions ast, functions
-        level++ 
+        level++
     ast
 
 findFunctions = (ast, functions = {}, context = baseContext) ->
@@ -293,6 +339,16 @@ createAssignment = (name, value) ->
     variable = new Value(new Literal(name))
     new Assign(variable, value)
 
+###########################################################
+# Utilities
+###########################################################
+
+isInlineCallName = (name) ->
+    name.length > 1 and name[0] is "$"
+
+fixInlineCallName = (name) ->
+    name[1..]
+
 clone = (source) ->
     if source is null or typeof source isnt "object"
         return source
@@ -302,5 +358,9 @@ clone = (source) ->
     for key, value of source
         copy[clone(key)] = clone(value) if source.hasOwnProperty key
     copy
+
+###########################################################
+# Compiler execution
+###########################################################
 
 Command.run()
