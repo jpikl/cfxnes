@@ -8,7 +8,7 @@ Mirroring = Types.Mirroring
 # Base class for ROM mappers
 ###########################################################
 
-class NROMMapper
+class AbstractMapper
 
     constructor: (cartridge) ->
         @rom = cartridge.rom    # Also known as PRG ROM
@@ -27,14 +27,10 @@ class NROMMapper
         @reset()
 
     reset: ->
-        @resetROM()
-        @resetVROM()
+        @resetMapper()
         @resetVRAM()
 
-    resetROM: ->
-        # For mappers to implement.
-
-    resetVROM: ->
+    resetMapper: ->
         # For mappers to implement.
 
     resetVRAM: ->
@@ -51,7 +47,7 @@ class NROMMapper
         else    throw "Illegal state (CPU is trying to read from 0x#{wordAsHex address} using MMC)."
 
     cpuWrite: (address, value) ->
-        if      address >= 0x8000 then @writeROM address, value
+        if      address >= 0x8000 then @writeMapper address, value
         else if address >= 0x6000 then @writeSRAM address, value
         else if address >= 0x4020 then @writeEXRAM address, value
         else    throw "Illegal state (CPU is trying to write to 0x#{wordAsHex address} using MMC)."
@@ -63,8 +59,8 @@ class NROMMapper
     readROM: (address) ->
         throw "Mapper does not implement ROM reading!"
 
-    writeROM: (address, value) ->
-         value # Read-only
+    writeMapper: (address, value) ->
+         value # Read-only by default
 
     ###########################################################
     # SRAM reading / writing
@@ -180,4 +176,4 @@ class NROMMapper
     writeVROM: (address, value) ->
          value # Read-only
 
-module.exports = NROMMapper
+module.exports = AbstractMapper

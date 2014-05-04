@@ -7,19 +7,20 @@ NROMMapper = require "./NROMMapper"
 class CNROMMapper extends NROMMapper
 
     ###########################################################
-    # ROM writing
+    # MMC registers writing
     ###########################################################
 
-    writeROM: (address, value) ->
+    resetMapper: ->
+        super()
+        @vromBase = 0
+
+    writeMapper: (address, value) ->
         @vromBase = (value & 0x03) * 0x2000 # Select 8KB VROM bank (0..7)
         value
 
     ###########################################################
     # VROM reading
     ###########################################################
-
-    resetVROM: ->
-        @vromBase = 0
 
     readVROM: (address) ->
         @vrom[@vromBase | address]
