@@ -7,6 +7,7 @@ class MapperFactory
     constructor: ->
         @mapperClasses = []
         @registerMapper 0x00, "NROMMapper"
+        @registerMapper 0x01, "MMC1Mapper"
         @registerMapper 0x02, "UNROMMapper"
         @registerMapper 0x03, "CNROMMapper"
 
