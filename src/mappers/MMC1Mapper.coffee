@@ -23,9 +23,11 @@ class MMC1Mapper extends AbstractMapper
         @writesCount = 0   # Counts 5 writes to fill shift register.
 
     resetBankRegisters: ->
-        @romBankRegister = 0x0   # 5-bit
-        @vromBank1Register = 0x0 # 5-bit
-        @vromBank1Register = 0x0 # 5-bit
+        @romPageSelect1 = 0  # Selects 256K ROM page (bit 0)
+        @romPageSelect2 = 0  # Selects 256K ROM page (bit 1)
+        @romBankSelect = 0   # Selects lower/upper 16K ROM bank within a 256K page
+        @vromBankSelect1 = 0 # Selects lower 4K ROM bank
+        @vromBankSelect2 = 0 # Selects upper 4K ROM bank
 
     resetVariables: ->
         @lowerROMBankBase = 0x0000         # 16K $8000-$BFFF (default first ROM bank in 256k)
@@ -72,64 +74,53 @@ class MMC1Mapper extends AbstractMapper
             @setMirroring Mirroring.SINGLE_SCREEN
 
     switchROMBank: (controll) ->
-        pageBase = @getROMPageBase controll # Base address of one of 256K pages (for 512K and 1024K roms)
+        pageBase = @getROMPage(controll) * 0x100000 # Base address of one of 256K pages (for 512K and 1024K roms)
         if controll & 0x08
             if controll & 0x04
-                @lowerROMBankBase = pageBase + @romBankRegister * 0x4000 # Selected 16K ROM bank
-                @upperROMBankBase = pageBase + 0x0F * 0x4000             # Last ROM bank in 256k
+                @lowerROMBankBase = pageBase + @romBankSelect * 0x4000 # Selected 16K ROM bank
+                @upperROMBankBase = pageBase + 0x0F * 0x4000           # Last 16K ROM bank from 256K
             else
-                @lowerROMBankBase = pageBase                             # First ROM bank in 256k
-                @upperROMBankBase = pageBase + @romBankRegister * 0x4000 # Selected 16K ROM bank
+                @lowerROMBankBase = pageBase                           # First 16K ROM bank
+                @upperROMBankBase = pageBase + @romBankSelect * 0x4000 # Selected 16K ROM bank
         else
-            @lowerROMBankBase = pageBase + (@romBankRegister & 0x1E) * 0x4000 # Selected 32K ROM bank (first part)
-            @upperROMBankBase = @lowerROMBankBase + 0x4000                    # Selected 32K ROM bank (second part)
+            @lowerROMBankBase = pageBase + (@romBankSelect & 0x0E) * 0x4000 # Selected 32K ROM bank (first part)
+            @upperROMBankBase = @lowerROMBankBase + 0x4000                  # Selected 32K ROM bank (second part)
 
-    getROMPageBase: (controll) ->
+    getROMPage: (controll) ->
         if @rom.length <= 0x100000
-            @getROMPageBaseFor256K()
+            0                                 # First (and only one) 256K page on 256K ROM
         else if @rom.length <= 0x200000
-            @getROMPageBaseFor512K()
+            @romPageSelect1                   # First or second 256K page on 512K ROM
+        else if controll & 0x10
+            @romPageSelect2 | @romPageSelect1 # One of four 256K pages on 1024K ROM
         else
-            @getROMPageBaseFor1024K controll
-
-    getROMPageBaseFor256K: ->
-        0x0000 # First (and only one) 256K page
-
-    getROMPageBaseFor512K: ->
-        selector = @vromBank1Register & 0x10
-        selector << 16 # First or second 256K page
-
-    getROMPageBaseFor1024K: (controll) ->
-        selector1 =  @vromBank1Register & 0x10
-        selector2 = (@vromBank2Register & 0x10) << 1
-        if controll & 0x10
-            (select2 | select1) << 16  # Selection from all four 256K pages
-        else
-            selector1 << 17            # First or third 256K page
+            @romPageSelect1 << 1              # First or third 256K page on 1024K ROM
 
     switchVROMBank: (controll) ->
         if controll & 0x10
-            @lowerVROMBankBase = @vromBank1Register * 0x1000 # Select 4K VROM bank
-            @upperVROMBankBase = @vromBank2Register * 0x1000 # Select 4K VROM bank
+            @lowerVROMBankBase = @vromBankSelect1 * 0x1000 # Select 4K VROM bank
+            @upperVROMBankBase = @vromBankSelect2 * 0x1000 # Select 4K VROM bank
         else
-            @lowerVROMBankBase = (@vromBank1Register & 0x1E) * 0x1000 # Select 8K VROM bank (first part)
-            @upperVROMBankBase = @lowerVROMBankBase + 0x1000          # Select 8K VROM bank (second part)
+            @lowerVROMBankBase = (@vromBankSelect1 & 0x0E) * 0x1000 # Select 8K VROM bank (first part)
+            @upperVROMBankBase = @lowerVROMBankBase + 0x1000        # Select 8K VROM bank (second part)
 
     writeVROMBank1Register: (value) ->
-        @vromBank1Register = value & 0x01F
+        @vromBankSelect1 = value & 0x0F
+        @romPageSelect1 = (value & 0x10) >> 4
 
     writeVROMBank2Register: (value) ->
-        @vromBank2Register = value  & 0x01F
+        @vromBankSelect2 = value & 0x0F
+        @romPageSelect2 = (value & 0x10) >> 3
 
     writeROMBankRegister: (value) ->
-        @romBankRegister = value & 0x01F
+        @romBankSelect = value & 0x0F
 
     ###########################################################
     # ROM reading
     ###########################################################
 
     readROM: (address) ->
-        @rom[(@$getROMBase address) | (@$getROMOffset address)]
+        @rom[@$getROMBase(address) | @$getROMOffset(address)]
 
     getROMBase: (address) ->
         if address < 0xC000
@@ -145,7 +136,7 @@ class MMC1Mapper extends AbstractMapper
     ###########################################################
 
     readVROM: (address) ->
-        @rom[(@$getVROMBase address) | (@$getVROMOffset address)]
+        @rom[@$getVROMBase(address) | @$getVROMOffset(address)]
 
     getVROMBase: (address) ->
         if address < 0x1000
