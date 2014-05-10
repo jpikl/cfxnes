@@ -10,110 +10,105 @@ Mirroring = Types.Mirroring
 class MMC1Mapper extends AbstractMapper
 
     ###########################################################
-    # MMC registers initialization
+    # MMC initialization
     ###########################################################
 
     resetMapper: ->
         @resetShiftRegister()
         @resetBankRegisters()
-        @resetVariables()
+        @synchronizeMapper()
 
     resetShiftRegister: ->
         @shiftRegister = 0 # 5-bit (shifts to right, writes are to bit 4)
         @writesCount = 0   # Counts 5 writes to fill shift register.
 
     resetBankRegisters: ->
-        @romPageSelect1 = 0  # Selects 256K ROM page (bit 0)
-        @romPageSelect2 = 0  # Selects 256K ROM page (bit 1)
-        @romBankSelect = 0   # Selects lower/upper 16K ROM bank within a 256K page
-        @vromBankSelect1 = 0 # Selects lower 4K ROM bank
-        @vromBankSelect2 = 0 # Selects upper 4K ROM bank
-
-    resetVariables: ->
-        @lowerROMBankBase = 0x0000         # 16K $8000-$BFFF (default first ROM bank in 256k)
-        @upperROMBankBase = 0x0F * 0x4000  # 16K $C000-$FFFF (default last ROM bank in 256k)
-        @lowerVROMBankBase = 0x0000        #  4K $0000-$0FFF
-        @upperVROMBankBase = 0x0000        #  4K $1000-$1FFF
+        @controllRegister = 0x0C # 5-bit - mapper configuration
+        @romBankRegister = 0     # 5-bit - selects lower/upper 16K ROM bank within a 256K page
+        @vromBankRegister1 = 0   # 5-bit - selects lower 4K ROM bank
+        @vromBankRegister2 = 0   # 5-bit - selects upper 4K ROM bank
 
     ###########################################################
-    # MMC registers writing
+    # MMC writing
     ###########################################################
 
     writeMapper: (address, value) ->
         if value & 0x80
-            @resetShiftRegister() # Bit 7 is on
+            @resetShiftRegister()
+            @controllRegister = @controllRegister | 0x0C
         else
-            @shiftRegister = (value & 1) << 4 | @shiftRegister >>> 1
-            @copyShiftRegister address if ++@writesCount >= 5
+            @shiftRegister = @shiftRegister | (value & 1) << @writesCount
+            if ++@writesCount >= 5
+                @copyShiftRegister address
+                @resetShiftRegister()
+                @synchronizeMapper()
         value
 
     copyShiftRegister: (address) ->
-        targetSelect = address & 0xE000
-        if targetSelect == 0x8000
-            @writeControllRegister @shiftRegister  # 5-bit $8000-$9FFF (100X)
-        else if targetSelect == 0xA000
-            @writeVROMBank1Register @shiftRegister # 5-bit $A000-$BFFF (101X)
-        else if targetSelect == 0xC000
-            @writeVROMBank2Register @shiftRegister # 5-bit $C000-$DFFF (110X)
-        else if targetSelect == 0xE000
-            @writeROMBankRegister @shiftRegister   # 5-bit $E000-$FFFF (111X)
-        @resetShiftRegister()
+        switch address & 0xE000
+            when 0x8000 then @controllRegister = @shiftRegister  # $8000-$9FFF (100X)
+            when 0xA000 then @vromBankRegister1 = @shiftRegister # $A000-$BFFF (101X)
+            when 0xC000 then @vromBankRegister2 = @shiftRegister # $C000-$DFFF (110X)
+            when 0xE000 then @romBankRegister = @shiftRegister   # $E000-$FFFF (111X)
 
-    writeControllRegister: (value) ->
-        @switchMirroring value
-        @switchROMBank value
-        @switchVROMBank value
+    ###########################################################
+    # MMC reconfiguration
+    ###########################################################
 
-    switchMirroring: (controll) ->
-        if controll & 0x02
-            if controll & 0x01
-                @setMirroring Mirroring.HORIZONTAL
-            else
-                @setMirroring Mirroring.VERTICAL
+    synchronizeMapper: ->
+        @switchMirroring()
+        @switchVROMBanks()
+        @switchROMBanks()
+
+     switchMirroring: ->
+        switch @controllRegister & 0x03
+            when 0 then @setMirroring Mirroring.VERTICAL
+            when 1 then @setMirroring Mirroring.HORIZONTAL
+            else        @setMirroring Mirroring.SINGLE_SCREEN
+
+    switchROMBanks: ->
+        pageBase = @getROMPage() * 0x100000                        # Base address of one of 256K pages (for 512K and 1024K roms)
+        @lowerROMBankBase = pageBase + @getLowerROMBank() * 0x4000 # 16K $8000-$BFFF (default first ROM bank in 256k)
+        @upperROMBankBase = pageBase + @getUpperROMBank() * 0x4000 # 16K $C000-$FFFF (default last ROM bank in 256k)
+
+    getROMPage: ->
+        if @rom.length <= 0x40000
+            0                                  # First (and only one) 256K page on 256K ROM
+        else if @rom.length <= 0x80000
+            (@vromBankRegister1 & 0x10) >>> 4   # First or second 256K page on 512K ROM
+        else if @controllRegister & 0x10
+            (@vromBankRegister2 & 0x10) >>> 3 | # One of four 256K pages on 1024K ROM
+            (@vromBankRegister1 & 0x10) >>> 4
         else
-            @setMirroring Mirroring.SINGLE_SCREEN
+            (@vromBankRegister1 & 0x10) >>> 3   # First or third 256K page on 1024K ROM
 
-    switchROMBank: (controll) ->
-        pageBase = @getROMPage(controll) * 0x100000 # Base address of one of 256K pages (for 512K and 1024K roms)
-        if controll & 0x08
-            if controll & 0x04
-                @lowerROMBankBase = pageBase + @romBankSelect * 0x4000 # Selected 16K ROM bank
-                @upperROMBankBase = pageBase + 0x0F * 0x4000           # Last 16K ROM bank from 256K
-            else
-                @lowerROMBankBase = pageBase                           # First 16K ROM bank
-                @upperROMBankBase = pageBase + @romBankSelect * 0x4000 # Selected 16K ROM bank
+    getLowerROMBank: ->
+        switch (@controllRegister & 0x0C) >>> 2
+            when 3 then @romBankRegister & 0x0F # Selected 16K ROM bank
+            when 2 then 0                       # First 16K ROM bank
+            else        @romBankSelect & 0x0E   # Selected 32K ROM bank (first half)
+
+    getUpperROMBank: ->
+        switch (@controllRegister & 0x0C) >>> 2
+            when 3 then (@rom.length >>> 14) - 1    # Last 16K ROM bank
+            when 2 then @romBankRegister & 0x0F     # Selected 16K ROM bank
+            else        (@romBankSelect & 0x0E) + 1 # Selected 32K ROM bank (second half)
+
+    switchVROMBanks: ->
+        @lowerVROMBankBase = @getLowerVROMBank() * 0x1000 # 4K $0000-$0FFF
+        @upperVROMBankBase = @getUpperVROMBank() * 0x1000 # 4K $1000-$1FFF
+
+    getLowerVROMBank: ->
+        if @controllRegister & 0x10
+            (@vromBankRegister1 & 0x0F) # Selected 4K VROM bank
         else
-            @lowerROMBankBase = pageBase + (@romBankSelect & 0x0E) * 0x4000 # Selected 32K ROM bank (first part)
-            @upperROMBankBase = @lowerROMBankBase + 0x4000                  # Selected 32K ROM bank (second part)
+            (@vromBankRegister1 & 0x0E) # Selected 8K VROM bank (first half)
 
-    getROMPage: (controll) ->
-        if @rom.length <= 0x100000
-            0                                 # First (and only one) 256K page on 256K ROM
-        else if @rom.length <= 0x200000
-            @romPageSelect1                   # First or second 256K page on 512K ROM
-        else if controll & 0x10
-            @romPageSelect2 | @romPageSelect1 # One of four 256K pages on 1024K ROM
+    getUpperVROMBank: ->
+        if @controllRegister & 0x10
+            (@vromBankRegister2 & 0x0F)     # Selected 4K VROM bank
         else
-            @romPageSelect1 << 1              # First or third 256K page on 1024K ROM
-
-    switchVROMBank: (controll) ->
-        if controll & 0x10
-            @lowerVROMBankBase = @vromBankSelect1 * 0x1000 # Select 4K VROM bank
-            @upperVROMBankBase = @vromBankSelect2 * 0x1000 # Select 4K VROM bank
-        else
-            @lowerVROMBankBase = (@vromBankSelect1 & 0x0E) * 0x1000 # Select 8K VROM bank (first part)
-            @upperVROMBankBase = @lowerVROMBankBase + 0x1000        # Select 8K VROM bank (second part)
-
-    writeVROMBank1Register: (value) ->
-        @vromBankSelect1 = value & 0x0F
-        @romPageSelect1 = (value & 0x10) >> 4
-
-    writeVROMBank2Register: (value) ->
-        @vromBankSelect2 = value & 0x0F
-        @romPageSelect2 = (value & 0x10) >> 3
-
-    writeROMBankRegister: (value) ->
-        @romBankSelect = value & 0x0F
+            (@vromBankRegister1 & 0x0E) + 1 # Selected 8K VROM bank (second half)
 
     ###########################################################
     # ROM reading

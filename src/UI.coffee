@@ -111,6 +111,7 @@ $(document).ready ->
             document.startEmulator() if not nesCoffee.isRunning()
         catch error
             alert error
+            throw error
 
     ###########################################################
     # ROMS library

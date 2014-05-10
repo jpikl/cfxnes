@@ -7,7 +7,7 @@ NROMMapper = require "./NROMMapper"
 class CNROMMapper extends NROMMapper
 
     ###########################################################
-    # MMC registers writing
+    # MMC writing
     ###########################################################
 
     resetMapper: ->

@@ -7,7 +7,7 @@ AbstractMapper = require "./AbstractMapper"
 class NROMMapper extends AbstractMapper
 
     ###########################################################
-    # MMC registers initialization
+    # MMC initialization
     ###########################################################
 
     resetMapper: ->
