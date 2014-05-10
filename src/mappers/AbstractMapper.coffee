@@ -132,23 +132,24 @@ class AbstractMapper
         @vram[@$getNamesTableAddress address] = value
 
     getNamesTableAddress: (address) ->
-        # Area [$2000-$2EFF] from [$2000-$2FFF] is mirrored in [$3000-$3EFF]
-        (address & @mirroringMask1) | (address & @mirroringMask2) >> 1
+        # Subarea [$2000-$2EFF] of [$2000-$2FFF] is mirrored in [$3000-$3EFF]
+        @mirroringTable[address & 0x2C00] | (address & 0x03FF)
 
     setMirroring: (mirroring) ->
+        # Mirroring of areas [A|B|C|D] in [$2000-$2FFF]
         switch mirroring
-            when Mirroring.SINGLE_SCREEN # [1|1|1|1] in [$2000-$2FFF]
-                @mirroringMask1 = 0x23FF
-                @mirroringMask2 = 0x0000
-            when Mirroring.HORIZONTAL    # [1|1|2|2] in [$2000-$2FFF]
-                @mirroringMask1 = 0x23FF
-                @mirroringMask2 = 0x0800
-            when Mirroring.VERTICAL      # [1|2|1|2] in [$2000-$2FFF]
-                @mirroringMask1 = 0x27FF
-                @mirroringMask2 = 0x0000
-            when Mirroring.FOUR_SCREEN   # [1|2|3|4] in [$2000-$2FFF]
-                @mirroringMask1 = 0x2FFF
-                @mirroringMask2 = 0x0000
+            when Mirroring.SINGLE_SCREEN_1 then @setMirrirongAreas 0x2000, 0x2000, 0x2000, 0x2000 # [1|1|1|1]
+            when Mirroring.SINGLE_SCREEN_2 then @setMirrirongAreas 0x2400, 0x2400, 0x2400, 0x2400 # [2|2|2|2]
+            when Mirroring.HORIZONTAL      then @setMirrirongAreas 0x2000, 0x2000, 0x2400, 0x2400 # [1|1|2|2]
+            when Mirroring.VERTICAL        then @setMirrirongAreas 0x2000, 0x2400, 0x2000, 0x2400 # [1|2|1|2]
+            when Mirroring.FOUR_SCREEN     then @setMirrirongAreas 0x2000, 0x2400, 0x2800, 0x2C00 # [1|2|3|4]
+
+    setMirrirongAreas: (area1, area2, area3, area4) ->
+        @mirroringTable = @mirroringTable or []
+        @mirroringTable[0x2000] = area1
+        @mirroringTable[0x2400] = area2
+        @mirroringTable[0x2800] = area3
+        @mirroringTable[0x2C00] = area3
 
     ###########################################################
     # Patterns table reading / writing

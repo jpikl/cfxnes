@@ -62,9 +62,10 @@ class MMC1Mapper extends AbstractMapper
 
      switchMirroring: ->
         switch @controllRegister & 0x03
-            when 0 then @setMirroring Mirroring.VERTICAL
-            when 1 then @setMirroring Mirroring.HORIZONTAL
-            else        @setMirroring Mirroring.SINGLE_SCREEN
+            when 0 then @setMirroring Mirroring.SINGLE_SCREEN_1
+            when 1 then @setMirroring Mirroring.SINGLE_SCREEN_2
+            when 2 then @setMirroring Mirroring.VERTICAL
+            when 3 then @setMirroring Mirroring.HORIZONTAL
 
     switchROMBanks: ->
         pageBase = @getROMPage() * 0x100000                        # Base address of one of 256K pages (for 512K and 1024K roms)
