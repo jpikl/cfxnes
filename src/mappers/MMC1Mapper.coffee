@@ -87,13 +87,13 @@ class MMC1Mapper extends AbstractMapper
         switch (@controllRegister & 0x0C) >>> 2
             when 3 then @romBankRegister & 0x0F # Selected 16K ROM bank
             when 2 then 0                       # First 16K ROM bank
-            else        @romBankSelect & 0x0E   # Selected 32K ROM bank (first half)
+            else        @romBankRegister & 0x0E # Selected 32K ROM bank (first half)
 
     getUpperROMBank: ->
         switch (@controllRegister & 0x0C) >>> 2
-            when 3 then (@rom.length >>> 14) - 1    # Last 16K ROM bank
-            when 2 then @romBankRegister & 0x0F     # Selected 16K ROM bank
-            else        (@romBankSelect & 0x0E) + 1 # Selected 32K ROM bank (second half)
+            when 3 then (@rom.length >>> 14) - 1      # Last 16K ROM bank
+            when 2 then @romBankRegister & 0x0F       # Selected 16K ROM bank
+            else        (@romBankRegister & 0x0E) + 1 # Selected 32K ROM bank (second half)
 
     switchVROMBanks: ->
         @lowerVROMBankBase = @getLowerVROMBank() * 0x1000 # 4K $0000-$0FFF
@@ -101,15 +101,15 @@ class MMC1Mapper extends AbstractMapper
 
     getLowerVROMBank: ->
         if @controllRegister & 0x10
-            (@vromBankRegister1 & 0x0F) # Selected 4K VROM bank
+            (@vromBankRegister1 & 0x1F) # Selected 4K VROM bank
         else
-            (@vromBankRegister1 & 0x0E) # Selected 8K VROM bank (first half)
+            (@vromBankRegister1 & 0x1E) # Selected 8K VROM bank (first half)
 
     getUpperVROMBank: ->
         if @controllRegister & 0x10
-            (@vromBankRegister2 & 0x0F)     # Selected 4K VROM bank
+            (@vromBankRegister2 & 0x1F)     # Selected 4K VROM bank
         else
-            (@vromBankRegister1 & 0x0E) + 1 # Selected 8K VROM bank (second half)
+            (@vromBankRegister1 & 0x1E) + 1 # Selected 8K VROM bank (second half)
 
     ###########################################################
     # ROM reading
@@ -132,7 +132,7 @@ class MMC1Mapper extends AbstractMapper
     ###########################################################
 
     readVROM: (address) ->
-        @rom[@$getVROMBase(address) | @$getVROMOffset(address)]
+        @vrom[@$getVROMBase(address) | @$getVROMOffset(address)]
 
     getVROMBase: (address) ->
         if address < 0x1000
