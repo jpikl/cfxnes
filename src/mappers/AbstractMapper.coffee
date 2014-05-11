@@ -138,13 +138,13 @@ class AbstractMapper
     setMirroring: (mirroring) ->
         # Mirroring of areas [A|B|C|D] in [$2000-$2FFF]
         switch mirroring
-            when Mirroring.SINGLE_SCREEN_1 then @setMirrirongAreas 0x2000, 0x2000, 0x2000, 0x2000 # [1|1|1|1]
-            when Mirroring.SINGLE_SCREEN_2 then @setMirrirongAreas 0x2400, 0x2400, 0x2400, 0x2400 # [2|2|2|2]
-            when Mirroring.HORIZONTAL      then @setMirrirongAreas 0x2000, 0x2000, 0x2400, 0x2400 # [1|1|2|2]
-            when Mirroring.VERTICAL        then @setMirrirongAreas 0x2000, 0x2400, 0x2000, 0x2400 # [1|2|1|2]
-            when Mirroring.FOUR_SCREEN     then @setMirrirongAreas 0x2000, 0x2400, 0x2800, 0x2C00 # [1|2|3|4]
+            when Mirroring.SINGLE_SCREEN_1 then @setMirroringAreas 0x2000, 0x2000, 0x2000, 0x2000 # [1|1|1|1]
+            when Mirroring.SINGLE_SCREEN_2 then @setMirroringAreas 0x2400, 0x2400, 0x2400, 0x2400 # [2|2|2|2]
+            when Mirroring.HORIZONTAL      then @setMirroringAreas 0x2000, 0x2000, 0x2400, 0x2400 # [1|1|2|2]
+            when Mirroring.VERTICAL        then @setMirroringAreas 0x2000, 0x2400, 0x2000, 0x2400 # [1|2|1|2]
+            when Mirroring.FOUR_SCREEN     then @setMirroringAreas 0x2000, 0x2400, 0x2800, 0x2C00 # [1|2|3|4]
 
-    setMirrirongAreas: (area1, area2, area3, area4) ->
+    setMirroringAreas: (area1, area2, area3, area4) ->
         @mirroringTable = @mirroringTable or []
         @mirroringTable[0x2000] = area1
         @mirroringTable[0x2400] = area2
