@@ -114,16 +114,16 @@ $(document).ready ->
             throw error
 
     ###########################################################
-    # ROMS library
+    # Game library
     ###########################################################
 
     @showROMsDialog = ->
         $("#roms-dialog").dialog
             title: "Game library"
-            width: 640, height: 480
+            width: 640
             modal: true
             buttons: [
-                { text: "Play",  click: -> downloadSelectedROM() }
+                { text: "Play",  click: -> document.downloadSelectedROM() }
                 { text: "Close", click: -> $(this).dialog "close" }
             ]
         downloadROMsList()
@@ -136,19 +136,44 @@ $(document).ready ->
 
     setROMsDialogMessage = (message) ->
         $("#roms-dialog").empty().append "<p id='roms-dialog-message'>#{message}</p>"
+        $("#roms-dialog").dialog "option", "position", "center"
 
     setROMsDialogList = (files) ->
-        $("#roms-dialog").empty().append("<select id='roms-dialog-list' size='3'></select>")
-        list = $("#roms-dialog-list")
-        list.append "<option name='#{file}'>#{getROMName file}</option>" for file in files
+        $("#roms-dialog").empty().append "
+              <div id='roms-dialog-header'>
+                <label for='roms-dialog-filter'>Search: <label>
+                <input id='roms-dialog-filter' type='text' onkeyup='filterROMsDialogList(this.value)'></input>
+              </div>
+              <ul id='roms-dialog-list'></ul>"
+        document.romFiles = files
+        document.romFilter = null
+        refreshROMsDialogList()
+        $("#roms-dialog").dialog "option", "position", "center"
 
-    getROMName = (file) ->
-        file.replace ".nes", ""
+    @filterROMsDialogList = (filter) ->
+        document.romFilter = filter
+        refreshROMsDialogList()
 
-    downloadSelectedROM = ->
-        list = $("#roms-dialog-list")
-        file = $(list.prop("options")[list.prop "selectedIndex"]).attr "name"
-        downloadROMFile "roms/#{file}"
+    refreshROMsDialogList = ->
+        selectedFile = getSelectedROM().attr "file"
+        filter = document.romFilter?.trim()?.toLowerCase() or ""
+        list = $("#roms-dialog-list").empty()
+        for file in document.romFiles
+            name = file.replace ".nes", ""
+            if filter.length is 0 or name.toLowerCase().indexOf(filter) >= 0
+                list.append "<li file='#{file}' onclick='setSelectedROM(this)' ondblclick='downloadSelectedROM()'>#{name}</li>"
+        $("#roms-dialog-list > li[file='" + selectedFile + "']").addClass "selected"
+
+    @setSelectedROM = (element) ->
+        getSelectedROM().removeClass "selected"
+        $(element).addClass "selected"
+
+    getSelectedROM = ->
+        $("#roms-dialog-list > li.selected")
+
+    @downloadSelectedROM = ->
+        file = getSelectedROM().attr "file"
+        downloadROMFile "roms/#{file}" if file
 
     downloadROMFile = (file) ->
         request = new XMLHttpRequest

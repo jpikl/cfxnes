@@ -19,6 +19,14 @@ h1 > img.logo {
     margin-right: 16px;
 }
 
+a {
+    color: #212c44;
+}
+
+a:visited {
+    color: #3b4f7a;
+}
+
 #video-output {
     display: block;
     border: 1px solid black;
@@ -40,18 +48,51 @@ h1 > img.logo {
 
 #roms-dialog {
     display: none;
+    margin: 5px;
+    padding: 5px;
+}
+
+#roms-dialog > * {
+    margin: 0;
+    padding: 0;
+}
+
+#roms-dialog-header label {
+    width: 20%;
+}
+
+#roms-dialog-header input {
+    width: 80%;
 }
 
 #roms-dialog-message {
-    margin-top: 100px;
+    margin: 50px auto 50px auto;
     text-align: center;
 }
 
 #roms-dialog-list {
-    width: 100%;
-    height: 100%;
-    border: 0px;
-    outline: none;
+    height: 250px;
+    margin-top: 8px;
+    border-top: 1px solid #aaaaaa;
+    list-style-type: none;
+    overflow-y: auto;
+}
+
+#roms-dialog-list li {
+    cursor: pointer;
+    padding: 3px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+#roms-dialog-list li.selected {
+    color: white;
+    background-color: #212c44;
 }
 
 #rom-file-input {
