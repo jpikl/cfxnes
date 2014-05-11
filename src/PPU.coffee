@@ -157,7 +157,7 @@ class PPU
 
 
     ###########################################################
-    # Internal VRAM access
+    # Internal VROM/VRAM access
     ###########################################################
 
     read: (address) ->
@@ -251,7 +251,7 @@ class PPU
 
     isRenderingCycle: ->
         0 <= @scanline <= 239 and 1 <= @cycle <= 256
-    
+
     isRenderingInProgress: ->
         not @$isVBlank() and (@spritesVisible or @backgroundVisible)
 
@@ -307,7 +307,7 @@ class PPU
         else if @cycle is 257
             @copyHorizontalScrollBits()
         else if @scanline is -1 and 280 <= @cycle <= 304
-            @$copyVerticalScrollBits() 
+            @$copyVerticalScrollBits()
 
     incrementCycle: ->
         @cycle++
@@ -334,7 +334,7 @@ class PPU
     ###########################################################
     # Background rendering
     ###########################################################
-    
+
     # Colors are saved at addresses with structure 0111.1111.000S.PPCC.
     #    S = 0 for background, 1 for sprites
     #   PP = palette number
@@ -349,8 +349,8 @@ class PPU
     # Fine X scroll (x pixel position within pattern) has its own register.
     # Address of a pattern number can be constructed as 0010.NNYY.YYYX.XXXX.
     #
-    # Pattern number used as an offset into one of pattern tables at 
-    # 0x0000 and 0x1000, where patterns are stored. We can construct 
+    # Pattern number is used as an offset into one of pattern tables at
+    # 0x0000 and 0x1000, where patterns are stored. We can construct
     # this address as 00T.0000.PPPP.0000
     #      T = pattern table selection bit
     #   PPPP = pattern number
@@ -406,7 +406,7 @@ class PPU
     # secondary OAM. Each sprite has 4B of data.
     #
     # Byte 0 - y screen coordinate (decremented by 1, because rendering of fetched sprites is delayed)
-    # Byte 1 - pattern number PPPP.PPPT (if 8x16 sprites are enabled, bit T selects the pattern table, 
+    # Byte 1 - pattern number PPPP.PPPT (if 8x16 sprites are enabled, bit T selects the pattern table,
     #          otherwise it is seleted by bit 4 of control register)
     # Byte 2 - attributes VHP0.00CC
     #   V = vertical mirroring enabled
@@ -439,7 +439,7 @@ class PPU
         topY = Math.max 0, bottomY - spriteHeight
         for spriteY, address in @primaryOAM by 4 when topY < spriteY <= bottomY
             @fetchSprite address, spriteHeight, bottomY - spriteY
-            @spriteScalineOverflow = 1 if @secondaryOAM.length is 8 
+            @spriteScalineOverflow = 1 if @secondaryOAM.length is 8
             # We allow more than 8 sprites on scanline, otherwise it looks ugly in some games.
         undefined
 
