@@ -149,7 +149,7 @@ class AbstractMapper
         @mirroringTable[0x2000] = area1
         @mirroringTable[0x2400] = area2
         @mirroringTable[0x2800] = area3
-        @mirroringTable[0x2C00] = area3
+        @mirroringTable[0x2C00] = area4
 
     ###########################################################
     # Patterns table reading / writing
