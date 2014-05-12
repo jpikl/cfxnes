@@ -1,4 +1,4 @@
-keyCodeToName = 
+keyCodeToName =
     48: "0", 49: "1", 50: "2", 51: "3", 52: "4", 53: "5", 54: "6", 55: "7", 56: "8", 57: "9"
     65: "a", 66: "b", 67: "c", 68: "d", 69: "e", 70: "f", 71: "g", 72: "h", 73: "i", 74: "j"
     75: "k", 76: "l", 77: "m", 78: "n", 79: "o", 80: "p", 81: "q", 82: "r", 83: "s", 84: "t"
@@ -14,7 +14,7 @@ keyCodeToName =
     101: "numpad-5", 102: "numpad-6", 103: "numpad-7", 104: "numpad-8", 105: "numpad-9"
     106: "multiply", 107: "add", 109: "subtract", 110: "decimal-point", 111: "divide"
 
-buttonNumberToName = 
+buttonNumberToName =
     1: "left"
     2: "right"
     3: "middle"
@@ -115,9 +115,11 @@ class Binder
             event.preventDefault()
             @finishRecording "keyboard", key
         else if @keyboardMapping[key]
-            event.preventDefault()
+            event.preventDefault() if @hasFocus()
             @keyboardMapping[key](keyDown)
 
+    hasFocus: ->
+        document.activeElement is document.body
 
     ###########################################################
     # Mouse events handling
@@ -138,7 +140,7 @@ class Binder
         event or= window.event
         button = buttonNumberToName[event.button or event.which] or "unknown"
         if @recordNextEvent
-            event.preventDefault()
+            event.preventDefault() if @hasFocus()
             @finishRecording "mouse", button
         else if @isMouseInActiveArea()
             @mouseMapping[button]?(buttonDown)
