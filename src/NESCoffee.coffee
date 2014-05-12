@@ -111,9 +111,16 @@ class @NESCoffee
         @binder.bindControl srcDevice, srcButton, callback
 
     replaceUnbindCallback: (port, device, button, srcDevice, srcButton, callback) ->
-        @unbindCallbacks1[port]?[device]?[button] = callback
-        @unbindCallbacks2[srcDevice]?[srcButton]?()
-        @unbindCallbacks2[srcDevice]?[srcButton] = callback
+        unbindCallbacks1 = @unbindCallbacks1
+        unbindCallbacks2 = @unbindCallbacks2
+        unbindCallbacks1[port]?[device]?[button]?()
+        unbindCallbacks1[port]?[device]?[button] = ->
+            unbindCallbacks2[srcDevice]?[srcButton] = null
+            callback()
+        unbindCallbacks2[srcDevice]?[srcButton]?()
+        unbindCallbacks2[srcDevice]?[srcButton] = ->
+            unbindCallbacks1[port]?[device]?[button] = null
+            callback()
 
     getInputDeviceCallback: (port, device, button) ->
         if device is "joypad"
