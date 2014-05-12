@@ -149,6 +149,7 @@ $(document).ready ->
         document.romFilter = null
         refreshROMsDialogList()
         $("#roms-dialog").dialog "option", "position", "center"
+        $("#roms-dialog-filter").focus()
 
     @filterROMsDialogList = (filter) ->
         document.romFilter = filter
