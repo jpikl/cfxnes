@@ -103,35 +103,37 @@ class @NESCoffee
     ###########################################################
 
     bindControl: (port, device, button, srcDevice, srcButton, unbindCallback) ->
-        binder = @binder
-        @replaceUnbindCallback port, device, button, srcDevice, srcButton, ->
-            binder.unbindControl srcDevice, srcButton
+        @unbindControl   port, device, button, srcDevice, srcButton
+        @bindInputDevice port, device, button, srcDevice, srcButton, unbindCallback
+
+    unbindControl: (port, device, button, srcDevice, srcButton) ->
+        @unbindCallbacks1[port]?[device]?[button]?() if port and device and button
+        @unbindCallbacks2[srcDevice]?[srcButton]?()  if srcDevice and srcButton
+
+    bindInputDevice: (port, device, button, srcDevice, srcButton, unbindCallback) ->
+        unbindInputDevice = @getUnbindInputDeviceCallback port, device, button, srcDevice, srcButton, unbindCallback
+        useInputDevice = @getUseInputDeviceCallback port, device, button
+        @unbindCallbacks1[port]?[device]?[button] = unbindInputDevice
+        @unbindCallbacks2[srcDevice]?[srcButton] = unbindInputDevice
+        @binder.bindControl srcDevice, srcButton, useInputDevice
+
+    unbindInputDevice: (port, device, button, srcDevice, srcButton) ->
+        @binder.unbindControl srcDevice, srcButton
+        @unbindCallbacks1[port]?[device]?[button] = null
+        @unbindCallbacks2[srcDevice]?[srcButton] = null
+
+    getUnbindInputDeviceCallback: (port, device, button, srcDevice, srcButton, unbindCallback) ->
+        self = @
+        ->
+            self.unbindInputDevice port, device, button, srcDevice, srcButton
             unbindCallback()
-        callback = @getInputDeviceCallback port, device, button
-        @binder.bindControl srcDevice, srcButton, callback
 
-    replaceUnbindCallback: (port, device, button, srcDevice, srcButton, callback) ->
-        unbindCallbacks1 = @unbindCallbacks1
-        unbindCallbacks2 = @unbindCallbacks2
-        unbindCallbacks1[port]?[device]?[button]?()
-        unbindCallbacks1[port]?[device]?[button] = ->
-            unbindCallbacks2[srcDevice]?[srcButton] = null
-            callback()
-        unbindCallbacks2[srcDevice]?[srcButton]?()
-        unbindCallbacks2[srcDevice]?[srcButton] = ->
-            unbindCallbacks1[port]?[device]?[button] = null
-            callback()
-
-    getInputDeviceCallback: (port, device, button) ->
+    getUseInputDeviceCallback: (port, device, button) ->
         if device is "joypad"
             button = joypadButtonToId[button.toLowerCase()] or 0
             @inputDevices[port]?.joypad.setButtonPressed.bind this, button
         else if device is "zapper"
             @inputDevices[port]?.zapper.setTriggerPressed.bind this
-
-    unbindControl: (port, device, button) ->
-        @unbindCallbacks1[port]?[device]?[button]?()
-        @unbindCallbacks1[port]?[device]?[button] = null
 
     ###########################################################
     # Input recording
