@@ -14,7 +14,7 @@ class NES
     ###########################################################
 
     pressPower: ->
-        @mmc?.powerUp()
+        @mapper?.powerUp()
         @apu.powerUp()
         @ppuMemory.powerUp()
         @ppu.powerUp()
@@ -23,16 +23,15 @@ class NES
 
     pressReset: ->
         @cpu.reset()
-        @mmc?.reset()
 
     insertCartridge: (cartridge) ->
-        @mmc = @mapperFactory.createMapper cartridge
-        @mmc.powerUp()
-        @ppuMemory.setMMC @mmc
-        @cpuMemory.setMMC @mmc
+        @mapper = @mapperFactory.createMapper cartridge
+        @ppuMemory.connectMapper @mapper
+        @cpuMemory.connectMapper @mapper
+        @mapper.powerUp()
 
     isCartridgeInserted: ->
-        @mmc?
+        @mapper?
 
     connectInputDevice: (port, device) ->
         @cpuMemory.setInputDevice port, device
@@ -46,8 +45,8 @@ class NES
 
     renderFrame: (buffer) ->
         if @isCartridgeInserted()
-            @renderNormalFrame buffer 
-        else 
+            @renderNormalFrame buffer
+        else
             @renderWhiteNoise buffer
 
     renderWhiteNoise: (buffer) ->

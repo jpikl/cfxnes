@@ -7,21 +7,16 @@ AbstractMapper = require "./AbstractMapper"
 class NROMMapper extends AbstractMapper
 
     ###########################################################
-    # MMC initialization
+    # Mapper initialization
     ###########################################################
 
-    resetMapper: ->
-        # Check if we have 16KB or 32KB ROM
-        if @rom.length <= 0x4000
-            @romMask = 0x3FFF
-        else
-            @romMask = 0x7FFF
+    init: (cartridge) ->
+        super cartridge
+        @hasPRGRAM = false
 
-    ###########################################################
-    # ROM reading
-    ###########################################################
-
-    readROM: (address) ->
-        @rom[address & @romMask]
+    reset: ->
+        @mapPRGROMBank16K 0, 0x0000               # First 16K PRG ROM bank
+        @mapPRGROMBank16K 1, @prgROMSize - 0x4000 # Last 16K PRG ROM bank (or mirror of the first one)
+        @mapCHRROMBank8K  0, 0x0000               # 8K CHR ROM
 
 module.exports = NROMMapper

@@ -16,11 +16,10 @@ class INESLoader extends AbstractLoader
         @containsSignature reader, INES_SIGNATURE
 
     readCartridge: ->
-        @readHeader()  #  16 B [$0000-$000F]
-        @readTrainer() # 512 B (optional)
-        @readROM()     #  16KB x number of units
-        @readVROM()    #   8KB x number of units
-        @createSRAM()  #   8KB x number of units
+        @readHeader()   #  16 B [$0000-$000F]
+        @readTrainer()  # 512 B (optional)
+        @readPRGROM()   #  16KB x number of units
+        @readCHRROM()   #   8KB x number of units
 
     ###########################################################
     # Header reading
@@ -28,20 +27,20 @@ class INESLoader extends AbstractLoader
 
     readHeader: ->
         @checkSignature INES_SIGNATURE # 4B [$00-$03]
-        @readROMSize()                 # 1B [$04]
-        @readVROMSize()                # 1B [$05]
+        @readPRGROMSize()              # 1B [$04]
+        @readCHRROMSize()              # 1B [$05]
         @readControlBytes()            # 2B [$06,$07]
-        @readSRAMSize()                # 1B [$08]
+        @readCHRRAMSize()              # 1B [$08]
         @readFlags9()                  # 1B [$09]
         @readFlags10()                 # 1B [$0A]
         @readRestOfHeader()            # 5B [$0B-$0F]
 
-    readROMSize: ->
-        @cartridge.romSize  = @readByte() * 0x4000 # N x 16KB
+    readPRGROMSize: ->
+        @cartridge.prgROMSize = @readByte() * 0x4000 # N x 16KB
 
-    readVROMSize: ->
-        @cartridge.vromSize = @readByte() * 0x2000 # N x 8KB
-        @cartridge.hasVRAM = @cartridge.vromSize == 0
+    readCHRROMSize: ->
+        @cartridge.chrROMSize = @readByte() * 0x2000 # N x 8KB
+        @cartridge.hasCHRRAM = @cartridge.chrROMSize == 0
 
     readControlBytes: ->
         controlByte1 = @readByte()
@@ -59,10 +58,10 @@ class INESLoader extends AbstractLoader
         @cartridge.hasVsUnisistem = (controlByte2 & 0x01) != 0
         @cartridge.hasPlayChoice = (controlByte2 & 0x02) != 0
         @cartridge.mapperId = (controlByte2 & 0xF0) | (controlByte1 >>> 4)
-        
-    readSRAMSize: ->
+
+    readCHRRAMSize: ->
         unitsCount = Math.max 1, @readByte() # At least 1 unit (compatibility purposes)
-        @cartridge.sramSize = unitsCount * 0x2000 # N x 8KB
+        @cartridge.chrRAMSize = unitsCount * 0x2000 if @cartridge.hasCHRRAM # N x 8KB
 
     readFlags9: ->
         flags = @readByte()
@@ -70,7 +69,7 @@ class INESLoader extends AbstractLoader
 
     readFlags10: ->
         flags = @readByte()
-        @cartridge.hasSRAM = (flags & 0x10) == 0
+        @cartridge.hasPRGRAM = (flags & 0x10) == 0
         @cartridge.hasBUSConflicts = (flags & 0x20) != 0
 
     readRestOfHeader: ->
@@ -83,13 +82,10 @@ class INESLoader extends AbstractLoader
     readTrainer: ->
         @cartridge.trainer = @readArray 0x200 if @cartridge.hasTrainer # 512B
 
-    readROM: ->
-        @cartridge.rom = @readArray @cartridge.romSize
+    readPRGROM: ->
+        @cartridge.prgROM = @readArray @cartridge.prgROMSize
 
-    readVROM: ->
-        @cartridge.vrom = @readArray @cartridge.vromSize
-
-    createSRAM: ->
-        @cartridge.sram = (0 for [0...@cartridge.sramSize])
+    readCHRROM: ->
+        @cartridge.chrROM = @readArray @cartridge.chrROMSize
 
 module.exports = INESLoader

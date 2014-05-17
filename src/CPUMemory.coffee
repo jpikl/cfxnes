@@ -8,51 +8,58 @@ class CPUMemory
 
     constructor: ->
         @inputDevices = 1: null, 2: null
-  
+
     ###########################################################
     # Power-up state initialization
     ###########################################################
 
     powerUp: ->
-        @resetRAM()
-        @inputDevicesStrobe = 0
-
-    resetRAM: ->
-        @ram = (0 for [0...0x07FF])
+        @createRAM()
+        @resetIO()
 
     ###########################################################
-    # Generic reading / writing
+    # CPU memory access
     ###########################################################
 
     read: (address) ->
-        if      address < 0x2000 then @$readRAM address
-        else if address < 0x4020 then @$readIO  address
-        else                          @$readMMC address
+        if      address >= 0x8000 then @$readPRGROM address # $8000-$FFFF
+        else if address <  0x2000 then @$readRAM    address # $0000-$1FFF
+        else if address <  0x4020 then @$readIO     address # $2000-$401F
+        else if address >= 0x6000 then @$readPRGRAM address # $6000-$7FFF
+        else                           @$readEXROM  address # $4020-$5FFF
 
     write: (address, value) ->
-        if      address < 0x2000 then @$writeRAM address, value
-        else if address < 0x4020 then @$writeIO  address, value
-        else                          @$writeMMC address, value
+        if      address >= 0x8000 then @$writePRGROM address, value # $8000-$FFFF
+        else if address <  0x2000 then @$writeRAM    address, value # $0000-$1FFF
+        else if address <  0x4020 then @$writeIO     address, value # $2000-$401F
+        else if address >= 0x6000 then @$writePRGRAM address, value # $6000-$7FFF
+        else                           @$writeEXROM  address, value # $4020-$5FFF
 
     ###########################################################
-    # RAM acceess
+    # RAM acceess ($0000-$1FFF)
     ###########################################################
+
+    createRAM: ->
+        @ram = (0 for [0...0x07FF]) # 2KB of RAM (mirrored in 8K at $0000-$1FFF)
 
     readRAM: (address) ->
-        @ram[@$getRAMOffset address]
+        @ram[@$mapRAMAddress address]
 
     writeRAM: (address, value) ->
-        @ram[@$getRAMOffset address] = value
+        @ram[@$mapRAMAddress address] = value
 
-    getRAMOffset: (address) ->
-        address & 0x07FF # Mirroring of [$0000-$0800] in [$0000-$2000]
+    mapRAMAddress: (address) ->
+        address & 0x07FF # Mirroring of [$0000-$07FFF] in [$0000-$1FFF]
 
     ###########################################################
-    # IO registers acceess
+    # IO acceess ($2000-$401F)
     ###########################################################
+
+    resetIO: ->
+        @inputDevicesStrobe = 0
 
     readIO: (address) ->
-        switch @$getIOAddress address
+        switch @$mapIOAddress address
             when 0x2002 then @ppu.readStatus()
             when 0x2004 then @ppu.readOAMData()
             when 0x2007 then @ppu.readData()
@@ -61,7 +68,7 @@ class CPUMemory
             else 0
 
     writeIO: (address, value) ->
-        switch @$getIOAddress address
+        switch @$mapIOAddress address
             when 0x2000 then @ppu.writeControl value
             when 0x2001 then @ppu.writeMask value
             when 0x2003 then @ppu.writeOAMAddress value
@@ -74,11 +81,11 @@ class CPUMemory
             when 0x4017 then @writeInputDevice value
             else value
 
-    getIOAddress: (address) ->
-        if address < 0x4000 then address & 0x2007 else address # Mirroring of [$2000-$2008] in [$2000-$4000]
+    mapIOAddress: (address) ->
+        if address < 0x4000 then address & 0x2007 else address # Mirroring of [$2000-$2007] in [$2000-$3FFF]
 
     ###########################################################
-    # Input devices acceess
+    # Input devices acceess ($4000-$401F)
     ###########################################################
 
     setInputDevice: (port, device) ->
@@ -99,16 +106,69 @@ class CPUMemory
         value
 
     ###########################################################
-    # MMC acceess
+    # EX ROM acceess ($4020-$5FFF)
     ###########################################################
 
-    setMMC: (mmc) ->
-        @mmc = mmc
+    readEXROM: (address) ->
+        0 # Not supported yet
 
-    readMMC: (address) ->
-        @mmc?.cpuRead address
+    writeEXROM: (address, value) ->
+        value # Not supported yet
 
-    writeMMC: (address, value) ->
-        @mmc?.cpuWrite address, value
+    ###########################################################
+    # PRG RAM acceess ($6000-$7FFF)
+    ###########################################################
+
+    resetPRGRAM: (mapper) ->
+        @prgRAM = mapper.prgRAM
+        @prgRAMMapping = null
+
+    readPRGRAM: (address) ->
+        if @prgRAM
+            @prgRAM[@$mapPRGRAMAddress address]
+        else
+            0
+
+    writePRGRAM: (address, value) ->
+        if @prgRAM
+            @prgRAM[@$mapPRGRAMAddress address] = value
+        else
+            value
+
+    mapPRGRAMAddress: (address) ->
+        @prgRAMMapping | address & 0x1FFF
+
+    mapPRGRAMBank: (bank, address) ->
+        @prgRAMMapping = address # Only one 8K bank
+
+    ###########################################################
+    # PRG ROM acceess ($8000-$FFFF)
+    ###########################################################
+
+    resetPRGROM: (mapper) ->
+        @writeMapper = mapper.write.bind mapper
+        @prgROM = mapper.prgROM
+        @prgROMMapping = []
+
+    readPRGROM: (address) ->
+        @prgROM[@$mapPRGROMAddress address]
+
+    writePRGROM: (address, value) ->
+        @writeMapper address, value # Writing to mapper registers
+
+    mapPRGROMAddress: (address) ->
+        @prgROMMapping[address & 0xE000] | address & 0x1FFF
+
+    mapPRGROMBank: (bank, address) ->
+        @prgROMMapping[0x8000 + bank * 0x2000] = address # 8K bank
+
+    ###########################################################
+    # Mapper connection
+    ###########################################################
+
+    connectMapper: (mapper) ->
+        mapper.cpuMemory = this
+        @resetPRGROM mapper
+        @resetPRGRAM mapper
 
 module.exports = CPUMemory

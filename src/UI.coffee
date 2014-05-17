@@ -109,9 +109,9 @@ $(document).ready ->
             nesCoffee.insertCartridge arrayBuffer
             document.pressPower()
             document.startEmulator() if not nesCoffee.isRunning()
+            document.activeElement.blur()
         catch error
-            alert error
-            throw error
+           alert error
 
     ###########################################################
     # Game library

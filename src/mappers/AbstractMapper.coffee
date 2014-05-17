@@ -1,23 +1,17 @@
-Types = require "../Types"
 Format =  require "../utils/Format"
 
 wordAsHex = Format.wordAsHex
-Mirroring = Types.Mirroring
 
 ###########################################################
-# Base class for ROM mappers
+# Base class for PRGROM mappers
 ###########################################################
 
 class AbstractMapper
 
     constructor: (cartridge) ->
-        @rom = cartridge.rom    # Also known as PRG ROM
-        @vrom = cartridge.vrom  # Also known as CHR ROM
-        @sram = cartridge.sram  # Also known as PRG RAM
-        @vramEnabled = cartridge.hasVRAM
-        @sramEnabled = cartridge.hasSRAM
-        @setMirroring cartridge.mirroring
-        @reset()
+        @init cartridge
+        @createPRGRAM()
+        @createCHRRAM()
 
     ###########################################################
     # Power-up state initialization
@@ -25,156 +19,93 @@ class AbstractMapper
 
     powerUp: ->
         @reset()
+        @resetPRGRAM()
+        @resetCHRRAM()
+
+    ###########################################################
+    # Mapper initialization / writing
+    ###########################################################
+
+    init: (cartridge) ->
+        @mirroring = cartridge.mirroring
+        @hasPRGRAM = cartridge.hasPRGRAM # Not reliable information on iNES ROMs (should provide mapper itself)
+        @hasCHRRAM = cartridge.hasCHRRAM
+        @prgROMSize = cartridge.prgROMSize or cartridge.prgROM.length
+        @prgRAMSize = cartridge.prgRAMSize # Not present on iNES ROMs (should provide mapper itself)
+        @chrROMSize = cartridge.chrROMSize or cartridge.chrROM.length
+        @chrRAMSize = cartridge.chrRAMSize
+        @prgROM = cartridge.prgROM
+        @chrROM = cartridge.chrROM
 
     reset: ->
-        @resetMapper()
-        @resetVRAM()
-
-    resetMapper: ->
         # For mappers to implement.
 
-    resetVRAM: ->
-        @vram = (0 for [0...0x4000]) # Also known as CHR RAM (max. 16KB of VRAM, not all is used).
-
-    ###########################################################
-    # CPU reading / writing
-    ###########################################################
-
-    cpuRead: (address) ->
-        if      address >= 0x8000 then @readROM address
-        else if address >= 0x6000 then @readSRAM address
-        else if address >= 0x4020 then @readEXRAM address
-        else    throw "Illegal state (CPU is trying to read from 0x#{wordAsHex address} using MMC)."
-
-    cpuWrite: (address, value) ->
-        if      address >= 0x8000 then @writeMapper address, value
-        else if address >= 0x6000 then @writeSRAM address, value
-        else if address >= 0x4020 then @writeEXRAM address, value
-        else    throw "Illegal state (CPU is trying to write to 0x#{wordAsHex address} using MMC)."
-
-    ###########################################################
-    # ROM reading / writing
-    ###########################################################
-
-    readROM: (address) ->
-        throw "Mapper does not implement ROM reading!"
-
-    writeMapper: (address, value) ->
+    write: (address, value) ->
          value # Read-only by default
 
     ###########################################################
-    # SRAM reading / writing
+    # PRG ROM mapping
     ###########################################################
 
-    readSRAM: (address) ->
-        if @sramEnabled
-            @sram[@$getSRAMOffset address]
-        else
-            0
+    mapPRGROMBank32K: (bank, address) ->
+        @mapPRGROMBank8K 4 * bank, address, 4
 
-    writeSRAM: (address, value) ->
-        if @sramEnabled
-            @sram[@$getSRAMOffset address] = value
-        else
-            value
+    mapPRGROMBank16K: (bank, address) ->
+        @mapPRGROMBank8K 2 * bank, address, 2
 
-    getSRAMOffset: (address) ->
-        address & 0x1FFF
+    mapPRGROMBank8K: (bank, address, count = 1) ->
+        @cpuMemory.mapPRGROMBank bank + i, address + i * 0x2000 for i in [0...count]
 
     ###########################################################
-    # Expansion RAM reading / writing
+    # PRG RAM initialization / mapping
     ###########################################################
 
-    readEXRAM: (address) ->
-        0
+    createPRGRAM: ->
+        @prgRAM = new Array @prgRAMSize if @hasPRGRAM
 
-    writeEXRAM: (address, value) ->
-        value
+    resetPRGRAM: ->
+        @prgRAM[i] = 0 for i in [0...@prgRAMSize] if @hasPRGRAM
 
-    ###########################################################
-    # PPU reading / writing
-    ###########################################################
-
-    ppuRead: (address) ->
-        if      address >= 0x3F00 then @$readPallete address
-        else if address >= 0x2000 then @$readNamesTable address
-        else                           @$readPatternsTable address
-
-    ppuWrite: (address, value) ->
-        if      address >= 0x3F00 then @$writePallete address, value
-        else if address >= 0x2000 then @$writeNamesTable address, value
-        else                           @$writePatternsTable address, value
+    mapPRGRAMBank8K: (bank, address) ->
+        @cpuMemory.mapPRGRAMBank bank, address
 
     ###########################################################
-    # Pallete reading / writing
+    # CHR ROM mapping
     ###########################################################
 
-    readPallete: (address) ->
-        @vram[@$getPalleteAddress address]
+    mapCHRROMBank8K: (bank, address) ->
+        @mapCHRROMBank1K 8 * bank, address, 8
 
-    writePallete: (address, value) ->
-        @vram[@$getPalleteAddress address] = value
+    mapCHRROMBank4K: (bank, address) ->
+        @mapCHRROMBank1K 4 * bank, address, 4
 
-    getPalleteAddress: (address) ->
-        if (address & 0x0003)
-            address & 0x3F1F # Mirroring of [$3F00-$3F1F] in [$3F00-$3FFF]
-        else
-            address & 0x3F0F # $3F10/$3F14/$3F18/$3F1C are mirrorors of $3F00/$3F04/$3F08$/3F0C.
+    mapCHRROMBank2K: (bank, address) ->
+        @mapCHRROMBank1K 2 * bank, address, 2
+
+    mapCHRROMBank1K: (bank, address, count = 1) ->
+        @ppuMemory.mapCHRMemoryBank bank + i, address + i * 0x0400 for i in [0...count]
 
     ###########################################################
-    # Names & attributes table reading / writing
+    # CHR RAM initialization / mapping
     ###########################################################
 
-    readNamesTable: (address) ->
-        @vram[@$getNamesTableAddress address]
+    createCHRRAM: ->
+        @chrRAM = new Array @chrRAMSize if @hasCHRRAM
 
-    writeNamesTable: (address, value) ->
-        @vram[@$getNamesTableAddress address] = value
+    resetCHRRAM: ->
+        @chrRAM[i] = 0 for i in [0...@chrRAMSize] if @hasCHRRAM
 
-    getNamesTableAddress: (address) ->
-        # Subarea [$2000-$2EFF] of [$2000-$2FFF] is mirrored in [$3000-$3EFF]
-        @mirroringTable[address & 0x2C00] | (address & 0x03FF)
+    mapCHRRAMBank8K: (bank, address) ->
+        @mapCHRROMBank8K bank, address # PPU has identical API for both CHR ROM and CHR RAM
+
+    mapCHRRAMBank4K: (bank, address) ->
+        @mapCHRROMBank4K bank, address # PPU has identical API for both CHR ROM and CHR RAM
+
+    ###########################################################
+    # Names / attributes tables mirroring
+    ###########################################################
 
     setMirroring: (mirroring) ->
-        # Mirroring of areas [A|B|C|D] in [$2000-$2FFF]
-        switch mirroring
-            when Mirroring.SINGLE_SCREEN_1 then @setMirroringAreas 0x2000, 0x2000, 0x2000, 0x2000 # [1|1|1|1]
-            when Mirroring.SINGLE_SCREEN_2 then @setMirroringAreas 0x2400, 0x2400, 0x2400, 0x2400 # [2|2|2|2]
-            when Mirroring.HORIZONTAL      then @setMirroringAreas 0x2000, 0x2000, 0x2400, 0x2400 # [1|1|2|2]
-            when Mirroring.VERTICAL        then @setMirroringAreas 0x2000, 0x2400, 0x2000, 0x2400 # [1|2|1|2]
-            when Mirroring.FOUR_SCREEN     then @setMirroringAreas 0x2000, 0x2400, 0x2800, 0x2C00 # [1|2|3|4]
-
-    setMirroringAreas: (area1, area2, area3, area4) ->
-        @mirroringTable = @mirroringTable or []
-        @mirroringTable[0x2000] = area1
-        @mirroringTable[0x2400] = area2
-        @mirroringTable[0x2800] = area3
-        @mirroringTable[0x2C00] = area4
-
-    ###########################################################
-    # Patterns table reading / writing
-    ###########################################################
-
-    readPatternsTable: (address) ->
-        if @vramEnabled
-            @vram[address]
-        else
-            @readVROM address
-
-    writePatternsTable: (address, value) ->
-        if @vramEnabled
-            @vram[address] = value
-        else
-            @writeVROM address, value
-
-    ###########################################################
-    # VROM reading / writing
-    ###########################################################
-
-    readVROM: (address) ->
-        @vrom[address]
-
-    writeVROM: (address, value) ->
-         value # Read-only
+        @ppuMemory.setNamesAttrsMirroring mirroring
 
 module.exports = AbstractMapper
