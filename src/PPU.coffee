@@ -439,8 +439,9 @@ class PPU
         topY = Math.max 0, bottomY - spriteHeight
         for spriteY, address in @primaryOAM by 4 when topY < spriteY <= bottomY
             @fetchSprite address, spriteHeight, bottomY - spriteY
-            @spriteScalineOverflow = 1 if @secondaryOAM.length is 8
-            # We allow more than 8 sprites on scanline, otherwise it looks ugly in some games.
+            if @secondaryOAM.length is 8
+                @spriteScalineOverflow = 1
+                return
         undefined
 
     fetchSprite: (address, height, rowNumber) ->
