@@ -38,7 +38,7 @@ class PPUMemory
         address & 0x3FFF # Mirroring of [$0000-$3FFF] in [$0000-$FFFF]
 
     ###########################################################
-    # CHR RAM/ROM access ($0000-$1FFF)
+    # CHR ROM/RAM access ($0000-$1FFF)
     ###########################################################
 
     resetCHRMemory: (mapper) ->
@@ -62,8 +62,8 @@ class PPUMemory
     mapCHRMemoryAddress: (address) ->
         @chrMapping[address & 0x1C00] | address & 0x03FF
 
-    mapCHRMemoryBank: (bank, address) ->
-        @chrMapping[bank * 0x0400] = address # 1K bank
+    mapCHRMemoryBank: (srcBank, dstBank) ->
+        @chrMapping[srcBank * 0x0400] = dstBank * 0x0400 # 1K bank
 
     ###########################################################
     # Names/attributes access ($2000-$3EFF)
@@ -71,6 +71,7 @@ class PPUMemory
 
     createNamesAttrs: ->
         @namesAttrs = (0 for [0...0x1000]) # Max. 4KB
+        undefined
 
     resetNamesAttrs: (mapper) ->
         @setNamesAttrsMirroring mapper.mirroring
@@ -86,18 +87,18 @@ class PPUMemory
 
     mapNamesAttrsAreas: (area1, area2, area3, area4) ->
         @namesAttrsMapping ?= []
-        @namesAttrsMapping[0x0000] = area1
-        @namesAttrsMapping[0x0400] = area2
-        @namesAttrsMapping[0x0800] = area3
-        @namesAttrsMapping[0x0C00] = area4
+        @namesAttrsMapping[0x0000] = area1 * 0x0400
+        @namesAttrsMapping[0x0400] = area2 * 0x0400
+        @namesAttrsMapping[0x0800] = area3 * 0x0400
+        @namesAttrsMapping[0x0C00] = area4 * 0x0400
 
     setNamesAttrsMirroring: (mirroring) ->
-        switch mirroring                        # Mirroring of areas [A|B|C|D] in [$2000-$2FFF]
-            when Mirroring.SINGLE_SCREEN_1 then @mapNamesAttrsAreas 0x0000, 0x0000, 0x0000, 0x2000 # [1|1|1|1]
-            when Mirroring.SINGLE_SCREEN_2 then @mapNamesAttrsAreas 0x0400, 0x0400, 0x0400, 0x0400 # [2|2|2|2]
-            when Mirroring.HORIZONTAL      then @mapNamesAttrsAreas 0x0000, 0x0000, 0x0400, 0x0400 # [1|1|2|2]
-            when Mirroring.VERTICAL        then @mapNamesAttrsAreas 0x0000, 0x0400, 0x0000, 0x0400 # [1|2|1|2]
-            when Mirroring.FOUR_SCREEN     then @mapNamesAttrsAreas 0x0000, 0x0400, 0x0800, 0x0C00 # [1|2|3|4]
+        switch mirroring                   # Mirroring of areas [A|B|C|D] in [$2000-$2FFF]
+            when Mirroring.SINGLE_SCREEN_1 then @mapNamesAttrsAreas 0, 0, 0, 0
+            when Mirroring.SINGLE_SCREEN_2 then @mapNamesAttrsAreas 1, 1, 1, 1
+            when Mirroring.HORIZONTAL      then @mapNamesAttrsAreas 0, 0, 1, 1
+            when Mirroring.VERTICAL        then @mapNamesAttrsAreas 0, 1, 0, 1
+            when Mirroring.FOUR_SCREEN     then @mapNamesAttrsAreas 0, 1, 2, 3
 
     ###########################################################
     # Pallete access ($3F00-$3FFF)
@@ -105,6 +106,7 @@ class PPUMemory
 
     createPaletts: ->
         @paletts = (0 for [0...0x20]) # 2 * 16B palette (background / sprites)
+        undefined
 
     readPaletts: (address) ->
         @paletts[@$mapPalettsAddress address]

@@ -30,31 +30,35 @@ class AbstractMapper
         @mirroring = cartridge.mirroring
         @hasPRGRAM = cartridge.hasPRGRAM # Not reliable information on iNES ROMs (should provide mapper itself)
         @hasCHRRAM = cartridge.hasCHRRAM
-        @prgROMSize = cartridge.prgROMSize or cartridge.prgROM.length
+        @prgROMSize = cartridge.prgROMSize ? cartridge.prgROM.length
         @prgRAMSize = cartridge.prgRAMSize # Not present on iNES ROMs (should provide mapper itself)
-        @chrROMSize = cartridge.chrROMSize or cartridge.chrROM.length
+        @chrROMSize = cartridge.chrROMSize ? cartridge.chrROM.length
         @chrRAMSize = cartridge.chrRAMSize
         @prgROM = cartridge.prgROM
         @chrROM = cartridge.chrROM
 
     reset: ->
-        # For mappers to implement.
+        # For mapper to implement.
 
     write: (address, value) ->
-         value # Read-only by default
+        value # Read-only by default
 
     ###########################################################
     # PRG ROM mapping
     ###########################################################
 
-    mapPRGROMBank32K: (bank, address) ->
-        @mapPRGROMBank8K 4 * bank, address, 4
+    mapPRGROMBank32K: (srcBank, dstBank) ->
+        @mapPRGROMBank8K srcBank, dstBank, 4
 
-    mapPRGROMBank16K: (bank, address) ->
-        @mapPRGROMBank8K 2 * bank, address, 2
+    mapPRGROMBank16K: (srcBank, dstBank) ->
+        @mapPRGROMBank8K srcBank, dstBank, 2
 
-    mapPRGROMBank8K: (bank, address, count = 1) ->
-        @cpuMemory.mapPRGROMBank bank + i, address + i * 0x2000 for i in [0...count]
+    mapPRGROMBank8K: (srcBank, dstBank, ratio = 1) ->
+        srcBank = ratio * srcBank
+        dstBank = ratio * dstBank
+        maxBank = (@prgROMSize - 1) >> 13
+        @cpuMemory.mapPRGROMBank srcBank + i, (dstBank + i) & maxBank for i in [0...ratio]
+        undefined
 
     ###########################################################
     # PRG RAM initialization / mapping
@@ -65,25 +69,31 @@ class AbstractMapper
 
     resetPRGRAM: ->
         @prgRAM[i] = 0 for i in [0...@prgRAMSize] if @hasPRGRAM
+        undefined
 
-    mapPRGRAMBank8K: (bank, address) ->
-        @cpuMemory.mapPRGRAMBank bank, address
+    mapPRGRAMBank8K: (srcBank, dstBank) ->
+        maxBank = (@prgRAMSize - 1) >> 13
+        @cpuMemory.mapPRGRAMBank srcBank, dstBank & maxBank
 
     ###########################################################
     # CHR ROM mapping
     ###########################################################
 
-    mapCHRROMBank8K: (bank, address) ->
-        @mapCHRROMBank1K 8 * bank, address, 8
+    mapCHRROMBank8K: (srcBank, dstBank) ->
+        @mapCHRROMBank1K srcBank, dstBank, 8
 
-    mapCHRROMBank4K: (bank, address) ->
-        @mapCHRROMBank1K 4 * bank, address, 4
+    mapCHRROMBank4K: (srcBank, dstBank) ->
+        @mapCHRROMBank1K srcBank, dstBank, 4
 
-    mapCHRROMBank2K: (bank, address) ->
-        @mapCHRROMBank1K 2 * bank, address, 2
+    mapCHRROMBank2K: (srcBank, dstBank) ->
+        @mapCHRROMBank1K srcBank, dstBank, 2
 
-    mapCHRROMBank1K: (bank, address, count = 1) ->
-        @ppuMemory.mapCHRMemoryBank bank + i, address + i * 0x0400 for i in [0...count]
+    mapCHRROMBank1K: (srcBank, dstBank, ratio = 1) ->
+        srcBank = ratio * srcBank
+        dstBank = ratio * dstBank
+        maxBank = (@chrROMSize - 1) >> 10
+        @ppuMemory.mapCHRMemoryBank srcBank + i, (dstBank + i) & maxBank for i in [0...ratio]
+        undefined
 
     ###########################################################
     # CHR RAM initialization / mapping
@@ -94,12 +104,17 @@ class AbstractMapper
 
     resetCHRRAM: ->
         @chrRAM[i] = 0 for i in [0...@chrRAMSize] if @hasCHRRAM
+        undefined
 
-    mapCHRRAMBank8K: (bank, address) ->
-        @mapCHRROMBank8K bank, address # PPU has identical API for both CHR ROM and CHR RAM
+    mapCHRRAMBank8K: (srcBank, dstBank) ->
+        @mapCHRRAMBank4K srcBank, dstBank, 8
 
-    mapCHRRAMBank4K: (bank, address) ->
-        @mapCHRROMBank4K bank, address # PPU has identical API for both CHR ROM and CHR RAM
+    mapCHRRAMBank4K: (srcBank, dstBank, ratio = 4) ->
+        srcBank = ratio * srcBank
+        dstBank = ratio * dstBank
+        maxBank = (@chrRAMSize - 1) >> 10
+        @ppuMemory.mapCHRMemoryBank srcBank + i, (dstBank + i) & maxBank for i in [0...ratio]
+        undefined
 
     ###########################################################
     # Names / attributes tables mirroring

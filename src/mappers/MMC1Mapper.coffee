@@ -51,10 +51,10 @@ class MMC1Mapper extends AbstractMapper
 
     copyShiftRegister: (address) ->
         switch address & 0xE000
-            when 0x8000 then @controllRegister = @shiftRegister  # $8000-$9FFF (100X)
+            when 0x8000 then @controllRegister = @shiftRegister # $8000-$9FFF (100X)
             when 0xA000 then @chrBankRegister1 = @shiftRegister # $A000-$BFFF (101X)
             when 0xC000 then @chrBankRegister2 = @shiftRegister # $C000-$DFFF (110X)
-            when 0xE000 then @prgBankRegister = @shiftRegister   # $E000-$FFFF (111X)
+            when 0xE000 then @prgBankRegister = @shiftRegister  # $E000-$FFFF (111X)
 
     ###########################################################
     # Mapper reconfiguration
@@ -75,35 +75,33 @@ class MMC1Mapper extends AbstractMapper
             when 3 then @setMirroring Mirroring.HORIZONTAL
 
     switchPRGROMBanks: ->
-        base = if @prgROMSize >= 0x80000 and @chrBankRegister1 & 0x10
-            0x40000 # Second 256K area on 512K ROM
-        else
-            0       # First 256K area on 512K ROM
+        base = @chrBankRegister1 & 0x10  # Selection of 256K page on 512K PRG ROM
+        offset = @prgBankRegister & 0x0F # 16K bank selection within 256K page
         switch @controllRegister & 0x0C
             when 0x0C
-                @mapPRGROMBank16K 0, base + (@prgBankRegister & 0x0F) * 0x4000      # Selected 16K PRG ROM bank
-                @mapPRGROMBank16K 1, base + Math.min(0x3C000, @prgROMSize - 0x4000) # Last 16K PRG ROM bank
+                @mapPRGROMBank16K 0, base | offset # Selected 16K PRG ROM bank
+                @mapPRGROMBank16K 1, base | 0x0F   # Last 16K PRG ROM bank
             when 0x08
-                @mapPRGROMBank16K 0, base + 0x0000                                  # First 16K PRG ROM bank
-                @mapPRGROMBank16K 1, base + (@prgBankRegister & 0x0F) * 0x4000      # Selected 16K PRG ROM bank
+                @mapPRGROMBank16K 0, base          # First 16K PRG ROM bank
+                @mapPRGROMBank16K 1, base | offset # Selected 16K PRG ROM bank
             else
-                @mapPRGROMBank32K 0, base + (@prgBankRegister & 0x0E) * 0x4000      # Selected 32K PRG ROM bank
+                @mapPRGROMBank32K 0, base | offset >>> 1 # Selected 32K PRG ROM
 
     switchPRGRAMBank: ->
-        @mapPRGRAMBank8K 0, (@chrBankRegister1 & 0x0C) * 0x0800 # Selected 8K PRG RAM bank
+        @mapPRGRAMBank8K 0, @chrBankRegister1 >>> 2 # Selected 8K PRG RAM bank
 
     switchCHRROMBanks: ->
         if @controllRegister & 0x10
-            @mapCHRROMBank4K 0, (@chrBankRegister1 & 0x1F) * 0x1000  # Selected lower 4K CHR ROM bank
-            @mapCHRROMBank4K 1, (@chrBankRegister2 & 0x1F) * 0x1000  # Selected upper 4K CHR ROM bank
+            @mapCHRROMBank4K 0, @chrBankRegister1 # Selected lower 4K CHR ROM bank
+            @mapCHRROMBank4K 1, @chrBankRegister2 # Selected upper 4K CHR ROM bank
         else
-            @mapCHRROMBank8K 0, (@chrBankRegister1 & 0x1E) * 0x1000  # Selected 8K CHR ROM bank
+            @mapCHRROMBank8K 0, @chrBankRegister1 >>> 1  # Selected 8K CHR ROM bank
 
     switchCHRRAMBanks: ->
         if @controllRegister & 0x10
-            @mapCHRRAMBank4K 0, (@chrBankRegister1 & 0x01) * 0x1000 # Selected lower 4K CHR RAM bank
-            @mapCHRRAMBank4K 1, (@chrBankRegister2 & 0x01) * 0x1000 # Selected upper 4K CHR RAM bank
+            @mapCHRRAMBank4K 0, @chrBankRegister1 # Selected lower 4K CHR RAM bank
+            @mapCHRRAMBank4K 1, @chrBankRegister2 # Selected upper 4K CHR RAM bank
         else
-            @mapCHRRAMBank8K 0, 0x0000 # Whole 8K CHR RAM
+            @mapCHRRAMBank8K 0, 0 # Whole 8K CHR RAM
 
 module.exports = MMC1Mapper

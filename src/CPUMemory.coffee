@@ -41,6 +41,7 @@ class CPUMemory
 
     createRAM: ->
         @ram = (0 for [0...0x07FF]) # 2KB of RAM (mirrored in 8K at $0000-$1FFF)
+        undefined
 
     readRAM: (address) ->
         @ram[@$mapRAMAddress address]
@@ -138,8 +139,8 @@ class CPUMemory
     mapPRGRAMAddress: (address) ->
         @prgRAMMapping | address & 0x1FFF
 
-    mapPRGRAMBank: (bank, address) ->
-        @prgRAMMapping = address # Only one 8K bank
+    mapPRGRAMBank: (srcBank, dstBank) ->
+        @prgRAMMapping = dstBank * 0x2000 # Only one 8K bank
 
     ###########################################################
     # PRG ROM acceess ($8000-$FFFF)
@@ -157,10 +158,10 @@ class CPUMemory
         @writeMapper address, value # Writing to mapper registers
 
     mapPRGROMAddress: (address) ->
-        @prgROMMapping[address & 0xE000] | address & 0x1FFF
+        @prgROMMapping[address & 0x6000] | address & 0x1FFF
 
-    mapPRGROMBank: (bank, address) ->
-        @prgROMMapping[0x8000 + bank * 0x2000] = address # 8K bank
+    mapPRGROMBank: (srcBank, dstBank) ->
+        @prgROMMapping[srcBank * 0x2000] = dstBank * 0x2000 # 8K bank
 
     ###########################################################
     # Mapper connection
