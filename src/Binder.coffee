@@ -46,8 +46,7 @@ class Binder
         @mouseX = 0
         @mouseY = 0
         @recordNextEvent = no
-        @keyboardMapping = {}
-        @mouseMapping = {}
+        @unbindAll()
 
     registerEventListeners: ->
         window.onkeydown = @onKeyDown
@@ -66,11 +65,15 @@ class Binder
         else if device == "mouse"
             @bindMouse button, callback
 
-    unbindControl:  (device, button) ->
+    unbindControl: (device, button) ->
         if device == "keyboard"
             @unbindKeyboard button
         else if device == "mouse"
             @unbindMouse button
+
+    unbindAll: ->
+        @keyboardMapping = {}
+        @mouseMapping = {}
 
     bindKeyboard: (key, callback) ->
         @keyboardMapping[key.toLowerCase()] = callback

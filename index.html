@@ -10,7 +10,7 @@
         <script type="text/javascript" src="js/NESCoffeeBundled.js"></script>
         <script type="text/javascript" src="js/UI.js"></script>
     </head>
-    <body ondragover="allowFileDrop(event)" ondrop="handleDroppedFile(event)">
+    <body id="rom-drop-area">
         <h1><img class="logo" src="img/logo-transparent.png" alt="NESCoffee logo"/>NESCoffee</h1>
         <p>A Nintendo Entertainment System emulator written in CoffeeScript.</p>
         <p>NESCoffee is in early development, so it still isn't working correctly (only few games are playable).
@@ -46,7 +46,7 @@
         <div id="roms-section" class="section">
             Browse <a href="javascript:void(0)" onclick="showROMsDialog()">Game Library</a> or
             <button onclick="$('#rom-file-input').click()">Select ROM file</button> of your game.
-            <input type="file" id="rom-file-input" onchange="handleSelectedFile(event)"/></br>
+            <input type="file" id="rom-file-input"/></br>
             You can also drop ROM files directly inside this window to load them.
         </div>
         <p id="record-dialog">Press key or mouse button...</p>

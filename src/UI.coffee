@@ -1,6 +1,6 @@
 $(document).ready ->
 
-    nesCoffee = new NESCoffee $("#video-output")[0]
+    nesCoffee = new NESCoffee "video-output"
 
     ###########################################################
     # Emulation
@@ -83,35 +83,26 @@ $(document).ready ->
     # ROM loading
     ###########################################################
 
-    @allowFileDrop = (event) ->
-        event.preventDefault()
-        event.stopPropagation()
-        event.dataTransfer.dropEffect = 'copy'
+    romLoadingSuccess = ->
+        document.pressPower()
+        document.startEmulator() if not nesCoffee.isRunning()
+        document.activeElement.blur()
 
-    @handleDroppedFile = (event) ->
-        event.preventDefault()
-        event.stopPropagation()
-        file = event.dataTransfer.files[0]
-        insertCartridgeAsFile file if file
+    romDownloadingSuccess = ->
+        $("#roms-dialog").dialog "close"
+        romLoadingSuccess()
 
-    @handleSelectedFile = (event) ->
-        file = event.target.files[0]
-        insertCartridgeAsFile file if file
+    romLoadingError = (error) ->
+        alert error
 
-    insertCartridgeAsFile = (file) ->
-        reader = new FileReader
-        reader.onload = (event) -> insertCartridge event.target.result
-        reader.onerror = (event) -> alert event.target.error
-        reader.readAsArrayBuffer file
+    enableROMOpening = (element) ->
+        nesCoffee.enableFileOpening element, romLoadingSuccess, romLoadingError
 
-    insertCartridge = (arrayBuffer) ->
-        try
-            nesCoffee.insertCartridge arrayBuffer
-            document.pressPower()
-            document.startEmulator() if not nesCoffee.isRunning()
-            document.activeElement.blur()
-        catch error
-           alert error
+    enableROMDropping = (element) ->
+        nesCoffee.enableFileDropping element, romLoadingSuccess, romLoadingError
+
+    downloadROM = (url) ->
+        nesCoffee.downloadCartridge url, romDownloadingSuccess, romLoadingError
 
     ###########################################################
     # Game library
@@ -174,19 +165,7 @@ $(document).ready ->
 
     @downloadSelectedROM = ->
         file = getSelectedROM().attr "file"
-        downloadROMFile "roms/#{file}" if file
-
-    downloadROMFile = (file) ->
-        request = new XMLHttpRequest
-        request.open "GET", file, true
-        request.responseType = "arraybuffer";
-        request.onload = ->
-            if @status == 200
-                insertCartridge new Uint8Array @response
-                $("#roms-dialog").dialog "close"
-            else
-                alert "Unable to download selected ROM."
-        request.send()
+        downloadROM "roms/#{file}" if file
 
     ###########################################################
     # Utilities
@@ -221,5 +200,8 @@ $(document).ready ->
     @setVideoScale 1
     @setVideoPalette "default"
     @stopEmulator()
+
+    enableROMOpening "rom-file-input"
+    enableROMDropping "rom-drop-area"
 
     setInterval updateFPS, 1000
