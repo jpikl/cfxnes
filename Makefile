@@ -35,11 +35,15 @@ INCLUDES = NESCoffee.js \
            readers/ArrayBufferReader.js \
            controllers/Joypad.js \
            controllers/Zapper.js \
+           utils/Convert.js \
            utils/Format.js \
            utils/Injector.js \
            paletts/BrightPalette.js \
            paletts/DefaultPalette.js \
-           paletts/RealisticPalette.js
+           paletts/RealisticPalette.js \
+           storages/LocalStorage.js
+
+LIBS = lib/md5sum.js
 
 all: optimize
 
@@ -48,9 +52,10 @@ init:
 
 compile: init
 	tools/Compiler.coffee --inline --compile --output $(BUILD_DIR) $(SRC_DIR)
+	cp --parents $(LIBS) $(BUILD_DIR)
 
 bundle: compile
-	tools/Bundler.coffee --directory $(BUILD_DIR) --entry $(MAIN_FILE) --output $(BUNDLE_FILE) $(INCLUDES)
+	tools/Bundler.coffee --directory $(BUILD_DIR) --entry $(MAIN_FILE) --output $(BUNDLE_FILE) $(INCLUDES) $(LIBS)
 
 optimize: bundle
 	cd $(BUILD_DIR) && closure --compilation_level $(OPT_LEVEL) $(BUNDLE_FILE) > $(OPT_FILE)

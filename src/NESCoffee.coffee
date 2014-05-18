@@ -33,6 +33,7 @@ class @NESCoffee
         @initConsole()
         @initControls()
         @initFPS()
+        @initListeners()
         @setVideoPalette()
         @pressPower()
         @drawFrame()
@@ -75,19 +76,22 @@ class @NESCoffee
         @fpsIndex = 0
         @fpsTime = 0
 
+    initListeners: ->
+        window.addEventListener "beforeunload", @saveData
+
     ###########################################################
     # Emulation
     ###########################################################
 
     start: ->
-        @intervalID = setInterval @step, 1000 / SCREEN_FPS
+        @emuIntervalId = setInterval @step, 1000 / SCREEN_FPS
 
     stop: ->
-        clearInterval @intervalID
-        @intervalID = null
+        clearInterval @emuIntervalId
+        @emuIntervalId = null
 
     isRunning: ->
-        @intervalID != null
+        @emuIntervalId != null
 
     step: =>
         @renderFrame()
@@ -103,6 +107,25 @@ class @NESCoffee
 
     getFPS: ->
         (@fpsBuffer.reduce (a, b) -> a + b) / @fpsBuffer.length
+
+    ###########################################################
+    # Persistence
+    ###########################################################
+
+    setStorage: (storage) ->
+        @nes.setStorage storage
+
+    loadData: ->
+        @nes.loadData()
+
+    saveData: =>
+        @nes.saveData()
+
+    setPeriodicDataSave: (period) ->
+        if period
+            @saveIntervalId = setInterval @saveData, period
+        else
+            clearInterval @saveIntervalId
 
     ###########################################################
     # Video output
@@ -250,8 +273,10 @@ class @NESCoffee
             return error
 
     insertCartridge: (arrayBuffer) ->
+        @nes.saveData()
         cartridge = @cartridgeFactory.fromArrayBuffer arrayBuffer
         @nes.insertCartridge cartridge
+        @nes.loadData()
 
     ###########################################################
     # Controls binding

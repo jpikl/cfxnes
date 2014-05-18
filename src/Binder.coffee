@@ -122,7 +122,8 @@ class Binder
             @keyboardMapping[key](keyDown)
 
     hasFocus: ->
-        document.activeElement is document.body
+        activeElement = document.activeElement
+        activeElement?.tagName isnt "INPUT" or activeElement?.type isnt "text"
 
     ###########################################################
     # Mouse events handling

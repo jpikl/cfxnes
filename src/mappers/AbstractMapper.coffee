@@ -1,6 +1,10 @@
-Format =  require "../utils/Format"
+Format  = require "../utils/Format"
+Convert = require "../utils/Convert"
 
 wordAsHex = Format.wordAsHex
+computeMD5 = Convert.computeMD5
+uint8ArrayToString = Convert.uint8ArrayToString
+stringToUint8Array = Convert.stringToUint8Array
 
 ###########################################################
 # Base class for PRGROM mappers
@@ -28,6 +32,7 @@ class AbstractMapper
 
     init: (cartridge) ->
         @mirroring = cartridge.mirroring
+        @hasBattery = cartridge.hasBattery
         @hasPRGRAM = cartridge.hasPRGRAM # Not reliable information on iNES ROMs (should provide mapper itself)
         @hasCHRRAM = cartridge.hasCHRRAM
         @prgROMSize = cartridge.prgROMSize ? cartridge.prgROM.length
@@ -65,11 +70,27 @@ class AbstractMapper
     ###########################################################
 
     createPRGRAM: ->
-        @prgRAM = new Array @prgRAMSize if @hasPRGRAM
+        @prgRAM = (0 for i in [0...@prgRAMSize]) if @hasPRGRAM
+        undefined
 
     resetPRGRAM: ->
-        @prgRAM[i] = 0 for i in [0...@prgRAMSize] if @hasPRGRAM
+        @prgRAM[i] = 0 for i in [0...@prgRAMSize] if @hasPRGRAM and not @hasBattery
         undefined
+
+    loadPRGRAM: (storage) ->
+        if @hasPRGRAM and @hasBattery
+            data = storage.load @getPRGRAMKey()
+            stringToUint8Array data, @prgRAM if data
+        undefined
+
+    savePRGRAM: (storage) ->
+        if @hasPRGRAM and @hasBattery
+            data = uint8ArrayToString @prgRAM
+            storage.save @getPRGRAMKey(), data
+        undefined
+
+    getPRGRAMKey: ->
+        @prgRAMKey ?= "nescoffee/#{computeMD5 @prgROM}.sav"
 
     mapPRGRAMBank8K: (srcBank, dstBank) ->
         maxBank = (@prgRAMSize - 1) >> 13
@@ -100,7 +121,8 @@ class AbstractMapper
     ###########################################################
 
     createCHRRAM: ->
-        @chrRAM = new Array @chrRAMSize if @hasCHRRAM
+        @chrRAM = (0 for i in [0...@chrRAMSize]) if @hasCHRRAM
+        undefined
 
     resetCHRRAM: ->
         @chrRAM[i] = 0 for i in [0...@chrRAMSize] if @hasCHRRAM

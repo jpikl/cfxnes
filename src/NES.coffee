@@ -4,7 +4,7 @@
 
 class NES
 
-    @inject: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "mapperFactory" ]
+    @inject: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "mapperFactory", "storage" ]
 
     constructor: ->
         @videoDebug = false
@@ -38,6 +38,19 @@ class NES
 
     getConnectedInputDevice: (port) ->
         @cpuMemory.getInputDevice port
+
+    ###########################################################
+    # Persistence
+    ###########################################################
+
+    setStorage: (storage) ->
+        @storage = storage
+
+    loadData: ->
+        @mapper?.loadPRGRAM @storage
+
+    saveData: ->
+        @mapper?.savePRGRAM @storage
 
     ###########################################################
     # Video ouput and emulation

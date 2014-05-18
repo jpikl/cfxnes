@@ -204,4 +204,5 @@ $(document).ready ->
     enableROMOpening "rom-file-input"
     enableROMDropping "rom-drop-area"
 
+    nesCoffee.setPeriodicDataSave 60000 # 1 minute
     setInterval updateFPS, 1000
