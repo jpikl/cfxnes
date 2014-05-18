@@ -121,7 +121,7 @@ class @NESCoffee
     saveData: =>
         @nes.saveData()
 
-    setPeriodicDataSave: (period) ->
+    setPeriodicSave: (period) ->
         if period
             @saveIntervalId = setInterval @saveData, period
         else
