@@ -1,8 +1,8 @@
 export NODE_PATH = /usr/lib/node_modules/
 
+MAIN_FILE   = ../Main.coffee
 CONF_FILE   = ../test/nestest/TestConfig
-TEST_FILE   = ../Main.coffee
-TEST_ROM    = ../../roms/nestest.nes
+TEST_ROM    = nestest.nes
 NLT_LOG_RAW = nintendulator.log
 NLT_LOG_FMT = nintendulator-formatted.log
 NCF_LOG_RAW = nescoffee.log
@@ -12,7 +12,7 @@ STEPS       = 8991
 all: test
 
 generate:
-	@../../tools/Compiler.coffee $(TEST_FILE) $(CONF_FILE) $(TEST_ROM) $(STEPS) > $(NCF_LOG_RAW)
+	@../../tools/Compiler.coffee $(MAIN_FILE) $(CONF_FILE) $(TEST_ROM) $(STEPS) > $(NCF_LOG_RAW)
 
 format: generate
 	@sed "s/^\(.\{20\}\).\{27\}\(.\{26\}\).*$$/\1\2/g" $(NLT_LOG_RAW) | sed "s/\*/ /g" | head -n $(STEPS) > $(NLT_LOG_FMT)

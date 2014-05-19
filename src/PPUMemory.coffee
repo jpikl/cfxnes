@@ -1,8 +1,6 @@
-Types = require "../Types"
+Types = require "./Types"
 
 Mirroring = Types.Mirroring
-
-h = require("../utils/Format").wordAsHex
 
 ###########################################################
 # PPU memory

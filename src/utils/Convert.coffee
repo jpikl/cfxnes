@@ -1,4 +1,4 @@
-md5sum = require "../lib/md5sum"
+md5sum = require "../../lib/md5sum"
 
 ###########################################################
 # Conversion utilities
