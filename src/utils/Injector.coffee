@@ -32,12 +32,13 @@ class Injector
 
     getDependency: (name) ->
         dependency = @dependencies[name]
-        throw "Dependency '#{name}' not found." unless dependency?
+        unless dependency?
+            throw new Error "Dependency '#{name}' not found."
         dependency
 
     getClass: (name) ->
         dependency = @getDependency(name)
-        dependency.clazz ?= require "../#{dependency.module}" 
+        dependency.clazz ?= require "../#{dependency.module}"
 
     getInstance: (name) ->
         if @isSingleton name

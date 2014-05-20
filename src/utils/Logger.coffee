@@ -56,11 +56,14 @@ class Logger
         undefined
 
     writeError: (message) ->
+        if typeof message is "object" and message.stack and (not window? or window.chrome)
+            message = message.stack # Fix ugly error output in chrome + fix terminal output
         writer.error message for writer in @writers
         undefined
 
     closeWriters: ->
         writer.close?() for writer in @writers
+        @writers = null
         @info  = ->
         @warn  = ->
         @error = ->

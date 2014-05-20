@@ -31,12 +31,12 @@ class AbstractLoader
 
     readArray: (size) ->
         result = @reader.read size
-        if result?.length != size
-            throw "Unexpected end of file."
+        if result?.length isnt size
+            throw new Error "Unexpected end of file."
         result
 
     checkSignature: (bytes...) ->
-        if not AbstractLoader.containsSignature @reader, bytes...
-            throw "Invalid file signature."
+        unless AbstractLoader.containsSignature @reader, bytes...
+            throw new Error "Invalid file signature."
 
 module.exports = AbstractLoader

@@ -114,7 +114,8 @@ class CPU
     readOperation: ->
         operationCode = @$readNextProgramByte()
         operation = @operationsTable[operationCode]
-        throw "Unsupported operation (code: 0x#{byteAsHex operationCode})" unless operation?
+        unless operation?
+            throw new Error "Unsupported operation (code: 0x#{byteAsHex operationCode})"
         operation
 
     readNextProgramByte: ->
@@ -583,7 +584,7 @@ class CPU
 
     RLA: (address) =>
         @$storeValueIntoAccumulator @accumulator & @ROL address
-        
+
     RRA: (address) =>
         @$addValueToAccumulator @ROR address
 
@@ -685,7 +686,7 @@ class CPU
         @registerOperation 0xF4, @NOP, @zeroPageXMode, 1, 0 # 4 cycles (undocumented operation)
 
         @registerOperation 0x0C, @NOP, @absoluteMode,  0, 0 # 4 cycles (undocumented operation)
-        
+
         @registerOperation 0x1C, @NOP, @absoluteXMode, 0, 0 # 5 cycles (undocumented operation)
         @registerOperation 0x3C, @NOP, @absoluteXMode, 0, 0 # 5 cycles (undocumented operation)
         @registerOperation 0x5C, @NOP, @absoluteXMode, 0, 0 # 5 cycles (undocumented operation)

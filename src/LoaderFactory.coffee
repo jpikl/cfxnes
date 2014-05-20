@@ -16,6 +16,6 @@ class LoaderFactory
             reader.reset()
             if loaderClass.supportsInput reader
                 return new loaderClass reader
-        throw "Unsupported cartridge ROM format."
+        throw new Error "Unsupported cartridge ROM format."
 
 module.exports = LoaderFactory

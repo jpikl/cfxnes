@@ -31,7 +31,8 @@ logger.attach Logger.console() if Network.isLocalhost()
 class @NESCoffee
 
     constructor: (@canvas, @mode = "base") ->
-        throw "Canvas element or its ID was not specified." unless @canvas?
+        unless @canvas?
+            throw new Error "Canvas element or its ID was not specified."
         logger.info "Initializing NESCoffee"
         @initCanvas()
         @initRenderer()
