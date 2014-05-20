@@ -2,6 +2,7 @@ Injector = require "./utils/Injector"
 Joypad   = require "./controllers/Joypad"
 Format   = require "./utils/Format"
 Logger   = require "./utils/Logger"
+Network  = require "./utils/Network"
 Binder   = require "./Binder"
 
 SCREEN_FPS    = 60.0988
@@ -20,6 +21,9 @@ joypadButtonToId =
     "left":   Joypad.BUTTON_LEFT
     "right":  Joypad.BUTTON_RIGHT
 
+logger = Logger.get()
+logger.attach Logger.console() if Network.isLocalhost()
+
 ###########################################################
 # NESCoffee main class
 ###########################################################
@@ -28,6 +32,7 @@ class @NESCoffee
 
     constructor: (@canvas, @mode = "base") ->
         throw "Canvas element or its ID was not specified." unless @canvas?
+        logger.info "Initializing NESCoffee"
         @initCanvas()
         @initRenderer()
         @initFramebuffer()
@@ -35,30 +40,34 @@ class @NESCoffee
         @initControls()
         @initFPS()
         @initListeners()
-        @initLogging()
         @setVideoPalette()
         @pressPower()
         @drawFrame()
+        logger.info "Initialization done"
 
     ###########################################################
     # Initialization
     ###########################################################
 
     initCanvas: ->
+        logger.info "Initializing canvas"
         @canvas = document.getElementById @canvas if typeof @canvas is "string"
         @canvas.width = SCREEN_WIDTH
         @canvas.height = SCREEN_HEIGHT
         @canvasScale = 1
 
     initRenderer: ->
+        logger.info "Initializing renderer"
         @renderer = @canvas.getContext "2d"
 
     initFramebuffer: ->
+        logger.info "Initializing frambuffer"
         @frameBuffer = @renderer.createImageData SCREEN_WIDTH, SCREEN_HEIGHT
         for i in [0...@frameBuffer.data.length]
             @frameBuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
 
     initConsole: ->
+        logger.info "Initializing console"
         @injector = new Injector "./config/#{capitalize @mode}Config"
         @nes = @injector.getInstance "nes"
         @cartridgeFactory = @injector.getInstance "cartridgeFactory"
@@ -67,6 +76,7 @@ class @NESCoffee
             2: { joypad: @injector.getInstance("joypad"), zapper: @injector.getInstance("zapper") }
 
     initControls: ->
+        logger.info "Initializing controls"
         @binder = new Binder @getCanvasRect
         @unbindCallbacks1 =
             1: { joypad: {}, zapper: {} }
@@ -74,28 +84,25 @@ class @NESCoffee
         @unbindCallbacks2 = keyboard: {}, mouse: {}
 
     initFPS: ->
+        logger.info "Initializing fps"
         @fpsBuffer = (0 for [1..10])
         @fpsIndex = 0
         @fpsTime = 0
 
     initListeners: ->
+        logger.info "Initializing listeners"
         window.addEventListener "beforeunload", @saveData
-
-    initLogging: ->
-        logger = Logger.get()
-        logger.attach Logger.console() if @isDebugMode()
-
-    isDebugMode: ->
-        document?.URL?[..6] is "file://"
 
     ###########################################################
     # Emulation
     ###########################################################
 
     start: ->
+        logger.info "Starting emulation"
         @emuIntervalId = setInterval @step, 1000 / SCREEN_FPS
 
     stop: ->
+        logger.info "Stopping emulation"
         clearInterval @emuIntervalId
         @emuIntervalId = null
 
@@ -122,18 +129,23 @@ class @NESCoffee
     ###########################################################
 
     setStorage: (storage) ->
+        logger.info "Setting storage"
         @nes.setStorage storage
 
     loadData: ->
+        logger.info "Loding data"
         @nes.loadData()
 
     saveData: =>
+        logger.info "Saving data"
         @nes.saveData()
 
     setPeriodicSave: (period) ->
         if period
+            logger.info "Enabling periodic save with period #{period} ms"
             @saveIntervalId = setInterval @saveData, period
         else
+            logger.info "Disabling periodic save"
             clearInterval @saveIntervalId
 
     ###########################################################
@@ -158,16 +170,19 @@ class @NESCoffee
         @renderer.drawImage @canvas, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, @canvas.width, @canvas.height
 
     setVideoScale: (scale) ->
+        logger.info "Setting video scale to #{scale}"
         @canvas.width = scale * SCREEN_WIDTH
         @canvas.height = scale * SCREEN_HEIGHT
         @canvasScale = scale
         @drawFrame()
 
     setVideoPalette: (palette = "default") ->
+        logger.info "Setting pallet to '#{palette}'"
         palette = require "./paletts/#{capitalize palette}Palette" if typeof palette is "string"
         @nes.setVideoPalette palette
 
     setVideoDebug: (enabled) ->
+        logger.info "Setting video debug to #{enabled}"
         @nes.setVideoDebug enabled
 
     ###########################################################
@@ -188,12 +203,15 @@ class @NESCoffee
     ###########################################################
 
     pressPower: ->
+        logger.info "Pressing power"
         @nes.pressPower()
 
     pressReset: ->
+        logger.info "Pressing reset"
         @nes.pressReset()
 
     setInputDevice: (port, device) ->
+        logger.info "Setting input device on port #{port} to '#{device}'"
         device = @inputDevices[port]?[device] or null if typeof device is "string"
         @nes.connectInputDevice port, device
 
@@ -208,12 +226,14 @@ class @NESCoffee
     ###########################################################
 
     enableFileOpening: (element, onLoad, onError) ->
+        logger.info "File opening enabled on '#{element}'"
         self = @
         element = document.getElementById element if typeof element is "string"
         element.addEventListener "change", (event) ->
             self.handleOpenedFile event, onLoad, onError
 
     enableFileDropping: (element, onLoad, onError) ->
+        logger.info "File dropping enabled on '#{element}'"
         self = @
         element = document.getElementById element if typeof element is "string"
         element.addEventListener "dragover", (event) ->
@@ -222,6 +242,7 @@ class @NESCoffee
             self.handleDroppedFile event, onLoad, onError
 
     handleOpenedFile: (event, onLoad, onError) =>
+        logger.info "Received file open event '#{event}'"
         event.preventDefault()
         event.stopPropagation()
         file = event.target.files[0]
@@ -233,12 +254,14 @@ class @NESCoffee
         event.dataTransfer.dropEffect = "copy"
 
     handleDroppedFile: (event, onLoad, onError) =>
+        logger.info "Received file drop event '#{event}'"
         event.preventDefault()
         event.stopPropagation()
         file = event.dataTransfer.files[0]
         @loadCartridge file, onLoad, onError if file
 
     loadCartridge: (file, onLoad, onError) ->
+        logger.info "Loding cartridge from file"
         self = @
         onLoad ?= @onLoad
         onError ?= @onError
@@ -255,6 +278,7 @@ class @NESCoffee
         reader.readAsArrayBuffer file
 
     downloadCartridge: (url, onLoad, onError) ->
+        logger.info "Downloading cartridge from '#{url}'"
         self = @
         onLoad ?= @onLoad
         onError ?= @onError
@@ -267,22 +291,26 @@ class @NESCoffee
             else
                 error = "Unable to download file '#{url}' (status code: #{@status})."
             if error
+                logger.error error
                 onError?.call self, error, @status
             else
                 onLoad?.call self, @response
         try
             request.send()
         catch error
+            logger.error error
             onError?.call self, error
 
     tryInsertCartridge: (arrayBuffer) ->
         try
             @insertCartridge arrayBuffer
         catch error
+            logger.error error
             return error
 
     insertCartridge: (arrayBuffer) ->
         @nes.saveData()
+        logger.info "Inserting cartridge"
         cartridge = @cartridgeFactory.fromArrayBuffer arrayBuffer
         @nes.insertCartridge cartridge
         @nes.loadData()
@@ -292,6 +320,7 @@ class @NESCoffee
     ###########################################################
 
     useDefaultControls: ->
+        logger.info "Using default controls"
         @binder.unbindAll()
         @bindControl 1, "joypad", "a", "keyboard", "c"
         @bindControl 1, "joypad", "b", "keyboard", "x"
@@ -312,6 +341,7 @@ class @NESCoffee
         @unbindCallbacks2[srcDevice]?[srcButton]?()  if srcDevice and srcButton
 
     bindInputDevice: (port, device, button, srcDevice, srcButton, unbindCallback) ->
+        logger.info "Binding '#{srcButton}' of '#{srcDevice}' to '#{device}' on port #{port}"
         unbindInputDevice = @getUnbindInputDeviceCallback port, device, button, srcDevice, srcButton, unbindCallback
         useInputDevice = @getUseInputDeviceCallback port, device, button
         @unbindCallbacks1[port]?[device]?[button] = unbindInputDevice
@@ -319,6 +349,7 @@ class @NESCoffee
         @binder.bindControl srcDevice, srcButton, useInputDevice
 
     unbindInputDevice: (port, device, button, srcDevice, srcButton) ->
+        logger.info "Unbinding '#{srcButton}' of '#{srcDevice}' and '#{device}' on port #{port}"
         @binder.unbindControl srcDevice, srcButton
         @unbindCallbacks1[port]?[device]?[button] = null
         @unbindCallbacks2[srcDevice]?[srcButton] = null
@@ -341,4 +372,5 @@ class @NESCoffee
     ###########################################################
 
     recordInput: (callback) ->
+        logger.info "Recording input"
         @binder.recordInput callback

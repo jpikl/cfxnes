@@ -56,7 +56,7 @@ class Logger
         undefined
 
     writeError: (message) ->
-        writer.error message. for writer in @writers
+        writer.error message for writer in @writers
         undefined
 
     closeWriters: ->

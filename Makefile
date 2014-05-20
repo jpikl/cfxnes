@@ -38,6 +38,8 @@ INCLUDES = NESCoffee.js \
            utils/Convert.js \
            utils/Format.js \
            utils/Injector.js \
+           utils/Logger.js \
+           utils/Network.js \
            paletts/BrightPalette.js \
            paletts/DefaultPalette.js \
            paletts/RealisticPalette.js \
