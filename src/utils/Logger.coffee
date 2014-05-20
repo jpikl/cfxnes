@@ -75,7 +75,7 @@ class FileWriter
 
     constructor: (fileName) ->
         @fs = require "fs"
-        @fd = fs.openSync fileName, "w"
+        @fd = @fs.openSync fileName, "w"
 
     info: (message) ->
         @write message + "\n"

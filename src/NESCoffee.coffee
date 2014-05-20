@@ -1,6 +1,7 @@
 Injector = require "./utils/Injector"
 Joypad   = require "./controllers/Joypad"
 Format   = require "./utils/Format"
+Logger   = require "./utils/Logger"
 Binder   = require "./Binder"
 
 SCREEN_FPS    = 60.0988
@@ -34,6 +35,7 @@ class @NESCoffee
         @initControls()
         @initFPS()
         @initListeners()
+        @initLogging()
         @setVideoPalette()
         @pressPower()
         @drawFrame()
@@ -78,6 +80,13 @@ class @NESCoffee
 
     initListeners: ->
         window.addEventListener "beforeunload", @saveData
+
+    initLogging: ->
+        logger = Logger.get()
+        logger.attach Logger.console() if @isDebugMode()
+
+    isDebugMode: ->
+        document?.URL?[..6] is "file://"
 
     ###########################################################
     # Emulation

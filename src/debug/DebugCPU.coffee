@@ -1,9 +1,12 @@
 CPU    = require "../CPU"
 Format = require "../utils/Format"
+Logger = require "../utils/Logger"
 
 byteAsHex = Format.byteAsHex
 wordAsHex = Format.wordAsHex
 fillLeft  = Format.fillLeft
+
+logger = Logger.get "debug"
 
 ###########################################################
 # CPU with debugging printouts
@@ -133,9 +136,9 @@ class DebugCPU extends CPU
         ]
 
     logHeader: ->
-        console.log "/-------+-------+------+----------+-----+---+-----+------------+---------------------------+-----------------\\"
-        console.log "|     # |  Cyc  |  PC  | D0 D1 D2 | OP  | C | AM  | Addr / Val |        Registers          |      Flags      |"
-        console.log "|-------|-------|------|----------|-----|---|-----|------------|---------------------------|-----------------|"
+        logger.info "/-------+-------+------+----------+-----+---+-----+------------+---------------------------+-----------------\\"
+        logger.info "|     # |  Cyc  |  PC  | D0 D1 D2 | OP  | C | AM  | Addr / Val |        Registers          |      Flags      |"
+        logger.info "|-------|-------|------|----------|-----|---|-----|------------|---------------------------|-----------------|"
 
     logAddressingMode: (name, result) ->
         @addressingModeName = name
@@ -161,7 +164,7 @@ class DebugCPU extends CPU
         @linesCount++
         @instructionCycles = @cyclesCount - @cyclesCountBefore
         result = (method() for method in @formatterMethods)
-        console.log "| #{result.join ' | '} |"
+        logger.info "| #{result.join ' | '} |"
 
     ###########################################################
     # Formatting
@@ -181,8 +184,8 @@ class DebugCPU extends CPU
 
     formatInstructionByte: (offset) ->
         if offset < @instructionSize
-            byteAsHex @instructionData[offset] 
-        else 
+            byteAsHex @instructionData[offset]
+        else
             "  "
 
     formatInstructionCode: =>
