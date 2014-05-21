@@ -60,7 +60,7 @@ writeOutput """
             var name = parts.join("/");
             var fullName = name + ".js";
             var result = results[fullName];
-            if (typeof module == "undefined") {
+            if (typeof result == "undefined") {
                 var module = modules[fullName];
                 if (typeof module == "undefined") {
                     throw "Module '" + name + "' not found";
