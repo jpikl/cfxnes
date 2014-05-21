@@ -1,3 +1,7 @@
+Logger = require "./utils/Logger"
+
+logger = Logger.get()
+
 ###########################################################
 # Audio processing unit
 ###########################################################
@@ -9,6 +13,7 @@ class APU
     ###########################################################
 
     powerUp: ->
+        logger.info "Reseting APU"
         @resetRegisters()
 
     resetRegisters: ->

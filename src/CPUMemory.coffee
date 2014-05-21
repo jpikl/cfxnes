@@ -1,3 +1,7 @@
+Logger = require "./utils/Logger"
+
+logger = Logger.get()
+
 ###########################################################
 # CPU memory
 ###########################################################
@@ -14,6 +18,7 @@ class CPUMemory
     ###########################################################
 
     powerUp: ->
+        logger.info "Reseting CPU memory"
         @createRAM()
         @resetIO()
 

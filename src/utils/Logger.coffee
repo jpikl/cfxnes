@@ -4,11 +4,11 @@
 
 class Logger
 
+    @loggers = []
+
     ###########################################################
     # Factory methods
     ###########################################################
-
-    @loggers = []
 
     @get: (id = "default") ->
         @loggers[id] ?= new Logger
@@ -20,54 +20,39 @@ class Logger
         new FileWriter fileName
 
     ###########################################################
-    # Dummy output
-    ###########################################################
-
-    info: ->
-
-    warn: ->
-
-    error: ->
-
-    close: ->
-
-    ###########################################################
-    # Attached output
+    # Output connection
     ###########################################################
 
     attach: (writer) ->
-        @initWriters() if not @writers
+        @writers = [] unless @writers
         @writers.push writer
         this
 
-    initWriters: ->
-        @writers = []
-        @info  = @writeInfo
-        @warn  = @writeWarn
-        @error = @writeError
-        @close = @closeWriters
-
-    writeInfo: (message) ->
-        writer.info message for writer in @writers
+    close: ->
+        if @writers
+            writer.close?() for writer in @writers
+            @writers = null
         undefined
 
-    writeWarn: (message) ->
-        writer.warn message for writer in @writers
+    ###########################################################
+    # Logging
+    ###########################################################
+
+    info: (message) ->
+        if @writers
+            writer.info message for writer in @writers
         undefined
 
-    writeError: (message) ->
-        if typeof message is "object" and message.stack and (not window? or window.chrome)
-            message = message.stack # Fix ugly error output in chrome + fix terminal output
-        writer.error message for writer in @writers
+    warn: (message) ->
+        if @writers
+            writer.warn message for writer in @writers
         undefined
 
-    closeWriters: ->
-        writer.close?() for writer in @writers
-        @writers = null
-        @info  = ->
-        @warn  = ->
-        @error = ->
-        @close = ->
+    error: (message) ->
+        if @writers
+            if typeof message is "object" and message.stack and (not window? or window.chrome)
+                message = message.stack # Fix ugly error output in chrome + fix terminal output
+            writer.error message for writer in @writers
         undefined
 
 ###########################################################

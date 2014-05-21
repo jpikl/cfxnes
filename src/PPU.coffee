@@ -1,3 +1,7 @@
+Logger = require "./utils/Logger"
+
+logger = Logger.get()
+
 ###########################################################
 # Picture processing unit
 ###########################################################
@@ -14,6 +18,7 @@ class PPU
     ###########################################################
 
     powerUp: ->
+        logger.info "Reseting PPU"
         @resetOAM()
         @resetRegisters()
         @resetVariables()

@@ -1,10 +1,12 @@
 Format  = require "../utils/Format"
 Convert = require "../utils/Convert"
+Logger = require "../utils/Logger"
 
 wordAsHex = Format.wordAsHex
 computeMD5 = Convert.computeMD5
 uint8ArrayToString = Convert.uint8ArrayToString
 stringToUint8Array = Convert.stringToUint8Array
+logger = Logger.get()
 
 ###########################################################
 # Base class for PRGROM mappers
@@ -13,6 +15,7 @@ stringToUint8Array = Convert.stringToUint8Array
 class AbstractMapper
 
     constructor: (cartridge) ->
+        logger.info "Constructing mapper"
         @init cartridge
         @createPRGRAM()
         @createCHRRAM()
@@ -22,6 +25,7 @@ class AbstractMapper
     ###########################################################
 
     powerUp: ->
+        logger.info "Resetting mapper"
         @reset()
         @resetPRGRAM()
         @resetCHRRAM()

@@ -4,7 +4,7 @@
 
 class NES
 
-    @inject: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "mapperFactory", "storage" ]
+    @inject: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory", "storage" ]
 
     constructor: ->
         @videoDebug = false
@@ -15,6 +15,7 @@ class NES
 
     pressPower: ->
         @mapper?.powerUp()
+        @dma.powerUp()
         @apu.powerUp()
         @ppuMemory.powerUp()
         @ppu.powerUp()

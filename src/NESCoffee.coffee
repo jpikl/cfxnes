@@ -1,5 +1,5 @@
-Injector = require "./utils/Injector"
 Joypad   = require "./controllers/Joypad"
+Injector = require "./utils/Injector"
 Format   = require "./utils/Format"
 Logger   = require "./utils/Logger"
 Network  = require "./utils/Network"

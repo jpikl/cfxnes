@@ -1,3 +1,7 @@
+Logger = require "./utils/Logger"
+
+logger = Logger.get()
+
 ###########################################################
 # Direct memory access unit
 ###########################################################
@@ -9,6 +13,7 @@ class DMA
     @inject: [ "cpuMemory" ]
 
     powerUp: ->
+        logger.info "Reseting DMA"
         @cyclesCount = TOTAL_DMA_CYCLES
 
     writeAddress: (address) ->
@@ -23,7 +28,7 @@ class DMA
             @transferData() if @cyclesCount & 1  # Each even cyclesCount.
 
     isTransferInProgress: ->
-        @cyclesCount < TOTAL_DMA_CYCLES 
+        @cyclesCount < TOTAL_DMA_CYCLES
 
     transferData: ->
         address = @baseAddress + (@cyclesCount >> 1)

@@ -1,8 +1,11 @@
-Types  = require "./Types"
+Logger = require "./utils/Logger"
 Format = require "./utils/Format"
+Types  = require "./Types"
 
 byteAsHex = Format.byteAsHex
 Interrupt = Types.Interrupt
+
+logger = Logger.get()
 
 ###########################################################
 # Central processing unit
@@ -20,6 +23,7 @@ class CPU
     ###########################################################
 
     powerUp: ->
+        logger.info "Reseting CPU"
         @resetRegisters()
         @resetVariables()
         @resetMemory()

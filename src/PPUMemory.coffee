@@ -1,6 +1,9 @@
-Types = require "./Types"
+Logger = require "./utils/Logger"
+Types  = require "./Types"
 
 Mirroring = Types.Mirroring
+
+logger = Logger.get()
 
 ###########################################################
 # PPU memory
@@ -13,6 +16,7 @@ class PPUMemory
     ###########################################################
 
     powerUp: ->
+        logger.info "Reseting PPU memory"
         @createNamesAttrs()
         @createPaletts()
 

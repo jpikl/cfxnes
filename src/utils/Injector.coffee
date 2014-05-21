@@ -1,3 +1,7 @@
+Logger = require "Logger"
+
+logger = Logger.get()
+
 ###########################################################
 # Dependency injection
 ###########################################################
@@ -5,6 +9,7 @@
 class Injector
 
     constructor: (configuration) ->
+        logger.info "Creating injector"
         @dependencies = {}
         for name, value of @resolveConfiguration configuration
             @dependencies[name] = value
@@ -21,9 +26,11 @@ class Injector
         configuration
 
     readConfiguration: (module) ->
+        logger.info "Reading injector configuration '#{module}'"
         require "../#{module}"
 
     buildConfiguration: (builder) ->
+        logger.info "Building injector configuration"
         if builder.constructor? then new builder else builder()
 
     ###########################################################
@@ -66,6 +73,7 @@ class Injector
         @injectInstance @createInstance name
 
     createInstance: (name) ->
+        logger.info "Creating instance of '#{name}'"
         new (@getClass name)
 
     injectInstance: (instance) ->
