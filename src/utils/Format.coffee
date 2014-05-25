@@ -26,4 +26,14 @@ Format =
         words = words.map (word) -> word[0].toUpperCase() + word[1..-1].toLowerCase()
         words.join ' '
 
+    readableSize: (size) ->
+        return "???" if typeof size isnt "number"
+        return "#{size / (1024 * 1024)} MB" if size >= 1024 * 1024
+        return "#{size / 1024} KB" if size >= 1024
+        return "#{size} B"
+
+    readableBytes: (bytes) ->
+        return "???" if not bytes
+        String.fromCharCode.apply null, bytes
+
 module.exports = Format

@@ -2,11 +2,12 @@ Format  = require "../utils/Format"
 Convert = require "../utils/Convert"
 Logger = require "../utils/Logger"
 
-wordAsHex = Format.wordAsHex
-computeMD5 = Convert.computeMD5
-uint8ArrayToString = Convert.uint8ArrayToString
-stringToUint8Array = Convert.stringToUint8Array
 logger = Logger.get()
+wordAsHex = Format.wordAsHex
+readableSize = Format.readableSize
+computeMD5 = Convert.computeMD5
+bytesToString = Convert.bytesToString
+stringToBytes = Convert.stringToBytes
 
 ###########################################################
 # Base class for PRGROM mappers
@@ -18,6 +19,7 @@ class AbstractMapper
         logger.info "Constructing mapper"
         @init cartridge
         @createPRGRAM()
+        @printPRGRAMInfo()
         @createCHRRAM()
 
     ###########################################################
@@ -36,8 +38,8 @@ class AbstractMapper
 
     init: (cartridge) ->
         @mirroring = cartridge.mirroring
-        @hasBattery = cartridge.hasBattery
         @hasPRGRAM = cartridge.hasPRGRAM # Not reliable information on iNES ROMs (should provide mapper itself)
+        @hasPRGRAMBattery = cartridge.hasPRGRAMBattery
         @hasCHRRAM = cartridge.hasCHRRAM
         @prgROMSize = cartridge.prgROMSize ? cartridge.prgROM.length
         @prgRAMSize = cartridge.prgRAMSize # Not present on iNES ROMs (should provide mapper itself)
@@ -78,18 +80,18 @@ class AbstractMapper
         undefined
 
     resetPRGRAM: ->
-        @prgRAM[i] = 0 for i in [0...@prgRAMSize] if @hasPRGRAM and not @hasBattery
+        @prgRAM[i] = 0 for i in [0...@prgRAMSize] if @hasPRGRAM and not @hasPRGRAMBattery
         undefined
 
     loadPRGRAM: (storage) ->
-        if @hasPRGRAM and @hasBattery
+        if @hasPRGRAM and @hasPRGRAMBattery
             data = storage.load @getPRGRAMKey()
-            stringToUint8Array data, @prgRAM if data
+            stringToBytes data, @prgRAM if data
         undefined
 
     savePRGRAM: (storage) ->
-        if @hasPRGRAM and @hasBattery
-            data = uint8ArrayToString @prgRAM
+        if @hasPRGRAM and @hasPRGRAMBattery
+            data = bytesToString @prgRAM
             storage.save @getPRGRAMKey(), data
         undefined
 
@@ -99,6 +101,13 @@ class AbstractMapper
     mapPRGRAMBank8K: (srcBank, dstBank) ->
         maxBank = (@prgRAMSize - 1) >> 13
         @cpuMemory.mapPRGRAMBank srcBank, dstBank & maxBank
+
+    printPRGRAMInfo: ->
+        logger.info "==========[Mapper PRG RAM Info - Start]=========="
+        logger.info "has PRG RAM        : #{@hasPRGRAM}"
+        logger.info "has PRG RAM battery: #{@hasPRGRAMBattery}"
+        logger.info "PRG RAM size       : #{readableSize @prgRAMSize}"
+        logger.info "==========[Mapper PRG RAM Info - End]=========="
 
     ###########################################################
     # CHR ROM mapping

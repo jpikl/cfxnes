@@ -9,12 +9,12 @@ Convert =
     computeMD5: (data) ->
         md5sum data
 
-    uint8ArrayToString: (array) ->
-        String.fromCharCode.apply null, array
+    bytesToString: (bytes) ->
+        String.fromCharCode.apply null, bytes
 
-    stringToUint8Array: (string, array) ->
-        array ?= Uint8Array string.length
-        array[i] = string.charCodeAt i for i in [0...string.length]
-        array
+    stringToBytes: (string, bytes) ->
+        bytes ?= Uint8Array string.length
+        bytes[i] = string.charCodeAt i for i in [0...string.length]
+        bytes
 
 module.exports = Convert

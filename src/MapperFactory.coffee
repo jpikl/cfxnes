@@ -26,6 +26,6 @@ class MapperFactory
         unless mapper?
             throw new Error "Unsupported mapper (id: #{id})."
         logger.info "Using '#{mapper.name}' mapper"
-        return new mapper.class cartridge
+        new mapper.class cartridge
 
 module.exports = MapperFactory

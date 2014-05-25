@@ -1,8 +1,8 @@
 AbstractLoader = require "./AbstractLoader"
 Types          = require "../Types"
 
-Mirroring      = Types.Mirroring
-TVSystem       = Types.TVSystem
+Mirroring = Types.Mirroring
+TVSystem  = Types.TVSystem
 
 INES_SIGNATURE = [ 0x4E, 0x45, 0x53, 0x1A ] # "NES^Z"
 
@@ -53,10 +53,10 @@ class INESLoader extends AbstractLoader
         else
             @cartridge.mirroring = Mirroring.HORIZONTAL
 
-        @cartridge.hasBattery = (controlByte1 & 0x02) != 0
+        @cartridge.hasPRGRAMBattery = (controlByte1 & 0x02) != 0
         @cartridge.hasTrainer = (controlByte1 & 0x04) != 0
-        @cartridge.hasVsUnisistem = (controlByte2 & 0x01) != 0
-        @cartridge.hasPlayChoice = (controlByte2 & 0x02) != 0
+        @cartridge.isVsUnisistem = (controlByte2 & 0x01) != 0
+        @cartridge.isPlayChoice = (controlByte2 & 0x02) != 0
         @cartridge.mapperId = (controlByte2 & 0xF0) | (controlByte1 >>> 4)
 
     readCHRRAMSize: ->
