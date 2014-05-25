@@ -1,3 +1,7 @@
+Logger = require "../utils/Logger"
+
+logger = Logger.get()
+
 ###########################################################
 # Factory for loader creation
 ###########################################################
@@ -5,17 +9,20 @@
 class LoaderFactory
 
     constructor: ->
-        @loaderClasses = []
-        @registerLoader "INESLoader"
+        @loaders = []
+        @registerLoader "INES"
 
     registerLoader: (name) ->
-        @loaderClasses.push require "./loaders/#{name}"
+        @loaders.push
+            name:  name
+            class: require "./loaders/#{name}Loader"
 
     createLoader: (reader) ->
-        for loaderClass in @loaderClasses
+        for loader in @loaders
             reader.reset()
-            if loaderClass.supportsInput reader
-                return new loaderClass reader
+            if loader.class.supportsInput reader
+                logger.info "Using '#{loader.name}' loader"
+                return new loader.class reader
         throw new Error "Unsupported cartridge ROM format."
 
 module.exports = LoaderFactory
