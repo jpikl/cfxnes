@@ -30,10 +30,13 @@ class INESLoader extends AbstractLoader
         @readPRGROMSize()              # 1B [$04]
         @readCHRROMSize()              # 1B [$05]
         @readControlBytes()            # 2B [$06,$07]
-        @readCHRRAMSize()              # 1B [$08]
-        @readFlags9()                  # 1B [$09]
-        @readFlags10()                 # 1B [$0A]
-        @readRestOfHeader()            # 5B [$0B-$0F]
+        @readByte8()                   # 1B [$08]
+        @readByte9()                   # 1B [$09]
+        @readByte10()                  # 1B [$0A]
+        @readByte11()                  # 1B [$0B]
+        @readByte12()                  # 1B [$0C]
+        @readByte13()                  # 1B [$0D]
+        @readArray 2                   # 5B [$0E,$0F]
 
     readPRGROMSize: ->
         @cartridge.prgROMSize = @readByte() * 0x4000 # N x 16KB
@@ -59,21 +62,27 @@ class INESLoader extends AbstractLoader
         @cartridge.isPlayChoice = (controlByte2 & 0x02) != 0
         @cartridge.mapperId = (controlByte2 & 0xF0) | (controlByte1 >>> 4)
 
-    readCHRRAMSize: ->
+    readByte8: ->
         unitsCount = Math.max 1, @readByte() # At least 1 unit (compatibility purposes)
         @cartridge.chrRAMSize = unitsCount * 0x2000 if @cartridge.hasCHRRAM # N x 8KB
 
-    readFlags9: ->
+    readByte9: ->
         flags = @readByte()
         @cartridge.tvSystem = if flags & 0x01 then TVSystem.PAL else TVSystem.NTSC
 
-    readFlags10: ->
+    readByte10: ->
         flags = @readByte()
         @cartridge.hasPRGRAM = (flags & 0x10) == 0
         @cartridge.hasBUSConflicts = (flags & 0x20) != 0
 
-    readRestOfHeader: ->
-        @readArray 5
+    readByte11: ->
+        @readByte()
+
+    readByte12: ->
+        @readByte()
+
+    readByte13: ->
+        @readByte()
 
     ###########################################################
     # Data reading

@@ -10,6 +10,7 @@ class LoaderFactory
 
     constructor: ->
         @loaders = []
+        @registerLoader "NES2" # Must be checked before INES
         @registerLoader "INES"
 
     registerLoader: (name) ->

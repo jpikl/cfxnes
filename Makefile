@@ -26,6 +26,7 @@ INCLUDES = NESCoffee.js \
            config/BaseConfig.js \
            loaders/AbstractLoader.js \
            loaders/INESLoader.js \
+           loaders/NES2Loader.js \
            mappers/AbstractMapper.js \
            mappers/NROMMapper.js \
            mappers/UNROMMapper.js \

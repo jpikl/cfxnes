@@ -19,8 +19,9 @@ class AbstractMapper
         logger.info "Constructing mapper"
         @init cartridge
         @createPRGRAM()
-        @printPRGRAMInfo()
         @createCHRRAM()
+        @printPRGRAMInfo()
+        @printCHRRAMInfo()
 
     ###########################################################
     # Power-up state initialization
@@ -38,13 +39,16 @@ class AbstractMapper
 
     init: (cartridge) ->
         @mirroring = cartridge.mirroring
-        @hasPRGRAM = cartridge.hasPRGRAM # Not reliable information on iNES ROMs (should provide mapper itself)
+        @hasPRGRAM = cartridge.hasPRGRAM                 # Not reliable information on iNES ROMs (should provide mapper itself)
         @hasPRGRAMBattery = cartridge.hasPRGRAMBattery
         @hasCHRRAM = cartridge.hasCHRRAM
+        @hasCHRRAMBattery = cartridge.hasCHRRAMBattery   # Not present on iNES ROMs
         @prgROMSize = cartridge.prgROMSize ? cartridge.prgROM.length
-        @prgRAMSize = cartridge.prgRAMSize # Not present on iNES ROMs (should provide mapper itself)
+        @prgRAMSize = cartridge.prgRAMSize               # Not present on iNES ROMs (should provide mapper itself)
+        @prgRAMSizeBattery = cartridge.prgRAMSizeBattery # Not present on iNES ROMs
         @chrROMSize = cartridge.chrROMSize ? cartridge.chrROM.length
         @chrRAMSize = cartridge.chrRAMSize
+        @chrRAMSizeBattery = cartridge.chrRAMSizeBattery # Not present on iNES ROMs
         @prgROM = cartridge.prgROM
         @chrROM = cartridge.chrROM
 
@@ -76,11 +80,16 @@ class AbstractMapper
     ###########################################################
 
     createPRGRAM: ->
-        @prgRAM = (0 for i in [0...@prgRAMSize]) if @hasPRGRAM
+        if @hasPRGRAM
+            @prgRAM = (0 for i in [0...@prgRAMSize])
+            if @hasPRGRAMBattery and not @prgRAMSizeBattery?
+                @prgRAMSizeBattery = @prgRAMSize # If not defined, the whole PRG RAM is battery backed
         undefined
 
     resetPRGRAM: ->
-        @prgRAM[i] = 0 for i in [0...@prgRAMSize] if @hasPRGRAM and not @hasPRGRAMBattery
+        if @hasPRGRAM
+            clearFrom = if @hasPRGRAMBattery then @prgRAMSizeBattery else 0
+            @prgRAM[i] = 0 for i in [clearFrom...@prgRAMSize]
         undefined
 
     loadPRGRAM: (storage) ->
@@ -91,12 +100,12 @@ class AbstractMapper
 
     savePRGRAM: (storage) ->
         if @hasPRGRAM and @hasPRGRAMBattery
-            data = bytesToString @prgRAM
+            data = bytesToString @prgRAM[0...@prgRAMSizeBattery]
             storage.save @getPRGRAMKey(), data
         undefined
 
     getPRGRAMKey: ->
-        @prgRAMKey ?= "nescoffee/#{computeMD5 @prgROM}.sav"
+        @prgRAMKey ?= "NESCoffee/PRGRAM/#{computeMD5 @prgROM}"
 
     mapPRGRAMBank8K: (srcBank, dstBank) ->
         maxBank = (@prgRAMSize - 1) >> 13
@@ -104,9 +113,10 @@ class AbstractMapper
 
     printPRGRAMInfo: ->
         logger.info "==========[Mapper PRG RAM Info - Start]=========="
-        logger.info "has PRG RAM        : #{@hasPRGRAM}"
-        logger.info "has PRG RAM battery: #{@hasPRGRAMBattery}"
-        logger.info "PRG RAM size       : #{readableSize @prgRAMSize}"
+        logger.info "has PRG RAM           : #{@hasPRGRAM}"
+        logger.info "has PRG RAM battery   : #{@hasPRGRAMBattery}"
+        logger.info "PRG RAM size          : #{readableSize @prgRAMSize}"
+        logger.info "PRG RAM size (battery): #{readableSize @prgRAMSizeBattery}"
         logger.info "==========[Mapper PRG RAM Info - End]=========="
 
     ###########################################################
@@ -133,13 +143,35 @@ class AbstractMapper
     # CHR RAM initialization / mapping
     ###########################################################
 
+    # Note: Only known game using battery-backed CHR RAM is RacerMate Challenge II
+
     createCHRRAM: ->
-        @chrRAM = (0 for i in [0...@chrRAMSize]) if @hasCHRRAM
+        if @hasCHRRAM
+            @chrRAM = (0 for i in [0...@chrRAMSize])
+            if @hasCHRRAMBattery and not @chrRAMSizeBattery?
+                @chrRAMSizeBattery = @chrRAMSize # If not defined, the whole CHR RAM is battery backed
         undefined
 
     resetCHRRAM: ->
-        @chrRAM[i] = 0 for i in [0...@chrRAMSize] if @hasCHRRAM
+        if @hasCHRRAM
+            clearFrom = if @hasCHRRAMBattery then @chrRAMSizeBattery else 0
+            @chrRAM[i] = 0 for i in [clearFrom...@chrRAMSize]
         undefined
+
+    loadCHRRAM: (storage) ->
+        if @hasCHRRAM and @hasCHRRAMBattery
+            data = storage.load @getCHRRAMKey()
+            stringToBytes data, @chrRAM if data
+        undefined
+
+    saveCHRRAM: (storage) ->
+        if @hasCHRRAM and @hasCHRRAMBattery
+            data = bytesToString @chrRAM[0...@chrRAMSizeBattery]
+            storage.save @getCHRRAMKey(), data
+        undefined
+
+    getCHRRAMKey: ->
+        @chrRAMKey ?= "NESCoffee/CHRRAM/#{computeMD5 @prgROM}"
 
     mapCHRRAMBank8K: (srcBank, dstBank) ->
         @mapCHRRAMBank4K srcBank, dstBank, 8
@@ -150,6 +182,14 @@ class AbstractMapper
         maxBank = (@chrRAMSize - 1) >> 10
         @ppuMemory.mapCHRMemoryBank srcBank + i, (dstBank + i) & maxBank for i in [0...ratio]
         undefined
+
+    printCHRRAMInfo: ->
+        logger.info "==========[Mapper CHR RAM Info - Start]=========="
+        logger.info "has CHR RAM           : #{@hasCHRRAM}"
+        logger.info "has CHR RAM battery   : #{@hasCHRRAMBattery}"
+        logger.info "CHR RAM size          : #{readableSize @chrRAMSize}"
+        logger.info "CHR RAM size (battery): #{readableSize @chrRAMSizeBattery}"
+        logger.info "==========[Mapper CHR RAM Info - End]=========="
 
     ###########################################################
     # Names / attributes tables mirroring

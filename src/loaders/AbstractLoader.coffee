@@ -35,8 +35,8 @@ class AbstractLoader
             throw new Error "Unexpected end of file."
         result
 
-    checkSignature: (bytes...) ->
-        unless AbstractLoader.containsSignature @reader, bytes...
+    checkSignature: (bytes) ->
+        unless AbstractLoader.containsSignature @reader, bytes
             throw new Error "Invalid file signature."
 
 module.exports = AbstractLoader
