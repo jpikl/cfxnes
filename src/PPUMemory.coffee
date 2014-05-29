@@ -87,20 +87,23 @@ class PPUMemory
     mapNamesAttrsAddress: (address) ->
         @namesAttrsMapping[address & 0x0C00] | address & 0x03FF
 
-    mapNamesAttrsAreas: (area1, area2, area3, area4) ->
+    mapNamesAttrsAreas: (area0, area1, area2, area3) ->
         @namesAttrsMapping ?= []
-        @namesAttrsMapping[0x0000] = area1 * 0x0400
-        @namesAttrsMapping[0x0400] = area2 * 0x0400
-        @namesAttrsMapping[0x0800] = area3 * 0x0400
-        @namesAttrsMapping[0x0C00] = area4 * 0x0400
+        @namesAttrsMapping[0x0000] = area0 * 0x0400
+        @namesAttrsMapping[0x0400] = area1 * 0x0400
+        @namesAttrsMapping[0x0800] = area2 * 0x0400
+        @namesAttrsMapping[0x0C00] = area3 * 0x0400
 
     setNamesAttrsMirroring: (mirroring) ->
         switch mirroring                   # Mirroring of areas [A|B|C|D] in [$2000-$2FFF]
-            when Mirroring.SINGLE_SCREEN_1 then @mapNamesAttrsAreas 0, 0, 0, 0
-            when Mirroring.SINGLE_SCREEN_2 then @mapNamesAttrsAreas 1, 1, 1, 1
+            when Mirroring.SINGLE_SCREEN_0 then @mapNamesAttrsAreas 0, 0, 0, 0
+            when Mirroring.SINGLE_SCREEN_1 then @mapNamesAttrsAreas 1, 1, 1, 1
+            when Mirroring.SINGLE_SCREEN_2 then @mapNamesAttrsAreas 2, 2, 2, 2
+            when Mirroring.SINGLE_SCREEN_3 then @mapNamesAttrsAreas 3, 3, 3, 3
             when Mirroring.HORIZONTAL      then @mapNamesAttrsAreas 0, 0, 1, 1
             when Mirroring.VERTICAL        then @mapNamesAttrsAreas 0, 1, 0, 1
             when Mirroring.FOUR_SCREEN     then @mapNamesAttrsAreas 0, 1, 2, 3
+            else throw new Error "Undefined mirroring (#{mirroring})"
 
     ###########################################################
     # Pallete access ($3F00-$3FFF)

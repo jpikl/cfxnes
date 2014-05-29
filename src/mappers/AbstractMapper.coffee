@@ -1,6 +1,9 @@
 Format  = require "../utils/Format"
 Convert = require "../utils/Convert"
-Logger = require "../utils/Logger"
+Logger  = require "../utils/Logger"
+Types   = require "../Types"
+
+Mirroring = Types.Mirroring
 
 logger = Logger.get()
 wordAsHex = Format.wordAsHex
@@ -195,7 +198,19 @@ class AbstractMapper
     # Names / attributes tables mirroring
     ###########################################################
 
-    setMirroring: (mirroring) ->
-        @ppuMemory.setNamesAttrsMirroring mirroring
+    setSingleScreenMirroring: (area = 0) ->
+        @ppuMemory.setNamesAttrsMirroring Mirroring.getSingleScreen(area)
+
+    setVerticalMirroring: ->
+        @ppuMemory.setNamesAttrsMirroring Mirroring.VERTICAL
+
+    setHorizontalMirroring: ->
+        @ppuMemory.setNamesAttrsMirroring Mirroring.HORIZONTAL
+
+    setFourScreenMirroring: ->
+        @ppuMemory.setNamesAttrsMirroring Mirroring.FOUR_SCREEN
+
+    setMirroring: (area0, area1, area2, area3) ->
+        @ppuMemory.mapNamesAttrsAreas area0, area1, area2, area3
 
 module.exports = AbstractMapper

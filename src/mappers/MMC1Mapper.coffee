@@ -1,7 +1,4 @@
 AbstractMapper = require "./AbstractMapper"
-Types          = require "../Types"
-
-Mirroring = Types.Mirroring
 
 ###########################################################
 # MMC1 mapper
@@ -69,10 +66,10 @@ class MMC1Mapper extends AbstractMapper
 
     switchMirroring: ->
         switch @controllRegister & 0x03
-            when 0 then @setMirroring Mirroring.SINGLE_SCREEN_1
-            when 1 then @setMirroring Mirroring.SINGLE_SCREEN_2
-            when 2 then @setMirroring Mirroring.VERTICAL
-            when 3 then @setMirroring Mirroring.HORIZONTAL
+            when 0 then @setSingleScreenMirroring 0
+            when 1 then @setSingleScreenMirroring 1
+            when 2 then @setVerticalMirroring()
+            when 3 then @setHorizontalMirroring()
 
     switchPRGROMBanks: ->
         base = @chrBankRegister1 & 0x10  # Selection of 256K page on 512K PRG ROM

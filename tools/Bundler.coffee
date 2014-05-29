@@ -63,7 +63,7 @@ writeOutput """
             if (typeof result == "undefined") {
                 var module = modules[fullName];
                 if (typeof module == "undefined") {
-                    throw "Module '" + name + "' not found";
+                    throw new Error("Module '" + name + "' not found");
                 }
                 result = results[fullName] = module.call(this);
             }

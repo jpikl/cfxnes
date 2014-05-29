@@ -14,6 +14,7 @@ class MapperFactory
         @registerMapper 0x01, "MMC1"
         @registerMapper 0x02, "UNROM"
         @registerMapper 0x03, "CNROM"
+        @registerMapper 0x07, "AOROM"
 
     registerMapper: (id, name) ->
         @mappers[id] =
