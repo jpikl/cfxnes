@@ -153,7 +153,7 @@ class PPU
         if @$isPaletteAddress address then @vramReadBuffer else oldBufferContent # Delayed read outside the palette memory area
 
     writeData: (value) ->
-        address = @$incrementAddress()                          # Always increments the address
+        address = @$incrementAddress()                      # Always increments the address
         @$write address, value if not @$isRenderingActive() # Only during VBLANK or disabled rendering
         value
 
@@ -172,7 +172,7 @@ class PPU
 
     read: (address) ->
         if @$isPaletteAddress address
-            value = @ppuMemory.read @$getColorAddress address
+            value = @ppuMemory.read @$fixColorAddress address
             if @monochromeMode then value & 0x30 else value
         else
             @ppuMemory.read address
@@ -183,7 +183,7 @@ class PPU
     isPaletteAddress: (address) ->
         (address & 0x3F00) == 0x3F00
 
-    getColorAddress: (address) ->
+    fixColorAddress: (address) ->
         if @$shouldUseBackdropColor address then 0x3F00 else address
 
     shouldUseBackdropColor: (address) ->
