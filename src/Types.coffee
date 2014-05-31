@@ -42,9 +42,8 @@ Mirroring =
 
 TVSystem =
 
-    PAL:   1
-    NTSC:  2
-    OTHER: 3
+    NTSC:  1
+    PAL:   2
 
     toString: (tvSystem) ->
         switch tvSystem

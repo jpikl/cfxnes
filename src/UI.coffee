@@ -40,10 +40,17 @@ $(document).ready ->
 
     @setVideoDebug = (enabled) ->
         nesCoffee.setVideoDebug enabled
+        $("#video-debug").prop "value", enabled
+        refreshScreen()
+
+    @setTVSystem = (system) ->
+        nesCoffee.setTVSystem system
+        $("#tv-system").prop "value", system
         refreshScreen()
 
     refreshScreen = ->
-        nesCoffee.step() if not nesCoffee.isRunning()
+        if nesCoffee.isCartridgeInserted() and not nesCoffee.isRunning()
+            nesCoffee.step()
 
     ###########################################################
     # Controls
@@ -199,6 +206,7 @@ $(document).ready ->
 
     @setVideoScale 1
     @setVideoPalette "default"
+    @setTVSystem "auto"
     @stopEmulator()
 
     enableROMOpening "rom-file-input"

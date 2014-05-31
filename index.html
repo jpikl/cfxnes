@@ -34,14 +34,22 @@
                 <option value="3">3x</option>
                 <option value="4">4x</option>
             </select>
+            <input id="video-debug" type="checkbox" onchange="setVideoDebug(this.checked)"/>
+            <label for="video-debug">Show patterns and palettes</label>
+        </div>
+        <div class="section">
             <label for="video-palette">Colors</label>
             <select id="video-palette" onchange="setVideoPalette(this.value)">
                 <option value="default">Default</option>
                 <option value="realistic">Realistic</option>
                 <option value="bright">Bright</option>
             </select>
-            <input id="video-debug" type="checkbox" onchange="setVideoDebug(this.checked)"/>
-            <label for="video-debug">Show patterns and palettes</label>
+            <label for="tv-system">TV system</label>
+            <select id="tv-system" onchange="setTVSystem(this.value)">
+                <option value="auto">Autodetect</option>
+                <option value="ntsc">NTSC</option>
+                <option value="pal">PAL</option>
+            </select>
         </div>
         <div id="roms-section" class="section">
             Browse <a href="javascript:void(0)" onclick="showROMsDialog()">Game Library</a> or

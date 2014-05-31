@@ -13,6 +13,8 @@ class PPU
 
     @inject: [ "ppuMemory", "cpu" ]
 
+    ntscMode: true
+
     ###########################################################
     # Power-up state initialization
     ###########################################################
@@ -52,6 +54,9 @@ class PPU
             @colorPalette[colorStart + 1] = (rgb >>>  8) & 0xFF # Green
             @colorPalette[colorStart + 2] =  rgb         & 0xFF # Blue
             @colorPalette[colorStart + 3] =  0xFF               # Alpha
+
+    setNTSCMode: (mode) ->
+        @ntscMode = mode
 
     ###########################################################
     # Control register
@@ -122,7 +127,7 @@ class PPU
         value
 
     writeOAMData: (value) ->
-        @primaryOAM[@oamAddress] = value if not @$isRenderingInProgress()
+        @primaryOAM[@oamAddress] = value if not @$isRenderingActive()
         @oamAddress = (@oamAddress + 1) & 0xFF # Write always increments the address.
         value
 
@@ -149,7 +154,7 @@ class PPU
 
     writeData: (value) ->
         address = @$incrementAddress()                          # Always increments the address
-        @$write address, value if not @$isRenderingInProgress() # Only during VBLANK or disabled rendering
+        @$write address, value if not @$isRenderingActive() # Only during VBLANK or disabled rendering
         value
 
     incrementAddress: ->
@@ -179,9 +184,9 @@ class PPU
         (address & 0x3F00) == 0x3F00
 
     getColorAddress: (address) ->
-        if @$isBackdropColorAddress address then 0x3F00 else address
+        if @$shouldUseBackdropColor address then 0x3F00 else address
 
-    isBackdropColorAddress: (address) ->
+    shouldUseBackdropColor: (address) ->
         (address & 0x0003) is 0 and not @$isVBlank()
 
     ###########################################################
@@ -251,14 +256,17 @@ class PPU
 
     tick: ->
         @$updateFramePixel() if @$isRenderingCycle()
-        @$updateScrolling() if @$isRenderingInProgress()
+        @$updateScrolling() if @$isRenderingActive()
         @$incrementCycle()
 
     isRenderingCycle: ->
         0 <= @scanline <= 239 and 1 <= @cycle <= 256
 
-    isRenderingInProgress: ->
-        not @$isVBlank() and (@spritesVisible or @backgroundVisible)
+    isRenderingActive: ->
+        not @$isVBlank() and @$isRenderingEnabled()
+
+    isRenderingEnabled: ->
+        @spritesVisible or @backgroundVisible
 
     isVBlank: ->
         241 <= @scanline <= 260
@@ -278,8 +286,11 @@ class PPU
 
     updateFramePixel: ->
         @startScanline() if @cycle is 1
-        colorAddress = 0x3F00 | @renderFramePixel()
-        @setFramePixel @$read colorAddress
+        if @ntscMode and (@scanline < 8 or @scanline > 231) # Clip top/bottom 8 scanlines in NTSC
+            @clearFramePixel()
+        else
+            colorAddress = 0x3F00 | @renderFramePixel()
+            @setFramePixel @$read colorAddress
 
     startScanline: ->
         @fetchPattern()
@@ -297,6 +308,12 @@ class PPU
             spriteColor
         else
             backgroundColor
+
+    clearFramePixel: ->
+        @frameBuffer[@framePosition++] = 0
+        @frameBuffer[@framePosition++] = 0
+        @frameBuffer[@framePosition++] = 0
+        @framePosition++ # Skip alpha because it was already set to 0xFF.
 
     setFramePixel: (color) ->
         colorPosition = color << 2 # Each RGBA color is 4B.

@@ -4,12 +4,12 @@ Format   = require "./utils/Format"
 Logger   = require "./utils/Logger"
 Network  = require "./utils/Network"
 Binder   = require "./Binder"
+Types    = require "./Types"
 
-SCREEN_FPS    = 60.0988
-SCREEN_WIDTH  = 256
-SCREEN_HEIGHT = 240
+SCREEN_WIDTH    = 256
+SCREEN_HEIGHT   = 240
 
-capitalize = Format.capitalize
+TVSystem = Types.TVSystem
 
 joypadButtonToId =
     "a":      Joypad.BUTTON_A
@@ -20,6 +20,13 @@ joypadButtonToId =
     "down":   Joypad.BUTTON_DOWN
     "left":   Joypad.BUTTON_LEFT
     "right":  Joypad.BUTTON_RIGHT
+
+tvSystemToId =
+    "ntsc": TVSystem.NTSC
+    "pal":  TVSystem.PAL
+    "auto": null
+
+capitalize = Format.capitalize
 
 logger = Logger.get()
 logger.attach Logger.console() if Network.isLocalhost()
@@ -100,15 +107,19 @@ class @NESCoffee
 
     start: ->
         logger.info "Starting emulation"
-        @emuIntervalId = setInterval @step, 1000 / SCREEN_FPS
+        @emuIntervalId = setInterval @step, 1000 / @getTargetFPS()
 
     stop: ->
         logger.info "Stopping emulation"
         clearInterval @emuIntervalId
         @emuIntervalId = null
 
+    restart: ->
+        @stop()
+        @start()
+
     isRunning: ->
-        @emuIntervalId != null
+        @emuIntervalId?
 
     step: =>
         @renderFrame()
@@ -121,6 +132,12 @@ class @NESCoffee
         @fpsBuffer[@fpsIndex] = 1000 / (timeNow - @fpsTime)
         @fpsIndex = (@fpsIndex + 1) % @fpsBuffer.length
         @fpsTime = timeNow
+
+    getTargetFPS: ->
+        switch @nes.getTVSystem()
+            when TVSystem.NTSC then 60.0988
+            when TVSystem.PAL  then 50.0070
+            else throw new Error "Unsupported TV system."
 
     getFPS: ->
         (@fpsBuffer.reduce (a, b) -> a + b) / @fpsBuffer.length
@@ -185,6 +202,13 @@ class @NESCoffee
     setVideoDebug: (enabled) ->
         logger.info "Setting video debug to #{enabled}"
         @nes.setVideoDebug enabled
+
+    setTVSystem: (system) ->
+        system = tvSystemToId[system]
+        name = if system? then TVSystem.toString system else "Autodetect"
+        logger.info "Setting TV system to '#{name}'"
+        @nes.setTVSystem system
+        @restart() if @isRunning()
 
     ###########################################################
     # Zapper light detection
@@ -310,11 +334,16 @@ class @NESCoffee
             return error
 
     insertCartridge: (arrayBuffer) ->
-        @nes.saveData()
+        @saveData()
         logger.info "Inserting cartridge"
         cartridge = @cartridgeFactory.fromArrayBuffer arrayBuffer
         @nes.insertCartridge cartridge
-        @nes.loadData()
+        @loadData()
+        @restart() if @isRunning()
+        undefined
+
+    isCartridgeInserted: ->
+        @nes.isCartridgeInserted()
 
     ###########################################################
     # Controls binding

@@ -72,6 +72,7 @@ class INESLoader extends AbstractLoader
 
     readByte10: ->
         flags = @readByte()
+        @cartridge.tvSystem = TVSystem.PAL if flags & 0x02 # Override previous value
         @cartridge.hasPRGRAM = (flags & 0x10) == 0
         @cartridge.hasBUSConflicts = (flags & 0x20) != 0
 

@@ -1,3 +1,7 @@
+Types    = require "./Types"
+
+TVSystem = Types.TVSystem
+
 ###########################################################
 # Nintendo Entertainment System
 ###########################################################
@@ -26,13 +30,15 @@ class NES
         @cpu.reset()
 
     insertCartridge: (cartridge) ->
+        @cartridge = cartridge
         @mapper = @mapperFactory.createMapper cartridge
         @ppuMemory.connectMapper @mapper
         @cpuMemory.connectMapper @mapper
         @mapper.powerUp()
+        @changeTVSystem()
 
     isCartridgeInserted: ->
-        @mapper?
+        @cartridge?
 
     connectInputDevice: (port, device) ->
         @cpuMemory.setInputDevice port, device
@@ -49,9 +55,11 @@ class NES
 
     loadData: ->
         @mapper?.loadPRGRAM @storage
+        @mapper?.loadCHRRAM @storage
 
     saveData: ->
         @mapper?.savePRGRAM @storage
+        @mapper?.saveCHRRAM @storage
 
     ###########################################################
     # Video ouput and emulation
@@ -81,5 +89,15 @@ class NES
 
     setVideoDebug: (enabled) ->
         @videoDebug = enabled
+
+    setTVSystem: (system) ->
+        @tvSystem = system
+        @changeTVSystem()
+
+    changeTVSystem: ->
+        @ppu.setNTSCMode @getTVSystem() is TVSystem.NTSC
+
+    getTVSystem: ->
+        @tvSystem or @cartridge?.tvSystem
 
 module.exports = NES
