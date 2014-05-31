@@ -46,17 +46,37 @@ class PPU
         @cycle = 0     # Total 341 cycles per scanline (0..340)
         @renderedSprite = null
 
-    setColorPalette: (rgbData) ->
-        @colorPalette = []    # Mapping of NES colors to RGBA colors
-        for rgb, i in rgbData # Eeach color from input is ecoded as one number 0xRRGGBB
-            colorStart = i << 2
-            @colorPalette[colorStart]     = (rgb >>> 16) & 0xFF # Red
-            @colorPalette[colorStart + 1] = (rgb >>>  8) & 0xFF # Green
-            @colorPalette[colorStart + 2] =  rgb         & 0xFF # Blue
-            @colorPalette[colorStart + 3] =  0xFF               # Alpha
-
     setNTSCMode: (mode) ->
         @ntscMode = mode
+
+    setRGBAPalette: (rgbData) ->
+        @generateRGBAPalettes rgbData
+        @changeRGBAPalette()
+
+    ###########################################################
+    # Palette generation
+    ###########################################################
+
+    generateRGBAPalettes: (rgbData) ->
+        # Emphasis bits: BGR
+        @rgbaPalettes = for colorEmphasis in [0..7]
+            rRatio = if colorEmphasis & 6 then 0.75 else 1.0 # Dim red when green or blue is emphasized
+            gRatio = if colorEmphasis & 5 then 0.75 else 1.0 # Dim green when red or blue is emphasized
+            bRatio = if colorEmphasis & 3 then 0.75 else 1.0 # Dim blue when red or green is emphasized
+            @createRGBAPalette rgbData, rRatio, gRatio, bRatio
+
+    createRGBAPalette: (rgbData, rRatio, gRatio, bRatio) ->
+        palette = []          # Mapping of NES colors to RGBA colors
+        for rgb, i in rgbData # Eeach color from input is ecoded as one number 0xRRGGBB
+            colorStart = i << 2
+            palette[colorStart]     = Math.floor rRatio * ((rgb >>> 16) & 0xFF) # Red
+            palette[colorStart + 1] = Math.floor gRatio * ((rgb >>>  8) & 0xFF) # Green
+            palette[colorStart + 2] = Math.floor bRatio * ( rgb         & 0xFF) # Blue
+            palette[colorStart + 3] = 0xFF                                      # Alpha
+        palette
+
+    changeRGBAPalette: ->
+        @rgbaPalette = @rgbaPalettes[@colorEmphasis]
 
     ###########################################################
     # Control register
@@ -80,6 +100,7 @@ class PPU
 
     writeMask: (value) ->
         @setMask value
+        @changeRGBAPalette()
         value
 
     setMask: (value) ->
@@ -88,9 +109,7 @@ class PPU
         @spriteClipping     = !((value >>> 2) & 1) # !M[2]
         @backgroundVisible  =   (value >>> 3) & 1  #  M[3]
         @spritesVisible     =   (value >>> 4) & 1  #  M[4]
-        @intensifyReds      =   (value >>> 5) & 1  #  M[5]
-        @intensifyGreens    =   (value >>> 6) & 1  #  M[6]
-        @intensifyBlues     =   (value >>> 7)      #  M[7]
+        @colorEmphasis      =   (value >>> 5) & 7  #  M[5-7]
 
     ###########################################################
     # Status register
@@ -317,9 +336,9 @@ class PPU
 
     setFramePixel: (color) ->
         colorPosition = color << 2 # Each RGBA color is 4B.
-        @frameBuffer[@framePosition++] = @colorPalette[colorPosition++]
-        @frameBuffer[@framePosition++] = @colorPalette[colorPosition++]
-        @frameBuffer[@framePosition++] = @colorPalette[colorPosition]
+        @frameBuffer[@framePosition++] = @rgbaPalette[colorPosition++]
+        @frameBuffer[@framePosition++] = @rgbaPalette[colorPosition++]
+        @frameBuffer[@framePosition++] = @rgbaPalette[colorPosition]
         @framePosition++ # Skip alpha because it was already set to 0xFF.
 
     updateScrolling: ->
@@ -536,8 +555,8 @@ class PPU
     setFramePixelOnPosition: (x, y, color) ->
         colorPosition = color << 2
         framePosition = ((y << 8) + x) << 2
-        @frameBuffer[framePosition++] = @colorPalette[colorPosition++]
-        @frameBuffer[framePosition++] = @colorPalette[colorPosition++]
-        @frameBuffer[framePosition++] = @colorPalette[colorPosition++]
+        @frameBuffer[framePosition++] = @rgbaPalette[colorPosition++]
+        @frameBuffer[framePosition++] = @rgbaPalette[colorPosition++]
+        @frameBuffer[framePosition++] = @rgbaPalette[colorPosition++]
 
 module.exports = PPU

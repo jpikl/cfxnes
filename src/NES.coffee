@@ -85,7 +85,7 @@ class NES
         @cpu.step()
 
     setVideoPalette: (palette) ->
-        @ppu.setColorPalette palette
+        @ppu.setRGBAPalette palette
 
     setVideoDebug: (enabled) ->
         @videoDebug = enabled
