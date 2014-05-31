@@ -32,6 +32,7 @@ INCLUDES = NESCoffee.js \
            mappers/UNROMMapper.js \
            mappers/CNROMMapper.js \
            mappers/MMC1Mapper.js \
+           mappers/MMC3Mapper.js \
            mappers/AOROMMapper.js \
            readers/AbstractReader.js \
            readers/ArrayBufferReader.js \

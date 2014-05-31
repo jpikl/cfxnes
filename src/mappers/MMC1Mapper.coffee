@@ -18,7 +18,7 @@ class MMC1Mapper extends AbstractMapper
     reset: ->
         @resetShiftRegister()
         @resetBankRegisters()
-        @synchronizeMapper()
+        @synchronizeMapping()
 
     resetShiftRegister: ->
         @shiftRegister = 0 # 5-bit (shifts to right, writes are to bit 4)
@@ -43,7 +43,7 @@ class MMC1Mapper extends AbstractMapper
             if ++@writesCount >= 5
                 @copyShiftRegister address
                 @resetShiftRegister()
-                @synchronizeMapper()
+                @synchronizeMapping()
         value
 
     copyShiftRegister: (address) ->
@@ -51,13 +51,13 @@ class MMC1Mapper extends AbstractMapper
             when 0x8000 then @controllRegister = @shiftRegister # $8000-$9FFF (100X)
             when 0xA000 then @chrBankRegister1 = @shiftRegister # $A000-$BFFF (101X)
             when 0xC000 then @chrBankRegister2 = @shiftRegister # $C000-$DFFF (110X)
-            when 0xE000 then @prgBankRegister = @shiftRegister  # $E000-$FFFF (111X)
+            when 0xE000 then @prgBankRegister  = @shiftRegister # $E000-$FFFF (111X)
 
     ###########################################################
     # Mapper reconfiguration
     ###########################################################
 
-    synchronizeMapper: ->
+    synchronizeMapping: ->
         @switchMirroring()
         @switchPRGROMBanks()
         @switchPRGRAMBank() if @hasPRGRAM

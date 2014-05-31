@@ -27,7 +27,7 @@ class CPU
         @resetRegisters()
         @resetVariables()
         @resetMemory()
-        @reset() # Causes reset interrupt on start.
+        @sendReset() # Causes reset interrupt on start
 
     resetRegisters: ->
         @programCounter = 0  # 16-bit
@@ -41,7 +41,7 @@ class CPU
         @cyclesCount = 0
         @emptyReadCycles = 0
         @emptyWriteCycles = 0
-        @requestedInterrupt = null
+        @pendingInterrupt = null
 
     resetMemory: ->
         @write address, 0xFF for address in [0...0x0800]
@@ -69,17 +69,17 @@ class CPU
     ###########################################################
 
     resolveInterrupt: ->
-        if @requestedInterrupt and not @isRequestedInterruptDisabled()
-            switch @requestedInterrupt
+        if @pendingInterrupt and not @isPendingInterruptDisabled()
+            switch @pendingInterrupt
                 when Interrupt.IRQ   then @handleIRQ()
                 when Interrupt.NMI   then @handleNMI()
                 when Interrupt.RESET then @handleReset()
             @tick()
             @tick() # To make totally 7 cycles.
-            @requestedInterrupt = null
+            @pendingInterrupt = null
 
-    isRequestedInterruptDisabled: ->
-        @requestedInterrupt is Interrupt.IRQ and @interruptDisable
+    isPendingInterruptDisabled: ->
+        @pendingInterrupt is Interrupt.IRQ and @interruptDisable
 
     handleIRQ: ->
         @saveStateBeforeInterrupt()
@@ -230,15 +230,18 @@ class CPU
     # CPU input signals
     ###########################################################
 
-    reset: ->
-        @setRequestedInterrupt Interrupt.RESET
+    sendReset: ->
+        @setPendingInterrupt Interrupt.RESET
 
-    nonMaskableInterrupt: ->
-        @setRequestedInterrupt Interrupt.NMI
+    sendNMI: ->
+        @setPendingInterrupt Interrupt.NMI
 
-    setRequestedInterrupt: (type) ->
-        if @requestedInterrupt is null or type > @requestedInterrupt
-            @requestedInterrupt = type
+    sendIRQ: ->
+        @setPendingInterrupt Interrupt.IRQ
+
+    setPendingInterrupt: (type) ->
+        if @pendingInterrupt is null or type > @pendingInterrupt
+            @pendingInterrupt = type
 
     ###########################################################
     # Basic addressing modes

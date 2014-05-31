@@ -27,7 +27,7 @@ class NES
         @cpu.powerUp()
 
     pressReset: ->
-        @cpu.reset()
+        @cpu.sendReset()
 
     insertCartridge: (cartridge) ->
         @cartridge = cartridge

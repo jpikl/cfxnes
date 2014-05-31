@@ -365,7 +365,7 @@ class PPU
     enterVBlank: ->
         @vblankStarted = 1
         @frameAvailable = true
-        @cpu.nonMaskableInterrupt() if @vblankGeneratesNMI
+        @cpu.sendNMI() if @vblankGeneratesNMI
 
     leaveVBlank: ->
         @vblankStarted = 0
