@@ -133,5 +133,6 @@ class PPUMemory
         mapper.ppuMemory = this
         @resetCHRMemory mapper
         @resetNamesAttrs mapper
+        @mapper = mapper
 
 module.exports = PPUMemory

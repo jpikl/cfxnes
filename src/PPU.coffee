@@ -357,6 +357,8 @@ class PPU
     incementScanline: ->
         @cycle = 0
         @scanline++
+        if @scanline is 240
+            @ppuMemory.mapper.tickScanlineCounter()
         if @scanline is 241
             @enterVBlank()
         else if @scanline is 262

@@ -76,12 +76,12 @@ class MMC3 extends AbstractMapper
             when 7          then @switchPRGROMBank1()
 
     switchDoubleCHRROMBanks: ->
-        srcBank = (bankCommand & 0x80) >>> 6 | @bankCommand & 0x01 # S[1,0] = C[7,0]
+        srcBank = (@bankCommand & 0x80) >>> 6 | (@bankCommand & 0x02) >>> 1 # S[1,0] = C[7,1]
         @mapCHRROMBank2K srcBank, @bankSelect
 
     switchSingleCHRROMBanks: ->
-        srcBank = (~bankCommand & 0x80) >>> 5 | (@bankCommand - 2) & 0x03 # S[2,1,0] = (C-2)[!7,1,0]
-        @mapCHRROM1Ban1K srcBank, @bankSelect
+        srcBank = (~@bankCommand & 0x80) >>> 5 | (@bankCommand - 2) & 0x03 # S[2,1,0] = (C-2)[!7,1,0]
+        @mapCHRROMBank1K srcBank, @bankSelect
 
     switchPRGROMBanks0And2: ->
         srcBankA = (@bankCommand & 0x40) >>> 5  # SA[1] = C[6]
