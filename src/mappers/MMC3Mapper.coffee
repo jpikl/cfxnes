@@ -1,4 +1,7 @@
 AbstractMapper = require "./AbstractMapper"
+Types          = require "../Types"
+
+Mirroring = Types.Mirroring
 
 ###########################################################
 # MMC3 mapper
@@ -54,10 +57,8 @@ class MMC3 extends AbstractMapper
             when 7          then @switchPRGROMBank1 value
 
     writeMirroring: (value) ->
-        if value & 1
-            @setHorizontalMirroring()
-        else
-            @setVerticalMirroring()
+        if @mirroring isnt Mirroring.FOUR_SCREEN
+            @switchMirroring value
 
     writePRGRAMEnable: (value) ->
         # TODO
@@ -82,6 +83,12 @@ class MMC3 extends AbstractMapper
 
     switchPRGROMBank1: (target) ->
         @mapPRGROMBank8K 1, target
+
+    switchMirroring: (value) ->
+        if value & 1
+            @setHorizontalMirroring()
+        else
+            @setVerticalMirroring()
 
     ###########################################################
     # Scanline counter and IRQ generation
