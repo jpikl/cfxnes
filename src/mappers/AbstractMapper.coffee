@@ -56,10 +56,13 @@ class AbstractMapper
         @chrROM = cartridge.chrROM
 
     reset: ->
-        # For mapper to implement.
+        # For mapper to implement
 
     write: (address, value) ->
         value # Read-only by default
+
+    tick: ->
+        # For mapper to implement
 
     ###########################################################
     # PRG ROM mapping

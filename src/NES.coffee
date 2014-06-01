@@ -32,10 +32,12 @@ class NES
     insertCartridge: (cartridge) ->
         @cartridge = cartridge
         @mapper = @mapperFactory.createMapper cartridge
-        @ppuMemory.connectMapper @mapper
+        @cpu.connectMapper @mapper
+        @ppu.connectMapper @mapper
         @cpuMemory.connectMapper @mapper
+        @ppuMemory.connectMapper @mapper
         @mapper.powerUp()
-        @changeTVSystem()
+        @updateTVSystem()
 
     isCartridgeInserted: ->
         @cartridge?
@@ -92,9 +94,9 @@ class NES
 
     setTVSystem: (system) ->
         @tvSystem = system
-        @changeTVSystem()
+        @updateTVSystem()
 
-    changeTVSystem: ->
+    updateTVSystem: ->
         @ppu.setNTSCMode @getTVSystem() is TVSystem.NTSC
 
     getTVSystem: ->

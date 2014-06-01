@@ -203,6 +203,7 @@ class CPU
         @dma.tick()
         @ppu.tick() for [1..3]
         @apu.tick()
+        @mapper.tick()
         undefined
 
     ###########################################################
@@ -1020,5 +1021,13 @@ class CPU
             addressingMode: addressingMode
             emptyReadCycles: emptyReadCycles
             emptyWriteCycles: emptyWriteCycles
+
+    ###########################################################
+    # Mapper connection
+    ###########################################################
+
+    connectMapper: (mapper) ->
+        @mapper = mapper
+        @mapper.cpu = this
 
 module.exports = CPU

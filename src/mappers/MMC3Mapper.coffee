@@ -25,12 +25,11 @@ class MMC3 extends AbstractMapper
         @mapCHRRAMBank8K  0,  0 if     @hasCHRRAM # 8K CHR RAM (if CHR ROM is not present)
 
     resetRegisters: ->
-        @bankCommand = 0 # Bank command
-        @bankSelect = 0  # Bank selection
-        @irqLatch = 0    # Initial IRQ counter value
-        @irqCounter = 0  # IRQ counter value
-        @irqEnabled = 0  # IRQ counter enable flag
-        @irqReload = 0   # IRQ counter reload flag
+        @command = 0    # Bank command
+        @irqLatch = 0   # Initial IRQ counter value
+        @irqCounter = 0 # IRQ counter value
+        @irqEnabled = 0 # IRQ counter enable flag
+        @irqReload = 0  # IRQ counter reload flag
 
     ###########################################################
     # Mapper writing
@@ -38,7 +37,7 @@ class MMC3 extends AbstractMapper
 
     write: (address, value) ->
         switch address & 0xE001
-            when 0x8000 then @writeBankCommand value  # $8000-$9FFE (100X), even
+            when 0x8000 then @command = value         # $8000-$9FFE (100X), even
             when 0x8001 then @writeBankSelect value   # $8001-$9FFF (100X), odd
             when 0xA000 then @writeMirroring value    # $A000-$BFFE (101X), even
             when 0xA001 then @writePRGRAMEnable value # $A001-$BFFF (101X), odd
@@ -47,13 +46,12 @@ class MMC3 extends AbstractMapper
             when 0xE000 then @irqEnabled = false      # $E000-$FFFE (111X), even
             when 0xE001 then @irqEnabled = true       # $E001-$FFFF (111X), odd
 
-    writeBankCommand: (value) ->
-        @bankCommand = value
-        @synchronizeMapping()
-
     writeBankSelect: (value) ->
-        @bankSelect = value
-        @synchronizeMapping()
+        switch @command & 7
+            when 0, 1       then @switchDoubleCHRROMBanks value unless @hasCHRRAM
+            when 2, 3, 4, 5 then @switchSingleCHRROMBanks value unless @hasCHRRAM
+            when 6          then @switchPRGROMBanks0And2 value
+            when 7          then @switchPRGROMBank1 value
 
     writeMirroring: (value) ->
         if value & 1
@@ -65,43 +63,49 @@ class MMC3 extends AbstractMapper
         # TODO
 
     ###########################################################
-    # Mapper reconfiguration
+    # Bank switching
     ###########################################################
 
-    synchronizeMapping: ->
-        switch @bankCommand & 7
-            when 0, 1       then @switchDoubleCHRROMBanks() unless @hasCHRRAM
-            when 2, 3, 4, 5 then @switchSingleCHRROMBanks() unless @hasCHRRAM
-            when 6          then @switchPRGROMBanks0And2()
-            when 7          then @switchPRGROMBank1()
+    switchDoubleCHRROMBanks: (target) ->
+        source = (@command & 0x80) >>> 6 | @command & 0x01 # S[1,0] = C[7,0]
+        @mapCHRROMBank2K source, target >>> 1
 
-    switchDoubleCHRROMBanks: ->
-        srcBank = (@bankCommand & 0x80) >>> 6 | (@bankCommand & 0x02) >>> 1 # S[1,0] = C[7,1]
-        @mapCHRROMBank2K srcBank, @bankSelect
+    switchSingleCHRROMBanks: (target) ->
+        source = (~@command & 0x80) >>> 5 | (@command - 2) & 0x03 # S[2,1,0] = (C-2)[!7,1,0]
+        @mapCHRROMBank1K source, target
 
-    switchSingleCHRROMBanks: ->
-        srcBank = (~@bankCommand & 0x80) >>> 5 | (@bankCommand - 2) & 0x03 # S[2,1,0] = (C-2)[!7,1,0]
-        @mapCHRROMBank1K srcBank, @bankSelect
+    switchPRGROMBanks0And2: (target) ->
+        sourceA = (@command & 0x40) >>> 5  # SA[1] = C[6]
+        sourceB = (~@command & 0x40) >>> 5 # SB[1] = C[!6]
+        @mapPRGROMBank8K sourceA, target   # Selected bank
+        @mapPRGROMBank8K sourceB, -2       # Second last bank
 
-    switchPRGROMBanks0And2: ->
-        srcBankA = (@bankCommand & 0x40) >>> 5  # SA[1] = C[6]
-        srcBankB = (~@bankCommand & 0x40) >>> 5 # SB[1] = C[!6]
-        @mapPRGROMBank8K srcBankA, @bankSelect  # Selected bank
-        @mapPRGROMBank8K srcBankB, -2           # Second last bank
-
-    switchPRGROMBank1: ->
-        @mapPRGROMBank8K 1, @bankSelect
+    switchPRGROMBank1: (target) ->
+        @mapPRGROMBank8K 1, target
 
     ###########################################################
-    # IRQ generation
+    # Scanline counter and IRQ generation
     ###########################################################
 
-    tickScanlineCounter: ->
+    tick: ->
+        if @$isScanlineTick() and @updateScanlineCounter()
+            @cpu.sendIRQ()
+
+    isScanlineTick: ->
+        # Precise emulation would require watching changes of A12 ($1000) on the PPU bus.
+        # However we can use this simplification that would work for most games.
+        261 <= @ppu.cycle <= 263 and  # There is only one tick after dot 260 on each scanline (261, 262, 263, 261, etc.)
+        @ppu.scanline <= 240 and      # 240 rendering scanlines + 1 prerender scanline
+        @ppu.isRenderingEnabled() and # PPU must be enabled
+        @ppu.bgPatternTableAddress != @ppu.spPatternTableAddress # A12 must change from 0 to 1
+
+    updateScanlineCounter: ->
         generateIRQ = not @irqReload and @irqCounter is 1
-        @irqCounter--
-        if @irqCounter <= 0 or @irqReload
+        if @irqCounter is 0 or @irqReload
             @irqCounter = @irqLatch
             @irqReload = false
-        @generateIRQ and @irqEnabled
+        else
+            @irqCounter--
+        generateIRQ and @irqEnabled
 
 module.exports = MMC3
