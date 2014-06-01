@@ -60,9 +60,9 @@ class PPU
     generateRGBAPalettes: (rgbData) ->
         # Emphasis bits: BGR
         @rgbaPalettes = for colorEmphasis in [0..7]
-            rRatio = if colorEmphasis & 6 then 0.8 else 1.0 # Dim red when green or blue is emphasized
-            gRatio = if colorEmphasis & 5 then 0.8 else 1.0 # Dim green when red or blue is emphasized
-            bRatio = if colorEmphasis & 3 then 0.8 else 1.0 # Dim blue when red or green is emphasized
+            rRatio = if colorEmphasis & 6 then 0.75 else 1.0 # Dim red when green or blue is emphasized
+            gRatio = if colorEmphasis & 5 then 0.75 else 1.0 # Dim green when red or blue is emphasized
+            bRatio = if colorEmphasis & 3 then 0.75 else 1.0 # Dim blue when red or green is emphasized
             @createRGBAPalette rgbData, rRatio, gRatio, bRatio
 
     createRGBAPalette: (rgbData, rRatio, gRatio, bRatio) ->
