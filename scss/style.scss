@@ -1,0 +1,161 @@
+// ============================================================================
+//  Constants
+// ============================================================================
+
+$baseColor: #212c44;
+$lightColor: #3b4f7a;
+
+// ============================================================================
+//  Utilities
+// ============================================================================
+
+@mixin user-select($value) {
+    -moz-user-select: $value;
+    -khtml-user-select: $value;
+    -moz-user-select: $value;
+    -ms-user-select: $value;
+    -o-user-select: $value;
+    user-select: $value;
+}
+
+@mixin touch-callout($value) {
+    -moz-touch-callout: $value;
+}
+
+// ============================================================================
+//  Basic HTML elements
+// ============================================================================
+
+body {
+    font-family: Arial;
+    margin: 32px;
+}
+
+label {
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+h1 {
+    font-size: 36pt;
+    img.logo {
+        width: 96px;
+        height: 96px;
+        vertical-align: middle;
+        margin-right: 16px;
+    }
+}
+
+a {
+    color: $baseColor;
+}
+
+a:visited {
+    color: $lightColor;
+}
+
+// ============================================================================
+//  Generic classes
+// ============================================================================
+
+.zapper-area {
+    cursor: crosshair;
+}
+
+.section {
+    display: table;
+    margin-top: 16px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sub-section {
+    display: table-cell;
+    padding: 0px 10px 0px 10px;
+}
+
+.binding {
+    display: table;
+}
+
+.binding-item {
+    display: table-row;
+}
+
+.binding-item > * {
+    display: table-cell;
+    padding: 0px 5px 0px 5px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+// ============================================================================
+//  Specific elements
+// ============================================================================
+
+#video-output {
+    display: block;
+    border: 1px solid black;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#fps-value, #video-scale, #video-palette, #tv-system {
+    margin-right: 15px;
+}
+
+#record-dialog, .record-dialog .ui-dialog-titlebar {
+    display: none;
+}
+
+#roms-section {
+    text-align: center;
+}
+
+#roms-dialog {
+    display: none;
+    margin: 5px;
+    padding: 5px;
+    > * {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+#roms-dialog-header {
+    input {
+        width: 80%;
+    }
+    label {
+        width: 20%;
+    }
+}
+
+#roms-dialog-message {
+    margin: 50px auto 50px auto;
+    text-align: center;
+}
+
+#roms-dialog-list {
+    height: 250px;
+    margin-top: 8px;
+    border-top: 1px solid #aaaaaa;
+    list-style-type: none;
+    overflow-y: auto;
+    li {
+        @include user-select(none);
+        @include touch-callout(none);
+        cursor: pointer;
+        padding: 3px;
+    }
+    li.selected {
+        color: white;
+        background-color: $baseColor;
+    }
+}
+
+#rom-file-input {
+    display: none;
+}

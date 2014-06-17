@@ -55,9 +55,14 @@ all: optimize
 init:
 	mkdir -p $(BUILD_DIR)
 
-compile: init
+compile: init js css
+
+js:
 	tools/Compiler.coffee --inline --compile --output $(BUILD_DIR) $(SRC_DIR)
 	cp --parents $(LIBS) $(BUILD_DIR)
+
+css: scss/style.scss
+	sassc -o css/style.css scss/style.scss
 
 bundle: compile
 	tools/Bundler.coffee --directory $(BUILD_DIR) --entry $(MAIN_FILE) --output $(BUNDLE_FILE) $(INCLUDES) $(LIBS)
