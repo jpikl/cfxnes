@@ -29,6 +29,9 @@ $(document).ready ->
     @pressReset = ->
         nesCoffee.pressReset()
 
+    @enterFullscreen = ->
+        nesCoffee.enterFullScreen()
+
     @setVideoScale = (scale) ->
         nesCoffee.setVideoScale scale
         $("#video-scale").prop "value", scale

@@ -48,23 +48,22 @@ INCLUDES = NESCoffee.js \
            paletts/RealisticPalette.js \
            storages/LocalStorage.js
 
-LIBS = lib/md5sum.js
+LIBS = lib/md5sum.js lib/screenfull.js
 
-all: optimize
+all: bundle
 
 init:
 	mkdir -p $(BUILD_DIR)
+	mkdir -p css
 
-compile: init js css
-
-js:
+js: init
 	tools/Compiler.coffee --inline --compile --output $(BUILD_DIR) $(SRC_DIR)
 	cp --parents $(LIBS) $(BUILD_DIR)
 
-css: scss/style.scss
+css: init scss/style.scss
 	sassc -o css/style.css scss/style.scss
 
-bundle: compile
+bundle: js css
 	tools/Bundler.coffee --directory $(BUILD_DIR) --entry $(MAIN_FILE) --output $(BUNDLE_FILE) $(INCLUDES) $(LIBS)
 
 optimize: bundle
@@ -82,3 +81,4 @@ publish: deploy
 
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -rf css

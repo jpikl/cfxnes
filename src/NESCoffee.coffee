@@ -1,13 +1,14 @@
-Joypad   = require "./controllers/Joypad"
-Injector = require "./utils/Injector"
-Format   = require "./utils/Format"
-Logger   = require "./utils/Logger"
-Network  = require "./utils/Network"
-Binder   = require "./Binder"
-Types    = require "./Types"
+Joypad     = require "./controllers/Joypad"
+Injector   = require "./utils/Injector"
+Format     = require "./utils/Format"
+Logger     = require "./utils/Logger"
+Network    = require "./utils/Network"
+Binder     = require "./Binder"
+Types      = require "./Types"
+Screenfull = require "../lib/screenfull"
 
-SCREEN_WIDTH    = 256
-SCREEN_HEIGHT   = 240
+VIDEO_WIDTH    = 256
+VIDEO_HEIGHT   = 240
 
 TVSystem = Types.TVSystem
 
@@ -60,9 +61,9 @@ class @NESCoffee
     initCanvas: ->
         logger.info "Initializing canvas"
         @canvas = document.getElementById @canvas if typeof @canvas is "string"
-        @canvas.width = SCREEN_WIDTH
-        @canvas.height = SCREEN_HEIGHT
-        @canvasScale = 1
+        @canvas.width = VIDEO_WIDTH
+        @canvas.height = VIDEO_HEIGHT
+        @canvas.scale = 1 # Not part of canvas API
 
     initRenderer: ->
         logger.info "Initializing renderer"
@@ -70,7 +71,7 @@ class @NESCoffee
 
     initFramebuffer: ->
         logger.info "Initializing frambuffer"
-        @frameBuffer = @renderer.createImageData SCREEN_WIDTH, SCREEN_HEIGHT
+        @frameBuffer = @renderer.createImageData VIDEO_WIDTH, VIDEO_HEIGHT
         for i in [0...@frameBuffer.data.length]
             @frameBuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
 
@@ -100,6 +101,7 @@ class @NESCoffee
     initListeners: ->
         logger.info "Initializing listeners"
         window.addEventListener "beforeunload", @saveData
+        document.addEventListener Screenfull.raw.fullscreenchange, @fullscreenChanged
 
     ###########################################################
     # Emulation
@@ -167,7 +169,7 @@ class @NESCoffee
             clearInterval @saveIntervalId
 
     ###########################################################
-    # Video output
+    # Video - rendering
     ###########################################################
 
     renderFrame: ->
@@ -175,24 +177,80 @@ class @NESCoffee
 
     drawFrame: ->
         @renderer.putImageData @frameBuffer, 0, 0
-        @redrawScaledCanvas() if @canvasScale > 1
-
-    getCanvasRect: =>
-        @canvas.getBoundingClientRect()
+        @redrawScaledCanvas() if @canvas.scale > 1
 
     redrawScaledCanvas: ->
         @renderer.imageSmoothingEnabled = false
         @renderer.mozImageSmoothingEnabled = false
         @renderer.oImageSmoothingEnabled = false
         @renderer.webkitImageSmoothingEnabled = false
-        @renderer.drawImage @canvas, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, @canvas.width, @canvas.height
+        @renderer.msImageSmoothingEnabled = false
+        @renderer.drawImage @canvas, 0, 0, VIDEO_WIDTH, VIDEO_HEIGHT, 0, 0, @canvas.width, @canvas.height
+
+    getCanvasRect: =>
+        @canvas.getBoundingClientRect()
+
+    ###########################################################
+    # Video - scalling
+    ###########################################################
 
     setVideoScale: (scale) ->
         logger.info "Setting video scale to #{scale}"
-        @canvas.width = scale * SCREEN_WIDTH
-        @canvas.height = scale * SCREEN_HEIGHT
-        @canvasScale = scale
+        @canvas.scale = scale
+        @canvas.width = scale * VIDEO_WIDTH
+        @canvas.height = scale * VIDEO_HEIGHT
         @drawFrame()
+
+    setMaxVideoScale: ->
+        @setVideoScale @getMaxVideoScale()
+
+    increaseVideoScale: ->
+        @setVideoScale @canvas.scale + 1 if @canvas.scale < @getMaxVideoScale()
+
+    decreaseVideoScale: ->
+        @setVideoScale @canvas.scale - 1 if @canvas.scale > 1
+
+    getVideoScale: ->
+        @canvas.scale
+
+    getMaxVideoScale: ->
+        ~~Math.min(screen.width / VIDEO_WIDTH, screen.height / VIDEO_HEIGHT)
+
+    ###########################################################
+    # Video - fullscreen
+    ###########################################################
+
+    setFullScreen: (fullscreen) ->
+        if fullscreen
+            @enterFullScreen()
+        else
+            @leaveFullScreen()
+
+    enterFullScreen: ->
+        if Screenfull.enabled and not @isFullScreen()
+            logger.info "Entering fullscreen"
+            Screenfull.request @canvas
+
+    leaveFullScreen: ->
+        if Screenfull.enabled and @isFullScreen()
+            logger.info "Leaving fullscreen"
+            Screenfull.exit()
+
+    fullscreenChanged: =>
+        logger.info "Fullscreen state changed to #{if @isFullScreen() then 'on' else 'off'}"
+        if @isFullScreen() # Must be only called when leaving fullscreen
+            @canvas.previousScale = @canvas.scale
+            @setMaxVideoScale()
+        else
+            @setVideoScale @canvas.previousScale
+            @canvas.previousScale = null
+
+    isFullScreen: ->
+        Screenfull.isFullscreen
+
+    ###########################################################
+    # Video - other
+    ###########################################################
 
     setVideoPalette: (palette = "default") ->
         logger.info "Setting pallet to '#{palette}'"
@@ -216,10 +274,12 @@ class @NESCoffee
 
     updateZapper: ->
         rect = @getCanvasRect()
-        x = ~~((@binder.mouseX - rect.left) / @canvasScale)
-        y = ~~((@binder.mouseY - rect.top - 1) / @canvasScale)
-        x = 0 if x < 0 or x >= SCREEN_WIDTH
-        y = 0 if y < 0 or y >= SCREEN_HEIGHT
+        scaleX = (rect.right - rect.left) / VIDEO_WIDTH
+        scaleY = (rect.bottom - rect.top) / VIDEO_HEIGHT
+        x = ~~((@binder.mouseX - rect.left) / scaleX)
+        y = ~~((@binder.mouseY - rect.top - 1) / scaleY)
+        x = 0 if x < 0 or x >= VIDEO_WIDTH
+        y = 0 if y < 0 or y >= VIDEO_HEIGHT
         @inputDevices[1].zapper.setScreenPosition x, y
         @inputDevices[2].zapper.setScreenPosition x, y
 
