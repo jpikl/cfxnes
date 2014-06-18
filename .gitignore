@@ -1,4 +1,7 @@
-/NESCoffee.js
-/js/
-/css/
-/test/*/*.log
+/js/*
+/css/*
+
+!/js/lib/*
+!/css/lib/*
+
+*.log

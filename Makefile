@@ -1,16 +1,29 @@
 export NODE_PATH = /usr/lib/node_modules/
 
-SRC_DIR      = src
-BUILD_DIR    = js
+COFFEE   = /usr/bin/coffee
+SASSC    = /usr/bin/sassc
+CLOSURE  = /usr/bin/closure
+COMPILER = tools/Compiler.coffee
+BUNDLER  = tools/Bundler.coffee
+
+COFFEE_DIR  = coffee
+JS_DIR      = js
+SCSS_DIR    = scss
+CSS_DIR     = css
+LIB_JS_DIR  = lib/js
+LIB_CSS_DIR = lib/css
+SERVER_DIR  = ../nescoffee-heroku
+DEPLOY_DIR  = $(SERVER_DIR)/public/
+
 MAIN_FILE    = NESCoffee.js
 BUNDLE_FILE  = NESCoffeeBundled.js
+UI_FILE      = UI.js
 OPT_FILE     = NESCoffeeOptimized.js
 OPT_LEVEL    = SIMPLE_OPTIMIZATIONS
-SERVER_DIR   = ../nescoffee-heroku
-DEPLOY_DIR   = $(SERVER_DIR)/public/
-DEPLOY_FILES = $(BUILD_DIR)/$(OPT_FILE) $(BUILD_DIR)/UI.js css/*.css img/* index.html
 
-INCLUDES = NESCoffee.js \
+DEPLOY_FILES = $(JS_DIR)/$(OPT_FILE) $(JS_DIR)/$(UI_FILE) css/*.css img/* index.html
+
+JS_FILES = NESCoffee.js \
 		   Binder.js \
            NES.js \
            APU.js \
@@ -48,37 +61,40 @@ INCLUDES = NESCoffee.js \
            paletts/RealisticPalette.js \
            storages/LocalStorage.js
 
-LIBS = lib/md5sum.js lib/screenfull.js
+JS_LIB_FILES  = lib/md5sum.js lib/screenfull.js
+
+CSS_FILES     = style.css
+CSS_LIB_FILES =
 
 all: bundle
 
-init:
-	mkdir -p $(BUILD_DIR)
-	mkdir -p css
+bundle: $(JS_DIR)/$(BUNDLE_FILE) $(JS_DIR)/$(UI_FILE) $(CSS_DIR)/$(CSS_FILES)
 
-js: init
-	tools/Compiler.coffee --inline --compile --output $(BUILD_DIR) $(SRC_DIR)
-	cp --parents $(LIBS) $(BUILD_DIR)
-
-css: init scss/style.scss
-	sassc -o css/style.css scss/style.scss
-
-bundle: js css
-	tools/Bundler.coffee --directory $(BUILD_DIR) --entry $(MAIN_FILE) --output $(BUNDLE_FILE) $(INCLUDES) $(LIBS)
-
-optimize: bundle
-	cd $(BUILD_DIR) && closure --compilation_level $(OPT_LEVEL) $(BUNDLE_FILE) > $(OPT_FILE)
+optimize: bundle $(JS_DIR)/$(OPT_FILE)
 
 deploy: optimize
 	cp --parents $(DEPLOY_FILES) $(DEPLOY_DIR)
 	sed -i "s/$(BUNDLE_FILE)/$(OPT_FILE)/g" $(DEPLOY_DIR)/index.html
 
 run: deploy
-	cd $(SERVER_DIR) && coffee Application.coffee
+	cd $(SERVER_DIR) && $(COFFEE) Application.coffee
 
 publish: deploy
 	cd $(DEPLOY_DIR) && git add . && git commit && git push
 
 clean:
-	rm -rf $(BUILD_DIR)
-	rm -rf css
+	rm -f $(addprefix $(JS_DIR)/, $(JS_FILES) $(UI_FILE) $(BUNDLE_FILE) $(OPT_FILE))
+	rm -f $(addprefix $(CSS_DIR)/, $(CSS_FILES))
+	rmdir --ignore-fail-on-non-empty $(JS_DIR)/*
+
+$(JS_DIR)/%.js: $(COFFEE_DIR)/%.coffee
+	$(COMPILER) --compile --inline --output $(subst $(COFFEE_DIR), $(JS_DIR), $(<D)) $(<)
+
+$(CSS_DIR)/%.css: $(SCSS_DIR)/%.scss
+	$(SASSC) -o $(@) $(<)
+
+$(JS_DIR)/$(BUNDLE_FILE): $(addprefix $(JS_DIR)/, $(JS_FILES) $(JS_LIB_FILES))
+	$(BUNDLER) --directory $(JS_DIR) --entry $(MAIN_FILE) --output $(BUNDLE_FILE) $(JS_FILES) $(JS_LIB_FILES)
+
+$(JS_DIR)/$(OPT_FILE): $(JS_DIR)/$(BUNDLE_FILE)
+	cd $(JS_DIR) && $(CLOSURE) --compilation_level $(OPT_LEVEL) $(BUNDLE_FILE) > $(OPT_FILE)
