@@ -16,10 +16,10 @@ DST_FILE     = nescoffee.js
 DST_OPT_FILE = nescoffee.opt.js
 
 SRC_FILES = NESCoffee.js \
-			NES.js \
-			CPU.js \
-			PPU.js \
-			APU.js \
+            NES.js \
+            CPU.js \
+            PPU.js \
+            APU.js \
             DMA.js \
             CPUMemory.js \
             PPUMemory.js \
