@@ -1,2 +1,0 @@
-js/lib/screenfull.js - Sindre Sorhus (https://github.com/sindresorhus/screenfull.js)
-js/lib/md5sum.js     - Luigi Galli   (http://faultylabs.com)

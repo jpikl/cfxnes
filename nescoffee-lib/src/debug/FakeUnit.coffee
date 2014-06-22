@@ -6,6 +6,8 @@ class FakeUnit
 
     powerUp: -> undefined
     tick: -> undefined
+    connectMapper: ->
+    setNTSCMode: ->
     writeOAMAddress: (value) -> value
     writeOAMData: (value) -> value
     writeAddress: (value) -> value

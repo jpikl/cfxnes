@@ -1,6 +1,6 @@
-Logger = require "../utils/Logger"
-Format = require "../utils/Format"
-Types  = require "../Types"
+Logger = require "./utils/Logger"
+Format = require "./utils/Format"
+Types  = require "./Types"
 
 logger = Logger.get()
 readableSize = Format.readableSize
