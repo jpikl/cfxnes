@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html ng-app>
+    <head>
+        <meta charset="UTF-8">
+        <title>NESCoffee - NES emulator</title>
+        <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="styles/main.css"/>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js"></script>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="scripts/nescoffee.js"></script>
+    </head>
+    <body>
+        <h1><img class="logo" src="images/logo.png" alt="NESCoffee logo"/>NESCoffee</h1>
+        <p>A Nintendo Entertainment System emulator written in CoffeeScript.</p>
+        <p>NESCoffee is in early development, so it still isn't working correctly (only few games are playable).
+           The overall performance is quite slow (at least 1.7 GHz CPU and the <b>latest Google Chrome</b>
+           are recommended). Try out  <a href="http://fir.sh/projects/jsnes/">JSNES</a> as a better alternative.
+           The source code is available at <a href="https://bitbucket.org/jpikl/nescoffee">bitbucket</a>.</p>
+           <p>1 + 2 = {{ 1 + 2 }}</p>
+        <canvas id="video-output">Your browser does not support canvas.</canvas>
+    </body>
+</html>

@@ -9,7 +9,8 @@ OPT_LEVEL  = SIMPLE_OPTIMIZATIONS
 SRC_DIR    = src
 LIB_DIR    = lib
 BUILD_DIR  = build
-DST_DIR    = ../nescoffee-app/public/js
+APP_DIR    = ../nescoffee-app
+DST_DIR    = $(APP_DIR)/public/scripts
 
 ENTRY_FILE   = NESCoffee.js
 DST_FILE     = nescoffee.js

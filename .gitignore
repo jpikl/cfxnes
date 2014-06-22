@@ -1,7 +1,0 @@
-/js/*
-/css/*
-
-!/js/lib/*
-!/css/lib/*
-
-*.log
