@@ -1,26 +1,26 @@
 #!/usr/bin/coffee
 
-Parser  = require "coffee-script/lib/coffee-script/parser"
-Command = require "coffee-script/lib/coffee-script/command"
-Nodes   = require "coffee-script/lib/coffee-script/nodes"
+parser  = require "coffee-script/lib/coffee-script/parser"
+command = require "coffee-script/lib/coffee-script/command"
+nodes   = require "coffee-script/lib/coffee-script/nodes"
 
 ###########################################################
 # AST classes
 ###########################################################
 
-Access  = Nodes.Access
-Assign  = Nodes.Assign
-Base    = Nodes.Base
-Block   = Nodes.Block
-Call    = Nodes.Call
-Class   = Nodes.Class
-Code    = Nodes.Code
-Literal = Nodes.Literal
-Obj     = Nodes.Obj
-Op      = Nodes.Op
-Param   = Nodes.Param
-Parens  = Nodes.Parens
-Value   = Nodes.Value
+Access  = nodes.Access
+Assign  = nodes.Assign
+Base    = nodes.Base
+Block   = nodes.Block
+Call    = nodes.Call
+Class   = nodes.Class
+Code    = nodes.Code
+Literal = nodes.Literal
+Obj     = nodes.Obj
+Op      = nodes.Op
+Param   = nodes.Param
+Parens  = nodes.Parens
+Value   = nodes.Value
 
 ###########################################################
 # Configuration
@@ -28,7 +28,7 @@ Value   = Nodes.Value
 
 MAX_RECURSION = 10
 
-parse = Parser.parser.parse
+parse = parser.parser.parse
 baseContext = "__no_class__"
 uniqueId = 0
 
@@ -267,7 +267,7 @@ Class::getBody = ->
 # Modified CoffeeScript parser
 ###########################################################
 
-Parser.parser.parse = (source) ->
+parser.parser.parse = (source) ->
     modifyAST parse.call this, source
 
 modifyAST = (ast) ->
@@ -363,4 +363,4 @@ clone = (source) ->
 # Compiler execution
 ###########################################################
 
-Command.run()
+command.run()

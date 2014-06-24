@@ -1,7 +1,7 @@
 export NODE_PATH = /usr/lib/node_modules/
 
-COMPILER = ./bin/Compiler.coffee
-BUNDLER  = ./bin/Bundler.coffee
+COMPILER = ./bin/compiler.coffee
+BUNDLER  = ./bin/bundler.coffee
 CLOSURE  = /usr/bin/closure
 
 OPT_LEVEL  = SIMPLE_OPTIMIZATIONS

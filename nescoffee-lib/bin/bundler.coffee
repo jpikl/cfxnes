@@ -1,14 +1,14 @@
 #!/usr/bin/coffee
 
-FS       = require "fs"
-Path     = require "path"
-Optimist = require "optimist"
+fs       = require "fs"
+path     = require "path"
+optimist = require "optimist"
 
 ###########################################################
 # Command line options
 ###########################################################
 
-argv = Optimist
+argv = optimist
     .usage("Merge multiple NodeJS modules into one.\nUsage: $0 [options] input-files...")
     .string("entry")
     .alias("entry", "e")
@@ -25,7 +25,7 @@ argv = Optimist
     .argv
 
 if argv.help or argv._.length == 0
-    Optimist.showHelp()
+    optimist.showHelp()
     return 1
 
 ###########################################################
@@ -35,9 +35,9 @@ if argv.help or argv._.length == 0
 process.chdir argv.directory if argv.directory?
 inputFiles = argv._
 entryFile = argv.entry or inputFiles[inputFiles.length - 1]
-outputFd = FS.openSync argv.output, "w" if argv.output?
-writeOutput = if outputFd? then FS.writeSync.bind this, outputFd else console.log
-closeOutput = if outputFd? then FS.closeSync.bind this, outputFd else ( -> )
+outputFd = fs.openSync argv.output, "w" if argv.output?
+writeOutput = if outputFd? then fs.writeSync.bind this, outputFd else console.log
+closeOutput = if outputFd? then fs.closeSync.bind this, outputFd else ( -> )
 
 ###########################################################
 # Output generation
@@ -74,9 +74,9 @@ writeOutput """
     """
 
 for file in inputFiles
-    file = Path.normalize file
-    content = FS.readFileSync file
-    directory = Path.dirname file;
+    file = path.normalize file
+    content = fs.readFileSync file
+    directory = path.dirname file;
     writeOutput """
         modules["#{file}"] = function() {
             var require = createRequire("#{directory}");

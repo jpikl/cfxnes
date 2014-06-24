@@ -1,4 +1,4 @@
-DebugCPU = require "../../src/debug/DebugCPU"
+DebugCPU = require "../../src/debug/debug-cpu"
 
 ###########################################################
 # CPU mofified to execute all tests on nestest ROM
