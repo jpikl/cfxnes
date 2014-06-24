@@ -2,7 +2,7 @@ export NODE_PATH = /usr/lib/node_modules/
 
 COFFEE = /usr/bin/coffee
 
-APP_FILE    = Application.coffee
+APP_FILE    = app.coffee
 WATCH_FILES = $(APP_FILE)
 
 all: run
