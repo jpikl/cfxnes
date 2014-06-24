@@ -1,7 +1,7 @@
 export NODE_PATH = /usr/lib/node_modules/
 
-COMPILER = tools/Compiler.coffee
-BUNDLER  = tools/Bundler.coffee
+COMPILER = ./bin/Compiler.coffee
+BUNDLER  = ./bin/Bundler.coffee
 CLOSURE  = /usr/bin/closure
 
 OPT_LEVEL  = SIMPLE_OPTIMIZATIONS
@@ -10,7 +10,7 @@ SRC_DIR    = src
 LIB_DIR    = lib
 BUILD_DIR  = build
 APP_DIR    = ../nescoffee-app
-DST_DIR    = $(APP_DIR)/public/scripts
+DST_DIR    = $(APP_DIR)/build/scripts
 
 ENTRY_FILE   = NESCoffee.js
 DST_FILE     = nescoffee.js
