@@ -4,7 +4,7 @@ md5sum = require "../../lib/md5sum"
 # Conversion utilities
 ###########################################################
 
-Convert =
+convert =
 
     computeMD5: (data) ->
         md5sum data
@@ -17,4 +17,4 @@ Convert =
         bytes[i] = string.charCodeAt i for i in [0...string.length]
         bytes
 
-module.exports = Convert
+module.exports = convert

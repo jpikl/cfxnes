@@ -2,7 +2,7 @@
 # Formating utilities
 ###########################################################
 
-Format =
+format =
 
     byteAsHex: (value) ->
         hex = (value.toString 16).toUpperCase()
@@ -36,4 +36,4 @@ Format =
         return "???" if not bytes
         String.fromCharCode.apply null, bytes
 
-module.exports = Format
+module.exports = format

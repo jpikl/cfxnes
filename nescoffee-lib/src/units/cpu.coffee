@@ -1,4 +1,4 @@
-Logger = require "./utils/Logger"
+Logger = require "./utils/logger"
 Format = require "./utils/Format"
 Types  = require "./Types"
 

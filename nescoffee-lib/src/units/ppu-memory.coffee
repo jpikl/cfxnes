@@ -1,4 +1,4 @@
-Logger = require "./utils/Logger"
+Logger = require "./utils/logger"
 Types  = require "./Types"
 
 Mirroring = Types.Mirroring

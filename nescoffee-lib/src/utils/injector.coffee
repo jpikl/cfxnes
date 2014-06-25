@@ -1,4 +1,4 @@
-Logger = require "./Logger"
+Logger = require "./logger"
 
 logger = Logger.get()
 

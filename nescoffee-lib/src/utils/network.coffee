@@ -2,7 +2,7 @@
 # Network utilities
 ###########################################################
 
-Network =
+network =
 
     isLocalhost: (url) ->
         url or= document?.URL or ""
@@ -10,4 +10,4 @@ Network =
             return true if url.indexOf pattern >= 0
         return false
 
-module.exports = Network
+module.exports = network
