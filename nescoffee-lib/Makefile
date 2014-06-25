@@ -12,47 +12,47 @@ BUILD_DIR  = build
 APP_DIR    = ../nescoffee-app
 DST_DIR    = $(APP_DIR)/build/scripts
 
-ENTRY_FILE   = NESCoffee.js
+ENTRY_FILE   = nescoffee.js
 DST_FILE     = nescoffee.js
 DST_OPT_FILE = nescoffee.opt.js
 
-SRC_FILES = NESCoffee.js \
-            NES.js \
-            CPU.js \
-            PPU.js \
-            APU.js \
-            DMA.js \
-            CPUMemory.js \
-            PPUMemory.js \
-            CartridgeFactory.js \
-            LoaderFactory.js \
-            MapperFactory.js\
-            Types.js \
-            Binder.js \
-            config/BaseConfig.js \
-            controllers/Joypad.js \
-            controllers/Zapper.js \
-            loaders/AbstractLoader.js \
-            loaders/INESLoader.js \
-            loaders/NES2Loader.js \
-            mappers/AbstractMapper.js \
-            mappers/NROMMapper.js \
-            mappers/UNROMMapper.js \
-            mappers/CNROMMapper.js \
-            mappers/MMC1Mapper.js \
-            mappers/MMC3Mapper.js \
-            mappers/AOROMMapper.js \
-            paletts/BrightPalette.js \
-            paletts/DefaultPalette.js \
-            paletts/RealisticPalette.js \
-            readers/AbstractReader.js \
-            readers/ArrayBufferReader.js \
-            storages/LocalStorage.js \
-            utils/Convert.js \
-            utils/Format.js \
-            utils/Injector.js \
-            utils/Logger.js \
-            utils/Network.js
+SRC_FILES = common/types.js \
+            config/base-config.js \
+            controllers/joypad.js \
+            controllers/zapper.js \
+            factories/cartridge-factory.js \
+            factories/loader-factory.js \
+            factories/mapper-factory.js\
+            loaders/abstract-loader.js \
+            loaders/ines-loader.js \
+            loaders/nes2-loader.js \
+            mappers/abstract-mapper.js \
+            mappers/aorom-mapper.js \
+            mappers/cnrom-mapper.js \
+            mappers/mmc1-mapper.js \
+            mappers/mmc3-mapper.js \
+            mappers/nrom-mapper.js \
+            mappers/unrom-mapper.js \
+            paletts/bright-palette.js \
+            paletts/default-palette.js \
+            paletts/realistic-palette.js \
+            readers/abstract-reader.js \
+            readers/array-buffer-reader.js \
+            storages/local-storage.js \
+            units/apu.js \
+            units/cpu.js \
+            units/cpu-memory.js \
+            units/dma.js \
+            units/nes.js \
+            units/ppu.js \
+            units/ppu-memory.js \
+            utils/binder.js \
+            utils/convert.js \
+            utils/format.js \
+            utils/injector.js \
+            utils/logger.js \
+            utils/network.js \
+            nescoffee.js
 
 LIB_FILES   = md5sum.js screenfull.js
 
