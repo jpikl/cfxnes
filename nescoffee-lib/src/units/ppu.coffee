@@ -1,13 +1,11 @@
-Logger = require "./utils/logger"
+logger = require "../common/logger"
 
-logger = Logger.get()
+FRAME_BUFFER_WIDTH  = 256
+FRAME_BUFFER_HEIGHT = 240
 
 ###########################################################
 # Picture processing unit
 ###########################################################
-
-WIDTH  = 256
-HEIGHT = 240
 
 class PPU
 
@@ -295,7 +293,7 @@ class PPU
 
     isLightPixel: (x, y) ->
         return false if y < @scanline - 5 or y >= @scanline # Screen luminance decreases in time.
-        position = (y * WIDTH + x) << 2
+        position = (y * FRAME_BUFFER_WIDTH + x) << 2
         @frameBuffer[position++] > 0x12 or @frameBuffer[position++] > 0x12 or @frameBuffer[position] > 0x12
 
     startFrame: (buffer) ->

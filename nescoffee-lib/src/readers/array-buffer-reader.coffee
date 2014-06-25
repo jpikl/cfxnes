@@ -1,4 +1,4 @@
-AbstractReader = require "./AbstractReader"
+AbstractReader = require "./abstract-reader"
 
 ###########################################################
 # Reader for array buffer

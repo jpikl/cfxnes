@@ -1,6 +1,4 @@
-Logger = require "./utils/Logger"
-
-logger = Logger.get()
+logger = require "../common/logger"
 
 ###########################################################
 # Factory for mapper creation
@@ -20,7 +18,7 @@ class MapperFactory
     registerMapper: (id, name) ->
         @mappers[id] =
             name:  name
-            class: require "./mappers/#{name}Mapper"
+            class: require "../mappers/#{name.toLowerCase()}-mapper"
 
     createMapper: (cartridge) ->
         id = cartridge.mapperId

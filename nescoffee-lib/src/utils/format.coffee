@@ -9,8 +9,8 @@ format =
         if hex.length == 1 then "0" + hex else hex
 
     wordAsHex: (value, putSpace) ->
-        hex1 = Format.byteAsHex value & 0xFF
-        hex2 = Format.byteAsHex value >>> 8
+        hex1 = format.byteAsHex value & 0xFF
+        hex2 = format.byteAsHex value >>> 8
         hex2 + hex1
 
     fillLeft: (value, width, character = " ") ->

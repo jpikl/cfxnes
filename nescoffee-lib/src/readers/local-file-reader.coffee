@@ -1,5 +1,6 @@
-FileSystem     = require "fs"
-AbstractReader = require "./AbstractReader"
+AbstractReader = require "./abstract-reader"
+
+fs = require "fs"
 
 ###########################################################
 # Reader for local file
@@ -7,14 +8,14 @@ AbstractReader = require "./AbstractReader"
 
 class LocalFileReader extends AbstractReader
 
-    constructor: (@path) ->  
+    constructor: (@path) ->
         super()
-        @data = FileSystem.readFileSync @path
+        @data = fs.readFileSync @path
 
     getLength: ->
         @data.length
 
     getData: (start, end) ->
         @data[start...end]
-        
+
 module.exports = LocalFileReader

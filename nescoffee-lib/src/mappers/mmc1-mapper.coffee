@@ -1,4 +1,4 @@
-AbstractMapper = require "./AbstractMapper"
+AbstractMapper = require "./abstract-mapper"
 
 ###########################################################
 # MMC1 mapper

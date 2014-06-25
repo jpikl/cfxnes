@@ -16,7 +16,8 @@ ENTRY_FILE   = nescoffee.js
 DST_FILE     = nescoffee.js
 DST_OPT_FILE = nescoffee.opt.js
 
-SRC_FILES = common/types.js \
+SRC_FILES = common/logger.js \
+            common/types.js \
             config/base-config.js \
             controllers/joypad.js \
             controllers/zapper.js \
@@ -54,7 +55,7 @@ SRC_FILES = common/types.js \
             utils/network.js \
             nescoffee.js
 
-LIB_FILES   = md5sum.js screenfull.js
+LIB_FILES = md5sum.js screenfull.js
 
 BUILD_FILES = $(BUILD_DIR)     $(addprefix $(BUILD_DIR)/,     $(SRC_FILES)) \
               $(BUILD_DIR)/lib $(addprefix $(BUILD_DIR)/lib/, $(LIB_FILES))
@@ -90,7 +91,7 @@ $(BUILD_DIR)/lib/%.js: $(LIB_DIR)/%.js
 	@cp $(<) $(@)
 
 $(DST_DIR)/$(DST_FILE): $(BUILD_FILES)
-	@echo Bundling build files to $(@)
+	@echo Bundling compiled files to $(@)
 	@$(BUNDLER) --directory $(BUILD_DIR) --entry $(ENTRY_FILE) --output ../$(DST_DIR)/$(DST_FILE) $(SRC_FILES) $(addprefix lib/, $(LIB_FILES))
 
 $(DST_DIR)/$(DST_OPT_FILE): $(DST_DIR)/$(DST_FILE)

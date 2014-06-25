@@ -1,6 +1,4 @@
-Logger = require "./utils/logger"
-
-logger = Logger.get()
+logger = require "../common/logger"
 
 ###########################################################
 # Direct memory access unit

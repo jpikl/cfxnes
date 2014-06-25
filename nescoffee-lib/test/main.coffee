@@ -10,7 +10,7 @@ logger.attach Logger.file "nescoffee.log"
 
 injector = new Injector configFile
 
-cartridgeFactory = injector.getInstance "cartridge-factory"
+cartridgeFactory = injector.getInstance "cartridgeFactory"
 cartridge = cartridgeFactory.fromLocalFile cartridgeFile
 
 nes = injector.getInstance "nes"

@@ -1,12 +1,12 @@
-Logger = require "./utils/logger"
-format = require "./utils/format"
-types  = require "./types"
+logger = require "../common/logger"
 
-logger = Logger.get()
-readableSize = Format.readableSize
-readableBytes = Format.readableBytes
+types  = require "../common/types"
 tvSystemToString = types.TVSystem.toString
 mirroringToString = types.Mirroring.toString
+
+format = require "../utils/format"
+readableSize = format.readableSize
+readableBytes = format.readableBytes
 
 ###########################################################
 # Factory for cartridge creation
@@ -17,11 +17,11 @@ class CartridgeFactory
     @inject: [ "loaderFactory" ]
 
     fromArrayBuffer: (arrayBuffer) ->
-        ArrayBufferReader = require "./readers/ArrayBufferReader"
+        ArrayBufferReader = require "../readers/array-buffer-reader"
         @fromReader new ArrayBufferReader arrayBuffer
 
     fromLocalFile: (filePath) ->
-        LocalFileReader   = require "./readers/LocalFileReader"
+        LocalFileReader   = require "../readers/local-file-reader"
         @fromReader new LocalFileReader filePath
 
     fromReader: (reader) ->

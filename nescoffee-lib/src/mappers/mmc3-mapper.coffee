@@ -1,7 +1,7 @@
-AbstractMapper = require "./AbstractMapper"
-Types          = require "../Types"
+AbstractMapper = require "./abstract-mapper"
 
-Mirroring = Types.Mirroring
+types = require "../common/types"
+Mirroring = types.Mirroring
 
 ###########################################################
 # MMC3 mapper

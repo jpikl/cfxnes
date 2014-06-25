@@ -1,16 +1,16 @@
-Format  = require "../utils/Format"
-Convert = require "../utils/Convert"
-Logger  = require "../utils/Logger"
-Types   = require "../Types"
+logger = require "../common/logger"
 
-Mirroring = Types.Mirroring
+types = require "../common/types"
+Mirroring = types.Mirroring
 
-logger = Logger.get()
-wordAsHex = Format.wordAsHex
-readableSize = Format.readableSize
-computeMD5 = Convert.computeMD5
-bytesToString = Convert.bytesToString
-stringToBytes = Convert.stringToBytes
+format  = require "../utils/format"
+wordAsHex = format.wordAsHex
+readableSize = format.readableSize
+
+convert = require "../utils/convert"
+computeMD5 = convert.computeMD5
+bytesToString = convert.bytesToString
+stringToBytes = convert.stringToBytes
 
 ###########################################################
 # Base class for PRGROM mappers

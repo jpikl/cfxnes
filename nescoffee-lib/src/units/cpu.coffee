@@ -1,11 +1,10 @@
-Logger = require "./utils/logger"
-Format = require "./utils/Format"
-Types  = require "./Types"
+logger = require "../common/logger"
 
-byteAsHex = Format.byteAsHex
-Interrupt = Types.Interrupt
+types = require "../common/types"
+Interrupt = types.Interrupt
 
-logger = Logger.get()
+format = require "../utils/format"
+byteAsHex = format.byteAsHex
 
 ###########################################################
 # Central processing unit

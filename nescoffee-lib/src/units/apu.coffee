@@ -1,6 +1,4 @@
-Logger = require "./utils/Logger"
-
-logger = Logger.get()
+logger = require "../common/logger"
 
 ###########################################################
 # Audio processing unit

@@ -1,16 +1,19 @@
-Joypad     = require "./controllers/Joypad"
-Injector   = require "./utils/Injector"
-Format     = require "./utils/Format"
-Logger     = require "./utils/Logger"
-Network    = require "./utils/Network"
-Binder     = require "./Binder"
-Types      = require "./Types"
-Screenfull = require "../lib/screenfull"
+Joypad   = require "./controllers/joypad"
+Binder   = require "./utils/binder"
+Injector = require "./utils/injector"
 
-VIDEO_WIDTH    = 256
-VIDEO_HEIGHT   = 240
+network    = require "./utils/network"
+screenfull = require "../lib/screenfull"
 
-TVSystem = Types.TVSystem
+types = require "./common/types"
+TVSystem = types.TVSystem
+
+Logger = require "./utils/logger"
+logger = Logger.get()
+logger.attach Logger.console() if network.isLocalhost()
+
+VIDEO_WIDTH  = 256
+VIDEO_HEIGHT = 240
 
 joypadButtonToId =
     "a":      Joypad.BUTTON_A
@@ -26,11 +29,6 @@ tvSystemToId =
     "ntsc": TVSystem.NTSC
     "pal":  TVSystem.PAL
     "auto": null
-
-capitalize = Format.capitalize
-
-logger = Logger.get()
-logger.attach Logger.console() if Network.isLocalhost()
 
 ###########################################################
 # NESCoffee main class
@@ -77,7 +75,7 @@ class @NESCoffee
 
     initConsole: ->
         logger.info "Initializing console"
-        @injector = new Injector "./config/#{capitalize @mode}Config"
+        @injector = new Injector "./config/#{@mode}-config"
         @nes = @injector.getInstance "nes"
         @cartridgeFactory = @injector.getInstance "cartridgeFactory"
         @inputDevices =
@@ -101,7 +99,7 @@ class @NESCoffee
     initListeners: ->
         logger.info "Initializing listeners"
         window.addEventListener "beforeunload", @saveData
-        document.addEventListener Screenfull.raw.fullscreenchange, @fullscreenChanged
+        document.addEventListener screenfull.raw.fullscreenchange, @fullscreenChanged
 
     ###########################################################
     # Emulation
@@ -227,14 +225,14 @@ class @NESCoffee
             @leaveFullScreen()
 
     enterFullScreen: ->
-        if Screenfull.enabled and not @isFullScreen()
+        if screenfull.enabled and not @isFullScreen()
             logger.info "Entering fullscreen"
-            Screenfull.request @canvas
+            screenfull.request @canvas
 
     leaveFullScreen: ->
-        if Screenfull.enabled and @isFullScreen()
+        if screenfull.enabled and @isFullScreen()
             logger.info "Leaving fullscreen"
-            Screenfull.exit()
+            screenfull.exit()
 
     fullscreenChanged: =>
         logger.info "Fullscreen state changed to #{if @isFullScreen() then 'on' else 'off'}"
@@ -246,7 +244,7 @@ class @NESCoffee
             @canvas.previousScale = null
 
     isFullScreen: ->
-        Screenfull.isFullscreen
+        screenfull.isFullscreen
 
     ###########################################################
     # Video - other
@@ -254,7 +252,7 @@ class @NESCoffee
 
     setVideoPalette: (palette = "default") ->
         logger.info "Setting pallet to '#{palette}'"
-        palette = require "./paletts/#{capitalize palette}Palette" if typeof palette is "string"
+        palette = require "./paletts/#{palette}-palette" if typeof palette is "string"
         @nes.setVideoPalette palette
 
     setVideoDebug: (enabled) ->

@@ -1,6 +1,4 @@
-Logger = require "./logger"
-
-logger = Logger.get()
+logger = require "../common/logger"
 
 ###########################################################
 # Dependency injection

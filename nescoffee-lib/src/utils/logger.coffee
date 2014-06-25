@@ -4,14 +4,14 @@
 
 class Logger
 
-    @loggers = []
+    @instances = []
 
     ###########################################################
     # Factory methods
     ###########################################################
 
     @get: (id = "default") ->
-        @loggers[id] ?= new Logger
+        @instances[id] ?= new Logger
 
     @console: ->
         console

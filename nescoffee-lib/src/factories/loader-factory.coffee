@@ -1,6 +1,4 @@
-Logger = require "./utils/Logger"
-
-logger = Logger.get()
+logger = require "../common/logger"
 
 ###########################################################
 # Factory for loader creation
@@ -16,7 +14,7 @@ class LoaderFactory
     registerLoader: (name) ->
         @loaders.push
             name:  name
-            class: require "./loaders/#{name}Loader"
+            class: require "../loaders/#{name.toLowerCase()}-loader"
 
     createLoader: (reader) ->
         for loader in @loaders

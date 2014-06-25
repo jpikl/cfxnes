@@ -1,8 +1,8 @@
-AbstractLoader = require "./AbstractLoader"
-Types          = require "../Types"
+AbstractLoader = require "./abstract-loader"
 
-Mirroring = Types.Mirroring
-TVSystem  = Types.TVSystem
+types = require "../common/types"
+Mirroring = types.Mirroring
+TVSystem  = types.TVSystem
 
 INES_SIGNATURE = [ 0x4E, 0x45, 0x53, 0x1A ] # "NES^Z"
 

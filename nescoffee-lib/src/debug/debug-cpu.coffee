@@ -1,11 +1,11 @@
-CPU    = require "../units/cpu"
-format = require "../utils/format"
-Logger = require "../utils/logger"
+CPU = require "../units/cpu"
 
+format = require "../utils/format"
 byteAsHex = format.byteAsHex
 wordAsHex = format.wordAsHex
 fillLeft  = format.fillLeft
 
+Logger = require "../utils/logger"
 logger = Logger.get "debug"
 
 ###########################################################
