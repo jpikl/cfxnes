@@ -1,13 +1,10 @@
-md5sum = require "../../lib/md5sum"
-
 ###########################################################
 # Conversion utilities
 ###########################################################
 
 convert =
 
-    computeMD5: (data) ->
-        md5sum data
+    computeMD5: md5 ? require "js-md5"
 
     bytesToString: (bytes) ->
         String.fromCharCode.apply null, bytes

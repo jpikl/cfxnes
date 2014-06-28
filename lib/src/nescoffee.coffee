@@ -1,9 +1,7 @@
 Joypad   = require "./controllers/joypad"
 Binder   = require "./utils/binder"
 Injector = require "./utils/injector"
-
-network    = require "./utils/network"
-screenfull = require "../lib/screenfull"
+network  = require "./utils/network"
 
 types = require "./common/types"
 TVSystem = types.TVSystem

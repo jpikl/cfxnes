@@ -111,7 +111,7 @@ class AbstractMapper
         undefined
 
     getPRGRAMKey: ->
-        @prgRAMKey ?= "NESCoffee/PRGRAM/#{computeMD5 @prgROM}"
+        @prgRAMKey ?= "NESCoffee/#{computeMD5 @prgROM}/PRGRAM"
 
     mapPRGRAMBank8K: (srcBank, dstBank) ->
         maxBank = (@prgRAMSize - 1) >> 13
@@ -177,7 +177,7 @@ class AbstractMapper
         undefined
 
     getCHRRAMKey: ->
-        @chrRAMKey ?= "NESCoffee/CHRRAM/#{computeMD5 @prgROM}"
+        @chrRAMKey ?= "NESCoffee/#{computeMD5 @prgROM}/CHRRAM"
 
     mapCHRRAMBank8K: (srcBank, dstBank) ->
         @mapCHRRAMBank4K srcBank, dstBank, 8

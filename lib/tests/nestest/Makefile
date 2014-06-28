@@ -1,3 +1,5 @@
+# Currently not runnable - needs refactoring
+
 export NODE_PATH = /usr/lib/node_modules/
 
 COMPILER    = ../../bin/compiler.coffee

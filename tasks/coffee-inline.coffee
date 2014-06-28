@@ -1,8 +1,6 @@
-#!/usr/bin/coffee
-
-parser  = require "coffee-script/lib/coffee-script/parser"
-command = require "coffee-script/lib/coffee-script/command"
+lexer   = require "coffee-script/lib/coffee-script/lexer"
 nodes   = require "coffee-script/lib/coffee-script/nodes"
+parser  = require "coffee-script/lib/coffee-script/parser"
 
 ###########################################################
 # AST classes
@@ -21,22 +19,6 @@ Op      = nodes.Op
 Param   = nodes.Param
 Parens  = nodes.Parens
 Value   = nodes.Value
-
-###########################################################
-# Configuration
-###########################################################
-
-MAX_RECURSION = 10
-
-parse = parser.parser.parse
-baseContext = "__no_class__"
-uniqueId = 0
-
-inliningEnabled = false
-for i in [process.argv.length - 1 .. 0]
-    if process.argv[i] is "--inline"
-        inliningEnabled = true
-        process.argv.splice i, 1
 
 ###########################################################
 # AST - core methods
@@ -264,11 +246,35 @@ Class::getBody = ->
     @getChild(Block).getChild(Value).getChild(Obj)
 
 ###########################################################
+# Modified CoffeeScript lexer
+###########################################################
+
+SECRET_INLINE_TOKEN = "__inline__"
+
+tokenize = lexer.Lexer::tokenize
+
+lexer.Lexer::tokenize = (code, opts) ->
+    tokens = tokenize.call this, code, opts
+    tokens.push SECRET_INLINE_TOKEN if opts.inline # We need to pass 'inline' option to the parser
+    tokens
+
+###########################################################
 # Modified CoffeeScript parser
 ###########################################################
 
-parser.parser.parse = (source) ->
-    modifyAST parse.call this, source
+MAX_RECURSION = 10
+INLINING_ENABLED = true
+
+baseContext = "__no_class__"
+uniqueId = 0
+
+parse = parser.parser.parse
+
+parser.parser.parse = (tokens) ->
+    inline = tokens[tokens.length - 1] is SECRET_INLINE_TOKEN
+    tokens.pop() if inline
+    ast = parse.call this, tokens
+    if inline then modifyAST ast else ast
 
 modifyAST = (ast) ->
     functions = findFunctions ast
@@ -299,10 +305,10 @@ inlineFunctions = (ast, functions, context = baseContext) ->
         if node.isClass()
             inlineFunctions node.getBody(), functions, node.getName()
         else if node.isInlineCall()
-            if inliningEnabled
+            if INLINING_ENABLED
                 context = baseContext unless node.isMethodCall()
                 func = functions[context]?[node.getName()]
-                throw "Unable to inline '#{node.getName()}' (function not found)." unless func?
+                throw "Unable to inline '#{node.getName()}' (function or method not found)." unless func?
                 ast.replaceChild node, createInlinedCode(node, func)
             else
                 node.unmakeInline()
@@ -360,7 +366,7 @@ clone = (source) ->
     copy
 
 ###########################################################
-# Compiler execution
+# Reuse existing grunt-coffee task
 ###########################################################
 
-command.run()
+module.exports = require "gulp-coffee"
