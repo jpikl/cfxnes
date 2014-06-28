@@ -1,3 +1,8 @@
+###########################################################
+# Plugin for gulp that bundles multiple node js modules
+# into one file which can be used in browser.
+###########################################################
+
 buffer = require "buffer"
 es     = require "event-stream"
 gutil  = require "gulp-util"

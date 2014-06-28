@@ -1,3 +1,8 @@
+###########################################################
+# Plugin for gulp that provides customized CoffeeScript
+# compiler with function/method inlining capability.
+###########################################################
+
 lexer   = require "coffee-script/lib/coffee-script/lexer"
 nodes   = require "coffee-script/lib/coffee-script/nodes"
 parser  = require "coffee-script/lib/coffee-script/parser"
