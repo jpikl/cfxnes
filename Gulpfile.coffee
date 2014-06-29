@@ -4,8 +4,8 @@ rimraf  = require "gulp-rimraf"
 nodemon = require "gulp-nodemon"
 closure = require "gulp-closure-compiler"
 
-bundle = require "./gulp/bundle-modules"
-coffee = require "./gulp/coffee-inline"
+bundle = require "./gulp/gulp-bundle-modules"
+coffee = require "./gulp/gulp-inlined-coffee"
 
 gulp.task "default", [ "emulator" ]
 
@@ -24,8 +24,8 @@ gulp.task "emulator", ->
                 inline: true
             ).on "error", gutil.log
         .pipe bundle
-            entryFile: "./emulator/nescoffee.js"
-            outputFile: "nescoffee.js"
+            entry: "./emulator/nescoffee.js"
+            output: "nescoffee.js"
         .pipe gulp.dest "./build/scripts"
 
 gulp.task "emulator-dist", [ "emulator" ], ->

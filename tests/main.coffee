@@ -1,3 +1,5 @@
+# Currently not working after refactoring
+
 Injector  = require "../src/utils/injector"
 Logger    = require "../src/utils/logger"
 

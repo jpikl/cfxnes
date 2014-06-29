@@ -28,6 +28,12 @@ tvSystemToId =
     "pal":  TVSystem.PAL
     "auto": null
 
+getElementById = (element) ->
+    if typeof element is "string"
+        document.getElementById element
+    else
+        element
+
 ###########################################################
 # NESCoffee main class
 ###########################################################
@@ -56,7 +62,7 @@ class @NESCoffee
 
     initCanvas: ->
         logger.info "Initializing canvas"
-        @canvas = document.getElementById @canvas if typeof @canvas is "string"
+        @canvas = getElementById @canvas
         @canvas.width = VIDEO_WIDTH
         @canvas.height = VIDEO_HEIGHT
         @canvas.scale = 1 # Not part of canvas API
@@ -309,14 +315,14 @@ class @NESCoffee
     enableFileOpening: (element, onLoad, onError) ->
         logger.info "File opening enabled on '#{element}'"
         self = @
-        element = document.getElementById element if typeof element is "string"
+        element = getElementById element
         element.addEventListener "change", (event) ->
             self.handleOpenedFile event, onLoad, onError
 
     enableFileDropping: (element, onLoad, onError) ->
         logger.info "File dropping enabled on '#{element}'"
         self = @
-        element = document.getElementById element if typeof element is "string"
+        element = getElementById element
         element.addEventListener "dragover", (event) ->
             self.handleDraggedFile event
         element.addEventListener "drop", (event) ->

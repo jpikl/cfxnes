@@ -1,6 +1,6 @@
 ###########################################################
-# Plugin for gulp that provides customized CoffeeScript
-# compiler with function/method inlining capability.
+# CoffeeScript compiler hook that allows function/method
+# inlining.
 ###########################################################
 
 lexer   = require "coffee-script/lib/coffee-script/lexer"
@@ -256,10 +256,10 @@ Class::getBody = ->
 
 SECRET_INLINE_TOKEN = "__inline__"
 
-tokenize = lexer.Lexer::tokenize
+originalTokenize = lexer.Lexer::tokenize
 
-lexer.Lexer::tokenize = (code, opts) ->
-    tokens = tokenize.call this, code, opts
+hookedTokenize = (code, opts) ->
+    tokens = originalTokenize.call this, code, opts
     tokens.push SECRET_INLINE_TOKEN if opts.inline # We need to pass 'inline' option to the parser
     tokens
 
@@ -273,12 +273,12 @@ INLINING_ENABLED = true
 baseContext = "__no_class__"
 uniqueId = 0
 
-parse = parser.parser.parse
+originalParse = parser.parser.parse
 
-parser.parser.parse = (tokens) ->
+hookedParse = (tokens) ->
     inline = tokens[tokens.length - 1] is SECRET_INLINE_TOKEN
     tokens.pop() if inline
-    ast = parse.call this, tokens
+    ast = originalParse.call this, tokens
     if inline then modifyAST ast else ast
 
 modifyAST = (ast) ->
@@ -371,7 +371,11 @@ clone = (source) ->
     copy
 
 ###########################################################
-# Reuse existing grunt-coffee task
+# Compiler hook function
 ###########################################################
 
-module.exports = require "gulp-coffee"
+hookCompiler = ->
+    lexer.Lexer::tokenize = hookedTokenize
+    parser.parser.parse = hookedParse
+
+module.exports = hookCompiler
