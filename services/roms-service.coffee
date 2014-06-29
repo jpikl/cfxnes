@@ -17,20 +17,20 @@ class ROMsService
             response.json roms
         catch error
             console.log error
-            response.status 500
+            response.status 500, "Internal error."
 
     getROM: (request, response) =>
         id = parseInt request.params.id
         unless id
-            return response.status 400
+            return response.send 400, "Missing file ID."
         try
             files = @readFiles()
             file = files[id]
             unless file
-                return response.status 400
+                return response.send 400, "Incorrect file ID."
             response.sendfile path.join romsDir, file
         catch error
             console.log error
-            response.status 500
+            response.send 500, "Internal error."
 
 module.exports = new ROMsService

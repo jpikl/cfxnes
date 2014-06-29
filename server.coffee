@@ -9,10 +9,12 @@ path     = require "path"
 
 getPath = (name) -> path.join __dirname, name
 
-develMode = process.env.NODE_ENV isnt "production"
-console.log "Running in #{if develMode then 'development' else 'production'} mode"
-
 app = express()
+
+environment = app.get "env"
+devEnvironment = environment is "development"
+
+console.log "Running in '#{environment ? "unknown"}' environment"
 
 # =============================================================================
 #  Middleware
@@ -21,13 +23,13 @@ app = express()
 app.use stylus.middleware
     src:      getPath "/"
     dest:     getPath "/build"
-    force:    develMode
-    compress: not develMode
+    force:    devEnvironment
+    compress: not devEnvironment
 
 app.use coffee
     src:   getPath "/"
     dest:  getPath "/build"
-    force: develMode
+    force: devEnvironment
 
 # =============================================================================
 #  Static files
@@ -53,9 +55,11 @@ app.use "/fonts",   express.static getPath "/bower_components/bootstrap/dist/fon
 app.set "view engine", "jade"
 app.set "views",       "views"
 
+app.locals.pretty = devEnvironment
+
 for url in [ "/", "/index.html" ]
     app.get url, (request, response) ->
-        response.render "index", { develMode: develMode }
+        response.render "index", { devEnvironment: devEnvironment }
 
 app.get "/views/:file.html", (request, response) ->
     response.render request.params.file
