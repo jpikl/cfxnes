@@ -1,7 +1,9 @@
-express  = require "express"
-stylus   = require "stylus"
-coffee   = require "connect-coffee-script"
-path     = require "path"
+express = require "express"
+stylus  = require "stylus"
+coffee  = require "connect-coffee-script"
+morgan  = require "morgan"
+path    = require "path"
+
 
 # =============================================================================
 #  Initialization
@@ -19,6 +21,8 @@ console.log "Running in '#{environment ? "unknown"}' environment"
 # =============================================================================
 #  Middleware
 # =============================================================================
+
+app.use morgan "dev" if devEnvironment
 
 app.use stylus.middleware
     src:      getPath "/"
@@ -44,25 +48,8 @@ app.use "/scripts", express.static getPath "/bower_components/bootstrap/dist/js"
 app.use "/scripts", express.static getPath "/bower_components/jquery/dist"
 app.use "/scripts", express.static getPath "/bower_components/js-md5/js"
 app.use "/scripts", express.static getPath "/bower_components/screenfull/dist"
-app.use "/scripts", express.static getPath "/bower_components/"
 app.use "/styles",  express.static getPath "/bower_components/bootstrap/dist/css"
 app.use "/fonts",   express.static getPath "/bower_components/bootstrap/dist/fonts"
-
-# =============================================================================
-#  Views
-# =============================================================================
-
-app.set "view engine", "jade"
-app.set "views",       "views"
-
-app.locals.pretty = devEnvironment
-
-for url in [ "/", "/index.html" ]
-    app.get url, (request, response) ->
-        response.render "index", { devEnvironment: devEnvironment }
-
-app.get "/views/:file.html", (request, response) ->
-    response.render request.params.file
 
 # =============================================================================
 #  Services
@@ -71,6 +58,28 @@ app.get "/views/:file.html", (request, response) ->
 romsService = require "./services/roms-service"
 app.get "/roms",           romsService.listROMs
 app.get "/roms/:id(\\d+)", romsService.getROM
+
+# =============================================================================
+#  Views
+# =============================================================================
+
+app.locals.pretty = devEnvironment
+app.locals.devEnvironment = devEnvironment
+
+app.set "view engine", "jade"
+app.set "views",       "views"
+
+app.get "/partials/:name.html", (request, response) ->
+    partialName = request.params.name
+    response.render "partials/#{partialName}"
+
+for url in [ "/", "/index.html" ]
+    app.get url, (request, response) ->
+        response.render "index"
+
+app.use (error, request, response, next) ->
+    console.log error.stack if devEnvironment
+    response.send 500, "Server internal error."
 
 # =============================================================================
 #  Start

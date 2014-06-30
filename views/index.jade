@@ -1,33 +1,15 @@
-mixin stylesheets(files, minified)
-    each file in files
-        if minified
-            -file = file + ".min"
-        link(rel="stylesheet", type="text/css", href="styles/#{file}.css")
+extends layout
 
-mixin scripts(files, minified)
-    each file in files
-        if minified
-            -file = file + ".min"
-        script(type="text/javascript", src="scripts/#{file}.js")
+block body
+    h1
+        img(class="logo", src="images/logo.png", alt="NESCoffee logo")
+        | NESCoffee
+    p
+        | A Nintendo Entertainment System emulator written in CoffeeScript.
+    p
+        | NESCoffee is in early development, so it still isn't working correctly (only few games are playable).
+        | The overall performance is quite slow (at least 1.7 GHz CPU and the #[strong latest Google Chrome]
+        |  are recommended). Try out  #[a(href="http://fir.sh/projects/jsnes/") JSNES] as a better alternative.
+        | The source code is available at #[a(href="https://bitbucket.org/jpikl/nescoffee") bitbucket].
 
-doctype html
-html
-    head
-        meta(charset="utf-8")
-        title NESCoffee - NES emulator
-        +stylesheets([ "bootstrap" ], !devEnvironment)
-        +stylesheets([ "main" ], false)
-        +scripts([ "jquery", "angular", "bootstrap", "screenfull", "md5", "nescoffee" ], !devEnvironment)
-    body(ng-app)
-        h1
-            img(class="logo", src="images/logo.png", alt="NESCoffee logo")
-            | NESCoffee
-        p
-            | A Nintendo Entertainment System emulator written in CoffeeScript.
-        p
-            | NESCoffee is in early development, so it still isn't working correctly (only few games are playable).
-            | The overall performance is quite slow (at least 1.7 GHz CPU and the #[strong latest Google Chrome]
-            |  are recommended). Try out  #[a(href="http://fir.sh/projects/jsnes/") JSNES] as a better alternative.
-            | The source code is available at #[a(href="https://bitbucket.org/jpikl/nescoffee") bitbucket].
-
-        canvas#video-output Your browser does not support canvas.
+    canvas#video-output Your browser does not support canvas.

@@ -18,26 +18,18 @@ class ROMsService
         files
 
     listROMs: (request, response) =>
-        try
-            files = @readFiles()
-            roms = ({ id: i, name: getROMName file } for file, i in files)
-            response.json roms
-        catch error
-            console.log error
-            response.status 500, "Internal error."
+        files = @readFiles()
+        roms = ({ id: i, name: getROMName file } for file, i in files)
+        response.json roms
 
     getROM: (request, response) =>
         id = parseInt request.params.id
         unless id?
             return response.send 400, "Missing file ID."
-        try
-            files = @readFiles()
-            file = files[id]
-            unless file
-                return response.send 400, "Incorrect file ID."
-            response.download path.join romsDir, file
-        catch error
-            console.log error
-            response.send 500, "Internal error."
+        files = @readFiles()
+        file = files[id]
+        unless file?
+            return response.send 400, "Incorrect file ID."
+        response.download path.join romsDir, file
 
 module.exports = new ROMsService
