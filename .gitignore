@@ -1,6 +1,5 @@
 /bower_components/
 /node_modules/
-/dist/
-/build/
-/roms/
+/server/public/
+/server/roms/
 *.log

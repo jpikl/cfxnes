@@ -1,0 +1,16 @@
+mixin stylesheets(files)
+    each file in files
+        link(rel="stylesheet", type="text/css", href="styles/#{file}.css")
+
+mixin scripts(files)
+    each file in files
+        script(type="text/javascript", src="scripts/#{file}.js")
+
+doctype html
+html(ng-app="nescoffee")
+    head
+        meta(charset="utf-8")
+        title NESCoffee - NES emulator
+        +stylesheets([ "bootstrap", "app" ])
+        +scripts([ "jquery", "angular", "angular-route", "bootstrap", "screenfull", "md5", "nescoffee", "app" ])
+    body(ng-view)
