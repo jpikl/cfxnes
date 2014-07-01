@@ -1,7 +1,5 @@
-# Currently not working after refactoring
-
-Injector  = require "../src/utils/injector"
-Logger    = require "../src/utils/logger"
+Injector = require "../utils/injector"
+Logger   = require "../utils/logger"
 
 configFile = process.argv[2]
 cartridgeFile = process.argv[3]

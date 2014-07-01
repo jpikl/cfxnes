@@ -40,7 +40,7 @@ gulp.task "clean", ->
 ###########################################################
 
 gulp.task "emulator", ->
-    gulp.src "#{EMULATOR_DIR}/**/*.coffee"
+    gulp.src [ "#{EMULATOR_DIR}/**/*.coffee", "!#{EMULATOR_DIR}/{debug,tests}/**" ]
         .pipe coffee
             bare: true
             inline: true
