@@ -11,6 +11,6 @@ html(ng-app="nescoffee")
     head
         meta(charset="utf-8")
         title NESCoffee - NES emulator
-        +stylesheets([ "bootstrap", "app" ])
+        +stylesheets([ "bootstrap", "xbootstrap-theme", "app" ])
         +scripts([ "jquery", "angular", "angular-route", "bootstrap", "screenfull", "md5", "nescoffee", "app" ])
-    body(ng-view)
+    body.ng-view

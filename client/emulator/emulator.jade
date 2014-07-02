@@ -1,13 +1,29 @@
-h1
-    img(class="logo", src="images/logo.png", alt="NESCoffee logo")
-    | NESCoffee
-p
-    | A Nintendo Entertainment System emulator written in CoffeeScript.
-p
-    | NESCoffee is in early development, so it still isn't working correctly (only few games are playable).
-    | The overall performance is quite slow (at least 1.7 GHz CPU and the #[strong latest Google Chrome]
-    |  are recommended). Try out  #[a(href="http://fir.sh/projects/jsnes/") JSNES] as a better alternative.
-    | The source code is available at #[a(href="https://bitbucket.org/jpikl/nescoffee") bitbucket].
+include ../components/navbar
 
-canvas#video-output
-    | Your browser does not support canvas.
++navbar
+    .btn-toolbar
+        .btn-group
+            button.btn.btn-default: .glyphicon.glyphicon-off
+            button.btn.btn-default: .glyphicon.glyphicon-repeat
+            button.btn.btn-default: .glyphicon.glyphicon-play
+        .btn-group
+            button.btn.btn-default: .glyphicon.glyphicon-book
+            button.btn.btn-default: .glyphicon.glyphicon-open
+        .btn-group
+            button.btn.btn-default: .glyphicon.glyphicon-zoom-out
+            button.btn.btn-default: .glyphicon.glyphicon-zoom-in
+            button.btn.btn-default: .glyphicon.glyphicon-fullscreen
+
+//- h1
+//-     img(class="logo", src="images/logo.png", alt="NESCoffee logo")
+//-     | NESCoffee
+//- p
+//-     | A Nintendo Entertainment System emulator written in CoffeeScript.
+//- p
+//-     | NESCoffee is in early development, so it still isn't working correctly (only few games are playable).
+//-     | The overall performance is quite slow (at least 1.7 GHz CPU and the #[strong latest Google Chrome]
+//-     |  are recommended). Try out  #[a(href="http://fir.sh/projects/jsnes/") JSNES] as a better alternative.
+//-     | The source code is available at #[a(href="https://bitbucket.org/jpikl/nescoffee") bitbucket].
+
+//- canvas#video-output
+//-     | Your browser does not support canvas.
