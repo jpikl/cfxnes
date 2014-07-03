@@ -4,6 +4,7 @@ concat  = require "gulp-concat"
 rimraf  = require "gulp-rimraf"
 stylus  = require "gulp-stylus"
 jade    = require "gulp-jade"
+open    = require "gulp-open"
 nodemon = require "gulp-nodemon"
 closure = require "gulp-closure-compiler"
 
@@ -14,6 +15,7 @@ coffee = require "./gulp/gulp-inlined-coffee"
 # Constants
 ###########################################################
 
+SERVER_PORT        = 5000
 DEPS_DIR           = "./bower_components"
 EMULATOR_DIR       = "./emulator"
 CLIENT_DIR         = "./client"
@@ -135,3 +137,10 @@ gulp.task "server", [ "emulator", "client" ], ->
         ext: "coffee"
         env: { NODE_ENV: "development" }
         ignore: [ "#{EMULATOR_DIR}/*", "#{CLIENT_DIR}/*", "#{PUBLIC_DIR}/*" ]
+    .on "start", [ "browser" ]
+
+
+gulp.task "browser", ->
+    gulp.src "#{PUBLIC_DIR}/index.html"
+        .pipe open "",
+            url: "http://localhost:#{SERVER_PORT}"
