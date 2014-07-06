@@ -123,7 +123,9 @@ class Binder
 
     hasFocus: ->
         activeElement = document.activeElement
-        activeElement?.tagName isnt "INPUT" or activeElement?.type isnt "text"
+        name = activeElement?.tagName
+        type = activeElement?.type?.toLowerCase()
+        name isnt "INPUT" or type not in [ "text", "search" ]
 
     ###########################################################
     # Mouse events handling

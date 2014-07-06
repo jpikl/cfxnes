@@ -19,6 +19,7 @@ app.config ($stateProvider, $urlRouterProvider, $tooltipProvider) ->
             views:
                 "content":
                     templateUrl: "views/library.html"
+                    controller: "LibraryController"
         .state "config",
             url: "/config"
             views:

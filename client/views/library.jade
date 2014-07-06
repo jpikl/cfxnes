@@ -1,0 +1,15 @@
+.container
+    .row
+        h1.col-xs-12 Game Library
+
+    .row
+        .col-xs-10
+            input.form-control(type="search", placeholder="Filter games by name...", ng-model="romsFilter.name")
+        .col-xs-2
+            button.btn.btn-primary(type="button", ng-class="{disabled: !selectedROM}") Play
+
+    .row
+        #library.col-xs-10
+            table.table
+                tr(ng-repeat="rom in roms | filter:romsFilter", ng-click="selectROM(rom)", ng-class="{info: isSelectedROM(rom)}")
+                    td{{ rom.name }}
