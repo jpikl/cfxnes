@@ -3,8 +3,16 @@ path = require "path"
 
 romsDir = path.join __dirname, "..", "roms"
 
+getROMId = (fileName) ->
+    fileName
+        .replace "'", ""
+        .replace /\s*-\s*/g, "-"
+        .replace /\s+/g, "-"
+        .replace /\.nes$/i, ""
+        .toLowerCase()
+
 getROMName = (fileName) ->
-    fileName[..-5] or ""
+    fileName.replace /\.nes$/i, ""
 
 ###########################################################
 # ROMs library API
@@ -12,24 +20,28 @@ getROMName = (fileName) ->
 
 class ROMsService
 
-    readFiles: ->
-        files = fs.readdirSync romsDir
-        files.sort (a, b) -> getROMName(a).localeCompare getROMName(b)
-        files
+    constructor: ->
+        @romList = []
+        @romMap = {}
+
+        for file, i in fs.readdirSync romsDir
+            id = getROMId file
+            name = getROMName file
+            @romList[i] = { id: id, name: name, file: file }
+            @romMap[id] = @romList[i]
+
+        @romList.sort (a, b) -> a.name.localeCompare a.name
 
     listROMs: (request, response) =>
-        files = @readFiles()
-        roms = ({ id: i, name: getROMName file } for file, i in files)
-        response.json roms
+        response.json @romList
 
     getROM: (request, response) =>
-        id = parseInt request.params.id
+        id = request.params.id
         unless id?
-            return response.send 400, "Missing file ID."
-        files = @readFiles()
-        file = files[id]
-        unless file?
-            return response.send 400, "Incorrect file ID."
-        response.download path.join romsDir, file
+            return response.send 400, "Missing ROM ID."
+        rom = @romMap[id]
+        unless rom?
+            return response.send 400, "Incorrect ROM ID."
+        response.download path.join romsDir, rom.file
 
 module.exports = new ROMsService

@@ -9,8 +9,8 @@ app.use morgan "dev" if debugMode
 app.use "/", express.static "#{__dirname}/public"
 
 romsService = require "./services/roms-service"
-app.get "/roms",           romsService.listROMs
-app.get "/roms/:id(\\d+)", romsService.getROM
+app.get "/roms",     romsService.listROMs
+app.get "/roms/:id", romsService.getROM
 
 app.use (error, request, response, next) ->
     console.log error.stack if debugMode
