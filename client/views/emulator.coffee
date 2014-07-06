@@ -1,6 +1,10 @@
 app = angular.module "nescoffee"
 
 app.controller "EmulatorController", ($scope, $rootScope, emulator) ->
+
+    emulator.onLoad = -> @start() unless @isRunning()
+    emulator.onError = (error) -> alert error
+
     $scope.isEmulatorRunning = ->
         emulator.isRunning()
 
@@ -24,3 +28,9 @@ app.controller "EmulatorController", ($scope, $rootScope, emulator) ->
 
     $scope.enterFullScreen = ->
         emulator.enterFullScreen()
+
+    $scope.getFPS = ->
+        ~~emulator.getFPS()
+
+    refreshScope = -> $scope.$apply()
+    setInterval refreshScope, 1000

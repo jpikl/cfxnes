@@ -39,8 +39,6 @@ app.config ($stateProvider, $urlRouterProvider, $tooltipProvider) ->
 
 app.run ($rootScope, $state, emulator) ->
     emulator.useDefaultControls()
-    emulator.onLoad = -> @start() unless @isRunning()
-    emulator.onError = (error) -> alert error
 
     $rootScope.$on "$viewContentLoaded", ->
         if $state.is "emulator"

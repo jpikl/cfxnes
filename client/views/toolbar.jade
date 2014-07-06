@@ -13,3 +13,5 @@
         button.btn.btn-default.navbar-btn(tooltip="Decrease size", ng-click="decreaseVideoScale()"): .glyphicon.glyphicon-zoom-out
         button.btn.btn-default.navbar-btn(tooltip="Increase size", ng-click="increaseVideoScale()"): .glyphicon.glyphicon-zoom-in
         button.btn.btn-default.navbar-btn(tooltip="Fullscreen", ng-click="enterFullScreen()"): .glyphicon.glyphicon-fullscreen
+p.navbar-text(ng-show="isEmulatorRunning()")
+    | FPS: {{ getFPS() }}
