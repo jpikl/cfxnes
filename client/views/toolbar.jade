@@ -1,0 +1,11 @@
+#emulator-buttons.nav.navbar-nav.navbar-left
+    .btn-group
+        button.btn.btn-default.navbar-btn(tooltip="Upload ROM"): .glyphicon.glyphicon-open
+    .btn-group
+        button.btn.btn-default.navbar-btn(tooltip="Power off"): .glyphicon.glyphicon-off
+        button.btn.btn-default.navbar-btn(tooltip="Restart"): .glyphicon.glyphicon-repeat
+        button.btn.btn-default.navbar-btn(tooltip="Run", ng-click="startEmulator()"): .glyphicon.glyphicon-play
+    .btn-group
+        button.btn.btn-default.navbar-btn(tooltip="Decrease size", ng-click="decreaseVideoScale()"): .glyphicon.glyphicon-zoom-out
+        button.btn.btn-default.navbar-btn(tooltip="Increase size", ng-click="increaseVideoScale()"): .glyphicon.glyphicon-zoom-in
+        button.btn.btn-default.navbar-btn(tooltip="Fullscreen", ng-click="enterFullScreen()"): .glyphicon.glyphicon-fullscreen

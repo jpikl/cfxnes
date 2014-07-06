@@ -11,6 +11,20 @@ html(ng-app="nescoffee")
     head
         meta(charset="utf-8")
         title NESCoffee - NES emulator
-        +stylesheets([ "bootstrap", "xbootstrap-theme", "app" ])
-        +scripts([ "jquery", "angular", "angular-route", "bootstrap", "screenfull", "md5", "nescoffee", "app" ])
-    body.ng-view
+        +stylesheets([ "bootstrap", "app" ])
+        +scripts([ "jquery", "angular", "angular-ui-router", "ui-bootstrap-tpls", "screenfull", "md5", "nescoffee", "app" ])
+    body
+        nav.navbar.navbar-default
+            .container-fluid
+                .navbar-header
+                    a.navbar-brand(ui-sref="emulator")
+                        img.logo(src="images/logo.png")
+                        | NESCoffee
+                ul.nav.navbar-nav.navbar-left
+                    li(ui-sref-active="active"): a(ui-sref="emulator") Emulator
+                    li(ui-sref-active="active"): a(ui-sref="library") Game Library
+                    li(ui-sref-active="active"): a(ui-sref="config") Configuration
+                div(ui-view="header")
+                ul.nav.navbar-nav.navbar-right
+                    li(ui-sref-active="active"): a(ui-sref="about") About
+        div(ui-view="content")

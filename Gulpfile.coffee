@@ -105,8 +105,8 @@ gulp.task "cliet-deps-scripts", ->
     gulp.src [
         "#{DEPS_DIR}/jquery/dist/jquery.js"
         "#{DEPS_DIR}/angular/angular.js"
-        "#{DEPS_DIR}/angular-route/angular-route.js"
-        "#{DEPS_DIR}/bootstrap/dist/js/bootstrap.js"
+        "#{DEPS_DIR}/angular-ui-router/release/angular-ui-router.js"
+        "#{DEPS_DIR}/angular-bootstrap/ui-bootstrap-tpls.js"
         "#{DEPS_DIR}/js-md5/js/md5.js"
         "#{DEPS_DIR}/screenfull/dist/screenfull.js"
     ]
@@ -132,6 +132,7 @@ gulp.task "server", [ "emulator", "client" ], ->
     gulp.watch "#{CLIENT_DIR}/**/*.coffee", [ "client-scripts" ]
     gulp.watch "#{CLIENT_DIR}/**/*.styl", [ "client-styles" ]
     gulp.watch "#{CLIENT_DIR}/**/*.jade", [ "client-views" ]
+        .on "error", gutil.log
     nodemon
         script: "#{SERVER_DIR}/app.coffee"
         ext: "coffee"

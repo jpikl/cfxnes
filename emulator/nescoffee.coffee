@@ -28,11 +28,14 @@ tvSystemToId =
     "pal":  TVSystem.PAL
     "auto": null
 
-getElementById = (element) ->
-    if typeof element is "string"
-        document.getElementById element
-    else
+getElementById = (id) ->
+    if typeof id is "string"
+        element = document.getElementById id
+        unless element
+            throw new Error "Unable to locate element with ID='#{id}'."
         element
+    else
+        id
 
 ###########################################################
 # NESCoffee main class
@@ -40,42 +43,22 @@ getElementById = (element) ->
 
 class @NESCoffee
 
-    constructor: (@canvas, @mode = "base") ->
-        unless @canvas?
-            throw new Error "Canvas element or its ID was not specified."
-        logger.info "Initializing NESCoffee"
-        @initCanvas()
-        @initRenderer()
-        @initFramebuffer()
+    constructor: (@mode = "base") ->
+        @initCore()
+
+    ###########################################################
+    # Initialization - core
+    ###########################################################
+
+    initCore: ->
+        logger.info "Initializing NESCoffee [core]"
         @initConsole()
         @initControls()
         @initFPS()
         @initListeners()
         @setVideoPalette()
         @pressPower()
-        @drawFrame()
         logger.info "Initialization done"
-
-    ###########################################################
-    # Initialization
-    ###########################################################
-
-    initCanvas: ->
-        logger.info "Initializing canvas"
-        @canvas = getElementById @canvas
-        @canvas.width = VIDEO_WIDTH
-        @canvas.height = VIDEO_HEIGHT
-        @canvas.scale = 1 # Not part of canvas API
-
-    initRenderer: ->
-        logger.info "Initializing renderer"
-        @renderer = @canvas.getContext "2d"
-
-    initFramebuffer: ->
-        logger.info "Initializing frambuffer"
-        @frameBuffer = @renderer.createImageData VIDEO_WIDTH, VIDEO_HEIGHT
-        for i in [0...@frameBuffer.data.length]
-            @frameBuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
 
     initConsole: ->
         logger.info "Initializing console"
@@ -104,6 +87,33 @@ class @NESCoffee
         logger.info "Initializing listeners"
         window.addEventListener "beforeunload", @saveData
         document.addEventListener screenfull.raw.fullscreenchange, @fullscreenChanged
+
+    ###########################################################
+    # Initialization - video
+    ###########################################################
+
+    initVideo: ->
+        logger.info "Initializing NESCoffee [video]"
+        @initCanvas()
+        @initRenderer()
+        @initFramebuffer()
+        @drawFrame()
+        logger.info "Initialization done"
+
+    initCanvas: ->
+        logger.info "Initializing canvas"
+        @canvas = getElementById @canvas
+        @setCanvasScale @canvasScale or 1
+
+    initRenderer: ->
+        logger.info "Initializing renderer"
+        @renderer = @canvas.getContext "2d"
+
+    initFramebuffer: ->
+        logger.info "Initializing frambuffer"
+        @frameBuffer = @renderer.createImageData VIDEO_WIDTH, VIDEO_HEIGHT
+        for i in [0...@frameBuffer.data.length]
+            @frameBuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
 
     ###########################################################
     # Emulation
@@ -147,28 +157,17 @@ class @NESCoffee
         (@fpsBuffer.reduce (a, b) -> a + b) / @fpsBuffer.length
 
     ###########################################################
-    # Persistence
+    # Video
     ###########################################################
 
-    setStorage: (storage) ->
-        logger.info "Setting storage"
-        @nes.setStorage storage
+    setCanvas: (canvas) ->
+        @canvas = getElementById canvas
+        @initVideo()
 
-    loadData: ->
-        logger.info "Loding data"
-        @nes.loadData()
-
-    saveData: =>
-        logger.info "Saving data"
-        @nes.saveData()
-
-    setPeriodicSave: (period) ->
-        if period
-            logger.info "Enabling periodic save with period #{period} ms"
-            @saveIntervalId = setInterval @saveData, period
-        else
-            logger.info "Disabling periodic save"
-            clearInterval @saveIntervalId
+    setCanvasScale: (scale) ->
+        @canvasScale = scale
+        @canvas.width = scale * VIDEO_WIDTH
+        @canvas.height = scale * VIDEO_HEIGHT
 
     ###########################################################
     # Video - rendering
@@ -179,7 +178,7 @@ class @NESCoffee
 
     drawFrame: ->
         @renderer.putImageData @frameBuffer, 0, 0
-        @redrawScaledCanvas() if @canvas.scale > 1
+        @redrawScaledCanvas() if @canvasScale > 1
 
     redrawScaledCanvas: ->
         @renderer.imageSmoothingEnabled = false
@@ -190,7 +189,10 @@ class @NESCoffee
         @renderer.drawImage @canvas, 0, 0, VIDEO_WIDTH, VIDEO_HEIGHT, 0, 0, @canvas.width, @canvas.height
 
     getCanvasRect: =>
-        @canvas.getBoundingClientRect()
+        if @canvas
+            @canvas.getBoundingClientRect()
+        else
+            { left: -1, right: -1, top: -1, bottom: -1 }
 
     ###########################################################
     # Video - scalling
@@ -198,22 +200,20 @@ class @NESCoffee
 
     setVideoScale: (scale) ->
         logger.info "Setting video scale to #{scale}"
-        @canvas.scale = scale
-        @canvas.width = scale * VIDEO_WIDTH
-        @canvas.height = scale * VIDEO_HEIGHT
+        @setCanvasScale scale
         @drawFrame()
 
     setMaxVideoScale: ->
         @setVideoScale @getMaxVideoScale()
 
     increaseVideoScale: ->
-        @setVideoScale @canvas.scale + 1 if @canvas.scale < @getMaxVideoScale()
+        @setVideoScale @canvasScale + 1 if @canvasScale < @getMaxVideoScale()
 
     decreaseVideoScale: ->
-        @setVideoScale @canvas.scale - 1 if @canvas.scale > 1
+        @setVideoScale @canvasScale - 1 if @canvasScale > 1
 
     getVideoScale: ->
-        @canvas.scale
+        @canvasScale
 
     getMaxVideoScale: ->
         ~~Math.min(screen.width / VIDEO_WIDTH, screen.height / VIDEO_HEIGHT)
@@ -241,11 +241,11 @@ class @NESCoffee
     fullscreenChanged: =>
         logger.info "Fullscreen state changed to #{if @isFullScreen() then 'on' else 'off'}"
         if @isFullScreen() # Must be only called when leaving fullscreen
-            @canvas.previousScale = @canvas.scale
+            @canvasPreviousScale = @canvasScale
             @setMaxVideoScale()
         else
-            @setVideoScale @canvas.previousScale
-            @canvas.previousScale = null
+            @setVideoScale @canvasPreviousScale
+            @canvasPreviousScale = null
 
     isFullScreen: ->
         screenfull.isFullscreen
@@ -284,6 +284,30 @@ class @NESCoffee
         y = 0 if y < 0 or y >= VIDEO_HEIGHT
         @inputDevices[1].zapper.setScreenPosition x, y
         @inputDevices[2].zapper.setScreenPosition x, y
+
+    ###########################################################
+    # Persistence
+    ###########################################################
+
+    setStorage: (storage) ->
+        logger.info "Setting storage"
+        @nes.setStorage storage
+
+    loadData: ->
+        logger.info "Loding data"
+        @nes.loadData()
+
+    saveData: =>
+        logger.info "Saving data"
+        @nes.saveData()
+
+    setPeriodicSave: (period) ->
+        if period
+            logger.info "Enabling periodic save with period #{period} ms"
+            @saveIntervalId = setInterval @saveData, period
+        else
+            logger.info "Disabling periodic save"
+            clearInterval @saveIntervalId
 
     ###########################################################
     # Controls
