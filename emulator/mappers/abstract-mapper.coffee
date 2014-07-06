@@ -32,9 +32,9 @@ class AbstractMapper
 
     powerUp: ->
         logger.info "Resetting mapper"
-        @reset()
         @resetPRGRAM()
         @resetCHRRAM()
+        @reset()
 
     ###########################################################
     # Mapper initialization / writing

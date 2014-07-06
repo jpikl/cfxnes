@@ -12,6 +12,7 @@ class PPU
     @inject: [ "ppuMemory", "cpu" ]
 
     ntscMode: true
+    colorEmphasis: 0
 
     ###########################################################
     # Power-up state initialization

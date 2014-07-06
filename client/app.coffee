@@ -38,10 +38,16 @@ app.config ($stateProvider, $urlRouterProvider, $tooltipProvider) ->
         appendToBody: true
 
 app.run ($rootScope, $state, emulator) ->
+    emulator.useDefaultControls()
+    emulator.onLoad = -> @start() unless @isRunning()
+    emulator.onError = (error) -> alert error
+
     $rootScope.$on "$viewContentLoaded", ->
         if $state.is "emulator"
-            canvas = document.getElementById "emulator-canvas"
-            emulator.setCanvas canvas if canvas
-            emulator.step()
+            if $("#video-output").length
+                emulator.setVideoOutput "video-output"
+                emulator.enableFileOpening "file-upload"
+                emulator.enableFileDropping "file-drop"
+                document.activeElement.blur()
         else
             emulator.stop()
