@@ -1,35 +1,33 @@
 app = angular.module "nescoffee", [ "ui.router", "ui.bootstrap" ]
 
-app.factory "emulator", -> new NESCoffee
-
 app.config ($stateProvider, $urlRouterProvider, $tooltipProvider) ->
     $stateProvider
         .state "emulator",
             url: "/"
             views:
                 "header":
-                    templateUrl: "views/toolbar.html"
+                    templateUrl: "modules/emulator/toolbar.html"
                     controller: "EmulatorController"
                 "content":
-                    templateUrl: "views/emulator.html"
+                    templateUrl: "modules/emulator/emulator.html"
                     controller: "EmulatorController"
              controller: "EmulatorController"
         .state "library",
             url: "/library"
             views:
                 "content":
-                    templateUrl: "views/library.html"
+                    templateUrl: "modules/library/library.html"
                     controller: "LibraryController"
         .state "config",
             url: "/config"
             views:
                 "content":
-                    templateUrl: "views/config.html"
+                    templateUrl: "modules/config/config.html"
         .state "about",
             url: "/about"
             views:
                 "content":
-                    templateUrl: "views/about.html"
+                    templateUrl: "modules/about/about.html"
 
     $urlRouterProvider.otherwise "/"
 

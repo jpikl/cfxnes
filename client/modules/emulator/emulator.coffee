@@ -1,5 +1,7 @@
 app = angular.module "nescoffee"
 
+app.factory "emulator", -> new NESCoffee
+
 app.controller "EmulatorController", ($scope, $rootScope, emulator) ->
 
     emulator.onLoad = -> @start() unless @isRunning()

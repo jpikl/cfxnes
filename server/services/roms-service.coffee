@@ -30,7 +30,7 @@ class ROMsService
             @romList[i] = { id: id, name: name, file: file }
             @romMap[id] = @romList[i]
 
-        @romList.sort (a, b) -> a.name.localeCompare a.name
+        @romList.sort (a, b) -> a.name.localeCompare b.name
 
     listROMs: (request, response) =>
         response.json @romList
