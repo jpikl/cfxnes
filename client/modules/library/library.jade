@@ -1,22 +1,23 @@
 .container
     .row
-        h1.col-xs-12 Game Library
-
-    .row(ng-show="loadingDone && !error")
-        .col-xs-10
-            input.form-control(type="search", placeholder="Filter games by name...", ng-model="romsFilter.name")
-        .col-xs-2
-            button.btn.btn-primary(type="button", ng-class="{disabled: !selectedROM}", ng-click="playSelectedROM()") Play
-
-    .row(ng-show="loadingDone && !error")
-        #library.col-xs-10
-            table.table
-                tr(ng-repeat="rom in roms | filter:romsFilter", ng-click="selectROM(rom)", ng-class="{info: rom == selectedROM}")
-                    td{{ rom.name }}
+        h1.col-xs-10 Game Library
     .row(ng-hide="loadingDone")
-        p.loading-indicator.col-xs-12
+        p.loading-indicator.col-xs-10
             img(src="images/loading-indicator.gif")
             | Loading data...
-    .row(ng-show="error")
-        alert.col-xs-6(type="danger")
-            | #[strong Error:] {{ error }}
+    .row(ng-show="loadingError")
+        .col-xs-10
+            alert(type="danger") {{ loadingError }}
+    .row(ng-show="playError")
+        .col-xs-10
+            alert(type="danger" close="clearError()") {{ playError }}
+    .row(ng-show="loadingDone && !loadingError")
+        .col-xs-8
+            input.form-control(type="search", placeholder="Filter games by name...", ng-model="romsFilter.name")
+        .col-xs-2
+            button#play-button.btn.btn-primary(type="button", ng-class="{disabled: !selectedROM}", ng-click="playSelectedROM()") Play game
+    .row(ng-show="loadingDone && !loadingError")
+        #library.col-xs-10
+            table.table
+                tr(ng-repeat="rom in roms | filter:romsFilter", ng-click="selectROM(rom)", ng-dblclick="playROM(rom)", ng-class="{info: rom == selectedROM}")
+                    td{{ rom.name }}
