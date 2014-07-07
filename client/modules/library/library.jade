@@ -2,14 +2,21 @@
     .row
         h1.col-xs-12 Game Library
 
-    .row
+    .row(ng-show="loadingDone && !error")
         .col-xs-10
             input.form-control(type="search", placeholder="Filter games by name...", ng-model="romsFilter.name")
         .col-xs-2
-            button.btn.btn-primary(type="button", ng-class="{disabled: !selectedROM}") Play
+            button.btn.btn-primary(type="button", ng-class="{disabled: !selectedROM}", ng-click="playSelectedROM()") Play
 
-    .row
+    .row(ng-show="loadingDone && !error")
         #library.col-xs-10
             table.table
-                tr(ng-repeat="rom in roms | filter:romsFilter", ng-click="selectROM(rom)", ng-class="{info: isSelectedROM(rom)}")
+                tr(ng-repeat="rom in roms | filter:romsFilter", ng-click="selectROM(rom)", ng-class="{info: rom == selectedROM}")
                     td{{ rom.name }}
+    .row(ng-hide="loadingDone")
+        p.loading-indicator.col-xs-12
+            img(src="images/loading-indicator.gif")
+            | Loading data...
+    .row(ng-show="error")
+        alert.col-xs-6(type="danger")
+            | #[strong Error:] {{ error }}
