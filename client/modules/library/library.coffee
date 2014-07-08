@@ -32,7 +32,7 @@ app.controller "LibraryController", ($scope, $state, library, emulator) ->
     $scope.playROM = (rom) ->
         library.getROM rom.id
             .success (data) ->
-                $scope.playError = emulator.tryInsertCartridge data
+                $scope.playError = emulator.insertCartridge data
                 unless $scope.playError
                     emulator.start()
                     $state.go "emulator"

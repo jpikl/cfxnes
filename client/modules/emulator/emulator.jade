@@ -1,5 +1,7 @@
 input#file-upload(type="file")
 
+alert#error(ng-show="error" type="danger" close="clearError()") {{ error }}
+
 #file-drop
     canvas#video-output
         | Your browser does not support canvas element.

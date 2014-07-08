@@ -7,11 +7,10 @@ app.config ($stateProvider, $urlRouterProvider, $tooltipProvider) ->
             views:
                 "header":
                     templateUrl: "modules/emulator/toolbar.html"
-                    controller: "EmulatorController"
+                    controller: "ToolbarController"
                 "content":
                     templateUrl: "modules/emulator/emulator.html"
                     controller: "EmulatorController"
-             controller: "EmulatorController"
         .state "library",
             url: "/library"
             views:
@@ -36,15 +35,4 @@ app.config ($stateProvider, $urlRouterProvider, $tooltipProvider) ->
         animation: false
         appendToBody: true
 
-app.run ($rootScope, $state, emulator) ->
-    emulator.useDefaultControls()
-
-    $rootScope.$on "$viewContentLoaded", ->
-        if $state.is "emulator"
-            if $("#video-output").length
-                emulator.setVideoOutput "video-output"
-                emulator.enableFileOpening "file-upload"
-                emulator.enableFileDropping "file-drop"
-                document.activeElement.blur()
-        else
-            emulator.stop()
+app.run (emulator) ->

@@ -91,13 +91,15 @@ class @NESCoffee
     ###########################################################
 
     start: ->
-        logger.info "Starting emulation"
-        @emuIntervalId = setInterval @step, 1000 / @getTargetFPS()
+        unless @isRunning()
+            logger.info "Starting emulation"
+            @emuIntervalId = setInterval @step, 1000 / @getTargetFPS()
 
     stop: ->
-        logger.info "Stopping emulation"
-        clearInterval @emuIntervalId
-        @emuIntervalId = null
+        if @isRunning()
+            logger.info "Stopping emulation"
+            clearInterval @emuIntervalId
+            @emuIntervalId = null
 
     restart: ->
         @stop()
@@ -392,41 +394,6 @@ class @NESCoffee
     # Cartridges loading
     ###########################################################
 
-    enableFileOpening: (element, onLoad, onError) ->
-        logger.info "File opening enabled on '#{element}'"
-        self = @
-        element = getElementById element
-        element.addEventListener "change", (event) ->
-            self.handleOpenedFile event, onLoad, onError
-
-    enableFileDropping: (element, onLoad, onError) ->
-        logger.info "File dropping enabled on '#{element}'"
-        self = @
-        element = getElementById element
-        element.addEventListener "dragover", (event) ->
-            self.handleDraggedFile event
-        element.addEventListener "drop", (event) ->
-            self.handleDroppedFile event, onLoad, onError
-
-    handleOpenedFile: (event, onLoad, onError) =>
-        logger.info "Received file open event '#{event}'"
-        event.preventDefault()
-        event.stopPropagation()
-        file = event.target.files[0]
-        @loadCartridge file, onLoad, onError if file
-
-    handleDraggedFile: (event) ->
-        event.preventDefault()
-        event.stopPropagation()
-        event.dataTransfer.dropEffect = "copy"
-
-    handleDroppedFile: (event, onLoad, onError) =>
-        logger.info "Received file drop event '#{event}'"
-        event.preventDefault()
-        event.stopPropagation()
-        file = event.dataTransfer.files[0]
-        @loadCartridge file, onLoad, onError if file
-
     loadCartridge: (file, onLoad, onError) ->
         logger.info "Loding cartridge from file"
         self = @
@@ -434,12 +401,12 @@ class @NESCoffee
         onError ?= @onError
         reader = new FileReader
         reader.onload = (event) ->
-            result = event.target.result
-            error = self.tryInsertCartridge result
+            data = event.target.result
+            error = self.insertCartridge data
             if error
                 onError?.call self, error
             else
-                onLoad?.call self, result
+                onLoad?.call self
         reader.onerror = (event) ->
             onError?.call self, event.target.error
         reader.readAsArrayBuffer file
@@ -454,35 +421,33 @@ class @NESCoffee
         request.responseType = "arraybuffer";
         request.onload = ->
             if @status is 200
-                error = self.tryInsertCartridge @response
+                error = self.insertCartridge @response
             else
                 error = "Unable to download file '#{url}' (status code: #{@status})."
             if error
-                logger.error error
-                onError?.call self, error, @status
+                onError?.call self, error
             else
-                onLoad?.call self, @response
-        try
-            request.send()
-        catch error
-            logger.error error
+                onLoad?.call self
+        request.onerror = (error) ->
             onError?.call self, error
-
-    tryInsertCartridge: (arrayBuffer) ->
-        try
-            @insertCartridge arrayBuffer
-        catch error
-            logger.error error
-            return error
+        request.send()
 
     insertCartridge: (arrayBuffer) ->
+        try
+            @doInsertCartridge arrayBuffer
+            undefined
+        catch error
+            logger.error error
+            error.message or "Internal error."
+
+    doInsertCartridge: (arrayBuffer) ->
+        logger.info "Inserting cartridge"
         @saveData()
         cartridge = @cartridgeFactory.fromArrayBuffer arrayBuffer
         @nes.insertCartridge cartridge
         @nes.pressPower()
         @loadData()
         @restart() if @isRunning()
-        undefined
 
     isCartridgeInserted: ->
         @nes.isCartridgeInserted()
