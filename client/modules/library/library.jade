@@ -20,4 +20,4 @@
         #library.col-xs-10
             table.table
                 tr(ng-repeat="rom in roms | filter:romsFilter", ng-click="selectROM(rom)", ng-dblclick="playROM(rom)", ng-class="{info: rom == selectedROM}")
-                    td{{ rom.name }}
+                    td {{ rom.name }}
