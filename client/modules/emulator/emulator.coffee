@@ -35,34 +35,3 @@ app.controller "EmulatorController", ($scope, emulator) ->
 
     $scope.clearError = ->
         $scope.error = null
-
-app.controller "ToolbarController", ($scope, emulator) ->
-    $scope.isRunning = ->
-        emulator.isRunning()
-
-    $scope.startEmulator = ->
-        emulator.start()
-
-    $scope.stopEmulator = ->
-        emulator.stop()
-
-    $scope.pressPower = ->
-        emulator.pressPower()
-
-    $scope.pressReset = ->
-        emulator.pressReset()
-
-    $scope.decreaseSize = ->
-        emulator.decreaseVideoScale()
-
-    $scope.increaseSize = ->
-        emulator.increaseVideoScale()
-
-    $scope.enterFullScreen = ->
-        emulator.enterFullScreen()
-
-    $scope.getFPS = ->
-        ~~emulator.getFPS()
-
-    refreshScope = -> $scope.$apply()
-    setInterval refreshScope, 1000
