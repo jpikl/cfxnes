@@ -9,9 +9,6 @@ class NES
 
     @inject: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory", "storage" ]
 
-    constructor: ->
-        @videoDebug = false
-
     ###########################################################
     # Inputs
     ###########################################################
@@ -63,33 +60,52 @@ class NES
         @mapper?.saveCHRRAM @storage
 
     ###########################################################
-    # Video ouput and emulation
+    # Video ouput
     ###########################################################
 
     renderFrame: (buffer) ->
         if @isCartridgeInserted()
             @renderNormalFrame buffer
         else
-            @renderWhiteNoise buffer
-
-    renderWhiteNoise: (buffer) ->
-        for i in [0...buffer.length] by 4
-           buffer[i] = buffer[i + 1] = buffer[i + 2] = 0xFF * Math.random()
-        undefined
+            @renderEmptyFrame buffer
 
     renderNormalFrame: (buffer) ->
         @ppu.startFrame buffer
         @cpu.step() until @ppu.isFrameAvailable()
-        @ppu.renderDebugFrame() if @videoDebug # Overrides buffer
+
+    renderEmptyFrame: (buffer) ->
+        for i in [0...buffer.length] by 4
+           buffer[i] = buffer[i + 1] = buffer[i + 2] = 0xFF * Math.random()
+        undefined
+
+    ###########################################################
+    # Video ouput - debugging
+    ###########################################################
+
+    renderDebugFrame: (buffer) ->
+        if @isCartridgeInserted()
+            @renderNormalDebugFrame buffer
+        else
+            @renderEmptyDebugFrame buffer
+
+    renderNormalDebugFrame: (buffer) ->
+        @ppu.startFrame buffer
+        @ppu.renderDebugFrame()
+
+    renderEmptyDebugFrame: (buffer) ->
+        for i in [0...buffer.length] by 4
+           buffer[i] = buffer[i + 1] = buffer[i + 2] = 0
+        undefined
+
+    ###########################################################
+    # Emulation
+    ###########################################################
 
     step: ->
         @cpu.step()
 
     setVideoPalette: (palette) ->
         @ppu.setRGBAPalette palette
-
-    setVideoDebug: (enabled) ->
-        @videoDebug = enabled
 
     setTVSystem: (system) ->
         @tvSystem = system

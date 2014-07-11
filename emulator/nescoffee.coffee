@@ -137,7 +137,7 @@ class @NESCoffee
         logger.info "Initializing video"
         @initCanvas()
         @initRenderer()
-        @initFramebuffer()
+        @initFrameBuffer()
         @renderFrame() if @nes.isCartridgeInserted()
         @drawFrame()
         logger.info "Initialization done"
@@ -146,18 +146,22 @@ class @NESCoffee
         logger.info "Initializing canvas"
         @canvas = getElementById @canvas
         @canvasScale ?= 1
-        @canvas.width = @canvasScale * VIDEO_WIDTH
-        @canvas.height = @canvasScale * VIDEO_HEIGHT
+        @updateVideoSize()
 
     initRenderer: ->
         logger.info "Initializing renderer"
         @renderer = @canvas.getContext "2d"
 
-    initFramebuffer: ->
+    initFrameBuffer: ->
         logger.info "Initializing frambuffer"
-        @frameBuffer = @renderer.createImageData VIDEO_WIDTH, VIDEO_HEIGHT
-        for i in [0...@frameBuffer.data.length]
-            @frameBuffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
+        @frameBuffer = @createFrameBuffer()
+        @debugFrameBuffer = @createFrameBuffer()
+
+    createFrameBuffer: ->
+        buffer = @renderer.createImageData VIDEO_WIDTH, VIDEO_HEIGHT
+        for i in [0...buffer.data.length]
+            buffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
+        buffer
 
     ###########################################################
     # Video - rendering
@@ -165,18 +169,24 @@ class @NESCoffee
 
     renderFrame: ->
         @nes.renderFrame @frameBuffer.data
+        @nes.renderDebugFrame @debugFrameBuffer.data if @videoDebug
 
     drawFrame: ->
         @renderer.putImageData @frameBuffer, 0, 0
-        @redrawScaledCanvas() if @canvasScale > 1
+        @renderer.putImageData @debugFrameBuffer, VIDEO_WIDTH, 0 if @videoDebug
+        @redrawScaledFrame() if @canvasScale >  1
 
-    redrawScaledCanvas: ->
+    redrawScaledFrame: ->
         @renderer.imageSmoothingEnabled = false
         @renderer.mozImageSmoothingEnabled = false
         @renderer.oImageSmoothingEnabled = false
         @renderer.webkitImageSmoothingEnabled = false
         @renderer.msImageSmoothingEnabled = false
-        @renderer.drawImage @canvas, 0, 0, VIDEO_WIDTH, VIDEO_HEIGHT, 0, 0, @canvas.width, @canvas.height
+        sw = @canvas.width / @canvasScale
+        sh = @canvas.height / @canvasScale
+        dw = @canvas.width
+        dh = @canvas.height
+        @renderer.drawImage @canvas, 0, 0, sw, sh, 0, 0, dw, dh
 
     ###########################################################
     # Video - output
@@ -193,7 +203,13 @@ class @NESCoffee
 
     setVideoDebug: (enabled) ->
         logger.info "Setting video debug to #{enabled}"
-        @nes.setVideoDebug enabled
+        @videoDebug = enabled
+        @updateVideoSize()
+
+    updateVideoSize: ->
+        widthMultiplier = if @videoDebug then 2 else 1
+        @canvas.width = @canvasScale * VIDEO_WIDTH * widthMultiplier
+        @canvas.height = @canvasScale * VIDEO_HEIGHT
 
     setTVSystem: (system) ->
         system = tvSystemToId[system]
@@ -215,8 +231,7 @@ class @NESCoffee
     setVideoScale: (scale = 1) ->
         logger.info "Setting video scale to #{scale}"
         @canvasScale = scale
-        @canvas.width = scale * VIDEO_WIDTH
-        @canvas.height = scale * VIDEO_HEIGHT
+        @updateVideoSize()
         @drawFrame()
 
     setMaxVideoScale: ->
