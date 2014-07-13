@@ -7,21 +7,22 @@ app.config ($stateProvider, $urlRouterProvider, $tooltipProvider) ->
             views:
                 "header":
                     templateUrl: "modules/emulator/toolbar.html"
-                    controller: "ToolbarController"
+                    controller:  "ToolbarController"
                 "content":
                     templateUrl: "modules/emulator/emulator.html"
-                    controller: "EmulatorController"
+                    controller:  "EmulatorController"
         .state "library",
             url: "/library"
             views:
                 "content":
                     templateUrl: "modules/library/library.html"
-                    controller: "LibraryController"
+                    controller:  "LibraryController"
         .state "config",
             url: "/config"
             views:
                 "content":
                     templateUrl: "modules/config/config.html"
+                    controller:  "ConfigController"
         .state "about",
             url: "/about"
             views:
