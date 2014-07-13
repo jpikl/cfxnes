@@ -143,7 +143,7 @@ class @NESCoffee
         @videoDebug = false
 
     setVideoDebug: (enabled = true) ->
-        logger.info "Setting debugging video output to #{enabled ? 'on' : 'off'}"
+        logger.info "Setting debugging video output to #{if enabled then 'on' else 'off'}"
         @videoDebug = enabled
         @updateVideoRect()
 

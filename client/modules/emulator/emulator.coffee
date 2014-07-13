@@ -1,7 +1,6 @@
 app = angular.module "nescoffee"
 
-app.factory "emulator", ($rootScope, $state) ->
-    new NESCoffee
+app.factory "emulator", -> new NESCoffee
 
 app.controller "EmulatorController", ($scope, emulator) ->
     $scope.$on "$stateChangeStart", ->

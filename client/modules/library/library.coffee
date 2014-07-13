@@ -14,7 +14,9 @@ app.service "library", ($http) ->
 
     this
 
-app.controller "LibraryController", ($scope, $state, library, emulator) ->
+app.controller "LibraryController", ($scope, $state, library, emulator, stateful) ->
+    stateful $scope, "library", "romsFilter"
+
     library.listROMs()
         .success (data) ->
             $scope.roms = data
