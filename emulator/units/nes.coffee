@@ -10,7 +10,7 @@ class NES
     @inject: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory", "storage" ]
 
     ###########################################################
-    # Inputs
+    # Buttons
     ###########################################################
 
     pressPower: ->
@@ -25,6 +25,20 @@ class NES
     pressReset: ->
         @cpu.sendReset()
 
+    ###########################################################
+    # Input devices
+    ###########################################################
+
+    connectInputDevice: (port, device) ->
+        @cpuMemory.setInputDevice port, device
+
+    getConnectedInputDevice: (port) ->
+        @cpuMemory.getInputDevice port
+
+    ###########################################################
+    # Cartridges
+    ###########################################################
+
     insertCartridge: (cartridge) ->
         @cartridge = cartridge
         @mapper = @mapperFactory.createMapper cartridge
@@ -33,16 +47,10 @@ class NES
         @cpuMemory.connectMapper @mapper
         @ppuMemory.connectMapper @mapper
         @mapper.powerUp()
-        @updateTVSystem()
+        @processTVSystemChange()
 
     isCartridgeInserted: ->
         @cartridge?
-
-    connectInputDevice: (port, device) ->
-        @cpuMemory.setInputDevice port, device
-
-    getConnectedInputDevice: (port) ->
-        @cpuMemory.getInputDevice port
 
     ###########################################################
     # Persistence
@@ -104,17 +112,21 @@ class NES
     step: ->
         @cpu.step()
 
-    setVideoPalette: (palette) ->
-        @ppu.setRGBAPalette palette
+    ###########################################################
+    # Configuration
+    ###########################################################
 
-    setTVSystem: (system) ->
-        @tvSystem = system
-        @updateTVSystem()
+    setRGBAPalette: (rgbaData) ->
+        @ppu.setRGBAPalette rgbaData
 
-    updateTVSystem: ->
-        @ppu.setNTSCMode @getTVSystem() is TVSystem.NTSC
+    setTVSystem: (tvSystem) ->
+        @tvSystem = tvSystem
+        @processTVSystemChange()
 
     getTVSystem: ->
         @tvSystem or @cartridge?.tvSystem or TVSystem.NTSC
+
+    processTVSystemChange: ->
+        @ppu.setNTSCMode @getTVSystem() is TVSystem.NTSC
 
 module.exports = NES

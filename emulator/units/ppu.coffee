@@ -45,8 +45,8 @@ class PPU
         @cycle = 0     # Total 341 cycles per scanline (0..340)
         @renderedSprite = null
 
-    setNTSCMode: (mode) ->
-        @ntscMode = mode
+    setNTSCMode: (ntscMode) ->
+        @ntscMode = ntscMode
 
     setRGBAPalette: (rgbData) ->
         @generateRGBAPalettes rgbData

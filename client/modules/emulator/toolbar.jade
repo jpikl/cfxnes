@@ -2,12 +2,12 @@
     .btn-group
         button.btn.btn-default.navbar-btn(tooltip="Upload ROM" onclick="$('#file-upload').click()"): .glyphicon.glyphicon-open
     .btn-group(ng-hide="isRunning()")
-        button.btn.btn-default.navbar-btn(tooltip="Power off" ng-click="pressPower()"): .glyphicon.glyphicon-off
-        button.btn.btn-default.navbar-btn(tooltip="Restart", ng-click="pressReset()"): .glyphicon.glyphicon-repeat
+        button.btn.btn-default.navbar-btn(tooltip="Hard reset" ng-click="hardReset()"): .glyphicon.glyphicon-off
+        button.btn.btn-default.navbar-btn(tooltip="Soft reset", ng-click="softReset()"): .glyphicon.glyphicon-repeat
         button.btn.btn-default.navbar-btn(tooltip="Run", ng-click="startEmulator()"): .glyphicon.glyphicon-play
     .btn-group(ng-show="isRunning()")
-        button.btn.btn-default.navbar-btn(tooltip="Power off" ng-click="pressPower()"): .glyphicon.glyphicon-off
-        button.btn.btn-default.navbar-btn(tooltip="Reset", ng-click="pressReset()"): .glyphicon.glyphicon-repeat
+        button.btn.btn-default.navbar-btn(tooltip="Hard reset" ng-click="hardReset()"): .glyphicon.glyphicon-off
+        button.btn.btn-default.navbar-btn(tooltip="Soft reset", ng-click="softReset()"): .glyphicon.glyphicon-repeat
         button.btn.btn-default.navbar-btn(tooltip="Pause", ng-click="stopEmulator()"): .glyphicon.glyphicon-pause
     .btn-group
         button.btn.btn-default.navbar-btn(tooltip="Decrease size", ng-click="decreaseSize()" ng-class="{disabled: isMinSize()}"): .glyphicon.glyphicon-zoom-out

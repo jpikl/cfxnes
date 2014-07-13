@@ -10,11 +10,11 @@ app.controller "ToolbarController", ($scope, emulator) ->
     $scope.stopEmulator = ->
         emulator.stop()
 
-    $scope.pressPower = ->
-        emulator.pressPower()
+    $scope.hardReset = ->
+        emulator.hardReset()
 
-    $scope.pressReset = ->
-        emulator.pressReset()
+    $scope.softReset = ->
+        emulator.softReset()
 
     $scope.decreaseSize = ->
         emulator.decreaseVideoScale()

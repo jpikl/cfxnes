@@ -1,9 +1,7 @@
 app = angular.module "nescoffee"
 
 app.factory "emulator", ($rootScope, $state) ->
-    emulator = new NESCoffee
-    emulator.useDefaultControls()
-    emulator
+    new NESCoffee
 
 app.controller "EmulatorController", ($scope, emulator) ->
     $scope.$on "$stateChangeStart", ->

@@ -13,7 +13,7 @@ logger.attach Logger.console() if network.isLocalhost()
 VIDEO_WIDTH  = 256
 VIDEO_HEIGHT = 240
 
-joypadButtonToId =
+nameToJoypadButton =
     "a":      Joypad.BUTTON_A
     "b":      Joypad.BUTTON_B
     "select": Joypad.BUTTON_SELECT
@@ -23,68 +23,37 @@ joypadButtonToId =
     "left":   Joypad.BUTTON_LEFT
     "right":  Joypad.BUTTON_RIGHT
 
-tvSystemToId =
+nameToTVSystem =
     "ntsc": TVSystem.NTSC
     "pal":  TVSystem.PAL
     "auto": null
 
-getElementById = (id) ->
-    if typeof id is "string"
-        element = document.getElementById id
-        unless element
-            throw new Error "Unable to locate element with ID='#{id}'."
-        element
-    else
-        id
-
 ###########################################################
-# NESCoffee main class
+# NESCoffee emulator
 ###########################################################
 
 class @NESCoffee
-
-    constructor: (@mode = "base") ->
-        logger.info "Initializing emulator"
-        @initConsole()
-        @initControls()
-        @initFPS()
-        @initListeners()
-        @setVideoPalette()
-        @pressPower()
-        logger.info "Initialization done"
 
     ###########################################################
     # Initialization
     ###########################################################
 
-
-    initConsole: ->
-        logger.info "Initializing console"
-        @injector = new Injector "./config/#{@mode}-config"
-        @nes = @injector.getInstance "nes"
-        @cartridgeFactory = @injector.getInstance "cartridgeFactory"
-        @inputDevices =
-            1: { joypad: @injector.getInstance("joypad"), zapper: @injector.getInstance("zapper") }
-            2: { joypad: @injector.getInstance("joypad"), zapper: @injector.getInstance("zapper") }
-
-    initControls: ->
-        logger.info "Initializing controls"
-        @binder = new Binder @getVideoRect
-        @unbindCallbacks1 =
-            1: { joypad: {}, zapper: {} }
-            2: { joypad: {}, zapper: {} }
-        @unbindCallbacks2 = keyboard: {}, mouse: {}
-
-    initFPS: ->
-        logger.info "Initializing fps"
-        @fpsBuffer = (0 for [1..10])
-        @fpsIndex = 0
-        @fpsTime = 0
-
-    initListeners: ->
-        logger.info "Initializing listeners"
-        window.addEventListener "beforeunload", @saveData
-        document.addEventListener screenfull.raw.fullscreenchange, @fullscreenChanged
+    constructor: (mode = "base") ->
+        logger.info "Initializing emulator"
+        @initConsole mode
+        @initCartridges()
+        @initInputDevices()
+        @initControls()
+        @initFPS()
+        @initStorage()
+        @initVideoScale()
+        @initVideoDebug()
+        @initVideoPalette()
+        @initFullscreen()
+        @useDefaultControls()
+        @loadConfig()
+        @hardReset()
+        logger.info "Emulator initialization done"
 
     ###########################################################
     # Emulation
@@ -114,137 +83,114 @@ class @NESCoffee
         @updateZapper()
         @updateFPS()
 
-    updateFPS: ->
-        timeNow = Date.now()
-        @fpsBuffer[@fpsIndex] = 1000 / (timeNow - @fpsTime)
-        @fpsIndex = (@fpsIndex + 1) % @fpsBuffer.length
-        @fpsTime = timeNow
-
-    getTargetFPS: ->
-        switch @nes.getTVSystem()
-            when TVSystem.NTSC then 60.0988
-            when TVSystem.PAL  then 50.0070
-            else throw new Error "Unsupported TV system."
-
-    getFPS: ->
-        (@fpsBuffer.reduce (a, b) -> a + b) / @fpsBuffer.length
-
     ###########################################################
-    # Video - initialization
+    # Console
     ###########################################################
 
-    initVideo: ->
-        logger.info "Initializing video"
-        @initCanvas()
-        @initRenderer()
-        @initFrameBuffer()
-        @renderFrame() if @nes.isCartridgeInserted()
-        @drawFrame()
-        logger.info "Initialization done"
+    initConsole: (mode) ->
+        logger.info "Initializing console"
+        @injector = new Injector "./config/#{mode}-config"
+        @nes = @injector.getInstance "nes"
 
-    initCanvas: ->
-        logger.info "Initializing canvas"
-        @canvas = getElementById @canvas
-        @canvasScale ?= 1
-        @updateVideoSize()
+    hardReset: ->
+        logger.info "Hard reset"
+        @nes.pressPower()
 
-    initRenderer: ->
-        logger.info "Initializing renderer"
-        @renderer = @canvas.getContext "2d"
+    softReset: ->
+        logger.info "Soft reset"
+        @nes.pressReset()
 
-    initFrameBuffer: ->
-        logger.info "Initializing frambuffer"
-        @frameBuffer = @createFrameBuffer()
-        @debugFrameBuffer = @createFrameBuffer()
+    setTVSystem: (tvSystem = "auto") ->
+        logger.info "Setting TV system to '#{tvSystem}'"
+        @tvSystem = tvSystem
+        @nes.setTVSystem nameToTVSystem[tvSystem]
+        @restart() if @isRunning()
 
-    createFrameBuffer: ->
-        buffer = @renderer.createImageData VIDEO_WIDTH, VIDEO_HEIGHT
-        for i in [0...buffer.data.length]
-            buffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
-        buffer
-
-    ###########################################################
-    # Video - rendering
-    ###########################################################
-
-    renderFrame: ->
-        @nes.renderFrame @frameBuffer.data
-        @nes.renderDebugFrame @debugFrameBuffer.data if @videoDebug
-
-    drawFrame: ->
-        @renderer.putImageData @frameBuffer, 0, 0
-        @renderer.putImageData @debugFrameBuffer, VIDEO_WIDTH, 0 if @videoDebug
-        @redrawScaledFrame() if @canvasScale >  1
-
-    redrawScaledFrame: ->
-        @renderer.imageSmoothingEnabled = false
-        @renderer.mozImageSmoothingEnabled = false
-        @renderer.oImageSmoothingEnabled = false
-        @renderer.webkitImageSmoothingEnabled = false
-        @renderer.msImageSmoothingEnabled = false
-        sw = @canvas.width / @canvasScale
-        sh = @canvas.height / @canvasScale
-        dw = @canvas.width
-        dh = @canvas.height
-        @renderer.drawImage @canvas, 0, 0, sw, sh, 0, 0, dw, dh
+    getTVSystem: ->
+        @tvSystem or "auto"
 
     ###########################################################
     # Video - output
     ###########################################################
 
     setVideoOutput: (canvas) ->
-        @canvas = getElementById canvas
-        @initVideo()
+        logger.info "Setting canvas"
+        @canvas = canvas
+        @updateVideoRect()
+        @initRenderer()
+        @renderFrame() if @nes.isCartridgeInserted()
+        @drawFrame()
 
-    setVideoPalette: (palette = "default") ->
-        logger.info "Setting pallet to '#{palette}'"
-        palette = require "./paletts/#{palette}-palette" if typeof palette is "string"
-        @nes.setVideoPalette palette
-
-    setVideoDebug: (enabled) ->
-        logger.info "Setting video debug to #{enabled}"
-        @videoDebug = enabled
-        @updateVideoSize()
-
-    updateVideoSize: ->
+    updateVideoRect: ->
         widthMultiplier = if @videoDebug then 2 else 1
-        @canvas.width = @canvasScale * VIDEO_WIDTH * widthMultiplier
-        @canvas.height = @canvasScale * VIDEO_HEIGHT
-
-    setTVSystem: (system) ->
-        system = tvSystemToId[system]
-        name = if system? then TVSystem.toString system else "Autodetect"
-        logger.info "Setting TV system to '#{name}'"
-        @nes.setTVSystem system
-        @restart() if @isRunning()
+        @canvas.width = @videoScale * VIDEO_WIDTH * widthMultiplier
+        @canvas.height = @videoScale * VIDEO_HEIGHT
 
     getVideoRect: =>
         if @canvas
-            @canvas.getBoundingClientRect()
+            rect = @canvas.getBoundingClientRect()
+            rect.right -= (rect.right - rect.left) / 2 if @videoDebug
+            rect
         else
             { left: -1, right: -1, top: -1, bottom: -1 }
+
+    ###########################################################
+    # Video - debugging output
+    ###########################################################
+
+    initVideoDebug: ->
+        logger.info "Initializing video debug output"
+        @videoDebug = false
+
+    setVideoDebug: (enabled = true) ->
+        logger.info "Setting debugging video output to #{enabled ? 'on' : 'off'}"
+        @videoDebug = enabled
+        @updateVideoRect()
+
+    isVideoDebug: ->
+        @videoDebug
+
+    ###########################################################
+    # Video - palette
+    ###########################################################
+
+    initVideoPalette: ->
+        logger.info "Initializing video palette"
+        @setVideoPalette()
+
+    setVideoPalette: (name = "default") ->
+        logger.info "Setting pallet to '#{name}'"
+        @videoPalette = name
+        @nes.setRGBAPalette require "./paletts/#{name}-palette"
+
+    getVideoPalette: ->
+        @videoPalette
 
     ###########################################################
     # Video - scalling
     ###########################################################
 
+    initVideoScale: ->
+        logger.info "Initializing video scale"
+        @videoScale ?= 1
+
     setVideoScale: (scale = 1) ->
         logger.info "Setting video scale to #{scale}"
-        @canvasScale = scale
-        @updateVideoSize()
+        @videoScale = scale
+        @updateVideoRect()
         @drawFrame()
 
     setMaxVideoScale: ->
         @setVideoScale @getMaxVideoScale()
 
     increaseVideoScale: ->
-        @setVideoScale @canvasScale + 1 if @canvasScale < @getMaxVideoScale()
+        @setVideoScale @videoScale + 1 if @videoScale < @getMaxVideoScale()
 
     decreaseVideoScale: ->
-        @setVideoScale @canvasScale - 1 if @canvasScale > 1
+        @setVideoScale @videoScale - 1 if @videoScale > 1
 
     getVideoScale: ->
-        @canvasScale
+        @videoScale
 
     getMaxVideoScale: ->
         ~~Math.min(screen.width / VIDEO_WIDTH, screen.height / VIDEO_HEIGHT)
@@ -252,6 +198,10 @@ class @NESCoffee
     ###########################################################
     # Video - fullscreen
     ###########################################################
+
+    initFullscreen: ->
+        logger.info "Initializing fullscreen rendering"
+        document.addEventListener screenfull.raw.fullscreenchange, @fullscreenChanged
 
     setFullScreen: (fullscreen) ->
         if fullscreen
@@ -270,9 +220,9 @@ class @NESCoffee
             screenfull.exit()
 
     fullscreenChanged: =>
-        logger.info "Fullscreen state changed to #{if @isFullScreen() then 'on' else 'off'}"
+        logger.info "Fullscreen changed to #{if @isFullScreen() then 'on' else 'off'}"
         if @isFullScreen() # Must be only called when leaving fullscreen
-            @canvasPreviousScale = @canvasScale
+            @canvasPreviousScale = @videoScale
             @setMaxVideoScale()
         else
             @setVideoScale @canvasPreviousScale
@@ -282,23 +232,75 @@ class @NESCoffee
         screenfull.isFullscreen
 
     ###########################################################
-    # Zapper light detection
+    # Video - rendering
     ###########################################################
 
-    updateZapper: ->
-        rect = @getVideoRect()
-        scaleX = (rect.right - rect.left) / VIDEO_WIDTH
-        scaleY = (rect.bottom - rect.top) / VIDEO_HEIGHT
-        x = ~~((@binder.mouseX - rect.left) / scaleX)
-        y = ~~((@binder.mouseY - rect.top - 1) / scaleY)
-        x = 0 if x < 0 or x >= VIDEO_WIDTH
-        y = 0 if y < 0 or y >= VIDEO_HEIGHT
-        @inputDevices[1].zapper.setScreenPosition x, y
-        @inputDevices[2].zapper.setScreenPosition x, y
+    initRenderer: ->
+        logger.info "Initializing renderer"
+        @renderer = @canvas.getContext "2d"
+        @frame = @createFrame()
+        @debugFrame = @createFrame()
+
+    createFrame: ->
+        frame = @renderer.createImageData VIDEO_WIDTH, VIDEO_HEIGHT
+        for i in [0...frame.data.length]
+            frame.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
+        frame
+
+    renderFrame: ->
+        @nes.renderFrame @frame.data
+        @nes.renderDebugFrame @debugFrame.data if @videoDebug
+
+    drawFrame: ->
+        @renderer.putImageData @frame, 0, 0
+        @renderer.putImageData @debugFrame, VIDEO_WIDTH, 0 if @videoDebug
+        @redrawScaledFrame() if @videoScale >  1
+
+    redrawScaledFrame: ->
+        @renderer.imageSmoothingEnabled = false
+        @renderer.mozImageSmoothingEnabled = false
+        @renderer.oImageSmoothingEnabled = false
+        @renderer.webkitImageSmoothingEnabled = false
+        @renderer.msImageSmoothingEnabled = false
+        sw = @canvas.width / @videoScale
+        sh = @canvas.height / @videoScale
+        dw = @canvas.width
+        dh = @canvas.height
+        @renderer.drawImage @canvas, 0, 0, sw, sh, 0, 0, dw, dh
+
+    ###########################################################
+    # FPS conting
+    ###########################################################
+
+    initFPS: ->
+        logger.info "Initializing fps"
+        @fpsBuffer = (0 for [1..10])
+        @fpsIndex = 0
+        @fpsTime = 0
+
+    updateFPS: ->
+        timeNow = Date.now()
+        @fpsBuffer[@fpsIndex] = 1000 / (timeNow - @fpsTime)
+        @fpsIndex = (@fpsIndex + 1) % @fpsBuffer.length
+        @fpsTime = timeNow
+
+    getFPS: ->
+        (@fpsBuffer.reduce (a, b) -> a + b) / @fpsBuffer.length
+
+    getTargetFPS: ->
+        switch @nes.getTVSystem()
+            when TVSystem.NTSC then 60.0988
+            when TVSystem.PAL  then 50.0070
+            else throw new Error "Unsupported TV system."
+
 
     ###########################################################
     # Persistence
     ###########################################################
+
+    initStorage: ->
+        logger.info "Initializing storage"
+        window.addEventListener "beforeunload", @saveData
 
     setStorage: (storage) ->
         logger.info "Setting storage"
@@ -321,20 +323,22 @@ class @NESCoffee
             clearInterval @saveIntervalId
 
     ###########################################################
-    # Controls
+    # Input devices
     ###########################################################
 
-    pressPower: ->
-        logger.info "Pressing power"
-        @nes.pressPower()
+    initInputDevices: ->
+        logger.info "Initializing input devices"
+        @inputDevices =
+                1: @createInputDevices()
+                2: @createInputDevices()
 
-    pressReset: ->
-        logger.info "Pressing reset"
-        @nes.pressReset()
+    createInputDevices: ->
+        joypad: @injector.getInstance "joypad"
+        zapper: @injector.getInstance "zapper"
 
     setInputDevice: (port, device) ->
         logger.info "Setting input device on port #{port} to '#{device}'"
-        device = @inputDevices[port]?[device] or null if typeof device is "string"
+        device = @inputDevices[port]?[device] or null
         @nes.connectInputDevice port, device
 
     getInputDevice: (port) ->
@@ -343,9 +347,31 @@ class @NESCoffee
         else if device instanceof @injector.getClass "zapper" then "zapper"
         else    null
 
+    updateZapper: ->
+        rect = @getVideoRect()
+        scaleX = (rect.right - rect.left) / VIDEO_WIDTH
+        scaleY = (rect.bottom - rect.top) / VIDEO_HEIGHT
+        x = ~~((@binder.mouseX - rect.left) / scaleX)
+        y = ~~((@binder.mouseY - rect.top - 1) / scaleY)
+        x = 0 if x < 0 or x >= VIDEO_WIDTH
+        y = 0 if y < 0 or y >= VIDEO_HEIGHT
+        @inputDevices[1].zapper.setScreenPosition x, y
+        @inputDevices[2].zapper.setScreenPosition x, y
+
     ###########################################################
-    # Controls binding
+    # Controls
     ###########################################################
+
+    initControls: ->
+        logger.info "Initializing controls"
+        @binder = new Binder @getVideoRect
+        @controls =
+            1: { joypad: {}, zapper: {} }
+            2: { joypad: {}, zapper: {} }
+        @dstUnbindCallbacks =
+            1: { joypad: {}, zapper: {} }
+            2: { joypad: {}, zapper: {} }
+        @srcUnbindCallbacks = keyboard: {}, mouse: {}
 
     useDefaultControls: ->
         logger.info "Using default controls"
@@ -362,40 +388,44 @@ class @NESCoffee
         @bindControl 1, "joypad", "right", "keyboard", "right"
         @bindControl 2, "zapper", "trigger", "mouse", "left"
 
-    bindControl: (port, device, button, srcDevice, srcButton, unbindCallback) ->
-        @unbindControl   port, device, button, srcDevice, srcButton
-        @bindInputDevice port, device, button, srcDevice, srcButton, unbindCallback
+    bindControl: (dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback) ->
+        @unbindControl   dstPort, dstDevice, dstButton, srcDevice, srcButton
+        @bindInputDevice dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback
 
-    unbindControl: (port, device, button, srcDevice, srcButton) ->
-        @unbindCallbacks1[port]?[device]?[button]?() if port and device and button
-        @unbindCallbacks2[srcDevice]?[srcButton]?()  if srcDevice and srcButton
+    unbindControl: (dstPort, dstDevice, dstButton, srcDevice, srcButton) ->
+        @dstUnbindCallbacks[dstPort][dstDevice][dstButton]?()
+        @srcUnbindCallbacks[srcDevice][srcButton]?()
 
-    bindInputDevice: (port, device, button, srcDevice, srcButton, unbindCallback) ->
-        logger.info "Binding '#{srcButton}' of '#{srcDevice}' to '#{device}' on port #{port}"
-        unbindInputDevice = @getUnbindInputDeviceCallback port, device, button, srcDevice, srcButton, unbindCallback
-        useInputDevice = @getUseInputDeviceCallback port, device, button
-        @unbindCallbacks1[port]?[device]?[button] = unbindInputDevice
-        @unbindCallbacks2[srcDevice]?[srcButton] = unbindInputDevice
-        @binder.bindControl srcDevice, srcButton, useInputDevice
+    getControl: (dstPort, dstDevice, dstButton) ->
+        @controls[dstPort][dstDevice][dstButton]
 
-    unbindInputDevice: (port, device, button, srcDevice, srcButton) ->
-        logger.info "Unbinding '#{srcButton}' of '#{srcDevice}' and '#{device}' on port #{port}"
+    bindInputDevice: (dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback) ->
+        logger.info "Binding '#{srcButton}' of '#{srcDevice}' to '#{dstDevice}' on port #{dstPort}"
+        unbindInputDevice = @getUnbindInputDeviceCallback dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback
+        useInputDevice = @getUseInputDeviceCallback dstPort, dstDevice, dstButton
+        @dstUnbindCallbacks[dstPort][dstDevice][dstButton] = unbindInputDevice
+        @srcUnbindCallbacks[srcDevice][srcButton] = unbindInputDevice
+        @controls[dstPort][dstDevice][dstButton] = @binder.bindControl srcDevice, srcButton, useInputDevice
+
+    unbindInputDevice: (dstPort, dstDevice, dstButton, srcDevice, srcButton) ->
+        logger.info "Unbinding '#{srcButton}' of '#{srcDevice}' and '#{dstDevice}' on port #{dstPort}"
         @binder.unbindControl srcDevice, srcButton
-        @unbindCallbacks1[port]?[device]?[button] = null
-        @unbindCallbacks2[srcDevice]?[srcButton] = null
+        @dstUnbindCallbacks[dstPort][dstDevice][dstButton] = null
+        @srcUnbindCallbacks[srcDevice][srcButton] = null
+        @controls[dstPort][dstDevice][dstButton] = null
 
-    getUnbindInputDeviceCallback: (port, device, button, srcDevice, srcButton, unbindCallback) ->
+    getUnbindInputDeviceCallback: (dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback) ->
         self = @
         ->
-            self.unbindInputDevice port, device, button, srcDevice, srcButton
+            self.unbindInputDevice dstPort, dstDevice, dstButton, srcDevice, srcButton
             unbindCallback()
 
-    getUseInputDeviceCallback: (port, device, button) ->
-        if device is "joypad"
-            button = joypadButtonToId[button.toLowerCase()] or 0
-            @inputDevices[port]?.joypad.setButtonPressed.bind this, button
-        else if device is "zapper"
-            @inputDevices[port]?.zapper.setTriggerPressed.bind this
+    getUseInputDeviceCallback: (dstPort, dstDevice, dstButton) ->
+        if dstDevice is "joypad"
+            dstButton = nameToJoypadButton[dstButton.toLowerCase()] or 0
+            @inputDevices[dstPort].joypad.setButtonPressed.bind this, dstButton
+        else if dstDevice is "zapper"
+            @inputDevices[dstPort].zapper.setTriggerPressed.bind this
 
     ###########################################################
     # Input recording
@@ -406,8 +436,12 @@ class @NESCoffee
         @binder.recordInput callback
 
     ###########################################################
-    # Cartridges loading
+    # Cartridges
     ###########################################################
+
+    initCartridges: ->
+        logger.info "Initializing cartridge loading"
+        @cartridgeFactory = @injector.getInstance "cartridgeFactory"
 
     loadCartridge: (file, onLoad, onError) ->
         logger.info "Loding cartridge from file"
@@ -466,3 +500,11 @@ class @NESCoffee
 
     isCartridgeInserted: ->
         @nes.isCartridgeInserted()
+
+    ###########################################################
+    # Configuration
+    ###########################################################
+
+    loadConfig: ->
+
+    saveConfig: ->
