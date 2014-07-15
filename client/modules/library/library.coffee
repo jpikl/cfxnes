@@ -14,16 +14,8 @@ app.service "library", ($http) ->
 
     this
 
-app.controller "LibraryController", ($scope, $state, library, emulator, stateful) ->
-    stateful $scope, "library", "romsFilter"
-
-    library.listROMs()
-        .success (data) ->
-            $scope.roms = data
-            $scope.loadingDone = true
-        .error (data, status) ->
-            $scope.loadingError = "Unable to download game list (server response: #{status})."
-            $scope.loadingDone = true
+app.controller "LibraryController", ($scope, $state, library, emulator, transfer) ->
+    $scope.romsFilter = transfer.romsFilter ?= { name: "" }
 
     $scope.selectROM = (rom) ->
         $scope.selectedROM = rom
@@ -43,3 +35,11 @@ app.controller "LibraryController", ($scope, $state, library, emulator, stateful
 
     $scope.clearError = ->
         $scope.playError = null
+
+    library.listROMs()
+        .success (data) ->
+            $scope.roms = data
+            $scope.loadingDone = true
+        .error (data, status) ->
+            $scope.loadingError = "Unable to download game list (server response: #{status})."
+            $scope.loadingDone = true

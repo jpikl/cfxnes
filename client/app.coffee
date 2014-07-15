@@ -1,13 +1,6 @@
 app = angular.module "nescoffee", [ "ui.router", "ui.bootstrap" ]
 
-app.factory "stateful", ->
-    state = {}
-    ($scope, module, key, value) ->
-        state[module] ?= {}
-        state[module][key] ?= value
-        $scope[key] = state[module][key]
-        $scope.$watch key, ->
-            state[module][key] = $scope[key]
+app.factory "transfer", -> {}
 
 app.config ($stateProvider, $urlRouterProvider, $tooltipProvider) ->
     $stateProvider

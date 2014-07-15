@@ -4,10 +4,10 @@ app.controller "ToolbarController", ($scope, emulator) ->
     $scope.isRunning = ->
         emulator.isRunning()
 
-    $scope.startEmulator = ->
+    $scope.start = ->
         emulator.start()
 
-    $scope.stopEmulator = ->
+    $scope.stop = ->
         emulator.stop()
 
     $scope.hardReset = ->

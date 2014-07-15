@@ -3,7 +3,7 @@ mixin input-device-control(name, port, device, button)
         .col-xs-3.col-xs-offset-1.text-right
             label #{name}
         .col-xs-3
-            span {{ controls[#{port}]['#{device}']['#{button}'] }}
+            span {{ controls.binding[#{port}]['#{device}']['#{button}'] }}
         .col-xs-3
             button.btn.btn-default(ng-click="bindControl(#{port}, #{device}, #{button})") Change
 
@@ -12,10 +12,10 @@ mixin input-device(port)
         .input-device-select
             label Controller&nbsp;#{port}
             .btn-group
-                button.btn.btn-default(ng-model="inputDevices[#{port}]", ng-change="setInputDevice(#{port}, 'none')",   btn-radio="'none'")   None
-                button.btn.btn-default(ng-model="inputDevices[#{port}]", ng-change="setInputDevice(#{port}, 'joypad')", btn-radio="'joypad'") Joypad
-                button.btn.btn-default(ng-model="inputDevices[#{port}]", ng-change="setInputDevice(#{port}, 'zapper')", btn-radio="'zapper'") Zapper
-        div(ng-show="inputDevices[#{port}] == 'joypad'")
+                button.btn.btn-default(ng-model="controls.devices[#{port}]" btn-radio="'none'") None
+                button.btn.btn-default(ng-model="controls.devices[#{port}]" btn-radio="'joypad'") Joypad
+                button.btn.btn-default(ng-model="controls.devices[#{port}]" btn-radio="'zapper'") Zapper
+        div(ng-show="controls.devices[#{port}] == 'joypad'")
             +input-device-control("A",       port, "joypad", "a")
             +input-device-control("B",       port, "joypad", "b")
             +input-device-control("Start",   port, "joypad", "start")
@@ -24,40 +24,40 @@ mixin input-device(port)
             +input-device-control("Right",   port, "joypad", "right")
             +input-device-control("Up",      port, "joypad", "up")
             +input-device-control("Down",    port, "joypad", "down")
-        div(ng-show="inputDevices[#{port}] == 'zapper'")
+        div(ng-show="controls.devices[#{port}] == 'zapper'")
             +input-device-control("Trigger", port, "zapper", "trigger")
 
 .container
     h1 Configuration
 
     accordion.form-horizontal
-        accordion-group(heading="Emulation" is-open="emulationCardOpen")
+        accordion-group(heading="Emulation" is-open="emulation.visible")
             .form-group
                 label.control-label.col-xs-2(for="tv-system") TV system
                 .col-xs-3
-                    select.form-control(id="tv-system", ng-model="tvSystem", ng-change="setTVSystem(tvSystem)")
+                    select.form-control(id="tv-system" ng-model="emulation.tvSystem")
                         option(value="auto") Autodetect
                         option(value="ntsc") NTSC
                         option(value="pal")  PAL
 
-        accordion-group(heading="Video" is-open="videoCardOpen")
+        accordion-group(heading="Video" is-open="video.visible")
             .form-group
                 label.control-label.col-xs-2(for="video-debug") Output scale
                 .col-xs-3
-                    input.form-control(id="video-scale" type="number", ng-model="videoScale", ng-change="setVideoScale(videoScale)" min="1" max="{{getMaxVideoScale()}}")
+                    input.form-control(id="video-scale" type="number" ng-model="video.scale" min="1" max="{{video.maxScale}}")
 
             .form-group
                 label.control-label.col-xs-2(for="color-palette") Color palette
                 .col-xs-3
-                    select.form-control(id="tcolor-palette", ng-model="videoPalette", ng-change="setVideoPalette(videoPalette)")
+                    select.form-control(id="color-palette" ng-model="video.palette")
                         option(value="default")   Default
                         option(value="bright")    Bright
                         option(value="realistic") Realistic
             .form-group
                 .col-xs-3.col-xs-offset-2
-                    input(id="video-debug" type="checkbox", ng-model="videoDebug", ng-change="setVideoDebug(videoDebug)")
+                    input(id="video-debug" type="checkbox" ng-model="video.debug")
                     label(for="video-debug") Show patterns and paletts
 
-        accordion-group(heading="Controls" is-open="controlsCardOpen")
+        accordion-group(heading="Controls" is-open="controls.visible")
             +input-device(1)
             +input-device(2)

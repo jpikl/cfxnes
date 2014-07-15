@@ -1,39 +1,37 @@
 app = angular.module "nescoffee"
 
-app.controller "ConfigController", ($scope, emulator, stateful) ->
-    stateful $scope, "config", "emulationCardOpen", false
-    stateful $scope, "config", "videoCardOpen",     false
-    stateful $scope, "config", "controlsCardOpen",  true
+app.controller "ConfigController", ($scope, emulator, transfer) ->
+    $scope.emulation = transfer.emulationConfig ?= {}
+    $scope.emulation.visible ?= false
+    $scope.emulation.tvSystem = emulator.getTVSystem()
 
-    $scope.tvSystem = emulator.getTVSystem()
-    $scope.videoScale = emulator.getVideoScale()
-    $scope.videoPalette = emulator.getVideoPalette()
-    $scope.videoDebug = emulator.isVideoDebug()
+    $scope.video = transfer.videoConfig ?= {}
+    $scope.video.visible ?= false
+    $scope.video.scale = emulator.getVideoScale()
+    $scope.video.maxScale = emulator.getMaxVideoScale()
+    $scope.video.palette = emulator.getVideoPalette()
+    $scope.video.debug = emulator.isVideoDebug()
 
-    $scope.inputDevices =
+    $scope.controls = transfer.controlsConfig ?= {}
+    $scope.controls.visible ?= true
+    $scope.controls.devices =
         1: emulator.getInputDevice 1
         2: emulator.getInputDevice 2
 
-    $scope.setTVSystem = (value) ->
+    $scope.$watch "emulation.tvSystem", (value) ->
         emulator.setTVSystem value
 
-    $scope.getMaxVideoScale = ->
-        emulator.getMaxVideoScale()
-
-    $scope.setVideoScale = (value) ->
+    $scope.$watch "video.scale", (value) ->
         emulator.setVideoScale value
 
-    $scope.setVideoPalette = (value) ->
+    $scope.$watch "video.palette", (value) ->
         emulator.setVideoPalette value
 
-    $scope.setVideoDebug = (value) ->
+    $scope.$watch "video.debug", (value) ->
         emulator.setVideoDebug value
 
-    $scope.setInputDevice = (port, device) ->
-        emulator.setInputDevice port, device
+    $scope.$watch "controls.devices[1]", (value) ->
+        emulator.setInputDevice 1, value
 
-    $scope.setCardOpen = (name) ->
-        $scope.openCard = name
-
-    $scope.isCardOpen = (name) ->
-        $scope.openCard is name
+    $scope.$watch "controls.devices[2]", (value) ->
+        emulator.setInputDevice 2, value
