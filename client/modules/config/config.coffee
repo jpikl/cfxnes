@@ -48,3 +48,8 @@ app.controller "ConfigController", ($scope, $modal, emulator, transfer) ->
             emulator.bindControl dstPort, dstDevice, dstButton, srcDevice, srcButton
             $scope.$apply()
             document.activeElement.blur()
+
+    $scope.useDefaultControls = ->
+        emulator.useDefaultControls()
+        $scope.controls.devices[1] = emulator.getInputDevice 1
+        $scope.controls.devices[2] = emulator.getInputDevice 2
