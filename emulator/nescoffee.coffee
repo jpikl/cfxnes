@@ -145,7 +145,7 @@ class @NESCoffee
     setVideoDebug: (enabled = true) ->
         logger.info "Setting debugging video output to #{if enabled then 'on' else 'off'}"
         @videoDebug = enabled
-        @updateVideoRect()
+        @updateVideoRect() if @canvas
 
     isVideoDebug: ->
         @videoDebug
@@ -177,8 +177,9 @@ class @NESCoffee
     setVideoScale: (scale = 1) ->
         logger.info "Setting video scale to #{scale}"
         @videoScale = scale
-        @updateVideoRect()
-        @drawFrame()
+        if @canvas
+            @updateVideoRect()
+            @drawFrame()
 
     setMaxVideoScale: ->
         @setVideoScale @getMaxVideoScale()
