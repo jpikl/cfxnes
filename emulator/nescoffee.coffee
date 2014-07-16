@@ -418,7 +418,7 @@ class @NESCoffee
         self = @
         ->
             self.unbindInputDevice dstPort, dstDevice, dstButton, srcDevice, srcButton
-            unbindCallback()
+            unbindCallback?()
 
     getUseInputDeviceCallback: (dstPort, dstDevice, dstButton) ->
         if dstDevice is "joypad"

@@ -1,6 +1,6 @@
 app = angular.module "nescoffee"
 
-app.controller "ConfigController", ($scope, emulator, transfer) ->
+app.controller "ConfigController", ($scope, $modal, emulator, transfer) ->
     $scope.emulation = transfer.emulationConfig ?= {}
     $scope.emulation.visible ?= false
     $scope.emulation.tvSystem = emulator.getTVSystem()
@@ -35,3 +35,16 @@ app.controller "ConfigController", ($scope, emulator, transfer) ->
 
     $scope.$watch "controls.devices[2]", (value) ->
         emulator.setInputDevice 2, value
+
+    $scope.getControl = (dstPort, dstDevice, dstButton) ->
+        emulator.getControl(dstPort, dstDevice, dstButton) or "--"
+
+    $scope.bindControl = (dstPort, dstDevice, dstButton) ->
+        modal = $modal.open
+            template: "Press key or mouse button..."
+            windowClass: "bind-modal-window"
+        emulator.recordInput (srcDevice, srcButton) ->
+            modal.close()
+            emulator.bindControl dstPort, dstDevice, dstButton, srcDevice, srcButton
+            $scope.$apply()
+            document.activeElement.blur()
