@@ -1,9 +1,13 @@
 mixin stylesheets(files)
     each file in files
+        if productionMode
+            -file = file + ".min"
         link(rel="stylesheet", type="text/css", href="styles/#{file}.css")
 
 mixin scripts(files)
     each file in files
+        if productionMode
+            -file = file + ".min"
         script(type="text/javascript", src="scripts/#{file}.js")
 
 doctype html

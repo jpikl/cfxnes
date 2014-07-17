@@ -1,5 +1,8 @@
+yargs   = require "yargs"
+
 gulp    = require "gulp"
 gutil   = require "gulp-util"
+gulpif  = require "gulp-if"
 concat  = require "gulp-concat"
 rimraf  = require "gulp-rimraf"
 stylus  = require "gulp-stylus"
@@ -8,13 +11,15 @@ open    = require "gulp-open"
 nodemon = require "gulp-nodemon"
 closure = require "gulp-closure-compiler"
 
-bundle = require "./gulp/gulp-bundle-modules"
-coffee = require "./gulp/gulp-inlined-coffee"
+bundle  = require "./gulp/gulp-bundle-modules"
+coffee  = require "./gulp/gulp-inlined-coffee"
+
 
 ###########################################################
 # Constants
 ###########################################################
 
+PRODUCTION_MODE    = yargs.argv.production?
 SERVER_PORT        = 5000
 DEPS_DIR           = "./bower_components"
 EMULATOR_DIR       = "./emulator"
@@ -24,8 +29,22 @@ PUBLIC_DIR         = "#{SERVER_DIR}/public"
 PUBLIC_IMAGES_DIR  = "#{PUBLIC_DIR}/images"
 PUBLIC_SCRIPTS_DIR = "#{PUBLIC_DIR}/scripts"
 PUBLIC_STYLES_DIR  = "#{PUBLIC_DIR}/styles"
-PUBLIC_FOTNS_DIR   = "#{PUBLIC_DIR}/fonts"
+PUBLIC_FONTS_DIR   = "#{PUBLIC_DIR}/fonts"
 CLOSURE_JAR        = "./node_modules/closure-compiler/lib/vendor/compiler.jar"
+
+###########################################################
+# Utilities
+###########################################################
+
+minnames = (files) ->
+    minname file for file in files
+
+minname = (file) ->
+    if PRODUCTION_MODE
+        file.replace /\.js$/,  ".min.js"
+            .replace /\.css$/, ".min.css"
+    else
+        file
 
 ###########################################################
 # Common tasks
@@ -49,15 +68,11 @@ gulp.task "emulator", ->
         .pipe bundle
             entry: "#{EMULATOR_DIR}/nescoffee.js"
             output: "nescoffee.js"
-        .pipe gulp.dest PUBLIC_SCRIPTS_DIR
-        .on "error", gutil.log
-
-gulp.task "emulator-dist", [ "emulator" ], ->
-    gulp.src "#{PUBLIC_SCRIPTS_DIR}/nescoffee.js"
-        .pipe closure
+        .pipe gulpif PRODUCTION_MODE, closure
             compilerPath: CLOSURE_JAR
             fileName: "nescoffee.min.js"
         .pipe gulp.dest PUBLIC_SCRIPTS_DIR
+        .on "error", gutil.log
 
 ###########################################################
 # Client tasks
@@ -68,27 +83,24 @@ gulp.task "client", [ "client-scripts", "client-styles", "client-views", "client
 gulp.task "client-scripts", ->
     gulp.src "#{CLIENT_DIR}/**/*.coffee"
         .pipe coffee()
-        .pipe concat "app.js"
+        .pipe concat minname "app.js"
         .pipe gulp.dest PUBLIC_SCRIPTS_DIR
         .on "error", gutil.log
 
-gulp.task "client-scripts-dist", [ "client-scripts" ], ->
-    gulp.src "#{PUBLIC_SCRIPTS_DIR}/app.js"
-        .pipe closure
-            compilerPath: CLOSURE_JAR
-            fileName: "app.min.js"
-        .pipe dest PUBLIC_SCRIPTS_DIR
-
 gulp.task "client-styles", ->
     gulp.src "#{CLIENT_DIR}/**/*.styl"
-        .pipe stylus()
-        .pipe concat "app.css"
+        .pipe stylus
+            compress: PRODUCTION_MODE
+        .pipe concat minname "app.css"
         .pipe gulp.dest PUBLIC_STYLES_DIR
 
 gulp.task "client-views", ->
     gulp.src "#{CLIENT_DIR}/**/*.jade"
         .pipe jade
-            pretty: true
+            pretty:       true # not PRODUCTION_MODE # Causes strange problem with css
+            compileDebug: not PRODUCTION_MODE
+            data:
+                productionMode: PRODUCTION_MODE
         .pipe gulp.dest PUBLIC_DIR
 
 gulp.task "client-images", ->
@@ -102,7 +114,7 @@ gulp.task "client-images", ->
 gulp.task "client-deps", [ "cliet-deps-scripts", "cliet-deps-styles", "cliet-deps-fonts" ]
 
 gulp.task "cliet-deps-scripts", ->
-    gulp.src [
+    gulp.src minnames [
         "#{DEPS_DIR}/jquery/dist/jquery.js"
         "#{DEPS_DIR}/angular/angular.js"
         "#{DEPS_DIR}/angular-ui-router/release/angular-ui-router.js"
@@ -113,7 +125,7 @@ gulp.task "cliet-deps-scripts", ->
     .pipe gulp.dest PUBLIC_SCRIPTS_DIR
 
 gulp.task "cliet-deps-styles", ->
-    gulp.src [
+    gulp.src minnames [
         "#{DEPS_DIR}/bootstrap/dist/css/bootstrap.css"
         "#{DEPS_DIR}/bootstrap/dist/css/bootstrap-theme.css"
     ]
@@ -121,7 +133,7 @@ gulp.task "cliet-deps-styles", ->
 
 gulp.task "cliet-deps-fonts", ->
     gulp.src "#{DEPS_DIR}/bootstrap/dist/fonts/glyphicons-halflings-regular.*"
-        .pipe gulp.dest PUBLIC_FOTNS_DIR
+        .pipe gulp.dest PUBLIC_FONTS_DIR
 
 ###########################################################
 # Server tasks
@@ -136,7 +148,7 @@ gulp.task "server", [ "emulator", "client" ], ->
     nodemon
         script: "#{SERVER_DIR}/app.coffee"
         ext: "coffee"
-        env: { NODE_ENV: "development" }
+        env: { NODE_ENV: if PRODUCTION_MODE then "produtction" else "development" }
         ignore: [ "#{EMULATOR_DIR}/*", "#{CLIENT_DIR}/*", "#{PUBLIC_DIR}/*" ]
     .on "start", [ "browser" ]
 
