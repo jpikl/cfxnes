@@ -10,7 +10,6 @@ class NES
     @inject: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory", "storage" ]
 
     inject: (cpu, cpuMemory, ppu, ppuMemory, apu, dma, mapperFactory, storage) ->
-        console.log typeof cpu
         @cpu = cpu
         @cpuMemory = cpuMemory
         @ppu = ppu

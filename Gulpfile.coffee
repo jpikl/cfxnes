@@ -71,6 +71,9 @@ gulp.task "emulator", ->
         .pipe gulpif PRODUCTION_MODE, closure
             compilerPath: CLOSURE_JAR
             fileName: "nescoffee.min.js"
+            compilerFlags:
+                compilation_level: "ADVANCED_OPTIMIZATIONS"
+                warning_level: "QUIET"
         .pipe gulp.dest PUBLIC_SCRIPTS_DIR
         .on "error", gutil.log
 

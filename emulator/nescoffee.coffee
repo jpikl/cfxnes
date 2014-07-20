@@ -32,7 +32,7 @@ nameToTVSystem =
 # NESCoffee emulator
 ###########################################################
 
-class @NESCoffee
+class NESCoffee
 
     ###########################################################
     # Initialization
@@ -202,7 +202,7 @@ class @NESCoffee
 
     initFullscreen: ->
         logger.info "Initializing fullscreen rendering"
-        document.addEventListener screenfull.raw.fullscreenchange, @fullscreenChanged
+        document.addEventListener screenfull["raw"]["fullscreenchange"], @fullscreenChanged
 
     setFullScreen: (fullscreen) ->
         if fullscreen
@@ -211,14 +211,14 @@ class @NESCoffee
             @leaveFullScreen()
 
     enterFullScreen: ->
-        if screenfull.enabled and not @isFullScreen()
+        if screenfull["enabled"] and not @isFullScreen()
             logger.info "Entering fullscreen"
-            screenfull.request @canvas
+            screenfull["request"] @canvas
 
     leaveFullScreen: ->
-        if screenfull.enabled and @isFullScreen()
+        if screenfull["enabled"] and @isFullScreen()
             logger.info "Leaving fullscreen"
-            screenfull.exit()
+            screenfull["exit"]()
 
     fullscreenChanged: =>
         logger.info "Fullscreen changed to #{if @isFullScreen() then 'on' else 'off'}"
@@ -230,7 +230,7 @@ class @NESCoffee
             @canvasPreviousScale = null
 
     isFullScreen: ->
-        screenfull.isFullscreen
+        screenfull["isFullscreen"]
 
     ###########################################################
     # Video - rendering
@@ -258,11 +258,11 @@ class @NESCoffee
         @redrawScaledFrame() if @videoScale >  1
 
     redrawScaledFrame: ->
-        @renderer.imageSmoothingEnabled = false
-        @renderer.mozImageSmoothingEnabled = false
-        @renderer.oImageSmoothingEnabled = false
-        @renderer.webkitImageSmoothingEnabled = false
-        @renderer.msImageSmoothingEnabled = false
+        @renderer["imageSmoothingEnabled"] = false
+        @renderer["mozImageSmoothingEnabled"] = false
+        @renderer["oImageSmoothingEnabled"] = false
+        @renderer["webkitImageSmoothingEnabled"] = false
+        @renderer["msImageSmoothingEnabled"] = false
         sw = @canvas.width / @videoScale
         sh = @canvas.height / @videoScale
         dw = @canvas.width
@@ -334,8 +334,8 @@ class @NESCoffee
                 2: @createInputDevices()
 
     createInputDevices: ->
-        joypad: @injector.getInstance "joypad"
-        zapper: @injector.getInstance "zapper"
+        "joypad": @injector.getInstance "joypad"
+        "zapper": @injector.getInstance "zapper"
 
     setInputDevice: (port, device) ->
         logger.info "Setting input device on port #{port} to '#{device}'"
@@ -356,8 +356,8 @@ class @NESCoffee
         y = ~~((@binder.mouseY - rect.top - 1) / scaleY)
         x = 0 if x < 0 or x >= VIDEO_WIDTH
         y = 0 if y < 0 or y >= VIDEO_HEIGHT
-        @inputDevices[1].zapper.setScreenPosition x, y
-        @inputDevices[2].zapper.setScreenPosition x, y
+        @inputDevices[1]["zapper"].setScreenPosition x, y
+        @inputDevices[2]["zapper"].setScreenPosition x, y
 
     ###########################################################
     # Controls
@@ -367,12 +367,12 @@ class @NESCoffee
         logger.info "Initializing controls"
         @binder = new Binder @getVideoRect
         @controls =
-            1: { joypad: {}, zapper: {} }
-            2: { joypad: {}, zapper: {} }
+            1: { "joypad": {}, "zapper": {} }
+            2: { "joypad": {}, "zapper": {} }
         @dstUnbindCallbacks =
-            1: { joypad: {}, zapper: {} }
-            2: { joypad: {}, zapper: {} }
-        @srcUnbindCallbacks = keyboard: {}, mouse: {}
+            1: { "joypad": {}, "zapper": {} }
+            2: { "joypad": {}, "zapper": {} }
+        @srcUnbindCallbacks = "keyboard": {}, "mouse": {}
 
     useDefaultControls: ->
         logger.info "Using default controls"
@@ -396,6 +396,7 @@ class @NESCoffee
     unbindControl: (dstPort, dstDevice, dstButton, srcDevice, srcButton) ->
         @dstUnbindCallbacks[dstPort][dstDevice][dstButton]?()
         @srcUnbindCallbacks[srcDevice][srcButton]?()
+
 
     getControl: (dstPort, dstDevice, dstButton) ->
         @controls[dstPort][dstDevice][dstButton]
@@ -424,9 +425,9 @@ class @NESCoffee
     getUseInputDeviceCallback: (dstPort, dstDevice, dstButton) ->
         if dstDevice is "joypad"
             dstButton = nameToJoypadButton[dstButton.toLowerCase()] or 0
-            @inputDevices[dstPort].joypad.setButtonPressed.bind this, dstButton
+            @inputDevices[dstPort]["joypad"].setButtonPressed.bind this, dstButton
         else if dstDevice is "zapper"
-            @inputDevices[dstPort].zapper.setTriggerPressed.bind this
+            @inputDevices[dstPort]["zapper"].setTriggerPressed.bind this
 
     ###########################################################
     # Input recording
@@ -447,8 +448,8 @@ class @NESCoffee
     loadCartridge: (file, onLoad, onError) ->
         logger.info "Loding cartridge from file"
         self = @
-        onLoad ?= @onLoad
-        onError ?= @onError
+        onLoad ?= @["onLoad"]
+        onError ?= @["onError"]
         reader = new FileReader
         reader.onload = (event) ->
             data = event.target.result
@@ -464,8 +465,8 @@ class @NESCoffee
     downloadCartridge: (url, onLoad, onError) ->
         logger.info "Downloading cartridge from '#{url}'"
         self = @
-        onLoad ?= @onLoad
-        onError ?= @onError
+        onLoad ?= @["onLoad"]
+        onError ?= @["onError"]
         request = new XMLHttpRequest
         request.open "GET", url, true
         request.responseType = "arraybuffer";
@@ -509,3 +510,38 @@ class @NESCoffee
     loadConfig: ->
 
     saveConfig: ->
+
+###########################################################
+# API export
+###########################################################
+
+this["NESCoffee"] = NESCoffee
+this["NESCoffee"].prototype["insertCartridge"] = NESCoffee.prototype.insertCartridge
+this["NESCoffee"].prototype["getTVSystem"] = NESCoffee.prototype.getTVSystem
+this["NESCoffee"].prototype["getVideoScale"] = NESCoffee.prototype.getVideoScale
+this["NESCoffee"].prototype["getMaxVideoScale"] = NESCoffee.prototype.getMaxVideoScale
+this["NESCoffee"].prototype["getVideoPalette"] = NESCoffee.prototype.getVideoPalette
+this["NESCoffee"].prototype["isVideoDebug"] = NESCoffee.prototype.isVideoDebug
+this["NESCoffee"].prototype["setVideoOutput"] = NESCoffee.prototype.setVideoOutput
+this["NESCoffee"].prototype["getInputDevice"] = NESCoffee.prototype.getInputDevice
+this["NESCoffee"].prototype["setTVSystem"] = NESCoffee.prototype.setTVSystem
+this["NESCoffee"].prototype["setVideoScale"] = NESCoffee.prototype.setVideoScale
+this["NESCoffee"].prototype["setVideoPalette"] = NESCoffee.prototype.setVideoPalette
+this["NESCoffee"].prototype["setVideoDebug"] = NESCoffee.prototype.setVideoDebug
+this["NESCoffee"].prototype["setInputDevice"] = NESCoffee.prototype.setInputDevice
+this["NESCoffee"].prototype["getControl"] = NESCoffee.prototype.getControl
+this["NESCoffee"].prototype["recordInput"] = NESCoffee.prototype.recordInput
+this["NESCoffee"].prototype["bindControl"] = NESCoffee.prototype.bindControl
+this["NESCoffee"].prototype["useDefaultControls"] = NESCoffee.prototype.useDefaultControls
+this["NESCoffee"].prototype["isRunning"] = NESCoffee.prototype.isRunning
+this["NESCoffee"].prototype["start"] = NESCoffee.prototype.start
+this["NESCoffee"].prototype["stop"] = NESCoffee.prototype.stop
+this["NESCoffee"].prototype["hardReset"] = NESCoffee.prototype.hardReset
+this["NESCoffee"].prototype["softReset"] = NESCoffee.prototype.softReset
+this["NESCoffee"].prototype["decreaseVideoScale"] = NESCoffee.prototype.decreaseVideoScale
+this["NESCoffee"].prototype["increaseVideoScale"] = NESCoffee.prototype.increaseVideoScale
+this["NESCoffee"].prototype["enterFullScreen"] = NESCoffee.prototype.enterFullScreen
+this["NESCoffee"].prototype["getFPS"] = NESCoffee.prototype.getFPS
+this["NESCoffee"].prototype["loadCartridge"] = NESCoffee.prototype.loadCartridge
+this["NESCoffee"].prototype["onError"] = NESCoffee.prototype.onError
+this["NESCoffee"].prototype["onLoad"] = NESCoffee.prototype.onLoad
