@@ -8,6 +8,11 @@ class CPUMemory
 
     @inject: [ "ppu", "apu", "dma" ]
 
+    inject: (ppu, apu, dma) ->
+        @ppu = ppu
+        @apu = apu
+        @dma = dma
+
     constructor: ->
         @inputDevices = 1: null, 2: null
 

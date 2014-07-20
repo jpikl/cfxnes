@@ -14,6 +14,12 @@ class CPU
 
     @inject: [ "cpuMemory", "ppu", "apu", "dma" ]
 
+    inject: (cpuMemory, ppu, apu, dma) ->
+        @cpuMemory = cpuMemory
+        @ppu = ppu
+        @apu = apu
+        @dma = dma
+
     constructor: ->
         @initOperationsTable()
 

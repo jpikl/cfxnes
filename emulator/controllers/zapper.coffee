@@ -6,6 +6,9 @@ class Zapper
 
     @inject: [ "ppu" ]
 
+    inject: (ppu) ->
+        @ppu = ppu
+
     constructor: ->
         @triggerPressed = 0
         @screenX = 0

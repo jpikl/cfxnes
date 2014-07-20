@@ -11,6 +11,10 @@ class PPU
 
     @inject: [ "ppuMemory", "cpu" ]
 
+    inject: (ppuMemory, cpu) ->
+        @ppuMemory = ppuMemory
+        @cpu = cpu
+
     ntscMode: true
     colorEmphasis: 0
 

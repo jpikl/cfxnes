@@ -10,6 +10,9 @@ class DMA
 
     @inject: [ "cpuMemory" ]
 
+    inject: (cpuMemory) ->
+        @cpuMemory = cpuMemory
+
     powerUp: ->
         logger.info "Reseting DMA"
         @cyclesCount = TOTAL_DMA_CYCLES
