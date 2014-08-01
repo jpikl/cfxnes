@@ -45,7 +45,6 @@ mixin device(port)
                 label.control-label.col-xs-2(for="video-debug") Output scale
                 .col-xs-3
                     input.form-control(id="video-scale" type="number" ng-model="video.scale" min="1" max="{{video.maxScale}}")
-
             .form-group
                 label.control-label.col-xs-2(for="color-palette") Color palette
                 .col-xs-3
@@ -55,8 +54,13 @@ mixin device(port)
                         option(value="realistic") Realistic
             .form-group
                 .col-xs-3.col-xs-offset-2
+                    input(id="video-smoothing" type="checkbox" ng-model="video.smoothing")
+                    label(for="video-smoothing") Enable smoothing
+            .form-group
+                .col-xs-3.col-xs-offset-2
                     input(id="video-debug" type="checkbox" ng-model="video.debug")
                     label(for="video-debug") Show patterns and paletts
+
 
         accordion-group(heading="Controls" is-open="controls.visible")
             .row

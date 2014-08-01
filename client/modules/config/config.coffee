@@ -11,6 +11,7 @@ app.controller "ConfigController", ($scope, $modal, emulator, transfer) ->
     $scope.video.maxScale = emulator.getMaxVideoScale()
     $scope.video.palette = emulator.getVideoPalette()
     $scope.video.debug = emulator.isVideoDebug()
+    $scope.video.smoothing = emulator.isVideoSmoothing()
 
     $scope.controls = transfer.controlsConfig ?= {}
     $scope.controls.visible ?= true
@@ -29,6 +30,9 @@ app.controller "ConfigController", ($scope, $modal, emulator, transfer) ->
 
     $scope.$watch "video.debug", (value) ->
         emulator.setVideoDebug value
+
+    $scope.$watch "video.smoothing", (value) ->
+        emulator.setVideoSmoothing value
 
     $scope.$watch "controls.devices[1]", (value) ->
         emulator.setInputDevice 1, value

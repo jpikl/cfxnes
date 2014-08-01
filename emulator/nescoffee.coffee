@@ -47,6 +47,7 @@ class NESCoffee
         @initFPS()
         @initStorage()
         @initVideoScale()
+        @initVideoSmoothing()
         @initVideoDebug()
         @initVideoPalette()
         @initFullscreen()
@@ -149,6 +150,29 @@ class NESCoffee
 
     isVideoDebug: ->
         @videoDebug
+
+    ###########################################################
+    # Video - smoothing
+    ###########################################################
+
+    initVideoSmoothing: ->
+        logger.info "Initializing video smoothing"
+        @videoSmoothing = false
+
+    setVideoSmoothing: (enabled) ->
+        logger.info "Setting debugging video smoothing to #{if enabled then 'on' else 'off'}"
+        @videoSmoothing = enabled
+        @updateVideoRect() if @canvas
+
+    isVideoSmoothing: ->
+        @videoSmoothing
+
+    applyVideoSmoothing: ->
+        @renderer["imageSmoothingEnabled"] = @videoSmoothing
+        @renderer["mozImageSmoothingEnabled"] = @videoSmoothing
+        @renderer["oImageSmoothingEnabled"] = @videoSmoothing
+        @renderer["webkitImageSmoothingEnabled"] = @videoSmoothing
+        @renderer["msImageSmoothingEnabled"] = @videoSmoothing
 
     ###########################################################
     # Video - palette
@@ -258,11 +282,7 @@ class NESCoffee
         @redrawScaledFrame() if @videoScale >  1
 
     redrawScaledFrame: ->
-        @renderer["imageSmoothingEnabled"] = false
-        @renderer["mozImageSmoothingEnabled"] = false
-        @renderer["oImageSmoothingEnabled"] = false
-        @renderer["webkitImageSmoothingEnabled"] = false
-        @renderer["msImageSmoothingEnabled"] = false
+        @applyVideoSmoothing()
         sw = @canvas.width / @videoScale
         sh = @canvas.height / @videoScale
         dw = @canvas.width
@@ -523,6 +543,7 @@ this["NESCoffee"].prototype["increaseVideoScale"] = NESCoffee.prototype.increase
 this["NESCoffee"].prototype["insertCartridge"]    = NESCoffee.prototype.insertCartridge
 this["NESCoffee"].prototype["isRunning"]          = NESCoffee.prototype.isRunning
 this["NESCoffee"].prototype["isVideoDebug"]       = NESCoffee.prototype.isVideoDebug
+this["NESCoffee"].prototype["isVideoSmoothing"]   = NESCoffee.prototype.isVideoSmoothing
 this["NESCoffee"].prototype["getControl"]         = NESCoffee.prototype.getControl
 this["NESCoffee"].prototype["getFPS"]             = NESCoffee.prototype.getFPS
 this["NESCoffee"].prototype["getInputDevice"]     = NESCoffee.prototype.getInputDevice
@@ -537,6 +558,7 @@ this["NESCoffee"].prototype["onLoad"]             = NESCoffee.prototype.onLoad
 this["NESCoffee"].prototype["recordInput"]        = NESCoffee.prototype.recordInput
 this["NESCoffee"].prototype["setInputDevice"]     = NESCoffee.prototype.setInputDevice
 this["NESCoffee"].prototype["setVideoDebug"]      = NESCoffee.prototype.setVideoDebug
+this["NESCoffee"].prototype["setVideoSmoothing"]  = NESCoffee.prototype.setVideoSmoothing
 this["NESCoffee"].prototype["setVideoOutput"]     = NESCoffee.prototype.setVideoOutput
 this["NESCoffee"].prototype["setVideoPalette"]    = NESCoffee.prototype.setVideoPalette
 this["NESCoffee"].prototype["setVideoScale"]      = NESCoffee.prototype.setVideoScale
