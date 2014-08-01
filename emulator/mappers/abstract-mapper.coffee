@@ -1,16 +1,10 @@
-logger = require "../common/logger"
-
-types = require "../common/types"
-Mirroring = types.Mirroring
-
-format  = require "../utils/format"
-wordAsHex = format.wordAsHex
-readableSize = format.readableSize
-
-convert = require "../utils/convert"
-computeMD5 = convert.computeMD5
-bytesToString = convert.bytesToString
-stringToBytes = convert.stringToBytes
+Mirroring     = require("../common/types").Mirroring
+computeMD5    = require("../utils/convert").computeMD5
+bytesToString = require("../utils/convert").bytesToString
+stringToBytes = require("../utils/convert").stringToBytes
+wordAsHex     = require("../utils/format").wordAsHex
+readableSize  = require("../utils/format").readableSize
+logger        = require("../utils/logger").get()
 
 ###########################################################
 # Base class for PRGROM mappers
@@ -111,7 +105,7 @@ class AbstractMapper
         undefined
 
     getPRGRAMKey: ->
-        @prgRAMKey ?= "NESCoffee/#{computeMD5 @prgROM}/PRGRAM"
+        @prgRAMKey ?= "#{computeMD5 @prgROM}/PRGRAM"
 
     mapPRGRAMBank8K: (srcBank, dstBank) ->
         maxBank = (@prgRAMSize - 1) >> 13
@@ -177,7 +171,7 @@ class AbstractMapper
         undefined
 
     getCHRRAMKey: ->
-        @chrRAMKey ?= "NESCoffee/#{computeMD5 @prgROM}/CHRRAM"
+        @chrRAMKey ?= "#{computeMD5 @prgROM}/CHRRAM"
 
     mapCHRRAMBank8K: (srcBank, dstBank) ->
         @mapCHRRAMBank4K srcBank, dstBank, 8

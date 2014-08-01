@@ -1,5 +1,4 @@
-types = require "../common/types"
-TVSystem = types.TVSystem
+TVSystem = require("../common/types").TVSystem
 
 ###########################################################
 # Nintendo Entertainment System

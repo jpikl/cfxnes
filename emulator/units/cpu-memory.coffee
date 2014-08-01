@@ -1,4 +1,4 @@
-logger = require "../common/logger"
+logger = require("../utils/logger").get()
 
 ###########################################################
 # CPU memory

@@ -1,27 +1,25 @@
+TVSystem = require("./common/types").TVSystem
 Joypad   = require "./controllers/joypad"
 Binder   = require "./utils/binder"
 Injector = require "./utils/injector"
 network  = require "./utils/network"
+Logger   = require "./utils/logger"
 
-types = require "./common/types"
-TVSystem = types.TVSystem
+VIDEO_WIDTH  = require("./common/constants").VIDEO_WIDTH
+VIDEO_HEIGHT = require("./common/constants").VIDEO_HEIGHT
 
-Logger = require "./utils/logger"
 logger = Logger.get()
 logger.attach Logger.console() if network.isLocalhost()
 
-VIDEO_WIDTH  = 256
-VIDEO_HEIGHT = 240
-
 nameToJoypadButton =
-    "a":      Joypad.BUTTON_A
-    "b":      Joypad.BUTTON_B
-    "select": Joypad.BUTTON_SELECT
-    "start":  Joypad.BUTTON_START
-    "up":     Joypad.BUTTON_UP
-    "down":   Joypad.BUTTON_DOWN
-    "left":   Joypad.BUTTON_LEFT
-    "right":  Joypad.BUTTON_RIGHT
+    "a":      Joypad.Button.A
+    "b":      Joypad.Button.B
+    "select": Joypad.Button.SELECT
+    "start":  Joypad.Button.START
+    "up":     Joypad.Button.UP
+    "down":   Joypad.Button.DOWN
+    "left":   Joypad.Button.LEFT
+    "right":  Joypad.Button.RIGHT
 
 nameToTVSystem =
     "ntsc": TVSystem.NTSC

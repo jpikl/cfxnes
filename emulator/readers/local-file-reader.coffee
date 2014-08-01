@@ -1,6 +1,5 @@
 AbstractReader = require "./abstract-reader"
-
-fs = require "fs"
+fs             = require "fs"
 
 ###########################################################
 # Reader for local file

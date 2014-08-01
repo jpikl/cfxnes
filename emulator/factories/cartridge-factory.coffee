@@ -1,12 +1,8 @@
-logger = require "../common/logger"
-
-types  = require "../common/types"
-tvSystemToString = types.TVSystem.toString
-mirroringToString = types.Mirroring.toString
-
-format = require "../utils/format"
-readableSize = format.readableSize
-readableBytes = format.readableBytes
+tvSystemToString  = require("../common/types").TVSystem.toString
+mirroringToString = require("../common/types").Mirroring.toString
+readableSize      = require("../utils/format").readableSize
+readableBytes     = require("../utils/format").readableBytes
+logger            = require("../utils/logger").get()
 
 ###########################################################
 # Factory for cartridge creation

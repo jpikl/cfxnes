@@ -1,7 +1,7 @@
-logger = require "../common/logger"
+logger = require("../utils/logger").get()
 
-FRAME_BUFFER_WIDTH  = 256
-FRAME_BUFFER_HEIGHT = 240
+FRAME_BUFFER_WIDTH  = require("../common/constants").VIDEO_WIDTH
+FRAME_BUFFER_HEIGHT = require("../common/constants").VIDEO_HEIGHT
 
 ###########################################################
 # Picture processing unit

@@ -1,7 +1,5 @@
-logger = require "../common/logger"
-
-types  = require "../common/types"
-Mirroring = types.Mirroring
+Mirroring = require("../common/types").Mirroring
+logger    = require("../utils/logger").get()
 
 ###########################################################
 # PPU memory

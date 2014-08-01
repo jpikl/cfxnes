@@ -1,10 +1,14 @@
-logger = require "../common/logger"
+byteAsHex = require("../utils/format").byteAsHex
+logger    = require("../utils/logger").get()
 
-types = require "../common/types"
-Interrupt = types.Interrupt
+###########################################################
+# Interrupt types
+###########################################################
 
-format = require "../utils/format"
-byteAsHex = format.byteAsHex
+Interrupt =
+    IRQ:   1
+    NMI:   2
+    RESET: 3
 
 ###########################################################
 # Central processing unit

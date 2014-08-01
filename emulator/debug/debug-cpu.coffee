@@ -1,12 +1,8 @@
-CPU = require "../units/cpu"
-
-format = require "../utils/format"
-byteAsHex = format.byteAsHex
-wordAsHex = format.wordAsHex
-fillLeft  = format.fillLeft
-
-Logger = require "../utils/logger"
-logger = Logger.get "debug"
+CPU       = require "../units/cpu"
+byteAsHex = require("../utils/format").byteAsHex
+wordAsHex = require("../utils/format").wordAsHex
+fillLeft  = require("../utils/format").fillLeft
+logger    = require("../utils/logger").get "debug"
 
 ###########################################################
 # CPU with debugging printouts

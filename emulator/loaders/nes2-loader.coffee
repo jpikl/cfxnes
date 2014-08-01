@@ -1,7 +1,5 @@
 INESLoader = require "./ines-loader"
-
-types = require "../common/types"
-TVSystem = types.TVSystem
+TVSystem   = require("../common/types").TVSystem
 
 ###########################################################
 # Loader for the NES 2.0 ROM format

@@ -1,7 +1,6 @@
 ###########################################################
-# Provides default logger
+# Common constants
 ###########################################################
 
-Logger = require "../utils/logger"
-
-module.exports = Logger.get()
+module.exports.VIDEO_WIDTH  = 256
+module.exports.VIDEO_HEIGHT = 240

@@ -1,13 +1,4 @@
 ###########################################################
-# Interrupt types
-###########################################################
-
-Interrupt =
-    IRQ:   1
-    NMI:   2
-    RESET: 3
-
-###########################################################
 # Name table mirroring types
 ###########################################################
 
@@ -35,6 +26,7 @@ Mirroring =
             when Mirroring.FOUR_SCREEN     then "four screen"
             else                                "???"
 
+module.exports.Mirroring = Mirroring
 
 ###########################################################
 # TV system types
@@ -51,6 +43,4 @@ TVSystem =
             when TVSystem.NTSC  then "NTSC"
             else                     "???"
 
-module.exports.Interrupt = Interrupt
-module.exports.Mirroring = Mirroring
 module.exports.TVSystem  = TVSystem
