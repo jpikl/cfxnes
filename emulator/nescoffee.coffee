@@ -202,7 +202,7 @@ class NESCoffee
 
     initFullscreen: ->
         logger.info "Initializing fullscreen rendering"
-        document.addEventListener screenfull["raw"]["fullscreenchange"], @fullscreenChanged
+        document.addEventListener screenfull.raw.fullscreenchange, @fullscreenChanged
 
     setFullScreen: (fullscreen) ->
         if fullscreen
@@ -211,14 +211,14 @@ class NESCoffee
             @leaveFullScreen()
 
     enterFullScreen: ->
-        if screenfull["enabled"] and not @isFullScreen()
+        if screenfull.enabled and not @isFullScreen()
             logger.info "Entering fullscreen"
-            screenfull["request"] @canvas
+            screenfull.request @canvas
 
     leaveFullScreen: ->
-        if screenfull["enabled"] and @isFullScreen()
+        if screenfull.enabled and @isFullScreen()
             logger.info "Leaving fullscreen"
-            screenfull["exit"]()
+            screenfull.exit()
 
     fullscreenChanged: =>
         logger.info "Fullscreen changed to #{if @isFullScreen() then 'on' else 'off'}"
@@ -230,7 +230,7 @@ class NESCoffee
             @canvasPreviousScale = null
 
     isFullScreen: ->
-        screenfull["isFullscreen"]
+        screenfull.isFullscreen
 
     ###########################################################
     # Video - rendering
@@ -315,7 +315,7 @@ class NESCoffee
         logger.info "Saving data"
         @nes.saveData()
 
-    setPeriodicSave: (period) ->
+    setPeriodicSave: (period = 60000) ->
         if period
             logger.info "Enabling periodic save with period #{period} ms"
             @saveIntervalId = setInterval @saveData, period
@@ -512,36 +512,36 @@ class NESCoffee
     saveConfig: ->
 
 ###########################################################
-# API export
+# API export (for closure compiler)
 ###########################################################
 
 this["NESCoffee"] = NESCoffee
-this["NESCoffee"].prototype["insertCartridge"] = NESCoffee.prototype.insertCartridge
-this["NESCoffee"].prototype["getTVSystem"] = NESCoffee.prototype.getTVSystem
-this["NESCoffee"].prototype["getVideoScale"] = NESCoffee.prototype.getVideoScale
-this["NESCoffee"].prototype["getMaxVideoScale"] = NESCoffee.prototype.getMaxVideoScale
-this["NESCoffee"].prototype["getVideoPalette"] = NESCoffee.prototype.getVideoPalette
-this["NESCoffee"].prototype["isVideoDebug"] = NESCoffee.prototype.isVideoDebug
-this["NESCoffee"].prototype["setVideoOutput"] = NESCoffee.prototype.setVideoOutput
-this["NESCoffee"].prototype["getInputDevice"] = NESCoffee.prototype.getInputDevice
-this["NESCoffee"].prototype["setTVSystem"] = NESCoffee.prototype.setTVSystem
-this["NESCoffee"].prototype["setVideoScale"] = NESCoffee.prototype.setVideoScale
-this["NESCoffee"].prototype["setVideoPalette"] = NESCoffee.prototype.setVideoPalette
-this["NESCoffee"].prototype["setVideoDebug"] = NESCoffee.prototype.setVideoDebug
-this["NESCoffee"].prototype["setInputDevice"] = NESCoffee.prototype.setInputDevice
-this["NESCoffee"].prototype["getControl"] = NESCoffee.prototype.getControl
-this["NESCoffee"].prototype["recordInput"] = NESCoffee.prototype.recordInput
-this["NESCoffee"].prototype["bindControl"] = NESCoffee.prototype.bindControl
-this["NESCoffee"].prototype["useDefaultControls"] = NESCoffee.prototype.useDefaultControls
-this["NESCoffee"].prototype["isRunning"] = NESCoffee.prototype.isRunning
-this["NESCoffee"].prototype["start"] = NESCoffee.prototype.start
-this["NESCoffee"].prototype["stop"] = NESCoffee.prototype.stop
-this["NESCoffee"].prototype["hardReset"] = NESCoffee.prototype.hardReset
-this["NESCoffee"].prototype["softReset"] = NESCoffee.prototype.softReset
+this["NESCoffee"].prototype["bindControl"]        = NESCoffee.prototype.bindControl
 this["NESCoffee"].prototype["decreaseVideoScale"] = NESCoffee.prototype.decreaseVideoScale
+this["NESCoffee"].prototype["enterFullScreen"]    = NESCoffee.prototype.enterFullScreen
 this["NESCoffee"].prototype["increaseVideoScale"] = NESCoffee.prototype.increaseVideoScale
-this["NESCoffee"].prototype["enterFullScreen"] = NESCoffee.prototype.enterFullScreen
-this["NESCoffee"].prototype["getFPS"] = NESCoffee.prototype.getFPS
-this["NESCoffee"].prototype["loadCartridge"] = NESCoffee.prototype.loadCartridge
-this["NESCoffee"].prototype["onError"] = NESCoffee.prototype.onError
-this["NESCoffee"].prototype["onLoad"] = NESCoffee.prototype.onLoad
+this["NESCoffee"].prototype["insertCartridge"]    = NESCoffee.prototype.insertCartridge
+this["NESCoffee"].prototype["isRunning"]          = NESCoffee.prototype.isRunning
+this["NESCoffee"].prototype["isVideoDebug"]       = NESCoffee.prototype.isVideoDebug
+this["NESCoffee"].prototype["getControl"]         = NESCoffee.prototype.getControl
+this["NESCoffee"].prototype["getFPS"]             = NESCoffee.prototype.getFPS
+this["NESCoffee"].prototype["getInputDevice"]     = NESCoffee.prototype.getInputDevice
+this["NESCoffee"].prototype["getMaxVideoScale"]   = NESCoffee.prototype.getMaxVideoScale
+this["NESCoffee"].prototype["getTVSystem"]        = NESCoffee.prototype.getTVSystem
+this["NESCoffee"].prototype["getVideoPalette"]    = NESCoffee.prototype.getVideoPalette
+this["NESCoffee"].prototype["getVideoScale"]      = NESCoffee.prototype.getVideoScale
+this["NESCoffee"].prototype["hardReset"]          = NESCoffee.prototype.hardReset
+this["NESCoffee"].prototype["loadCartridge"]      = NESCoffee.prototype.loadCartridge
+this["NESCoffee"].prototype["onError"]            = NESCoffee.prototype.onError
+this["NESCoffee"].prototype["onLoad"]             = NESCoffee.prototype.onLoad
+this["NESCoffee"].prototype["recordInput"]        = NESCoffee.prototype.recordInput
+this["NESCoffee"].prototype["setInputDevice"]     = NESCoffee.prototype.setInputDevice
+this["NESCoffee"].prototype["setVideoDebug"]      = NESCoffee.prototype.setVideoDebug
+this["NESCoffee"].prototype["setVideoOutput"]     = NESCoffee.prototype.setVideoOutput
+this["NESCoffee"].prototype["setVideoPalette"]    = NESCoffee.prototype.setVideoPalette
+this["NESCoffee"].prototype["setVideoScale"]      = NESCoffee.prototype.setVideoScale
+this["NESCoffee"].prototype["setTVSystem"]        = NESCoffee.prototype.setTVSystem
+this["NESCoffee"].prototype["useDefaultControls"] = NESCoffee.prototype.useDefaultControls
+this["NESCoffee"].prototype["softReset"]          = NESCoffee.prototype.softReset
+this["NESCoffee"].prototype["start"]              = NESCoffee.prototype.start
+this["NESCoffee"].prototype["stop"]               = NESCoffee.prototype.stop

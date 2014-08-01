@@ -74,6 +74,7 @@ gulp.task "emulator", ->
             compilerFlags:
                 compilation_level: "ADVANCED_OPTIMIZATIONS"
                 warning_level: "QUIET"
+                externs: "#{EMULATOR_DIR}/externs.js"
         .pipe gulp.dest PUBLIC_SCRIPTS_DIR
         .on "error", gutil.log
 
