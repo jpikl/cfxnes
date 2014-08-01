@@ -9,7 +9,7 @@ FRAME_BUFFER_HEIGHT = 240
 
 class PPU
 
-    @inject: [ "ppuMemory", "cpu" ]
+    @dependencies: [ "ppuMemory", "cpu" ]
 
     inject: (ppuMemory, cpu) ->
         @ppuMemory = ppuMemory

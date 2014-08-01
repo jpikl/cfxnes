@@ -75,8 +75,8 @@ class Injector
         new (@getClass name)
 
     injectInstance: (instance) ->
-        if instance.constructor.inject? and instance.inject
-            dependencies = for dependency in instance.constructor.inject
+        if instance.constructor.dependencies and instance.inject
+            dependencies = for dependency in instance.constructor.dependencies
                 @getInstance dependency
             instance.inject.apply instance, dependencies
         instance

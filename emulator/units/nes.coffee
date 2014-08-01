@@ -7,7 +7,7 @@ TVSystem = types.TVSystem
 
 class NES
 
-    @inject: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory", "storage" ]
+    @dependencies: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory", "storage" ]
 
     inject: (cpu, cpuMemory, ppu, ppuMemory, apu, dma, mapperFactory, storage) ->
         @cpu = cpu

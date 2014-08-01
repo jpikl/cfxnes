@@ -4,7 +4,7 @@
 
 class Zapper
 
-    @inject: [ "ppu" ]
+    @dependencies: [ "ppu" ]
 
     inject: (ppu) ->
         @ppu = ppu

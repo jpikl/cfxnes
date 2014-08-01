@@ -12,7 +12,7 @@ byteAsHex = format.byteAsHex
 
 class CPU
 
-    @inject: [ "cpuMemory", "ppu", "apu", "dma" ]
+    @dependencies: [ "cpuMemory", "ppu", "apu", "dma" ]
 
     inject: (cpuMemory, ppu, apu, dma) ->
         @cpuMemory = cpuMemory

@@ -14,7 +14,7 @@ readableBytes = format.readableBytes
 
 class CartridgeFactory
 
-    @inject: [ "loaderFactory" ]
+    @dependencies: [ "loaderFactory" ]
 
     inject: (loaderFactory) ->
         @loaderFactory = loaderFactory

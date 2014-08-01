@@ -6,7 +6,7 @@ logger = require "../common/logger"
 
 class CPUMemory
 
-    @inject: [ "ppu", "apu", "dma" ]
+    @dependencies: [ "ppu", "apu", "dma" ]
 
     inject: (ppu, apu, dma) ->
         @ppu = ppu

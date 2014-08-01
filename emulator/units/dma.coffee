@@ -8,7 +8,7 @@ TOTAL_DMA_CYCLES = 0x200 # Total 512 CPU cycles for DMA transfer.
 
 class DMA
 
-    @inject: [ "cpuMemory" ]
+    @dependencies: [ "cpuMemory" ]
 
     inject: (cpuMemory) ->
         @cpuMemory = cpuMemory
