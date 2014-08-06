@@ -14,7 +14,7 @@ app.service "library", ($http) ->
 
     this
 
-app.controller "LibraryController", ($scope, $state, library, emulator, globalParams) ->
+app.controller "LibraryController", ($scope, $state, $timeout, library, emulator, globalParams) ->
     $scope.romsFilter = globalParams.romsFilter ?= { name: "" }
 
     $scope.selectROM = (rom) ->
@@ -36,10 +36,13 @@ app.controller "LibraryController", ($scope, $state, library, emulator, globalPa
     $scope.clearError = ->
         $scope.playError = null
 
-    library.listROMs()
-        .success (data) ->
-            $scope.roms = data
-            $scope.loadingDone = true
-        .error (data, status) ->
-            $scope.loadingError = "Unable to download game list (server response: #{status})."
-            $scope.loadingDone = true
+    $scope.$on "$stateChangeSuccess", ->
+        library.listROMs()
+            .success (data) ->
+                $scope.roms = data
+                $scope.loadingDone = true
+                $timeout ->
+                    $("#roms-filter").focus()
+            .error (data, status) ->
+                $scope.loadingError = "Unable to download game list (server response: #{status})."
+                $scope.loadingDone = true

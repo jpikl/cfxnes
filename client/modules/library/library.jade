@@ -13,7 +13,7 @@
             alert(type="danger" close="clearError()") {{ playError }}
     .row(ng-show="loadingDone && !loadingError")
         .col-xs-10
-            input.form-control(type="search", placeholder="Filter games by name...", ng-model="romsFilter.name")
+            input#roms-filter.form-control(type="search", placeholder="Filter games by name...", ng-model="romsFilter.name" ng-focus="true")
         .col-xs-2
             button#play-button.btn.btn-primary(type="button", ng-class="{disabled: !selectedROM}", ng-click="playSelectedROM()") Play game
     .row(ng-show="loadingDone && !loadingError")
