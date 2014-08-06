@@ -6,12 +6,18 @@ convert =
 
     computeMD5: md5 ? require "js-md5"
 
-    bytesToString: (bytes) ->
-        String.fromCharCode.apply null, bytes
+    dataToString: (input) ->
+        String.fromCharCode.apply null, input
 
-    stringToBytes: (string, bytes) ->
-        bytes ?= Uint8Array string.length
-        bytes[i] = string.charCodeAt i for i in [0...string.length]
-        bytes
+    stringToData: (input, output) ->
+        output ?= Uint8Array input.length
+        output[i] = input.charCodeAt i for i in [0...input.length]
+        output
+
+    objectToString: (input) ->
+        JSON.stringify input
+
+    stringToObject: (input) ->
+        JSON.parse input
 
 module.exports = convert

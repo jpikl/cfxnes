@@ -3,7 +3,7 @@ app = angular.module "nescoffee"
 app.controller "ConfigController", ($scope, $stateParams, $modal, emulator, globalParams) ->
     $scope.emulation = globalParams.emulationConfig ?= {}
     $scope.emulation.visible ?= false
-    $scope.emulation.tvSystem = emulator.getTVSystem()
+    $scope.emulation.tvSystem = emulator.getTVSystem() or "auto"
 
     $scope.video = globalParams.videoConfig ?= {}
     $scope.video.visible ?= false
@@ -16,8 +16,8 @@ app.controller "ConfigController", ($scope, $stateParams, $modal, emulator, glob
     $scope.controls = globalParams.controlsConfig ?= {}
     $scope.controls.visible ?= true
     $scope.controls.devices =
-        1: emulator.getInputDevice 1
-        2: emulator.getInputDevice 2
+        1: emulator.getInputDevice(1) or "none"
+        2: emulator.getInputDevice(2) or "none"
 
     if $stateParams.section
         $scope.emulation.visible = $stateParams.section is "emulation"
@@ -60,5 +60,5 @@ app.controller "ConfigController", ($scope, $stateParams, $modal, emulator, glob
 
     $scope.useDefaultControls = ->
         emulator.useDefaultControls()
-        $scope.controls.devices[1] = emulator.getInputDevice 1
-        $scope.controls.devices[2] = emulator.getInputDevice 2
+        $scope.controls.devices[1] = emulator.getInputDevice(1) or "none"
+        $scope.controls.devices[2] = emulator.getInputDevice(2) or "none"

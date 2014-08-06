@@ -24,7 +24,6 @@ nameToJoypadButton =
 nameToTVSystem =
     "ntsc": TVSystem.NTSC
     "pal":  TVSystem.PAL
-    "auto": null
 
 ###########################################################
 # NESCoffee emulator
@@ -99,21 +98,21 @@ class NESCoffee
         logger.info "Soft reset"
         @nes.pressReset()
 
-    setTVSystem: (tvSystem = "auto") ->
-        logger.info "Setting TV system to '#{tvSystem}'"
+    setTVSystem: (tvSystem) ->
+        logger.info "Setting TV system to '#{tvSystem or 'autodetection mode'}'"
         @tvSystem = tvSystem
         @nes.setTVSystem nameToTVSystem[tvSystem]
         @restart() if @isRunning()
 
     getTVSystem: ->
-        @tvSystem or "auto"
+        @tvSystem or null
 
     ###########################################################
     # Video - output
     ###########################################################
 
     setVideoOutput: (canvas) ->
-        logger.info "Setting canvas"
+        logger.info "Setting video output"
         @canvas = canvas
         @updateVideoRect()
         @initRenderer()
@@ -319,27 +318,54 @@ class NESCoffee
 
     initStorage: ->
         logger.info "Initializing storage"
-        window.addEventListener "beforeunload", @saveData
-
-    setStorage: (storage) ->
-        logger.info "Setting storage"
-        @nes.setStorage storage
-
-    loadData: ->
-        logger.info "Loding data"
-        @nes.loadData()
-
-    saveData: =>
-        logger.info "Saving data"
-        @nes.saveData()
+        @storage = @injector.getInstance "storage"
+        window.addEventListener "beforeunload", @saveAll
 
     setPeriodicSave: (period = 60000) ->
         if period
             logger.info "Enabling periodic save with period #{period} ms"
-            @saveIntervalId = setInterval @saveData, period
+            @saveIntervalId = setInterval @saveAll, period
         else
             logger.info "Disabling periodic save"
             clearInterval @saveIntervalId
+
+    saveAll: =>
+        @saveData()
+        @saveConfig()
+
+    loadData: ->
+        logger.info "Loding data"
+        @nes.loadData @storage
+
+    saveData: ->
+        logger.info "Saving data"
+        @nes.saveData @storage
+
+    loadConfig: ->
+        logger.info "Loading configuration"
+        config = @storage.readObject "config"
+        if config
+            @setTVSystem config["tvSystem"]
+            @setVideoPalette config["videoPalette"]
+            @setVideoScale config["videoScale"]
+            @setVideoSmoothing config["videoSmoothing"]
+            @setVideoDebug config["videoDebug"]
+            @setInputDevice 1, config["inputDevices"]?[1]
+            @setInputDevice 2, config["inputDevices"]?[2]
+            @loadControls config["controls"] or {}
+
+    saveConfig: ->
+        logger.info "Saving configuration"
+        @storage.writeObject "config",
+            "tvSystem": @getTVSystem()
+            "videoPalette": @getVideoPalette()
+            "videoScale": @getVideoScale()
+            "videoSmoothing": @isVideoSmoothing()
+            "videoDebug": @isVideoDebug()
+            "inputDevices":
+                1: @getInputDevice 1
+                2: @getInputDevice 2
+            "controls": @controls
 
     ###########################################################
     # Input devices
@@ -384,6 +410,9 @@ class NESCoffee
     initControls: ->
         logger.info "Initializing controls"
         @binder = new Binder @getVideoRect
+        @clearControls()
+
+    clearControls: ->
         @controls =
             1: { "joypad": {}, "zapper": {} }
             2: { "joypad": {}, "zapper": {} }
@@ -396,7 +425,7 @@ class NESCoffee
         logger.info "Using default controls"
         @setInputDevice 1, "joypad"
         @setInputDevice 2, "zapper"
-        @binder.unbindAll()
+        @clearControls()
         @bindControl 1, "joypad", "a", "keyboard", "c"
         @bindControl 1, "joypad", "b", "keyboard", "x"
         @bindControl 1, "joypad", "start", "keyboard", "enter"
@@ -407,6 +436,13 @@ class NESCoffee
         @bindControl 1, "joypad", "right", "keyboard", "right"
         @bindControl 2, "zapper", "trigger", "mouse", "left"
 
+    loadControls: (controls) ->
+        @clearControls()
+        for dstPort, dstDevices of controls when dstDevices
+            for dstDevice, dstButtons of dstDevices when dstButtons
+                for dstButton, srcMapping of dstButtons when srcMapping
+                  @bindControl dstPort, dstDevice, dstButton, srcMapping.device, srcMapping.button
+
     bindControl: (dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback) ->
         @unbindControl   dstPort, dstDevice, dstButton, srcDevice, srcButton
         @bindInputDevice dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback
@@ -415,9 +451,8 @@ class NESCoffee
         @dstUnbindCallbacks[dstPort][dstDevice][dstButton]?()
         @srcUnbindCallbacks[srcDevice][srcButton]?()
 
-
     getControl: (dstPort, dstDevice, dstButton) ->
-        @controls[dstPort][dstDevice][dstButton]
+        @controls[dstPort][dstDevice][dstButton]?.name
 
     bindInputDevice: (dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback) ->
         logger.info "Binding '#{srcButton}' of '#{srcDevice}' to '#{dstDevice}' on port #{dstPort}"
@@ -425,7 +460,10 @@ class NESCoffee
         useInputDevice = @getUseInputDeviceCallback dstPort, dstDevice, dstButton
         @dstUnbindCallbacks[dstPort][dstDevice][dstButton] = unbindInputDevice
         @srcUnbindCallbacks[srcDevice][srcButton] = unbindInputDevice
-        @controls[dstPort][dstDevice][dstButton] = @binder.bindControl srcDevice, srcButton, useInputDevice
+        @controls[dstPort][dstDevice][dstButton] =
+            device: srcDevice
+            button: srcButton
+            name: @binder.bindControl srcDevice, srcButton, useInputDevice
 
     unbindInputDevice: (dstPort, dstDevice, dstButton, srcDevice, srcButton) ->
         logger.info "Unbinding '#{srcButton}' of '#{srcDevice}' and '#{dstDevice}' on port #{dstPort}"
@@ -520,14 +558,6 @@ class NESCoffee
 
     isCartridgeInserted: ->
         @nes.isCartridgeInserted()
-
-    ###########################################################
-    # Configuration
-    ###########################################################
-
-    loadConfig: ->
-
-    saveConfig: ->
 
 ###########################################################
 # API export (for closure compiler)

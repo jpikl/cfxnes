@@ -49,11 +49,11 @@ class Binder
         @unbindAll()
 
     registerEventListeners: ->
-        window.onkeydown = @onKeyDown
-        window.onkeyup = @onKeyUp
-        window.onmousemove = @onMouseMove
-        window.onmousedown = @onMouseDown
-        window.onmouseup = @onMouseUp
+        window.addEventListener "keydown", @onKeyDown
+        window.addEventListener "keyup", @onKeyUp
+        window.addEventListener "mousemove", @onMouseMove
+        window.addEventListener "mousedown", @onMouseDown
+        window.addEventListener "mouseup", @onMouseUp
 
     ###########################################################
     # Controls binding

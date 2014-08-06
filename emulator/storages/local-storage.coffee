@@ -1,15 +1,18 @@
+AbstractStorage = require "./abstract-storage"
+
 ###########################################################
 # Local Storage
 ###########################################################
 
-ROOT_KEY = "NESCoffee"
+class LocalStorage extends AbstractStorage
 
-class LocalStorage
+    read: (key) ->
+        window.localStorage?[@getFullKey key]
 
-    save: (key, data) ->
-        window.localStorage["#{ROOT_KEY}/#{key}"] = data
+    write: (key, value) ->
+        window.localStorage?[@getFullKey key] = value
 
-    load: (key) ->
-        window.localStorage["#{ROOT_KEY}/#{key}"]
+    getFullKey: (key) ->
+        "NESCoffee/#{key}"
 
 module.exports = LocalStorage

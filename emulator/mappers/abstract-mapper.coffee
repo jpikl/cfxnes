@@ -1,7 +1,5 @@
 Mirroring     = require("../common/types").Mirroring
 computeMD5    = require("../utils/convert").computeMD5
-bytesToString = require("../utils/convert").bytesToString
-stringToBytes = require("../utils/convert").stringToBytes
 wordAsHex     = require("../utils/format").wordAsHex
 readableSize  = require("../utils/format").readableSize
 logger        = require("../utils/logger").get()
@@ -94,15 +92,11 @@ class AbstractMapper
 
     loadPRGRAM: (storage) ->
         if @hasPRGRAM and @hasPRGRAMBattery
-            data = storage.load @getPRGRAMKey()
-            stringToBytes data, @prgRAM if data
-        undefined
+            storage.readData @getPRGRAMKey(), @prgRAM
 
     savePRGRAM: (storage) ->
         if @hasPRGRAM and @hasPRGRAMBattery
-            data = bytesToString @prgRAM[0...@prgRAMSizeBattery]
-            storage.save @getPRGRAMKey(), data
-        undefined
+            storage.writeData @getPRGRAMKey(), @prgRAM[0...@prgRAMSizeBattery]
 
     getPRGRAMKey: ->
         @prgRAMKey ?= "#{computeMD5 @prgROM}/PRGRAM"
@@ -160,15 +154,11 @@ class AbstractMapper
 
     loadCHRRAM: (storage) ->
         if @hasCHRRAM and @hasCHRRAMBattery
-            data = storage.load @getCHRRAMKey()
-            stringToBytes data, @chrRAM if data
-        undefined
+            storage.readData @getCHRRAMKey(), @chrRAM
 
     saveCHRRAM: (storage) ->
         if @hasCHRRAM and @hasCHRRAMBattery
-            data = bytesToString @chrRAM[0...@chrRAMSizeBattery]
-            storage.save @getCHRRAMKey(), data
-        undefined
+            storage.writeData @getCHRRAMKey(), @chrRAM[0...@chrRAMSizeBattery]
 
     getCHRRAMKey: ->
         @chrRAMKey ?= "#{computeMD5 @prgROM}/CHRRAM"

@@ -6,9 +6,9 @@ TVSystem = require("../common/types").TVSystem
 
 class NES
 
-    @dependencies: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory", "storage" ]
+    @dependencies: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory" ]
 
-    inject: (cpu, cpuMemory, ppu, ppuMemory, apu, dma, mapperFactory, storage) ->
+    inject: (cpu, cpuMemory, ppu, ppuMemory, apu, dma, mapperFactory) ->
         @cpu = cpu
         @cpuMemory = cpuMemory
         @ppu = ppu
@@ -16,7 +16,6 @@ class NES
         @apu = apu
         @dma = dma
         @mapperFactory = mapperFactory
-        @storage = storage
 
     ###########################################################
     # Buttons
@@ -65,16 +64,13 @@ class NES
     # Persistence
     ###########################################################
 
-    setStorage: (storage) ->
-        @storage = storage
+    loadData: (storage) ->
+        @mapper?.loadPRGRAM storage
+        @mapper?.loadCHRRAM storage
 
-    loadData: ->
-        @mapper?.loadPRGRAM @storage
-        @mapper?.loadCHRRAM @storage
-
-    saveData: ->
-        @mapper?.savePRGRAM @storage
-        @mapper?.saveCHRRAM @storage
+    saveData: (storage) ->
+        @mapper?.savePRGRAM storage
+        @mapper?.saveCHRRAM storage
 
     ###########################################################
     # Video ouput
