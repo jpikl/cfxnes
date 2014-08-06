@@ -441,7 +441,7 @@ class NESCoffee
         for dstPort, dstDevices of controls when dstDevices
             for dstDevice, dstButtons of dstDevices when dstButtons
                 for dstButton, srcMapping of dstButtons when srcMapping
-                  @bindControl dstPort, dstDevice, dstButton, srcMapping.device, srcMapping.button
+                    @bindControl dstPort, dstDevice, dstButton, srcMapping.device, srcMapping.button
 
     bindControl: (dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback) ->
         @unbindControl   dstPort, dstDevice, dstButton, srcDevice, srcButton
