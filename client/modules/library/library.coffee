@@ -14,8 +14,8 @@ app.service "library", ($http) ->
 
     this
 
-app.controller "LibraryController", ($scope, $state, library, emulator, transfer) ->
-    $scope.romsFilter = transfer.romsFilter ?= { name: "" }
+app.controller "LibraryController", ($scope, $state, library, emulator, globalParams) ->
+    $scope.romsFilter = globalParams.romsFilter ?= { name: "" }
 
     $scope.selectROM = (rom) ->
         $scope.selectedROM = rom

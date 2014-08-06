@@ -1,11 +1,11 @@
 app = angular.module "nescoffee"
 
-app.controller "ConfigController", ($scope, $modal, emulator, transfer) ->
-    $scope.emulation = transfer.emulationConfig ?= {}
+app.controller "ConfigController", ($scope, $stateParams, $modal, emulator, globalParams) ->
+    $scope.emulation = globalParams.emulationConfig ?= {}
     $scope.emulation.visible ?= false
     $scope.emulation.tvSystem = emulator.getTVSystem()
 
-    $scope.video = transfer.videoConfig ?= {}
+    $scope.video = globalParams.videoConfig ?= {}
     $scope.video.visible ?= false
     $scope.video.scale = emulator.getVideoScale()
     $scope.video.maxScale = emulator.getMaxVideoScale()
@@ -13,11 +13,16 @@ app.controller "ConfigController", ($scope, $modal, emulator, transfer) ->
     $scope.video.debug = emulator.isVideoDebug()
     $scope.video.smoothing = emulator.isVideoSmoothing()
 
-    $scope.controls = transfer.controlsConfig ?= {}
+    $scope.controls = globalParams.controlsConfig ?= {}
     $scope.controls.visible ?= true
     $scope.controls.devices =
         1: emulator.getInputDevice 1
         2: emulator.getInputDevice 2
+
+    if $stateParams.section
+        $scope.emulation.visible = $stateParams.section is "emulation"
+        $scope.video.visible = $stateParams.section is "video"
+        $scope.controls.visible = $stateParams.section is "controls"
 
     $scope.$watch "emulation.tvSystem", (value) ->
         emulator.setTVSystem value

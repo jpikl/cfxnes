@@ -1,6 +1,6 @@
 app = angular.module "nescoffee", [ "ui.router", "ui.bootstrap" ]
 
-app.factory "transfer", -> {}
+app.factory "globalParams", -> {}
 
 app.config ($stateProvider, $urlRouterProvider, $tooltipProvider) ->
     $stateProvider
@@ -20,7 +20,7 @@ app.config ($stateProvider, $urlRouterProvider, $tooltipProvider) ->
                     templateUrl: "modules/library/library.html"
                     controller:  "LibraryController"
         .state "config",
-            url: "/config"
+            url: "/config/:section"
             views:
                 "content":
                     templateUrl: "modules/config/config.html"

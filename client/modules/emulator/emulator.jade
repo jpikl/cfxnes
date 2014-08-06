@@ -1,6 +1,31 @@
+mixin button-info(label, device, button)
+    tr
+        td #{label}
+        td {{ getControl('#{device}', '#{button}')  }}
+
 input#file-upload(type="file")
 
 alert#error(ng-show="error" type="danger" close="clearError()") {{ error }}
+
+alert#config-info(ng-show="configInfoVisible" type="info" close="hideConfigInfo()")
+    h3 Controls
+        small
+            |  (
+            a.alert-link(ng-href="{{changeControlsURL}}")
+                span.glyphicon.glyphicon-wrench
+                |  configure
+            | )
+
+    table
+        +button-info("A",      "joypad", "a")
+        +button-info("B",      "joypad", "b")
+        +button-info("Start",  "joypad", "start")
+        +button-info("Select", "joypad", "select")
+        +button-info("Left",   "joypad", "left")
+        +button-info("Right",  "joypad", "right")
+        +button-info("Up",     "joypad", "up")
+        +button-info("Down",   "joypad", "down")
+        +button-info("Zapper", "zapper", "trigger")
 
 #file-drop
     canvas#video-output

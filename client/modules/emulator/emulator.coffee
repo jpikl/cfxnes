@@ -2,7 +2,7 @@ app = angular.module "nescoffee"
 
 app.factory "emulator", -> new NESCoffee
 
-app.controller "EmulatorController", ($scope, emulator) ->
+app.controller "EmulatorController", ($scope, $state, emulator, globalParams) ->
     $scope.$on "$stateChangeStart", ->
         emulator.stop()
 
@@ -32,3 +32,18 @@ app.controller "EmulatorController", ($scope, emulator) ->
 
     $scope.clearError = ->
         $scope.error = null
+
+    $scope.configInfoVisible = globalParams.configInfoVisible ?= true
+
+    $scope.hideConfigInfo = ->
+        $scope.configInfoVisible = globalParams.configInfoVisible = false
+
+    $scope.getControl = (device, button) ->
+        if emulator.getInputDevice(1) is device
+            emulator.getControl(1, device, button) or "--"
+        else if emulator.getInputDevice(2) is device
+            emulator.getControl(2, device, button) or "--"
+        else
+            "--"
+
+    $scope.changeControlsURL = $state.href "config", { section: "controls" }
