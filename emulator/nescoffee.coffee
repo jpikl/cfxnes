@@ -441,7 +441,8 @@ class NESCoffee
         for dstPort, dstDevices of controls when dstDevices
             for dstDevice, dstButtons of dstDevices when dstButtons
                 for dstButton, srcMapping of dstButtons when srcMapping
-                    @bindControl dstPort, dstDevice, dstButton, srcMapping.device, srcMapping.button
+                    @bindControl dstPort, dstDevice, dstButton, srcMapping["device"], srcMapping["button"]
+        undefined
 
     bindControl: (dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback) ->
         @unbindControl   dstPort, dstDevice, dstButton, srcDevice, srcButton
@@ -452,7 +453,7 @@ class NESCoffee
         @srcUnbindCallbacks[srcDevice][srcButton]?()
 
     getControl: (dstPort, dstDevice, dstButton) ->
-        @controls[dstPort][dstDevice][dstButton]?.name
+        @controls[dstPort][dstDevice][dstButton]?["name"]
 
     bindInputDevice: (dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback) ->
         logger.info "Binding '#{srcButton}' of '#{srcDevice}' to '#{dstDevice}' on port #{dstPort}"
@@ -461,9 +462,9 @@ class NESCoffee
         @dstUnbindCallbacks[dstPort][dstDevice][dstButton] = unbindInputDevice
         @srcUnbindCallbacks[srcDevice][srcButton] = unbindInputDevice
         @controls[dstPort][dstDevice][dstButton] =
-            device: srcDevice
-            button: srcButton
-            name: @binder.bindControl srcDevice, srcButton, useInputDevice
+            "device": srcDevice
+            "button": srcButton
+            "name": @binder.bindControl srcDevice, srcButton, useInputDevice
 
     unbindInputDevice: (dstPort, dstDevice, dstButton, srcDevice, srcButton) ->
         logger.info "Unbinding '#{srcButton}' of '#{srcDevice}' and '#{dstDevice}' on port #{dstPort}"
