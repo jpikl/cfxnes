@@ -9,7 +9,7 @@ mixin device-button(name, port, device, button)
 
 mixin device(port)
     .col-xs-6
-        .input-device-select
+        .select-input-device
             label Controller&nbsp;#{port}
             .btn-group
                 button.btn.btn-default(ng-model="controls.devices[#{port}]" btn-radio="'none'") None
@@ -67,4 +67,4 @@ mixin device(port)
                 +device(1)
                 +device(2)
             .row
-                button.col-xs-offset-1.btn.btn-default.btn-restore(ng-click="useDefaultControls()") Restore to defaults
+                button.col-xs-offset-1.btn.btn-default.btn-restore-controls(ng-click="useDefaultControls()") Restore to defaults

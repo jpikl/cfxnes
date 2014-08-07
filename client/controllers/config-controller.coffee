@@ -51,12 +51,11 @@ angular.module "nescoffee"
     $scope.bindControl = (dstPort, dstDevice, dstButton) ->
         modal = $modal.open
             template: "Press key or mouse button..."
-            windowClass: "bind-modal-window"
+            windowClass: "modal-bind-control"
         emulator.recordInput (srcDevice, srcButton) ->
             modal.close()
             emulator.bindControl dstPort, dstDevice, dstButton, srcDevice, srcButton
             $scope.$apply()
-            document.activeElement.blur()
 
     $scope.useDefaultControls = ->
         emulator.useDefaultControls()
