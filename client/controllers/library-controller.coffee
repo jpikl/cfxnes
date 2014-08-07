@@ -3,6 +3,9 @@ angular.module "nescoffee"
 .controller "LibraryController", ($scope, $state, $timeout, library, emulator, globalParams) ->
     $scope.romsFilter = globalParams.romsFilter ?= { name: "" }
 
+    $scope.isSelectedROM = (rom) ->
+        $scope.selectedROM is rom
+
     $scope.selectROM = (rom) ->
         $scope.selectedROM = rom
 
@@ -39,8 +42,6 @@ angular.module "nescoffee"
                 else eventUsed = false
             event.preventDefault() if eventUsed
 
-    $scope.playSelectedROM = ->
-        $scope.playROM $scope.selectedROM
 
     $scope.playROM = (rom) ->
         library.getROM rom.id
@@ -52,16 +53,16 @@ angular.module "nescoffee"
             .error (data, status) ->
                 $scope.playError = "Unable to download file (server response: #{status})."
 
+    $scope.playSelectedROM = ->
+        $scope.playROM $scope.selectedROM if $scope.selectedROM
+
     $scope.clearError = ->
         $scope.playError = null
 
-    $scope.$on "$stateChangeSuccess", ->
-        library.listROMs()
-            .success (data) ->
-                $scope.roms = data
-                $scope.loadingDone = true
-                $timeout ->
-                    $("#roms-filter").focus()
-            .error (data, status) ->
-                $scope.loadingError = "Unable to download game list (server response: #{status})."
-                $scope.loadingDone = true
+    library.listROMs()
+        .success (data) ->
+            $scope.roms = data
+            $scope.loadingDone = true
+        .error (data, status) ->
+            $scope.loadingError = "Unable to download game list (server response: #{status})."
+            $scope.loadingDone = true
