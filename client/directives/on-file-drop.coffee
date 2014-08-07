@@ -2,6 +2,7 @@ angular.module "nescoffee"
 
 .directive "onFileDrop", ->
     restrict: "A"
+    scope: true
     link: (scope, element, attrs) ->
         element.on "dragover", (event) ->
             event.preventDefault()
