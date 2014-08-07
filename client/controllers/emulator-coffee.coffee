@@ -1,13 +1,10 @@
-app = angular.module "nescoffee"
+angular.module "nescoffee"
 
-app.factory "emulator", -> new NESCoffee
-
-app.controller "EmulatorController", ($scope, $state, emulator, globalParams) ->
+.controller "EmulatorController", ($scope, $state, emulator, globalParams) ->
     $scope.$on "$stateChangeStart", ->
         emulator.stop()
 
     $scope.$on "$stateChangeSuccess", ->
-        emulator.setVideoOutput $("#video-output")[0]
         $("#file-upload").on "change", (event) ->
             document.activeElement.blur()
             event.preventDefault()
@@ -45,5 +42,7 @@ app.controller "EmulatorController", ($scope, $state, emulator, globalParams) ->
             emulator.getControl(2, device, button) or "--"
         else
             "--"
+    $scope.setVideoOutput = (element) ->
+        emulator.setVideoOutput element[0]
 
     $scope.changeControlsURL = $state.href "config", { section: "controls" }

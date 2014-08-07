@@ -1,6 +1,6 @@
-app = angular.module "nescoffee"
+angular.module "nescoffee"
 
-app.controller "ConfigController", ($scope, $stateParams, $modal, emulator, globalParams) ->
+.controller "ConfigController", ($scope, $stateParams, $modal, emulator, globalParams) ->
     $scope.emulation = globalParams.emulationConfig ?= {}
     $scope.emulation.visible ?= false
     $scope.emulation.tvSystem = emulator.getTVSystem() or "auto"

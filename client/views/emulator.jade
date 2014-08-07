@@ -28,5 +28,5 @@ alert#config-info(ng-show="configInfoVisible" type="info" close="hideConfigInfo(
         +button-info("Zapper", "zapper", "trigger")
 
 #file-drop
-    canvas#video-output
+    canvas#video-output(on-create="setVideoOutput(element)")
         | Your browser does not support canvas element.

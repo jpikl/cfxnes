@@ -1,20 +1,6 @@
-app = angular.module "nescoffee"
+angular.module "nescoffee"
 
-app.service "library", ($http) ->
-    @listROMs = ->
-        $http
-            method: "GET"
-            url: "/roms/"
-
-    @getROM = (id) ->
-        $http
-            method: "GET"
-            url: "/roms/#{id}"
-            responseType: "arraybuffer"
-
-    this
-
-app.controller "LibraryController", ($scope, $state, $timeout, library, emulator, globalParams) ->
+.controller "LibraryController", ($scope, $state, $timeout, library, emulator, globalParams) ->
     $scope.romsFilter = globalParams.romsFilter ?= { name: "" }
 
     $scope.selectROM = (rom) ->

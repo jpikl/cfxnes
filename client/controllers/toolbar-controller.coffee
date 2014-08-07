@@ -1,6 +1,6 @@
-app = angular.module "nescoffee"
+angular.module "nescoffee"
 
-app.controller "ToolbarController", ($scope, emulator) ->
+.controller "ToolbarController", ($scope, emulator) ->
     $scope.isRunning = ->
         emulator.isRunning()
 
