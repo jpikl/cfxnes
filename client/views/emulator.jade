@@ -1,21 +1,18 @@
+alert#emulator-error(ng-show="error" type="danger" close="clearError()") {{ error }}
+
 mixin button-info(label, device, button)
     tr
         td #{label}
         td {{ getControl('#{device}', '#{button}')  }}
 
-input#file-upload(type="file")
-
-alert#error(ng-show="error" type="danger" close="clearError()") {{ error }}
-
-alert#config-info(ng-show="configInfoVisible" type="info" close="hideConfigInfo()")
+alert#controls-info(ng-show="controlsVisible" type="info" close="hideControls()")
     h3 Controls
         small
             |  (
-            a.alert-link(ng-href="{{changeControlsURL}}")
+            a.alert-link(ng-href="{{ changeControlsUrl }}")
                 span.glyphicon.glyphicon-wrench
                 |  configure
             | )
-
     table
         +button-info("A",      "joypad", "a")
         +button-info("B",      "joypad", "b")
@@ -27,6 +24,5 @@ alert#config-info(ng-show="configInfoVisible" type="info" close="hideConfigInfo(
         +button-info("Down",   "joypad", "down")
         +button-info("Zapper", "zapper", "trigger")
 
-#file-drop
-    canvas#video-output(on-create="setVideoOutput(element)")
-        | Your browser does not support canvas element.
+canvas#video-output(on-create="setVideoOutput(element)" on-file-drop="loadCartridge(file)")
+    | Your browser does not support canvas element.

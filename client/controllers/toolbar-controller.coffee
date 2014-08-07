@@ -1,6 +1,9 @@
 angular.module "nescoffee"
 
 .controller "ToolbarController", ($scope, emulator) ->
+    $scope.loadCartridge = (file) ->
+        emulator.loadCartridge file
+
     $scope.isRunning = ->
         emulator.isRunning()
 
