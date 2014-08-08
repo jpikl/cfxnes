@@ -3,38 +3,25 @@ angular.module "nescoffee"
 .controller "LibraryController", ($scope, $state, $timeout, library, emulator, globalParams) ->
     $scope.romsFilter = globalParams.romsFilter ?= { name: "" }
 
+    $scope.selectROM = (rom) ->
+        $scope.selectedROM = rom
+
     moveROMSelection = (increment) ->
         index = $scope.filteredROMs.indexOf $scope.selectedROM
         index = Math.max(0, Math.min($scope.filteredROMs.length - 1, index + increment))
         $scope.selectedROM = $scope.filteredROMs[index]
-        $timeout ->
-            # Scroll to the selected row when it's out of visible area
-            table = $("#library")
-            selectedRow = $("#library tr.info")
-            if increment < 0
-                tableTop = table.offset().top
-                selectedRowTop = selectedRow.offset().top
-                if selectedRowTop < tableTop
-                    selectedRow[0].scrollIntoView true
-            else if increment > 0
-                tableBottom = table.offset().top + table.height()
-                selectedRowBottom = selectedRow.offset().top + selectedRow.height()
-                if selectedRowBottom > tableBottom
-                    selectedRow[0].scrollIntoView false
+        $scope.$apply()
 
     $scope.navigationKeyDown = (key) ->
         if $scope.loadingDone
             switch key
-                when "enter"     then $scope.platROM $scope.selectedROM
+                when "enter"     then $scope.playROM $scope.selectedROM
                 when "up"        then moveROMSelection -1
                 when "down"      then moveROMSelection +1
                 when "page-up"   then moveROMSelection -10
                 when "page-down" then moveROMSelection +10
                 when "home"      then moveROMSelection -$scope.roms.length
                 when "end"       then moveROMSelection +$scope.roms.length
-
-    $scope.selectROM = (rom) ->
-        $scope.selectedROM = rom
 
     $scope.playROM = (rom) ->
         if rom
