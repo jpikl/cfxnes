@@ -1,4 +1,4 @@
-.container(ng-keydown="romSelectionKeyInput($event)")
+.container(on-navigation-key-down="navigationKeyDown(key)")
     .row
         h1.col-xs-12 Game Library
     .row(ng-hide="loadingDone")
@@ -15,7 +15,7 @@
         .col-xs-10
             input#roms-filter.form-control(type="search" placeholder="Filter games by name..." ng-model="romsFilter.name" focus-when="loadingDone")
         .col-xs-2
-            button#play-button.btn.btn-primary(type="button" ng-class="{disabled: !selectedROM}" ng-click="playSelectedROM()") Play game
+            button#play-button.btn.btn-primary(type="button" ng-class="{ disabled: !selectedROM }" ng-click="playROM(selectedROM)") Play game
     .row(ng-show="loadingDone && !loadingError")
         #library.col-xs-12
             table.table(tabindex="0" )

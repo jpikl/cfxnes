@@ -3,13 +3,7 @@ angular.module "nescoffee"
 .controller "LibraryController", ($scope, $state, $timeout, library, emulator, globalParams) ->
     $scope.romsFilter = globalParams.romsFilter ?= { name: "" }
 
-    $scope.isSelectedROM = (rom) ->
-        $scope.selectedROM is rom
-
-    $scope.selectROM = (rom) ->
-        $scope.selectedROM = rom
-
-    $scope.moveROMSelection = (increment) ->
+    moveROMSelection = (increment) ->
         index = $scope.filteredROMs.indexOf $scope.selectedROM
         index = Math.max(0, Math.min($scope.filteredROMs.length - 1, index + increment))
         $scope.selectedROM = $scope.filteredROMs[index]
@@ -28,33 +22,30 @@ angular.module "nescoffee"
                 if selectedRowBottom > tableBottom
                     selectedRow[0].scrollIntoView false
 
-    $scope.romSelectionKeyInput = (event) ->
+    $scope.navigationKeyDown = (key) ->
         if $scope.loadingDone
-            eventUsed = true
-            switch event.keyCode
-                when 13 then $scope.playSelectedROM()                    # Enter
-                when 33 then $scope.moveROMSelection -10                 # Page up
-                when 34 then $scope.moveROMSelection +10                 # Page up
-                when 35 then $scope.moveROMSelection +$scope.roms.length # End
-                when 36 then $scope.moveROMSelection -$scope.roms.length # Home
-                when 38 then $scope.moveROMSelection -1                  # Up
-                when 40 then $scope.moveROMSelection +1                  # Down
-                else eventUsed = false
-            event.preventDefault() if eventUsed
+            switch key
+                when "enter"     then $scope.platROM $scope.selectedROM
+                when "up"        then moveROMSelection -1
+                when "down"      then moveROMSelection +1
+                when "page-up"   then moveROMSelection -10
+                when "page-down" then moveROMSelection +10
+                when "home"      then moveROMSelection -$scope.roms.length
+                when "end"       then moveROMSelection +$scope.roms.length
 
+    $scope.selectROM = (rom) ->
+        $scope.selectedROM = rom
 
     $scope.playROM = (rom) ->
-        library.getROM rom.id
-            .success (data) ->
-                $scope.playError = emulator.insertCartridge data
-                unless $scope.playError
-                    emulator.start()
-                    $state.go "emulator"
-            .error (data, status) ->
-                $scope.playError = "Unable to download file (server response: #{status})."
-
-    $scope.playSelectedROM = ->
-        $scope.playROM $scope.selectedROM if $scope.selectedROM
+        if rom
+            library.getROM rom.id
+                .success (data) ->
+                    $scope.playError = emulator.insertCartridge data
+                    unless $scope.playError
+                        emulator.start()
+                        $state.go "emulator"
+                .error (data, status) ->
+                    $scope.playError = "Unable to download file (server response: #{status})."
 
     $scope.clearError = ->
         $scope.playError = null
