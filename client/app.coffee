@@ -1,4 +1,4 @@
-app = angular.module "nescoffee", [
+angular.module "nescoffee", [
     "ui.router",
     "ui.bootstrap"
 ]
