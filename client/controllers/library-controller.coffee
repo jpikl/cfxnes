@@ -27,15 +27,15 @@ angular.module "nescoffee"
         if rom
             library.getROM rom.id
                 .success (data) ->
-                    $scope.playError = emulator.insertCartridge data
-                    unless $scope.playError
+                    $scope.romError = emulator.insertCartridge data
+                    unless $scope.romError
                         emulator.start()
                         $state.go "emulator"
                 .error (data, status) ->
-                    $scope.playError = "Unable to download file (server response: #{status})."
+                    $scope.romError = "Unable to download file (server response: #{status})."
 
     $scope.clearError = ->
-        $scope.playError = null
+        $scope.romError = null
 
     library.listROMs()
         .success (data) ->

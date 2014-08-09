@@ -8,9 +8,9 @@
     .row(ng-show="loadingError")
         .col-xs-12
             alert(type="danger") {{ loadingError }}
-    .row(ng-show="playError")
+    .row(ng-show="romError")
         .col-xs-12
-            alert(type="danger" close="clearError()") {{ playError }}
+            alert(type="danger" close="clearError()") {{ romError }}
     .row(ng-show="loadingDone && !loadingError")
         .col-xs-10
             input#roms-filter.form-control(type="search" placeholder="Filter games by name..." ng-model="romsFilter.name" focus-when="loadingDone")
