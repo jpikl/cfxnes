@@ -7,6 +7,7 @@ concat  = require "gulp-concat"
 rimraf  = require "gulp-rimraf"
 stylus  = require "gulp-stylus"
 jade    = require "gulp-jade"
+jasmine = require "gulp-jasmine"
 open    = require "gulp-open"
 nodemon = require "gulp-nodemon"
 closure = require "gulp-closure-compiler"
@@ -21,7 +22,9 @@ coffee  = require "./gulp/gulp-inlined-coffee"
 
 PRODUCTION_MODE    = yargs.argv.production?
 SERVER_PORT        = 5000
+EMULATOR_INLINING  = true
 DEPS_DIR           = "./bower_components"
+TEMP_DIR           = "./temp"
 EMULATOR_DIR       = "./emulator"
 CLIENT_DIR         = "./client"
 SERVER_DIR         = "./server"
@@ -52,8 +55,16 @@ minname = (file) ->
 
 gulp.task "default", [ "server" ]
 
-gulp.task "clean", ->
+gulp.task "test", [ "emulator-test" ]
+
+gulp.task "clean", [ "clean-public", "clean-temp" ]
+
+gulp.task "clean-public", ->
     gulp.src PUBLIC_DIR
+        .pipe rimraf()
+
+gulp.task "clean-temp", ->
+    gulp.src TEMP_DIR
         .pipe rimraf()
 
 ###########################################################
@@ -64,7 +75,7 @@ gulp.task "emulator", ->
     gulp.src [ "#{EMULATOR_DIR}/**/*.coffee", "!#{EMULATOR_DIR}/{debug,tests}/**" ]
         .pipe coffee
             bare: true
-            inline: true
+            inline: EMULATOR_INLINING
         .pipe bundle
             entry: "#{EMULATOR_DIR}/nescoffee.js"
             output: "nescoffee.js"
@@ -76,6 +87,18 @@ gulp.task "emulator", ->
                 warning_level: "QUIET"
                 externs: "#{EMULATOR_DIR}/externs.js"
         .pipe gulp.dest PUBLIC_SCRIPTS_DIR
+        .on "error", gutil.log
+
+gulp.task "emulator-test", [ "emulator-test-init" ], ->
+    gulp.src "#{TEMP_DIR}/tests/emulator-test.js"
+        .pipe jasmine()
+
+gulp.task "emulator-test-init", [ "clean-temp" ], ->
+    gulp.src "#{EMULATOR_DIR}/**/*.coffee"
+        .pipe coffee
+            bare: true
+            inline: EMULATOR_INLINING
+        .pipe gulp.dest TEMP_DIR
         .on "error", gutil.log
 
 ###########################################################
@@ -155,7 +178,6 @@ gulp.task "server", [ "emulator", "client" ], ->
         env: { NODE_ENV: if PRODUCTION_MODE then "produtction" else "development" }
         ignore: [ "#{EMULATOR_DIR}/*", "#{CLIENT_DIR}/*", "#{PUBLIC_DIR}/*" ]
     .on "start", [ "browser" ]
-
 
 gulp.task "browser", ->
     gulp.src "#{PUBLIC_DIR}/index.html"

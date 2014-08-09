@@ -1,8 +1,9 @@
-CPU       = require "../units/cpu"
-byteAsHex = require("../utils/format").byteAsHex
-wordAsHex = require("../utils/format").wordAsHex
-fillLeft  = require("../utils/format").fillLeft
-logger    = require("../utils/logger").get "debug"
+CPU           = require "../units/cpu"
+byteAsHex     = require("../utils/format").byteAsHex
+wordAsHex     = require("../utils/format").wordAsHex
+fillLeft      = require("../utils/format").fillLeft
+simpleLogger  = require("../utils/logger").get "debug-simple"
+verboseLogger = require("../utils/logger").get "debug-verbose"
 
 ###########################################################
 # CPU with debugging printouts
@@ -22,7 +23,6 @@ class DebugCPU extends CPU
         @logOperationBefore()
         super()
         @logOperationAfter()
-
 
     ###########################################################
     # Addressing modes
@@ -118,7 +118,13 @@ class DebugCPU extends CPU
     startLogging: ->
         @logHeader()
         @linesCount = 0
-        @formatterMethods = [
+        @simpleLogFormatterMethods = [
+            @formatInstructionAddress
+            @formatInstructionData
+            @formatInstructionCode
+            @formatRegisters
+        ]
+        @verboseLogFormatterMethods = [
             @formatLinesCount
             @formatCyclesCount
             @formatInstructionAddress
@@ -132,9 +138,9 @@ class DebugCPU extends CPU
         ]
 
     logHeader: ->
-        logger.info "/-------+-------+------+----------+-----+---+-----+------------+---------------------------+-----------------\\"
-        logger.info "|     # |  Cyc  |  PC  | D0 D1 D2 | OP  | C | AM  | Addr / Val |        Registers          |      Flags      |"
-        logger.info "|-------|-------|------|----------|-----|---|-----|------------|---------------------------|-----------------|"
+        verboseLogger.info "/-------+-------+------+----------+-----+---+-----+------------+---------------------------+-----------------\\"
+        verboseLogger.info "|     # |  Cyc  |  PC  | D0 D1 D2 | OP  | C | AM  | Addr / Val |        Registers          |      Flags      |"
+        verboseLogger.info "|-------|-------|------|----------|-----|---|-----|------------|---------------------------|-----------------|"
 
     logAddressingMode: (name, result) ->
         @addressingModeName = name
@@ -159,8 +165,10 @@ class DebugCPU extends CPU
     logOperationAfter: ->
         @linesCount++
         @instructionCycles = @cyclesCount - @cyclesCountBefore
-        result = (method() for method in @formatterMethods)
-        logger.info "| #{result.join ' | '} |"
+        simpleResult = (method() for method in @simpleLogFormatterMethods)
+        simpleLogger.info simpleResult.join "  "
+        verboseResult = (method() for method in @verboseLogFormatterMethods)
+        verboseLogger.info "| #{verboseResult.join ' | '} |"
 
     ###########################################################
     # Formatting
