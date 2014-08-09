@@ -26,10 +26,10 @@ nameToTVSystem =
     "pal":  TVSystem.PAL
 
 ###########################################################
-# NESCoffee emulator
+# Emulator API
 ###########################################################
 
-class NESCoffee
+class Emulator
 
     ###########################################################
     # Initialization
@@ -564,35 +564,35 @@ class NESCoffee
 # API export (for closure compiler)
 ###########################################################
 
-this["NESCoffee"] = NESCoffee
-this["NESCoffee"].prototype["bindControl"]        = NESCoffee.prototype.bindControl
-this["NESCoffee"].prototype["decreaseVideoScale"] = NESCoffee.prototype.decreaseVideoScale
-this["NESCoffee"].prototype["enterFullScreen"]    = NESCoffee.prototype.enterFullScreen
-this["NESCoffee"].prototype["increaseVideoScale"] = NESCoffee.prototype.increaseVideoScale
-this["NESCoffee"].prototype["insertCartridge"]    = NESCoffee.prototype.insertCartridge
-this["NESCoffee"].prototype["isRunning"]          = NESCoffee.prototype.isRunning
-this["NESCoffee"].prototype["isVideoDebug"]       = NESCoffee.prototype.isVideoDebug
-this["NESCoffee"].prototype["isVideoSmoothing"]   = NESCoffee.prototype.isVideoSmoothing
-this["NESCoffee"].prototype["getControl"]         = NESCoffee.prototype.getControl
-this["NESCoffee"].prototype["getFPS"]             = NESCoffee.prototype.getFPS
-this["NESCoffee"].prototype["getInputDevice"]     = NESCoffee.prototype.getInputDevice
-this["NESCoffee"].prototype["getMaxVideoScale"]   = NESCoffee.prototype.getMaxVideoScale
-this["NESCoffee"].prototype["getTVSystem"]        = NESCoffee.prototype.getTVSystem
-this["NESCoffee"].prototype["getVideoPalette"]    = NESCoffee.prototype.getVideoPalette
-this["NESCoffee"].prototype["getVideoScale"]      = NESCoffee.prototype.getVideoScale
-this["NESCoffee"].prototype["hardReset"]          = NESCoffee.prototype.hardReset
-this["NESCoffee"].prototype["loadCartridge"]      = NESCoffee.prototype.loadCartridge
-this["NESCoffee"].prototype["onError"]            = NESCoffee.prototype.onError
-this["NESCoffee"].prototype["onLoad"]             = NESCoffee.prototype.onLoad
-this["NESCoffee"].prototype["recordInput"]        = NESCoffee.prototype.recordInput
-this["NESCoffee"].prototype["setInputDevice"]     = NESCoffee.prototype.setInputDevice
-this["NESCoffee"].prototype["setVideoDebug"]      = NESCoffee.prototype.setVideoDebug
-this["NESCoffee"].prototype["setVideoSmoothing"]  = NESCoffee.prototype.setVideoSmoothing
-this["NESCoffee"].prototype["setVideoOutput"]     = NESCoffee.prototype.setVideoOutput
-this["NESCoffee"].prototype["setVideoPalette"]    = NESCoffee.prototype.setVideoPalette
-this["NESCoffee"].prototype["setVideoScale"]      = NESCoffee.prototype.setVideoScale
-this["NESCoffee"].prototype["setTVSystem"]        = NESCoffee.prototype.setTVSystem
-this["NESCoffee"].prototype["useDefaultControls"] = NESCoffee.prototype.useDefaultControls
-this["NESCoffee"].prototype["softReset"]          = NESCoffee.prototype.softReset
-this["NESCoffee"].prototype["start"]              = NESCoffee.prototype.start
-this["NESCoffee"].prototype["stop"]               = NESCoffee.prototype.stop
+this["NESCoffee"] = Emulator
+this["NESCoffee"].prototype["bindControl"]        = Emulator.prototype.bindControl
+this["NESCoffee"].prototype["decreaseVideoScale"] = Emulator.prototype.decreaseVideoScale
+this["NESCoffee"].prototype["enterFullScreen"]    = Emulator.prototype.enterFullScreen
+this["NESCoffee"].prototype["increaseVideoScale"] = Emulator.prototype.increaseVideoScale
+this["NESCoffee"].prototype["insertCartridge"]    = Emulator.prototype.insertCartridge
+this["NESCoffee"].prototype["isRunning"]          = Emulator.prototype.isRunning
+this["NESCoffee"].prototype["isVideoDebug"]       = Emulator.prototype.isVideoDebug
+this["NESCoffee"].prototype["isVideoSmoothing"]   = Emulator.prototype.isVideoSmoothing
+this["NESCoffee"].prototype["getControl"]         = Emulator.prototype.getControl
+this["NESCoffee"].prototype["getFPS"]             = Emulator.prototype.getFPS
+this["NESCoffee"].prototype["getInputDevice"]     = Emulator.prototype.getInputDevice
+this["NESCoffee"].prototype["getMaxVideoScale"]   = Emulator.prototype.getMaxVideoScale
+this["NESCoffee"].prototype["getTVSystem"]        = Emulator.prototype.getTVSystem
+this["NESCoffee"].prototype["getVideoPalette"]    = Emulator.prototype.getVideoPalette
+this["NESCoffee"].prototype["getVideoScale"]      = Emulator.prototype.getVideoScale
+this["NESCoffee"].prototype["hardReset"]          = Emulator.prototype.hardReset
+this["NESCoffee"].prototype["loadCartridge"]      = Emulator.prototype.loadCartridge
+this["NESCoffee"].prototype["onError"]            = Emulator.prototype.onError
+this["NESCoffee"].prototype["onLoad"]             = Emulator.prototype.onLoad
+this["NESCoffee"].prototype["recordInput"]        = Emulator.prototype.recordInput
+this["NESCoffee"].prototype["setInputDevice"]     = Emulator.prototype.setInputDevice
+this["NESCoffee"].prototype["setVideoDebug"]      = Emulator.prototype.setVideoDebug
+this["NESCoffee"].prototype["setVideoSmoothing"]  = Emulator.prototype.setVideoSmoothing
+this["NESCoffee"].prototype["setVideoOutput"]     = Emulator.prototype.setVideoOutput
+this["NESCoffee"].prototype["setVideoPalette"]    = Emulator.prototype.setVideoPalette
+this["NESCoffee"].prototype["setVideoScale"]      = Emulator.prototype.setVideoScale
+this["NESCoffee"].prototype["setTVSystem"]        = Emulator.prototype.setTVSystem
+this["NESCoffee"].prototype["useDefaultControls"] = Emulator.prototype.useDefaultControls
+this["NESCoffee"].prototype["softReset"]          = Emulator.prototype.softReset
+this["NESCoffee"].prototype["start"]              = Emulator.prototype.start
+this["NESCoffee"].prototype["stop"]               = Emulator.prototype.stop

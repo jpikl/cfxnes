@@ -39,10 +39,10 @@ CLOSURE_JAR        = "./node_modules/closure-compiler/lib/vendor/compiler.jar"
 # Utilities
 ###########################################################
 
-minnames = (files) ->
-    minname file for file in files
+minifiedNames = (files) ->
+    minifiedName file for file in files
 
-minname = (file) ->
+minifiedName = (file) ->
     if PRODUCTION_MODE
         file.replace /\.js$/,  ".min.js"
             .replace /\.css$/, ".min.css"
@@ -77,7 +77,7 @@ gulp.task "emulator", ->
             bare: true
             inline: EMULATOR_INLINING
         .pipe bundle
-            entry: "#{EMULATOR_DIR}/nescoffee.js"
+            entry: "#{EMULATOR_DIR}/emulator.js"
             output: "nescoffee.js"
         .pipe gulpif PRODUCTION_MODE, closure
             compilerPath: CLOSURE_JAR
@@ -110,7 +110,7 @@ gulp.task "client", [ "client-scripts", "client-styles", "client-views", "client
 gulp.task "client-scripts", ->
     gulp.src "#{CLIENT_DIR}/**/*.coffee"
         .pipe coffee()
-        .pipe concat minname "app.js"
+        .pipe concat minifiedName "app.js"
         .pipe gulp.dest PUBLIC_SCRIPTS_DIR
         .on "error", gutil.log
 
@@ -118,7 +118,7 @@ gulp.task "client-styles", ->
     gulp.src "#{CLIENT_DIR}/**/*.styl"
         .pipe stylus
             compress: PRODUCTION_MODE
-        .pipe concat minname "app.css"
+        .pipe concat minifiedName "app.css"
         .pipe gulp.dest PUBLIC_STYLES_DIR
 
 gulp.task "client-views", ->
@@ -141,7 +141,7 @@ gulp.task "client-images", ->
 gulp.task "client-deps", [ "cliet-deps-scripts", "cliet-deps-styles", "cliet-deps-fonts" ]
 
 gulp.task "cliet-deps-scripts", ->
-    gulp.src minnames [
+    gulp.src minifiedNames [
         "#{DEPS_DIR}/jquery/dist/jquery.js"
         "#{DEPS_DIR}/angular/angular.js"
         "#{DEPS_DIR}/angular-ui-router/release/angular-ui-router.js"
@@ -152,7 +152,7 @@ gulp.task "cliet-deps-scripts", ->
     .pipe gulp.dest PUBLIC_SCRIPTS_DIR
 
 gulp.task "cliet-deps-styles", ->
-    gulp.src minnames [
+    gulp.src minifiedNames [
         "#{DEPS_DIR}/bootstrap/dist/css/bootstrap.css"
         "#{DEPS_DIR}/bootstrap/dist/css/bootstrap-theme.css"
     ]
