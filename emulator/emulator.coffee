@@ -444,9 +444,9 @@ class Emulator
                     @bindControl dstPort, dstDevice, dstButton, srcMapping["device"], srcMapping["button"]
         undefined
 
-    bindControl: (dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback) ->
+    bindControl: (dstPort, dstDevice, dstButton, srcDevice, srcButton) ->
         @unbindControl   dstPort, dstDevice, dstButton, srcDevice, srcButton
-        @bindInputDevice dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback
+        @bindInputDevice dstPort, dstDevice, dstButton, srcDevice, srcButton
 
     unbindControl: (dstPort, dstDevice, dstButton, srcDevice, srcButton) ->
         @dstUnbindCallbacks[dstPort][dstDevice][dstButton]?()
@@ -455,9 +455,9 @@ class Emulator
     getControl: (dstPort, dstDevice, dstButton) ->
         @controls[dstPort][dstDevice][dstButton]?["name"]
 
-    bindInputDevice: (dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback) ->
+    bindInputDevice: (dstPort, dstDevice, dstButton, srcDevice, srcButton) ->
         logger.info "Binding '#{srcButton}' of '#{srcDevice}' to '#{dstDevice}' on port #{dstPort}"
-        unbindInputDevice = @getUnbindInputDeviceCallback dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback
+        unbindInputDevice = @getUnbindInputDeviceCallback dstPort, dstDevice, dstButton, srcDevice, srcButton
         useInputDevice = @getUseInputDeviceCallback dstPort, dstDevice, dstButton
         @dstUnbindCallbacks[dstPort][dstDevice][dstButton] = unbindInputDevice
         @srcUnbindCallbacks[srcDevice][srcButton] = unbindInputDevice
@@ -473,11 +473,9 @@ class Emulator
         @srcUnbindCallbacks[srcDevice][srcButton] = null
         @controls[dstPort][dstDevice][dstButton] = null
 
-    getUnbindInputDeviceCallback: (dstPort, dstDevice, dstButton, srcDevice, srcButton, unbindCallback) ->
+    getUnbindInputDeviceCallback: (dstPort, dstDevice, dstButton, srcDevice, srcButton) ->
         self = @
-        ->
-            self.unbindInputDevice dstPort, dstDevice, dstButton, srcDevice, srcButton
-            unbindCallback?()
+        -> self.unbindInputDevice dstPort, dstDevice, dstButton, srcDevice, srcButton
 
     getUseInputDeviceCallback: (dstPort, dstDevice, dstButton) ->
         if dstDevice is "joypad"
