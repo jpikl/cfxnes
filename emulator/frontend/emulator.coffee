@@ -2,15 +2,20 @@ TVSystem     = require("../core/common/types").TVSystem
 Joypad       = require "../core/devices/joypad"
 Binder       = require "../core/utils/binder"
 Injector     = require "../core/utils/injector"
-network      = require "../core/utils/network"
 Logger       = require "../core/utils/logger"
 LocalStorage = require "./storages/local-storage"
 
 VIDEO_WIDTH  = require("../core/common/constants").VIDEO_WIDTH
 VIDEO_HEIGHT = require("../core/common/constants").VIDEO_HEIGHT
 
+isLocalhost = ->
+    url = document.URL or ""
+    for pattern in [ "file://", "localhost", "127.0.0.1" ]
+        return true if url.indexOf pattern >= 0
+    return false
+
 logger = Logger.get()
-logger.attach Logger.console() if network.isLocalhost()
+logger.attach Logger.console() if isLocalhost()
 
 nameToJoypadButton =
     "a":      Joypad.Button.A
