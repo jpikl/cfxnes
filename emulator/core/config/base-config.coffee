@@ -1,10 +1,10 @@
 ###########################################################
-# Basic dependency configuration
+# Base dependency injection configuration
 ###########################################################
 
 class BaseConfig
 
-    "nes":              { module: "units/nes",                   singleton: true  }
+    "nes":              { module: "nes",                         singleton: true  }
     "cpu":              { module: "units/cpu",                   singleton: true  }
     "ppu":              { module: "units/ppu",                   singleton: true  }
     "apu":              { module: "units/apu",                   singleton: true  }
