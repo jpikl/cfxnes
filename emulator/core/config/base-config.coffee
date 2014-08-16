@@ -15,7 +15,7 @@ class BaseConfig
     "loaderFactory":    { module: "factories/loader-factory",    singleton: true  }
     "mapperFactory":    { module: "factories/mapper-factory",    singleton: true  }
     "storage":          { module: "storages/local-storage",      singleton: true  }
-    "joypad":           { module: "controllers/joypad",          singleton: false }
-    "zapper":           { module: "controllers/zapper",          singleton: false }
+    "joypad":           { module: "devices/joypad",              singleton: false }
+    "zapper":           { module: "devices/zapper",              singleton: false }
 
 module.exports = BaseConfig

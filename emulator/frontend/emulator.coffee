@@ -1,5 +1,5 @@
 TVSystem = require("../core/common/types").TVSystem
-Joypad   = require "../core/controllers/joypad"
+Joypad   = require "../core/devices/joypad"
 Binder   = require "../core/utils/binder"
 Injector = require "../core/utils/injector"
 network  = require "../core/utils/network"
