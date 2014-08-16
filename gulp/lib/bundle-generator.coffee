@@ -55,6 +55,7 @@ bundleGenerator =
         #{MODULE_FUNCTIONS}["#{modulePath}"] = function() {
             var require = #{CREATE_REQUIRE}("#{basePath}");
             var module = { exports: {} };
+            var exports = module.exports;
 
             #{moduleContents}
 
