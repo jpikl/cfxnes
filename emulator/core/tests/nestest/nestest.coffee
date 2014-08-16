@@ -1,3 +1,5 @@
+fs       = require "fs"
+expect   = require("chai").expect
 Injector = require "../../utils/injector"
 Logger   = require "../../utils/logger"
 
@@ -27,4 +29,5 @@ nes.step() for [1..TOTAL_STEPS]
 simpleLogger.close()
 verboseLogger.close()
 
-expect(SIMPLE_LOG_FILE).toBeFileWithSameContentAs VERIFIED_LOG_FILE
+verifiedLog = fs.readFileSync VERIFIED_LOG_FILE, "utf8"
+expect(SIMPLE_LOG_FILE).to.have.content verifiedLog

@@ -7,14 +7,13 @@ concat  = require "gulp-concat"
 rimraf  = require "gulp-rimraf"
 stylus  = require "gulp-stylus"
 jade    = require "gulp-jade"
-jasmine = require "gulp-jasmine"
+mocha   = require "gulp-mocha"
 open    = require "gulp-open"
 nodemon = require "gulp-nodemon"
 closure = require "gulp-closure-compiler"
 
 bundle  = require "./gulp/gulp-bundle-modules"
 coffee  = require "./gulp/gulp-inlined-coffee"
-
 
 ###########################################################
 # Constants
@@ -72,7 +71,7 @@ gulp.task "clean-temp", ->
 ###########################################################
 
 gulp.task "emulator", ->
-    gulp.src [ "#{EMULATOR_DIR}/**/*.coffee", "!#{EMULATOR_DIR}/{debug,tests}/**" ]
+    gulp.src [ "#{EMULATOR_DIR}/**/*.coffee", "!#{EMULATOR_DIR}/core/{debug,tests}/**" ]
         .pipe coffee
             bare: true
             inline: EMULATOR_INLINING
@@ -90,8 +89,8 @@ gulp.task "emulator", ->
         .on "error", gutil.log
 
 gulp.task "emulator-test", [ "emulator-test-init" ], ->
-    gulp.src "#{TEMP_DIR}/tests/emulator-test.js"
-        .pipe jasmine()
+    gulp.src "#{TEMP_DIR}/core/tests/*-test{,s}.js", read: false
+        .pipe mocha()
 
 gulp.task "emulator-test-init", [ "clean-temp" ], ->
     gulp.src "#{EMULATOR_DIR}/**/*.coffee"

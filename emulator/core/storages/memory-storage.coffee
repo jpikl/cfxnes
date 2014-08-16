@@ -10,9 +10,9 @@ class MemoryStorage extends AbstractStorage
         @data = {}
 
     read: (key) ->
-        data[key]
+        @data[key]
 
     write: (key, value) ->
-        data[key] = value
+        @data[key] = value
 
 module.exports = MemoryStorage

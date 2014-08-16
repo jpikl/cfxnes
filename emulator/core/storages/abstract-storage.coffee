@@ -15,7 +15,7 @@ class AbstractStorage
 
     readData: (key, output) ->
         value = @read key
-        if value then convert.stringToData value, output else null
+        if value? then convert.stringToData value, output else null
 
     writeData: (key, value) ->
         @write key, convert.dataToString(value)
@@ -23,7 +23,7 @@ class AbstractStorage
     readObject: (key) ->
         value = @read key
         try
-            if value then convert.stringToObject value else null
+            if value? then convert.stringToObject value else null
         catch
             logger.error "Unable to parse object from string: #{value}"
             null
