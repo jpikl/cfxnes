@@ -1,9 +1,10 @@
-TVSystem = require("../core/common/types").TVSystem
-Joypad   = require "../core/devices/joypad"
-Binder   = require "../core/utils/binder"
-Injector = require "../core/utils/injector"
-network  = require "../core/utils/network"
-Logger   = require "../core/utils/logger"
+TVSystem     = require("../core/common/types").TVSystem
+Joypad       = require "../core/devices/joypad"
+Binder       = require "../core/utils/binder"
+Injector     = require "../core/utils/injector"
+network      = require "../core/utils/network"
+Logger       = require "../core/utils/logger"
+LocalStorage = require "./storages/local-storage"
 
 VIDEO_WIDTH  = require("../core/common/constants").VIDEO_WIDTH
 VIDEO_HEIGHT = require("../core/common/constants").VIDEO_HEIGHT
@@ -318,7 +319,7 @@ class Emulator
 
     initStorage: ->
         logger.info "Initializing storage"
-        @storage = @injector.getInstance "storage"
+        @storage = new LocalStorage
         window.addEventListener "beforeunload", @saveAll
 
     setPeriodicSave: (period = 60000) ->

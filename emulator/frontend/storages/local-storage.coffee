@@ -1,4 +1,4 @@
-AbstractStorage = require "./abstract-storage"
+AbstractStorage = require "../../core/storages/abstract-storage"
 
 ###########################################################
 # Local Storage

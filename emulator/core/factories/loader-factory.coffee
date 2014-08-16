@@ -8,7 +8,7 @@ class LoaderFactory
 
     constructor: ->
         @loaders = []
-        @registerLoader "NES2" # Must be checked before INES
+        @registerLoader "NES2" # Must be processed before INES
         @registerLoader "INES"
 
     registerLoader: (name) ->
