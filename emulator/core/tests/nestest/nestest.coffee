@@ -3,8 +3,8 @@ Logger   = require "../../utils/logger"
 
 SIMPLE_LOG_FILE   = "./temp/nestest-simple.log"
 VERBOSE_LOG_FILE  = "./temp/nestest-full.log"
-VERIFIED_LOG_FILE = "./emulator/tests/nestest/nintendulator-simple.log"
-CARTRDIGE_FILE    = "./emulator/tests/nestest/nestest.nes"
+VERIFIED_LOG_FILE = "./emulator/core/tests/nestest/nintendulator-simple.log"
+CARTRDIGE_FILE    = "./emulator/core/tests/nestest/nestest.nes"
 CONFIG_PATH       = "tests/nestest/test-config"
 TOTAL_STEPS       = 8991
 

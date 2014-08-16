@@ -1,12 +1,12 @@
-TVSystem = require("./common/types").TVSystem
-Joypad   = require "./controllers/joypad"
-Binder   = require "./utils/binder"
-Injector = require "./utils/injector"
-network  = require "./utils/network"
-Logger   = require "./utils/logger"
+TVSystem = require("../core/common/types").TVSystem
+Joypad   = require "../core/controllers/joypad"
+Binder   = require "../core/utils/binder"
+Injector = require "../core/utils/injector"
+network  = require "../core/utils/network"
+Logger   = require "../core/utils/logger"
 
-VIDEO_WIDTH  = require("./common/constants").VIDEO_WIDTH
-VIDEO_HEIGHT = require("./common/constants").VIDEO_HEIGHT
+VIDEO_WIDTH  = require("../core/common/constants").VIDEO_WIDTH
+VIDEO_HEIGHT = require("../core/common/constants").VIDEO_HEIGHT
 
 logger = Logger.get()
 logger.attach Logger.console() if network.isLocalhost()
@@ -87,7 +87,7 @@ class Emulator
 
     initConsole: (mode) ->
         logger.info "Initializing console"
-        @injector = new Injector "./config/#{mode}-config"
+        @injector = new Injector "../core/config/#{mode}-config"
         @nes = @injector.getInstance "nes"
 
     hardReset: ->
@@ -182,7 +182,7 @@ class Emulator
     setVideoPalette: (name = "default") ->
         logger.info "Setting pallet to '#{name}'"
         @videoPalette = name
-        @nes.setRGBAPalette require "./paletts/#{name}-palette"
+        @nes.setRGBAPalette require "../core/paletts/#{name}-palette"
 
     getVideoPalette: ->
         @videoPalette

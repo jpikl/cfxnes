@@ -77,7 +77,7 @@ gulp.task "emulator", ->
             bare: true
             inline: EMULATOR_INLINING
         .pipe bundle
-            entry: "#{EMULATOR_DIR}/emulator.js"
+            entry: "#{EMULATOR_DIR}/frontend/emulator.js"
             output: "nescoffee.js"
         .pipe gulpif PRODUCTION_MODE, closure
             compilerPath: CLOSURE_JAR
