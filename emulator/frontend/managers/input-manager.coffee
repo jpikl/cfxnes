@@ -1,3 +1,5 @@
+logger = require("../../core/utils/logger").get()
+
 ###########################################################
 # Input manager
 ###########################################################
@@ -43,10 +45,10 @@ class InputManager
         return null
 
     ###########################################################
-    # State udpdates
+    # Source state changes
     ###########################################################
 
-    processStateChanges: ->
+    processSourceChanges: ->
         state = {}
         for id, source of @sources
             source.readState state
@@ -115,5 +117,23 @@ class InputManager
         if sourceParams
             source = @sources[sourceParams.id]
             source?.getInputName sourceParams.input
+
+    ###########################################################
+    # Configuration reading / writing
+    ###########################################################
+
+    readConfig: (config) ->
+        logger.info "Reading input configuration"
+        devices = config.input?.devices
+        mapping = config.input?.mapping
+        # TODO
+
+    writeConfig: (config) ->
+        logger.info "Writing input configuration"
+        config.input =
+            devices:
+                1: @getConnectedTargetId 1
+                2: @getConnectedTargetId 2
+            mapping: @targetsMapping
 
 module.exports = InputManager
