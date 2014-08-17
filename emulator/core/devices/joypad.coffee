@@ -1,25 +1,19 @@
 ###########################################################
-# Joypad button types
-###########################################################
-
-JoypadButton =
-    A:      0
-    B:      1
-    SELECT: 2
-    START:  3
-    UP:     4
-    DOWN:   5
-    LEFT:   6
-    RIGHT:  7
-
-###########################################################
-# Joypad controller
+# Joypad device
 ###########################################################
 
 
 class Joypad
 
-    @Button: JoypadButton
+    @Button:
+        A:      0
+        B:      1
+        SELECT: 2
+        START:  3
+        UP:     4
+        DOWN:   5
+        LEFT:   6
+        RIGHT:  7
 
     constructor: ->
         @buttonStates = (0 for [0..24])

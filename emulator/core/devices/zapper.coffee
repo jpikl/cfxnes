@@ -1,5 +1,5 @@
 ###########################################################
-# Zapper controller
+# Zapper device
 ###########################################################
 
 class Zapper
@@ -11,8 +11,8 @@ class Zapper
 
     constructor: ->
         @triggerPressed = 0
-        @screenX = 0
-        @screenY = 0
+        @beamX = 0
+        @beamY = 0
 
     strobe: ->
 
@@ -20,13 +20,13 @@ class Zapper
         @triggerPressed << 4 | !@isLightDetected() << 3
 
     isLightDetected: ->
-        @screenX and @screenY and @ppu.isLightPixel @screenX, @screenY
+        @beamX and @beamY and @ppu.isLightPixel @beamX, @beamY
 
     setTriggerPressed: (pressed) =>
         @triggerPressed = pressed
 
-    setScreenPosition: (x, y) ->
-        @screenX = x
-        @screenY = y
+    setBeamPosition: (x, y) ->
+        @beamX = x
+        @beamY = y
 
 module.exports = Zapper

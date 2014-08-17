@@ -1,5 +1,6 @@
 TVSystem     = require("../core/common/types").TVSystem
 Joypad       = require "../core/devices/joypad"
+Zapper       = require "../core/devices/zapper"
 Binder       = require "../core/utils/binder"
 Injector     = require "../core/utils/injector"
 Logger       = require "../core/utils/logger"
@@ -384,8 +385,8 @@ class Emulator
                 2: @createInputDevices()
 
     createInputDevices: ->
-        "joypad": @injector.getInstance "joypad"
-        "zapper": @injector.getInstance "zapper"
+        "joypad": @injector.injectInstance new Joypad
+        "zapper": @injector.injectInstance new Zapper
 
     setInputDevice: (port, device) ->
         logger.info "Setting input device on port #{port} to '#{device}'"
@@ -394,8 +395,8 @@ class Emulator
 
     getInputDevice: (port) ->
         device = @nes.getConnectedInputDevice port
-        if      device instanceof @injector.getClass "joypad" then "joypad"
-        else if device instanceof @injector.getClass "zapper" then "zapper"
+        if      device instanceof Joypad then "joypad"
+        else if device instanceof Zapper then "zapper"
         else    null
 
     updateZapper: ->
@@ -406,8 +407,8 @@ class Emulator
         y = ~~((@binder.mouseY - rect.top - 1) / scaleY)
         x = 0 if x < 0 or x >= VIDEO_WIDTH
         y = 0 if y < 0 or y >= VIDEO_HEIGHT
-        @inputDevices[1]["zapper"].setScreenPosition x, y
-        @inputDevices[2]["zapper"].setScreenPosition x, y
+        @inputDevices[1]["zapper"].setBeamPosition x, y
+        @inputDevices[2]["zapper"].setBeamPosition x, y
 
     ###########################################################
     # Controls
