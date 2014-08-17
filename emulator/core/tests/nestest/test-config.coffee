@@ -2,8 +2,8 @@ BaseConfig = require "../../config/base-config"
 
 class TestConfig extends BaseConfig
 
-    "cpu": { module: "tests/nestest/test-cpu", singleton: true }
-    "ppu": { module: "debug/fake-unit",        singleton: true }
-    "apu": { module: "debug/fake-unit",        singleton: true }
+    "cpu": "core/tests/nestest/test-cpu"
+    "ppu": "core/debug/fake-unit"
+    "apu": "core/debug/fake-unit"
 
 module.exports = TestConfig

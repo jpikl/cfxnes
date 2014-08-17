@@ -16,7 +16,7 @@ class NES
         @cpuMemory = cpuMemory
         @ppuMemory = ppuMemory
         @mapperFactory = mapperFactory
-        @pressReset()
+        @pressPower()
 
     ###########################################################
     # Buttons
