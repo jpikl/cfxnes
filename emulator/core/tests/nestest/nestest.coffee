@@ -7,7 +7,7 @@ SIMPLE_LOG_FILE   = "./temp/nestest-simple.log"
 VERBOSE_LOG_FILE  = "./temp/nestest-full.log"
 VERIFIED_LOG_FILE = "./emulator/core/tests/nestest/nintendulator-simple.log"
 CARTRDIGE_FILE    = "./emulator/core/tests/nestest/nestest.nes"
-CONFIG_PATH       = "tests/nestest/test-config"
+CONFIG_PATH       = "core/tests/nestest/test-config"
 TOTAL_STEPS       = 8991
 
 simpleLogger = Logger.get "debug-simple"
@@ -22,7 +22,6 @@ cartridgeFactory = injector.getInstance "cartridgeFactory"
 cartridge = cartridgeFactory.fromLocalFile CARTRDIGE_FILE
 
 nes = injector.getInstance "nes"
-nes.pressPower()
 nes.insertCartridge cartridge
 nes.step() for [1..TOTAL_STEPS]
 

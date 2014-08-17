@@ -20,12 +20,14 @@ keyCodeAliases =
 
 class Keyboard
 
+    @dependencies: [ "inputManager" ]
+
     constructor: (@id) ->
 
-    attach: (listener) ->
+    init: (inputManager) ->
+        @inputManager = inputManager
         window.addEventListener "keydown", @onKeyDown
         window.addEventListener "keyup", @onKeyUp
-        @listener = listener
 
     onKeyDown: (event) =>
         @processEvent event, true
@@ -37,7 +39,7 @@ class Keyboard
         event or= window.event
         keyCode = event.keyCode or event.which
         input = keyCodeAliases[keyCode]
-        if input and @listener.processInput @id, input, down
+        if input and @inputManager.processInput @id, input, down
             event.preventDefault()
 
     getInputName: (input) ->

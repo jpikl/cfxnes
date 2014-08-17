@@ -12,7 +12,7 @@ class CartridgeFactory
 
     @dependencies: [ "loaderFactory" ]
 
-    inject: (loaderFactory) ->
+    init: (loaderFactory) ->
         @loaderFactory = loaderFactory
 
     fromArrayBuffer: (arrayBuffer) ->
@@ -20,7 +20,7 @@ class CartridgeFactory
         @fromReader new ArrayBufferReader arrayBuffer
 
     fromLocalFile: (filePath) ->
-        LocalFileReader   = require "../readers/local-file-reader"
+        LocalFileReader = require "../readers/local-file-reader"
         @fromReader new LocalFileReader filePath
 
     fromReader: (reader) ->

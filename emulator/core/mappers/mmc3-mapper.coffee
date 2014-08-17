@@ -7,6 +7,13 @@ Mirroring      = require("../common/types").Mirroring
 
 class MMC3 extends AbstractMapper
 
+    @dependencies: [ "cpu", "ppu", "cpuMemory", "ppuMemory" ]
+
+    inject: (cpu, ppu, cpuMemory, ppuMemory) ->
+        super cpuMemory, ppuMemory
+        @cpu = cpu
+        @ppu = ppu
+
     ###########################################################
     # Mapper initialization
     ###########################################################

@@ -38,14 +38,20 @@ nameToTVSystem =
 
 class Emulator
 
+    @dependencies: [ "nes", "deviceFactory", "cartridgeFactory" ]
+
+    inject: (nes, deviceFactory, cartridgeFactory) ->
+        @nes = nes
+        @deviceFactory = deviceFactory
+        @cartridgeFactory = cartridgeFactory
+
     ###########################################################
     # Initialization
     ###########################################################
 
     constructor: (mode = "base") ->
         logger.info "Initializing emulator"
-        @initConsole mode
-        @initCartridges()
+        @createContext mode
         @initInputDevices()
         @initControls()
         @initFPS()
@@ -57,7 +63,6 @@ class Emulator
         @initFullscreen()
         @useDefaultControls()
         @loadConfig()
-        @hardReset()
         logger.info "Emulator initialization done"
 
     ###########################################################
@@ -92,10 +97,10 @@ class Emulator
     # Console
     ###########################################################
 
-    initConsole: (mode) ->
-        logger.info "Initializing console"
-        @injector = new Injector "../core/config/#{mode}-config"
-        @nes = @injector.getInstance "nes"
+    createContext: (mode) ->
+        logger.info "Creating '#{mode}' DI context"
+        injector = new Injector "frontend/config/#{mode}-config"
+        injector.injectInstance this
 
     hardReset: ->
         logger.info "Hard reset"
@@ -385,8 +390,8 @@ class Emulator
                 2: @createInputDevices()
 
     createInputDevices: ->
-        "joypad": @injector.injectInstance new Joypad
-        "zapper": @injector.injectInstance new Zapper
+        "joypad": @deviceFactory.createDevice "joypad"
+        "zapper": @deviceFactory.createDevice "zapper"
 
     setInputDevice: (port, device) ->
         logger.info "Setting input device on port #{port} to '#{device}'"
@@ -502,10 +507,6 @@ class Emulator
     ###########################################################
     # Cartridges
     ###########################################################
-
-    initCartridges: ->
-        logger.info "Initializing cartridge loading"
-        @cartridgeFactory = @injector.getInstance "cartridgeFactory"
 
     loadCartridge: (file, onLoad, onError) ->
         logger.info "Loding cartridge from file"

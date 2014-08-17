@@ -10,6 +10,16 @@ logger        = require("../utils/logger").get()
 
 class AbstractMapper
 
+    @dependencies: [ "cpuMemory", "ppuMemory" ]
+
+    inject: (cpuMemory, ppuMemory) ->
+        @cpuMemory = cpuMemory
+        @ppuMemory = ppuMemory
+
+    ###########################################################
+    # Mapper initialization / writing
+    ###########################################################
+
     constructor: (cartridge) ->
         logger.info "Constructing mapper"
         @init cartridge
@@ -17,20 +27,6 @@ class AbstractMapper
         @createCHRRAM()
         @printPRGRAMInfo()
         @printCHRRAMInfo()
-
-    ###########################################################
-    # Power-up state initialization
-    ###########################################################
-
-    powerUp: ->
-        logger.info "Resetting mapper"
-        @resetPRGRAM()
-        @resetCHRRAM()
-        @reset()
-
-    ###########################################################
-    # Mapper initialization / writing
-    ###########################################################
 
     init: (cartridge) ->
         @mirroring = cartridge.mirroring
@@ -55,6 +51,16 @@ class AbstractMapper
 
     tick: ->
         # For mapper to implement
+
+    ###########################################################
+    # Power-up state initialization
+    ###########################################################
+
+    powerUp: ->
+        logger.info "Resetting mapper"
+        @resetPRGRAM()
+        @resetCHRRAM()
+        @reset()
 
     ###########################################################
     # PRG ROM mapping

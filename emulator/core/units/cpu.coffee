@@ -18,13 +18,11 @@ class CPU
 
     @dependencies: [ "cpuMemory", "ppu", "apu", "dma" ]
 
-    inject: (cpuMemory, ppu, apu, dma) ->
+    init: (cpuMemory, ppu, apu, dma) ->
         @cpuMemory = cpuMemory
         @ppu = ppu
         @apu = apu
         @dma = dma
-
-    constructor: ->
         @initOperationsTable()
 
     ###########################################################
@@ -1037,6 +1035,5 @@ class CPU
 
     connectMapper: (mapper) ->
         @mapper = mapper
-        @mapper.cpu = this
 
 module.exports = CPU

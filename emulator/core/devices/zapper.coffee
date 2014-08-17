@@ -6,10 +6,8 @@ class Zapper
 
     @dependencies: [ "ppu" ]
 
-    inject: (ppu) ->
+    init: (ppu) ->
         @ppu = ppu
-
-    constructor: ->
         @triggerPressed = 0
         @beamX = 0
         @beamY = 0

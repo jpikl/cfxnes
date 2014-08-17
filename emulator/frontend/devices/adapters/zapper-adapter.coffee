@@ -1,23 +1,27 @@
-Zapper = require "../../../core/devices/Zapper"
-
 ###########################################################
 # Adapter for zapper device
 ###########################################################
 
 class ZapperAdapter
 
-    constructor: (injector) ->
-        @zapper = injector.injectInstance new Zapper
+    @dependencies: [ "videoManager" ]
 
-    getAdaptee: ->
+    constructor: (@zapper) ->
+
+    init: (screenManager) ->
+        @screenManager = screenManager
+
+    getDevice: ->
         @zapper
 
     inputChanged: (input, down) ->
         if input is "trigger"
             @zapper.setTriggerPressed down
 
-    inputBroadcasted: (input, data) ->
-        if input is "cursor-position"
-            @zapper.setBeanPosition data.x, data.y
+    stateChanged: (state) ->
+        rect = @videoManager.getRect()
+        x = (state.cursorX or 0) - rect.left
+        y = (state.cursorY or 0) - rect.top
+        @zapper.setBeanPosition x, y
 
 module.exports = ZapperAdapter

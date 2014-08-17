@@ -276,10 +276,14 @@ uniqueId = 0
 originalParse = parser.parser.parse
 
 hookedParse = (tokens) ->
-    inline = tokens[tokens.length - 1] is SECRET_INLINE_TOKEN
-    tokens.pop() if inline
-    ast = originalParse.call this, tokens
-    if inline then modifyAST ast else ast
+    try
+        inline = tokens[tokens.length - 1] is SECRET_INLINE_TOKEN
+        tokens.pop() if inline
+        ast = originalParse.call this, tokens
+        if inline then modifyAST ast else ast
+    catch error
+        console.log "Customized coffeescript compiler internal error:\n#{error.stack}"
+        throw error
 
 modifyAST = (ast) ->
     functions = findFunctions ast
@@ -355,7 +359,7 @@ createAssignment = (name, value) ->
 ###########################################################
 
 isInlineCallName = (name) ->
-    name.length > 1 and name[0] is "$"
+    name and name.length > 1 and name[0] is "$"
 
 fixInlineCallName = (name) ->
     name[1..]

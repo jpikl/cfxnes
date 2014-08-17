@@ -71,7 +71,7 @@ gulp.task "clean-temp", ->
 ###########################################################
 
 gulp.task "emulator", ->
-    gulp.src [ "#{EMULATOR_DIR}/**/*.coffee", "!#{EMULATOR_DIR}/core/{debug,tests}/**" ]
+    gulp.src [ "#{EMULATOR_DIR}/**/*.coffee", "!#{EMULATOR_DIR}/**/{debug,tests}/**" ]
         .pipe coffee
             bare: true
             inline: EMULATOR_INLINING

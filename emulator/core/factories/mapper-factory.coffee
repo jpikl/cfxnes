@@ -6,7 +6,7 @@ logger = require("../utils/logger").get()
 
 class MapperFactory
 
-    constructor: ->
+    constructor: (@injector) ->
         @mappers = []
         @registerMapper 0x00, "NROM"
         @registerMapper 0x01, "MMC1"
@@ -26,6 +26,6 @@ class MapperFactory
         unless mapper?
             throw new Error "Unsupported mapper (id: #{id})."
         logger.info "Using '#{mapper.name}' mapper"
-        new mapper.class cartridge
+        @injector.injectInstance new mapper.class cartridge
 
 module.exports = MapperFactory

@@ -1,5 +1,7 @@
 logger = require("./logger").get()
 
+ROOT_PATH = "../.."
+
 ###########################################################
 # Dependency injection
 ###########################################################
@@ -9,8 +11,8 @@ class Injector
     constructor: (configuration) ->
         logger.info "Creating injector"
         @dependencies = {}
-        for name, value of @resolveConfiguration configuration
-            @dependencies[name] = value
+        for name, path of @resolveConfiguration configuration
+            @dependencies[name] = { path: path }
 
     ###########################################################
     # Configuration processing
@@ -23,9 +25,9 @@ class Injector
             configuration = @buildConfiguration configuration
         configuration
 
-    readConfiguration: (module) ->
-        logger.info "Reading injector configuration '#{module}'"
-        require "../#{module}"
+    readConfiguration: (path) ->
+        logger.info "Reading injector configuration '#{path}'"
+        require "#{ROOT_PATH}/#{path}"
 
     buildConfiguration: (builder) ->
         logger.info "Building injector configuration"
@@ -42,43 +44,32 @@ class Injector
         dependency
 
     getClass: (name) ->
-        dependency = @getDependency(name)
-        dependency.clazz ?= require "../#{dependency.module}"
+        dependency = @getDependency name
+        dependency.clazz ?= require "#{ROOT_PATH}/#{dependency.path}"
 
     getInstance: (name) ->
-        if @isSingleton name
-            @getSingleton name
-        else
-            @createInjectedInstance name
-
-    getSingleton: (name) ->
-        @getDependency(name).instance ? @createInjectedSingleton name
-
-    isSingleton: (name) ->
-        @getDependency(name).singleton
+        dependency = @getDependency name
+        unless dependency.instance
+            dependency.instance = @createInstance name
+            @injectInstance dependency.instance
+        dependency.instance
 
     ###########################################################
     # Factory methotds
     ###########################################################
 
-    createInjectedSingleton: (name) ->
-        @injectInstance @createSingleton name
-
-    createSingleton: (name) ->
-        @getDependency(name).instance = @createInstance name
-
-    createInjectedInstance: (name) ->
-        @injectInstance @createInstance name
-
     createInstance: (name) ->
         logger.info "Creating instance of '#{name}'"
-        new (@getClass name)
+        new (@getClass name)(this)
 
     injectInstance: (instance) ->
-        if instance.constructor.dependencies and instance.inject
-            dependencies = for dependency in instance.constructor.dependencies
+        dependencies = instance.constructor.dependencies
+        injectMethod = instance.inject or instance.init
+        if dependencies and injectMethod
+            logger.info "Injecting dependencies: #{dependencies.join ', '}"
+            resolvedDependencies = for dependency in dependencies
                 @getInstance dependency
-            instance.inject.apply instance, dependencies
+            injectMethod.apply instance, resolvedDependencies
         instance
 
 module.exports = Injector

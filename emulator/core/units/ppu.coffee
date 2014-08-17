@@ -11,12 +11,11 @@ class PPU
 
     @dependencies: [ "ppuMemory", "cpu" ]
 
-    inject: (ppuMemory, cpu) ->
+    init: (ppuMemory, cpu) ->
         @ppuMemory = ppuMemory
         @cpu = cpu
-
-    ntscMode: true
-    colorEmphasis: 0
+        @ntscMode = true
+        @colorEmphasis = 0
 
     ###########################################################
     # Power-up state initialization
@@ -561,12 +560,5 @@ class PPU
         @frameBuffer[framePosition++] = @rgbaPalette[colorPosition++]
         @frameBuffer[framePosition++] = @rgbaPalette[colorPosition++]
         @frameBuffer[framePosition++] = @rgbaPalette[colorPosition++]
-
-    ###########################################################
-    # Mapper connection
-    ###########################################################
-
-    connectMapper: (mapper) ->
-        mapper.ppu = this
 
 module.exports = PPU

@@ -10,7 +10,7 @@ class DMA
 
     @dependencies: [ "cpuMemory" ]
 
-    inject: (cpuMemory) ->
+    init: (cpuMemory) ->
         @cpuMemory = cpuMemory
 
     powerUp: ->

@@ -16,14 +16,15 @@ joypadButtonAliases =
 
 class JoypadAdapter
 
-    constructor: ->
-        @joypad = new Joypad
+    constructor: (@joypad) ->
 
-    getAdaptee: ->
+    getDevice: ->
         @joypad
 
     inputChanged: (input, down) ->
         button = joypadButtonAliases[input]
         @joypad.setButtonPressed button, down if button
+
+    stateChanged: (state) ->
 
 module.exports = JoypadAdapter

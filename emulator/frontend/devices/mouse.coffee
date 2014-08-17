@@ -10,19 +10,20 @@ buttonAliases =
 
 class Mouse
 
+    @dependencies: [ "inputManager" ]
+
     constructor: (@id) ->
 
-    attach: (listener) ->
+    init: (inputManager) ->
+        @inputManager = inputManager
         window.addEventListener "mousemove", @onMouseMove
         window.addEventListener "mousedown", @onMouseDown
         window.addEventListener "mouseup", @onMouseUp
-        @listener = listener
 
     onMouseMove: (event) =>
         event or= window.event
-        @listener.broadcastInput @id, "cursor-position",
-            x: event.clientX
-            y: event.clientY
+        @x = event.clientX
+        @y = event.clientY
 
     onMouseDown: (event) =>
         @processEvent event, true
@@ -34,8 +35,12 @@ class Mouse
         event or= window.event
         button = event.button or event.which
         input = buttonAliases[button]
-        if input and @listener.processInput @id, input, down
+        if input and @inputManager.processInput @id, input, down
             event.preventDefault()
+
+    readState: (state) ->
+        state.cursorX = @x
+        state.cursorY = @y
 
     getInputName: (input) ->
         input[0].toUpperCase() + input[1..] + " mouse button"

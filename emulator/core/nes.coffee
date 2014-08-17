@@ -8,14 +8,15 @@ class NES
 
     @dependencies: [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory" ]
 
-    inject: (cpu, cpuMemory, ppu, ppuMemory, apu, dma, mapperFactory) ->
+    init: (cpu, cpuMemory, ppu, ppuMemory, apu, dma, mapperFactory) ->
         @cpu = cpu
-        @cpuMemory = cpuMemory
         @ppu = ppu
-        @ppuMemory = ppuMemory
         @apu = apu
         @dma = dma
+        @cpuMemory = cpuMemory
+        @ppuMemory = ppuMemory
         @mapperFactory = mapperFactory
+        @pressReset()
 
     ###########################################################
     # Buttons
@@ -51,7 +52,6 @@ class NES
         @cartridge = cartridge
         @mapper = @mapperFactory.createMapper cartridge
         @cpu.connectMapper @mapper
-        @ppu.connectMapper @mapper
         @cpuMemory.connectMapper @mapper
         @ppuMemory.connectMapper @mapper
         @mapper.powerUp()

@@ -8,12 +8,10 @@ class CPUMemory
 
     @dependencies: [ "ppu", "apu", "dma" ]
 
-    inject: (ppu, apu, dma) ->
+    init: (ppu, apu, dma) ->
         @ppu = ppu
         @apu = apu
         @dma = dma
-
-    constructor: ->
         @inputDevices = 1: null, 2: null
 
     ###########################################################
@@ -176,7 +174,6 @@ class CPUMemory
     ###########################################################
 
     connectMapper: (mapper) ->
-        mapper.cpuMemory = this
         @resetPRGROM mapper
         @resetPRGRAM mapper
 
