@@ -1,4 +1,4 @@
-Joypad = require "../../../core/devices/Joypad"
+Joypad = require "../../../core/devices/joypad"
 
 joypadButtonAliases =
     "a":      Joypad.Button.A

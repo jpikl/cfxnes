@@ -6,7 +6,7 @@ logger = require("../../core/utils/logger").get()
 
 class InputManager
 
-    @dependencies [ "nes", "deviceFactory" ]
+    @dependencies = [ "nes", "deviceFactory" ]
 
     ###########################################################
     # Ininitalization
