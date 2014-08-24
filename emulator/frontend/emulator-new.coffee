@@ -106,7 +106,7 @@ class Emulator
         scale = @videoModule.getScale() + 1
         @videoModule.setScale scale if scale <= @videoModule.getMaxScale()
 
-    "setVideoSmoothing" (smoothing) ->
+    "setVideoSmoothing": (smoothing) ->
         @videoManager.setSmoothing smoothing
 
     "isVideoSmoothing": ->
