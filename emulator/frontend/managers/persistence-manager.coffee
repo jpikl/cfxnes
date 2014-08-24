@@ -1,5 +1,7 @@
 logger = require("../../core/utils/logger").get()
 
+DEFAULT_SAVE_PERIOD = 60000 # 1 minute
+
 ###########################################################
 # Persistence manager
 ###########################################################
@@ -14,6 +16,36 @@ class PersistenceManager
         @videoManager = videoManager
         @inputManager = inputManager
         @executionManager = executionManager
+        @initListeners()
+        @setDefaults()
+
+    initListeners: ->
+        window.addEventListener "beforeunload", @saveAll
+
+    setDefaults: ->
+        logger.info "Using default persistence configuration"
+        @enablePeriodicSave DEFAULT_SAVE_PERIOD
+
+    ###########################################################
+    # Periodical save
+    ###########################################################
+
+    enablePeriodicSave: (period = DEFAULT_SAVE_PERIOD) ->
+        @disablePeriodicSave()
+        logger.info "Enabling periodic save with period #{period} ms"
+        @periodicSaveId = setInterval @saveAll, period
+
+    disablePeriodicSave: ->
+        if @isPeriodicSave()
+            logger.info "Disabling periodic save"
+            clearInterval @periodicSaveId
+
+    isPeriodicSave: ->
+        @periodicSaveId?
+
+    saveAll: =>
+        @saveCartridgeData()
+        @saveConfiguration()
 
     ###########################################################
     # Cartridge data

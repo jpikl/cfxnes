@@ -33,20 +33,20 @@ class ExecutionManager
     start: ->
         unless @isRunning()
             logger.info "Starting execution"
-            @intervalId = setInterval @step, 1000 / @getTargetFPS()
+            @executionId = setInterval @step, 1000 / @getTargetFPS()
 
     stop: ->
         if @isRunning()
             logger.info "Stopping execution"
-            clearInterval @intervalId
-            @intervalId = null
+            clearInterval @executionId
+            @executionId = null
 
     restart: ->
         @stop()
         @start()
 
     isRunning: ->
-        @intervalId?
+        @executionId?
 
     step: =>
         @videoManager.renderFrame()
