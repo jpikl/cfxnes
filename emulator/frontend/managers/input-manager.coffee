@@ -94,8 +94,8 @@ class InputManager
     forwardInput: (sourceId, sourceInput, inputDown) ->
         targetParams = @targetsMapping[sourceId]?[sourceInput]
         if targetParams
-            target = @targets[targetParams["port"]]?[targetParams["id"]]
-            target?.inputChanged targetParams["input"], inputDown
+            target = @targets[targetParams[0]]?[targetParams[1]]
+            target?.inputChanged targetParams[2], inputDown
             true
         else
             false
@@ -106,13 +106,10 @@ class InputManager
 
     recordInput: (targetPort, targetId, targetInput) ->
         logger.info "Recording input for '#{targetInput}' of '#{targetId}' on port #{targetPort}"
-        @recordParams =
-            port:  targetPort
-            id:    targetId
-            input: targetInput
+        @recordParams = [ targetPort, targetId, targetInput ]
 
     finishRecording: (sourceId, sourceInput) ->
-        @mapInput @recordParams["port"], @recordParams["id"], @recordParams["input"], sourceId, sourceInput
+        @mapInput @recordParams[0], @recordParams[1], @recordParams[2], sourceId, sourceInput
         @recordParams = null
         true
 
@@ -123,27 +120,22 @@ class InputManager
     mapInput: (targetPort, targetId, targetInput, sourceId, sourceInput) ->
         logger.info "Mapping '#{sourceInput}' of '#{sourceId}' to '#{targetInput}' of '#{targetId}' on port #{targetPort}"
         @unmapInput targetPort, targetId, targetInput, sourceId, sourceInput
-        @targetsMapping[sourceId][sourceInput] =
-            "port":  targetPort
-            "id":    targetId
-            "input": targetInput
-        @sourcesMapping[targetPort][targetId][targetInput] =
-            "id":    sourceId
-            "input": sourceInput
+        @targetsMapping[sourceId][sourceInput] = [ targetPort, targetId, targetInput ]
+        @sourcesMapping[targetPort][targetId][targetInput] = [ sourceId, sourceInput ]
 
     unmapInput: (targetPort, targetId, targetInput, sourceId, sourceInput) ->
         targetParams = @sourcesMapping[sourceId]?[sourceInput]
         sourceParams = @targetsMapping[targetPort]?[targetId]?[targetInput]
         @sourcesMapping[sourceId]?[sourceInput] = null
-        @sourcesMapping[sourceParams["id"]]?[sourceParams["input"]] = null if sourceParams
+        @sourcesMapping[sourceParams[0]]?[sourceParams[1]] = null if sourceParams
         @targetsMapping[targetPort]?[targetId]?[targetInput] = null
-        @targetsMapping[targetParams["port"]]?[targetParams["id"]]?[targetParams["input"]] = null if targetParams
+        @targetsMapping[targetParams[0]]?[targetParams[1]]?[targetParams[2]] = null if targetParams
 
     getMappedInputName: (targetPort, targetId, targetInput) ->
         sourceParams = @sourcesMapping[targetPort]?[targetId]?[targetInput]
         if sourceParams
-            source = @sources[sourceParams["id"]]
-            source?.getInputName sourceParams["input"]
+            source = @sources[sourceParams[0]]
+            source?.getInputName sourceParams[1]
 
     ###########################################################
     # Configuration reading / writing
@@ -155,7 +147,7 @@ class InputManager
             @connectTarget targetPort, targetId
         for sourceId, sourceInputs of config["input"]?["mapping"]
             for sourceInput, targetParams of sourceInputs
-                @mapInput targetParams["port"], targetParams["id"], targetParams["input"], sourceId, sourceInput
+                @mapInput targetParams[0], targetParams[1], targetParams[2], sourceId, sourceInput
 
     writeConfig: (config) ->
         logger.info "Writing input manager configuration"

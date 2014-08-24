@@ -55,7 +55,7 @@ class NES
         @cpuMemory.connectMapper @mapper
         @ppuMemory.connectMapper @mapper
         @mapper.powerUp()
-        @processTVSystemChange()
+        @updateTVSystem()
 
     isCartridgeInserted: ->
         @cartridge?
@@ -122,12 +122,12 @@ class NES
 
     setTVSystem: (tvSystem) ->
         @tvSystem = tvSystem
-        @processTVSystemChange()
+        @updateTVSystem()
 
     getTVSystem: ->
         @tvSystem or @cartridge?.tvSystem or TVSystem.NTSC
 
-    processTVSystemChange: ->
+    updateTVSystem: ->
         @ppu.setNTSCMode @getTVSystem() is TVSystem.NTSC
 
 module.exports = NES
