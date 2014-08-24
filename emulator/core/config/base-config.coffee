@@ -15,5 +15,6 @@ class BaseConfig
     "deviceFactory":    "core/factories/device-factory"
     "loaderFactory":    "core/factories/loader-factory"
     "mapperFactory":    "core/factories/mapper-factory"
+    "paletteFactory":   "core/factories/palette-factory"
 
 module.exports = BaseConfig

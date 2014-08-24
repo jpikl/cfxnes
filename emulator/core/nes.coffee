@@ -60,15 +60,11 @@ class NES
     isCartridgeInserted: ->
         @cartridge?
 
-    ###########################################################
-    # Persistence
-    ###########################################################
-
-    loadData: (storage) ->
+    loadCartridgeData: (storage) ->
         @mapper?.loadPRGRAM storage
         @mapper?.loadCHRRAM storage
 
-    saveData: (storage) ->
+    saveCartridgeData: (storage) ->
         @mapper?.savePRGRAM storage
         @mapper?.saveCHRRAM storage
 

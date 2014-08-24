@@ -8,8 +8,8 @@ class ZapperAdapter
 
     constructor: (@zapper) ->
 
-    init: (screenManager) ->
-        @screenManager = screenManager
+    init: (videoManager) ->
+        @videoManager = videoManager
 
     getDevice: ->
         @zapper
@@ -19,7 +19,7 @@ class ZapperAdapter
             @zapper.setTriggerPressed down
 
     stateChanged: (state) ->
-        rect = @videoManager.getRect()
+        rect = @videoManager.getCanvasRect()
         x = (state.cursorX or 0) - rect.left
         y = (state.cursorY or 0) - rect.top
         @zapper.setBeanPosition x, y

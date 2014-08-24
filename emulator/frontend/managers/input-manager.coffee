@@ -13,48 +13,73 @@ class InputManager
     ###########################################################
 
     init: (nes, deviceFactory) ->
+        logger.info "Initializing input manager"
         @nes = nes
         @deviceFactory = deviceFactory
-        @sources = {} # Source devices
-        @targets = {} # Target devices (their adapters)
+        @initSources()
+        @initTargets()
+        @setDefaults()
+
+    setDefaults: ->
+        logger.info "Using default input configuration"
+        @connectTarget 1, "joypad"
+        @connectTarget 2, "zapper"
+        @mapInput 1, "joypad", "a", "keyboard", "c"
+        @mapInput 1, "joypad", "b", "keyboard", "x"
+        @mapInput 1, "joypad", "start", "keyboard", "enter"
+        @mapInput 1, "joypad", "select", "keyboard", "shift"
+        @mapInput 1, "joypad", "up", "keyboard", "up"
+        @mapInput 1, "joypad", "down", "keyboard", "down"
+        @mapInput 1, "joypad", "left", "keyboard", "left"
+        @mapInput 1, "joypad", "right", "keyboard", "right"
+        @mapInput 2, "zapper", "trigger", "mouse", "left"
+
+    ###########################################################
+    # Source input devices
+    ###########################################################
+
+    initSources: ->
+        @sources = {}        # Source input devices
         @sourcesMapping = {} # Mapping between sources and targets (target -> source)
-        @targetsMapping = {} # Mapping between sources and targets (source -> target)
         @registerSource id for id in [ "keyboard", "mouse" ]
-        @registerTarget id for id in [ "joypad", "zapper" ]
 
     registerSource: (id) ->
+        logger.info "Registering source input device '#{id}'"
         @sources[id] = @deviceFactory.createSourceDevice id
 
-    registerTarget: (id) ->
-        for port in [ 1, 2 ]
-            @targets[port] ?= {}
-            @targets[port][id] = @deviceFactory.createTargetDevice id
-
-    ###########################################################
-    # Target connection
-    ###########################################################
-
-    connectTarget: (port, id) ->
-        device = @targets[port]?[id]?.getDevice()
-        @nes.connectInputDevice port, device
-
-    getConnectedTargetId: (port) ->
-        for id, target of @targets[targetPort] or {}
-            if @nes.getConnectedInputDevice() is target.getDevice()
-                return id
-        return null
-
-    ###########################################################
-    # Source state changes
-    ###########################################################
-
-    processSourceChanges: ->
+    processSourcesChanges: ->
         state = {}
         for id, source of @sources
             source.readState state
         for port, ids of @targets
             for id, target of ids
                 target.stateChanged state
+
+    ###########################################################
+    # Target input devices
+    ###########################################################
+
+    initTargets: ->
+        @targets = {}        # Target input devices (their adapters)
+        @targetsMapping = {} # Mapping between sources and targets (source -> target)
+        @registerTarget id for id in [ "joypad", "zapper" ]
+
+    registerTarget: (id) ->
+        logger.info "Registering target input device '#{id}'"
+        for port in [ 1, 2 ]
+            @targets[port] ?= {}
+            @targets[port][id] = @deviceFactory.createTargetDevice id
+
+    connectTarget: (port, id) ->
+        logger.info "Setting target input device on port #{port} to '#{id}'"
+        device = @targets[port]?[id]?.getDevice()
+        @nes.connectInputDevice port, device
+
+    getConnectedTarget: (port) ->
+        for id, target of @targets[targetPort] or {}
+            if @nes.getConnectedInputDevice() is target.getDevice()
+                return id
+        return null
 
     ###########################################################
     # Input handling
@@ -69,8 +94,8 @@ class InputManager
     forwardInput: (sourceId, sourceInput, inputDown) ->
         targetParams = @targetsMapping[sourceId]?[sourceInput]
         if targetParams
-            target = @targets[targetParams.port]?[targetParams.id]
-            target?.inputChanged targetParams.input, inputDown
+            target = @targets[targetParams["port"]]?[targetParams["id"]]
+            target?.inputChanged targetParams["input"], inputDown
             true
         else
             false
@@ -80,13 +105,14 @@ class InputManager
     ###########################################################
 
     recordInput: (targetPort, targetId, targetInput) ->
+        logger.info "Recording input for '#{targetInput}' of '#{targetId}' on port #{targetPort}"
         @recordParams =
             port:  targetPort
             id:    targetId
             input: targetInput
 
     finishRecording: (sourceId, sourceInput) ->
-        @bindInput @recordParams.port, @recordParams.id, @recordParams.input, sourceId, sourceInput
+        @mapInput @recordParams["port"], @recordParams["id"], @recordParams["input"], sourceId, sourceInput
         @recordParams = null
         true
 
@@ -95,45 +121,48 @@ class InputManager
     ###########################################################
 
     mapInput: (targetPort, targetId, targetInput, sourceId, sourceInput) ->
+        logger.info "Mapping '#{sourceInput}' of '#{sourceId}' to '#{targetInput}' of '#{targetId}' on port #{targetPort}"
         @unmapInput targetPort, targetId, targetInput, sourceId, sourceInput
         @targetsMapping[sourceId][sourceInput] =
-            port:  targetPort
-            id:    targetId
-            input: targetInput
+            "port":  targetPort
+            "id":    targetId
+            "input": targetInput
         @sourcesMapping[targetPort][targetId][targetInput] =
-            id:    sourceId
-            input: sourceInput
+            "id":    sourceId
+            "input": sourceInput
 
     unmapInput: (targetPort, targetId, targetInput, sourceId, sourceInput) ->
         targetParams = @sourcesMapping[sourceId]?[sourceInput]
         sourceParams = @targetsMapping[targetPort]?[targetId]?[targetInput]
         @sourcesMapping[sourceId]?[sourceInput] = null
-        @sourcesMapping[sourceParams.id]?[sourceParams.input] = null if sourceParams
+        @sourcesMapping[sourceParams["id"]]?[sourceParams["input"]] = null if sourceParams
         @targetsMapping[targetPort]?[targetId]?[targetInput] = null
-        @targetsMapping[targetParams.port]?[targetParams.id]?[targetParams.input] = null if targetParams
+        @targetsMapping[targetParams["port"]]?[targetParams["id"]]?[targetParams["input"]] = null if targetParams
 
     getMappedInputName: (targetPort, targetId, targetInput) ->
         sourceParams = @sourcesMapping[targetPort]?[targetId]?[targetInput]
         if sourceParams
-            source = @sources[sourceParams.id]
-            source?.getInputName sourceParams.input
+            source = @sources[sourceParams["id"]]
+            source?.getInputName sourceParams["input"]
 
     ###########################################################
     # Configuration reading / writing
     ###########################################################
 
     readConfig: (config) ->
-        logger.info "Reading input configuration"
-        devices = config.input?.devices
-        mapping = config.input?.mapping
-        # TODO
+        logger.info "Reading input manager configuration"
+        for targetPort, targetId of config["input"]?["devices"]
+            @connectTarget targetPort, targetId
+        for sourceId, sourceInputs of config["input"]?["mapping"]
+            for sourceInput, targetParams of sourceInputs
+                @mapInput targetParams["port"], targetParams["id"], targetParams["input"], sourceId, sourceInput
 
     writeConfig: (config) ->
-        logger.info "Writing input configuration"
-        config.input =
-            devices:
+        logger.info "Writing input manager configuration"
+        config["input"] =
+            "devices":
                 1: @getConnectedTargetId 1
                 2: @getConnectedTargetId 2
-            mapping: @targetsMapping
+            "mapping": @targetsMapping
 
 module.exports = InputManager

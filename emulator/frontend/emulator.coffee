@@ -347,11 +347,11 @@ class Emulator
 
     loadData: ->
         logger.info "Loding data"
-        @nes.loadData @storage
+        @nes.loadCartridgeData @storage
 
     saveData: ->
         logger.info "Saving data"
-        @nes.saveData @storage
+        @nes.saveCartridgeData @storage
 
     loadConfig: ->
         logger.info "Loading configuration"
