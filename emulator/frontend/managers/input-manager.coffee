@@ -47,7 +47,7 @@ class InputManager
         logger.info "Registering source input device '#{id}'"
         @sources[id] = @deviceFactory.createSourceDevice id
 
-    processSourcesChanges: ->
+    processSources: ->
         state = {}
         for id, source of @sources
             source.readState state
