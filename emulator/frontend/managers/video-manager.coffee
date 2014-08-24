@@ -175,7 +175,7 @@ class VideoManager
     # Configuration reading / writing
     ###########################################################
 
-    readConfig: (config) ->
+    readConfiguration: (config) ->
         logger.info "Reading video manager configuration"
         if config["video"]
             @setDebugging config["video"]["debugging"]
@@ -184,7 +184,7 @@ class VideoManager
             @setPalette   config["video"]["palette"]
             @setRenderer  config["video"]["renderer"]
 
-    writeConfig: (config) ->
+    writeConfiguration: (config) ->
         logger.info "Writing video manager configuration"
         config["video"] =
             "debugging": @isDebugging()

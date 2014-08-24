@@ -141,7 +141,7 @@ class InputManager
     # Configuration reading / writing
     ###########################################################
 
-    readConfig: (config) ->
+    readConfiguration: (config) ->
         logger.info "Reading input manager configuration"
         for targetPort, targetId of config["input"]?["devices"]
             @connectTarget targetPort, targetId
@@ -149,7 +149,7 @@ class InputManager
             for sourceInput, targetParams of sourceInputs
                 @mapInput targetParams[0], targetParams[1], targetParams[2], sourceId, sourceInput
 
-    writeConfig: (config) ->
+    writeConfiguration: (config) ->
         logger.info "Writing input manager configuration"
         config["input"] =
             "devices":

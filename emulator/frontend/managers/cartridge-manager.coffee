@@ -6,13 +6,13 @@ logger = require("../../core/utils/logger").get()
 
 class CartridgeManager
 
-    @dependencies: [ "nes", "storage", "cartridgeFactory", "executionManager" ]
+    @dependencies: [ "nes", "cartridgeFactory", "executionManager", "persistenceManager" ]
 
-    init: (nes, storage, cartridgeFactory, executionManager) ->
+    init: (nes, storage, cartridgeFactory, executionManager, persistenceManager) ->
         @nes = nes
-        @storage = storage
         @cartridgeFactory = cartridgeFactory
         @executionManager = executionManager
+        @persistenceManager = persistenceManager
 
     ###########################################################
     # Cartridge loading
@@ -57,9 +57,9 @@ class CartridgeManager
     ###########################################################
 
     insertCartridge: (arrayBuffer) ->
-        @saveCartridgeData()
+        @persistenceManager.saveCartridgeData()
         @doInsertCartridge()
-        @loadCartridgeData()
+        @persistenceManager.loadCartridgeData()
         @executionManager.restart() if @executionManager.isRunning()
 
     doInsertCartridge: (arrayBuffer) ->
@@ -70,19 +70,5 @@ class CartridgeManager
 
     isCartridgeInserted: ->
         @nes.isCartridgeInserted()
-
-    ###########################################################
-    # Cartridge persistence
-    ###########################################################
-
-    loadCartridgeData: ->
-         if @nes.isCartridgeInserted()
-            logger.info "Loading cartridge data"
-            @nes.loadCartridgeData @storage
-
-    saveCartridgeData: ->
-        if @nes.isCartridgeInserted()
-            logger.info "Saving cartridge data"
-            @nes.saveCartridgeData @storage
 
 module.exports = CartridgeManager

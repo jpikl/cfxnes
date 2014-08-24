@@ -5,6 +5,8 @@ tvSystemAliases =
     "ntsc": TVSystem.NTSC
     "pal":  TVSystem.PAL
 
+DEFAULT_TV_SYSTEM = null # Autodetection
+
 ###########################################################
 # Execution manager
 ###########################################################
@@ -18,6 +20,11 @@ class ExecutionManager
         @videoManager = videoManager
         @inputManager = inputManager
         @initFPS()
+        @setDefaults()
+
+    setDefaults: ->
+        logger.info "Using default execution configuration"
+        @setTVSystem DEFAULT_TV_SYSTEM
 
     ###########################################################
     # Execution commands
@@ -63,7 +70,7 @@ class ExecutionManager
     # TV system
     ###########################################################
 
-    setTVSystem: (tvSystem) ->
+    setTVSystem: (tvSystem = DEFAULT_TV_SYSTEM) ->
         logger.info "Setting TV system to '#{tvSystem or 'autodetection mode'}'"
         @tvSystem = tvSystem
         @nes.setTVSystem tvSystemAliases[tvSystem]
@@ -96,5 +103,19 @@ class ExecutionManager
             when TVSystem.NTSC then 60.0988
             when TVSystem.PAL  then 50.0070
             else throw new Error "Unknown TV system #{tvSystem}"
+
+    ###########################################################
+    # Configuration reading / writing
+    ###########################################################
+
+    readConfiguration: (config) ->
+        logger.info "Reading execution manager configuration"
+        if config["execution"]
+            @setTVSystem config["execution"]["tvSystem"]
+
+    writeConfiguration: (config) ->
+        logger.info "Writing execution manager configuration"
+        config["execution"] =
+            "tvSystem": @getTVSystem()
 
 module.exports = ExecutionManager
