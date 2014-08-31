@@ -50,10 +50,10 @@ class InputManager
     processSources: ->
         state = {}
         for id, source of @sources
-            source.readState state
+            source.readState? state
         for port, ids of @targets
             for id, target of ids
-                target.stateChanged state
+                target.stateChanged? state
 
     ###########################################################
     # Target input devices
@@ -76,7 +76,7 @@ class InputManager
         @nes.connectInputDevice port, device
 
     getConnectedTarget: (port) ->
-        for id, target of @targets[targetPort] or {}
+        for id, target of @targets[port]
             if @nes.getConnectedInputDevice() is target.getDevice()
                 return id
         return null
@@ -120,7 +120,10 @@ class InputManager
     mapInput: (targetPort, targetId, targetInput, sourceId, sourceInput) ->
         logger.info "Mapping '#{sourceInput}' of '#{sourceId}' to '#{targetInput}' of '#{targetId}' on port #{targetPort}"
         @unmapInput targetPort, targetId, targetInput, sourceId, sourceInput
+        @targetsMapping[sourceId] ?= {}
         @targetsMapping[sourceId][sourceInput] = [ targetPort, targetId, targetInput ]
+        @sourcesMapping[targetPort] ?= {}
+        @sourcesMapping[targetPort][targetId] ?= {}
         @sourcesMapping[targetPort][targetId][targetInput] = [ sourceId, sourceInput ]
 
     unmapInput: (targetPort, targetId, targetInput, sourceId, sourceInput) ->
@@ -153,8 +156,8 @@ class InputManager
         logger.info "Writing input manager configuration"
         config["input"] =
             "devices":
-                1: @getConnectedTargetId 1
-                2: @getConnectedTargetId 2
+                1: @getConnectedTarget 1
+                2: @getConnectedTarget 2
             "mapping": @targetsMapping
 
 module.exports = InputManager

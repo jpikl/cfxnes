@@ -22,6 +22,6 @@ class ZapperAdapter
         rect = @videoManager.getCanvasRect()
         x = (state.cursorX or 0) - rect.left
         y = (state.cursorY or 0) - rect.top
-        @zapper.setBeanPosition x, y
+        @zapper.setBeamPosition x, y
 
 module.exports = ZapperAdapter

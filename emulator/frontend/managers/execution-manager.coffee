@@ -1,5 +1,5 @@
 logger   = require("../../core/utils/logger").get()
-TVSystem = require("../core/common/types").TVSystem
+TVSystem = require("../../core/common/types").TVSystem
 
 tvSystemAliases =
     "ntsc": TVSystem.NTSC

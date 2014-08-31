@@ -1,11 +1,11 @@
-mixin device-button(name, port, device, button)
+mixin device-input(name, port, device, input)
     .form-group
         .col-xs-3.col-xs-offset-1.text-right
             label #{name}
         .col-xs-3
-            span {{ getControl(#{port}, '#{device}', '#{button}') }}
+            span {{ getControllName(#{port}, '#{device}', '#{input}') }}
         .col-xs-3
-            button.btn.btn-default(ng-click="bindControl(#{port}, '#{device}', '#{button}')") Change
+            button.btn.btn-default(ng-click="recordControll(#{port}, '#{device}', '#{input}')") Change
 
 mixin device(port)
     .col-xs-6
@@ -16,16 +16,16 @@ mixin device(port)
                 button.btn.btn-default(ng-model="controls.devices[#{port}]" btn-radio="'joypad'") Joypad
                 button.btn.btn-default(ng-model="controls.devices[#{port}]" btn-radio="'zapper'") Zapper
         div(ng-show="controls.devices[#{port}] == 'joypad'")
-            +device-button("A",       port, "joypad", "a")
-            +device-button("B",       port, "joypad", "b")
-            +device-button("Start",   port, "joypad", "start")
-            +device-button("Select",  port, "joypad", "select")
-            +device-button("Left",    port, "joypad", "left")
-            +device-button("Right",   port, "joypad", "right")
-            +device-button("Up",      port, "joypad", "up")
-            +device-button("Down",    port, "joypad", "down")
+            +device-input("A",       port, "joypad", "a")
+            +device-input("B",       port, "joypad", "b")
+            +device-input("Start",   port, "joypad", "start")
+            +device-input("Select",  port, "joypad", "select")
+            +device-input("Left",    port, "joypad", "left")
+            +device-input("Right",   port, "joypad", "right")
+            +device-input("Up",      port, "joypad", "up")
+            +device-input("Down",    port, "joypad", "down")
         div(ng-show="controls.devices[#{port}] == 'zapper'")
-            +device-button("Trigger", port, "zapper", "trigger")
+            +device-input("Trigger", port, "zapper", "trigger")
 
 .container
     h1 Configuration
@@ -42,7 +42,7 @@ mixin device(port)
 
         accordion-group(heading="Video" is-open="video.visible")
             .form-group
-                label.control-label.col-xs-2(for="video-debug") Output scale
+                label.control-label.col-xs-2(for="video-debugging") Output scale
                 .col-xs-3
                     input.form-control(id="video-scale" type="number" ng-model="video.scale" min="1" max="{{video.maxScale}}")
             .form-group
@@ -58,8 +58,8 @@ mixin device(port)
                     label(for="video-smoothing") Enable smoothing
             .form-group
                 .col-xs-3.col-xs-offset-2
-                    input(id="video-debug" type="checkbox" ng-model="video.debug")
-                    label(for="video-debug") Show patterns and paletts
+                    input(id="video-debugging" type="checkbox" ng-model="video.debugging")
+                    label(for="video-debugging") Show patterns and paletts
 
 
         accordion-group(heading="Controls" is-open="controls.visible")
@@ -67,4 +67,4 @@ mixin device(port)
                 +device(1)
                 +device(2)
             .row
-                button.col-xs-offset-1.btn.btn-default.btn-restore-controls(ng-click="useDefaultControls()") Restore to defaults
+                button.col-xs-offset-1.btn.btn-default.btn-restore-controls(ng-click="restoreDefaultControls()") Restore to defaults

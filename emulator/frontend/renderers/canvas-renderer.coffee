@@ -9,8 +9,8 @@ class CanavsRenderer
 
     constructor: (@canvas) ->
         @context = @canvas.getContext "2d"
-        @scale = 1
         @smoothing = false
+        @scale = 1
 
     createBuffer: (width, height) ->
         buffer = @context.createImageData width, height
@@ -23,8 +23,18 @@ class CanavsRenderer
 
     flush: ->
         if @scale > 1
-            @applySmoothing() if smoothing
+            @applySmoothing() if @smoothing
             @appyScaling()
+
+    setSmoothing: (smoothing) ->
+        @smoothing = smoothing
+
+    applySmoothing: ->
+        @context["imageSmoothingEnabled"] = @smoothing
+        @context["mozImageSmoothingEnabled"] = @smoothing
+        @context["oImageSmoothingEnabled"] = @smoothing
+        @context["webkitImageSmoothingEnabled"] = @smoothing
+        @context["msImageSmoothingEnabled"] = @smoothing
 
     setScale: (scale) ->
         @scale = scale
@@ -34,16 +44,6 @@ class CanavsRenderer
         sh = VIDEO_HEIGHT
         dw = @canvas.width
         dh = @canvas.height
-        @renderer.drawImage @canvas, 0, 0, sw, sh, 0, 0, dw, dh
-
-    setSmoothing: (smoothing) ->
-        @smoothing = smoothing
-
-    applySmoothing: ->
-        @context["imageSmoothingEnabled"] = @videoSmoothing
-        @context["mozImageSmoothingEnabled"] = @videoSmoothing
-        @context["oImageSmoothingEnabled"] = @videoSmoothing
-        @context["webkitImageSmoothingEnabled"] = @videoSmoothing
-        @context["msImageSmoothingEnabled"] = @videoSmoothing
+        @context.drawImage @canvas, 0, 0, sw, sh, 0, 0, dw, dh
 
 module.exports = CanavsRenderer

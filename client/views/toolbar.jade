@@ -10,7 +10,7 @@
         button.btn.btn-default.navbar-btn(tooltip="Soft reset" ng-click="softReset()"): .glyphicon.glyphicon-repeat
         button.btn.btn-default.navbar-btn(tooltip="Pause" ng-click="stop()"): .glyphicon.glyphicon-pause
     .btn-group
-        button.btn.btn-default.navbar-btn(tooltip="Decrease size" ng-click="decreaseSize()" ng-class="{ disabled: isMinSize() }"): .glyphicon.glyphicon-zoom-out
-        button.btn.btn-default.navbar-btn(tooltip="Increase size" ng-click="increaseSize()" ng-class="{ disabled: isMaxSize() }"): .glyphicon.glyphicon-zoom-in
+        button.btn.btn-default.navbar-btn(tooltip="Decrease scale" ng-click="decreaseSize()" ng-class="{ disabled: isMinSize() }"): .glyphicon.glyphicon-zoom-out
+        button.btn.btn-default.navbar-btn(tooltip="Increase scale" ng-click="increaseSize()" ng-class="{ disabled: isMaxSize() }"): .glyphicon.glyphicon-zoom-in
         button.btn.btn-default.navbar-btn(tooltip="Fullscreen" ng-click="enterFullScreen()"): .glyphicon.glyphicon-fullscreen
 span.navbar-text(ng-show="isRunning()") FPS: {{ getFPS() }}

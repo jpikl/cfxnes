@@ -49,6 +49,7 @@ class VideoManager
         @canvas = canvas
         @updateCanvasSize()
         @createRenderer()
+        @drawFrame()
 
     updateCanvasSize: ->
         widthMultiplier = if @debugging then 2 else 1
@@ -71,6 +72,9 @@ class VideoManager
         logger.info "Using '#{id}' video renderer"
         @rendererId = id
         @createRenderer() if @canvas
+
+    getRenderer: ->
+        @rendererId
 
     createRenderer: ->
         @renderer = @rendererFactory.createRenderer @rendererId, @canvas
@@ -107,7 +111,9 @@ class VideoManager
     setDebugging: (enabled = DEFAULT_DEBUGGING) ->
         logger.info "Setting video debugging to #{if enabled then 'on' else 'off'}"
         @debugging = enabled
-        @updateCanvasSize() if @canvas
+        if @canvas
+            @updateCanvasSize()
+            @drawFrame()
 
     isDebugging: ->
         @debugging
@@ -119,7 +125,9 @@ class VideoManager
     setSmoothing: (enabled = DEFAULT_SMOOTHING) ->
         logger.info "Setting video smoothing to #{if enabled then 'on' else 'off'}"
         @smoothing = enabled
-        @renderer.setSmoothing enabled if @renderer
+        if @canvas
+            @renderer.setSmoothing enabled if @renderer
+            @drawFrame()
 
     isSmoothing: ->
         @smoothing
@@ -131,7 +139,10 @@ class VideoManager
     setScale: (scale = DEFAULT_SCALE) ->
         logger.info "Setting video scale to #{scale}"
         @scale = scale
-        @renderer.setScale scale if @renderer
+        if @canvas
+            @updateCanvasSize()
+            @renderer.setScale scale
+            @drawFrame()
 
     getScale: ->
         @scale
@@ -160,7 +171,7 @@ class VideoManager
             screenfull.exit()
 
     onFullscreenChange: =>
-        logger.info "Fullscreen #{if @isFullScreen() then enabled else disabled}"
+        logger.info "Fullscreen #{if @isFullScreen() then 'enabled' else 'disabled'}"
         if @isFullScreen()
             @prevScale = @scale
             @setScale @getMaxScale()

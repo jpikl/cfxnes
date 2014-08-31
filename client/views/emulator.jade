@@ -1,9 +1,9 @@
 alert#emulator-error(ng-show="error" type="danger" close="clearError()") {{ error }}
 
-mixin button-info(label, device, button)
+mixin input-mapping(inputName, device, input)
     tr
-        td #{label}
-        td {{ getControl('#{device}', '#{button}')  }}
+        td #{inputName}
+        td {{ getMappedInputName('#{device}', '#{input}')  }}
 
 alert#controls-info(ng-show="controlsVisible" type="info" close="hideControls()")
     h3 Controls
@@ -14,15 +14,15 @@ alert#controls-info(ng-show="controlsVisible" type="info" close="hideControls()"
                 |  configure
             | )
     table
-        +button-info("A",      "joypad", "a")
-        +button-info("B",      "joypad", "b")
-        +button-info("Start",  "joypad", "start")
-        +button-info("Select", "joypad", "select")
-        +button-info("Left",   "joypad", "left")
-        +button-info("Right",  "joypad", "right")
-        +button-info("Up",     "joypad", "up")
-        +button-info("Down",   "joypad", "down")
-        +button-info("Zapper", "zapper", "trigger")
+        +input-mapping("A",      "joypad", "a")
+        +input-mapping("B",      "joypad", "b")
+        +input-mapping("Start",  "joypad", "start")
+        +input-mapping("Select", "joypad", "select")
+        +input-mapping("Left",   "joypad", "left")
+        +input-mapping("Right",  "joypad", "right")
+        +input-mapping("Up",     "joypad", "up")
+        +input-mapping("Down",   "joypad", "down")
+        +input-mapping("Zapper", "zapper", "trigger")
 
 canvas#video-output(on-create="setVideoOutput(element)" on-file-drop="loadCartridge(file)")
     | Your browser does not support canvas element.

@@ -25,6 +25,4 @@ class JoypadAdapter
         button = joypadButtonAliases[input]
         @joypad.setButtonPressed button, down if button
 
-    stateChanged: (state) ->
-
 module.exports = JoypadAdapter

@@ -1,16 +1,11 @@
 angular.module "nescoffee"
 
 .controller "EmulatorController", ($scope, $state, emulator, globalParams) ->
-    emulator.onLoad = ->
-        $scope.error = null
-        emulator.start()
-
-    emulator.onError = (error) ->
-        $scope.error = error
-        emulator.stop()
 
     $scope.loadCartridge = (file) ->
-        emulator.loadCartridge file
+        onLoad  =         -> $scope.$parent.$broadcast "load"
+        onError = (error) -> $scope.$parent.$broadcast "error", error
+        emulator.loadCartridge file, onLoad, onError
 
     $scope.clearError = ->
         $scope.error = null
@@ -18,20 +13,28 @@ angular.module "nescoffee"
     $scope.setVideoOutput = (element) ->
         emulator.setVideoOutput element[0]
 
+    $scope.changeControlsUrl = $state.href "config", { section: "controls" }
+
     $scope.controlsVisible = globalParams.controlsVisible ?= true
 
     $scope.hideControls = ->
         $scope.controlsVisible = globalParams.controlsVisible = false
 
-    $scope.getControl = (device, button) ->
+    $scope.getMappedInputName = (device, input) ->
         if emulator.getInputDevice(1) is device
-            emulator.getControl(1, device, button) or "--"
+            emulator.getMappedInputName(1, device, input) or "--"
         else if emulator.getInputDevice(2) is device
-            emulator.getControl(2, device, button) or "--"
+            emulator.getMappedInputName(2, device, input) or "--"
         else
             "--"
 
-    $scope.changeControlsUrl = $state.href "config", { section: "controls" }
+    $scope.$on "cartridgeLoad", ->
+        $scope.error = null
+        emulator.start()
+
+    $scope.$on "cartridgeError", (event, error) ->
+        $scope.error = error
+        emulator.stop()
 
     $scope.$on "$stateChangeStart", ->
         emulator.stop()

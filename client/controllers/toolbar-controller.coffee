@@ -2,7 +2,9 @@ angular.module "nescoffee"
 
 .controller "ToolbarController", ($scope, emulator) ->
     $scope.loadCartridge = (file) ->
-        emulator.loadCartridge file
+        onLoad  =         -> $scope.$parent.$broadcast "cartridgeLoad"
+        onError = (error) -> $scope.$parent.$broadcast "cartridgeError", error
+        emulator.loadCartridge file, onLoad, onError
 
     $scope.isRunning = ->
         emulator.isRunning()
@@ -20,10 +22,14 @@ angular.module "nescoffee"
         emulator.softReset()
 
     $scope.decreaseSize = ->
-        emulator.decreaseVideoScale()
+        unless $scope.isMinSize()
+            scale = emulator.getVideoScale()
+            emulator.setVideoScale scale - 1
 
     $scope.increaseSize = ->
-        emulator.increaseVideoScale()
+        unless $scope.isMaxSize()
+            scale = emulator.getVideoScale()
+            emulator.setVideoScale scale + 1
 
     $scope.isMinSize = ->
         emulator.getVideoScale() is 1

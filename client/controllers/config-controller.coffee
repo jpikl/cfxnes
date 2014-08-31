@@ -10,7 +10,7 @@ angular.module "nescoffee"
     $scope.video.scale = emulator.getVideoScale()
     $scope.video.maxScale = emulator.getMaxVideoScale()
     $scope.video.palette = emulator.getVideoPalette()
-    $scope.video.debug = emulator.isVideoDebug()
+    $scope.video.debugging = emulator.isVideoDebugging()
     $scope.video.smoothing = emulator.isVideoSmoothing()
 
     $scope.controls = globalParams.controlsConfig ?= {}
@@ -33,8 +33,8 @@ angular.module "nescoffee"
     $scope.$watch "video.palette", (value) ->
         emulator.setVideoPalette value
 
-    $scope.$watch "video.debug", (value) ->
-        emulator.setVideoDebug value
+    $scope.$watch "video.debugging", (value) ->
+        emulator.setVideoDebugging value
 
     $scope.$watch "video.smoothing", (value) ->
         emulator.setVideoSmoothing value
@@ -45,19 +45,19 @@ angular.module "nescoffee"
     $scope.$watch "controls.devices[2]", (value) ->
         emulator.setInputDevice 2, value
 
-    $scope.getControl = (dstPort, dstDevice, dstButton) ->
-        emulator.getControl(dstPort, dstDevice, dstButton) or "--"
+    $scope.getControllName = (targetPort, targetId, targetInput) ->
+        emulator.getMappedInputName(targetPort, targetId, targetInput) or "--"
 
-    $scope.bindControl = (dstPort, dstDevice, dstButton) ->
+    $scope.recordControll = (targetPort, targetId, targetInput) ->
         modal = $modal.open
             template: "Press key or mouse button..."
-            windowClass: "modal-bind-control"
-        emulator.recordInput (srcDevice, srcButton) ->
+            windowClass: "modal-record-input"
+        emulator.recordInput (sourceId, sourceInput) ->
             modal.close()
-            emulator.bindControl dstPort, dstDevice, dstButton, srcDevice, srcButton
+            emulator.mapInput targetPort, targetId, targetInput, sourceId, sourceInput
             $scope.$apply()
 
-    $scope.useDefaultControls = ->
-        emulator.useDefaultControls()
+    $scope.restoreDefaultControls = ->
+        emulator.setInputDefaults()
         $scope.controls.devices[1] = emulator.getInputDevice(1) or "none"
         $scope.controls.devices[2] = emulator.getInputDevice(2) or "none"

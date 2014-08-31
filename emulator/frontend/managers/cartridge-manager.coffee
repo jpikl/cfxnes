@@ -8,7 +8,7 @@ class CartridgeManager
 
     @dependencies: [ "nes", "cartridgeFactory", "executionManager", "persistenceManager" ]
 
-    init: (nes, storage, cartridgeFactory, executionManager, persistenceManager) ->
+    init: (nes, cartridgeFactory, executionManager, persistenceManager) ->
         @nes = nes
         @cartridgeFactory = cartridgeFactory
         @executionManager = executionManager
@@ -57,10 +57,14 @@ class CartridgeManager
     ###########################################################
 
     insertCartridge: (arrayBuffer) ->
-        @persistenceManager.saveCartridgeData()
-        @doInsertCartridge()
-        @persistenceManager.loadCartridgeData()
-        @executionManager.restart() if @executionManager.isRunning()
+        try
+            @persistenceManager.saveCartridgeData()
+            @doInsertCartridge arrayBuffer
+            @persistenceManager.loadCartridgeData()
+            @executionManager.restart() if @executionManager.isRunning()
+            undefined
+        catch error
+            error.message or "Internal error"
 
     doInsertCartridge: (arrayBuffer) ->
         logger.info "Inserting cartridge"
