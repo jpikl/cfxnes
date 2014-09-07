@@ -15,7 +15,7 @@ getROMName = (fileName) ->
     fileName.replace /\.nes$/i, ""
 
 ###########################################################
-# ROMs library API
+# ROMs library service
 ###########################################################
 
 class ROMsService

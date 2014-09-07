@@ -22,6 +22,6 @@ class LoaderFactory
             if loader.class.supportsInput reader
                 logger.info "Using '#{loader.name}' loader"
                 return new loader.class reader
-        throw new Error "Unsupported cartridge ROM format."
+        throw new Error "Unsupported data format."
 
 module.exports = LoaderFactory

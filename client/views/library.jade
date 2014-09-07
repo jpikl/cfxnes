@@ -1,23 +1,23 @@
 .container(on-navigation-key-down="navigationKeyDown(key)")
     .row
         h1.col-xs-12 Game Library
-    .row(ng-hide="loadingDone")
+    .row(ng-hide="libraryLoaded")
         p.loading-indicator.col-xs-12
             img(src="images/loading-indicator.gif")
             | Loading data...
-    .row(ng-show="loadingError")
+    .row(ng-show="libraryError")
         .col-xs-12
-            alert(type="danger") {{ loadingError }}
-    .row(ng-show="romError")
+            alert(type="danger") {{ libraryError }}
+    .row(ng-show="cartridgeError")
         .col-xs-12
-            alert(type="danger" close="clearError()") {{ romError }}
-    .row(ng-show="loadingDone && !loadingError")
+            alert(type="danger" close="clearError()") {{ cartridgeError }}
+    .row(ng-show="libraryLoaded && !libraryError")
         .col-xs-10
-            input#roms-filter.form-control(type="search" placeholder="Filter games by name..." ng-model="romsFilter.name" focus-when="loadingDone")
+            input#games-filter.form-control(type="search" placeholder="Filter games by name..." ng-model="gamesFilter.name" focus-when="libraryLoaded")
         .col-xs-2
-            button#play-button.btn.btn-primary(type="button" ng-class="{ disabled: !selectedROM }" ng-click="playROM(selectedROM)") Play game
-    .row(ng-show="loadingDone && !loadingError")
-        #library.col-xs-12(tabindex="0" autoscroll="tr.info" autoscroll-trigger="selectedROM")
+            button#play-button.btn.btn-primary(type="button" ng-class="{ disabled: !selectedGame }" ng-click="playGame(selectedGame)") Play game
+    .row(ng-show="libraryLoaded && !libraryError")
+        #library.col-xs-12(tabindex="0" autoscroll="tr.info" autoscroll-trigger="selectedGame")
             table.table()
-                tr(ng-repeat="rom in (filteredROMs = (roms | filter:romsFilter))" ng-class="{ info: rom == selectedROM }" ng-click="selectROM(rom)" ng-dblclick="playROM(rom)")
-                    td {{ rom.name }}
+                tr(ng-repeat="game in (filteredGames = (games | filter:gamesFilter))" ng-class="{ info: game == selectedGame }" ng-click="selectGame(game)" ng-dblclick="playGame(game)")
+                    td {{ game.name }}
