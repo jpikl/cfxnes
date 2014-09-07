@@ -25,25 +25,25 @@ angular.module "nescoffee"
         $scope.controls.visible = $stateParams.section is "controls"
 
     $scope.$watch "emulation.tvSystem", (value) ->
-        emulator.setTVSystem value
+        emulator.setTVSystem value unless emulator.getTVSystem() is value
 
     $scope.$watch "video.scale", (value) ->
-        emulator.setVideoScale value
+        emulator.setVideoScale value unless emulator.getVideoScale() is value
 
     $scope.$watch "video.palette", (value) ->
-        emulator.setVideoPalette value
+        emulator.setVideoPalette value unless emulator.getVideoPalette() is value
 
     $scope.$watch "video.debugging", (value) ->
-        emulator.setVideoDebugging value
+        emulator.setVideoDebugging value unless emulator.isVideoDebugging() is value
 
     $scope.$watch "video.smoothing", (value) ->
-        emulator.setVideoSmoothing value
+        emulator.setVideoSmoothing value unless emulator.isVideoSmoothing() is value
 
     $scope.$watch "controls.devices[1]", (value) ->
-        emulator.setInputDevice 1, value
+        emulator.setInputDevice 1, value unless emulator.getInputDevice(1) is value
 
     $scope.$watch "controls.devices[2]", (value) ->
-        emulator.setInputDevice 2, value
+        emulator.setInputDevice 2, value unless emulator.getInputDevice(2) is value
 
     $scope.getMappedInputName = (targetPort, targetId, targetInput) ->
         emulator.getMappedInputName(targetPort, targetId, targetInput) or "--"

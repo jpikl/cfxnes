@@ -48,6 +48,9 @@ class Emulator
     "setExecutionDefaults": ->
         @executionManager.setDefaults()
 
+    "step": ->
+        @executionManager.step()
+
     "start": ->
         @executionManager.start()
 

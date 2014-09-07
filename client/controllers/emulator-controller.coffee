@@ -12,6 +12,7 @@ angular.module "nescoffee"
 
     $scope.setVideoOutput = (element) ->
         emulator.setVideoOutput element[0]
+        emulator.step() if emulator.isCartridgeInserted() # To redraw screen
 
     $scope.changeControlsUrl = $state.href "config", { section: "controls" }
 
