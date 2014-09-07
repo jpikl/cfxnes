@@ -20,8 +20,9 @@ class ZapperAdapter
 
     stateChanged: (state) ->
         rect = @videoManager.getCanvasRect()
-        x = (state.cursorX or 0) - rect.left
-        y = (state.cursorY or 0) - rect.top
+        scale = @videoManager.getScale()
+        x = ~~(((state.cursorX or 0) - rect.left) / scale)
+        y = ~~(((state.cursorY or 0) - rect.top) / scale)
         @zapper.setBeamPosition x, y
 
 module.exports = ZapperAdapter
