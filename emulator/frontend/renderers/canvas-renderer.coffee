@@ -1,6 +1,3 @@
-VIDEO_WIDTH  = require("../../core/common/constants").VIDEO_WIDTH
-VIDEO_HEIGHT = require("../../core/common/constants").VIDEO_HEIGHT
-
 ###########################################################
 # Renderer using canvas API
 ###########################################################
@@ -23,7 +20,7 @@ class CanavsRenderer
 
     flush: ->
         if @scale > 1
-            @applySmoothing() if @smoothing
+            @applySmoothing()
             @appyScaling()
 
     setSmoothing: (smoothing) ->
@@ -40,8 +37,8 @@ class CanavsRenderer
         @scale = scale
 
     appyScaling: ->
-        sw = VIDEO_WIDTH
-        sh = VIDEO_HEIGHT
+        sw = @canvas.width / @scale
+        sh = @canvas.height / @scale
         dw = @canvas.width
         dh = @canvas.height
         @context.drawImage @canvas, 0, 0, sw, sh, 0, 0, dw, dh
