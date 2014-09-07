@@ -1,6 +1,6 @@
 alert#emulator-error(ng-show="error" type="danger" close="clearError()") {{ error }}
 
-mixin input-mapping(inputName, device, input)
+mixin input-mapping(device, input, inputName)
     tr
         td #{inputName}
         td {{ getMappedInputName('#{device}', '#{input}')  }}
@@ -14,15 +14,15 @@ alert#controls-info(ng-show="controlsVisible" type="info" close="hideControls()"
                 |  configure
             | )
     table
-        +input-mapping("A",      "joypad", "a")
-        +input-mapping("B",      "joypad", "b")
-        +input-mapping("Start",  "joypad", "start")
-        +input-mapping("Select", "joypad", "select")
-        +input-mapping("Left",   "joypad", "left")
-        +input-mapping("Right",  "joypad", "right")
-        +input-mapping("Up",     "joypad", "up")
-        +input-mapping("Down",   "joypad", "down")
-        +input-mapping("Zapper", "zapper", "trigger")
+        +input-mapping("joypad", "a",      "A")
+        +input-mapping("joypad", "b",      "B")
+        +input-mapping("joypad", "start",  "Start")
+        +input-mapping("joypad", "select", "Select")
+        +input-mapping("joypad", "left",   "Left")
+        +input-mapping("joypad", "right",  "Right")
+        +input-mapping("joypad", "up",     "Up")
+        +input-mapping("joypad", "down",   "Down")
+        +input-mapping("zapper", "trigger", "Zapper")
 
 canvas#video-output(on-create="setVideoOutput(element)" on-file-drop="loadCartridge(file)")
     | Your browser does not support canvas element.

@@ -3,8 +3,8 @@ angular.module "nescoffee"
 .controller "EmulatorController", ($scope, $state, emulator, globalParams) ->
 
     $scope.loadCartridge = (file) ->
-        onLoad  =         -> $scope.$parent.$broadcast "load"
-        onError = (error) -> $scope.$parent.$broadcast "error", error
+        onLoad  =         -> $scope.$parent.$broadcast "cartridgeLoad"
+        onError = (error) -> $scope.$parent.$broadcast "cartridgeError", error
         emulator.loadCartridge file, onLoad, onError
 
     $scope.clearError = ->
