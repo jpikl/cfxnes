@@ -66,7 +66,7 @@ class PersistenceManager
     ###########################################################
 
     loadConfiguration: ->
-        config = @storage.read "config"
+        config = @storage.readObject "config"
         if config
             logger.info "Loading configuration"
             @videoManager.readConfiguration config
@@ -79,6 +79,6 @@ class PersistenceManager
         @videoManager.writeConfiguration config
         @inputManager.writeConfiguration config
         @executionManager.writeConfiguration config
-        @storage.write "config", config
+        @storage.writeObject "config", config
 
 module.exports = PersistenceManager
