@@ -1,31 +1,31 @@
-mixin device-input(name, port, device, input)
+mixin device-input(port, device, input, inputName)
     .form-group
         .col-xs-3.col-xs-offset-1.text-right
-            label #{name}
+            label #{inputName}
         .col-xs-3
-            span {{ getControllName(#{port}, '#{device}', '#{input}') }}
+            span {{ getMappedInputName(#{port}, '#{device}', '#{input}') }}
         .col-xs-3
-            button.btn.btn-default(ng-click="recordControll(#{port}, '#{device}', '#{input}')") Change
+            button.btn.btn-default(ng-click="recordInput(#{port}, '#{device}', '#{input}')") Change
 
 mixin device(port)
     .col-xs-6
-        .select-input-device
+        .device-select
             label Controller&nbsp;#{port}
             .btn-group
                 button.btn.btn-default(ng-model="controls.devices[#{port}]" btn-radio="'none'") None
                 button.btn.btn-default(ng-model="controls.devices[#{port}]" btn-radio="'joypad'") Joypad
                 button.btn.btn-default(ng-model="controls.devices[#{port}]" btn-radio="'zapper'") Zapper
         div(ng-show="controls.devices[#{port}] == 'joypad'")
-            +device-input("A",       port, "joypad", "a")
-            +device-input("B",       port, "joypad", "b")
-            +device-input("Start",   port, "joypad", "start")
-            +device-input("Select",  port, "joypad", "select")
-            +device-input("Left",    port, "joypad", "left")
-            +device-input("Right",   port, "joypad", "right")
-            +device-input("Up",      port, "joypad", "up")
-            +device-input("Down",    port, "joypad", "down")
+            +device-input(port, "joypad", "a",      "A")
+            +device-input(port, "joypad", "b",      "B")
+            +device-input(port, "joypad", "start",  "Start")
+            +device-input(port, "joypad", "select", "Select")
+            +device-input(port, "joypad", "left",   "Left")
+            +device-input(port, "joypad", "right",  "Right")
+            +device-input(port, "joypad", "up",     "Up")
+            +device-input(port, "joypad", "down",   "Down")
         div(ng-show="controls.devices[#{port}] == 'zapper'")
-            +device-input("Trigger", port, "zapper", "trigger")
+            +device-input(port, "zapper", "trigger", "Trigger")
 
 .container
     h1 Configuration
@@ -67,4 +67,4 @@ mixin device(port)
                 +device(1)
                 +device(2)
             .row
-                button.col-xs-offset-1.btn.btn-default.btn-restore-controls(ng-click="restoreDefaultControls()") Restore to defaults
+                button.col-xs-offset-1.btn.btn-default.btn-restore-controls(ng-click="restoreDefaults()") Restore to defaults

@@ -45,19 +45,21 @@ angular.module "nescoffee"
     $scope.$watch "controls.devices[2]", (value) ->
         emulator.setInputDevice 2, value
 
-    $scope.getControllName = (targetPort, targetId, targetInput) ->
+    $scope.getMappedInputName = (targetPort, targetId, targetInput) ->
         emulator.getMappedInputName(targetPort, targetId, targetInput) or "--"
 
-    $scope.recordControll = (targetPort, targetId, targetInput) ->
+    $scope.recordInput = (targetPort, targetId, targetInput) ->
         modal = $modal.open
             template: "Press key or mouse button..."
             windowClass: "modal-record-input"
+            keyboard: false
         emulator.recordInput (sourceId, sourceInput) ->
             modal.close()
-            emulator.mapInput targetPort, targetId, targetInput, sourceId, sourceInput
-            $scope.$apply()
+            if sourceId isnt "keyboard" or sourceInput isnt "escape"
+                emulator.mapInput targetPort, targetId, targetInput, sourceId, sourceInput
+                $scope.$apply()
 
-    $scope.restoreDefaultControls = ->
+    $scope.restoreDefaults = ->
         emulator.setInputDefaults()
         $scope.controls.devices[1] = emulator.getInputDevice(1) or "none"
         $scope.controls.devices[2] = emulator.getInputDevice(2) or "none"

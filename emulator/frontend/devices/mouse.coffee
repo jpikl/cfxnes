@@ -10,12 +10,13 @@ buttonAliases =
 
 class Mouse
 
-    @dependencies: [ "inputManager" ]
+    @dependencies: [ "inputManager", "videoManager" ]
 
     constructor: (@id) ->
 
-    init: (inputManager) ->
+    init: (inputManager, videoManager) ->
         @inputManager = inputManager
+        @videoManager =videoManager
         window.addEventListener "mousemove", @onMouseMove
         window.addEventListener "mousedown", @onMouseDown
         window.addEventListener "mouseup", @onMouseUp
@@ -26,10 +27,10 @@ class Mouse
         @y = event.clientY
 
     onMouseDown: (event) =>
-        @processEvent event, true
+        @processEvent event, true if @canProcessEvent()
 
     onMouseUp: (event) =>
-        @processEvent event, false
+        @processEvent event, false if @canProcessEvent()
 
     processEvent: (event, down) ->
         event or= window.event
@@ -37,6 +38,13 @@ class Mouse
         input = buttonAliases[button]
         if input and @inputManager.processInput @id, input, down
             event.preventDefault()
+
+    canProcessEvent: ->
+        @inputManager.isRecording() or @isMouseInCanvasRect()
+
+    isMouseInCanvasRect: ->
+        rect = @videoManager.getCanvasRect()
+        @x >= rect.left and @x <= rect.right and @y >= rect.top and @y <= rect.bottom
 
     readState: (state) ->
         state.cursorX = @x

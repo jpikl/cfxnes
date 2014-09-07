@@ -153,8 +153,8 @@ class Emulator
     "getMappedInputName": (targetPort, targetId, targetInput) ->
         @inputManager.getMappedInputName targetPort, targetId, targetInput
 
-    "recordInput": (targetPort, targetId, targetInput) ->
-        @inputManager.recordInput targetPort, targetId, targetInput
+    "recordInput": (callback) ->
+        @inputManager.recordInput callback
 
     ###########################################################
     # Persistence API

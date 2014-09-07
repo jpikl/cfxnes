@@ -20,20 +20,21 @@ keyCodeAliases =
 
 class Keyboard
 
-    @dependencies: [ "inputManager" ]
+    @dependencies: [ "inputManager", "videoManager" ]
 
     constructor: (@id) ->
 
-    init: (inputManager) ->
+    init: (inputManager, videoManager) ->
         @inputManager = inputManager
+        @videoManager = videoManager
         window.addEventListener "keydown", @onKeyDown
         window.addEventListener "keyup", @onKeyUp
 
     onKeyDown: (event) =>
-        @processEvent event, true
+        @processEvent event, true if @canProcessEvent()
 
     onKeyUp: (event) =>
-        @processEvent event, false
+        @processEvent event, false if @canProcessEvent()
 
     processEvent: (event, down) ->
         event or= window.event
@@ -41,6 +42,15 @@ class Keyboard
         input = keyCodeAliases[keyCode]
         if input and @inputManager.processInput @id, input, down
             event.preventDefault()
+
+    canProcessEvent: ->
+        @inputManager.isRecording() or not @isInputElementActive()
+
+    isInputElementActive: ->
+        activeElement = document.activeElement
+        name = activeElement?.tagName
+        type = activeElement?.type?.toLowerCase()
+        name is "INPUT" and type in [ "text", "search" ]
 
     getInputName: (input) ->
         words = input.split "-"

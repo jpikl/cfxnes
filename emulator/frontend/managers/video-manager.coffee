@@ -57,9 +57,9 @@ class VideoManager
         @canvas.height = @scale * VIDEO_HEIGHT
 
     getCanvasRect: =>
-        if @canvas
+        if @canvas and @canvas?.offsetParent isnt null # When canvas is visible
             rect = @canvas.getBoundingClientRect()
-            rect.right -= VIDEO_WIDTH if @debugging
+            rect.right -= VIDEO_WIDTH if @debugging # Without debugging output
             rect
         else
             { left: -1, right: -1, top: -1, bottom: -1 }

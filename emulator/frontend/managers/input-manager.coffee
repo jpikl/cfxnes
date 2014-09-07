@@ -77,7 +77,7 @@ class InputManager
 
     getConnectedTarget: (port) ->
         for id, target of @targets[port]
-            if @nes.getConnectedInputDevice() is target.getDevice()
+            if @nes.getConnectedInputDevice(port) is target.getDevice()
                 return id
         return null
 
@@ -86,7 +86,7 @@ class InputManager
     ###########################################################
 
     processInput: (sourceId, sourceInput, inputDown) ->
-        if @recordParams
+        if @isRecording()
             @finishRecording sourceId, sourceInput unless inputDown
         else
             @forwardInput sourceId, sourceInput, inputDown
@@ -104,13 +104,17 @@ class InputManager
     # Input recording
     ###########################################################
 
-    recordInput: (targetPort, targetId, targetInput) ->
-        logger.info "Recording input for '#{targetInput}' of '#{targetId}' on port #{targetPort}"
-        @recordParams = [ targetPort, targetId, targetInput ]
+    recordInput: (callback) ->
+        logger.info "Recording input"
+        @recordCallback = callback
+
+    isRecording: ->
+        @recordCallback?
 
     finishRecording: (sourceId, sourceInput) ->
-        @mapInput @recordParams[0], @recordParams[1], @recordParams[2], sourceId, sourceInput
-        @recordParams = null
+        logger.info "Caught input '#{sourceInput}' from '#{sourceId}'"
+        @recordCallback sourceId, sourceInput
+        @recordCallback = null
         true
 
     ###########################################################
@@ -127,12 +131,12 @@ class InputManager
         @sourcesMapping[targetPort][targetId][targetInput] = [ sourceId, sourceInput ]
 
     unmapInput: (targetPort, targetId, targetInput, sourceId, sourceInput) ->
-        targetParams = @sourcesMapping[sourceId]?[sourceInput]
-        sourceParams = @targetsMapping[targetPort]?[targetId]?[targetInput]
-        @sourcesMapping[sourceId]?[sourceInput] = null
-        @sourcesMapping[sourceParams[0]]?[sourceParams[1]] = null if sourceParams
-        @targetsMapping[targetPort]?[targetId]?[targetInput] = null
-        @targetsMapping[targetParams[0]]?[targetParams[1]]?[targetParams[2]] = null if targetParams
+        sourceParams = @sourcesMapping[targetPort]?[targetId]?[targetInput]
+        targetParams = @targetsMapping[sourceId]?[sourceInput]
+        @sourcesMapping[targetPort]?[targetId]?[targetInput] = null
+        @sourcesMapping[targetParams[0]]?[targetParams[1]]?[targetParams[2]] = null if targetParams
+        @targetsMapping[sourceId]?[sourceInput] = null
+        @targetsMapping[sourceParams[0]]?[sourceParams[1]] = null if sourceParams
 
     getMappedInputName: (targetPort, targetId, targetInput) ->
         sourceParams = @sourcesMapping[targetPort]?[targetId]?[targetInput]
