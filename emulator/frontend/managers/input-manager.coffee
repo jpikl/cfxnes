@@ -22,6 +22,7 @@ class InputManager
 
     setDefaults: ->
         logger.info "Using default input configuration"
+        @clearMapping()
         @connectTarget 1, "joypad"
         @connectTarget 2, "zapper"
         @mapInput 1, "joypad", "a", "keyboard", "c"
@@ -39,8 +40,7 @@ class InputManager
     ###########################################################
 
     initSources: ->
-        @sources = {}        # Source input devices
-        @sourcesMapping = {} # Mapping between sources and targets (target -> source)
+        @sources = {} # Source input devices
         @registerSource id for id in [ "keyboard", "mouse" ]
 
     registerSource: (id) ->
@@ -60,8 +60,7 @@ class InputManager
     ###########################################################
 
     initTargets: ->
-        @targets = {}        # Target input devices (their adapters)
-        @targetsMapping = {} # Mapping between sources and targets (source -> target)
+        @targets = {}  # Target input devices (their adapters)
         @registerTarget id for id in [ "joypad", "zapper" ]
 
     registerTarget: (id) ->
@@ -121,6 +120,10 @@ class InputManager
     # Input mapping
     ###########################################################
 
+    clearMapping: ->
+        @sourcesMapping = {} # Mapping between sources and targets (target -> source)
+        @targetsMapping = {} # Mapping between sources and targets (source -> target)
+
     mapInput: (targetPort, targetId, targetInput, sourceId, sourceInput) ->
         logger.info "Mapping '#{sourceInput}' of '#{sourceId}' to '#{targetInput}' of '#{targetId}' on port #{targetPort}"
         @unmapInput targetPort, targetId, targetInput, sourceId, sourceInput
@@ -150,10 +153,13 @@ class InputManager
 
     readConfiguration: (config) ->
         logger.info "Reading input manager configuration"
-        for targetPort, targetId of config["input"]?["devices"]
+        devicesConfig = config["input"]?["devices"]
+        for targetPort, targetId of devicesConfig
             @connectTarget targetPort, targetId
-        for sourceId, sourceInputs of config["input"]?["mapping"]
-            for sourceInput, targetParams of sourceInputs
+        mappingConfig = config["input"]?["mapping"]
+        @clearMapping() if mappingConfig
+        for sourceId, sourceInputs of mappingConfig
+            for sourceInput, targetParams of sourceInputs when targetParams
                 @mapInput targetParams[0], targetParams[1], targetParams[2], sourceId, sourceInput
 
     writeConfiguration: (config) ->
