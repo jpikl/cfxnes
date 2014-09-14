@@ -34,9 +34,16 @@ FRAGMENT_SHADER_SOURCE = """
 class WebGLRenderer
 
     constructor: (@canvas) ->
-        @gl = @canvas.getContext("webgl");
+        @initContext()
         @initParameters()
         @initShaders()
+
+    initContext: ->
+        unless window.WebGLRenderingContext
+            throw new Error "WebGL is not supported"
+        @gl = @canvas.getContext "webgl"
+        unless @gl
+            throw new Error "Unable to create WebGL context"
 
     ###########################################################
     # Shaders
