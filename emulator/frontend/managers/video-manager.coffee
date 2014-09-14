@@ -80,17 +80,18 @@ class VideoManager
         @renderer = @rendererFactory.createRenderer @rendererId, @canvas
         @renderer.setSmoothing @smoothing
         @renderer.setScale @scale
-        @frame = @renderer.createBuffer VIDEO_WIDTH, VIDEO_HEIGHT
-        @debugFrame = @renderer.createBuffer VIDEO_WIDTH, VIDEO_HEIGHT
+        @frame = @renderer.createFrame 0, 0, VIDEO_WIDTH, VIDEO_HEIGHT
+        @debugFrame = @renderer.createFrame VIDEO_WIDTH, 0, VIDEO_WIDTH, VIDEO_HEIGHT
 
     renderFrame: ->
         @nes.renderFrame @frame.data
         @nes.renderDebugFrame @debugFrame.data if @debugging
 
     drawFrame: ->
-        @renderer.drawBuffer @frame, 0, 0
-        @renderer.drawBuffer @debugFrame, VIDEO_WIDTH, 0 if @debugging
-        @renderer.flush()
+        @renderer.begin()
+        @renderer.drawFrame @frame
+        @renderer.drawFrame @debugFrame if @debugging
+        @renderer.end()
 
     ###########################################################
     # Palette

@@ -6,22 +6,41 @@ class CanavsRenderer
 
     constructor: (@canvas) ->
         @context = @canvas.getContext "2d"
-        @smoothing = false
-        @scale = 1
+        @initParameters()
 
-    createBuffer: (width, height) ->
-        buffer = @context.createImageData width, height
-        for i in [0...buffer.data.length]
-            buffer.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
-        buffer
+    ###########################################################
+    # Frames
+    ###########################################################
 
-    drawBuffer: (buffer, x, y) ->
-        @context.putImageData buffer, x, y
+    createFrame: (x, y, width, height) ->
+        frame = @context.createImageData width, height
+        frame.x = x
+        frame.y = y
+        for i in [0...frame.data.length]
+            frame.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
+        frame
 
-    flush: ->
+    drawFrame: (frame) ->
+        @context.putImageData frame, frame.x, frame.y
+
+    ###########################################################
+    # Begin / End
+    ###########################################################
+
+    begin: ->
+
+    end: ->
         if @scale > 1
             @applySmoothing()
             @appyScaling()
+
+    ###########################################################
+    # Parameters
+    ###########################################################
+
+    initParameters: ->
+        @smoothing = false
+        @scale = 1
 
     setSmoothing: (smoothing) ->
         @smoothing = smoothing
