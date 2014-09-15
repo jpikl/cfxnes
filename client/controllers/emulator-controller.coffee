@@ -39,3 +39,4 @@ angular.module "nescoffee"
 
     $scope.$on "$stateChangeStart", ->
         emulator.stop()
+        emulator.setVideoOutput null # Drop the canvas

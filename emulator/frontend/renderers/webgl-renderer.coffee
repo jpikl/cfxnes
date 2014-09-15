@@ -1,3 +1,5 @@
+logger = require("../../core/utils/logger").get()
+
 ###########################################################
 # Shaders
 ###########################################################
@@ -9,8 +11,8 @@ VERTEX_SHADER_SOURCE = """
     varying   vec2 vTextureCoord;
 
     void main(void) {
-        float x = aVertexPosition.x / (0.5 * uScreenSize.x) - 1.0; // From left to right
-        float y = 1.0 - aVertexPosition.y / (0.5 * uScreenSize.y); // From top to bottom
+        float x = aVertexPosition.x / (0.5 * uScreenSize.x) - 1.0; // [-1, 1] -> [0, width]
+        float y = 1.0 - aVertexPosition.y / (0.5 * uScreenSize.y); // [-1, 1] -> [height, 0]
         gl_Position = vec4(x, y, 0.0, 1.0);
         vTextureCoord = aTextureCoord;
     }
@@ -33,17 +35,29 @@ FRAGMENT_SHADER_SOURCE = """
 
 class WebGLRenderer
 
+    @isSupported: ->
+        window.WebGLRenderingContext?
+
     constructor: (@canvas) ->
-        @initContext()
+        @initWebGL()
         @initParameters()
         @initShaders()
 
-    initContext: ->
-        unless window.WebGLRenderingContext
+    initWebGL: ->
+        unless WebGLRenderer.isSupported()
             throw new Error "WebGL is not supported"
-        @gl = @canvas.getContext "webgl"
+        for id in [ "webgl", "experimental-webgl", "webkit-3d", "moz-webgl" ]
+            break if @gl = @getContext id
         unless @gl
-            throw new Error "Unable to create WebGL context"
+            throw new Error "Unable to get WebGL context"
+
+    getContext: (id) ->
+        try
+            logger.info "Trying to get WebGL context '#{id}'"
+            @canvas.getContext id
+        catch error
+            logger.warn "Error when getting WebGL context '#{id}: #{error}'"
+            null
 
     ###########################################################
     # Shaders

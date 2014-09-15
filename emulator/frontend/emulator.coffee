@@ -104,6 +104,15 @@ class Emulator
     "setVideoOutput": (canvas) ->
         @videoManager.setCanvas canvas
 
+    "setVideoRenderer": (renderer) ->
+        @videoManager.setRenderer renderer
+
+    "getVideoRenderer": ->
+        @videoManager.getRenderer()
+
+    "isVideoRendererSupported": (renderer) ->
+        @videoManager.isRendererSupported renderer
+
     "setVideoPalette": (palette) ->
         @videoManager.setPalette palette
 

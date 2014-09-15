@@ -10,6 +10,8 @@ angular.module "nescoffee"
     $scope.video.scale = emulator.getVideoScale()
     $scope.video.maxScale = emulator.getMaxVideoScale()
     $scope.video.palette = emulator.getVideoPalette()
+    $scope.video.webGL = emulator.getVideoRenderer() is "webgl"
+    $scope.video.webGLSupported = emulator.isVideoRendererSupported "webgl"
     $scope.video.debugging = emulator.isVideoDebugging()
     $scope.video.smoothing = emulator.isVideoSmoothing()
 
@@ -32,6 +34,10 @@ angular.module "nescoffee"
 
     $scope.$watch "video.palette", (value) ->
         emulator.setVideoPalette value unless emulator.getVideoPalette() is value
+
+    $scope.$watch "video.webGL", (value) ->
+        renderer = if value then "webgl" else "canvas"
+        emulator.setVideoRenderer renderer unless emulator.getVideoRenderer() is renderer
 
     $scope.$watch "video.debugging", (value) ->
         emulator.setVideoDebugging value unless emulator.isVideoDebugging() is value

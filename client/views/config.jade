@@ -52,6 +52,10 @@ mixin device(port)
                         option(value="default")   Default
                         option(value="bright")    Bright
                         option(value="realistic") Realistic
+            .form-group(ng-show="video.webGLSupported")
+                .col-xs-3.col-xs-offset-2
+                    input(id="video-webgl" type="checkbox" ng-model="video.webGL")
+                    label(for="video-webgl") Use WebGL for rendering
             .form-group
                 .col-xs-3.col-xs-offset-2
                     input(id="video-smoothing" type="checkbox" ng-model="video.smoothing")

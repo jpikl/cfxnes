@@ -45,11 +45,12 @@ class VideoManager
     ###########################################################
 
     setCanvas: (canvas) ->
-        logger.info "Setting video output to canvas"
+        logger.info "Setting video output to #{canvas}"
         @canvas = canvas
-        @updateCanvasSize()
-        @createRenderer()
-        @drawFrame()
+        if @canvas
+            @updateCanvasSize()
+            @createRenderer()
+            @drawFrame()
 
     updateCanvasSize: ->
         widthMultiplier = if @debugging then 2 else 1
@@ -67,6 +68,9 @@ class VideoManager
     ###########################################################
     # Renderering
     ###########################################################
+
+    isRendererSupported: (id) ->
+        @rendererFactory.isRendererSupported id
 
     setRenderer: (id = DEFAULT_RENDERER) ->
         logger.info "Using '#{id}' video renderer"

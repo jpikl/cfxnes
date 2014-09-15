@@ -4,6 +4,9 @@
 
 class CanavsRenderer
 
+    @isSupported: ->
+        true
+
     constructor: (@canvas) ->
         @context = @canvas.getContext "2d"
         @initParameters()
