@@ -52,18 +52,30 @@ class VideoManager
             @createRenderer()
             @drawFrame()
 
+    isCanvasVisible: ->
+        @canvas and @canvas?.offsetParent isnt null
+
     updateCanvasSize: ->
         widthMultiplier = if @debugging then 2 else 1
         @canvas.width = @scale * VIDEO_WIDTH * widthMultiplier
         @canvas.height = @scale * VIDEO_HEIGHT
 
-    getCanvasRect: =>
-        if @canvas and @canvas?.offsetParent isnt null # When canvas is visible
-            rect = @canvas.getBoundingClientRect()
-            rect.right -= VIDEO_WIDTH if @debugging # Without debugging output
+    getOutputRect: ->
+        if @isCanvasVisible()
+            rect = if @isFullScreen() then @getFullScreenRect() else @getCanvasRect()
+            rect.right -= (rect.right - rect.left) / 2 if @debugging # Without debugging output
             rect
         else
-            { left: -1, right: -1, top: -1, bottom: -1 }
+            @getEmptyRect()
+
+    getCanvasRect: ->
+        @canvas.getBoundingClientRect()
+
+    getFullScreenRect: ->
+        { left: 0, right: screen.width, top: 0, bottom: screen.height }
+
+    getEmptyRect: ->
+        { left: -1, right: -1, top: -1, bottom: -1 }
 
     ###########################################################
     # Renderering

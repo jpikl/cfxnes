@@ -43,7 +43,7 @@ class Mouse
         @inputManager.isRecording() or @isMouseInCanvasRect()
 
     isMouseInCanvasRect: ->
-        rect = @videoManager.getCanvasRect()
+        rect = @videoManager.getOutputRect()
         @x >= rect.left and @x <= rect.right and @y >= rect.top and @y <= rect.bottom
 
     readState: (state) ->
