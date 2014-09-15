@@ -8,5 +8,6 @@ angular.module "nescoffee"
         scope.$watch "target()", (value) ->
             if value
                 element.focus()
+                element.select?()
             else
                 element.blur()
