@@ -36,7 +36,7 @@ FRAGMENT_SHADER_SOURCE = """
 class WebGLRenderer
 
     @isSupported: ->
-        window.WebGLRenderingContext?
+        window["WebGLRenderingContext"]?
 
     constructor: (@canvas) ->
         @initWebGL()
