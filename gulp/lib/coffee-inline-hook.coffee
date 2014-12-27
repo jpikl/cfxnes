@@ -3,9 +3,11 @@
 # inlining.
 ###########################################################
 
-lexer   = require "coffee-script/lib/coffee-script/lexer"
-nodes   = require "coffee-script/lib/coffee-script/nodes"
-parser  = require "coffee-script/lib/coffee-script/parser"
+BASE_PATH = "../../node_modules/gulp-coffee/node_modules/"
+
+lexer   = require "#{BASE_PATH}/coffee-script/lib/coffee-script/lexer"
+nodes   = require "#{BASE_PATH}/coffee-script/lib/coffee-script/nodes"
+parser  = require "#{BASE_PATH}/coffee-script/lib/coffee-script/parser"
 
 ###########################################################
 # AST classes
