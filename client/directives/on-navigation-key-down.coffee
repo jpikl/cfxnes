@@ -1,4 +1,4 @@
-angular.module "nescoffee"
+angular.module "cfxnes"
 
 .directive "onNavigationKeyDown", ->
     restriction: "A"

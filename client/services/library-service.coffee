@@ -1,4 +1,4 @@
-angular.module "nescoffee"
+angular.module "cfxnes"
 
 .service "library", ($http) ->
     @listROMs = ->

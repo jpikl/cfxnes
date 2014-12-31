@@ -1,3 +1,3 @@
-angular.module "nescoffee"
+angular.module "cfxnes"
 
-.factory "emulator", -> new NESCoffee
+.factory "emulator", -> new CFxNES

@@ -1,4 +1,4 @@
-angular.module "nescoffee"
+angular.module "cfxnes"
 
 .controller "EmulatorController", ($scope, $state, emulator, globalParams) ->
 

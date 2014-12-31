@@ -205,4 +205,4 @@ class Emulator
     "isPeriodicSave": ->
         @persistenceManager.isPeriodicSave()
 
-module.exports = window["NESCoffee"] = Emulator
+module.exports = window["CFxNES"] = Emulator

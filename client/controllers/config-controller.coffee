@@ -1,4 +1,4 @@
-angular.module "nescoffee"
+angular.module "cfxnes"
 
 .controller "ConfigController", ($scope, $stateParams, $modal, emulator, globalParams) ->
     $scope.emulation = globalParams.emulationConfig ?= {}

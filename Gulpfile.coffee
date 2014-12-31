@@ -78,10 +78,10 @@ gulp.task "emulator", ->
             inline: EMULATOR_INLINING
         .pipe bundle
             entry: "#{EMULATOR_DIR}/frontend/emulator.js"
-            output: "nescoffee.js"
+            output: "cfxnes.js"
         .pipe gulpif PRODUCTION_MODE, closure
             compilerPath: CLOSURE_JAR
-            fileName: "nescoffee.min.js"
+            fileName: "cfxnes.min.js"
             compilerFlags:
                 compilation_level: "ADVANCED_OPTIMIZATIONS"
                 warning_level: "QUIET"

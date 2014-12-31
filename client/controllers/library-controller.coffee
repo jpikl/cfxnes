@@ -1,4 +1,4 @@
-angular.module "nescoffee"
+angular.module "cfxnes"
 
 .controller "LibraryController", ($scope, $state, $timeout, library, emulator, globalParams) ->
     $scope.gamesFilter = globalParams.gamesFilter ?= { name: "" }

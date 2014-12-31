@@ -1,4 +1,4 @@
-angular.module "nescoffee"
+angular.module "cfxnes"
 
 .controller "ToolbarController", ($scope, emulator) ->
     $scope.loadCartridge = (file) ->

@@ -11,19 +11,19 @@ mixin scripts(files)
         script(type="text/javascript", src="scripts/#{file}.js")
 
 doctype html
-html(ng-app="nescoffee")
+html(ng-app="cfxnes")
     head
         meta(charset="utf-8")
-        title NESCoffee - NES emulator
+        title CFxNES - NES emulator
         +stylesheets([ "bootstrap", "app" ])
-        +scripts([ "jquery", "angular", "angular-ui-router", "ui-bootstrap-tpls", "screenfull", "md5", "nescoffee", "app" ])
+        +scripts([ "jquery", "angular", "angular-ui-router", "ui-bootstrap-tpls", "screenfull", "md5", "cfxnes", "app" ])
     body
         nav.navbar.navbar-default
             .container-fluid
                 .navbar-header
                     a.navbar-brand(ui-sref="emulator")
                         img.logo(src="images/logo-sm.png")
-                        | NESCoffee
+                        | CFxNES
                 ul.nav.navbar-nav.navbar-left
                     li(ui-sref-active="active")
                         a(ui-sref="emulator")

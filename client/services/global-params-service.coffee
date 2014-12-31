@@ -1,3 +1,3 @@
-angular.module "nescoffee"
+angular.module "cfxnes"
 
 .factory "globalParams", -> {}

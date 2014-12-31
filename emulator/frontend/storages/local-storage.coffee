@@ -13,6 +13,6 @@ class LocalStorage extends AbstractStorage
         window.localStorage?[@getFullKey key] = value
 
     getFullKey: (key) ->
-        "NESCoffee/#{key}"
+        "CFxNES/#{key}"
 
 module.exports = LocalStorage
