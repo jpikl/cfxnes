@@ -13,11 +13,12 @@ DEFAULT_TV_SYSTEM = null # Autodetection
 
 class ExecutionManager
 
-    @dependencies: [ "nes", "videoManager", "inputManager" ]
+    @dependencies: [ "nes", "videoManager", "audioManager", "inputManager" ]
 
-    init: (nes, videoManager, inputManager) ->
+    init: (nes, videoManager, audioManager, inputManager) ->
         @nes = nes
         @videoManager = videoManager
+        @audioManager = audioManager
         @inputManager = inputManager
         @initFPS()
         @setDefaults()
@@ -34,12 +35,14 @@ class ExecutionManager
         unless @isRunning()
             logger.info "Starting execution"
             @executionId = setInterval @step, 1000 / @getTargetFPS()
+            @audioManager.setActive true
 
     stop: ->
         if @isRunning()
             logger.info "Stopping execution"
             clearInterval @executionId
             @executionId = null
+            @audioManager.setActive false
 
     restart: ->
         @stop()

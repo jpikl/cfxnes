@@ -8,12 +8,13 @@ DEFAULT_SAVE_PERIOD = 60000 # 1 minute
 
 class PersistenceManager
 
-    @dependencies: [ "nes", "storage", "videoManager", "inputManager", "executionManager" ]
+    @dependencies: [ "nes", "storage", "videoManager", "audioManager", "inputManager", "executionManager" ]
 
-    init: (nes, storage, videoManager, inputManager, executionManager) ->
+    init: (nes, storage, videoManager, audioManager, inputManager, executionManager) ->
         @nes = nes
         @storage = storage
         @videoManager = videoManager
+        @audioManager = audioManager
         @inputManager = inputManager
         @executionManager = executionManager
         @initListeners()
@@ -70,6 +71,7 @@ class PersistenceManager
         if config
             logger.info "Loading configuration"
             @videoManager.readConfiguration config
+            @audioManager.readConfiguration config
             @inputManager.readConfiguration config
             @executionManager.readConfiguration config
 
@@ -77,6 +79,7 @@ class PersistenceManager
         logger.info "Saving configuration"
         config = {}
         @videoManager.writeConfiguration config
+        @audioManager.writeConfiguration config
         @inputManager.writeConfiguration config
         @executionManager.writeConfiguration config
         @storage.writeObject "config", config

@@ -16,17 +16,18 @@ logger.attach Logger.console() if isLocalhost()
 
 class Emulator
 
-    @dependencies: [ "executionManager", "cartridgeManager", "videoManager", "inputManager", "persistenceManager" ]
+    @dependencies: [ "executionManager", "cartridgeManager", "videoManager", "audioManager", "inputManager", "persistenceManager" ]
 
     constructor: (mode = "base") ->
         logger.info "Creating '#{mode}' dependency injection context"
         injector = new Injector "frontend/config/#{mode}-config"
         injector.injectInstance this
 
-    init: (executionManager, cartridgeManager, videoManager, inputManager, persistenceManager) ->
+    init: (executionManager, cartridgeManager, videoManager, audioManager, inputManager, persistenceManager) ->
         @executionManager = executionManager
         @cartridgeManager = cartridgeManager
         @videoManager = videoManager
+        @audioManager = audioManager
         @inputManager = inputManager
         @persistenceManager = persistenceManager
         @persistenceManager.loadConfiguration()
@@ -38,6 +39,7 @@ class Emulator
     "setDefaults": ->
         @executionManager.setDefaults()
         @videoManager.setDefaults()
+        @audioManager.setDefaults()
         @inputManager.setDefaults()
         @persistenceManager.setDefaults()
 
@@ -142,6 +144,25 @@ class Emulator
 
     "enterFullScreen": ->
         @videoManager.enterFullScreen()
+
+    ###########################################################
+    # Audio API
+    ###########################################################
+
+    "setAudioDefaults": ->
+        @audioManager.setDefaults()
+
+    "setAudioEnabled": (enabled) ->
+        @audioManager.setEnabled enabled
+
+    "isAudioEnabled": ->
+        @audioManager.isEnabled()
+
+    "setAudioVolume": (volume) ->
+        @audioManager.setVolume volume
+
+    "getAudioVolume": ->
+        @audioManager.getVolume()
 
     ###########################################################
     # Inputs API

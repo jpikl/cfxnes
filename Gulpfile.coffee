@@ -33,6 +33,7 @@ PUBLIC_SCRIPTS_DIR = "#{PUBLIC_DIR}/scripts"
 PUBLIC_STYLES_DIR  = "#{PUBLIC_DIR}/styles"
 PUBLIC_FONTS_DIR   = "#{PUBLIC_DIR}/fonts"
 CLOSURE_JAR        = "./node_modules/closure-compiler/lib/vendor/compiler.jar"
+EXTERNS_DIR        = "#{EMULATOR_DIR}/externs"
 
 ###########################################################
 # Utilities
@@ -52,7 +53,7 @@ minifiedName = (file) ->
 # Common tasks
 ###########################################################
 
-gulp.task "default", [ "server" ]
+gulp.task "default", [ "server", "browser" ]
 
 gulp.task "test", [ "emulator-test" ]
 
@@ -84,7 +85,11 @@ gulp.task "emulator", ->
             compilerFlags:
                 compilation_level: "ADVANCED_OPTIMIZATIONS"
                 warning_level: "QUIET"
-                externs: "#{EMULATOR_DIR}/externs.js"
+                externs: [
+                    "#{EXTERNS_DIR}/md5.js"
+                    "#{EXTERNS_DIR}/screenfull.js"
+                    "#{EXTERNS_DIR}/w3c_audio.js"
+                ]
         .pipe gulp.dest PUBLIC_SCRIPTS_DIR
         .on "error", gutil.log
 
@@ -176,7 +181,6 @@ gulp.task "server", [ "emulator", "client" ], ->
         ext: "coffee"
         env: { NODE_ENV: if PRODUCTION_MODE then "produtction" else "development" }
         ignore: [ "#{EMULATOR_DIR}/*", "#{CLIENT_DIR}/*", "#{PUBLIC_DIR}/*" ]
-    .on "start", [ "browser" ]
 
 gulp.task "browser", ->
     gulp.src "#{PUBLIC_DIR}/index.html"

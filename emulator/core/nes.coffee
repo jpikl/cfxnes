@@ -107,6 +107,19 @@ class NES
         undefined
 
     ###########################################################
+    # Audio output
+    ###########################################################
+
+    startAudioRecording: (buffer, cyclesPerSample) ->
+        @apu.startRecording buffer, cyclesPerSample
+
+    stopAudioRecording: ->
+        @apu.stopRecording()
+
+    getRecordedAudioSize: ->
+        @apu.getRecordedSize()
+
+    ###########################################################
     # Emulation
     ###########################################################
 
