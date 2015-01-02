@@ -141,6 +141,8 @@ class NES
         @tvSystem or @cartridge?.tvSystem or TVSystem.NTSC
 
     updateTVSystem: ->
-        @ppu.setNTSCMode @getTVSystem() is TVSystem.NTSC
+        ntscMode = @getTVSystem() is TVSystem.NTSC
+        @ppu.setNTSCMode ntscMode
+        @apu.setNTSCMode ntscMode
 
 module.exports = NES

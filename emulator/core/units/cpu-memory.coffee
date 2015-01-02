@@ -85,7 +85,9 @@ class CPUMemory
             when 0x2007 then @ppu.writeData value
             when 0x4014 then @dma.writeAddress value
             when 0x4016 then @writeInputDevice value
-            when 0x4017 then @writeInputDevice value
+            when 0x4017
+                @apu.writeFrameCounter value
+                @writeInputDevice value
             else value
 
     mapIOAddress: (address) ->
