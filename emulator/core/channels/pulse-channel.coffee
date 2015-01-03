@@ -36,12 +36,14 @@ class PulseChannel
         value
 
     setDutyEnvelope: (value) ->
-        @dutySelection = (value & 0xC0) >> 6
+        @dutySelection = (value & 0xC0) >> 6     # Selects output waveform
         @lengthCounterHalt = value & 0x20 isnt 0 # Disables length counter decrementation
-        @envelopeLoop = @lengthCounterHalt       # Envelope is looping (length counter hold alias)
-        @useConstantVolume = value & 0x10 isnt 0 # 0 - envelope itself is volume / 1 - volume is constant value
+        @useConstantVolume = value & 0x10 isnt 0 # 0 - envelope is used as volume / 1 - volume is constant value
         @constantVolume = value & 0x0F           # Constant value of output volume
+        @envelopeLoop = @lengthCounterHalt       # Envelope is looping (length counter hold alias)
         @envelopePeriod = @constantVolume        # Envelope duration period (constant volume alias)
+        @envelopeCycle or= 0                     # Cycle of envelope divider
+        @envelope or= 0                          # Envelope counter value
 
     ###########################################################
     # Sweep register
@@ -53,12 +55,12 @@ class PulseChannel
         value
 
     setSweep: (value) ->
-        @sweepEnabled = value & 0x80 isnt 0
-        @sweepPeriod = (value & 0x70) >>> 4
-        @sweepNegate = value & 0x08 isnt 0
-        @sweepShift = value & 0x07
-        @sweepReload = true
-        @sweepCycle or= 0
+        @sweepEnabled = value & 0x80 isnt 0 # Sweeping enabled
+        @sweepPeriod = (value & 0x70) >>> 4 # Period after which sweep is applied
+        @sweepNegate = value & 0x08 isnt 0  # 0 - sweep is added to timer period / 1 - sweep is subtracted from timer period
+        @sweepShift = value & 0x07          # Shift of timer period when computing sweep
+        @sweepReload = true                 # Sweep counter will be reloaded
+        @sweepCycle or= 0                   # Sweep counter
 
     ###########################################################
     # Timer register
@@ -70,7 +72,7 @@ class PulseChannel
         value
 
     setTimer: (value) ->
-         @timerPeriod = (@timerPeriod or 0) & 0x700 | (value & 0xFF) # Low 8 bits
+         @timerPeriod = (@timerPeriod or 0) & 0x700 | (value & 0xFF) # Lower 8 bits of timer
 
     ###########################################################
     # Length counter / Timer register
@@ -82,9 +84,10 @@ class PulseChannel
         value
 
     setLenghtCounter: (value) ->
-        @timerPeriod = (@timerPeriod or 0) & 0x0FF | (value & 0x7) << 8 # High 3 bits
-        @lengthCounter = (value & 0xF8) >>> 3
-        @dutyPosition = 0
+        @timerPeriod = (@timerPeriod or 0) & 0x0FF | (value & 0x7) << 8 # Higher 3 bits of timer
+        @lengthCounter = (value & 0xF8) >>> 3  # Length counter value
+        @dutyPosition = 0                      # Output waveform position is reseted
+        @envelopeReload = true                 # Envelope and its divider will be reseted
 
     ###########################################################
     # Tick
@@ -113,7 +116,17 @@ class PulseChannel
     ###########################################################
 
     updateEnvelope: ->
-
+        if @envelopeReset
+            @envelopeReset = false
+            @envelopeCycle = @envelopePeriod
+            @envelope = 0xF
+        else if @envelopeCycle > 0
+            @envelopeCycle--
+        else if @envelope > 0 # Envelope cycle is 0
+            @envelopeCycle = @envelopePeriod
+            @envelope--
+        else if @envelopeLoop # Envelope is 0
+            @envelope = 0xF
 
     ###########################################################
     # Length counter
