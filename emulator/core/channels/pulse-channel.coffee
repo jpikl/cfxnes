@@ -14,16 +14,17 @@ DUTY_WAVEFORMS = [
 class PulseChannel
 
     constructor: (@channelId) ->
-        @setEnabled true
+        @setEnabled false
         @setDutyEnvelope 0
         @setSweep 0
         @setTimer 0
-        @setLenghtCounter 0
+        @setLengthCounter 0
         @updateState()
         @updateVolume()
 
     setEnabled: (enabled) ->
         @enabled = enabled
+        @lengthCounter = 0 unless enabled # Disabling channel resets length counter
 
     ###########################################################
     # Duty / Envelope / Volume register
@@ -78,12 +79,12 @@ class PulseChannel
     # Length counter / Timer register
     ###########################################################
 
-    writeLenghtCounter: (value) ->
+    writeLengthCounter: (value) ->
         @setTimer value
         @updateState()
         value
 
-    setLenghtCounter: (value) ->
+    setLengthCounter: (value) ->
         @timerPeriod = (@timerPeriod or 0) & 0x0FF | (value & 0x7) << 8 # Higher 3 bits of timer
         @lengthCounter = (value & 0xF8) >>> 3  # Length counter value
         @dutyPosition = 0                      # Output waveform position is reseted

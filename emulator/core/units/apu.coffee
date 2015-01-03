@@ -41,6 +41,7 @@ class APU
     writeFrameCounter: (value) ->
         @frameFiveStepMode = value & 0x80 isnt 0
         @frameIrqEnabled = value & 0x40 isnt 0
+        @frameIrqActive = @frameIrqActive and @frameIrqEnabled or false # Disabling IRQ clears IRQ flag
         @frameCounter = @getFrameCounterMax()
         @frameStep = 0
         if @frameFiveStepMode
@@ -53,6 +54,44 @@ class APU
             @frameCounterMax5[@frameStep]
         else
             @frameCounterMax4[@frameStep]
+
+    ###########################################################
+    # Pulse channel registers
+    ###########################################################
+
+    writePulseDutyEnvelope: (channel, value) ->
+        @$getPulse(channel).writeDutyEnvelope value
+
+    writePulseSweep: (channel, value) ->
+        @$getPulse(channel).writeSweep value
+
+    writePulseTimer: (channel, value) ->
+        @$getPulse(channel).writeTimer value
+
+    writePulseLengthCounter: (channel, value) ->
+        @$getPulse(channel).writeLengthCounter value
+
+    getPulse: (channel) ->
+        if channel then @pulse0 else @pulse1
+
+    ###########################################################
+    # Status register
+    ###########################################################
+
+    writeStatus: (value) ->
+        @pulse0.setEnabled value & 0x01 isnt 0
+        @pulse1.setEnabled value & 0x02 isnt 0
+        value
+
+    readStatus: ->
+        value = @$getStatus()
+        @frameIrqActive = false
+        value
+
+    getStatus: ->
+        (@pulse0.lengthCounter > 0)      |
+        (@pulse1.lengthCounter > 0) << 1 |
+        @frameIrqActive             << 6
 
     ###########################################################
     # APU tick
@@ -75,7 +114,9 @@ class APU
             @tickHalfFrame()
         if @frameStep in [ 2, 5 ]
             @tickQuarterFrame()
-        if @frameStep is 0 and @frameIrqEnabled and not @frameFiveStepMode
+        if @frameStep in [ 4, 5, 0 ] and @frameIrqEnabled and not @frameFiveStepMode
+            @frameIrqActive = true
+        if @frameStep is 0 and @frameIrqActive
             @cpu.sendIRQ()
 
     tickHalfFrame: ->
