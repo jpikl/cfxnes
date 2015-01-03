@@ -2,6 +2,8 @@
 # Pulse channel
 ###########################################################
 
+LENGTH_COUNTER_VALUES = require("../common/constants").APU_LENGTH_COUNTER_VALUES
+
 DUTY_WAVEFORMS = [
     [ 0, 1, 0, 0, 0, 0, 0, 0 ] # _X______ (12.5%)
     [ 0, 1, 1, 0, 0, 0, 0, 0 ] # _XX_____ (25%)
@@ -34,10 +36,12 @@ class PulseChannel
         value
 
     setDutyEnvelope: (value) ->
-        @dutySelection = (value >>> 6) & 0x03
-        @useConstantVolume = value & 0x10 isnt 0 # 0 - envelope is volume / 1 - constant volume
-        @constantVolume = value & 0x0F
-        @envelopePeriod = @constantVolume # Alias
+        @dutySelection = (value & 0xC0) >> 6
+        @lengthCounterHalt = value & 0x20 isnt 0 # Disables length counter decrementation
+        @envelopeLoop = @lengthCounterHalt       # Envelope is looping (length counter hold alias)
+        @useConstantVolume = value & 0x10 isnt 0 # 0 - envelope itself is volume / 1 - volume is constant value
+        @constantVolume = value & 0x0F           # Constant value of output volume
+        @envelopePeriod = @constantVolume        # Envelope duration period (constant volume alias)
 
     ###########################################################
     # Sweep register
@@ -78,7 +82,8 @@ class PulseChannel
         value
 
     setLenghtCounter: (value) ->
-        @timerPeriod = (@timerPeriod or 0) & 0x0FF | (value & 0x3) << 8 # High 3 bits
+        @timerPeriod = (@timerPeriod or 0) & 0x0FF | (value & 0x7) << 8 # High 3 bits
+        @lengthCounter = (value & 0xF8) >>> 3
         @dutyPosition = 0
 
     ###########################################################
@@ -94,12 +99,29 @@ class PulseChannel
             @dutyPosition = (@dutyPosition + 1) & 0x7
 
     tickQuarterFrame: ->
+        @updateEnvelope()
         @updateVolume()
         @updateState()
 
     tickHalfFrame: ->
+        @updateLengthCounter()
         @updateSweep()
         @updateState()
+
+    ###########################################################
+    # Envelope
+    ###########################################################
+
+    updateEnvelope: ->
+
+
+    ###########################################################
+    # Length counter
+    ###########################################################
+
+    updateLengthCounter: ->
+        if @lengthCounter > 0 and not @lengthCounterHalt
+            @lengthCounter--
 
     ###########################################################
     # Sweep
@@ -135,7 +157,7 @@ class PulseChannel
     ###########################################################
 
     getOutputValue: ->
-        if @enabled and @timerPeriodValid
+        if @enabled and @timerPeriodValid and @lengthCounter
             @volume * DUTY_WAVEFORMS[@dutySelection][@dutyPosition]
         else
             0
