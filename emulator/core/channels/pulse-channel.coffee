@@ -1,5 +1,5 @@
 ###########################################################
-# Square channel
+# Pulse channel
 ###########################################################
 
 DUTY_WAVEFORMS = [
@@ -9,7 +9,7 @@ DUTY_WAVEFORMS = [
     [ 1, 0, 0, 1, 1, 1, 1, 1 ] # X__XXXXX (25% negated)
 ]
 
-class SquareChannel
+class PulseChannel
 
     constructor: (@channelId) ->
         @setEnabled true
@@ -101,12 +101,6 @@ class SquareChannel
         @updateSweep()
         @updateState()
 
-    updateState: ->
-        @timerPeriodValid = @timerPeriod > 0x8 and @timerPeriod + @getSweep() < 0x800
-
-    updateVolume: ->
-        @volume = if @useConstantVolume then @constantVolume else @envelope
-
     ###########################################################
     # Sweep
     ###########################################################
@@ -127,6 +121,16 @@ class SquareChannel
         if @sweepNegate then -(sweep - @channelId) else sweep # Square channel 1 adjusts negative sweep by -1
 
     ###########################################################
+    # State
+    ###########################################################
+
+    updateState: ->
+        @timerPeriodValid = @timerPeriod > 0x8 and @timerPeriod + @getSweep() < 0x800
+
+    updateVolume: ->
+        @volume = if @useConstantVolume then @constantVolume else @envelope
+
+    ###########################################################
     # Output value
     ###########################################################
 
@@ -136,4 +140,4 @@ class SquareChannel
         else
             0
 
-module.exports = SquareChannel
+module.exports = PulseChannel

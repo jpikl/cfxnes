@@ -1,3 +1,5 @@
+PulseChannel = require "../channels/pulse-channel"
+
 logger = require("../utils/logger").get()
 
 FRAME_COUNTER_MAX = 14915
@@ -12,6 +14,8 @@ class APU
 
     init: (cpu) ->
         @cpu = cpu
+        @pulse0 = new PulseChannel 0
+        @pulse1 = new PulseChannel 1
 
     ###########################################################
     # Power-up state initialization
@@ -56,6 +60,8 @@ class APU
 
     tick: ->
         @$tickFrameCounter()
+        @pulse0.tick()
+        @pulse1.tick()
         @$recordOutputValue()
 
     tickFrameCounter: ->
@@ -73,8 +79,12 @@ class APU
             @cpu.sendIRQ()
 
     tickHalfFrame: ->
+        @pulse0.tickHalfFrame()
+        @pulse1.tickHalfFrame()
 
     tickQuarterFrame: ->
+        @pulse0.tickQuarterFrame()
+        @pulse1.tickQuarterFrame()
 
     ###########################################################
     # Output composition
