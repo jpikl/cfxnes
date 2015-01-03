@@ -31,7 +31,7 @@ class APU
         @frameCounterMax5 = if ntscMode then [ 7457, 7456, 7458, 7458, 7452, 1 ] else [ 8313, 8314, 8312, 8314, 8312, 1 ] # 5-step frame counter
 
     ###########################################################
-    # Registry writing
+    # Frame counter register
     ###########################################################
 
     writeFrameCounter: (value) ->
