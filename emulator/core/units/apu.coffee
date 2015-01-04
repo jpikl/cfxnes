@@ -237,10 +237,11 @@ class APU
         @recordingBuffer = new Float32Array bufferSize # Audio samples which are curreltly being recorded
         @recordingPosition = 0
         @recordingCycle = 0
-        @outputBuffer = new Float32Array bufferSize    # Cached audio samples, ready for output to sound card
-        @outputBufferAvailable = false
-        @sampleRate = sampleRate
-        @sampleRateAdjustment = 0
+        @outputBuffer = new Float32Array bufferSize # Cached audio samples, ready for output to sound card
+        @outputBufferAvailable = false              # True when output buffer is ready
+        @sampleRate = sampleRate                    # How often are samples taken (samples per second)
+        @bufferUnderflowLimit = bufferSize  / 3     # When we need to increase sample rate (buffer underflow protection)
+        @bufferOverflowLimit = bufferSize * 2 / 3   # When we need to decrease sample rate (buffer overflow protection)
 
     startRecording: ->
         throw "Cannot start audio recording without initialization" unless @recordingBuffer
@@ -251,18 +252,18 @@ class APU
 
     recordOutputValue: ->
         if @recordingActive
-            newRecordingPosition = ~~(@recordingCycle++ * (@sampleRate + @sampleRateAdjustment) / @cpuFrequency)
+            newRecordingPosition = ~~(@recordingCycle++ * @sampleRate / @cpuFrequency)
             if newRecordingPosition > @recordingPosition
                 @recordingPosition = newRecordingPosition
                 @recordingBuffer[@recordingPosition] = @getOutputValue()
-                if @outputBufferAvailable
-                    limit = @recordingBuffer.length * 3 / 2
-                    @sampleRateAdjustment = @sampleRate * (@recordingBuffer.length - @recordingPosition) / (@recordingBuffer.length - limit) if @recordingPosition > limit
-                if @recordingPosition >= @recordingBuffer.length - 1
+                if @outputBufferAvailable and @recordingPosition > @bufferOverflowLimit
+                    @sampleRate -= 0.1 if @sampleRate > 1             # buffer overflow protection
+                else if not @outputBufferAvailable or @recordingPosition < @bufferUnderflowLimit
+                    @sampleRate += 0.1 if @sampleRate < @cpuFrequency # buffer underflow protection
+                if @recordingPosition >= @recordingBuffer.length - 1 and not @outputBufferAvailable
                     @swapOutputBuffer()
                     @recordingPosition = 0
                     @recordingCycle = 0
-        # TODO handle buffer overflow by adjusting sampleRate
 
     readOutputBuffer: ->
         @completeOutputBuffer() unless @outputBufferAvailable # Buffer overflow
@@ -270,15 +271,12 @@ class APU
         @outputBuffer
 
     completeOutputBuffer: ->
-        logger.warn "Audio buffer underflow"
         while @recordingPosition < @recordingBuffer.length
             @recordingBuffer[@recordingPosition++] = 0
         @swapOutputBuffer()
 
     swapOutputBuffer: ->
-        logger.warn "Audio buffer overflow" if @outputBufferAvailable
         [ @recordingBuffer, @outputBuffer ] = [ @outputBuffer, @recordingBuffer ]
         @outputBufferAvailable = true
-        @sampleRateAdjustment = 0
 
 module.exports = APU
