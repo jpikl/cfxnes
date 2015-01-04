@@ -13,6 +13,10 @@ class TriangleChannel
 
     constructor: (@channelId) ->
         @setEnabled false
+        @timerCycle = 0    # Timer counter value
+        @timerPeriod = 0   # Timer counter reset value
+        @dutyPosition = 0  # Output waveform position (never being reseted)
+        @linearCounter = 0 # Linear counter value
         @writeLinearCounter 0
         @writeTimer 0
         @writeLengthCounter 0
@@ -29,8 +33,6 @@ class TriangleChannel
         @lengthCounterHalt = (value & 0x80) isnt 0    # Disables length counter decrementation
         @linearCounterMax = value & 0x7F              # Linear counter initial value
         @linearCounterControl = @lengthCounterHalt    # Linear counter control flag (length counter halt alias)
-        @linearCounter or= 0                          # Linear counter value
-        @dutyPosition or= 0                           # Output waveform position (never being reseted)
         value
 
     ###########################################################
@@ -38,8 +40,7 @@ class TriangleChannel
     ###########################################################
 
     writeTimer: (value) ->
-        @timerPeriod = (@timerPeriod or 0) & 0x700 | (value & 0xFF) # Lower 8 bits of timer
-        @timerCycle or= 0
+        @timerPeriod = (@timerPeriod & 0x700) | (value & 0xFF) # Lower 8 bits of timer
         value
 
     ###########################################################
@@ -47,7 +48,7 @@ class TriangleChannel
     ###########################################################
 
     writeLengthCounter: (value) ->
-        @timerPeriod = (@timerPeriod or 0) & 0x0FF | (value & 0x7) << 8           # Higher 3 bits of timer
+        @timerPeriod = (@timerPeriod & 0x0FF) | (value & 0x7) << 8                # Higher 3 bits of timer
         @lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3] if @enabled  # Length counter update
         @linearCounterReset = true                                                # Linear counter will be reseted
         value

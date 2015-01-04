@@ -15,6 +15,11 @@ class PulseChannel
 
     constructor: (@channelId) ->
         @setEnabled false
+        @timerCycle = 0     # Timer counter value
+        @timerPeriod = 0    # Timer counter reset value
+        @envelopeCycle = 0  # Envelope divider counter
+        @envelopeVolume = 0 # Envelope volume value
+        @sweepCycle = 0     # Sweep counter
         @writeDutyEnvelope 0
         @writeSweep 0
         @writeTimer 0
@@ -35,8 +40,6 @@ class PulseChannel
         @constantVolume = value & 0x0F             # Constant volume value
         @envelopeLoop = @lengthCounterHalt         # Envelope is looping (length counter hold alias)
         @envelopePeriod = @constantVolume          # Envelope duration period (constant volume alias)
-        @envelopeCycle or= 0                       # Cycle of envelope divider
-        @envelopeVolume or= 0                      # Envelope volume value
         value
 
     ###########################################################
@@ -49,7 +52,6 @@ class PulseChannel
         @sweepNegate = (value & 0x08) isnt 0  # 0 - sweep is added to timer period / 1 - sweep is subtracted from timer period
         @sweepShift = value & 0x07            # Shift of timer period when computing sweep
         @sweepReset = true                    # Sweep counter will be reseted
-        @sweepCycle or= 0                     # Sweep counter
         value
 
     ###########################################################
@@ -57,8 +59,7 @@ class PulseChannel
     ###########################################################
 
     writeTimer: (value) ->
-        @timerPeriod = (@timerPeriod or 0) & 0x700 | (value & 0xFF) # Lower 8 bits of timer
-        @timerCycle or= 0
+        @timerPeriod = (@timerPeriod & 0x700) | (value & 0xFF) # Lower 8 bits of timer
         value
 
     ###########################################################
@@ -66,7 +67,7 @@ class PulseChannel
     ###########################################################
 
     writeLengthCounter: (value) ->
-        @timerPeriod = (@timerPeriod or 0) & 0x0FF | (value & 0x7) << 8           # Higher 3 bits of timer
+        @timerPeriod = (@timerPeriod & 0x0FF) | (value & 0x7) << 8           # Higher 3 bits of timer
         @lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3] if @enabled  # Length counter update
         @dutyPosition = 0     # Output waveform position is reseted
         @envelopeReset = true # Envelope and its divider will be reseted
