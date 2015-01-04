@@ -14,10 +14,11 @@ class DMCChannel
     powerUp: ->
         logger.info "Reseting DMC channel"
         @setEnabled false
-        @timerCycle = 0        # Timer counter value
-        @sampleBuffer = null   # Buffered sample data, readed from memory (null = buffered data not available)
-        @shiftRegister = null  # Shift register for processing buffered sample data (null = output is silenced)
-        @shiftRegisterBits = 0 # Bits remaining in shift register
+        @timerCycle = 0         # Timer counter value
+        @sampleBuffer = null    # Buffered sample data, readed from memory (null = buffered data not available)
+        @shiftRegister = null   # Shift register for processing buffered sample data (null = output is silenced)
+        @shiftRegisterBits = 0  # Bits remaining in shift register
+        @memoryAccessCycles = 0 # Number of cycles left when memory access will be restricted to DMC channel
         @writeFlagsTimer 0
         @writeOutputLevel 0
         @writeSampleAddress 0
@@ -63,6 +64,7 @@ class DMCChannel
     ###########################################################
 
     tick: ->
+        @memoryAccessCycles-- if @memoryAccessCycles > 0
         if --@timerCycle <= 0
             @timerCycle = @timerPeriod
             @updateSample()
@@ -81,6 +83,7 @@ class DMCChannel
         # Read next sample into buffer when it's empty and the read is requested
         if @sampleBuffer is null and @sampleRemainingLength > 0
             @sampleBuffer = @cpuMemory.read @sampleCurrentAddress
+            @memoryAccessCycles = 4 # DMC channel will access memory max. for 4 CPU cycles
             if @sampleCurrentAddress < 0xFFFF
                 @sampleCurrentAddress++
             else

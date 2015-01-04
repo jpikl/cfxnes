@@ -65,8 +65,8 @@ class CPU
     ###########################################################
 
     step: ->
-        if @dma.isTransferInProgress()
-            @tick() # CPU can't access memory during DMA (empty cycle).
+        if @dma.isBlockingCPU() or @apu.isBlockingCPU()
+            @tick() # CPU can't access memory (empty cycle).
         else
             @resolveInterrupt()
             @executeInstruction()
@@ -207,7 +207,7 @@ class CPU
 
     tick: ->
         @cyclesCount++
-        @dma.tick()
+        @dma.tick() unless @apu.isBlockingDMA()
         @ppu.tick() for [1..3]
         @apu.tick()
         @mapper.tick()

@@ -155,6 +155,16 @@ class APU
         @dmcChannel.irqActive                   << 7
 
     ###########################################################
+    # CPU/DMA lock status
+    ###########################################################
+
+    isBlockingCPU: ->
+        @dmcChannel.memoryAccessCycles > 0
+
+    isBlockingDMA: ->
+        @dmcChannel.memoryAccessCycles > 2
+
+    ###########################################################
     # APU tick
     ###########################################################
 
@@ -230,6 +240,7 @@ class APU
         @outputBuffer = new Float32Array bufferSize    # Cached audio samples, ready for output to sound card
         @outputBufferAvailable = false
         @sampleRate = sampleRate
+        @sampleRateAdjustment = 0
 
     startRecording: ->
         throw "Cannot start audio recording without initialization" unless @recordingBuffer
@@ -240,10 +251,13 @@ class APU
 
     recordOutputValue: ->
         if @recordingActive
-            newRecordingPosition = ~~(@recordingCycle++ * @sampleRate / @cpuFrequency)
+            newRecordingPosition = ~~(@recordingCycle++ * (@sampleRate + @sampleRateAdjustment) / @cpuFrequency)
             if newRecordingPosition > @recordingPosition
                 @recordingPosition = newRecordingPosition
                 @recordingBuffer[@recordingPosition] = @getOutputValue()
+                if @outputBufferAvailable
+                    limit = @recordingBuffer.length * 3 / 2
+                    @sampleRateAdjustment = @sampleRate * (@recordingBuffer.length - @recordingPosition) / (@recordingBuffer.length - limit) if @recordingPosition > limit
                 if @recordingPosition >= @recordingBuffer.length - 1
                     @swapOutputBuffer()
                     @recordingPosition = 0
@@ -256,12 +270,15 @@ class APU
         @outputBuffer
 
     completeOutputBuffer: ->
+        logger.warn "Audio buffer underflow"
         while @recordingPosition < @recordingBuffer.length
             @recordingBuffer[@recordingPosition++] = 0
         @swapOutputBuffer()
 
     swapOutputBuffer: ->
+        logger.warn "Audio buffer overflow" if @outputBufferAvailable
         [ @recordingBuffer, @outputBuffer ] = [ @outputBuffer, @recordingBuffer ]
         @outputBufferAvailable = true
+        @sampleRateAdjustment = 0
 
 module.exports = APU

@@ -24,11 +24,11 @@ class DMA
         address
 
     tick: ->
-        if @isTransferInProgress()
+        if @isBlockingCPU()
             @cyclesCount++
             @transferData() if @cyclesCount & 1  # Each even cyclesCount.
 
-    isTransferInProgress: ->
+    isBlockingCPU: ->
         @cyclesCount < TOTAL_DMA_CYCLES
 
     transferData: ->
