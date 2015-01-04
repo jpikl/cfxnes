@@ -23,9 +23,9 @@ class APU
 
     powerUp: ->
         logger.info "Reseting APU"
-        @stopRecording()
         @setNTSCMode true
         @resetRegisters()
+        @stopRecording()
 
     resetRegisters: ->
         @writeFrameCounter 0
@@ -33,6 +33,7 @@ class APU
     setNTSCMode: (ntscMode) ->
         @frameCounterMax4 = if ntscMode then [ 7457, 7456, 7458, 7457,    1, 1 ] else [ 8313, 8314, 8312, 8313,    1, 1 ] # 4-step frame counter
         @frameCounterMax5 = if ntscMode then [ 7457, 7456, 7458, 7458, 7452, 1 ] else [ 8313, 8314, 8312, 8314, 8312, 1 ] # 5-step frame counter
+        @cpuFrequency = if ntscMode then 1789773 else 1662607
 
     ###########################################################
     # Frame counter register
@@ -42,8 +43,8 @@ class APU
         @frameFiveStepMode = value & 0x80 isnt 0
         @frameIrqEnabled = value & 0x40 isnt 0
         @frameIrqActive = @frameIrqActive and @frameIrqEnabled or false # Disabling IRQ clears IRQ flag
-        @frameCounter = @getFrameCounterMax()
         @frameStep = 0
+        @frameCounter = @getFrameCounterMax()
         if @frameFiveStepMode
             @tickHalfFrame()
             @tickQuarterFrame()
@@ -132,30 +133,59 @@ class APU
     ###########################################################
 
     getOutputValue: ->
-        0
+        @getPulseOutputValue()
+
+    getPulseOutputValue: ->
+        pulse0Value = @pulse0.getOutputValue()
+        pulse1value = @pulse1.getOutputValue()
+        if pulse0Value or pulse1value
+            95.88 / (8128 / (pulse0Value + pulse1value) + 100)
+        else
+            0
 
     ###########################################################
-    # Recording to output buffer
+    # Audio samples recording
     ###########################################################
 
-    startRecording: (buffer, cyclesPerSample) ->
-        @outputBuffer = buffer
-        @outputPosition = 0
-        @cyclesPerSample = cyclesPerSample # Number of cycles after which sample is taken
-        @cyclesToSample = cyclesPerSample  # Number of cycles left to take next sample (conutdown counter)
+    initRecording: (bufferSize, sampleRate) ->
+        @recordingBuffer = new Float32Array bufferSize # Audio samples which are curreltly being recorded
+        @recordingPosition = 0
+        @recordingCycle = 0
+        @outputBuffer = new Float32Array bufferSize    # Cached audio samples, ready for output to sound card
+        @outputBufferAvailable = false
+        @sampleRate = sampleRate
+
+    startRecording: ->
+        throw "Cannot start audio recording without initialization" unless @recordingBuffer
+        @recordingActive = true
 
     stopRecording: ->
-        @outputBuffer = null
-
-    getRecordedSize: ->
-        @outputPosition
+        @recordingActive = false
 
     recordOutputValue: ->
-        if @$canRecordValue() and --@cyclesToSample <= 0
-            @outputBuffer[@outputPosition++] = @getOutputValue()
-            @cyclesToSample = @cyclesPerSample
+        if @recordingActive
+            newRecordingPosition = ~~(@recordingCycle++ * @sampleRate / @cpuFrequency)
+            if newRecordingPosition > @recordingPosition
+                @recordingPosition = newRecordingPosition
+                @recordingBuffer[@recordingPosition] = @getOutputValue()
+                if @recordingPosition >= @recordingBuffer.length - 1
+                    @swapOutputBuffer()
+                    @recordingPosition = 0
+                    @recordingCycle = 0
+        # TODO handle buffer overflow by adjusting sampleRate
 
-    canRecordValue: ->
-        @outputBuffer and @outputPosition < @outputBuffer.length
+    readOutputBuffer: ->
+        @completeOutputBuffer() unless @outputBufferAvailable # Buffer overflow
+        @outputBufferAvailable = false
+        @outputBuffer
+
+    completeOutputBuffer: ->
+        while @recordingPosition < @recordingBuffer.length
+            @recordingBuffer[@recordingPosition++] = 0
+        @swapOutputBuffer()
+
+    swapOutputBuffer: ->
+        [ @recordingBuffer, @outputBuffer ] = [ @outputBuffer, @recordingBuffer ]
+        @outputBufferAvailable = true
 
 module.exports = APU

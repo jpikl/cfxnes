@@ -103,8 +103,8 @@ class ExecutionManager
     getTargetFPS: ->
         tvSystem = @nes.getTVSystem()
         switch tvSystem
-            when TVSystem.NTSC then 60.0988
-            when TVSystem.PAL  then 50.0070
+            when TVSystem.NTSC then 60
+            when TVSystem.PAL  then 50
             else throw new Error "Unknown TV system #{tvSystem}"
 
     ###########################################################

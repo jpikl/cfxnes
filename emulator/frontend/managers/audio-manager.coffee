@@ -1,13 +1,6 @@
 logger = require("../../core/utils/logger").get()
 
-# APU ticks at CPU frequency = 1.789773 MHz (for NTSC; PAL is 1.662607 MHz).
-# Expected output channel rate = 441000 Hz (could be possibly lower) is cca 40x slower than CPU frequency.
-# Than means to generate output value (at least) every 40th APU cycle.
-# We do it every 20th APU cycle and then we interpolate the result output value.
-# Than means the source buffer (filled by APU) must be at least 2 as bigger as the output buffer (sent to sound card).
-CYCLES_PER_SAMPLE = 20
-OUTPUT_BUFFER_SIZE = 4096 # or 8192
-SOURCE_BUFFER_SIZE = ~~(2.5 * OUTPUT_BUFFER_SIZE)
+BUFFER_SIZE = 4096
 
 DEFAULT_ENABLED = true
 DEFAULT_VOLUME = 1.0
@@ -45,23 +38,15 @@ class AudioManager
     createAudio: ->
         logger.info "Creating audio context"
         @context = new AudioContext
-        @processor = @context.createScriptProcessor OUTPUT_BUFFER_SIZE, 0, 1 # 0 input channels / 1 output channel
+        @processor = @context.createScriptProcessor BUFFER_SIZE, 0, 1 # 0 input channels / 1 output channel
         @processor.onaudioprocess = @updateAudio
-        @sourceBuffer = new Float32Array SOURCE_BUFFER_SIZE
+        @nes.initAudioRecording BUFFER_SIZE, @context.sampleRate
 
     updateAudio: (event) =>
-        @copySourceBuffer event.outputBuffer
-        @nes.startAudioRecording @sourceBuffer, CYCLES_PER_SAMPLE
-
-    copySourceBuffer: (outputBuffer) ->
-        outputData = outputBuffer.getChannelData 0
-        outputSize = outputBuffer.length
-        sourceSize = @nes.getRecordedAudioSize()
-        sizeRatio = sourceSize / outputSize
-        for outputPosition in [0...outputSize]
-            sourcePosition = ~~(outputPosition * sizeRatio)  # Really dummy interpolation
-            sourceValue = @sourceBuffer[sourcePosition] or 0
-            outputData[outputPosition] = @volume * sourceValue
+        outputBuffer = event.outputBuffer
+        sourceBuffer = @nes.readAudioBuffer()
+        outputChannel = outputBuffer.getChannelData 0
+        outputChannel[i] = @volume * sourceBuffer[i] for i in [0...BUFFER_SIZE]
         undefined
 
     ###########################################################
@@ -70,7 +55,7 @@ class AudioManager
 
     setEnabled: (enabled = DEFAULT_ENABLED) ->
         logger.info "Audio #{if enabled then 'on' else 'off'}"
-        @enabled = enabled and false # Not fully implemented yet
+        @enabled = enabled
         @updateState()
 
     isEnabled: ->
@@ -83,7 +68,7 @@ class AudioManager
 
     updateState: ->
         if @enabled and @active
-            @nes.startAudioRecording @sourceBuffer, CYCLES_PER_SAMPLE
+            @nes.startAudioRecording()
             @processor?.connect @context.destination
         else
             @nes.stopAudioRecording()
