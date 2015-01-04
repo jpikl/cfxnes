@@ -1,4 +1,5 @@
-PulseChannel = require "../channels/pulse-channel"
+PulseChannel    = require "../channels/pulse-channel"
+TriangleChannel = require "../channels/triangle-channel"
 
 logger = require("../utils/logger").get()
 
@@ -14,8 +15,9 @@ class APU
 
     init: (cpu) ->
         @cpu = cpu
-        @pulse1 = new PulseChannel 1
-        @pulse2 = new PulseChannel 2
+        @pulseChannel1 = new PulseChannel 1
+        @pulseChannel2 = new PulseChannel 2
+        @triangleChannel = new TriangleChannel
 
     ###########################################################
     # Power-up state initialization
@@ -61,27 +63,41 @@ class APU
     ###########################################################
 
     writePulseDutyEnvelope: (channelId, value) ->
-        @$getPulse(channelId).writeDutyEnvelope value
+        @$getPulseChannel(channelId).writeDutyEnvelope value
 
     writePulseSweep: (channelId, value) ->
-        @$getPulse(channelId).writeSweep value
+        @$getPulseChannel(channelId).writeSweep value
 
     writePulseTimer: (channelId, value) ->
-        @$getPulse(channelId).writeTimer value
+        @$getPulseChannel(channelId).writeTimer value
 
     writePulseLengthCounter: (channelId, value) ->
-        @$getPulse(channelId).writeLengthCounter value
+        @$getPulseChannel(channelId).writeLengthCounter value
 
-    getPulse: (channelId) ->
-        if channelId is 1 then @pulse1 else @pulse2
+    getPulseChannel: (channelId) ->
+        if channelId is 1 then @pulseChannel1 else @pulseChannel2
+
+    ###########################################################
+    # Triangle channel registers
+    ###########################################################
+
+    writeTriangleLinearCounter: (value) ->
+        @triangleChannel.writeLinearCounter value
+
+    writeTriangleTimer: (value) ->
+        @triangleChannel.writeTimer value
+
+    writeTriangleLengthCounter: (value) ->
+        @triangleChannel.writeLengthCounter value
 
     ###########################################################
     # Status register
     ###########################################################
 
     writeStatus: (value) ->
-        @pulse1.setEnabled (value & 0x01) isnt 0
-        @pulse2.setEnabled (value & 0x02) isnt 0
+        @pulseChannel1.setEnabled (value & 0x01) isnt 0
+        @pulseChannel2.setEnabled (value & 0x02) isnt 0
+        @triangleChannel.setEnabled (value & 0x04) isnt 0
         value
 
     readStatus: ->
@@ -90,9 +106,10 @@ class APU
         value
 
     getStatus: ->
-        (@pulse1.lengthCounter > 0)      |
-        (@pulse2.lengthCounter > 0) << 1 |
-        @frameIrqActive             << 6
+        (@pulseChannel1.lengthCounter > 0)        |
+        (@pulseChannel2.lengthCounter > 0)   << 1 |
+        (@triangleChannel.lengthCounter > 0) << 2 |
+        @frameIrqActive                      << 6
 
     ###########################################################
     # APU tick
@@ -100,8 +117,9 @@ class APU
 
     tick: ->
         @$tickFrameCounter()
-        @pulse1.tick()
-        @pulse2.tick()
+        @pulseChannel1.tick()
+        @pulseChannel2.tick()
+        @triangleChannel.tick()
         @$recordOutputValue()
 
     tickFrameCounter: ->
@@ -120,26 +138,37 @@ class APU
         if @frameStep is 0 and @frameIrqActive
             @cpu.sendIRQ()
 
-    tickHalfFrame: ->
-        @pulse1.tickHalfFrame()
-        @pulse2.tickHalfFrame()
-
     tickQuarterFrame: ->
-        @pulse1.tickQuarterFrame()
-        @pulse2.tickQuarterFrame()
+        @pulseChannel1.tickQuarterFrame()
+        @pulseChannel2.tickQuarterFrame()
+        @triangleChannel.tickQuarterFrame()
+
+    tickHalfFrame: ->
+        @pulseChannel1.tickHalfFrame()
+        @pulseChannel2.tickHalfFrame()
+        @triangleChannel.tickHalfFrame()
 
     ###########################################################
     # Output composition
     ###########################################################
 
     getOutputValue: ->
-        @getPulseOutputValue()
+        @getPulseOutputValue() + @getTriangleNoiseDMCOutput()
 
     getPulseOutputValue: ->
-        pulse1Value = @pulse1.getOutputValue()
-        pulse2value = @pulse2.getOutputValue()
+        pulse1Value = @pulseChannel1.getOutputValue()
+        pulse2value = @pulseChannel2.getOutputValue()
         if pulse1Value or pulse2value
             95.88 / (8128 / (pulse1Value + pulse2value) + 100)
+        else
+            0
+
+    getTriangleNoiseDMCOutput: ->
+        triangleValue = @triangleChannel.getOutputValue()
+        noiseValue = 0 # TODO noise channel
+        dmcValue = 0 # TODO dmc value
+        if triangleValue or noiseValue or dmcValue
+            159.79 / (1 / (triangleValue / 8227 + noiseValue / 12241 + dmcValue / 22638) + 100)
         else
             0
 

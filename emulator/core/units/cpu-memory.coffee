@@ -94,6 +94,9 @@ class CPUMemory
             when 0x4005 then @apu.writePulseSweep 2, value
             when 0x4006 then @apu.writePulseTimer 2, value
             when 0x4007 then @apu.writePulseLengthCounter 2, value
+            when 0x4008 then @apu.writeTriangleLinearCounter value
+            when 0x400A then @apu.writeTriangleTimer value
+            when 0x400B then @apu.writeTriangleLengthCounter value
             when 0x4015 then @apu.writeStatus value
             when 0x4017
                 @apu.writeFrameCounter value
