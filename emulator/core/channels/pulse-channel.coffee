@@ -15,12 +15,10 @@ class PulseChannel
 
     constructor: (@channelId) ->
         @setEnabled false
-        @setDutyEnvelope 0
-        @setSweep 0
-        @setTimer 0
-        @setLengthCounter 0
-        @updateState()
-        @updateVolume()
+        @writeDutyEnvelope 0
+        @writeSweep 0
+        @writeTimer 0
+        @writeLengthCounter 0
 
     setEnabled: (enabled) ->
         @enabled = enabled
@@ -31,12 +29,6 @@ class PulseChannel
     ###########################################################
 
     writeDutyEnvelope: (value) ->
-        @setDutyEnvelope value
-        @updateState()
-        @updateVolume()
-        value
-
-    setDutyEnvelope: (value) ->
         @dutySelection = (value & 0xC0) >>> 6      # Selects output waveform
         @lengthCounterHalt = (value & 0x20) isnt 0 # Disables length counter decrementation
         @useConstantVolume = (value & 0x10) isnt 0 # 0 - envelope volume is used / 1 - constant volume is used
@@ -45,73 +37,56 @@ class PulseChannel
         @envelopePeriod = @constantVolume          # Envelope duration period (constant volume alias)
         @envelopeCycle or= 0                       # Cycle of envelope divider
         @envelopeVolume or= 0                      # Envelope volume value
+        value
 
     ###########################################################
     # Sweep register
     ###########################################################
 
     writeSweep: (value) ->
-        @setSweep value
-        @updateState()
-        value
-
-    setSweep: (value) ->
         @sweepEnabled = (value & 0x80) isnt 0 # Sweeping enabled
         @sweepPeriod = (value & 0x70) >>> 4   # Period after which sweep is applied
         @sweepNegate = (value & 0x08) isnt 0  # 0 - sweep is added to timer period / 1 - sweep is subtracted from timer period
         @sweepShift = value & 0x07            # Shift of timer period when computing sweep
         @sweepReset = true                    # Sweep counter will be reseted
         @sweepCycle or= 0                     # Sweep counter
+        value
 
     ###########################################################
     # Timer register
     ###########################################################
 
     writeTimer: (value) ->
-        @setTimer value
-        @updateState()
+        @timerPeriod = (@timerPeriod or 0) & 0x700 | (value & 0xFF) # Lower 8 bits of timer
+        @timerCycle or= 0
         value
-
-    setTimer: (value) ->
-         @timerPeriod = (@timerPeriod or 0) & 0x700 | (value & 0xFF) # Lower 8 bits of timer
-         @timerCycle or= 0
 
     ###########################################################
     # Length counter / Timer register
     ###########################################################
 
     writeLengthCounter: (value) ->
-        @setLengthCounter value
-        @updateState()
-        value
-
-    setLengthCounter: (value) ->
         @timerPeriod = (@timerPeriod or 0) & 0x0FF | (value & 0x7) << 8           # Higher 3 bits of timer
         @lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3] if @enabled  # Length counter update
         @dutyPosition = 0     # Output waveform position is reseted
         @envelopeReset = true # Envelope and its divider will be reseted
+        value
 
     ###########################################################
     # Tick
     ###########################################################
 
     tick: ->
-        # The timer actually counts T, T-1, ... 0, 1, ... T
-        # and clocks waveform generator (duty position) when it goes from T-1 to T.
-        # We are emulating it as 2*T, 2*T-1, ..., 0.
         if --@timerCycle <= 0
-            @timerCycle = (@timerPeriod + 1) << 1 # Real period is T + 1 APU cycles
+            @timerCycle = (@timerPeriod + 1) << 1 # Ticks twice slower than CPU
             @dutyPosition = (@dutyPosition + 1) & 0x7
 
     tickQuarterFrame: ->
         @updateEnvelope()
-        @updateVolume()
-        @updateState()
 
     tickHalfFrame: ->
         @updateLengthCounter()
         @updateSweep()
-        @updateState()
 
     ###########################################################
     # Envelope
@@ -147,7 +122,7 @@ class PulseChannel
         if @sweepCycle > 0
             @sweepCycle--
         else
-            @timerPeriod += @getSweep() if @sweepEnabled and @sweepShift and @timerPeriodValid
+            @timerPeriod += @getSweep() if @sweepEnabled and @sweepShift and @$isTimerPeriodValid()
             @sweepCycle = @sweepPeriod
         if @sweepReset
             @sweepReset = false
@@ -160,23 +135,17 @@ class PulseChannel
         else
             sweep
 
-    ###########################################################
-    # State
-    ###########################################################
-
-    updateState: ->
-        @timerPeriodValid = @timerPeriod >= 0x8 and @timerPeriod + @getSweep() < 0x800
-
-    updateVolume: ->
-        @volume = if @useConstantVolume then @constantVolume else @envelopeVolume
+    isTimerPeriodValid: ->
+        @timerPeriod >= 0x8 and @timerPeriod + @getSweep() < 0x800
 
     ###########################################################
     # Output value
     ###########################################################
 
     getOutputValue: ->
-        if @enabled and @timerPeriodValid and @lengthCounter
-            @volume * DUTY_WAVEFORMS[@dutySelection][@dutyPosition]
+        if @enabled and @lengthCounter and @$isTimerPeriodValid()
+            volume = if @useConstantVolume then @constantVolume else @envelopeVolume
+            volume * DUTY_WAVEFORMS[@dutySelection][@dutyPosition]
         else
             0
 
