@@ -234,17 +234,17 @@ class APU
     ###########################################################
 
     initRecording: (bufferSize, sampleRate) ->
-        @recordingBuffer = new Float32Array bufferSize # Audio samples which are curreltly being recorded
-        @recordingPosition = 0
-        @recordingCycle = 0
+        @recordBuffer = new Float32Array bufferSize # Audio samples which are curretly being recorded
+        @recordPosition = -1                        # Buffer position with the last recorded sample
+        @recordCycle = 0                            # CPU cycle counter
         @outputBuffer = new Float32Array bufferSize # Cached audio samples, ready for output to sound card
-        @outputBufferAvailable = false              # True when output buffer is ready
+        @outputBufferFull = false                   # True when output buffer is full and ready
         @sampleRate = sampleRate                    # How often are samples taken (samples per second)
         @bufferUnderflowLimit = bufferSize  / 3     # When we need to increase sample rate (buffer underflow protection)
         @bufferOverflowLimit = bufferSize * 2 / 3   # When we need to decrease sample rate (buffer overflow protection)
 
     startRecording: ->
-        throw "Cannot start audio recording without initialization" unless @recordingBuffer
+        throw "Cannot start audio recording without initialization" unless @recordBuffer
         @recordingActive = true
 
     stopRecording: ->
@@ -252,31 +252,31 @@ class APU
 
     recordOutputValue: ->
         if @recordingActive
-            newRecordingPosition = ~~(@recordingCycle++ * @sampleRate / @cpuFrequency)
-            if newRecordingPosition > @recordingPosition
-                @recordingPosition = newRecordingPosition
-                @recordingBuffer[@recordingPosition] = @getOutputValue()
-                if @outputBufferAvailable and @recordingPosition > @bufferOverflowLimit
+            newRecordPosition = ~~(@recordCycle++ * @sampleRate / @cpuFrequency)
+            if newRecordPosition > @recordPosition
+                @recordPosition = newRecordPosition
+                @recordBuffer[@recordPosition] = @getOutputValue()
+                if @outputBufferFull and @recordPosition > @bufferOverflowLimit
                     @sampleRate -= 0.1 if @sampleRate > 1             # buffer overflow protection
-                else if not @outputBufferAvailable or @recordingPosition < @bufferUnderflowLimit
+                else if not @outputBufferFull or @recordPosition < @bufferUnderflowLimit
                     @sampleRate += 0.1 if @sampleRate < @cpuFrequency # buffer underflow protection
-                if @recordingPosition >= @recordingBuffer.length - 1 and not @outputBufferAvailable
+                if @recordPosition >= @recordBuffer.length - 1 and not @outputBufferFull
                     @swapOutputBuffer()
-                    @recordingPosition = 0
-                    @recordingCycle = 0
+                    @recordPosition = -1
+                    @recordCycle = 0
 
     readOutputBuffer: ->
-        @completeOutputBuffer() unless @outputBufferAvailable # Buffer overflow
-        @outputBufferAvailable = false
+        @completeOutputBuffer() unless @outputBufferFull # Buffer overflow
+        @outputBufferFull = false
         @outputBuffer
 
     completeOutputBuffer: ->
-        while @recordingPosition < @recordingBuffer.length
-            @recordingBuffer[@recordingPosition++] = 0
+        while @recordPosition < @recordBuffer.length
+            @recordBuffer[@recordPosition++] = 0
         @swapOutputBuffer()
 
     swapOutputBuffer: ->
-        [ @recordingBuffer, @outputBuffer ] = [ @outputBuffer, @recordingBuffer ]
-        @outputBufferAvailable = true
+        [ @recordBuffer, @outputBuffer ] = [ @outputBuffer, @recordBuffer ]
+        @outputBufferFull = true
 
 module.exports = APU
