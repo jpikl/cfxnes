@@ -2,31 +2,23 @@ logger = require("../utils/logger").get()
 
 LENGTH_COUNTER_VALUES = require("../common/constants").APU_LENGTH_COUNTER_VALUES
 
-DUTY_WAVEFORMS = [
-    [ 0, 1, 0, 0, 0, 0, 0, 0 ] # _X______ (12.5%)
-    [ 0, 1, 1, 0, 0, 0, 0, 0 ] # _XX_____ (25%)
-    [ 0, 1, 1, 1, 1, 0, 0, 0 ] # _XXXX___ (50%)
-    [ 1, 0, 0, 1, 1, 1, 1, 1 ] # X__XXXXX (25% negated)
-]
+TIMER_PERIODS_NTSC = [ 4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068 ]
+TIMER_PERIODS_PAL  = [ 4, 8, 14, 30, 60, 88, 118, 148, 188, 236, 354, 472, 708,  944, 1890, 3778 ]
 
 ###########################################################
-# Pulse channel
+# Noise channel
 ###########################################################
 
-class PulseChannel
-
-    constructor: (@channelId) ->
+class NoiseChannel
 
     powerUp: ->
-        logger.info "Reseting pulse channel #{@channelId}"
+        logger.info "Reseting noise channel"
         @setEnabled false
         @timerCycle = 0     # Timer counter value
-        @timerPeriod = 0    # Timer counter reset value
         @envelopeCycle = 0  # Envelope divider counter
         @envelopeVolume = 0 # Envelope volume value
-        @sweepCycle = 0     # Sweep counter
-        @writeDutyEnvelope 0
-        @writeSweep 0
+        @shiftRegister = 1  # Shift register for random noise generation (must be 1 on start)
+        @writeEnvelope 0
         @writeTimer 0
         @writeLengthCounter 0
 
@@ -34,12 +26,14 @@ class PulseChannel
         @enabled = enabled
         @lengthCounter = 0 unless enabled # Disabling channel resets length counter
 
+    setNTSCMode: (ntscMode) ->
+        @timerPeriods = if ntscMode then TIMER_PERIODS_NTSC else TIMER_PERIODS_PAL
+
     ###########################################################
-    # Duty / Envelope / Volume register
+    # Envelope / Volume register
     ###########################################################
 
-    writeDutyEnvelope: (value) ->
-        @dutySelection = (value & 0xC0) >>> 6      # Selects output waveform
+    writeEnvelope: (value) ->
         @lengthCounterHalt = (value & 0x20) isnt 0 # Disables length counter decrementation
         @useConstantVolume = (value & 0x10) isnt 0 # 0 - envelope volume is used / 1 - constant volume is used
         @constantVolume = value & 0x0F             # Constant volume value
@@ -48,23 +42,12 @@ class PulseChannel
         value
 
     ###########################################################
-    # Sweep register
-    ###########################################################
-
-    writeSweep: (value) ->
-        @sweepEnabled = (value & 0x80) isnt 0 # Sweeping enabled
-        @sweepPeriod = (value & 0x70) >>> 4   # Period after which sweep is applied
-        @sweepNegate = (value & 0x08) isnt 0  # 0 - sweep is added to timer period / 1 - sweep is subtracted from timer period
-        @sweepShift = value & 0x07            # Shift of timer period when computing sweep
-        @sweepReset = true                    # Sweep counter will be reseted
-        value
-
-    ###########################################################
     # Timer register
     ###########################################################
 
     writeTimer: (value) ->
-        @timerPeriod = (@timerPeriod & 0x700) | (value & 0xFF) # Lower 8 bits of timer
+        @timerMode = (value & 0x80) isnt 0         # Noise generation mode
+        @timerPeriod = @timerPeriods[value & 0x0F] # Timer period
         value
 
     ###########################################################
@@ -72,9 +55,7 @@ class PulseChannel
     ###########################################################
 
     writeLengthCounter: (value) ->
-        @timerPeriod = (@timerPeriod & 0x0FF) | (value & 0x7) << 8           # Higher 3 bits of timer
         @lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3] if @enabled  # Length counter update
-        @dutyPosition = 0     # Output waveform position is reseted
         @envelopeReset = true # Envelope and its divider will be reseted
         value
 
@@ -84,15 +65,23 @@ class PulseChannel
 
     tick: ->
         if --@timerCycle <= 0
-            @timerCycle = (@timerPeriod + 1) << 1 # Ticks twice slower than CPU
-            @dutyPosition = (@dutyPosition + 1) & 0x7
+            @timerCycle = @timerPeriod
+            @updateShiftRegister()
 
     tickQuarterFrame: ->
         @updateEnvelope()
 
     tickHalfFrame: ->
         @updateLengthCounter()
-        @updateSweep()
+
+    ###########################################################
+    # Shift register
+    ###########################################################
+
+    updateShiftRegister: ->
+        feedbackPosition = if @timerMode then 6 else 1
+        feedbackValue = (@shiftRegister & 1) ^ ((@shiftRegister >>> feedbackPosition) & 1)
+        @shiftRegister = (@shiftRegister >>> 1) | (feedbackValue << 14)
 
     ###########################################################
     # Envelope
@@ -121,38 +110,13 @@ class PulseChannel
             @lengthCounter--
 
     ###########################################################
-    # Sweep
-    ###########################################################
-
-    updateSweep: ->
-        if @sweepCycle > 0
-            @sweepCycle--
-        else
-            @timerPeriod += @getSweep() if @sweepEnabled and @sweepShift and @$isTimerPeriodValid()
-            @sweepCycle = @sweepPeriod
-        if @sweepReset
-            @sweepReset = false
-            @sweepCycle = @sweepPeriod
-
-    getSweep: ->
-        sweep = @timerPeriod >>> @sweepShift
-        if @sweepNegate
-            if @channelId is 1 then ~sweep else -sweep # Square channel 1 use one's complement instead of the expected two's complement
-        else
-            sweep
-
-    isTimerPeriodValid: ->
-        @timerPeriod >= 0x8 and @timerPeriod + @getSweep() < 0x800
-
-    ###########################################################
     # Output value
     ###########################################################
 
     getOutputValue: ->
-        if @enabled and @lengthCounter and @$isTimerPeriodValid()
-            volume = if @useConstantVolume then @constantVolume else @envelopeVolume
-            volume * DUTY_WAVEFORMS[@dutySelection][@dutyPosition]
+        if @enabled and @lengthCounter and not (@shiftRegister & 1)
+            if @useConstantVolume then @constantVolume else @envelopeVolume
         else
             0
 
-module.exports = PulseChannel
+module.exports = NoiseChannel

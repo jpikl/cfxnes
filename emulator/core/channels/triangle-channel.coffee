@@ -1,6 +1,4 @@
-###########################################################
-# Triangle channel
-###########################################################
+logger = require("../utils/logger").get()
 
 LENGTH_COUNTER_VALUES = require("../common/constants").APU_LENGTH_COUNTER_VALUES
 
@@ -9,9 +7,14 @@ DUTY_WAVEFORM = [
      0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
 ]
 
+###########################################################
+# Triangle channel
+###########################################################
+
 class TriangleChannel
 
-    constructor: (@channelId) ->
+    powerUp: ->
+        logger.info "Reseting triangle channel"
         @setEnabled false
         @timerCycle = 0    # Timer counter value
         @timerPeriod = 0   # Timer counter reset value

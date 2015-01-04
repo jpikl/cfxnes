@@ -1,5 +1,6 @@
 PulseChannel    = require "../channels/pulse-channel"
 TriangleChannel = require "../channels/triangle-channel"
+NoiseChannel = require "../channels/noise-channel"
 
 logger = require("../utils/logger").get()
 
@@ -18,6 +19,7 @@ class APU
         @pulseChannel1 = new PulseChannel 1
         @pulseChannel2 = new PulseChannel 2
         @triangleChannel = new TriangleChannel
+        @noiseChannel = new NoiseChannel
 
     ###########################################################
     # Power-up state initialization
@@ -26,16 +28,18 @@ class APU
     powerUp: ->
         logger.info "Reseting APU"
         @setNTSCMode true
-        @resetRegisters()
-        @stopRecording()
-
-    resetRegisters: ->
+        @pulseChannel1.powerUp()
+        @pulseChannel2.powerUp()
+        @triangleChannel.powerUp()
+        @noiseChannel.powerUp()
         @writeFrameCounter 0
+        @stopRecording()
 
     setNTSCMode: (ntscMode) ->
         @frameCounterMax4 = if ntscMode then [ 7457, 7456, 7458, 7457,    1, 1 ] else [ 8313, 8314, 8312, 8313,    1, 1 ] # 4-step frame counter
         @frameCounterMax5 = if ntscMode then [ 7457, 7456, 7458, 7458, 7452, 1 ] else [ 8313, 8314, 8312, 8314, 8312, 1 ] # 5-step frame counter
         @cpuFrequency = if ntscMode then 1789773 else 1662607
+        @noiseChannel.setNTSCMode ntscMode
 
     ###########################################################
     # Frame counter register
@@ -91,6 +95,19 @@ class APU
         @triangleChannel.writeLengthCounter value
 
     ###########################################################
+    # Noise channel registers
+    ###########################################################
+
+    writeNoiseEnvelope: (value) ->
+        @noiseChannel.writeEnvelope value
+
+    writeNoiseTimer: (value) ->
+        @noiseChannel.writeTimer value
+
+    writeNoiseLengthCounter: (value) ->
+        @noiseChannel.writeLengthCounter value
+
+    ###########################################################
     # Status register
     ###########################################################
 
@@ -98,6 +115,7 @@ class APU
         @pulseChannel1.setEnabled (value & 0x01) isnt 0
         @pulseChannel2.setEnabled (value & 0x02) isnt 0
         @triangleChannel.setEnabled (value & 0x04) isnt 0
+        @noiseChannel.setEnabled (value & 0x08) isnt 0
         value
 
     readStatus: ->
@@ -109,6 +127,7 @@ class APU
         (@pulseChannel1.lengthCounter > 0)        |
         (@pulseChannel2.lengthCounter > 0)   << 1 |
         (@triangleChannel.lengthCounter > 0) << 2 |
+        (@noiseChannel.lengthCounter > 0)    << 3 |
         @frameIrqActive                      << 6
 
     ###########################################################
@@ -120,6 +139,7 @@ class APU
         @pulseChannel1.tick()
         @pulseChannel2.tick()
         @triangleChannel.tick()
+        @noiseChannel.tick()
         @$recordOutputValue()
 
     tickFrameCounter: ->
@@ -142,11 +162,14 @@ class APU
         @pulseChannel1.tickQuarterFrame()
         @pulseChannel2.tickQuarterFrame()
         @triangleChannel.tickQuarterFrame()
+        @noiseChannel.tickQuarterFrame()
 
     tickHalfFrame: ->
         @pulseChannel1.tickHalfFrame()
         @pulseChannel2.tickHalfFrame()
         @triangleChannel.tickHalfFrame()
+        @noiseChannel.tickHalfFrame()
+
 
     ###########################################################
     # Output composition
@@ -165,7 +188,7 @@ class APU
 
     getTriangleNoiseDMCOutput: ->
         triangleValue = @triangleChannel.getOutputValue()
-        noiseValue = 0 # TODO noise channel
+        noiseValue = @noiseChannel.getOutputValue()
         dmcValue = 0 # TODO dmc value
         if triangleValue or noiseValue or dmcValue
             159.79 / (1 / (triangleValue / 8227 + noiseValue / 12241 + dmcValue / 22638) + 100)

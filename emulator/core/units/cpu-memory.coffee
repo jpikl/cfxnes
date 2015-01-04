@@ -97,6 +97,9 @@ class CPUMemory
             when 0x4008 then @apu.writeTriangleLinearCounter value
             when 0x400A then @apu.writeTriangleTimer value
             when 0x400B then @apu.writeTriangleLengthCounter value
+            when 0x400C then @apu.writeNoiseEnvelope value
+            when 0x400E then @apu.writeNoiseTimer value
+            when 0x400F then @apu.writeNoiseLengthCounter value
             when 0x4015 then @apu.writeStatus value
             when 0x4017
                 @apu.writeFrameCounter value
