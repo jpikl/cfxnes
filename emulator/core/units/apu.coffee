@@ -14,8 +14,8 @@ class APU
 
     init: (cpu) ->
         @cpu = cpu
-        @pulse0 = new PulseChannel 0
         @pulse1 = new PulseChannel 1
+        @pulse2 = new PulseChannel 2
 
     ###########################################################
     # Power-up state initialization
@@ -40,8 +40,8 @@ class APU
     ###########################################################
 
     writeFrameCounter: (value) ->
-        @frameFiveStepMode = value & 0x80 isnt 0
-        @frameIrqEnabled = value & 0x40 isnt 0
+        @frameFiveStepMode = (value & 0x80) isnt 0
+        @frameIrqEnabled = (value & 0x40) is 0
         @frameIrqActive = @frameIrqActive and @frameIrqEnabled or false # Disabling IRQ clears IRQ flag
         @frameStep = 0
         @frameCounter = @getFrameCounterMax()
@@ -60,28 +60,28 @@ class APU
     # Pulse channel registers
     ###########################################################
 
-    writePulseDutyEnvelope: (channel, value) ->
-        @$getPulse(channel).writeDutyEnvelope value
+    writePulseDutyEnvelope: (channelId, value) ->
+        @$getPulse(channelId).writeDutyEnvelope value
 
-    writePulseSweep: (channel, value) ->
-        @$getPulse(channel).writeSweep value
+    writePulseSweep: (channelId, value) ->
+        @$getPulse(channelId).writeSweep value
 
-    writePulseTimer: (channel, value) ->
-        @$getPulse(channel).writeTimer value
+    writePulseTimer: (channelId, value) ->
+        @$getPulse(channelId).writeTimer value
 
-    writePulseLengthCounter: (channel, value) ->
-        @$getPulse(channel).writeLengthCounter value
+    writePulseLengthCounter: (channelId, value) ->
+        @$getPulse(channelId).writeLengthCounter value
 
-    getPulse: (channel) ->
-        if channel then @pulse0 else @pulse1
+    getPulse: (channelId) ->
+        if channelId is 1 then @pulse1 else @pulse2
 
     ###########################################################
     # Status register
     ###########################################################
 
     writeStatus: (value) ->
-        @pulse0.setEnabled value & 0x01 isnt 0
-        @pulse1.setEnabled value & 0x02 isnt 0
+        @pulse1.setEnabled (value & 0x01) isnt 0
+        @pulse2.setEnabled (value & 0x02) isnt 0
         value
 
     readStatus: ->
@@ -90,8 +90,8 @@ class APU
         value
 
     getStatus: ->
-        (@pulse0.lengthCounter > 0)      |
-        (@pulse1.lengthCounter > 0) << 1 |
+        (@pulse1.lengthCounter > 0)      |
+        (@pulse2.lengthCounter > 0) << 1 |
         @frameIrqActive             << 6
 
     ###########################################################
@@ -100,8 +100,8 @@ class APU
 
     tick: ->
         @$tickFrameCounter()
-        @pulse0.tick()
         @pulse1.tick()
+        @pulse2.tick()
         @$recordOutputValue()
 
     tickFrameCounter: ->
@@ -112,21 +112,21 @@ class APU
         @frameStep = (@frameStep + 1) % 6
         @frameCounter = @getFrameCounterMax()
         if @frameStep in [ 1, 2, 3, 5 ]
-            @tickHalfFrame()
-        if @frameStep in [ 2, 5 ]
             @tickQuarterFrame()
+        if @frameStep in [ 2, 5 ]
+            @tickHalfFrame()
         if @frameStep in [ 4, 5, 0 ] and @frameIrqEnabled and not @frameFiveStepMode
             @frameIrqActive = true
         if @frameStep is 0 and @frameIrqActive
             @cpu.sendIRQ()
 
     tickHalfFrame: ->
-        @pulse0.tickHalfFrame()
         @pulse1.tickHalfFrame()
+        @pulse2.tickHalfFrame()
 
     tickQuarterFrame: ->
-        @pulse0.tickQuarterFrame()
         @pulse1.tickQuarterFrame()
+        @pulse2.tickQuarterFrame()
 
     ###########################################################
     # Output composition
@@ -136,10 +136,10 @@ class APU
         @getPulseOutputValue()
 
     getPulseOutputValue: ->
-        pulse0Value = @pulse0.getOutputValue()
-        pulse1value = @pulse1.getOutputValue()
-        if pulse0Value or pulse1value
-            95.88 / (8128 / (pulse0Value + pulse1value) + 100)
+        pulse1Value = @pulse1.getOutputValue()
+        pulse2value = @pulse2.getOutputValue()
+        if pulse1Value or pulse2value
+            95.88 / (8128 / (pulse1Value + pulse2value) + 100)
         else
             0
 

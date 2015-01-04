@@ -37,14 +37,14 @@ class PulseChannel
         value
 
     setDutyEnvelope: (value) ->
-        @dutySelection = (value & 0xC0) >>> 6    # Selects output waveform
-        @lengthCounterHalt = value & 0x20 isnt 0 # Disables length counter decrementation
-        @useConstantVolume = value & 0x10 isnt 0 # 0 - envelope is used as volume / 1 - volume is constant value
-        @constantVolume = value & 0x0F           # Constant value of output volume
-        @envelopeLoop = @lengthCounterHalt       # Envelope is looping (length counter hold alias)
-        @envelopePeriod = @constantVolume        # Envelope duration period (constant volume alias)
-        @envelopeCycle or= 0                     # Cycle of envelope divider
-        @envelope or= 0                          # Envelope counter value
+        @dutySelection = (value & 0xC0) >>> 6      # Selects output waveform
+        @lengthCounterHalt = (value & 0x20) isnt 0 # Disables length counter decrementation
+        @useConstantVolume = (value & 0x10) isnt 0 # 0 - envelope volume is used / 1 - constant volume is used
+        @constantVolume = value & 0x0F             # Constant volume value
+        @envelopeLoop = @lengthCounterHalt         # Envelope is looping (length counter hold alias)
+        @envelopePeriod = @constantVolume          # Envelope duration period (constant volume alias)
+        @envelopeCycle or= 0                       # Cycle of envelope divider
+        @envelopeVolume or= 0                      # Envelope volume value
 
     ###########################################################
     # Sweep register
@@ -56,12 +56,12 @@ class PulseChannel
         value
 
     setSweep: (value) ->
-        @sweepEnabled = value & 0x80 isnt 0 # Sweeping enabled
-        @sweepPeriod = (value & 0x70) >>> 4 # Period after which sweep is applied
-        @sweepNegate = value & 0x08 isnt 0  # 0 - sweep is added to timer period / 1 - sweep is subtracted from timer period
-        @sweepShift = value & 0x07          # Shift of timer period when computing sweep
-        @sweepReset = true                 # Sweep counter will be reseted
-        @sweepCycle or= 0                   # Sweep counter
+        @sweepEnabled = (value & 0x80) isnt 0 # Sweeping enabled
+        @sweepPeriod = (value & 0x70) >>> 4   # Period after which sweep is applied
+        @sweepNegate = (value & 0x08) isnt 0  # 0 - sweep is added to timer period / 1 - sweep is subtracted from timer period
+        @sweepShift = value & 0x07            # Shift of timer period when computing sweep
+        @sweepReset = true                    # Sweep counter will be reseted
+        @sweepCycle or= 0                     # Sweep counter
 
     ###########################################################
     # Timer register
@@ -86,10 +86,10 @@ class PulseChannel
         value
 
     setLengthCounter: (value) ->
-        @timerPeriod = (@timerPeriod or 0) & 0x0FF | (value & 0x7) << 8 # Higher 3 bits of timer
-        @lengthCounter = (value & 0xF8) >>> 3  # Length counter value
-        @dutyPosition = 0                      # Output waveform position is reseted
-        @envelopeReset = true                  # Envelope and its divider will be reseted
+        @timerPeriod = (@timerPeriod or 0) & 0x0FF | (value & 0x7) << 8           # Higher 3 bits of timer
+        @lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3] if @enabled  # Length counter update
+        @dutyPosition = 0     # Output waveform position is reseted
+        @envelopeReset = true # Envelope and its divider will be reseted
 
     ###########################################################
     # Tick
@@ -121,14 +121,15 @@ class PulseChannel
         if @envelopeReset
             @envelopeReset = false
             @envelopeCycle = @envelopePeriod
-            @envelope = 0xF
+            @envelopeVolume = 0xF
         else if @envelopeCycle > 0
             @envelopeCycle--
-        else if @envelope > 0 # Envelope cycle is 0
+        else
             @envelopeCycle = @envelopePeriod
-            @envelope--
-        else if @envelopeLoop # Envelope is 0
-            @envelope = 0xF
+            if @envelopeVolume > 0
+                @envelopeVolume--
+            else if @envelopeLoop
+                @envelopeVolume = 0xF
 
     ###########################################################
     # Length counter
@@ -143,29 +144,31 @@ class PulseChannel
     ###########################################################
 
     updateSweep: ->
-        if @sweepCycle is 0 and @sweepEnabled
-            @timerPeriod += @getSweep() if @timerPeriodValid
-            @sweepCycle = @sweepPeriod
-        else if @sweepCycle > 0
+        if @sweepCycle > 0
             @sweepCycle--
-        if @sweepReset
+        else
+            @timerPeriod += @getSweep() if @sweepEnabled and @sweepShift and @timerPeriodValid
             @sweepCycle = @sweepPeriod
+        if @sweepReset
             @sweepReset = false
-        @updateState()
+            @sweepCycle = @sweepPeriod
 
     getSweep: ->
         sweep = @timerPeriod >>> @sweepShift
-        if @sweepNegate then -(sweep - @channelId) else sweep # Square channel 1 adjusts negative sweep by -1
+        if @sweepNegate
+            if @channelId is 1 then ~sweep else -sweep # Square channel 1 use one's complement instead of the expected two's complement
+        else
+            sweep
 
     ###########################################################
     # State
     ###########################################################
 
     updateState: ->
-        @timerPeriodValid = @timerPeriod > 0x8 and @timerPeriod + @getSweep() < 0x800
+        @timerPeriodValid = @timerPeriod >= 0x8 and @timerPeriod + @getSweep() < 0x800
 
     updateVolume: ->
-        @volume = if @useConstantVolume then @constantVolume else @envelope
+        @volume = if @useConstantVolume then @constantVolume else @envelopeVolume
 
     ###########################################################
     # Output value

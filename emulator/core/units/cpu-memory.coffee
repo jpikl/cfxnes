@@ -86,14 +86,14 @@ class CPUMemory
             when 0x2007 then @ppu.writeData value
             when 0x4014 then @dma.writeAddress value
             when 0x4016 then @writeInputDevice value
-            when 0x4000 then @apu.writePulseDutyEnvelope 0, value
-            when 0x4001 then @apu.writePulseSweep 0, value
-            when 0x4002 then @apu.writePulseTimer 0, value
-            when 0x4003 then @apu.writePulseLengthCounter 0, value
-            when 0x4004 then @apu.writePulseDutyEnvelope 1, value
-            when 0x4005 then @apu.writePulseSweep 1, value
-            when 0x4006 then @apu.writePulseTimer 1, value
-            when 0x4007 then @apu.writePulseLengthCounter 1, value
+            when 0x4000 then @apu.writePulseDutyEnvelope 1, value
+            when 0x4001 then @apu.writePulseSweep 1, value
+            when 0x4002 then @apu.writePulseTimer 1, value
+            when 0x4003 then @apu.writePulseLengthCounter 1, value
+            when 0x4004 then @apu.writePulseDutyEnvelope 2, value
+            when 0x4005 then @apu.writePulseSweep 2, value
+            when 0x4006 then @apu.writePulseTimer 2, value
+            when 0x4007 then @apu.writePulseLengthCounter 2, value
             when 0x4015 then @apu.writeStatus value
             when 0x4017
                 @apu.writeFrameCounter value
