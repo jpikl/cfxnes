@@ -100,6 +100,10 @@ class CPUMemory
             when 0x400C then @apu.writeNoiseEnvelope value
             when 0x400E then @apu.writeNoiseTimer value
             when 0x400F then @apu.writeNoiseLengthCounter value
+            when 0x4010 then @apu.writeDMCFlagsTimer value
+            when 0x4011 then @apu.writeDMCOutputLevel value
+            when 0x4012 then @apu.writeDMCSampleAddress value
+            when 0x4013 then @apu.writeDMCSampleLength value
             when 0x4015 then @apu.writeStatus value
             when 0x4017
                 @apu.writeFrameCounter value

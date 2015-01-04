@@ -35,7 +35,7 @@ class PulseChannel
         @lengthCounter = 0 unless enabled # Disabling channel resets length counter
 
     ###########################################################
-    # Duty / Envelope / Volume register
+    # Registers writing
     ###########################################################
 
     writeDutyEnvelope: (value) ->
@@ -47,10 +47,6 @@ class PulseChannel
         @envelopePeriod = @constantVolume          # Envelope duration period (constant volume alias)
         value
 
-    ###########################################################
-    # Sweep register
-    ###########################################################
-
     writeSweep: (value) ->
         @sweepEnabled = (value & 0x80) isnt 0 # Sweeping enabled
         @sweepPeriod = (value & 0x70) >>> 4   # Period after which sweep is applied
@@ -59,17 +55,9 @@ class PulseChannel
         @sweepReset = true                    # Sweep counter will be reseted
         value
 
-    ###########################################################
-    # Timer register
-    ###########################################################
-
     writeTimer: (value) ->
         @timerPeriod = (@timerPeriod & 0x700) | (value & 0xFF) # Lower 8 bits of timer
         value
-
-    ###########################################################
-    # Length counter / Timer register
-    ###########################################################
 
     writeLengthCounter: (value) ->
         @timerPeriod = (@timerPeriod & 0x0FF) | (value & 0x7) << 8           # Higher 3 bits of timer

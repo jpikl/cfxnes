@@ -30,7 +30,7 @@ class NoiseChannel
         @timerPeriods = if ntscMode then TIMER_PERIODS_NTSC else TIMER_PERIODS_PAL
 
     ###########################################################
-    # Envelope / Volume register
+    # Registers writing
     ###########################################################
 
     writeEnvelope: (value) ->
@@ -41,18 +41,10 @@ class NoiseChannel
         @envelopePeriod = @constantVolume          # Envelope duration period (constant volume alias)
         value
 
-    ###########################################################
-    # Timer register
-    ###########################################################
-
     writeTimer: (value) ->
         @timerMode = (value & 0x80) isnt 0         # Noise generation mode
-        @timerPeriod = @timerPeriods[value & 0x0F] # Timer period
+        @timerPeriod = @timerPeriods[value & 0x0F] # Timer counter reset value
         value
-
-    ###########################################################
-    # Length counter / Timer register
-    ###########################################################
 
     writeLengthCounter: (value) ->
         @lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3] if @enabled  # Length counter update

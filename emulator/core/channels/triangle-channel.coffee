@@ -29,7 +29,7 @@ class TriangleChannel
         @lengthCounter = 0 unless enabled # Disabling channel resets length counter
 
     ###########################################################
-    # Linear counter register
+    # Registers writing
     ###########################################################
 
     writeLinearCounter: (value) ->
@@ -38,17 +38,9 @@ class TriangleChannel
         @linearCounterControl = @lengthCounterHalt    # Linear counter control flag (length counter halt alias)
         value
 
-    ###########################################################
-    # Timer register
-    ###########################################################
-
     writeTimer: (value) ->
         @timerPeriod = (@timerPeriod & 0x700) | (value & 0xFF) # Lower 8 bits of timer
         value
-
-    ###########################################################
-    # Length counter / Timer register
-    ###########################################################
 
     writeLengthCounter: (value) ->
         @timerPeriod = (@timerPeriod & 0x0FF) | (value & 0x7) << 8                # Higher 3 bits of timer
