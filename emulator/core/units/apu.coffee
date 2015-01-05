@@ -61,7 +61,8 @@ class APU
     writeFrameCounter: (value) ->
         @frameFiveStepMode = (value & 0x80) isnt 0 # 0 - mode 4 (4-step counter) / 1 - mode 5 (5-step counter)
         @frameIrqEnabled = (value & 0x40) is 0     # IRQ generation is enabled (during mode 4)
-        @frameStep = 0                             # Timer is reseted after 3 or 4 CPU cycle (delay not emulated yet)
+        @frameStep = 0                             # Step of the frame counter
+        @frameCounter = @getFrameCounterMax()      # Counter should be actualy reseted after 3 or 4 CPU cycle (delay not emulated yet)
         unless @frameIrqEnabled
             @clearFrameIRQ()                       # Disabling IRQ clears IRQ flag
         if @frameFiveStepMode
