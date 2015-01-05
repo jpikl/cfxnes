@@ -84,6 +84,7 @@ class CPU
         @tick() for [1..3]
         @enterInterruptHandler 0xFFFC
         @clearInterrupt Interrupt.RESET
+        @write 0x4015, 0x00 # Cleared on reset
 
     handleNMI: ->
         @saveStateBeforeInterrupt()

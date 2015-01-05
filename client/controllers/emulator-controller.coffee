@@ -38,5 +38,8 @@ angular.module "cfxnes"
         emulator.stop()
 
     $scope.$on "$stateChangeStart", ->
+        globalParams.paused = emulator.isRunning()
         emulator.stop()
         emulator.setVideoOutput null # Drop the canvas
+
+    emulator.start() if globalParams.paused

@@ -21,7 +21,12 @@ class ExecutionManager
         @audioManager = audioManager
         @inputManager = inputManager
         @initFPS()
+        @initListeners()
         @setDefaults()
+
+    initListeners: ->
+        window.addEventListener "focus", @onFocus
+        window.addEventListener "blur", @onBlur
 
     setDefaults: ->
         logger.info "Using default execution configuration"
@@ -56,6 +61,19 @@ class ExecutionManager
         @videoManager.drawFrame()
         @inputManager.processSources()
         @updateFPS()
+
+    ###########################################################
+    # Focus / Blur
+    ###########################################################
+
+    onFocus: =>
+        logger.info "Gained focus"
+        @start() if @runningBeforeBlur
+
+    onBlur: =>
+        logger.info "Lost focus"
+        @runningBeforeBlur = @isRunning()
+        @stop()
 
     ###########################################################
     # Inputs
