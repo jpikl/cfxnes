@@ -1,4 +1,5 @@
-TVSystem = require("./common/types").TVSystem
+Interrupt = require("./common/types").Interrupt
+TVSystem  = require("./common/types").TVSystem
 
 ###########################################################
 # Nintendo Entertainment System
@@ -32,7 +33,7 @@ class NES
         @cpu.powerUp()
 
     pressReset: ->
-        @cpu.sendReset()
+        @cpu.activateInterrupt Interrupt.RESET
 
     ###########################################################
     # Input devices

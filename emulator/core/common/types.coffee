@@ -1,4 +1,21 @@
 ###########################################################
+# Interupt types (flags)
+###########################################################
+
+Interrupt =
+
+    RESET:   0x01 # CPU reset
+    NMI:     0x02 # PPU non-maskable interrupt
+    IRQ_APU: 0x04 # APU frame counter interrupt
+    IRQ_DCM: 0x08 # DCM channel interrupt
+    IRQ_EXT: 0x10 # External interrupt from mapper
+
+# IRQ type mask
+Interrupt.IRQ = Interrupt.IRQ_APU | Interrupt.IRQ_DCM | Interrupt.IRQ_EXT
+
+module.exports.Interrupt = Interrupt
+
+###########################################################
 # Name table mirroring types
 ###########################################################
 

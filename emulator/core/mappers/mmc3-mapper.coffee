@@ -1,4 +1,5 @@
 AbstractMapper = require "./abstract-mapper"
+Interrupt      = require("../common/types").Interrupt
 Mirroring      = require("../common/types").Mirroring
 
 ###########################################################
@@ -51,8 +52,8 @@ class MMC3 extends AbstractMapper
             when 0xA001 then @writePRGRAMEnable value # $A001-$BFFF (101X), odd
             when 0xC000 then @irqLatch = value        # $C000-$DFFE (110X), even
             when 0xC001 then @irqReload = true        # $C001-$DFFF (110X), odd
-            when 0xE000 then @irqEnabled = false      # $E000-$FFFE (111X), even
-            when 0xE001 then @irqEnabled = true       # $E001-$FFFF (111X), odd
+            when 0xE000 then @setIRQEnabled false     # $E000-$FFFE (111X), even
+            when 0xE001 then @setIRQEnabled true      # $E001-$FFFF (111X), odd
 
     writeBankSelect: (value) ->
         switch @command & 7
@@ -67,6 +68,10 @@ class MMC3 extends AbstractMapper
 
     writePRGRAMEnable: (value) ->
         # TODO
+
+    setIRQEnabled: (enabled) ->
+        @irqEnabled = enabled
+        @cpu.clearInterrupt Interrupt.IRQ_EXT unless enabled # Disabling IRQ clears IRQ flag
 
     ###########################################################
     # Bank switching
@@ -101,7 +106,7 @@ class MMC3 extends AbstractMapper
 
     tick: ->
         if @$isScanlineTick() and @updateScanlineCounter()
-            @cpu.sendIRQ()
+            @cpu.activateInterrupt Interrupt.IRQ_EXT
 
     isScanlineTick: ->
         # Precise emulation would require watching changes of A12 ($1000) on the PPU bus.

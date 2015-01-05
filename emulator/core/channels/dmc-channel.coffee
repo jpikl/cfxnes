@@ -1,4 +1,5 @@
-logger = require("../utils/logger").get()
+Interrupt = require("../common/types").Interrupt
+logger    = require("../utils/logger").get()
 
 TIMER_PERIODS_NTSC = [ 428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106,  84,  72,  54 ]
 TIMER_PERIODS_PAL  = [ 398, 354, 316, 298, 276, 236, 210, 198, 176, 148, 132, 118,  98,  78,  66,  50 ]
@@ -26,12 +27,12 @@ class DMCChannel
 
     setEnabled: (enabled) ->
         @enabled = enabled
-        @irqActive = false # Changing enablement ($4015 write) clears IRQ flag
         if not enabled
             @sampleRemainingLength = 0             # Disabling channel stops sample data reading
         else if @sampleRemainingLength is 0
             @sampleCurrentAddress = @sampleAddress # Enabling channel starts sample data reading unless is already in progress
             @sampleRemainingLength = @sampleLength
+        @cpu.clearInterrupt Interrupt.IRQ_DCM      # Changing enablement ($4015 write) clears IRQ flag
 
     setNTSCMode: (ntscMode) ->
         @timerPeriods = if ntscMode then TIMER_PERIODS_NTSC else TIMER_PERIODS_PAL
@@ -42,9 +43,10 @@ class DMCChannel
 
     writeFlagsTimer: (value) ->
         @irqEnabled = (value & 0x80) isnt 0        # IRQ enabled flag
-        @irqActive and= @irqEnabled                # Disabling IRQ clears IRQ flag
         @sampleLoop = (value & 0x40) isnt 0        # Sample looping flag
         @timerPeriod = @timerPeriods[value & 0x0F] # Timer counter reset value
+        unless @irqEnabled
+            @cpu.clearInterrupt Interrupt.IRQ_DCM  # Disabling IRQ clears IRQ flag
         value
 
     writeOutputLevel: (value) ->
@@ -68,7 +70,6 @@ class DMCChannel
         if --@timerCycle <= 0
             @timerCycle = @timerPeriod
             @updateSample()
-        @cpu.requestIRQ if @irqActive
 
     ###########################################################
     # Sample processing
@@ -93,7 +94,7 @@ class DMCChannel
                     @sampleCurrentAddress = @sampleAddress # Re-read the same sample again
                     @sampleRemainingLength = @sampleLength
                 else if @irqEnabled
-                    @irqActive = true # Reading of sample was finished
+                    @cpu.activateInterrupt Interrupt.IRQ_DCM # Reading of sample was finished
 
     updateShiftRegister: ->
         # Countinuous reload of buffer to shift register (even when the output is silenced)

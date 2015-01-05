@@ -1,4 +1,5 @@
-logger = require("../utils/logger").get()
+Interrupt = require("../common/types").Interrupt
+logger    = require("../utils/logger").get()
 
 FRAME_BUFFER_WIDTH  = require("../common/constants").VIDEO_WIDTH
 FRAME_BUFFER_HEIGHT = require("../common/constants").VIDEO_HEIGHT
@@ -367,7 +368,7 @@ class PPU
     enterVBlank: ->
         @vblankStarted = 1
         @frameAvailable = true
-        @cpu.sendNMI() if @vblankGeneratesNMI
+        @cpu.activateInterrupt Interrupt.NMI if @vblankGeneratesNMI
 
     leaveVBlank: ->
         @vblankStarted = 0

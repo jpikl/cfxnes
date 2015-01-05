@@ -1,14 +1,6 @@
+Interrupt = require("../common/types").Interrupt
 byteAsHex = require("../utils/format").byteAsHex
 logger    = require("../utils/logger").get()
-
-###########################################################
-# Interrupt types
-###########################################################
-
-Interrupt =
-    IRQ:   1
-    NMI:   2
-    RESET: 3
 
 ###########################################################
 # Central processing unit
@@ -34,7 +26,7 @@ class CPU
         @resetRegisters()
         @resetVariables()
         @resetMemory()
-        @sendReset() # Causes reset interrupt on start
+        @activateInterrupt Interrupt.RESET # Reset interrupt on start
 
     resetRegisters: ->
         @programCounter = 0  # 16-bit
@@ -48,7 +40,7 @@ class CPU
         @cyclesCount = 0
         @emptyReadCycles = 0
         @emptyWriteCycles = 0
-        @pendingInterrupt = null
+        @activeInterrupts = 0 # Bitmap (each type of interrupt has its own bit)
 
     resetMemory: ->
         @write address, 0xFF for address in [0...0x0800]
@@ -68,7 +60,7 @@ class CPU
         if @dma.isBlockingCPU() or @apu.isBlockingCPU()
             @tick() # CPU can't access memory (empty cycle).
         else
-            @resolveInterrupt()
+            @resolveInterrupt() if @activeInterrupts
             @executeInstruction()
 
     ###########################################################
@@ -76,30 +68,31 @@ class CPU
     ###########################################################
 
     resolveInterrupt: ->
-        if @pendingInterrupt and not @isPendingInterruptDisabled()
-            switch @pendingInterrupt
-                when Interrupt.IRQ   then @handleIRQ()
-                when Interrupt.NMI   then @handleNMI()
-                when Interrupt.RESET then @handleReset()
-            @tick()
-            @tick() # To make totally 7 cycles.
-            @pendingInterrupt = null
-
-    isPendingInterruptDisabled: ->
-        @pendingInterrupt is Interrupt.IRQ and @interruptDisable
-
-    handleIRQ: ->
-        @saveStateBeforeInterrupt()
-        @enterInterruptHandler 0xFFFE
-
-    handleNMI: ->
-        @saveStateBeforeInterrupt()
-        @enterInterruptHandler 0xFFFA
+        if @activeInterrupts & Interrupt.RESET
+            @handleReset()
+        else if @activeInterrupts & Interrupt.NMI
+            @handleNMI()
+        else if @interruptDisable
+            return # IRQ requested, but disabled
+        else
+            @handleIRQ()
+        @tick()
+        @tick() # To make totally 7 cycles.
 
     handleReset: ->
         @stackPointer = (@stackPointer - 3) & 0xFF # Does not write on stack, just decrements its pointer.
         @tick() for [1..3]
         @enterInterruptHandler 0xFFFC
+        @clearInterrupt Interrupt.RESET
+
+    handleNMI: ->
+        @saveStateBeforeInterrupt()
+        @enterInterruptHandler 0xFFFA
+        @clearInterrupt Interrupt.NMI
+
+    handleIRQ: ->
+        @saveStateBeforeInterrupt()
+        @enterInterruptHandler 0xFFFE
 
     saveStateBeforeInterrupt: ->
         @pushWord @programCounter
@@ -238,18 +231,11 @@ class CPU
     # CPU input signals
     ###########################################################
 
-    sendReset: ->
-        @setPendingInterrupt Interrupt.RESET
+    activateInterrupt: (type) ->
+        @activeInterrupts |= type
 
-    sendNMI: ->
-        @setPendingInterrupt Interrupt.NMI
-
-    sendIRQ: ->
-        @setPendingInterrupt Interrupt.IRQ
-
-    setPendingInterrupt: (type) ->
-        if @pendingInterrupt is null or type > @pendingInterrupt
-            @pendingInterrupt = type
+    clearInterrupt: (type) ->
+        @activeInterrupts &= ~type
 
     ###########################################################
     # Basic addressing modes

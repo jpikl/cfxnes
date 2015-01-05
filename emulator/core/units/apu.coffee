@@ -1,9 +1,9 @@
+Interrupt       = require("../common/types").Interrupt
 PulseChannel    = require "../channels/pulse-channel"
 TriangleChannel = require "../channels/triangle-channel"
-NoiseChannel = require "../channels/noise-channel"
-DMCChannel = require "../channels/dmc-channel"
-
-logger = require("../utils/logger").get()
+NoiseChannel    = require "../channels/noise-channel"
+DMCChannel      = require "../channels/dmc-channel"
+logger          = require("../utils/logger").get()
 
 FRAME_COUNTER_MAX = 14915
 
@@ -31,7 +31,7 @@ class APU
     powerUp: ->
         logger.info "Reseting APU"
         @setNTSCMode true
-        @frameIrqActive = false # Frame IRQ flag
+        @clearFrameIRQ()
         @pulseChannel1.powerUp()
         @pulseChannel2.powerUp()
         @triangleChannel.powerUp()
@@ -46,16 +46,24 @@ class APU
         @noiseChannel.setNTSCMode ntscMode
         @dmcChannel.setNTSCMode ntscMode
 
+    activateFrameIRQ: ->
+        @frameIrqActive = true
+        @cpu.activateInterrupt Interrupt.IRQ_APU
+
+    clearFrameIRQ: ->
+        @frameIrqActive = false
+        @cpu.clearInterrupt Interrupt.IRQ_APU
+
     ###########################################################
     # Frame counter register
     ###########################################################
 
     writeFrameCounter: (value) ->
-        @frameFiveStepMode = (value & 0x80) isnt 0
-        @frameIrqEnabled = (value & 0x40) is 0
-        @frameIrqActive and= @frameIrqActive # Disabling IRQ clears IRQ flag
-        @frameStep = 0
-        @frameCounter = @getFrameCounterMax()
+        @frameFiveStepMode = (value & 0x80) isnt 0 # 0 - mode 4 (4-step counter) / 1 - mode 5 (5-step counter)
+        @frameIrqEnabled = (value & 0x40) is 0     # IRQ generation is enabled (during mode 4)
+        @frameStep = 0                             # Timer is reseted after 3 or 4 CPU cycle (delay not emulated yet)
+        unless @frameIrqEnabled
+            @clearFrameIRQ()                       # Disabling IRQ clears IRQ flag
         if @frameFiveStepMode
             @tickHalfFrame()
             @tickQuarterFrame()
@@ -142,7 +150,7 @@ class APU
 
     readStatus: ->
         value = @$getStatus()
-        @frameIrqActive = false
+        @clearFrameIRQ()
         value
 
     getStatus: ->
@@ -189,9 +197,7 @@ class APU
         if @frameStep in [ 2, 5 ]
             @tickHalfFrame()
         if @frameStep in [ 4, 5, 0 ] and @frameIrqEnabled and not @frameFiveStepMode
-            @frameIrqActive = true
-        if @frameStep is 0 and @frameIrqActive
-            @cpu.sendIRQ()
+            @activateFrameIRQ()
 
     tickQuarterFrame: ->
         @pulseChannel1.tickQuarterFrame()
