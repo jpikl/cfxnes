@@ -7,7 +7,7 @@ DEFAULT_DEBUGGING = false
 DEFAULT_SMOOTHING = false
 DEFAULT_SCALE = 1
 DEFAULT_PALETTE = "default"
-DEFAULT_RENDERER = "canvas"
+DEFAULT_RENDERER = "webgl"
 
 ###########################################################
 # Video manager
