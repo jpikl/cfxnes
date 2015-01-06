@@ -184,7 +184,7 @@ class APU
         @triangleChannel.tick()
         @noiseChannel.tick()
         @dmcChannel.tick()
-        @$recordOutputValue()
+        @$recordOutputValue() if @recordingActive
 
     tickFrameCounter: ->
         if --@frameCounter <= 0
@@ -258,19 +258,18 @@ class APU
         @recordingActive = false
 
     recordOutputValue: ->
-        if @recordingActive
-            newRecordPosition = ~~(@recordCycle++ * @sampleRate / @cpuFrequency)
-            if newRecordPosition > @recordPosition
-                @recordPosition = newRecordPosition
-                @recordBuffer[@recordPosition] = @getOutputValue()
-                if @outputBufferFull and @recordPosition > @bufferOverflowLimit
-                    @sampleRate -= 0.1 if @sampleRate > 1             # buffer overflow protection
-                else if not @outputBufferFull or @recordPosition < @bufferUnderflowLimit
-                    @sampleRate += 0.1 if @sampleRate < @cpuFrequency # buffer underflow protection
-                if @recordPosition >= @recordBuffer.length - 1 and not @outputBufferFull
-                    @swapOutputBuffer()
-                    @recordPosition = -1
-                    @recordCycle = 0
+        newRecordPosition = ~~(@recordCycle++ * @sampleRate / @cpuFrequency)
+        if newRecordPosition > @recordPosition
+            @recordPosition = newRecordPosition
+            @recordBuffer[@recordPosition] = @getOutputValue()
+            if @outputBufferFull and @recordPosition > @bufferOverflowLimit
+                @sampleRate -= 0.1 if @sampleRate > 1             # buffer overflow protection
+            else if not @outputBufferFull or @recordPosition < @bufferUnderflowLimit
+                @sampleRate += 0.1 if @sampleRate < @cpuFrequency # buffer underflow protection
+            if @recordPosition >= @recordBuffer.length - 1 and not @outputBufferFull
+                @swapOutputBuffer()
+                @recordPosition = -1
+                @recordCycle = 0
 
     readOutputBuffer: ->
         @completeOutputBuffer() unless @outputBufferFull # Buffer overflow
