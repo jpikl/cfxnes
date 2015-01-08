@@ -3,7 +3,9 @@
 # inlining.
 ###########################################################
 
-BASE_PATH = "../../node_modules/gulp-coffee/node_modules/"
+# Has to be "../../node_modules/gulp-coffee/node_modules" if gulp-coffee
+# includes coffee-script as its own dependency.
+BASE_PATH = "../../node_modules"
 
 lexer   = require "#{BASE_PATH}/coffee-script/lib/coffee-script/lexer"
 nodes   = require "#{BASE_PATH}/coffee-script/lib/coffee-script/nodes"
