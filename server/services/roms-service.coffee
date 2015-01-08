@@ -3,6 +3,9 @@ path = require "path"
 
 romsDir = path.join __dirname, "..", "roms"
 
+isROM = (fileName) ->
+    fileName[-4..].toLowerCase() is ".nes"
+
 getROMId = (fileName) ->
     fileName
         .replace "'", ""
@@ -24,7 +27,10 @@ class ROMsService
         @romList = []
         @romMap = {}
 
-        for file, i in fs.readdirSync romsDir
+        unless fs.existsSync romsDir
+            fs.mkdirSync romsDir
+
+        for file, i in fs.readdirSync romsDir when isROM file
             id = getROMId file
             name = getROMName file
             @romList[i] = { id: id, name: name, file: file }
