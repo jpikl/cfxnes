@@ -24,5 +24,5 @@ alert#controls-info(ng-show="controlsVisible" type="info" close="hideControls()"
         +input-mapping("joypad", "down",   "Down")
         +input-mapping("zapper", "trigger", "Zapper")
 
-canvas#video-output(on-create="setVideoOutput(element)" on-file-drop="loadCartridge(file)")
+canvas#video-output(video-output="emulator" on-file-drop="loadCartridge(file)")
     | Your browser does not support canvas element.

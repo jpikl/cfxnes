@@ -3,7 +3,6 @@ angular.module "cfxnes"
 .directive "openFileButton", ->
     restrict: "E"
     templateUrl: "directives/open-file-button.html"
-    scope: true
     replace: true
     transclude: true
     link: (scope, element, attrs) ->

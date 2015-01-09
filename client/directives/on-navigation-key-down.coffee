@@ -2,7 +2,6 @@ angular.module "cfxnes"
 
 .directive "onNavigationKeyDown", ->
     restriction: "A"
-    scope: false
     link: (scope, element, attrs) ->
         element.on "keydown", (event) ->
             keyDown = (key) ->

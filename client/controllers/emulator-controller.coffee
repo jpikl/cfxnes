@@ -2,6 +2,8 @@ angular.module "cfxnes"
 
 .controller "EmulatorController", ($scope, $state, emulator, globalParams) ->
 
+    $scope.emulator = emulator
+
     $scope.loadCartridge = (file) ->
         onLoad  =         -> $scope.$parent.$broadcast "cartridgeLoad"
         onError = (error) -> $scope.$parent.$broadcast "cartridgeError", error
