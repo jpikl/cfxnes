@@ -12,3 +12,19 @@ are recommended.
 
 The source code is licensed under the MIT License.
 See LICENSE.txt for more details.
+
+## Building and Running
+
+    npm install
+    bower install
+    gulp
+
+or alternatively
+
+    npm install
+    ./node_modules/bower/bin/bower install
+    ./node_modules/gulp/bin/gulp.js
+
+
+* Application is running at <http://localhost:5000>
+* Put your *.nes* ROM files inside the `server/roms` directory to see them in game library (application has to be restarted).

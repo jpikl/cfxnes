@@ -1,16 +1,15 @@
-yargs   = require "yargs"
-
+del     = require "del"
 gulp    = require "gulp"
-gutil   = require "gulp-util"
-gulpif  = require "gulp-if"
+closure = require "gulp-closure-compiler"
 concat  = require "gulp-concat"
-rimraf  = require "gulp-rimraf"
-stylus  = require "gulp-stylus"
+gulpif  = require "gulp-if"
 jade    = require "gulp-jade"
 mocha   = require "gulp-mocha"
-open    = require "gulp-open"
 nodemon = require "gulp-nodemon"
-closure = require "gulp-closure-compiler"
+open    = require "gulp-open"
+stylus  = require "gulp-stylus"
+gutil   = require "gulp-util"
+yargs   = require "yargs"
 
 bundle  = require "./gulp/gulp-bundle-modules"
 coffee  = require "./gulp/gulp-inlined-coffee"
@@ -57,15 +56,8 @@ gulp.task "default", [ "server", "browser" ]
 
 gulp.task "test", [ "emulator-test" ]
 
-gulp.task "clean", [ "clean-public", "clean-temp" ]
-
-gulp.task "clean-public", ->
-    gulp.src PUBLIC_DIR
-        .pipe rimraf()
-
-gulp.task "clean-temp", ->
-    gulp.src TEMP_DIR
-        .pipe rimraf()
+gulp.task "clean", (callback) ->
+    del [ PUBLIC_DIR, TEMP_DIR ], callback
 
 ###########################################################
 # Emulator tasks
