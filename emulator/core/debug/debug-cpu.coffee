@@ -2,7 +2,7 @@ CPU           = require "../units/cpu"
 byteAsHex     = require("../utils/format").byteAsHex
 wordAsHex     = require("../utils/format").wordAsHex
 fillLeft      = require("../utils/format").fillLeft
-simpleLogger  = require("../utils/logger").get "debug-simple"
+basicLogger   = require("../utils/logger").get "debug-basic"
 verboseLogger = require("../utils/logger").get "debug-verbose"
 
 ###########################################################
@@ -118,7 +118,7 @@ class DebugCPU extends CPU
     startLogging: ->
         @logHeader()
         @linesCount = 0
-        @simpleLogFormatterMethods = [
+        @basicLogFormatterMethods = [
             @formatInstructionAddress
             @formatInstructionData
             @formatInstructionCode
@@ -165,8 +165,8 @@ class DebugCPU extends CPU
     logOperationAfter: ->
         @linesCount++
         @instructionCycles = @cyclesCount - @cyclesCountBefore
-        simpleResult = (method() for method in @simpleLogFormatterMethods)
-        simpleLogger.info simpleResult.join "  "
+        basicResult = (method() for method in @basicLogFormatterMethods)
+        basicLogger.info basicResult.join "  "
         verboseResult = (method() for method in @verboseLogFormatterMethods)
         verboseLogger.info "| #{verboseResult.join ' | '} |"
 
