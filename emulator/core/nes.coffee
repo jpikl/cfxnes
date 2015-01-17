@@ -17,20 +17,20 @@ class NES
         @cpuMemory = cpuMemory
         @ppuMemory = ppuMemory
         @mapperFactory = mapperFactory
-        @pressPower()
 
     ###########################################################
     # Buttons
     ###########################################################
 
     pressPower: ->
-        @mapper?.powerUp()
-        @dma.powerUp()
-        @apu.powerUp()
-        @ppuMemory.powerUp()
-        @ppu.powerUp()
-        @cpuMemory.powerUp()
-        @cpu.powerUp()
+        if @isCartridgeInserted()
+            @mapper.powerUp()
+            @dma.powerUp()
+            @apu.powerUp()
+            @ppuMemory.powerUp()
+            @ppu.powerUp()
+            @cpuMemory.powerUp()
+            @cpu.powerUp()
 
     pressReset: ->
         @cpu.activateInterrupt Interrupt.RESET
@@ -55,8 +55,8 @@ class NES
         @cpu.connectMapper @mapper
         @cpuMemory.connectMapper @mapper
         @ppuMemory.connectMapper @mapper
-        @mapper.powerUp()
         @updateTVSystem()
+        @pressPower()
 
     isCartridgeInserted: ->
         @cartridge?

@@ -59,11 +59,12 @@ class APU
     ###########################################################
 
     writeFrameCounter: (value) ->
+        @frameCounterLastWrittenValue = value      # Used by CPU during reset when last value written to $4017 is written to $4017 again
         @frameFiveStepMode = (value & 0x80) isnt 0 # 0 - mode 4 (4-step counter) / 1 - mode 5 (5-step counter)
-        @frameIrqEnabled = (value & 0x40) is 0     # IRQ generation is enabled (during mode 4)
+        @frameIrqDisabled = (value & 0x40) isnt 0  # IRQ generation is inhibited (during mode 4)
         @frameStep = 0                             # Step of the frame counter
         @frameCounter = @getFrameCounterMax()      # Counter should be actualy reseted after 3 or 4 CPU cycle (delay not emulated yet)
-        unless @frameIrqEnabled
+        if @frameIrqDisabled
             @clearFrameIRQ()                       # Disabling IRQ clears IRQ flag
         if @frameFiveStepMode
             @tickHalfFrame()
@@ -197,7 +198,7 @@ class APU
             @tickQuarterFrame()
         if @frameStep in [ 2, 5 ]
             @tickHalfFrame()
-        if @frameStep in [ 4, 5, 0 ] and @frameIrqEnabled and not @frameFiveStepMode
+        if @frameStep in [ 4, 5, 0 ] and not (@frameIrqDisabled or @frameFiveStepMode)
             @activateFrameIRQ()
 
     tickQuarterFrame: ->

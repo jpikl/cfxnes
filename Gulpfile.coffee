@@ -56,8 +56,11 @@ gulp.task "default", [ "server", "browser" ]
 
 gulp.task "test", [ "emulator-test" ]
 
-gulp.task "clean", (callback) ->
-    del [ PUBLIC_DIR, TEMP_DIR ], callback
+gulp.task "clean", [ "clean-temp" ], (callback) ->
+    del [ PUBLIC_DIR ], callback
+
+gulp.task "clean-temp", (callback) ->
+    del [ TEMP_DIR ], callback
 
 ###########################################################
 # Emulator tasks

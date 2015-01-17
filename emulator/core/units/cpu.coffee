@@ -26,21 +26,22 @@ class CPU
         @resetRegisters()
         @resetVariables()
         @resetMemory()
-        @activateInterrupt Interrupt.RESET # Reset interrupt on start
+        @handleReset() # Reset will appropriately initialize some CPU registers and $4015/$4017 registers (see bellow)
 
     resetRegisters: ->
-        @programCounter = 0  # 16-bit
-        @stackPointer = 0    #  8-bit
-        @accumulator = 0     #  8-bit
-        @registerX = 0       #  8-bit
-        @registerY = 0       #  8-bit
-        @setStatus 0         #  8-bit
+        @programCounter = 0 # 16-bit (it will be initialized to value at address 0xFFFC during following reset)
+        @stackPointer = 0   #  8-bit (it will be set to 0x7D during following reset)
+        @accumulator = 0    #  8-bit
+        @registerX = 0      #  8-bit
+        @registerY = 0      #  8-bit
+        @setStatus 0        #  8-bit (it will be initialized to 0x34 during following reset; actually only bit 2 will be set,
+                            #         because bits 4 and 5 are not physically stored in status register)
 
     resetVariables: ->
         @cyclesCount = 0
-        @emptyReadCycles = 0
-        @emptyWriteCycles = 0
-        @activeInterrupts = 0 # Bitmap (each type of interrupt has its own bit)
+        @emptyReadCycles = 0  # Number of dummy write cycles
+        @emptyWriteCycles = 0 # Number of dummy read cycles
+        @activeInterrupts = 0 # Bitmap of active interrupts (each type of interrupt has its own bit)
 
     resetMemory: ->
         @write address, 0xFF for address in [0...0x0800]
@@ -48,9 +49,8 @@ class CPU
         @write 0x0009, 0xEF
         @write 0x000A, 0xDF
         @write 0x000F, 0xBF
-        @write 0x4017, 0x00
-        @write 0x4015, 0x00
         @write address, 0x00 for address in [0x4000...0x4010]
+        # Writes to $4015 and $4017 are done during following reset
 
     ###########################################################
     # Execution step
@@ -58,7 +58,7 @@ class CPU
 
     step: ->
         if @dma.isBlockingCPU() or @apu.isBlockingCPU()
-            @tick() # CPU can't access memory (empty cycle).
+            @tick() # CPU can't access memory (empty cycle)
         else
             @resolveInterrupt() if @activeInterrupts
             @executeInstruction()
@@ -77,14 +77,15 @@ class CPU
         else
             @handleIRQ()
         @tick()
-        @tick() # To make totally 7 cycles.
+        @tick() # To make totally 7 cycles during interrupt
 
     handleReset: ->
-        @stackPointer = (@stackPointer - 3) & 0xFF # Does not write on stack, just decrements its pointer.
-        @tick() for [1..3]
+        @write 0x4015, 0x00                              # Disable all APU channels immediatelly
+        @write 0x4017, @apu.frameCounterLastWrittenValue # It's allways 0 on power up (which will disable all APU channels)
+        @stackPointer = (@stackPointer - 3) & 0xFF       # Unlike IRQ/NMI, writing on stack here does not modify CPU memory, so we just decrement the stack pointer 3 times
+        @tick() for [1..3]                               # 3 "dummy" writes, mentioned above
         @enterInterruptHandler 0xFFFC
         @clearInterrupt Interrupt.RESET
-        @write 0x4015, 0x00 # Cleared on reset
 
     handleNMI: ->
         @saveStateBeforeInterrupt()
@@ -94,6 +95,7 @@ class CPU
     handleIRQ: ->
         @saveStateBeforeInterrupt()
         @enterInterruptHandler 0xFFFE
+        # Unlike reset/NMI, the interrupt flag is not cleared
 
     saveStateBeforeInterrupt: ->
         @pushWord @programCounter
@@ -113,7 +115,6 @@ class CPU
         addressingMode    = operation.addressingMode
         @emptyReadCycles  = operation.emptyReadCycles
         @emptyWriteCycles = operation.emptyWriteCycles
-
         instruction addressingMode()
 
     readOperation: ->
@@ -211,14 +212,18 @@ class CPU
     # CPU status reading / writing
     ###########################################################
 
+    # Bits 4 and 5 are not physically stored in status register
+    # - bit 4 is written on stack as 1 during PHP/BRK instructions (break command flag)
+    # - bit 5 is written on stack as 1 during PHP/BRK instructions and IRQ/NMI
+
     getStatus: ->
-        @carryFlag             | # S[0]
-        @zeroFlag         << 1 | # S[1]
-        @interruptDisable << 2 | # S[2]
-        @decimalMode      << 3 | # S[3]
-        1                 << 5 | # S[5] (always set on when pushing status on stack)
-        @overflowFlag     << 6 | # S[6]
-        @negativeFlag     << 7   # S[7]
+        @carryFlag             | # S[0] - carry bit of the last operation
+        @zeroFlag         << 1 | # S[1] - whether result of the last operation was zero
+        @interruptDisable << 2 | # S[2] - whether IRQs are disabled (this does not affect NMI/reset)
+        @decimalMode      << 3 | # S[3] - NES CPU actually does not use this flag, but is stored in status register and modified by CLD/SED instructions
+        1                 << 5 | # S[5] - allways 1, see comment above
+        @overflowFlag     << 6 | # S[6] - wheter result of the last operation caused overflow
+        @negativeFlag     << 7   # S[7] - wheter result of the last operation was negative number (bit 7 of result was 1)
 
     setStatus: (value) ->
         @carryFlag        =  value        & 1 # S[0]
@@ -416,7 +421,7 @@ class CPU
         @$pushByte @accumulator
 
     PHP: =>
-        @$pushByte @$getStatus() | 0x10 # Pushes status with bit 4 on (break command flag).
+        @$pushByte @$getStatus() | 0x10 # It pushes status with bit 4 on (break command flag)
 
     ###########################################################
     # Stack pop instructions
@@ -522,11 +527,11 @@ class CPU
         @programCounter = address
 
     JSR: (address) =>
-        @$pushWord (@programCounter - 1) & 0xFFFF # The pushed address must be the end of the current instruction.
+        @$pushWord (@programCounter - 1) & 0xFFFF # The pushed address must be the end of the current instruction
         @programCounter = address
 
     RTS: =>
-        @programCounter = (@$popWord() + 1) & 0xFFFF # We decremented the address when pushing it during JSR.
+        @programCounter = (@$popWord() + 1) & 0xFFFF # We decremented the address when pushing it during JSR
         @tick()
 
     ###########################################################
@@ -535,7 +540,8 @@ class CPU
 
     BRK: =>
         @$pushWord @programCounter
-        @$pushByte @$getStatus() | 0x10 # Pushes status with bit 4 on (break command flag).
+        @$pushByte @$getStatus() | 0x10 # It pushes status with bit 4 on (break command flag)
+        @interruptDisable = 1
         @programCounter = @$readWord 0xFFFE
 
     RTI: =>
@@ -550,7 +556,7 @@ class CPU
         @$addValueToAccumulator @$readByte address
 
     SBC: (address) =>
-        @$addValueToAccumulator (@$readByte address) ^ 0xFF # Together with internal carry incremment makes negative operand.
+        @$addValueToAccumulator (@$readByte address) ^ 0xFF # With internal carry incremment makes negative operand
 
     ###########################################################
     # Shifting / rotation instructions
@@ -576,7 +582,7 @@ class CPU
         @$compareRegisterAndOperand @accumulator, @DEC address
 
     ISB: (address) =>
-        @$addValueToAccumulator (@INC address) ^ 0xFF # Together with internal carry incremment makes negative operand.
+        @$addValueToAccumulator (@INC address) ^ 0xFF # With internal carry incremment makes negative operand
 
     SLO: (address) =>
         @$storeValueIntoAccumulator @accumulator | @ASL address
@@ -621,7 +627,7 @@ class CPU
 
     compareRegisterAndOperand: (register, operand) ->
         result = register - operand
-        @carryFlag = result >= 0 # Unsigned comparison (bit 8 is actually the result sign).
+        @carryFlag = result >= 0 # Unsigned comparison (bit 8 is actually the result sign)
         @$updateZeroAndNegativeFlag result # Not a signed comparison
 
     branchIf: (condition, address) ->
