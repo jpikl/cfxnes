@@ -7,6 +7,7 @@ jade    = require "gulp-jade"
 mocha   = require "gulp-mocha"
 nodemon = require "gulp-nodemon"
 open    = require "gulp-open"
+rename  = require "gulp-rename"
 stylus  = require "gulp-stylus"
 gutil   = require "gulp-util"
 yargs   = require "yargs"
@@ -38,15 +39,23 @@ EXTERNS_DIR        = "#{EMULATOR_DIR}/externs"
 # Utilities
 ###########################################################
 
-minifiedNames = (files) ->
-    minifiedName file for file in files
+minifySrcNames = (names) ->
+    minifySrcName name for name in names
 
-minifiedName = (file) ->
+minifySrcName = (name) ->
+    parts = name.split ";"
     if PRODUCTION_MODE
-        file.replace /\.js$/,  ".min.js"
-            .replace /\.css$/, ".min.css"
+        parts[1] or                            # "a;b"   => use "b"
+        parts[1] is "" and parts[0] or         # "a;"    => use "a"
+        parts[0].replace /\.js$/,  ".min.js"   # "a.js"  => use "a.min.js"
+                .replace /\.css$/, ".min.css"  # "a.css" => use "a.min.css"
     else
-        file
+        parts[0]
+
+minifyDstName = (path) ->
+    if PRODUCTION_MODE and path.basename[-4...] isnt ".min"
+        path.basename += ".min"
+    undefined
 
 ###########################################################
 # Common tasks
@@ -109,7 +118,7 @@ gulp.task "client", [ "client-scripts", "client-styles", "client-views", "client
 gulp.task "client-scripts", ->
     gulp.src "#{CLIENT_DIR}/**/*.coffee"
         .pipe coffee()
-        .pipe concat minifiedName "app.js"
+        .pipe concat minifySrcName "app.js"
         .pipe gulp.dest PUBLIC_SCRIPTS_DIR
         .on "error", gutil.log
 
@@ -117,7 +126,7 @@ gulp.task "client-styles", ->
     gulp.src "#{CLIENT_DIR}/**/*.styl"
         .pipe stylus
             compress: PRODUCTION_MODE
-        .pipe concat minifiedName "app.css"
+        .pipe concat minifySrcName "app.css"
         .pipe gulp.dest PUBLIC_STYLES_DIR
 
 gulp.task "client-views", ->
@@ -140,21 +149,26 @@ gulp.task "client-images", ->
 gulp.task "client-deps", [ "cliet-deps-scripts", "cliet-deps-styles", "cliet-deps-fonts" ]
 
 gulp.task "cliet-deps-scripts", ->
-    gulp.src minifiedNames [
+    gulp.src minifySrcNames [
         "#{DEPS_DIR}/jquery/dist/jquery.js"
+        "#{DEPS_DIR}/seiyria-bootstrap-slider/js/bootstrap-slider.js;#{DEPS_DIR}/seiyria-bootstrap-slider/dist/bootstrap-slider.min.js" # Different .min file path
         "#{DEPS_DIR}/angular/angular.js"
         "#{DEPS_DIR}/angular-ui-router/release/angular-ui-router.js"
         "#{DEPS_DIR}/angular-bootstrap/ui-bootstrap-tpls.js"
+        "#{DEPS_DIR}/angular-bootstrap-slider/slider.js;" # Missing .min file
         "#{DEPS_DIR}/js-md5/js/md5.js"
-        "#{DEPS_DIR}/screenfull/dist/screenfull.js"
+        "#{DEPS_DIR}/screenfull/dist/screenfull.js;" # Missing .min file
     ]
+    .pipe rename minifyDstName
     .pipe gulp.dest PUBLIC_SCRIPTS_DIR
 
 gulp.task "cliet-deps-styles", ->
-    gulp.src minifiedNames [
+    gulp.src minifySrcNames [
         "#{DEPS_DIR}/bootstrap/dist/css/bootstrap.css"
         "#{DEPS_DIR}/bootstrap/dist/css/bootstrap-theme.css"
+        "#{DEPS_DIR}/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css"
     ]
+    .pipe rename minifyDstName
     .pipe gulp.dest PUBLIC_STYLES_DIR
 
 gulp.task "cliet-deps-fonts", ->

@@ -65,6 +65,15 @@ mixin device(port)
                     input(id="video-debugging" type="checkbox" ng-model="video.debugging")
                     label(for="video-debugging") Show patterns and paletts
 
+        accordion-group(heading="Audio" is-open="audio.visible")
+            .form-group
+                label.control-label.col-xs-2(for="audio-volume") Volume
+                .col-xs-3
+                    slider(id="audio-volume" ng-model="audio.volume" ng-disabled="!audio.enabled" min="0" step="1" max="100" formater="percentageFormater")
+            .form-group
+                .col-xs-3.col-xs-offset-2
+                    input(id="audio-enabled" type="checkbox" ng-model="audio.enabled")
+                    label(for="audio-enabled") Enable audio
 
         accordion-group(heading="Controls" is-open="controls.visible")
             .row

@@ -80,6 +80,7 @@ class AudioManager
 
     setVolume: (volume = DEFAULT_VOLUME) ->
         @volume = Math.max 0.0, Math.min(volume, 1.0)
+        logger.info "Setting audio volume to #{~~(100 * @volume)}%"
 
     getVolume: ->
         @volume

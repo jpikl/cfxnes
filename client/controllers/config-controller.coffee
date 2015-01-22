@@ -15,6 +15,10 @@ angular.module "cfxnes"
     $scope.video.debugging = emulator.isVideoDebugging()
     $scope.video.smoothing = emulator.isVideoSmoothing()
 
+    $scope.audio = globalParams.audioConfig ?= {}
+    $scope.audio.enabled = emulator.isAudioEnabled()
+    $scope.audio.volume = ~~(100 * emulator.getAudioVolume())
+
     $scope.controls = globalParams.controlsConfig ?= {}
     $scope.controls.visible ?= true
     $scope.controls.devices =
@@ -45,11 +49,20 @@ angular.module "cfxnes"
     $scope.$watch "video.smoothing", (value) ->
         emulator.setVideoSmoothing value unless emulator.isVideoSmoothing() is value
 
+    $scope.$watch "audio.enabled", (value) ->
+        emulator.setAudioEnabled value unless emulator.isAudioEnabled() is value
+
+    $scope.$watch "audio.volume", (value) ->
+        emulator.setAudioVolume value / 100 unless ~~(100 * emulator.getAudioVolume()) is value
+
     $scope.$watch "controls.devices[1]", (value) ->
         emulator.setInputDevice 1, value unless emulator.getInputDevice(1) is value
 
     $scope.$watch "controls.devices[2]", (value) ->
         emulator.setInputDevice 2, value unless emulator.getInputDevice(2) is value
+
+    $scope.percentageFormater = (value) ->
+        "#{value}%"
 
     $scope.getMappedInputName = (targetPort, targetId, targetInput) ->
         emulator.getMappedInputName(targetPort, targetId, targetInput) or "--"
