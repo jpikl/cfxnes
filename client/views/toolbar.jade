@@ -13,4 +13,9 @@
         button.btn.btn-default.navbar-btn(tooltip="Decrease scale" ng-click="decreaseSize()" ng-class="{ disabled: isMinSize() }"): .glyphicon.glyphicon-zoom-out
         button.btn.btn-default.navbar-btn(tooltip="Increase scale" ng-click="increaseSize()" ng-class="{ disabled: isMaxSize() }"): .glyphicon.glyphicon-zoom-in
         button.btn.btn-default.navbar-btn(tooltip="Fullscreen" ng-click="enterFullScreen()"): .glyphicon.glyphicon-fullscreen
+    .btn-group.dropdown(dropdown)
+        button.dropdown-toggle.btn.btn-default.navbar-btn(dropdown-toggle tooltip="Volume"): volume-icon(ng-model="audioVolume")
+        .dropdown-menu.volume-control(ng-click="preventClose($event)")
+            input(type="checkbox" ng-model="audioEnabled" tooltip="Enable audio" tooltip-placement="right")
+            slider(id="audio-volume" ng-model="audioVolume" ng-disabled="!audioEnabled" min="0" step="1" max="100" orientation="vertical" reversed="true" selection="after" formater="percentageFormater")
 span.navbar-text(ng-show="isRunning()") FPS: {{ getFPS() }}

@@ -40,6 +40,21 @@ angular.module "cfxnes"
     $scope.enterFullScreen = ->
         emulator.enterFullScreen()
 
+    $scope.audioEnabled = emulator.isAudioEnabled()
+    $scope.audioVolume = ~~(100 * emulator.getAudioVolume())
+
+    $scope.$watch "audioEnabled", (value) ->
+        emulator.setAudioEnabled value unless emulator.isAudioEnabled() is value
+
+    $scope.$watch "audioVolume", (value) ->
+        emulator.setAudioVolume value / 100 unless ~~(100 * emulator.getAudioVolume()) is value
+
+    $scope.percentageFormater = (value) ->
+        "#{value}%"
+
+    $scope.preventClose = (event) ->
+        event.stopPropagation()
+
     $scope.getFPS = ->
         ~~emulator.getFPS()
 
