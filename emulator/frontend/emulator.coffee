@@ -1,14 +1,8 @@
 Injector = require "../core/utils/injector"
 Logger   = require "../core/utils/logger"
 
-isLocalhost = ->
-    url = document.URL or ""
-    for pattern in [ "file://", "localhost", "127.0.0.1" ]
-        return true if url.indexOf pattern >= 0
-    return false
-
 logger = Logger.get()
-logger.attach Logger.console() if isLocalhost()
+logger.attach Logger.console()
 
 ###########################################################
 # Emulator API
