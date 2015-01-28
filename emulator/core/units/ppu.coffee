@@ -45,9 +45,10 @@ class PPU
         @tempXScroll = 0    #  3-bit
 
     resetVariables: ->
-        @scanline = -1 # Total 262 scanlines (0..261)
-        @cycle = 0     # Total 341 cycles per scanline (0..340)
-        @renderedSprite = null
+        @scanline = -1         # Total 262 scanlines (0..261)
+        @cycle = 0             # Total 341 cycles per scanline (0..340)
+        @renderedSprite = null # Currently rendered sprite
+        @delayedNMI = false    # Generate NMI after next instruction when its enabled (from 0 to 1) during VBLANK
 
     setNTSCMode: (ntscMode) ->
         @ntscMode = ntscMode
@@ -86,8 +87,10 @@ class PPU
     ###########################################################
 
     writeControl: (value) ->
+        nmiEnabledOld = @nmiEnabled
         @setControl value
         @tempAddress = (@tempAddress & 0xF3FF) | (value & 0x03) << 10 # T[11,10] = C[1,0]
+        @delayedNMI = true if @vblankStarted and not nmiEnabledOld and @nmiEnabled # Generate NMI after next instruction when its enabled (from 0 to 1) during VBLANK
         value
 
     setControl: (value) ->
@@ -95,7 +98,7 @@ class PPU
         @spPatternTableAddress = (value  << 9) & 0x1000 # C[3] -> 0x0000 / 0x1000
         @bgPatternTableAddress = (value  << 8) & 0x1000 # C[4] -> 0x0000 / 0x1000
         @bigSprites            = (value >>> 5) & 1      # C[5]
-        @vblankGeneratesNMI    = (value >>> 7)          # C[7]
+        @nmiEnabled            = (value >>> 7)          # C[7]
 
     ###########################################################
     # Mask register
@@ -281,6 +284,7 @@ class PPU
         @$updateScrolling() if @$isRenderingActive()
         @$updateVBlank()
         @$incrementCycle()
+        @$generateDelayedNMI() if @delayedNMI
 
     isRenderingCycle: ->
         0 <= @scanline <= 239 and 1 <= @cycle <= 256
@@ -362,12 +366,16 @@ class PPU
         @vblankStarted = 1
         @vblankActive = 1
         @frameAvailable = true
-        @cpu.activateInterrupt Interrupt.NMI if @vblankGeneratesNMI
+        @cpu.activateInterrupt Interrupt.NMI if @nmiEnabled
 
     leaveVBlank: ->
         @vblankStarted = 0
         @vblankActive = 0
         @spriteZeroHit = 0
+
+    generateDelayedNMI: ->
+        @cpu.activateInterrupt Interrupt.NMI
+        @delayedNMI = false
 
     incrementCycle: ->
         @cycle++
