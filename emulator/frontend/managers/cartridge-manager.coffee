@@ -64,6 +64,7 @@ class CartridgeManager
             @executionManager.restart() if @executionManager.isRunning()
             undefined
         catch error
+            logger.error error
             error.message or "Internal error"
 
     doInsertCartridge: (arrayBuffer) ->

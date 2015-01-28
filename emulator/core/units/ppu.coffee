@@ -45,7 +45,7 @@ class PPU
         @tempXScroll = 0    #  3-bit
 
     resetVariables: ->
-        @scanline = -1 # Total 262+1 scanlines (-1..261)
+        @scanline = -1 # Total 262 scanlines (0..261)
         @cycle = 0     # Total 341 cycles per scanline (0..340)
         @renderedSprite = null
 
@@ -209,7 +209,7 @@ class PPU
         if @$shouldUseBackdropColor address then 0x3F00 else address
 
     shouldUseBackdropColor: (address) ->
-        (address & 0x0003) is 0 and not @$isVBlank()
+        (address & 0x0003) is 0 and not @vblankActive
 
     ###########################################################
     # Scrolling
@@ -279,19 +279,17 @@ class PPU
     tick: ->
         @$updateFramePixel() if @$isRenderingCycle()
         @$updateScrolling() if @$isRenderingActive()
+        @$updateVBlank()
         @$incrementCycle()
 
     isRenderingCycle: ->
         0 <= @scanline <= 239 and 1 <= @cycle <= 256
 
     isRenderingActive: ->
-        not @$isVBlank() and @$isRenderingEnabled()
+        not @vblankActive and @$isRenderingEnabled()
 
     isRenderingEnabled: ->
         @spritesVisible or @backgroundVisible
-
-    isVBlank: ->
-        241 <= @scanline <= 260
 
     isFrameAvailable: ->
         @frameAvailable
@@ -350,30 +348,36 @@ class PPU
             @incrementFineYScroll() if @cycle is 256
         else if @cycle is 257
             @copyHorizontalScrollBits()
-        else if @scanline is -1 and 280 <= @cycle <= 304
+        else if @scanline is 261 and 280 <= @cycle <= 304
             @$copyVerticalScrollBits()
 
-    incrementCycle: ->
-        @cycle++
-        @incementScanline() if @cycle is 341
-
-    incementScanline: ->
-        @cycle = 0
-        @scanline++
-        if @scanline is 241
-            @enterVBlank()
-        else if @scanline is 262
-            @leaveVBlank()
+    updateVBlank: ->
+        if @cycle is 1
+            if @scanline is 241
+                @enterVBlank()
+            else if @scanline is 261
+                @leaveVBlank()
 
     enterVBlank: ->
         @vblankStarted = 1
+        @vblankActive = 1
         @frameAvailable = true
         @cpu.activateInterrupt Interrupt.NMI if @vblankGeneratesNMI
 
     leaveVBlank: ->
         @vblankStarted = 0
+        @vblankActive = 0
         @spriteZeroHit = 0
-        @scanline = -1
+
+    incrementCycle: ->
+        @cycle++
+        @incementScanline() if @cycle > 340
+
+    incementScanline: ->
+        @cycle = 0
+        @scanline++
+        @scanline = 0 if @scanline > 261
+
 
     ###########################################################
     # Background rendering
