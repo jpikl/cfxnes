@@ -45,10 +45,11 @@ class PPU
         @tempXScroll = 0    #  3-bit
 
     resetVariables: ->
-        @scanline = -1         # Total 262 scanlines (0..261)
-        @cycle = 0             # Total 341 cycles per scanline (0..340)
-        @renderedSprite = null # Currently rendered sprite
-        @delayedNMI = false    # Generate NMI after next instruction when its enabled (from 0 to 1) during VBLANK
+        @scanline = -1          # Total 262 scanlines (0..261)
+        @cycle = 0              # Total 341 cycles per scanline (0..340)
+        @renderedSprite = null  # Currently rendered sprite
+        @delayedNMI = false     # Whether to generate NMI after next instruction
+        @suppressVBlank = false # Whether to supress VBLANK flag setting and NMI generation during VBLANK
 
     setNTSCMode: (ntscMode) ->
         @ntscMode = ntscMode
@@ -90,7 +91,7 @@ class PPU
         nmiEnabledOld = @nmiEnabled
         @setControl value
         @tempAddress = (@tempAddress & 0xF3FF) | (value & 0x03) << 10 # T[11,10] = C[1,0]
-        @delayedNMI = true if @vblankStarted and not nmiEnabledOld and @nmiEnabled # Generate NMI after next instruction when its enabled (from 0 to 1) during VBLANK
+        @delayedNMI = true if @vblankFlag and not nmiEnabledOld and @nmiEnabled # Generate NMI after next instruction when its enabled (from 0 to 1) during VBLANK
         value
 
     setControl: (value) ->
@@ -123,21 +124,24 @@ class PPU
 
     readStatus: ->
         value = @getStatus()
-        @vblankStarted = 0
-        @writeToogle = 0
+        @vblankFlag = 0     # Cleared by reading status
+        @writeToogle = 0    # Cleared by reading status
+        if @scanline is 241
+            @suppressVBlank = true if @cycle is 1                   # Reading just before VBLANK disables NMI generation and VBLANK flag setting
+            @cpu.clearInterrupt Interrupt.NMI if @cycle in [ 2, 3 ] # Reading at the start of VBLANK disables only NMI generation
         value
 
     getStatus: ->
         @vramWritesIgnored     << 4 | # S[4]
         @spriteScalineOverflow << 5 | # S[5]
         @spriteZeroHit         << 6 | # S[6]
-        @vblankStarted         << 7   # S[7]
+        @vblankFlag            << 7   # S[7]
 
     setStatus: (value) ->
         @vramWritesIgnored     = (value >>> 4) & 1 # S[4]
         @spriteScalineOverflow = (value >>> 5) & 1 # S[5]
         @spriteZeroHit         = (value >>> 6) & 1 # S[6]
-        @vblankStarted         = (value >>> 7)     # S[7]
+        @vblankFlag            = (value >>> 7)     # S[7]
 
     ###########################################################
     # Object attribute memory access
@@ -363,15 +367,17 @@ class PPU
                 @leaveVBlank()
 
     enterVBlank: ->
-        @vblankStarted = 1
+        unless @suppressVBlank
+            @vblankFlag = 1
+            @cpu.activateInterrupt Interrupt.NMI if @nmiEnabled
         @vblankActive = 1
         @frameAvailable = true
-        @cpu.activateInterrupt Interrupt.NMI if @nmiEnabled
 
     leaveVBlank: ->
-        @vblankStarted = 0
+        @vblankFlag = 0
         @vblankActive = 0
         @spriteZeroHit = 0
+        @suppressVBlank = false
 
     generateDelayedNMI: ->
         @cpu.activateInterrupt Interrupt.NMI
