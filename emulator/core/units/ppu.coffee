@@ -156,7 +156,7 @@ class PPU
         value
 
     writeOAMData: (value) ->
-        @primaryOAM[@oamAddress] = value if not @$isRenderingActive()
+        @primaryOAM[@oamAddress] = value unless @$isRenderingActive()
         @oamAddress = (@oamAddress + 1) & 0xFF # Write always increments the address.
         value
 

@@ -20,7 +20,6 @@ class DMA
     writeAddress: (address) ->
         @cyclesCount = 0
         @baseAddress = address << 8 # Source memory address (multiplied by 0x100)
-        @cpuMemory.write 0x2003, 0  # Destination OAM address
         address
 
     tick: ->
