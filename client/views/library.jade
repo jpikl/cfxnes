@@ -12,12 +12,11 @@
         .col-xs-12
             alert(type="danger" close="clearError()") {{ cartridgeError }}
     .row(ng-show="libraryLoaded && !libraryError")
-        .col-xs-10
-            input#games-filter.form-control(type="search" placeholder="Filter games by name..." ng-model="gamesFilter.name" focus-when="libraryLoaded")
-        .col-xs-2
-            button#play-button.btn.btn-primary(type="button" ng-class="{ disabled: !selectedGame }" ng-click="playGame(selectedGame)") Play game
+        .col-xs-12
+            input.form-control(type="search" placeholder="Search games" ng-model="gamesFilter.name" focus-when="libraryLoaded")
     .row(ng-show="libraryLoaded && !libraryError")
         #library.col-xs-12(tabindex="0" autoscroll="tr.info" autoscroll-trigger="selectedGame")
-            table.table()
-                tr(ng-repeat="game in (filteredGames = (games | filter:gamesFilter))" ng-class="{ info: game == selectedGame }" ng-click="selectGame(game)" ng-dblclick="playGame(game)")
-                    td {{ game.name }}
+            a.library-item(ng-repeat="game in (filteredGames = (games | filter:gamesFilter))" ng-click="playGame(game)")
+                .glyphicon.glyphicon-play
+                img(src="images/cartridge.png")
+                | {{ game.name }}

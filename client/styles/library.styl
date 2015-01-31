@@ -1,18 +1,35 @@
-#library
-    margin-top 16px
-    overflow-y auto
-    height 500px
-    &:focus
-        outline none
-        table
-            background-color #fcfcfc
-    tr
-        cursor pointer
-        &:first-child td
-            border-top none
+$thumbnail-width = 128px
+$thumbnail-height = 114px
 
-#play-button
-    width 100%
+#library
+    margin-top 24px
+    outline none
+    .library-item
+        display inline-block
+        position relative
+        width $thumbnail-width
+        vertical-align top
+        text-align center
+        text-decoration none
+        cursor pointer
+        color inherit
+        margin 7px
+        .glyphicon
+            display none
+            width $thumbnail-width
+            line-height $thumbnail-height
+            text-align center
+            position absolute
+            font-size 36px
+            opacity 1
+        img
+            height $thumbnail-height
+            margin 0 auto 6px
+            display block
+        &:hover
+            opacity 0.8
+            .glyphicon
+                display block
 
 .loading-indicator img
     margin-right 8px
