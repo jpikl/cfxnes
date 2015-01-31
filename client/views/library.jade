@@ -18,5 +18,5 @@
         #library.col-xs-12(tabindex="0" autoscroll="tr.info" autoscroll-trigger="selectedGame")
             a.library-item(ng-repeat="game in (filteredGames = (games | filter:gamesFilter))" ng-click="playGame(game)")
                 .glyphicon.glyphicon-play
-                img(src="images/cartridge.png")
+                img(src="images/cartridge.png" lazy-src="{{game.image}}")
                 | {{ game.name }}

@@ -12,4 +12,10 @@ angular.module "cfxnes"
             url: "/roms/#{id}"
             responseType: "arraybuffer"
 
+    @getROMImageURL = (game) ->
+        if game.image
+            "/roms/#{game.id}/image"
+        else
+            null
+
     this

@@ -3,19 +3,25 @@ path = require "path"
 
 romsDir = path.join __dirname, "..", "roms"
 
-isROM = (fileName) ->
-    fileName[-4..].toLowerCase() is ".nes"
+isROM = (file) ->
+    file[-4..].toLowerCase() is ".nes"
 
-getROMId = (fileName) ->
-    fileName
-        .replace "'", ""
+getROMId = (file) ->
+    file.replace "'", ""
         .replace /\s*-\s*/g, "-"
         .replace /\s+/g, "-"
         .replace /\.nes$/i, ""
         .toLowerCase()
 
-getROMName = (fileName) ->
-    fileName.replace /\.nes$/i, ""
+getROMName = (file) ->
+    file.replace /\.nes$/i, ""
+
+getROMImageFile = (file) ->
+    for ext in [ "png", "git", "jpg", "jpeg" ]
+        imageFile = file.replace /\.nes$/i, ".#{ext}"
+        imagePath = path.join romsDir, imageFile
+        return imageFile if fs.existsSync imagePath
+    null
 
 ###########################################################
 # ROMs library service
@@ -30,24 +36,38 @@ class ROMsService
         unless fs.existsSync romsDir
             fs.mkdirSync romsDir
 
-        for file, i in fs.readdirSync romsDir when isROM file
+        console.log "Scanning #{romsDir} directory"
+        for file in fs.readdirSync romsDir when isROM file
             id = getROMId file
             name = getROMName file
-            @romList[i] = { id: id, name: name, file: file }
-            @romMap[id] = @romList[i]
+            imageFile = getROMImageFile file
+            @romList.push { id: id, name: name, image: imageFile isnt null }
+            @romMap[id] = { file: file, imageFile: imageFile }
 
+        console.log "Found #{@romList.length} ROMs"
         @romList.sort (a, b) -> a.name.localeCompare b.name
 
     listROMs: (request, response) =>
         response.json @romList
 
     getROM: (request, response) =>
+        @doWithROM request, response, (rom) ->
+            response.download path.join romsDir, rom.file
+
+    getROMImage: (request, response) =>
+        @doWithROM request, response, (rom) ->
+            unless rom.imageFile
+                return response.status(404).send "File not found."
+            response.download path.join romsDir, rom.imageFile
+
+    doWithROM: (request, response, callback) ->
         id = request.params.id
         unless id?
-            return response.send 400, "Missing ROM ID."
+            return response.status(400).send "Missing ROM ID."
         rom = @romMap[id]
         unless rom?
-            return response.send 400, "Incorrect ROM ID."
-        response.download path.join romsDir, rom.file
+            return response.status(400).send "Incorrect ROM ID."
+        callback rom
+
 
 module.exports = new ROMsService

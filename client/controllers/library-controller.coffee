@@ -19,6 +19,8 @@ angular.module "cfxnes"
     library.listROMs()
         .success (data) ->
             $scope.games = data
+            for game in $scope.games
+                game.image = library.getROMImageURL game
             $scope.libraryLoaded = true
         .error (data, status) ->
             $scope.libraryError = "Unable to download game list (server response: #{status})."
