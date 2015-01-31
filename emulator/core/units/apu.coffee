@@ -262,18 +262,29 @@ class APU
         @recordingActive = false
 
     recordOutputValue: ->
-        newRecordPosition = ~~(@recordCycle++ * @sampleRate / @cpuFrequency)
-        if newRecordPosition > @recordPosition
-            @recordPosition = newRecordPosition
-            @recordBuffer[@recordPosition] = @getOutputValue()
-            if @outputBufferFull and @recordPosition > @bufferOverflowLimit
-                @sampleRate -= 0.1 if @sampleRate > 1             # buffer overflow protection
-            else if not @outputBufferFull or @recordPosition < @bufferUnderflowLimit
-                @sampleRate += 0.1 if @sampleRate < @cpuFrequency # buffer underflow protection
-            if @recordPosition >= @recordBuffer.length - 1 and not @outputBufferFull
-                @swapOutputBuffer()
-                @recordPosition = -1
-                @recordCycle = 0
+        position = ~~(@recordCycle++ * @sampleRate / @cpuFrequency)
+        if position > @recordPosition
+            @$fillRecordBuffer position
+            @$adjustSampleRate()
+
+    fillRecordBuffer: (position) ->
+        outputValue = @getOutputValue()
+        while @recordPosition < position
+            @recordBuffer[@recordPosition++] = outputValue
+        if @recordPosition >= @recordBuffer.length - 1 and not @outputBufferFull
+            @swapOutputBuffer()
+
+    swapOutputBuffer: ->
+        [ @recordBuffer, @outputBuffer ] = [ @outputBuffer, @recordBuffer ]
+        @outputBufferFull = true
+        @recordPosition = -1
+        @recordCycle = 0
+
+    adjustSampleRate: ->
+        if @outputBufferFull and @recordPosition > @bufferOverflowLimit
+            @sampleRate -= 0.1 if @sampleRate > 1             # Buffer overflow protection
+        else if not @outputBufferFull or @recordPosition < @bufferUnderflowLimit
+            @sampleRate += 0.1 if @sampleRate < @cpuFrequency # Buffer underflow protection
 
     readOutputBuffer: ->
         @completeOutputBuffer() unless @outputBufferFull # Buffer overflow
@@ -281,12 +292,6 @@ class APU
         @outputBuffer
 
     completeOutputBuffer: ->
-        while @recordPosition < @recordBuffer.length
-            @recordBuffer[@recordPosition++] = 0
-        @swapOutputBuffer()
-
-    swapOutputBuffer: ->
-        [ @recordBuffer, @outputBuffer ] = [ @outputBuffer, @recordBuffer ]
-        @outputBufferFull = true
+        @fillRecordBuffer @recordBuffer.length - 1
 
 module.exports = APU
