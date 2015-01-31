@@ -22,6 +22,7 @@ class APU
         @triangleChannel = new TriangleChannel
         @noiseChannel = new NoiseChannel
         @dmcChannel = new DMCChannel cpu, cpuMemory
+        @channelEnabled = (true for [0..4]) # Enable flag for each channel
         @stopRecording()
 
     ###########################################################
@@ -140,6 +141,16 @@ class APU
         @dmcChannel.writeSampleLength value
 
     ###########################################################
+    # Channel enablement
+    ###########################################################
+
+    setChannelEnabled: (id, enabled) ->
+        @channelEnabled[id] = enabled
+
+    isChannelEnabled: (id) ->
+        @channelEnabled[id]
+
+    ###########################################################
     # Status register
     ###########################################################
 
@@ -224,17 +235,17 @@ class APU
         @getPulseOutputValue() + @getTriangleNoiseDMCOutput()
 
     getPulseOutputValue: ->
-        pulse1Value = @pulseChannel1.getOutputValue()
-        pulse2value = @pulseChannel2.getOutputValue()
+        pulse1Value = if @channelEnabled[0] then @pulseChannel1.getOutputValue() else 0
+        pulse2value = if @channelEnabled[1] then @pulseChannel2.getOutputValue() else 0
         if pulse1Value or pulse2value
             95.88 / (8128 / (pulse1Value + pulse2value) + 100)
         else
             0
 
     getTriangleNoiseDMCOutput: ->
-        triangleValue = @triangleChannel.getOutputValue()
-        noiseValue = @noiseChannel.getOutputValue()
-        dmcValue = @dmcChannel.getOutputValue()
+        triangleValue = if @channelEnabled[2] then @triangleChannel.getOutputValue() else 0
+        noiseValue = if @channelEnabled[3] then @noiseChannel.getOutputValue() else 0
+        dmcValue = if @channelEnabled[4] then @dmcChannel.getOutputValue() else 0
         if triangleValue or noiseValue or dmcValue
             159.79 / (1 / (triangleValue / 8227 + noiseValue / 12241 + dmcValue / 22638) + 100)
         else

@@ -16,6 +16,7 @@ class InputManager
         logger.info "Initializing input manager"
         @nes = nes
         @deviceFactory = deviceFactory
+        @ports = [ 1, 2 ]
         @initSources()
         @initTargets()
         @setDefaults()
@@ -65,7 +66,7 @@ class InputManager
 
     registerTarget: (id) ->
         logger.info "Registering target input device '#{id}'"
-        for port in [ 1, 2 ]
+        for port in @ports
             @targets[port] ?= {}
             @targets[port][id] = @deviceFactory.createTargetDevice id
 
@@ -165,9 +166,9 @@ class InputManager
     writeConfiguration: (config) ->
         logger.info "Writing input manager configuration"
         config["input"] =
-            "devices":
-                1: @getConnectedTarget 1
-                2: @getConnectedTarget 2
+            "devices": {}
             "mapping": @targetsMapping
+        for port in @ports
+            config["input"]["devices"][port] = @getConnectedTarget port
 
 module.exports = InputManager

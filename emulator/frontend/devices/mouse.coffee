@@ -1,4 +1,4 @@
-buttonAliases =
+BUTTON_ALIASES =
     1: "left"
     2: "right"
     3: "middle"
@@ -35,7 +35,7 @@ class Mouse
     processEvent: (event, down) ->
         event or= window.event
         button = event.button or event.which
-        input = buttonAliases[button]
+        input = BUTTON_ALIASES[button]
         if input and @inputManager.processInput @id, input, down
             event.preventDefault()
 

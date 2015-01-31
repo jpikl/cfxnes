@@ -123,6 +123,12 @@ class NES
     readAudioBuffer: ->
         @apu.readOutputBuffer()
 
+    setChannelEnabled: (id, enabled) ->
+        @apu.setChannelEnabled id, enabled
+
+    isChannelEnabled: (id) ->
+        @apu.isChannelEnabled id
+
     ###########################################################
     # Emulation
     ###########################################################

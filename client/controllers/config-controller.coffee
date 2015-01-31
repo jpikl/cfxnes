@@ -18,12 +18,13 @@ angular.module "cfxnes"
     $scope.audio = globalParams.audioConfig ?= {}
     $scope.audio.enabled = emulator.isAudioEnabled()
     $scope.audio.volume = ~~(100 * emulator.getAudioVolume())
+    $scope.audio.channels = {}
+    $scope.audio.channels[channel] = emulator.isAudioChannelEnabled channel for channel in emulator.audioChannels
 
     $scope.controls = globalParams.controlsConfig ?= {}
     $scope.controls.visible ?= true
-    $scope.controls.devices =
-        1: emulator.getInputDevice(1) or "none"
-        2: emulator.getInputDevice(2) or "none"
+    $scope.controls.devices = {}
+    $scope.controls.devices[port] = emulator.getInputDevice(port) or "none" for port in emulator.inputPorts
 
     if $stateParams.section
         $scope.emulation.visible = $stateParams.section is "emulation"
@@ -55,11 +56,15 @@ angular.module "cfxnes"
     $scope.$watch "audio.volume", (value) ->
         emulator.setAudioVolume value / 100 unless ~~(100 * emulator.getAudioVolume()) is value
 
-    $scope.$watch "controls.devices[1]", (value) ->
-        emulator.setInputDevice 1, value unless emulator.getInputDevice(1) is value
+    for channel in emulator.audioChannels
+        $scope.$watch "audio.channels.#{channel}", ((channel) -> (value) ->
+            emulator.setAudioChannelEnabled channel, value unless emulator.isAudioChannelEnabled(channel) is value
+        )(channel)
 
-    $scope.$watch "controls.devices[2]", (value) ->
-        emulator.setInputDevice 2, value unless emulator.getInputDevice(2) is value
+    for port in emulator.inputPorts
+        $scope.$watch "controls.devices[#{port}]", ((port) -> (value) ->
+            emulator.setInputDevice port, value unless emulator.getInputDevice(port) is value
+        )(port)
 
     $scope.percentageFormater = (value) ->
         "#{value}%"
@@ -80,5 +85,4 @@ angular.module "cfxnes"
 
     $scope.restoreDefaults = ->
         emulator.setInputDefaults()
-        $scope.controls.devices[1] = emulator.getInputDevice(1) or "none"
-        $scope.controls.devices[2] = emulator.getInputDevice(2) or "none"
+        $scope.controls.devices[port] = emulator.getInputDevice(port) or "none" for port in emulator.inputPorts

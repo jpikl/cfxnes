@@ -22,7 +22,9 @@ class Emulator
         @cartridgeManager = cartridgeManager
         @videoManager = videoManager
         @audioManager = audioManager
+        @audioChannels = audioManager.channels
         @inputManager = inputManager
+        @inputPorts = inputManager.ports
         @persistenceManager = persistenceManager
         @persistenceManager.loadConfiguration()
 
@@ -157,6 +159,12 @@ class Emulator
 
     "getAudioVolume": ->
         @audioManager.getVolume()
+
+    "setAudioChannelEnabled": (channel, enabled) ->
+        @audioManager.setChannelEnabled channel, enabled
+
+    "isAudioChannelEnabled": (channel) ->
+        @audioManager.isChannelEnabled channel
 
     ###########################################################
     # Inputs API

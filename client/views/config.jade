@@ -74,6 +74,26 @@ mixin device(port)
                 .col-xs-3.col-xs-offset-2
                     input(id="audio-enabled" type="checkbox" ng-model="audio.enabled")
                     label(for="audio-enabled") Enable audio
+            .form-group
+                .col-xs-3.col-xs-offset-2
+                    input(id="audio-pulse-1-enabled" type="checkbox" ng-model="audio.channels.pulse1")
+                    label(for="audio-pulse-1-enabled") Enable pulse channel 1
+            .form-group
+                .col-xs-3.col-xs-offset-2
+                    input(id="audio-pulse-2-enabled" type="checkbox" ng-model="audio.channels.pulse2")
+                    label(for="audio-pulse-2-enabled") Enable pulse channel 2
+            .form-group
+                .col-xs-3.col-xs-offset-2
+                    input(id="audio-triangle-enabled" type="checkbox" ng-model="audio.channels.triangle")
+                    label(for="audio-triangle-enabled") Enable triangle channel
+            .form-group
+                .col-xs-3.col-xs-offset-2
+                    input(id="audio-noise-enabled" type="checkbox" ng-model="audio.channels.noise")
+                    label(for="audio-noise-enabled") Enable noise channel
+            .form-group
+                .col-xs-3.col-xs-offset-2
+                    input(id="audio-dmc-enabled" type="checkbox" ng-model="audio.channels.dmc")
+                    label(for="audio-dmc-enabled") Enable DMC channel
 
         accordion-group(heading="Controls" is-open="controls.visible")
             .row

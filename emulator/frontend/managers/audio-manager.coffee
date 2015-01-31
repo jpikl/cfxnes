@@ -5,6 +5,13 @@ BUFFER_SIZE = 4096
 DEFAULT_ENABLED = true
 DEFAULT_VOLUME = 1.0
 
+CHANNEL_ALIASES =
+    "pulse1":   0
+    "pulse2":   1
+    "triangle": 2
+    "noise":    3
+    "dmc":      4
+
 ###########################################################
 # Audio manager
 ###########################################################
@@ -23,6 +30,7 @@ class AudioManager
     init: (nes) ->
         logger.info "Initializing audio manager"
         @nes = nes
+        @channels = (channel for channel of CHANNEL_ALIASES)
         @createAudio() if AudioManager.isAudioSupported()
         @setDefaults()
 
@@ -30,6 +38,7 @@ class AudioManager
         logger.info "Using default audio configuration"
         @setEnabled DEFAULT_ENABLED
         @setVolume DEFAULT_VOLUME
+        @setChannelEnabled channel, DEFAULT_ENABLED for channel in @channels
 
     ###########################################################
     # Audio context
@@ -75,6 +84,18 @@ class AudioManager
             @processor?.disconnect()
 
     ###########################################################
+    # Audio channels
+    ###########################################################
+
+    setChannelEnabled: (channel, enabled = DEFAULT_ENABLED) ->
+        if CHANNEL_ALIASES[channel]?
+            logger.info "Audio channel '#{channel}' #{if enabled then 'on' else 'off'}"
+            @nes.setChannelEnabled CHANNEL_ALIASES[channel], enabled
+
+    isChannelEnabled: (channel) ->
+        @nes.isChannelEnabled CHANNEL_ALIASES[channel]
+
+    ###########################################################
     # Audio volume
     ###########################################################
 
@@ -94,11 +115,16 @@ class AudioManager
         if config["audio"]
             @setEnabled config["audio"]["enabled"]
             @setVolume  config["audio"]["volume"]
+            for channel, enabled of config["audio"]["channels"]
+                @setChannelEnabled channel, enabled
 
     writeConfiguration: (config) ->
         logger.info "Writing audio manager configuration"
         config["audio"] =
-            "enabled": @isEnabled()
-            "volume":  @getVolume()
+            "enabled":  @isEnabled()
+            "volume":   @getVolume()
+            "channels": {}
+        for channel in @channels
+            config["audio"]["channels"][channel] = @isChannelEnabled channel
 
 module.exports = AudioManager
