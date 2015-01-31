@@ -55,7 +55,8 @@ class TriangleChannel
     tick: ->
         if --@timerCycle <= 0
             @timerCycle = @timerPeriod + 1 # Ticks at the same rate as CPU
-            @dutyPosition = (@dutyPosition + 1) & 0x1F
+            if @lengthCounter and @linearCounter and @timerPeriod > 3 # Silencing channel does not change output value
+                @dutyPosition = (@dutyPosition + 1) & 0x1F
 
     tickQuarterFrame: ->
         @updateLinearCounter()
@@ -88,10 +89,6 @@ class TriangleChannel
     ###########################################################
 
     getOutputValue: ->
-        # High frequencies are considered beyond hearing (causes ugly whistle in some games)
-        if @enabled and @lengthCounter and @linearCounter and @timerPeriod > 3
-            DUTY_WAVEFORM[@dutyPosition]
-        else
-            0
+        DUTY_WAVEFORM[@dutyPosition] # Silencing channel does not change output value
 
 module.exports = TriangleChannel

@@ -60,7 +60,7 @@ class PulseChannel
         value
 
     writeLengthCounter: (value) ->
-        @timerPeriod = (@timerPeriod & 0x0FF) | (value & 0x7) << 8           # Higher 3 bits of timer
+        @timerPeriod = (@timerPeriod & 0x0FF) | (value & 0x7) << 8                # Higher 3 bits of timer
         @lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3] if @enabled  # Length counter update
         @dutyPosition = 0     # Output waveform position is reseted
         @envelopeReset = true # Envelope and its divider will be reseted
@@ -137,7 +137,7 @@ class PulseChannel
     ###########################################################
 
     getOutputValue: ->
-        if @enabled and @lengthCounter and @$isTimerPeriodValid()
+        if @lengthCounter and @$isTimerPeriodValid()
             volume = if @useConstantVolume then @constantVolume else @envelopeVolume
             volume * DUTY_WAVEFORMS[@dutySelection][@dutyPosition]
         else

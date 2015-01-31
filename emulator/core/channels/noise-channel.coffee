@@ -106,7 +106,7 @@ class NoiseChannel
     ###########################################################
 
     getOutputValue: ->
-        if @enabled and @lengthCounter and not (@shiftRegister & 1)
+        if @lengthCounter and not (@shiftRegister & 1)
             if @useConstantVolume then @constantVolume else @envelopeVolume
         else
             0
