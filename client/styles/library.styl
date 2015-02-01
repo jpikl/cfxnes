@@ -12,7 +12,7 @@ $thumbnail-height = 114px
         text-align center
         text-decoration none
         cursor pointer
-        color inherit
+        xcolor inherit
         margin 7px
         .glyphicon
             display none
@@ -26,6 +26,8 @@ $thumbnail-height = 114px
             height $thumbnail-height
             margin 0 auto 6px
             display block
+        &:not(:hover)
+            color inherit
         &:hover
             opacity 0.8
             .glyphicon
