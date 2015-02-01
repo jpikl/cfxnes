@@ -18,13 +18,13 @@ class Emulator
         injector.injectInstance this
 
     init: (executionManager, cartridgeManager, videoManager, audioManager, inputManager, persistenceManager) ->
+        @["audioChannels"] = audioManager.channels
+        @["inputPorts"] = inputManager.ports
         @executionManager = executionManager
         @cartridgeManager = cartridgeManager
         @videoManager = videoManager
         @audioManager = audioManager
-        @audioChannels = audioManager.channels
         @inputManager = inputManager
-        @inputPorts = inputManager.ports
         @persistenceManager = persistenceManager
         @persistenceManager.loadConfiguration()
 
