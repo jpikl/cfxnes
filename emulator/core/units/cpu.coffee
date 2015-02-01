@@ -596,6 +596,9 @@ class CPU
     RRA: (address) =>
         @$addValueToAccumulator @ROR address
 
+    AXS: (address) => # Also known as SBX
+        @registerX = @compareRegisterAndMemory @accumulator & @registerX, address
+
     ###########################################################
     # Instruction helper functions
     ###########################################################
@@ -629,6 +632,7 @@ class CPU
         result = register - operand
         @carryFlag = result >= 0 # Unsigned comparison (bit 8 is actually the result sign)
         @$updateZeroAndNegativeFlag result # Not a signed comparison
+        result & 0xFF
 
     branchIf: (condition, address) ->
         if condition
@@ -1014,6 +1018,8 @@ class CPU
         @registerOperation 0x7B, @RRA, @absoluteYMode, 1, 1 # 7 cycles (undocumented operation)
         @registerOperation 0x63, @RRA, @indirectXMode, 1, 1 # 8 cycles (undocumented operation)
         @registerOperation 0x73, @RRA, @indirectYMode, 1, 1 # 8 cycles (undocumented operation)
+
+        @registerOperation 0xCB, @AXS, @immediateMode, 0, 0 # 2 cycles (undocumented operation)
 
     registerOperation: (operationCode, instruction, addressingMode, emptyReadCycles, emptyWriteCycles) ->
         @operationsTable[operationCode] =
