@@ -30,22 +30,26 @@ getROMImageFile = (file) ->
 class ROMsService
 
     constructor: ->
-        @romList = []
-        @romMap = {}
+        fs.mkdirSync romsDir unless fs.existsSync romsDir
+        @reloadROMs()
+        fs.watch romsDir, @reloadROMs
 
-        unless fs.existsSync romsDir
-            fs.mkdirSync romsDir
+    reloadROMs: =>
+        console.log "Scanning '#{romsDir}' directory"
+        romList = []
+        romMap = {}
 
-        console.log "Scanning #{romsDir} directory"
         for file in fs.readdirSync romsDir when isROM file
             id = getROMId file
             name = getROMName file
             imageFile = getROMImageFile file
-            @romList.push { id: id, name: name, image: imageFile isnt null }
-            @romMap[id] = { file: file, imageFile: imageFile }
+            romList.push { id: id, name: name, image: imageFile isnt null }
+            romMap[id] = { file: file, imageFile: imageFile }
 
+        romList.sort (a, b) -> a.name.localeCompare b.name
+        @romList = romList
+        @romMap = romMap
         console.log "Found #{@romList.length} ROMs"
-        @romList.sort (a, b) -> a.name.localeCompare b.name
 
     listROMs: (request, response) =>
         response.json @romList
@@ -68,6 +72,5 @@ class ROMsService
         unless rom?
             return response.status(400).send "Incorrect ROM ID."
         callback rom
-
 
 module.exports = new ROMsService

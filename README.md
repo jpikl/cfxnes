@@ -29,4 +29,4 @@ You can also try `gulp --production` to enable optimizations.
 
 Application is running at <http://localhost:5000>.
 
-Put your *.nes* ROM files inside the `server/roms` directory to see them in game library (application has to be restarted).
+Put your *.nes* ROM files inside the `server/roms` directory to see them in game library.
