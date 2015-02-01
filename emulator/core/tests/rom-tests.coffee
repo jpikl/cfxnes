@@ -13,10 +13,10 @@ execute = (name) ->
     cartridgeFactory = injector.getInstance "cartridgeFactory"
     cartridge = cartridgeFactory.fromLocalFile "./emulator/core/tests/#{name}/#{name}.nes"
 
-    cpuMemory = injector.getInstance "cpuMemory"
-
     nes = injector.getInstance "nes"
     nes.insertCartridge cartridge
+
+    cpuMemory = injector.getInstance "cpuMemory"
 
     loggerIds = []
 
@@ -24,6 +24,9 @@ execute = (name) ->
     main
         assert: chai.assert
         expect: chai.expect
+
+        fail: (message) ->
+            assert false, message
 
         step: ->
             nes.step()
@@ -50,12 +53,12 @@ execute = (name) ->
 
     Logger.get(id).close() for id in loggerIds
 
-describe "CPU", ->
+itShouldPass = (name) ->
+    it "should pass '#{name}'", ->
+        execute name
 
-    it "should pass 'nestest'", ->
-        execute "nestest"
+describe "CPU", ->
+    itShouldPass "nestest"
 
 describe "PPU", ->
-
-    it "should pass 'ppu_vbl_nmi'", ->
-        #require "./ppu_vbl_nmi/ppu_vbl_nmi"
+    itShouldPass "ppu_vbl_nmi"

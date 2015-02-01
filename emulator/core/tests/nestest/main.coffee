@@ -12,7 +12,7 @@ module.exports = (test) ->
         test.expect(BASIC_LOG_FILE).to.have.content verifiedLog
     catch error
         # The default error message contains whole log which is completely unreadable and useless
-        test.assert false, """
+        test.fail """
             CFxNES log differs from Nintendulator log.
                  - Run 'vimdiff #{BASIC_LOG_FILE} #{VERIFIED_LOG_FILE}' to see differences.
                  - See contents of '#{VERBOSE_LOG_FILE}' for more detailed output.
