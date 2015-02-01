@@ -12,10 +12,6 @@ angular.module "cfxnes"
     $scope.clearError = ->
         $scope.error = null
 
-    $scope.setVideoOutput = (element) ->
-        emulator.setVideoOutput element[0]
-        emulator.step() if emulator.isCartridgeInserted() # To redraw screen
-
     $scope.changeControlsUrl = $state.href "config", { section: "controls" }
 
     $scope.controlsVisible = globalParams.controlsVisible ?= true
@@ -40,8 +36,8 @@ angular.module "cfxnes"
         emulator.stop()
 
     $scope.$on "$stateChangeStart", ->
-        globalParams.paused = emulator.isRunning()
+        globalParams.autoPaused = emulator.isRunning()
         emulator.stop()
         emulator.setVideoOutput null # Drop the canvas
 
-    emulator.start() if globalParams.paused
+    emulator.start() if globalParams.autoPaused

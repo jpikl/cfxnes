@@ -16,6 +16,7 @@ angular.module "cfxnes"
     $scope.video.smoothing = emulator.isVideoSmoothing()
 
     $scope.audio = globalParams.audioConfig ?= {}
+    $scope.audio.visible ?= false
     $scope.audio.enabled = emulator.isAudioEnabled()
     $scope.audio.volume = ~~(100 * emulator.getAudioVolume())
     $scope.audio.channels = {}
@@ -29,6 +30,7 @@ angular.module "cfxnes"
     if $stateParams.section
         $scope.emulation.visible = $stateParams.section is "emulation"
         $scope.video.visible = $stateParams.section is "video"
+        $scope.audio.visible = $stateParams.section is "audio"
         $scope.controls.visible = $stateParams.section is "controls"
 
     $scope.$watch "emulation.tvSystem", (value) ->
