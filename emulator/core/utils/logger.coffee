@@ -4,14 +4,14 @@
 
 class Logger
 
-    @instances = []
+    @loggers = []
 
     ###########################################################
-    # Factory methods
+    # Static methods
     ###########################################################
 
     @get: (id = "default") ->
-        @instances[id] ?= new Logger
+        @loggers[id] ?= new Logger id
 
     @console: ->
         console
@@ -20,11 +20,13 @@ class Logger
         new FileWriter fileName
 
     ###########################################################
-    # Output connection
+    # Lifecycle
     ###########################################################
 
+    constructor: (@id) ->
+
     attach: (writer) ->
-        @writers = [] unless @writers
+        @writers ?= []
         @writers.push writer
         this
 
@@ -32,6 +34,7 @@ class Logger
         if @writers
             writer.close?() for writer in @writers
             @writers = null
+        Logger.loggers[@id] = undefined
         undefined
 
     ###########################################################

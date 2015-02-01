@@ -20,6 +20,10 @@ class FakeUnit
     writeNoiseEnvelope: (value) -> value
     writeNoiseTimer: (value) -> value
     writeNoiseLengthCounter: (value) -> value
+    writeDMCSampleLength: (value) -> value
+    writeDMCSampleAddress: (value) -> value
+    writeDMCOutputLevel: (value) -> value
+    writeDMCFlagsTimer: (value) -> value
     isBlockingCPU: -> false
     isBlockingDMA: -> false
 

@@ -4,10 +4,10 @@ DebugCPU = require "../../debug/debug-cpu"
 # CPU mofified to execute all tests on nestest ROM
 ###########################################################
 
-class TestCPU extends DebugCPU
+class NestestCPU extends DebugCPU
 
     handleReset: ->
         super()
         @programCounter = 0xC000
 
-module.exports = TestCPU
+module.exports = NestestCPU

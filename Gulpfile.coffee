@@ -99,7 +99,8 @@ gulp.task "emulator", ->
 
 gulp.task "emulator-test", [ "emulator-test-init" ], ->
     gulp.src "#{TEMP_DIR}/core/tests/*-test{,s}.js", read: false
-        .pipe mocha()
+        .pipe mocha
+            timeout: 60000 # 60 s
 
 gulp.task "emulator-test-init", [ "clean-temp" ], ->
     gulp.src "#{EMULATOR_DIR}/**/*.coffee"
