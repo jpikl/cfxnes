@@ -46,7 +46,7 @@ class CPUMemory
     ###########################################################
 
     createRAM: ->
-        @ram = (0 for [0...0x07FF]) # 2KB of RAM (mirrored in 8K at $0000-$1FFF)
+        @ram = (0 for [0..0x07FF]) # 2KB of RAM (mirrored in 8K at $0000-$1FFF)
         undefined
 
     readRAM: (address) ->
