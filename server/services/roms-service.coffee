@@ -7,10 +7,10 @@ isROM = (file) ->
     file[-4..].toLowerCase() is ".nes"
 
 getROMId = (file) ->
-    file.replace "'", ""
-        .replace /\s*-\s*/g, "-"
-        .replace /\s+/g, "-"
-        .replace /\.nes$/i, ""
+    file.replace /\.nes$/i, ""
+        .replace /[^a-zA-Z0-9]+/g, "-"
+        .replace /^-/, ""
+        .replace /-$/, ""
         .toLowerCase()
 
 getROMName = (file) ->
@@ -46,7 +46,9 @@ class ROMsService
             romList.push { id: id, name: name, image: imageFile isnt null }
             romMap[id] = { file: file, imageFile: imageFile }
 
-        romList.sort (a, b) -> a.name.localeCompare b.name
+        romList.sort (a, b) ->
+            a.name.replace(/^The /i, "").localeCompare b.name.replace(/^The /i, "")
+
         @romList = romList
         @romMap = romMap
         console.log "Found #{@romList.length} ROMs"
