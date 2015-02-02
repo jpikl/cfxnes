@@ -20,9 +20,6 @@ class AudioManager
 
     @dependencies = [ "nes" ]
 
-    @isAudioSupported: ->
-        AudioContext?
-
     ###########################################################
     # Ininitalization
     ###########################################################
@@ -31,7 +28,7 @@ class AudioManager
         logger.info "Initializing audio manager"
         @nes = nes
         @channels = (channel for channel of CHANNEL_ALIASES)
-        @createAudio() if AudioManager.isAudioSupported()
+        @createAudio() if @isSupported()
         @setDefaults()
 
     setDefaults: ->
@@ -43,6 +40,9 @@ class AudioManager
     ###########################################################
     # Audio context
     ###########################################################
+
+    isSupported: ->
+        AudioContext?
 
     createAudio: ->
         logger.info "Creating audio context"
@@ -70,18 +70,25 @@ class AudioManager
     isEnabled: ->
         @enabled
 
-    setActive: (active) ->
-        logger.info "Audio #{if active then 'resumed' else 'paused'}"
-        @active = active
+    resume: ->
+        @setPlaying true
+
+    pause: ->
+        @setPlaying false
+
+    setPlaying: (playing) ->
+        logger.info "Audio #{if playing then 'resumed' else 'paused'}"
+        @playing = playing
         @updateState()
 
     updateState: ->
-        if @enabled and @active
+        return unless @isSupported()
+        if @enabled and @playing
             @nes.startAudioRecording()
-            @processor?.connect @context.destination
+            @processor.connect @context.destination
         else
             @nes.stopAudioRecording()
-            @processor?.disconnect()
+            @processor.disconnect()
 
     ###########################################################
     # Audio channels

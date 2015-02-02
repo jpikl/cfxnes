@@ -40,14 +40,14 @@ class ExecutionManager
         unless @isRunning()
             logger.info "Starting execution"
             @executionId = setInterval @step, 1000 / @getTargetFPS()
-            @audioManager.setActive true
+            @audioManager.resume()
 
     stop: ->
         if @isRunning()
             logger.info "Stopping execution"
             clearInterval @executionId
             @executionId = null
-            @audioManager.setActive false
+            @audioManager.pause()
 
     restart: ->
         @stop()

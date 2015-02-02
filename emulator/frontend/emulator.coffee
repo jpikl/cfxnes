@@ -148,6 +148,9 @@ class Emulator
     "setAudioDefaults": ->
         @audioManager.setDefaults()
 
+    "isAudioSupported": ->
+        @audioManager.isSupported()
+
     "setAudioEnabled": (enabled) ->
         @audioManager.setEnabled enabled
 
