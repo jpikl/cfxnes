@@ -65,7 +65,7 @@ mixin device(port)
                     input(id="video-debugging" type="checkbox" ng-model="video.debugging")
                     label(for="video-debugging") Show patterns and paletts
 
-        accordion-group(heading="Audio" is-open="audio.visible")
+        accordion-group(heading="Audio" is-open="audio.visible" ng-show="audio.supported")
             .form-group
                 label.control-label.col-xs-2(for="audio-volume") Volume
                 .col-xs-3
@@ -76,23 +76,23 @@ mixin device(port)
                     label(for="audio-enabled") Enable audio
             .form-group
                 .col-xs-3.col-xs-offset-2
-                    input(id="audio-pulse-1-enabled" type="checkbox" ng-model="audio.channels.pulse1")
+                    input(id="audio-pulse-1-enabled" type="checkbox" ng-model="audio.channels.pulse1" ng-disabled="!audio.enabled")
                     label(for="audio-pulse-1-enabled") Enable pulse channel 1
             .form-group
                 .col-xs-3.col-xs-offset-2
-                    input(id="audio-pulse-2-enabled" type="checkbox" ng-model="audio.channels.pulse2")
+                    input(id="audio-pulse-2-enabled" type="checkbox" ng-model="audio.channels.pulse2" ng-disabled="!audio.enabled")
                     label(for="audio-pulse-2-enabled") Enable pulse channel 2
             .form-group
                 .col-xs-3.col-xs-offset-2
-                    input(id="audio-triangle-enabled" type="checkbox" ng-model="audio.channels.triangle")
+                    input(id="audio-triangle-enabled" type="checkbox" ng-model="audio.channels.triangle" ng-disabled="!audio.enabled")
                     label(for="audio-triangle-enabled") Enable triangle channel
             .form-group
                 .col-xs-3.col-xs-offset-2
-                    input(id="audio-noise-enabled" type="checkbox" ng-model="audio.channels.noise")
+                    input(id="audio-noise-enabled" type="checkbox" ng-model="audio.channels.noise" ng-disabled="!audio.enabled")
                     label(for="audio-noise-enabled") Enable noise channel
             .form-group
                 .col-xs-3.col-xs-offset-2
-                    input(id="audio-dmc-enabled" type="checkbox" ng-model="audio.channels.dmc")
+                    input(id="audio-dmc-enabled" type="checkbox" ng-model="audio.channels.dmc" ng-disabled="!audio.enabled")
                     label(for="audio-dmc-enabled") Enable DMC channel
 
         accordion-group(heading="Controls" is-open="controls.visible")

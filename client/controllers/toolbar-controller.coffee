@@ -40,6 +40,7 @@ angular.module "cfxnes"
     $scope.enterFullScreen = ->
         emulator.enterFullScreen()
 
+    $scope.audioSupported = emulator.isAudioSupported()
     $scope.audioEnabled = emulator.isAudioEnabled()
     $scope.audioVolume = ~~(100 * emulator.getAudioVolume())
 

@@ -17,6 +17,7 @@ angular.module "cfxnes"
 
     $scope.audio = globalParams.audioConfig ?= {}
     $scope.audio.visible ?= false
+    $scope.audio.supported = emulator.isAudioSupported()
     $scope.audio.enabled = emulator.isAudioEnabled()
     $scope.audio.volume = ~~(100 * emulator.getAudioVolume())
     $scope.audio.channels = {}
