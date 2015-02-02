@@ -47,6 +47,7 @@ class PersistenceManager
     saveAll: =>
         @saveCartridgeData()
         @saveConfiguration()
+        undefined # Otherwise IE will show the return value in message dialog
 
     ###########################################################
     # Cartridge data
