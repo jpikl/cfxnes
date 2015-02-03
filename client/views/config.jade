@@ -34,7 +34,7 @@ mixin device(port)
         accordion-group(heading="Emulation" is-open="emulation.visible")
             .form-group
                 label.control-label.col-xs-2(for="tv-system") TV system
-                .col-xs-3
+                .col-xs-4
                     select.form-control(id="tv-system" ng-model="emulation.tvSystem")
                         option(value="auto") Autodetect
                         option(value="ntsc") NTSC
@@ -45,6 +45,9 @@ mixin device(port)
                 label.control-label.col-xs-2(for="video-debugging") Output scale
                 .col-xs-3
                     input.form-control(id="video-scale" type="number" ng-model="video.scale" min="1" max="{{video.maxScale}}")
+                .col-xs-6.col-xs-offset-1
+                    input(id="video-smoothing" type="checkbox" ng-model="video.smoothing")
+                    label(for="video-smoothing") Enable smoothing
             .form-group
                 label.control-label.col-xs-2(for="color-palette") Color palette
                 .col-xs-3
@@ -52,46 +55,39 @@ mixin device(port)
                         option(value="default")   Default
                         option(value="bright")    Bright
                         option(value="realistic") Realistic
-            .form-group(ng-show="video.webGLSupported")
-                .col-xs-3.col-xs-offset-2
-                    input(id="video-webgl" type="checkbox" ng-model="video.webGL")
-                    label(for="video-webgl") Use WebGL for rendering
-            .form-group
-                .col-xs-3.col-xs-offset-2
-                    input(id="video-smoothing" type="checkbox" ng-model="video.smoothing")
-                    label(for="video-smoothing") Enable smoothing
-            .form-group
-                .col-xs-3.col-xs-offset-2
+                .col-xs-6.col-xs-offset-1
                     input(id="video-debugging" type="checkbox" ng-model="video.debugging")
                     label(for="video-debugging") Show patterns and paletts
+            .form-group(ng-show="video.webGLSupported")
+                .col-xs-6.col-xs-offset-6
+                    input(id="video-webgl" type="checkbox" ng-model="video.webGL")
+                    label(for="video-webgl") Use WebGL for rendering
 
         accordion-group(heading="Audio" is-open="audio.visible" ng-show="audio.supported")
             .form-group
                 label.control-label.col-xs-2(for="audio-volume") Volume
                 .col-xs-3
-                    slider(id="audio-volume" ng-model="audio.volume" ng-disabled="!audio.enabled" min="0" step="1" max="100" formater="percentageFormater")
-            .form-group
-                .col-xs-3.col-xs-offset-2
-                    input(id="audio-enabled" type="checkbox" ng-model="audio.enabled")
-                    label(for="audio-enabled") Enable audio
-            .form-group
-                .col-xs-3.col-xs-offset-2
+                    slider(id="audio-volume" ng-model="audio.volume" ng-disabled="!audio.enabled" min="0" step="1" max="100" formater="percentageFormater" style="width: 100%")
+                .col-xs-6.col-xs-offset-1
                     input(id="audio-pulse-1-enabled" type="checkbox" ng-model="audio.channels.pulse1" ng-disabled="!audio.enabled")
                     label(for="audio-pulse-1-enabled") Enable pulse channel 1
             .form-group
-                .col-xs-3.col-xs-offset-2
-                    input(id="audio-pulse-2-enabled" type="checkbox" ng-model="audio.channels.pulse2" ng-disabled="!audio.enabled")
-                    label(for="audio-pulse-2-enabled") Enable pulse channel 2
-            .form-group
-                .col-xs-3.col-xs-offset-2
+                .col-xs-4.col-xs-offset-2
+                    input(id="audio-enabled" type="checkbox" ng-model="audio.enabled")
+                    label(for="audio-enabled") Enable audio
+                .col-xs-5.col-xs-offset-0
                     input(id="audio-triangle-enabled" type="checkbox" ng-model="audio.channels.triangle" ng-disabled="!audio.enabled")
                     label(for="audio-triangle-enabled") Enable triangle channel
             .form-group
-                .col-xs-3.col-xs-offset-2
+                .col-xs-6.col-xs-offset-6
+                    input(id="audio-pulse-2-enabled" type="checkbox" ng-model="audio.channels.pulse2" ng-disabled="!audio.enabled")
+                    label(for="audio-pulse-2-enabled") Enable pulse channel 2
+            .form-group
+                .col-xs-6.col-xs-offset-6
                     input(id="audio-noise-enabled" type="checkbox" ng-model="audio.channels.noise" ng-disabled="!audio.enabled")
                     label(for="audio-noise-enabled") Enable noise channel
             .form-group
-                .col-xs-3.col-xs-offset-2
+                .col-xs-6.col-xs-offset-6
                     input(id="audio-dmc-enabled" type="checkbox" ng-model="audio.channels.dmc" ng-disabled="!audio.enabled")
                     label(for="audio-dmc-enabled") Enable DMC channel
 
