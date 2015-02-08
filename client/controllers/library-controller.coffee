@@ -1,27 +1,18 @@
 angular.module "cfxnes"
 
-.controller "LibraryController", ($scope, $state, $timeout, library, emulator, globalParams) ->
-    $scope.gamesFilter = globalParams.gamesFilter ?= { name: "" }
+.controller "LibraryController", ($scope, $state, library, emulator, globalParams) ->
+    $scope.gameFilter = globalParams.gameFilter ?= { name: "" }
+    $scope.loading = true
 
     $scope.playGame = (game) ->
-        library.getROM game.id
-            .success (data) ->
-                $scope.cartridgeError = emulator.insertCartridge data
-                unless $scope.cartridgeError
-                    emulator.start()
-                    $state.go "emulator"
-            .error (data, status) ->
-                $scope.cartridgeError = "Unable to download file (server response: #{status})."
-
-    $scope.clearError = ->
-        $scope.cartridgeError = null
+        $state.go "emulator", { gameId: game.id }
 
     library.listROMs()
         .success (data) ->
             $scope.games = data
             for game in $scope.games
                 game.image = library.getROMImageURL game
-            $scope.libraryLoaded = true
+            $scope.loading = false
         .error (data, status) ->
-            $scope.libraryError = "Unable to download game list (server response: #{status})."
-            $scope.libraryLoaded = true
+            $scope.error = "Unable to download game list (server response: #{status})"
+            $scope.loading = false

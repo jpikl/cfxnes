@@ -1,12 +1,12 @@
 angular.module "cfxnes"
 
-.controller "EmulatorController", ($scope, $state, emulator, globalParams) ->
+.controller "EmulatorController", ($scope, $location, $state, $stateParams, emulator, library, globalParams) ->
 
     $scope.emulator = emulator
 
     $scope.loadCartridge = (file) ->
-        onLoad  =         -> $scope.$parent.$broadcast "cartridgeLoad"
-        onError = (error) -> $scope.$parent.$broadcast "cartridgeError", error
+        onLoad = -> $scope.$broadcast "cartridgeLoadSuccess"
+        onError = (error) -> $scope.$broadcast "cartridgeLoadError", error
         emulator.loadCartridge file, onLoad, onError
 
     $scope.clearError = ->
@@ -27,17 +27,36 @@ angular.module "cfxnes"
         else
             "--"
 
-    $scope.$on "cartridgeLoad", ->
+    $scope.$on "cartridgeLoadStart", ->
+        emulator.removeCartridge()
+        emulator.stop()
+        $scope.loading = true
         $scope.error = null
+
+    $scope.$on "cartridgeLoadSuccess", (gameId) ->
+        globalParams.gameId = gameId
+        $scope.loading = false
         emulator.start()
 
-    $scope.$on "cartridgeError", (event, error) ->
+    $scope.$on "cartridgeLoadError", (event, error) ->
+        $scope.loading = false
         $scope.error = error
-        emulator.stop()
 
     $scope.$on "$stateChangeStart", ->
         globalParams.autoPaused = emulator.isRunning()
         emulator.stop()
         emulator.setVideoOutput null # Drop the canvas
 
-    emulator.start() if globalParams.autoPaused
+     if $stateParams.gameId and $stateParams.gameId isnt globalParams.gameId
+        $scope.$broadcast "cartridgeLoadStart"
+        library.getROM $stateParams.gameId
+            .success (data) ->
+                error = emulator.insertCartridge data
+                if error
+                    $scope.$broadcast "cartridgeLoadError", error
+                else
+                    $scope.$broadcast "cartridgeLoadSuccess", $stateParams.gameId
+            .error (data, status) ->
+                $scope.$broadcast "cartridgeLoadError", "Unable to download file (server response: #{status})"
+    else if globalParams.autoPaused
+        emulator.start()

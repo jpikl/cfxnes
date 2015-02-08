@@ -1,16 +1,27 @@
-#emulator-error
-    position absolute
-    left 25%
-    width 50%
-
-#video-output
-    border 1px solid black
-    margin auto
+screen-center()
     position absolute
     top 0px
     bottom 0px
     left 0px
     right 0px
+    margin auto
+
+#emulator-error
+    position absolute
+    left 25%
+    width 50%
+
+#emulator-loader
+    screen-center()
+    width 160px
+    height 64px
+    padding 16px
+    background black
+    color white
+
+#video-output
+    screen-center()
+    border 1px solid black
     z-index -10
 
 #controls-info

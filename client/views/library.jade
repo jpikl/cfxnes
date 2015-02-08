@@ -1,22 +1,19 @@
-.container(on-navigation-key-down="navigationKeyDown(key)")
+.container
     .row
         h1.col-xs-12 Game Library
-    .row(ng-hide="libraryLoaded")
-        p.loading-indicator.col-xs-12
-            img(src="images/loading-indicator.gif")
-            | Loading data...
-    .row(ng-show="libraryError")
+    .row(ng-show="loading")
+        p.loader.col-xs-12
+            img(src="images/loading-light.gif")
+            | Loading...
+    .row(ng-show="error")
         .col-xs-12
-            alert(type="danger") {{ libraryError }}
-    .row(ng-show="cartridgeError")
+            alert(type="danger") {{ error }}
+    .row(ng-hide="loading || error")
         .col-xs-12
-            alert(type="danger" close="clearError()") {{ cartridgeError }}
-    .row(ng-show="libraryLoaded && !libraryError")
-        .col-xs-12
-            input.form-control(type="search" placeholder="Search games" ng-model="gamesFilter.name" focus-when="libraryLoaded")
-    .row(ng-show="libraryLoaded && !libraryError")
-        #library.col-xs-12(tabindex="0" autoscroll="tr.info" autoscroll-trigger="selectedGame")
-            a.library-item(ng-repeat="game in (filteredGames = (games | filter:gamesFilter))" ng-click="playGame(game)")
+            input.form-control(type="search" placeholder="Search games" ng-model="gameFilter.name" focus-when="loaded")
+    .row(ng-hide="loading || error")
+        #library.col-xs-12(tabindex="0")
+            a.library-item(ng-repeat="game in games | filter:gameFilter" ng-click="playGame(game)")
                 .glyphicon.glyphicon-play
                 img(src="images/cartridge.png" lazy-src="{{game.image}}")
                 | {{ game.name }}

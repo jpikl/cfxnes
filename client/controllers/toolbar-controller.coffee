@@ -2,8 +2,8 @@ angular.module "cfxnes"
 
 .controller "ToolbarController", ($scope, emulator) ->
     $scope.loadCartridge = (file) ->
-        onLoad  =         -> $scope.$parent.$broadcast "cartridgeLoad"
-        onError = (error) -> $scope.$parent.$broadcast "cartridgeError", error
+        onLoad = -> $scope.$parent.$broadcast "cartridgeLoadSuccess"
+        onError = (error) -> $scope.$parent.$broadcast "cartridgeLoadError", error
         emulator.loadCartridge file, onLoad, onError
 
     $scope.isRunning = ->
