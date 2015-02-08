@@ -92,6 +92,9 @@ class Emulator
     "isCartridgeInserted": ->
         @cartridgeManager.isCartridgeInserted()
 
+    "removeCartridge": ->
+        @cartridgeManager.removeCartridge()
+
     ###########################################################
     # Video API
     ###########################################################

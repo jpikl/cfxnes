@@ -61,6 +61,9 @@ class NES
     isCartridgeInserted: ->
         @cartridge?
 
+    removeCartridge: ->
+        @cartridge = null
+
     loadCartridgeData: (storage) ->
         @mapper?.loadPRGRAM storage
         @mapper?.loadCHRRAM storage

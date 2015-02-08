@@ -76,4 +76,7 @@ class CartridgeManager
     isCartridgeInserted: ->
         @nes.isCartridgeInserted()
 
+    removeCartridge: ->
+        @nes.removeCartridge()
+
 module.exports = CartridgeManager
