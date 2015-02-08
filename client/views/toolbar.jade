@@ -1,6 +1,6 @@
 #toolbar.nav.navbar-nav.navbar-left
     .btn-group
-        open-file-button.btn.btn-default.navbar-btn(tooltip="Upload ROM" on-file-load="loadCartridge(file)"): .glyphicon.glyphicon-open
+        open-file-button.btn.btn-default.navbar-btn(tooltip="Load ROM" on-file-load="loadCartridge(file)"): .glyphicon.glyphicon-open
     .btn-group(ng-hide="isRunning()")
         button.btn.btn-default.navbar-btn(tooltip="Hard reset" ng-click="hardReset()"): .glyphicon.glyphicon-off
         button.btn.btn-default.navbar-btn(tooltip="Soft reset" ng-click="softReset()"): .glyphicon.glyphicon-repeat

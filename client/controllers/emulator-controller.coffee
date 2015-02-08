@@ -1,6 +1,6 @@
 angular.module "cfxnes"
 
-.controller "EmulatorController", ($scope, $location, $state, $stateParams, emulator, library, globalParams) ->
+.controller "EmulatorController", ($scope, $state, $stateParams, emulator, library, globalParams) ->
 
     $scope.emulator = emulator
 
