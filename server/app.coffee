@@ -9,9 +9,9 @@ app.use morgan "dev" unless productionMode
 app.use "/", express.static "#{__dirname}/public"
 
 romsService = require "./services/roms-service"
-app.get "/roms",           romsService.listROMs
-app.get "/roms/:id",       romsService.getROM
-app.get "/roms/:id/image", romsService.getROMImage
+app.get "/roms",        romsService.listROMs
+app.get "/roms/:id",    romsService.getROM
+app.get "/files/:name", romsService.getFile
 
 app.use (error, request, response, next) ->
     console.log error.stack unless productionMode

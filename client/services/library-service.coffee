@@ -1,6 +1,6 @@
 angular.module "cfxnes"
 
-.service "library", ($http) ->
+.service "library", ($http, $q) ->
     @listROMs = ->
         $http
             method: "GET"
@@ -10,12 +10,21 @@ angular.module "cfxnes"
         $http
             method: "GET"
             url: "/roms/#{id}"
-            responseType: "arraybuffer"
 
-    @getROMImageURL = (game) ->
-        if game.image
-            "/roms/#{game.id}/image"
-        else
-            null
+    @getROMFile = (id) ->
+        deferred = $q.defer()
+        @getROM id
+            .then (response) ->
+                $http
+                    method: "GET"
+                    url: response.data.fileURL
+                    responseType: "arraybuffer"
+                .then (response) ->
+                    deferred.resolve response
+                .catch (response) ->
+                    deferred.reject response
+            .catch (response) ->
+                deferred.reject response
+        deferred.promise
 
     this

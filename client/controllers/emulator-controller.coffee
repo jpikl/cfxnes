@@ -49,14 +49,14 @@ angular.module "cfxnes"
 
      if $stateParams.gameId and $stateParams.gameId isnt globalParams.gameId
         $scope.$broadcast "cartridgeLoadStart"
-        library.getROM $stateParams.gameId
-            .success (data) ->
-                error = emulator.insertCartridge data
-                if error
-                    $scope.$broadcast "cartridgeLoadError", error
-                else
+        library.getROMFile $stateParams.gameId
+            .then (response) ->
+                try
+                    emulator.insertCartridge response.data
                     $scope.$broadcast "cartridgeLoadSuccess", $stateParams.gameId
-            .error (data, status) ->
-                $scope.$broadcast "cartridgeLoadError", "Unable to download file (server response: #{status})"
+                catch error
+                    $scope.$broadcast "cartridgeLoadError", error or "Internal error"
+            .catch (response) ->
+                $scope.$broadcast "cartridgeLoadError", "Unable to download file (server response: #{response.status})"
     else if globalParams.autoPaused
         emulator.start()

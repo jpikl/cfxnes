@@ -24,7 +24,7 @@ class CartridgeManager
         reader = new FileReader
         reader.onload = (event) ->
             data = event.target.result
-            error = self.insertCartridge data
+            error = self.tryInsertCartridge data
             if error
                 onError?.call self, error
             else
@@ -41,7 +41,7 @@ class CartridgeManager
         request.responseType = "arraybuffer"
         request.onload = ->
             if @status is 200
-                error = self.insertCartridge @response
+                error = self.tryInsertCartridge @response
             else
                 error = "Unable to download file '#{url}' (status code: #{@status})."
             if error
@@ -56,22 +56,22 @@ class CartridgeManager
     # Cartridge processing
     ###########################################################
 
-    insertCartridge: (arrayBuffer) ->
+    tryInsertCartridge: (arrayBuffer) ->
         try
-            @persistenceManager.saveCartridgeData()
-            @doInsertCartridge arrayBuffer
-            @persistenceManager.loadCartridgeData()
-            @executionManager.restart() if @executionManager.isRunning()
+            @insertCartridge arrayBuffer
             undefined
         catch error
             logger.error error
             error.message or "Internal error"
 
-    doInsertCartridge: (arrayBuffer) ->
+    insertCartridge: (arrayBuffer) ->
         logger.info "Inserting cartridge"
         cartridge = @cartridgeFactory.fromArrayBuffer arrayBuffer
+        @persistenceManager.saveCartridgeData()
         @nes.insertCartridge cartridge
         @nes.pressPower()
+        @persistenceManager.loadCartridgeData()
+        @executionManager.restart() if @executionManager.isRunning()
 
     isCartridgeInserted: ->
         @nes.isCartridgeInserted()

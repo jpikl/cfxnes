@@ -10,10 +10,10 @@
             alert(type="danger") {{ error }}
     .row(ng-hide="loading || error")
         .col-xs-12
-            input.form-control(type="search" placeholder="Search games" ng-model="gameFilter.name" focus-when="loaded")
+            input.form-control(type="search" placeholder="Search games" ng-model="gameFilter.name" focus-when="!loading")
     .row(ng-hide="loading || error")
         #library.col-xs-12(tabindex="0")
             a.library-item(ng-repeat="game in games | filter:gameFilter" ng-click="playGame(game)")
                 .glyphicon.glyphicon-play
-                img(src="images/cartridge.png" lazy-src="{{game.image}}")
+                img(src="images/cartridge.png" lazy-src="{{game.thumbnailURL}}")
                 | {{ game.name }}
