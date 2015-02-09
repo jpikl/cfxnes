@@ -76,12 +76,12 @@ mixin device(port)
                     input(id="audio-enabled" type="checkbox" ng-model="audio.enabled")
                     label(for="audio-enabled") Enable audio
                 .col-xs-5.col-xs-offset-0
-                    input(id="audio-triangle-enabled" type="checkbox" ng-model="audio.channels.triangle" ng-disabled="!audio.enabled")
-                    label(for="audio-triangle-enabled") Enable triangle channel
-            .form-group
-                .col-xs-6.col-xs-offset-6
                     input(id="audio-pulse-2-enabled" type="checkbox" ng-model="audio.channels.pulse2" ng-disabled="!audio.enabled")
                     label(for="audio-pulse-2-enabled") Enable pulse channel 2
+            .form-group
+                .col-xs-6.col-xs-offset-6
+                    input(id="audio-triangle-enabled" type="checkbox" ng-model="audio.channels.triangle" ng-disabled="!audio.enabled")
+                    label(for="audio-triangle-enabled") Enable triangle channel
             .form-group
                 .col-xs-6.col-xs-offset-6
                     input(id="audio-noise-enabled" type="checkbox" ng-model="audio.channels.noise" ng-disabled="!audio.enabled")
