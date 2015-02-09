@@ -24,7 +24,7 @@ class MapperFactory
         id = cartridge.mapperId
         mapper = @mappers[id]
         unless mapper?
-            throw new Error "Unsupported mapper (id: #{id})."
+            throw new Error "Unsupported mapper (ID: #{id})."
         logger.info "Using '#{mapper.name}' mapper"
         @injector.injectInstance new mapper.class cartridge
 

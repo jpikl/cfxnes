@@ -55,7 +55,7 @@ angular.module "cfxnes"
                     emulator.insertCartridge response.data
                     $scope.$broadcast "cartridgeLoadSuccess", $stateParams.gameId
                 catch error
-                    $scope.$broadcast "cartridgeLoadError", error or "Internal error"
+                    $scope.$broadcast "cartridgeLoadError", error.message or "Internal error"
             .catch (response) ->
                 $scope.$broadcast "cartridgeLoadError", "Unable to download file (server response: #{response.status})"
     else if globalParams.autoPaused
