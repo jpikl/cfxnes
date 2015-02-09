@@ -36,6 +36,7 @@ angular.module "cfxnes"
     $scope.$on "cartridgeLoadSuccess", (gameId) ->
         globalParams.gameId = gameId
         $scope.loading = false
+        $scope.error = null
         emulator.start()
 
     $scope.$on "cartridgeLoadError", (event, error) ->
