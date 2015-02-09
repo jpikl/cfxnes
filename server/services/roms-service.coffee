@@ -52,7 +52,7 @@ class ROMsService
             romList.push rom
             romMap[id] = rom
             romFiles[fileName] = path.join romsDir, file
-            romFiles[thumbnailName] = path.join romsDir, thumbnail
+            romFiles[thumbnailName] = path.join romsDir, thumbnail if thumbnail
 
         romList.sort (a, b) ->
             a.name.replace(/^The /i, "").localeCompare b.name.replace(/^The /i, "")
