@@ -373,6 +373,15 @@ class CPU
     STY: (address) =>
         @$writeByte address, @registerY
 
+    SHA: (address) => # Also known as AHX
+        @$storeHighAddressIntoMemory address, @accumulator & @registerX
+
+    SHX: (address) => # Also known as SXA
+        @$storeHighAddressIntoMemory address, @registerX
+
+    SHY: (address) => # Also known as SYA
+        @$storeHighAddressIntoMemory address, @registerY
+
     ###########################################################
     # Memory read instructions
     ###########################################################
@@ -633,6 +642,12 @@ class CPU
         @$updateZeroAndNegativeFlag value
         @$writeByte address, value
 
+    storeHighAddressIntoMemory: (address, register) ->
+        if @pageCrossed
+            @$writeByte address, @read address # Just copy the same value
+        else
+            @$writeByte address, register & ((address >>> 8) + 1)
+
     addValueToAccumulator: (operand) ->
         result = @accumulator + operand + @carryFlag
         @carryFlag = (result >>> 8) & 1
@@ -762,6 +777,11 @@ class CPU
         @registerOperation 0x84, @STY, @zeroPageMode,  0, 0, 0 # 3 cycles
         @registerOperation 0x94, @STY, @zeroPageXMode, 0, 1, 0 # 4 cycles
         @registerOperation 0x8C, @STY, @absoluteMode,  0, 0, 0 # 4 cycles
+
+        @registerOperation 0x93, @SHA, @indirectYMode, 0, 1, 0 # 6 cycles (undocumented operation)
+        @registerOperation 0x9F, @SHA, @absoluteYMode, 0, 1, 0 # 5 cycles (undocumented operation)
+        @registerOperation 0x9E, @SHX, @absoluteYMode, 0, 1, 0 # 5 cycles (undocumented operation)
+        @registerOperation 0x9C, @SHY, @absoluteXMode, 0, 1, 0 # 5 cycles (undocumented operation)
 
         ###########################################################
         # Memory read instructions
