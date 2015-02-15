@@ -74,6 +74,7 @@ itShouldPass = (name) ->
 describe "CPU", ->
     itShouldPass "nestest"
     itShouldPass "instr_test-v4"
+    itShouldPass "instr_timing"
 
 describe "PPU", ->
     itShouldPass "ppu_vbl_nmi"
