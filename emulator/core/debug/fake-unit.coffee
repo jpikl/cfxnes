@@ -8,6 +8,14 @@ class FakeUnit
     connectMapper: ->
     setNTSCMode: ->
     tick: ->
+    readStatus: -> 0
+    writeControl: (value) -> value
+    writeMask: (value) -> value
+    writeAddress: (value) -> value
+    writeData: (value) -> value
+    writeScroll: (value) -> value
+    writeOAMAddress: (value) -> value
+    writeOAMData: (value) -> value
     writeFrameCounter: (value) -> value
     writeStatus: (value) -> value
     writePulseDutyEnvelope: (value) -> value

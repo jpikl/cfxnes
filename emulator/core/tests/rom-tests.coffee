@@ -51,6 +51,20 @@ execute = (name) ->
             loggerIds.push id
             Logger.get(id).attach Logger.file file
 
+        blargg: ->
+            # Test code for all Blargg's test ROMs
+            RESULT_ADDRESS = 0x6000
+            RESULT_RUNNING = 0x80
+            RESULT_OK = 0x00
+            MESSAGE_ADDRESS = 0x6004
+
+            @step() until @readByte(RESULT_ADDRESS) is RESULT_RUNNING
+            @step() while @readByte(RESULT_ADDRESS) is RESULT_RUNNING
+
+            result = @readByte RESULT_ADDRESS
+            message = @readString MESSAGE_ADDRESS
+            @assert result is RESULT_OK, "\n#{message}"
+
     Logger.get(id).close() for id in loggerIds
 
 itShouldPass = (name) ->
@@ -59,6 +73,7 @@ itShouldPass = (name) ->
 
 describe "CPU", ->
     itShouldPass "nestest"
+    itShouldPass "instr_test-v4"
 
 describe "PPU", ->
     itShouldPass "ppu_vbl_nmi"
