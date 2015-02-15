@@ -599,6 +599,9 @@ class CPU
     AXS: (address) => # Also known as SBX
         @registerX = @compareRegisterAndMemory @accumulator & @registerX, address
 
+    ANC: (address) =>
+        @$rotateLeft @AND(address), false # rotateLeft computes carry
+
     ###########################################################
     # Instruction helper functions
     ###########################################################
@@ -1021,6 +1024,9 @@ class CPU
         @registerOperation 0x73, @RRA, @indirectYMode, 0, 1, 1 # 8 cycles (undocumented operation)
 
         @registerOperation 0xCB, @AXS, @immediateMode, 0, 0, 0 # 2 cycles (undocumented operation)
+
+        @registerOperation 0x0B, @ANC, @immediateMode, 0, 0, 0 # 2 cycles (undocumented operation)
+        @registerOperation 0x2B, @ANC, @immediateMode, 0, 0, 0 # 2 cycles (undocumented operation)
 
     registerOperation: (operationCode, instruction, addressingMode, pageCrossEnabled, emptyReadCycles, emptyWriteCycles) ->
         @operationsTable[operationCode] =
