@@ -603,6 +603,16 @@ class CPU
     ANC: (address) =>
         @$rotateLeft @AND(address), false # rotateLeft computes carry
 
+    ALR: (address) =>
+        @AND address
+        @LSR()
+
+    ARR: (address) =>
+        @AND address
+        @ROR()
+        @carryFlag = (@accumulator >>> 6) & 1
+        @overflowFlag = ((@accumulator >>> 5) & 1) ^ @carryFlag
+
     ###########################################################
     # Instruction helper functions
     ###########################################################
@@ -778,6 +788,7 @@ class CPU
         @registerOperation 0xAC, @LDY, @absoluteMode,  0, 0, 0 # 4      cycles
         @registerOperation 0xBC, @LDY, @absoluteXMode, 1, 0, 0 # 4 (+1) cycles
 
+        @registerOperation 0xAB, @LAX, @immediateMode, 0, 0, 0, # 2      cycles (undocumented operation)
         @registerOperation 0xA7, @LAX, @zeroPageMode,  0, 0, 0, # 3      cycles (undocumented operation)
         @registerOperation 0xB7, @LAX, @zeroPageYMode, 0, 1, 0, # 4      cycles (undocumented operation)
         @registerOperation 0xAF, @LAX, @absoluteMode,  0, 0, 0, # 4      cycles (undocumented operation)
@@ -1028,6 +1039,9 @@ class CPU
 
         @registerOperation 0x0B, @ANC, @immediateMode, 0, 0, 0 # 2 cycles (undocumented operation)
         @registerOperation 0x2B, @ANC, @immediateMode, 0, 0, 0 # 2 cycles (undocumented operation)
+
+        @registerOperation 0x4B, @ALR, @immediateMode, 0, 0, 0 # 2 cycles (undocumented operation)
+        @registerOperation 0x6B, @ARR, @immediateMode, 0, 0, 0 # 2 cycles (undocumented operation)
 
     registerOperation: (operationCode, instruction, addressingMode, pageCrossEnabled, emptyReadCycles, emptyWriteCycles) ->
         @operationsTable[operationCode] =
