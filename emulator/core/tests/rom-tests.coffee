@@ -26,7 +26,7 @@ execute = (name) ->
         expect: chai.expect
 
         fail: (message) ->
-            assert false, message
+            @assert false, message
 
         step: ->
             nes.step()

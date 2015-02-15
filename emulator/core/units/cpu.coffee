@@ -61,7 +61,7 @@ class CPU
             @tick() # CPU can't access memory (empty cycle)
         else
             @resolveInterrupt() if @activeInterrupts
-            @executeInstruction()
+            @executeOperation()
 
     ###########################################################
     # Interrupt handling
@@ -109,22 +109,25 @@ class CPU
     # Program execution
     ###########################################################
 
-    executeInstruction: ->
-        operation         = @readOperation()
-        instruction       = operation.instruction
-        addressingMode    = operation.addressingMode
-        @pageCrossed      = false
+    executeOperation: ->
+        operation = @$readOperation()
+        return @haltOperation() unless operation # CPU halt (KIL operation code)
+
+        instruction = operation.instruction
+        addressingMode = operation.addressingMode
+
+        @pageCrossed = false
         @pageCrossEnabled = operation.pageCrossEnabled
-        @emptyReadCycles  = operation.emptyReadCycles
+        @emptyReadCycles = operation.emptyReadCycles
         @emptyWriteCycles = operation.emptyWriteCycles
+
         instruction addressingMode()
 
     readOperation: ->
-        operationCode = @$readNextProgramByte()
-        operation = @operationsTable[operationCode]
-        unless operation?
-            throw new Error "Unsupported operation (code: 0x#{byteAsHex operationCode})"
-        operation
+        @operationsTable[@$readNextProgramByte()]
+
+    haltOperation: ->
+        @moveProgramCounter -1
 
     readNextProgramByte: ->
         @$readByte @$moveProgramCounter 1

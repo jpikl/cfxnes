@@ -19,7 +19,7 @@ class DebugCPU extends CPU
     # Program execution
     ###########################################################
 
-    executeInstruction: ->
+    executeOperation: ->
         @logOperationBefore()
         super()
         @logOperationAfter()
