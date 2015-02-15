@@ -400,6 +400,11 @@ class CPU
         @$storeValueIntoAccumulator value
         @$storeValueIntoRegisterX value
 
+    LAS: (address) =>
+        @stackPointer &= @$readByte address
+        @$storeValueIntoAccumulator @stackPointer
+        @$storeValueIntoRegisterX @stackPointer
+
     ###########################################################
     # Register transfer instructions
     ###########################################################
@@ -622,6 +627,10 @@ class CPU
         @carryFlag = (@accumulator >>> 6) & 1
         @overflowFlag = ((@accumulator >>> 5) & 1) ^ @carryFlag
 
+    TAS: (address) => # Also known as SHS
+        @stackPointer = @accumulator & @registerX
+        @SHA address
+
     ###########################################################
     # Instruction helper functions
     ###########################################################
@@ -808,13 +817,15 @@ class CPU
         @registerOperation 0xAC, @LDY, @absoluteMode,  0, 0, 0 # 4      cycles
         @registerOperation 0xBC, @LDY, @absoluteXMode, 1, 0, 0 # 4 (+1) cycles
 
-        @registerOperation 0xAB, @LAX, @immediateMode, 0, 0, 0, # 2      cycles (undocumented operation)
-        @registerOperation 0xA7, @LAX, @zeroPageMode,  0, 0, 0, # 3      cycles (undocumented operation)
-        @registerOperation 0xB7, @LAX, @zeroPageYMode, 0, 1, 0, # 4      cycles (undocumented operation)
-        @registerOperation 0xAF, @LAX, @absoluteMode,  0, 0, 0, # 4      cycles (undocumented operation)
-        @registerOperation 0xBF, @LAX, @absoluteYMode, 1, 0, 0, # 4 (+1) cycles (undocumented operation)
-        @registerOperation 0xA3, @LAX, @indirectXMode, 0, 1, 0, # 6      cycles (undocumented operation)
-        @registerOperation 0xB3, @LAX, @indirectYMode, 1, 0, 0, # 5 (+1) cycles (undocumented operation)
+        @registerOperation 0xAB, @LAX, @immediateMode, 0, 0, 0 # 2      cycles (undocumented operation)
+        @registerOperation 0xA7, @LAX, @zeroPageMode,  0, 0, 0 # 3      cycles (undocumented operation)
+        @registerOperation 0xB7, @LAX, @zeroPageYMode, 0, 1, 0 # 4      cycles (undocumented operation)
+        @registerOperation 0xAF, @LAX, @absoluteMode,  0, 0, 0 # 4      cycles (undocumented operation)
+        @registerOperation 0xBF, @LAX, @absoluteYMode, 1, 0, 0 # 4 (+1) cycles (undocumented operation)
+        @registerOperation 0xA3, @LAX, @indirectXMode, 0, 1, 0 # 6      cycles (undocumented operation)
+        @registerOperation 0xB3, @LAX, @indirectYMode, 1, 0, 0 # 5 (+1) cycles (undocumented operation)
+
+        @registerOperation 0xBB, @LAS, @absoluteYMode, 1, 0, 0 # 4 (+1) cycles (undocumented operation)
 
         ###########################################################
         # Register transfer instructions
@@ -1062,6 +1073,8 @@ class CPU
 
         @registerOperation 0x4B, @ALR, @immediateMode, 0, 0, 0 # 2 cycles (undocumented operation)
         @registerOperation 0x6B, @ARR, @immediateMode, 0, 0, 0 # 2 cycles (undocumented operation)
+
+        @registerOperation 0x9B, @TAS, @absoluteYMode, 0, 1, 0 # 5 cycles (undocumented operation)
 
     registerOperation: (operationCode, instruction, addressingMode, pageCrossEnabled, emptyReadCycles, emptyWriteCycles) ->
         @operationsTable[operationCode] =
