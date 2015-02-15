@@ -132,7 +132,7 @@ class CPU
     readNextProgramWord: ->
         @$readWord @$moveProgramCounter 2
 
-    moveProgramCounter: (size = 1) ->
+    moveProgramCounter: (size) ->
         previousValue = @programCounter
         @programCounter = (@programCounter + size) & 0xFFFF
         previousValue
@@ -539,6 +539,7 @@ class CPU
     ###########################################################
 
     BRK: =>
+        @$moveProgramCounter 1 # BRK is 2 byte instruction
         @$pushWord @programCounter
         @$pushByte @$getStatus() | 0x10 # It pushes status with bit 4 on (break command flag)
         @interruptDisable = 1
