@@ -281,7 +281,7 @@ class APU
     fillRecordBuffer: (position) ->
         outputValue = @getOutputValue()
         while @recordPosition < position
-            @recordBuffer[@recordPosition++] = outputValue
+            @recordBuffer[++@recordPosition] = outputValue
         if @recordPosition >= @recordBuffer.length - 1 and not @outputBufferFull
             @swapOutputBuffer()
 
