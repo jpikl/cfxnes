@@ -608,6 +608,9 @@ class CPU
     RLA: (address) =>
         @$storeValueIntoAccumulator @accumulator & @ROL address
 
+    XAA: (address) => # Also known as ANE
+        @$storeValueIntoAccumulator @registerX & @AND address
+
     RRA: (address) =>
         @$addValueToAccumulator @ROR address
 
@@ -1057,6 +1060,8 @@ class CPU
         @registerOperation 0x3B, @RLA, @absoluteYMode, 0, 1, 1 # 7 cycles (undocumented operation)
         @registerOperation 0x23, @RLA, @indirectXMode, 0, 1, 1 # 8 cycles (undocumented operation)
         @registerOperation 0x33, @RLA, @indirectYMode, 0, 1, 1 # 8 cycles (undocumented operation)
+
+        @registerOperation 0x8B, @XAA, @immediateMode, 0, 0, 0 # 2 cycles (undocumented operation)
 
         @registerOperation 0x67, @RRA, @zeroPageMode,  0, 0, 1 # 5 cycles (undocumented operation)
         @registerOperation 0x77, @RRA, @zeroPageXMode, 0, 1, 1 # 6 cycles (undocumented operation)
