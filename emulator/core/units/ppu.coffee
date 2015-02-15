@@ -50,6 +50,7 @@ class PPU
         @renderedSprite = null  # Currently rendered sprite
         @delayedNMI = false     # Whether to generate NMI after next instruction
         @suppressVBlank = false # Whether to supress VBLANK flag setting and NMI generation during VBLANK
+        @oddFrame = false       # Whether odd frame is being rendered
 
     setNTSCMode: (ntscMode) ->
         @ntscMode = ntscMode
@@ -390,8 +391,12 @@ class PPU
     incementScanline: ->
         @cycle = 0
         @scanline++
-        @scanline = 0 if @scanline > 261
+        @incrementFrame() if @scanline > 261
 
+    incrementFrame: ->
+        @scanline = 0
+        @cycle++ if @oddFrame and @$isRenderingEnabled()
+        @oddFrame = not @oddFrame
 
     ###########################################################
     # Background rendering
