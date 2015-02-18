@@ -5,7 +5,8 @@ NoiseChannel    = require "../channels/noise-channel"
 DMCChannel      = require "../channels/dmc-channel"
 logger          = require("../utils/logger").get()
 
-FRAME_COUNTER_MAX = 14915
+CPU_FREQUENCY_NTSC = 1789773 # Hz
+CPU_FREQUENCY_PAL = CPU_FREQUENCY_NTSC * 5 / 6  # Actually 1662607 Hz, but we need to adjust it according to screen refresh rate (50 Hz vs 60 Hz)
 
 ###########################################################
 # Audio processing unit
@@ -23,6 +24,7 @@ class APU
         @noiseChannel = new NoiseChannel
         @dmcChannel = new DMCChannel cpu, cpuMemory
         @channelEnabled = (true for [0..4]) # Enable flag for each channel
+        @setNTSCMode true
         @stopRecording()
 
     ###########################################################
@@ -31,7 +33,6 @@ class APU
 
     powerUp: ->
         logger.info "Reseting APU"
-        @setNTSCMode true
         @clearFrameIRQ()
         @pulseChannel1.powerUp()
         @pulseChannel2.powerUp()
@@ -43,7 +44,7 @@ class APU
     setNTSCMode: (ntscMode) ->
         @frameCounterMax4 = if ntscMode then [ 7457, 7456, 7458, 7457,    1, 1 ] else [ 8313, 8314, 8312, 8313,    1, 1 ] # 4-step frame counter
         @frameCounterMax5 = if ntscMode then [ 7457, 7456, 7458, 7458, 7452, 1 ] else [ 8313, 8314, 8312, 8314, 8312, 1 ] # 5-step frame counter
-        @cpuFrequency = if ntscMode then 1789773 else 1662607
+        @cpuFrequency = if ntscMode then CPU_FREQUENCY_NTSC else CPU_FREQUENCY_PAL
         @noiseChannel.setNTSCMode ntscMode
         @dmcChannel.setNTSCMode ntscMode
 
@@ -261,9 +262,8 @@ class APU
         @recordCycle = 0                            # CPU cycle counter
         @outputBuffer = new Float32Array bufferSize # Cached audio samples, ready for output to sound card
         @outputBufferFull = false                   # True when output buffer is full and ready
+        @lastPosition = bufferSize - 1              # Last position in the output/record buffer
         @sampleRate = sampleRate                    # How often are samples taken (samples per second)
-        @bufferUnderflowLimit = bufferSize  / 3     # When we need to increase sample rate (buffer underflow protection)
-        @bufferOverflowLimit = bufferSize * 2 / 3   # When we need to decrease sample rate (buffer overflow protection)
 
     startRecording: ->
         throw "Cannot start audio recording without initialization" unless @recordBuffer
@@ -276,13 +276,14 @@ class APU
         position = ~~(@recordCycle++ * @sampleRate / @cpuFrequency)
         if position > @recordPosition
             @$fillRecordBuffer position
-            @$adjustSampleRate()
 
     fillRecordBuffer: (position) ->
         outputValue = @getOutputValue()
+        if not position? or position > @lastPosition
+            position = @lastPosition
         while @recordPosition < position
             @recordBuffer[++@recordPosition] = outputValue
-        if @recordPosition >= @recordBuffer.length - 1 and not @outputBufferFull
+        if @recordPosition >= @lastPosition and not @outputBufferFull
             @swapOutputBuffer()
 
     swapOutputBuffer: ->
@@ -291,18 +292,14 @@ class APU
         @recordPosition = -1
         @recordCycle = 0
 
-    adjustSampleRate: ->
-        if @outputBufferFull and @recordPosition > @bufferOverflowLimit
-            @sampleRate -= 0.1 if @sampleRate > 1             # Buffer overflow protection
-        else if not @outputBufferFull or @recordPosition < @bufferUnderflowLimit
-            @sampleRate += 0.1 if @sampleRate < @cpuFrequency # Buffer underflow protection
-
     readOutputBuffer: ->
-        @completeOutputBuffer() unless @outputBufferFull # Buffer overflow
+        @fillRecordBuffer() unless @outputBufferFull # Buffer underflow
+        @adjustSampleRate()
         @outputBufferFull = false
         @outputBuffer
 
-    completeOutputBuffer: ->
-        @fillRecordBuffer @recordBuffer.length - 1
+    adjustSampleRate: ->
+        # Our goal is to have about 50% of data in cache (record buffer) now
+        @sampleRate -= 100 * (@recordPosition / @lastPosition - 0.5) # TODO use better (propably non-linear) transformation
 
 module.exports = APU
