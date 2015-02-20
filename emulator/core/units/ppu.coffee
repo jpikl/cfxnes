@@ -42,7 +42,6 @@ class PPU
         @vramReadBuffer = 0 #  8-bit
         @writeToogle = 0    #  1-bit
         @fineXScroll = 0    #  3-bit
-        @tempXScroll = 0    #  3-bit
 
     resetVariables: ->
         @scanline = -1          # Total 262 scanlines (0..261)
@@ -234,7 +233,7 @@ class PPU
     writeScroll: (value) ->
         @writeToogle = not @writeToogle
         if @writeToogle # 1st write (x scroll)
-            @tempXScroll = value & 0x07
+            @fineXScroll = value & 0x07
             coarseXScroll = value >>> 3
             @tempAddress = (@tempAddress & 0xFFE0) | coarseXScroll
         else            # 2nd write (y scroll)
@@ -244,18 +243,11 @@ class PPU
         value
 
     copyHorizontalScrollBits: ->
-        @fineXScroll = @tempXScroll
         @vramAddress = (@vramAddress & 0x7BE0) | (@tempAddress & 0x041F) # V[10,4-0] = T[10,4-0]
+
 
     copyVerticalScrollBits: ->
         @vramAddress = (@vramAddress & 0x041F) | (@tempAddress & 0x7BE0) # V[14-11,9-5] = T[14-11,9-5]
-
-    incrementFineXScroll: ->
-        if @fineXScroll is 7
-            @fineXScroll = 0
-            @$incrementCoarseXScroll()
-        else
-            @fineXScroll++
 
     incrementCoarseXScroll: ->
         if (@vramAddress & 0x001F) is 0x001F # if coarseScrollX is 31
@@ -285,7 +277,10 @@ class PPU
     ###########################################################
 
     tick: ->
+        @$fetchPattern() if @cycle > 0 and (@cycle & 0x7) is 0
         @$updateFramePixel() if @$isRenderingCycle()
+        @$shiftPatternBuffers 1 if @cycle >= 1 and @cycle <= 336
+        @$shiftPaletteBuffers 1 if @cycle >= 1 and @cycle <= 336 #and (@cycle & 0x7) is 0
         @$updateScrolling() if @$isRenderingActive()
         @$updateVBlank()
         @$incrementCycle()
@@ -322,9 +317,6 @@ class PPU
             @setFramePixel @$read colorAddress
 
     startScanline: ->
-        @fetchPattern()
-        @fetchAttribute()
-        @fetchPalette()
         @fetchSprites()
 
     renderFramePixel: ->
@@ -352,13 +344,19 @@ class PPU
         @framePosition++ # Skip alpha because it was already set to 0xFF.
 
     updateScrolling: ->
-        if 1 <= @cycle <= 256
-            @$incrementFineXScroll()
-            @incrementFineYScroll() if @cycle is 256
+        if 0 < @cycle < 256
+            @$incrementCoarseXScroll() if (@cycle & 0x7) is 0
+        else if @cycle is 256
+            @$incrementCoarseXScroll()
+            @$incrementFineYScroll()
         else if @cycle is 257
-            @copyHorizontalScrollBits()
-        else if @scanline is 261 and 280 <= @cycle <= 304
-            @$copyVerticalScrollBits()
+            @$copyHorizontalScrollBits()
+        else if 280 <= @cycle <= 304
+            @$copyVerticalScrollBits() if @scanline is 261
+        else if @cycle is 328
+            @$incrementCoarseXScroll()
+        else if @cycle is 336
+            @$incrementCoarseXScroll()
 
     updateVBlank: ->
         if @cycle is 1
@@ -440,25 +438,45 @@ class PPU
     #    X = bit 1 of XXXXX
 
     renderBackgroundPixel: ->
-        @fetchPattern() if @fineXScroll is 0 # When coarse scroll X was incremented.
         return 0 if not @backgroundVisible or @backgroundClipping and @cycle < 9
-        columnNumber = @fineXScroll ^ 0x07 # 7 - fineXScroll
-        colorSelect1 =  (@patternLayer1Row >>> columnNumber) & 1
-        colorSelect2 = ((@patternLayer2Row >>> columnNumber) & 1) << 1
-        0x3F00 | @paletteSelect | colorSelect2 | colorSelect1
+        colorSelect1 = ((@patternLayer1Row << @fineXScroll) >> 15) & 0x1
+        colorSelect2 = ((@patternLayer2Row << @fineXScroll) >> 14) & 0x2
+        p1 = ((@paletteBuffer1 << @fineXScroll) >> 5) & 0x4
+        p2 = ((@paletteBuffer2 << @fineXScroll) >> 4) & 0x8
+        0x3F00 | p2 | p1 | colorSelect2 | colorSelect1
+
+    shiftPatternBuffers: (amount) ->
+        @patternLayer1Row <<= amount
+        @patternLayer2Row <<= amount
+
+    shiftPaletteBuffers: ->
+        @paletteBuffer1 <<= 1
+        @paletteBuffer2 <<= 1
+        @paletteBuffer1 |= @paletteLatch1
+        @paletteBuffer2 |= @paletteLatch2
+
+    patternLayer1Row: 0
+    patternLayer2Row: 0
+    paletteBuffer1: 0
+    paletteBuffer2: 0
+
+    paletteLatch1: 0
+    paletteLatch2: 0
 
     fetchPattern: ->
-        @fetchPalette() if (@vramAddress & 0x0001) is 0 # When coarse scroll was incremented by 2
+        @fetchPalette() #if (@cycle & 0xF) is 0 # When coarse scroll was incremented by 2
         patternNumer = @$read 0x2000 | @vramAddress & 0x0FFF
         patternAddress = @bgPatternTableAddress + (patternNumer << 4)
         fineYScroll = (@vramAddress >>> 12) & 0x07
-        @patternLayer1Row = @$read patternAddress + fineYScroll
-        @patternLayer2Row = @$read patternAddress + fineYScroll + 8
+        @patternLayer1Row |= @$read patternAddress + fineYScroll
+        @patternLayer2Row |= @$read patternAddress + fineYScroll + 8
 
     fetchPalette: ->
-        @fetchAttribute() if (@vramAddress & 0x0002) is 0 # When coarse scroll was incremented by 4
-        areaSelect = (@vramAddress >>> 4) & 0x04 | @vramAddress & 0x02
-        @paletteSelect = ((@attribute >>> areaSelect) & 0x03) << 2
+        @fetchAttribute() #if (@cycle & 0x1F) is 0 # When coarse scroll was incremented by 4
+        area = (@vramAddress >>> 4) & 0x04 | @vramAddress & 0x02
+        palette = (@attribute >>> area) & 0x03
+        @paletteLatch1 = palette & 1
+        @paletteLatch2 = (palette >>> 1) & 1
 
     fetchAttribute: ->
         attributeTableAddress = 0x23C0 | @vramAddress & 0x0C00
