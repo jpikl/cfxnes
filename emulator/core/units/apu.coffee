@@ -257,13 +257,15 @@ class APU
     ###########################################################
 
     initRecording: (bufferSize, sampleRate) ->
+        @bufferSize = bufferSize                    # Output/record buffer size
+        @lastPosition = bufferSize - 1              # Last position in the output/record buffer
         @recordBuffer = new Float32Array bufferSize # Audio samples which are curretly being recorded
         @recordPosition = -1                        # Buffer position with the last recorded sample
         @recordCycle = 0                            # CPU cycle counter
         @outputBuffer = new Float32Array bufferSize # Cached audio samples, ready for output to sound card
-        @outputBufferFull = false                   # True when output buffer is full and ready
-        @lastPosition = bufferSize - 1              # Last position in the output/record buffer
+        @outputBufferFull = false                   # True when the output buffer is full
         @sampleRate = sampleRate                    # How often are samples taken (samples per second)
+        @sampleRateAdjustment = 0                   # Sample rate adjustment per 1 output value (buffer underflow/overflow protection)
 
     startRecording: ->
         throw "Cannot start audio recording without initialization" unless @recordBuffer
@@ -283,6 +285,7 @@ class APU
             position = @lastPosition
         while @recordPosition < position
             @recordBuffer[++@recordPosition] = outputValue
+            @sampleRate += @sampleRateAdjustment
         if @recordPosition >= @lastPosition and not @outputBufferFull
             @swapOutputBuffer()
 
@@ -294,12 +297,13 @@ class APU
 
     readOutputBuffer: ->
         @fillRecordBuffer() unless @outputBufferFull # Buffer underflow
-        @adjustSampleRate()
+        @computeSampleRateAdjustment()
         @outputBufferFull = false
         @outputBuffer
 
-    adjustSampleRate: ->
-        # Our goal is to have about 50% of data in cache (record buffer) now
-        @sampleRate -= 100 * (@recordPosition / @lastPosition - 0.5) # TODO use better (propably non-linear) transformation
+    computeSampleRateAdjustment: ->
+        # Our goal is to have right now about 50% of data in buffer
+        percentageDifference = 0.5 - @recordPosition / @bufferSize       # Difference from expected value (50% of data in buffer)
+        @sampleRateAdjustment = 100 * percentageDifference / @bufferSize # Adjustment per 1 output value in buffer
 
 module.exports = APU
