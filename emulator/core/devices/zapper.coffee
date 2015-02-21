@@ -18,7 +18,7 @@ class Zapper
         @triggerPressed << 4 | !@isLightDetected() << 3
 
     isLightDetected: ->
-        @beamX and @beamY and @ppu.isLightPixel @beamX, @beamY
+        @beamX and @beamY and @ppu.isBrightFramePixel @beamX, @beamY
 
     setTriggerPressed: (pressed) =>
         @triggerPressed = pressed
