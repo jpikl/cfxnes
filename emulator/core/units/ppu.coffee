@@ -268,13 +268,13 @@ class PPU
 
     read: (address) ->
         if @$isPaletteAddress address
-            value = @ppuMemory.read @$fixColorAddress address
-            if @monochromeMode then value & 0x30 else value
+            @readPalette address
         else
             @ppuMemory.read address
 
-    write: (address, value) ->
-        @ppuMemory.write address, value
+    readPalette: (address) ->
+        value = @ppuMemory.read @$fixColorAddress address
+        if @monochromeMode then value & 0x30 else value
 
     isPaletteAddress: (address) ->
         (address & 0x3F00) == 0x3F00
@@ -284,6 +284,9 @@ class PPU
 
     shouldUseBackdropColor: (address) ->
         (address & 0x0003) is 0 and not @vblankActive
+
+    write: (address, value) ->
+        @ppuMemory.write address, value
 
     ###########################################################
     # Scrolling and scrolling register ($2005)
@@ -445,7 +448,7 @@ class PPU
             @clearFramePixel()
         else
             colorAddress = 0x3F00 | @renderFramePixel()
-            @setFramePixel @$read colorAddress
+            @setFramePixel @$readPalette colorAddress
 
     renderFramePixel: ->
         @renderedSprite = null
@@ -519,7 +522,7 @@ class PPU
     fetchAttribute: ->
         attributeTableAddress = 0x23C0 | @vramAddress & 0x0C00
         attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
-        @attribute = @$read attributeTableAddress + attributeNumber
+        @attribute = @ppuMemory.read attributeTableAddress + attributeNumber
 
     fetchPalette: ->
         areaNumber = (@vramAddress >>> 4) & 0x04 | @vramAddress & 0x02
@@ -528,11 +531,11 @@ class PPU
         @paletteLatch1 = (paletteNumber >>> 1) & 1
 
     fetchPattern: ->
-        patternNumer = @$read 0x2000 | @vramAddress & 0x0FFF
+        patternNumer = @ppuMemory.read 0x2000 | @vramAddress & 0x0FFF
         patternAddress = @bgPatternTableAddress + (patternNumer << 4)
         fineYScroll = (@vramAddress >>> 12) & 0x07
-        @patternBuffer0 |= @$read patternAddress + fineYScroll
-        @patternBuffer1 |= @$read patternAddress + fineYScroll + 8
+        @patternBuffer0 |= @ppuMemory.read patternAddress + fineYScroll
+        @patternBuffer1 |= @ppuMemory.read patternAddress + fineYScroll + 8
 
     shiftBackgroundBuffers: ->
         @patternBuffer0 = (@patternBuffer0 << 1)
@@ -606,8 +609,8 @@ class PPU
             paletteNumber:  0x10 | (attributes & 0x03) << 2
             inFront:        (attributes & 0x20) is 0
             zeroSprite:     address is 0
-            patternRow0:    @$read patternAddress + rowNumber
-            patternRow1:    @$read patternAddress + rowNumber + 8
+            patternRow0:    @ppuMemory.read patternAddress + rowNumber
+            patternRow1:    @ppuMemory.read patternAddress + rowNumber + 8
 
     ###########################################################
     # Debug rendering
@@ -629,14 +632,14 @@ class PPU
     renderPatternTile: (baseX, baseY, address) ->
         for rowNumber in [0...8]
             y = baseY + rowNumber
-            patternBuffer0 = @$read address + rowNumber
-            patternBuffer1 = @$read address + rowNumber + 8
+            patternBuffer0 = @ppuMemory.read address + rowNumber
+            patternBuffer1 = @ppuMemory.read address + rowNumber + 8
             for columnNumber in [0...8]
                 x = baseX + columnNumber
                 bitPosition = columnNumber ^ 0x07
                 colorSelect1 =  (patternBuffer0 >> bitPosition) & 0x01
                 colorSelect2 = ((patternBuffer1 >> bitPosition) & 0x01) << 1
-                color = @$read 0x3F00 | colorSelect2 | colorSelect1
+                color = @$readPalette 0x3F00 | colorSelect2 | colorSelect1
                 @setFramePixelOnPosition x, y, color
         undefined
 
@@ -645,7 +648,7 @@ class PPU
             baseY = 128 + tileY * 28
             for tileX in [0...8]
                 baseX = tileX << 5
-                color = @$read 0x3F00 | (tileY << 3) | tileX
+                color = @$readPalette 0x3F00 | (tileY << 3) | tileX
                 @renderPaletteTile baseX, baseY, color
         undefined
 
