@@ -515,18 +515,15 @@ class PPU
         not @backgroundVisible or @backgroundClipping and (@cycleFlags & F_CLIP_LEFT)
 
     fetchBackgroundData: ->
-        @$fetchAttribute()
         @$fetchPalette()
         @$fetchPattern()
 
-    fetchAttribute: ->
+    fetchPalette: ->
         attributeTableAddress = 0x23C0 | @vramAddress & 0x0C00
         attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
-        @attribute = @ppuMemory.read attributeTableAddress + attributeNumber
-
-    fetchPalette: ->
+        attribute = @ppuMemory.read attributeTableAddress + attributeNumber
         areaNumber = (@vramAddress >>> 4) & 0x04 | @vramAddress & 0x02
-        paletteNumber = (@attribute >>> areaNumber) & 0x03
+        paletteNumber = (attribute >>> areaNumber) & 0x03
         @paletteLatch0 = paletteNumber & 1
         @paletteLatch1 = (paletteNumber >>> 1) & 1
 
