@@ -99,5 +99,9 @@ mixin device(port)
             .row
                 +device(1)
                 +device(2)
-            .row
-                button.col-xs-offset-1.btn.btn-default.btn-restore-controls(ng-click="restoreDefaults()") Restore to defaults
+            .row.controls-bottom-row
+                .col-xs-2.col-xs-offset-1
+                    button.btn.btn-default(ng-click="restoreDefaults()") Restore to defaults
+                .col-xs-6.col-xs-offset-3.controls-second-column
+                    input(id="controls-info-disabled" type="checkbox" ng-model="controls.infoDisabled")
+                    label(for="controls-info-disabled") Never show controls on emulator page

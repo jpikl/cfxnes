@@ -1,3 +1,4 @@
 angular.module "cfxnes"
 
-.factory "globalParams", -> {}
+.factory "globalParams", ->
+    controlsInfoVisible: localStorage["controlsInfoDisabled"] isnt "true"

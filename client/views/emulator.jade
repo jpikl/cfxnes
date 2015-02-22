@@ -5,7 +5,7 @@ mixin input-mapping(device, input, inputName)
         td #{inputName}
         td {{ getMappedInputName('#{device}', '#{input}')  }}
 
-alert#controls-info(ng-show="controlsVisible" type="info" close="hideControls()")
+alert#controls-info(ng-show="controlsInfoVisible" type="info" close="hideControlsInfo()")
     h3 Controls
         small
             |  (

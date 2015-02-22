@@ -14,10 +14,10 @@ angular.module "cfxnes"
 
     $scope.changeControlsUrl = $state.href "config", { section: "controls" }
 
-    $scope.controlsVisible = globalParams.controlsVisible ?= true
+    $scope.controlsInfoVisible = globalParams.controlsInfoVisible
 
-    $scope.hideControls = ->
-        $scope.controlsVisible = globalParams.controlsVisible = false
+    $scope.hideControlsInfo = ->
+        $scope.controlsInfoVisible = globalParams.controlsInfoVisible = false
 
     $scope.getMappedInputName = (device, input) ->
         if emulator.getInputDevice(1) is device

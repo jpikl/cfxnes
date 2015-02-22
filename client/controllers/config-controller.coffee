@@ -26,6 +26,7 @@ angular.module "cfxnes"
 
     $scope.controls = globalParams.controlsConfig ?= {}
     $scope.controls.visible ?= true
+    $scope.controls.infoDisabled = localStorage["controlsInfoDisabled"] is "true"
     $scope.controls.devices = {}
     $scope.controls.devices[port] = emulator.getInputDevice(port) or "none" for port in emulator.inputPorts
 
@@ -68,6 +69,9 @@ angular.module "cfxnes"
             emulator.setAudioChannelEnabled channel, value unless emulator.isAudioChannelEnabled(channel) is value
         )(channel)
 
+    $scope.$watch "controls.infoDisabled", (value) ->
+        localStorage["controlsInfoDisabled"] = if value then "true" else "false"
+
     for port in emulator.inputPorts
         $scope.$watch "controls.devices[#{port}]", ((port) -> (value) ->
             emulator.setInputDevice port, value unless emulator.getInputDevice(port) is value
@@ -96,3 +100,7 @@ angular.module "cfxnes"
     $scope.restoreDefaults = ->
         emulator.setInputDefaults()
         $scope.controls.devices[port] = emulator.getInputDevice(port) or "none" for port in emulator.inputPorts
+
+    $scope.$on "$stateChangeStart", ->
+        if localStorage["controlsInfoDisabled"] is "true"
+            globalParams.controlsInfoVisible = false
