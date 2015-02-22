@@ -17,8 +17,9 @@ F_INC_FY    = 1 <<  7 # Cycle where fine Y scroll is incremented
 F_COPY_HS   = 1 <<  8 # Cycle where horizontal scroll bits are copied
 F_COPY_VS   = 1 <<  9 # Cycle where vertical scroll bits are copied
 F_VB_START  = 1 << 10 # Cycle where VBlank starts
-F_VB_START2 = 1 << 13 # Cycle where VBlank starts and the 2 following cycles
+F_VB_START2 = 1 << 11 # Cycle where VBlank starts and the 2 following cycles
 F_VB_END    = 1 << 12 # Cycle where VBlank ends
+F_SKIP      = 1 << 13 # Cycle which is skipped during odd frames
 
 # Tables containing flags for all cycles/scanlines
 cycleFlagsTable = (0 for [0..340])
@@ -62,6 +63,9 @@ scanlineFlagsTable[241] |= F_VB_START2
 
 cycleFlagsTable[1]      |= F_VB_END
 scanlineFlagsTable[261] |= F_VB_END
+
+cycleFlagsTable[338]    |= F_SKIP
+scanlineFlagsTable[261] |= F_SKIP
 
 ###########################################################
 # Picture processing unit
@@ -392,13 +396,13 @@ class PPU
             @$leaveVBlank()
 
     enterVBlank: ->
-        @vblankActive = 1
+        @vblankActive = true
         @vblankFlag = 1 unless @suppressVBlank
         @nmiDelay = 2
         @frameAvailable = true
 
     leaveVBlank: ->
-        @vblankActive = 0
+        @vblankActive = false
         @vblankFlag = 0
         @suppressVBlank = false
         @supressNMI = false
@@ -409,6 +413,7 @@ class PPU
     ###########################################################
 
     incrementCycle: ->
+        @cycle++ if (@cycleFlags & F_SKIP) and @oddFrame and @$isRenderingEnabled() # Skipped on odd frames
         @cycle++
         @incementScanline() if @cycle > 340
         @cycleFlags = cycleFlagsTable[@cycle] & scanlineFlagsTable[@scanline] # Update flags for new scanline/cycle
@@ -420,7 +425,6 @@ class PPU
 
     incrementFrame: ->
         @scanline = 0
-        @cycle++ if @oddFrame and @$isRenderingEnabled()
         @oddFrame = not @oddFrame
 
     ###########################################################
