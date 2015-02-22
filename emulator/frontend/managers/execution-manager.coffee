@@ -57,10 +57,14 @@ class ExecutionManager
         @executionId?
 
     step: =>
-        @videoManager.renderFrame()
-        @videoManager.drawFrame()
         @inputManager.processSources()
+        @videoManager.renderFrame()
         @updateFPS()
+        cancelAnimationFrame @drawId # Cancel previous request if it wasnt performed yet
+        @drawId = requestAnimationFrame @draw
+
+    draw: =>
+        @videoManager.drawFrame()
 
     ###########################################################
     # Focus / Blur
