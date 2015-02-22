@@ -17,7 +17,7 @@ F_INC_FY    = 1 <<  7 # Cycle where fine Y scroll is incremented
 F_COPY_HS   = 1 <<  8 # Cycle where horizontal scroll bits are copied
 F_COPY_VS   = 1 <<  9 # Cycle where vertical scroll bits are copied
 F_VB_START  = 1 << 10 # Cycle where VBlank starts
-F_VB_START2 = 1 << 11 # Few cycles at the begining of VBlank
+F_VB_START2 = 1 << 13 # Cycle where VBlank starts and the 2 following cycles
 F_VB_END    = 1 << 12 # Cycle where VBlank ends
 
 # Tables containing flags for all cycles/scanlines
@@ -57,7 +57,7 @@ scanlineFlagsTable[261] |= F_COPY_VS
 cycleFlagsTable[1]      |= F_VB_START
 scanlineFlagsTable[241] |= F_VB_START
 
-cycleFlagsTable[i]      |= F_VB_START2 for i in [2..3]
+cycleFlagsTable[i]      |= F_VB_START2 for i in [1..3]
 scanlineFlagsTable[241] |= F_VB_START2
 
 cycleFlagsTable[1]      |= F_VB_END
@@ -113,8 +113,9 @@ class PPU
         @cycle = 0              # Total 341 cycles per scanline (0..340)
         @cycleFlags = 0         # Flags for current cycle
         @renderedSprite = null  # Currently rendered sprite
-        @delayedNMI = false     # Whether to generate NMI after next instruction
-        @suppressVBlank = false # Whether to supress VBlank flag setting and NMI generation during VBlank
+        @suppressVBlank = false # Whether to suppress VBlank flag setting
+        @supressNMI = false     # Whether to supress NMI generation
+        @nmiDelay = 0           # Number of cycles after which NMI is generated
         @oddFrame = false       # Whether odd frame is being rendered
 
     ###########################################################
@@ -161,7 +162,8 @@ class PPU
         nmiEnabledOld = @nmiEnabled
         @setControl value
         @tempAddress = (@tempAddress & 0xF3FF) | (value & 0x03) << 10 # T[11,10] = C[1,0]
-        @delayedNMI = true if @vblankFlag and not nmiEnabledOld and @nmiEnabled # Generate NMI after next instruction when its enabled (from 0 to 1) during VBlank
+        if @vblankFlag and not nmiEnabledOld and @nmiEnabled and not (@cycleFlags & F_VB_END)
+            @nmiDelay = 1  # Generate NMI after next instruction when its enabled (from 0 to 1) during VBlank
         value
 
     setControl: (value) ->
@@ -196,8 +198,8 @@ class PPU
         value = @getStatus()
         @vblankFlag = 0     # Cleared by reading status
         @writeToogle = 0    # Cleared by reading status
-        @suppressVBlank = true            if @cycleFlags & F_VB_START  # Reading just before VBlank disables NMI generation and VBlank flag setting
-        @cpu.clearInterrupt Interrupt.NMI if @cycleFlags & F_VB_START2 # Reading at the start of VBlank disables only NMI generation
+        @suppressVBlank = true if @cycleFlags & F_VB_START  # Reading just before VBlank disables VBlank flag setting
+        @supressNMI = true     if @cycleFlags & F_VB_START2 # Reading just before VBlank and 2 cycles after VBlank disables NMI generation
         value
 
     getStatus: ->
@@ -382,27 +384,25 @@ class PPU
     ###########################################################
 
     updateVBlank: ->
+        if @nmiDelay and not --@nmiDelay and @nmiEnabled and not @supressNMI
+            @cpu.activateInterrupt Interrupt.NMI
         if @cycleFlags & F_VB_START
             @$enterVBlank()
         else if @cycleFlags & F_VB_END
             @$leaveVBlank()
 
     enterVBlank: ->
-        unless @suppressVBlank
-            @vblankFlag = 1
-            @cpu.activateInterrupt Interrupt.NMI if @nmiEnabled
         @vblankActive = 1
+        @vblankFlag = 1 unless @suppressVBlank
+        @nmiDelay = 2
         @frameAvailable = true
 
     leaveVBlank: ->
-        @vblankFlag = 0
         @vblankActive = 0
-        @spriteZeroHit = 0
+        @vblankFlag = 0
         @suppressVBlank = false
-
-    generateDelayedNMI: ->
-        @cpu.activateInterrupt Interrupt.NMI
-        @delayedNMI = false
+        @supressNMI = false
+        @spriteZeroHit = 0
 
     ###########################################################
     # Scanline / cycle counters
@@ -435,7 +435,6 @@ class PPU
         @$updateScrolling()        if @$isRenderingEnabled()
         @$updateVBlank()
         @$incrementCycle()
-        @$generateDelayedNMI() if @delayedNMI
 
     isRenderingActive: ->
         not @vblankActive and @$isRenderingEnabled()
