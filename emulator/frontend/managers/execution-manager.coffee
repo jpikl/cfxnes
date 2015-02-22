@@ -26,8 +26,7 @@ class ExecutionManager
         @setDefaults()
 
     initListeners: ->
-        window.addEventListener "focus", @onFocus
-        window.addEventListener "blur", @onBlur
+        document.addEventListener "visibilitychange", @onVisibilityChange
 
     setDefaults: ->
         logger.info "Using default execution configuration"
@@ -63,24 +62,24 @@ class ExecutionManager
         @inputManager.processSources()
         @videoManager.renderFrame()
         @updateFPS()
-        cancelAnimationFrame @drawId # Cancel previous request if it wasnt performed yet
+        cancelAnimationFrame @drawId # Cancel previous request if it wasn't performed yet
         @drawId = requestAnimationFrame @draw
 
     draw: =>
         @videoManager.drawFrame()
 
     ###########################################################
-    # Focus / Blur
+    # Visibility change
     ###########################################################
 
-    onFocus: =>
-        logger.info "Gained focus"
-        @start() if @runningBeforeBlur
-
-    onBlur: =>
-        logger.info "Lost focus"
-        @runningBeforeBlur = @isRunning()
-        @stop()
+    onVisibilityChange: =>
+        if document.hidden
+            logger.info "Lost visibility"
+            @autoPaused = @isRunning()
+            @stop()
+        else
+            logger.info "Gained visibility"
+            @start() if @autoPaused
 
     ###########################################################
     # Inputs
