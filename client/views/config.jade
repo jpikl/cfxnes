@@ -39,6 +39,10 @@ mixin device(port)
                         option(value="auto") Autodetect
                         option(value="ntsc") NTSC
                         option(value="pal")  PAL
+            .form-group
+                label.control-label.col-xs-2(for="speed") Emulation speed
+                .col-xs-3
+                    slider(id="speed" ng-model="emulation.speed" min="0.25" step="0.25" max="2" formater="multiplierFormater" style="width: 100%")
 
         accordion-group(heading="Video" is-open="video.visible")
             .form-group

@@ -256,7 +256,7 @@ class APU
     # Audio samples recording
     ###########################################################
 
-    initRecording: (bufferSize, sampleRate) ->
+    initRecording: (bufferSize) ->
         @bufferSize = bufferSize                    # Output/record buffer size
         @lastPosition = bufferSize - 1              # Last position in the output/record buffer
         @recordBuffer = new Float32Array bufferSize # Audio samples which are curretly being recorded
@@ -264,11 +264,11 @@ class APU
         @recordCycle = 0                            # CPU cycle counter
         @outputBuffer = new Float32Array bufferSize # Cached audio samples, ready for output to sound card
         @outputBufferFull = false                   # True when the output buffer is full
-        @sampleRate = sampleRate                    # How often are samples taken (samples per second)
-        @sampleRateAdjustment = 0                   # Sample rate adjustment per 1 output value (buffer underflow/overflow protection)
 
-    startRecording: ->
+    startRecording: (sampleRate) ->
         throw "Cannot start audio recording without initialization" unless @recordBuffer
+        @sampleRate = sampleRate  # How often are samples taken (samples per second)
+        @sampleRateAdjustment = 0 # Sample rate adjustment per 1 output value (buffer underflow/overflow protection)
         @recordingActive = true
 
     stopRecording: ->

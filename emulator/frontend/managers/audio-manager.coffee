@@ -70,21 +70,20 @@ class AudioManager
     isEnabled: ->
         @enabled
 
-    resume: ->
-        @setPlaying true
-
-    pause: ->
-        @setPlaying false
-
     setPlaying: (playing) ->
         logger.info "Audio #{if playing then 'resumed' else 'paused'}"
         @playing = playing
         @updateState()
 
+    setSpeed: (speed) ->
+        logger.info "Setting audio recording speed to #{speed}x"
+        @speed = speed
+        @updateState()
+
     updateState: ->
         return unless @isSupported()
         if @enabled and @playing
-            @nes.startAudioRecording()
+            @nes.startAudioRecording @context.sampleRate / @speed
             @processor.connect @context.destination
         else
             @nes.stopAudioRecording()

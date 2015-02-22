@@ -114,11 +114,11 @@ class NES
     # Audio output
     ###########################################################
 
-    initAudioRecording: (bufferSize, sampleRate) ->
-        @apu.initRecording bufferSize, sampleRate
+    initAudioRecording: (bufferSize) ->
+        @apu.initRecording bufferSize
 
-    startAudioRecording: ->
-        @apu.startRecording()
+    startAudioRecording: (sampleRate) ->
+        @apu.startRecording sampleRate
 
     stopAudioRecording: ->
         @apu.stopRecording()

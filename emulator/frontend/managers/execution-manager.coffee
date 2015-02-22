@@ -6,6 +6,7 @@ tvSystemAliases =
     "pal":  TVSystem.PAL
 
 DEFAULT_TV_SYSTEM = null # Autodetection
+DFEFAULT_SPEED = 1
 
 ###########################################################
 # Execution manager
@@ -31,6 +32,7 @@ class ExecutionManager
     setDefaults: ->
         logger.info "Using default execution configuration"
         @setTVSystem DEFAULT_TV_SYSTEM
+        @setSpeed DFEFAULT_SPEED
 
     ###########################################################
     # Execution commands
@@ -39,15 +41,16 @@ class ExecutionManager
     start: ->
         unless @isRunning()
             logger.info "Starting execution"
-            @executionId = setInterval @step, 1000 / @getTargetFPS()
-            @audioManager.resume()
+            period = 1000 / (@speed * @getTargetFPS())
+            @executionId = setInterval @step, period
+            @audioManager.setPlaying true
 
     stop: ->
         if @isRunning()
             logger.info "Stopping execution"
             clearInterval @executionId
             @executionId = null
-            @audioManager.pause()
+            @audioManager.setPlaying false
 
     restart: ->
         @stop()
@@ -99,10 +102,23 @@ class ExecutionManager
         logger.info "Setting TV system to '#{tvSystem or 'autodetection mode'}'"
         @tvSystem = tvSystem
         @nes.setTVSystem tvSystemAliases[tvSystem]
-        @restart() if @isRunning() # To refresh execution interval duration
+        @restart() if @isRunning() # To refresh execution interval
 
     getTVSystem: ->
         @tvSystem
+
+    ###########################################################
+    # Emulation speed
+    ###########################################################
+
+    setSpeed: (speed = DFEFAULT_SPEED) ->
+        logger.info "Setting emulation speed to #{speed}x"
+        @speed = speed
+        @restart() if @isRunning() # To refresh execution interval
+        @audioManager.setSpeed speed
+
+    getSpeed: ->
+        @speed
 
     ###########################################################
     # FPS conting
@@ -137,10 +153,12 @@ class ExecutionManager
         logger.info "Reading execution manager configuration"
         if config["execution"]
             @setTVSystem config["execution"]["tvSystem"]
+            @setSpeed    config["execution"]["speed"]
 
     writeConfiguration: (config) ->
         logger.info "Writing execution manager configuration"
         config["execution"] =
             "tvSystem": @getTVSystem()
+            "speed":    @getSpeed()
 
 module.exports = ExecutionManager

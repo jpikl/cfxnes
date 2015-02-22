@@ -76,6 +76,12 @@ class Emulator
     "getTVSystem": ->
         @executionManager.getTVSystem()
 
+    "setSpeed": (speed) ->
+        @executionManager.setSpeed speed
+
+    "getSpeed": ->
+        @executionManager.getSpeed()
+
     ###########################################################
     # Cartridges API
     ###########################################################

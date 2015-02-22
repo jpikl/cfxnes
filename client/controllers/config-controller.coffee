@@ -4,6 +4,7 @@ angular.module "cfxnes"
     $scope.emulation = globalParams.emulationConfig ?= {}
     $scope.emulation.visible ?= false
     $scope.emulation.tvSystem = emulator.getTVSystem() or "auto"
+    $scope.emulation.speed = emulator.getSpeed()
 
     $scope.video = globalParams.videoConfig ?= {}
     $scope.video.visible ?= false
@@ -36,6 +37,9 @@ angular.module "cfxnes"
 
     $scope.$watch "emulation.tvSystem", (value) ->
         emulator.setTVSystem value unless emulator.getTVSystem() is value
+
+    $scope.$watch "emulation.speed", (value) ->
+        emulator.setSpeed value unless emulator.getSpeed() is value
 
     $scope.$watch "video.scale", (value) ->
         emulator.setVideoScale value unless emulator.getVideoScale() is value
@@ -71,6 +75,9 @@ angular.module "cfxnes"
 
     $scope.percentageFormater = (value) ->
         "#{value}%"
+
+    $scope.multiplierFormater = (value) ->
+        "#{value}x"
 
     $scope.getMappedInputName = (targetPort, targetId, targetInput) ->
         emulator.getMappedInputName(targetPort, targetId, targetInput) or "--"
