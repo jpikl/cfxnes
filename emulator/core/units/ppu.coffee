@@ -21,9 +21,35 @@ F_VB_START2 = 1 << 11 # Cycle where VBlank starts and the 2 following cycles
 F_VB_END    = 1 << 12 # Cycle where VBlank ends
 F_SKIP      = 1 << 13 # Cycle which is skipped during odd frames
 
+F_FETCH_NT  = 1 <<  14 # Cycle where nametable byte is fetched
+F_FETCH_AT  = 1 <<  15 # Cycle where attribute byte is fetched
+F_FETCH_BGL = 1 <<  16 # Cycle where low background byte is fetched
+F_FETCH_BGH = 1 <<  17 # Cycle where high background byte is fetched
+F_GB_FETCH  = 1 <<  18 # Cycle whete the fetch is unused (garbage fetch)
+F_COPY_BG   = 1 <<  19
+
 # Tables containing flags for all cycles/scanlines
 cycleFlagsTable = (0 for [0..340])
 scanlineFlagsTable = (0 for [-1..261])
+
+cycleFlagsTable[i]    |= F_COPY_BG for i in [9..340] when (i & 0x7) is 1 and ((i < 258) or i in [ 329, 337 ])
+scanlineFlagsTable[i] |= F_COPY_BG for i in [0..261] when not (239 < i < 261)
+
+cycleFlagsTable[i]    |= F_FETCH_NT for i in [1..340] when (i & 0x7) is 1 or i is 339
+scanlineFlagsTable[i] |= F_FETCH_NT for i in [0..261] when not (239 < i < 261)
+
+cycleFlagsTable[i]    |= F_FETCH_AT for i in [1..340] when (i & 0x7) is 3
+scanlineFlagsTable[i] |= F_FETCH_AT for i in [0..261] when not (239 < i < 261)
+
+cycleFlagsTable[i]    |= F_FETCH_BGL for i in [1..340] when (i & 0x7) is 5 and not (257 < i < 321)
+scanlineFlagsTable[i] |= F_FETCH_BGL for i in [0..261] when not (239 < i < 261)
+
+cycleFlagsTable[i]    |= F_FETCH_BGH for i in [1..340] when (i & 0x7) is 7 and not (257 < i < 321)
+scanlineFlagsTable[i] |= F_FETCH_BGH for i in [0..261] when not (239 < i < 261)
+
+cycleFlagsTable[i]    |= F_GB_FETCH for i in [251..340] when not (256 < i < 337)
+scanlineFlagsTable[i] |= F_GB_FETCH for i in [0..261] when not (239 < i < 261)
+
 
 cycleFlagsTable[i]    |= F_RENDER for i in [1..256]
 scanlineFlagsTable[i] |= F_RENDER for i in [0..239]
@@ -109,6 +135,10 @@ class PPU
         @patternBuffer1 = 0 # 16-bit pattern (bit 1) shift buffer
         @paletteBuffer0 = 0 #  8-bit palette (bit 0) shift buffer
         @paletteBuffer1 = 0 #  8-bit palette (bit 1) shift buffer
+        @patternBufferNext0 = 0
+        @patternBufferNext1 = 0
+        @paletteLatchNext0 = 0
+        @paletteLatchNext1 = 0
         @paletteLatch0 = 0  #  1-bit palette (bit 0) latch register
         @paletteLatch1 = 0  #  1-bit palette (bit 1) latch register
 
@@ -432,13 +462,24 @@ class PPU
     ###########################################################
 
     tick: ->
-        @$fetchBackgroundData()    if @cycleFlags & F_FETCH_BG
+        @$fetchData()
         @$fetchSpriteData()        if @cycleFlags & F_FETCH_SP
+        @$copyBackgroundBuffers()  if @cycleFlags & F_COPY_BG
         @$updateFramePixel()       if @cycleFlags & F_RENDER
         @$shiftBackgroundBuffers() if @cycleFlags & F_SHIFT_BG
         @$updateScrolling()        if @$isRenderingEnabled()
         @$updateVBlank()
         @$incrementCycle()
+
+    fetchData: ->
+        if @cycleFlags & F_FETCH_NT
+            @$fetchNametable()
+        else if @cycleFlags & F_FETCH_AT
+            @$fetchAttribute()
+        else if @cycleFlags & F_FETCH_BGL
+            @$fetchBackgroundLow()
+        else if @cycleFlags & F_FETCH_BGH
+            @$fetchBackgroundHigh()
 
     isRenderingActive: ->
         not @vblankActive and @$isRenderingEnabled()
@@ -517,25 +558,36 @@ class PPU
     isBackgroundPixelInvisible: ->
         not @backgroundVisible or @backgroundClipping and (@cycleFlags & F_CLIP_LEFT)
 
-    fetchBackgroundData: ->
-        @$fetchPalette()
-        @$fetchPattern()
-
-    fetchPalette: ->
-        attributeTableAddress = 0x23C0 | @vramAddress & 0x0C00
-        attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
-        attribute = @ppuMemory.read attributeTableAddress + attributeNumber
-        areaNumber = (@vramAddress >>> 4) & 0x04 | @vramAddress & 0x02
-        paletteNumber = (attribute >>> areaNumber) & 0x03
-        @paletteLatch0 = paletteNumber & 1
-        @paletteLatch1 = (paletteNumber >>> 1) & 1
-
-    fetchPattern: ->
-        patternNumer = @ppuMemory.read 0x2000 | @vramAddress & 0x0FFF
+    fetchNametable: ->
+        @addressBus = 0x2000 | @vramAddress & 0x0FFF
+        patternNumer = @ppuMemory.read @addressBus # Nametable byte fetch
         patternAddress = @bgPatternTableAddress + (patternNumer << 4)
         fineYScroll = (@vramAddress >>> 12) & 0x07
-        @patternBuffer0 |= @ppuMemory.read patternAddress + fineYScroll
-        @patternBuffer1 |= @ppuMemory.read patternAddress + fineYScroll + 8
+        @patternRowAddress = patternAddress + fineYScroll
+
+    fetchAttribute: ->
+        attributeTableAddress = 0x23C0 | @vramAddress & 0x0C00
+        attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
+        @addressBus = attributeTableAddress + attributeNumber
+        attribute = @ppuMemory.read @addressBus # Attribute byte fetch
+        areaNumber = (@vramAddress >>> 4) & 0x04 | @vramAddress & 0x02
+        paletteNumber = (attribute >>> areaNumber) & 0x03
+        @paletteLatchNext0 = paletteNumber & 1
+        @paletteLatchNext1 = (paletteNumber >>> 1) & 1
+
+    fetchBackgroundLow: ->
+        @addressBus = @patternRowAddress
+        @patternBufferNext0 = @ppuMemory.read @addressBus # Low background byte fetch
+
+    fetchBackgroundHigh: ->
+        @addressBus = @patternRowAddress + 8
+        @patternBufferNext1 = @ppuMemory.read @addressBus # High background byte fetch
+
+    copyBackgroundBuffers: ->
+        @patternBuffer0 |= @patternBufferNext0
+        @patternBuffer1 |= @patternBufferNext1
+        @paletteLatch0 = @paletteLatchNext0
+        @paletteLatch1 = @paletteLatchNext1
 
     shiftBackgroundBuffers: ->
         @patternBuffer0 = (@patternBuffer0 << 1)

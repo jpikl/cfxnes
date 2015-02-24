@@ -117,12 +117,12 @@ class MMC3 extends AbstractMapper
         @ppu.bgPatternTableAddress != @ppu.spPatternTableAddress # A12 must change from 0 to 1
 
     updateScanlineCounter: ->
-        generateIRQ = not @irqReload and @irqCounter is 1
-        if @irqCounter is 0 or @irqReload
+        irqCounterOld = @irqCounter
+        if not @irqCounter or @irqReload
             @irqCounter = @irqLatch
             @irqReload = false
         else
             @irqCounter--
-        generateIRQ and @irqEnabled
+        irqCounterOld and not @irqCounter and @irqEnabled
 
 module.exports = MMC3
