@@ -92,6 +92,20 @@ scanlineFlagsTable[261] |= F_VB_END
 cycleFlagsTable[338]    |= F_SKIP
 scanlineFlagsTable[261] |= F_SKIP
 
+class Sprite
+
+    constructor: ->
+        @address = 0
+        @height = 0
+        @rowNumber = 0
+        @x = 0
+        @horizontalFlip = false
+        @paletteNumber = 0
+        @inFront = false
+        @zeroSprite = false
+        @patternRow0 = 0
+        @patternRow1 = 0
+
 ###########################################################
 # Picture processing unit
 ###########################################################
@@ -118,7 +132,9 @@ class PPU
 
     resetOAM: ->
         @primaryOAM = (0 for [0..0x100])  # 256B
-        @secondaryOAM = []
+        @secondaryOAM = (new Sprite for [0..7])
+        @spriteCount = 0
+        @spriteNumber = 0
 
     resetRegisters: ->
         @setControl 0       #  8-bit PPUCTRL register
@@ -619,40 +635,42 @@ class PPU
         return 0 if @$isSpritePixelInvisible()
         rightX = @cycle - 1
         leftX = rightX - 8
-        for sprite in @secondaryOAM when leftX <= sprite.x <= rightX
-            columnNumber = rightX - sprite.x
-            columnNumber ^= 0x07 if not sprite.horizontalFlip
-            colorBit0 = ((sprite.patternRow0 >>> columnNumber) & 1)
-            colorBit1 = ((sprite.patternRow1 >>> columnNumber) & 1) << 1
-            colorNumber = colorBit1 | colorBit0
-            if colorNumber
-                @renderedSprite = sprite
-                return sprite.paletteNumber | colorNumber
+        for spriteNumber in [0...@spriteCount]
+            sprite = @secondaryOAM[spriteNumber]
+            if leftX <= sprite.x <= rightX
+                columnNumber = rightX - sprite.x
+                columnNumber ^= 0x07 if not sprite.horizontalFlip
+                colorBit0 = ((sprite.patternRow0 >>> columnNumber) & 1)
+                colorBit1 = ((sprite.patternRow1 >>> columnNumber) & 1) << 1
+                colorNumber = colorBit1 | colorBit0
+                if colorNumber
+                    @renderedSprite = sprite
+                    return sprite.paletteNumber | colorNumber
         return 0
 
     isSpritePixelInvisible: ->
         not @spritesVisible or @spriteClipping and (@cycleFlags & F_CLIP_LEFT)
 
     evaluateSprites: ->
-        @secondaryOAM = []
         @spriteNumber = 0
+        @spriteCount = 0
         @spriteScalineOverflow = 0
-        spriteHeight = if @bigSprites then 16 else 8
+        height = if @bigSprites then 16 else 8
         bottomY = @scanline
-        topY = Math.max 0, bottomY - spriteHeight
+        topY = Math.max 0, bottomY - height
         for spriteY, address in @primaryOAM by 4 when topY < spriteY <= bottomY
-            @secondaryOAM.push
-                address: address
-                height: spriteHeight
-                rowNumber: bottomY - spriteY
-            if @secondaryOAM.length is 8
+            sprite = @secondaryOAM[@spriteCount++]
+            sprite.address = address
+            sprite.height = height
+            sprite.rowNumber = bottomY - spriteY
+            if @spriteCount is 8
                 @spriteScalineOverflow = 1
                 break
         undefined
 
     fetchSpriteLow: ->
-        @sprite = @secondaryOAM[@spriteNumber]
-        if @sprite
+        if @spriteNumber < @spriteCount
+            @sprite = @secondaryOAM[@spriteNumber]
             address = @sprite.address
             patternNumber = @primaryOAM[address + 1]
             patternTableAddress = @spPatternTableAddress
@@ -674,10 +692,12 @@ class PPU
             @sprite.inFront = (attributes & 0x20) is 0
             @sprite.zeroSprite = address is 0
             @sprite.patternRow0 = @ppuMemory.read @addressBus
+        else
+            @sprite = null
 
     fetchSpriteHigh: ->
-        @addressBus += 8
         if @sprite
+            @addressBus += 8
             @sprite.patternRow1 = @ppuMemory.read @addressBus
             @spriteNumber++
 
