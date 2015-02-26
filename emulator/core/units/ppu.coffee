@@ -6,34 +6,33 @@ FRAME_BUFFER_WIDTH  = require("../common/constants").VIDEO_WIDTH
 FRAME_BUFFER_HEIGHT = require("../common/constants").VIDEO_HEIGHT
 
 # Cycle/scanlines flags
-F_RENDER    = 1 <<  0 # Rendering cycle
-F_FETCH_BG  = 1 <<  1 # Cycle where background data are fetched
-F_FETCH_SP  = 1 <<  2 # Cycle where sprite data are fetched
-F_SHIFT_BG  = 1 <<  3 # Cycle where background buffers are shifted
-F_CLIP_LEFT = 1 <<  4 # Cycle where 8 left pixels are clipped
-F_CLIP_NTSC = 1 <<  5 # Cycle where 8 top/bottom pixels are clipped
-F_INC_CX    = 1 <<  6 # Cycle where coarse X scroll is incremented
-F_INC_FY    = 1 <<  7 # Cycle where fine Y scroll is incremented
-F_COPY_HS   = 1 <<  8 # Cycle where horizontal scroll bits are copied
-F_COPY_VS   = 1 <<  9 # Cycle where vertical scroll bits are copied
-F_VB_START  = 1 << 10 # Cycle where VBlank starts
-F_VB_START2 = 1 << 11 # Cycle where VBlank starts and the 2 following cycles
-F_VB_END    = 1 << 12 # Cycle where VBlank ends
-F_SKIP      = 1 << 13 # Cycle which is skipped during odd frames
-
-F_FETCH_NT  = 1 <<  14 # Cycle where nametable byte is fetched
-F_FETCH_AT  = 1 <<  15 # Cycle where attribute byte is fetched
-F_FETCH_BGL = 1 <<  16 # Cycle where low background byte is fetched
-F_FETCH_BGH = 1 <<  17 # Cycle where high background byte is fetched
-F_GB_FETCH  = 1 <<  18 # Cycle whete the fetch is unused (garbage fetch)
-F_COPY_BG   = 1 <<  19
+F_RENDER    = 1 <<  1 # Rendering cycle
+F_FETCH_NT  = 1 <<  2 # Cycle where nametable byte is fetched
+F_FETCH_AT  = 1 <<  3 # Cycle where attribute byte is fetched
+F_FETCH_BGL = 1 <<  4 # Cycle where low background byte is fetched
+F_FETCH_BGH = 1 <<  5 # Cycle where high background byte is fetched
+F_FETCH_SPL = 1 <<  6 # Cycle where low sprite byte is fetched
+F_FETCH_SPH = 1 <<  7 # Cycle where high sprite byte is fetched
+F_COPY_BG   = 1 <<  8 # Cycle where background buffers are copied
+F_SHIFT_BG  = 1 <<  9 # Cycle where background buffers are shifted
+F_EVAL_SP   = 1 << 10 # Cycle where sprites for next line are being evaluated
+F_CLIP_LEFT = 1 << 11 # Cycle where 8 left pixels are clipped
+F_CLIP_NTSC = 1 << 12 # Cycle where 8 top/bottom pixels are clipped
+F_INC_CX    = 1 << 13 # Cycle where coarse X scroll is incremented
+F_INC_FY    = 1 << 14 # Cycle where fine Y scroll is incremented
+F_COPY_HS   = 1 << 15 # Cycle where horizontal scroll bits are copied
+F_COPY_VS   = 1 << 16 # Cycle where vertical scroll bits are copied
+F_VB_START  = 1 << 17 # Cycle where VBlank starts
+F_VB_START2 = 1 << 18 # Cycle where VBlank starts and the 2 following cycles
+F_VB_END    = 1 << 19 # Cycle where VBlank ends
+F_SKIP      = 1 << 20 # Cycle which is skipped during odd frames
 
 # Tables containing flags for all cycles/scanlines
 cycleFlagsTable = (0 for [0..340])
 scanlineFlagsTable = (0 for [-1..261])
 
-cycleFlagsTable[i]    |= F_COPY_BG for i in [9..340] when (i & 0x7) is 1 and ((i < 258) or i in [ 329, 337 ])
-scanlineFlagsTable[i] |= F_COPY_BG for i in [0..261] when not (239 < i < 261)
+cycleFlagsTable[i]    |= F_RENDER for i in [1..256]
+scanlineFlagsTable[i] |= F_RENDER for i in [0..239]
 
 cycleFlagsTable[i]    |= F_FETCH_NT for i in [1..340] when (i & 0x7) is 1 or i is 339
 scanlineFlagsTable[i] |= F_FETCH_NT for i in [0..261] when not (239 < i < 261)
@@ -47,21 +46,21 @@ scanlineFlagsTable[i] |= F_FETCH_BGL for i in [0..261] when not (239 < i < 261)
 cycleFlagsTable[i]    |= F_FETCH_BGH for i in [1..340] when (i & 0x7) is 7 and not (257 < i < 321)
 scanlineFlagsTable[i] |= F_FETCH_BGH for i in [0..261] when not (239 < i < 261)
 
-cycleFlagsTable[i]    |= F_GB_FETCH for i in [251..340] when not (256 < i < 337)
-scanlineFlagsTable[i] |= F_GB_FETCH for i in [0..261] when not (239 < i < 261)
+cycleFlagsTable[i]    |= F_FETCH_SPL for i in [257..320] when (i & 0x7) is 5
+scanlineFlagsTable[i] |= F_FETCH_SPL for i in [0..261] when not (239 < i < 261)
 
+cycleFlagsTable[i]    |= F_FETCH_SPH for i in [257..320] when (i & 0x7) is 7
+scanlineFlagsTable[i] |= F_FETCH_SPH for i in [0..261] when not (239 < i < 261)
 
-cycleFlagsTable[i]    |= F_RENDER for i in [1..256]
-scanlineFlagsTable[i] |= F_RENDER for i in [0..239]
-
-cycleFlagsTable[i]    |= F_FETCH_BG for i in [8..336] when not (i & 0x7) and not (256 < i < 328)
-scanlineFlagsTable[i] |= F_FETCH_BG for i in [0..239]
-
-cycleFlagsTable[1]    |= F_FETCH_SP
-scanlineFlagsTable[i] |= F_FETCH_SP for i in [0..239]
+cycleFlagsTable[i]    |= F_COPY_BG for i in [9..340] when (i & 0x7) is 1 and ((i < 258) or i in [ 329, 337 ])
+scanlineFlagsTable[i] |= F_COPY_BG for i in [0..261] when not (239 < i < 261)
 
 cycleFlagsTable[i]    |= F_SHIFT_BG for i in [1..336] when not (256 < i < 321)
 scanlineFlagsTable[i] |= F_SHIFT_BG for i in [0..239]
+
+#cycleFlagsTable[65]   |= F_EVAL_SP
+cycleFlagsTable[257]  |= F_EVAL_SP
+scanlineFlagsTable[i] |= F_EVAL_SP for i in [0..261] when not (239 < i < 261)
 
 cycleFlagsTable[i]    |= F_CLIP_LEFT for i in [1..8]
 scanlineFlagsTable[i] |= F_CLIP_LEFT for i in [0..239]
@@ -462,12 +461,12 @@ class PPU
     ###########################################################
 
     tick: ->
+        @$evaluateSprites()  if @cycleFlags & F_EVAL_SP
         @$fetchData()
-        @$fetchSpriteData()        if @cycleFlags & F_FETCH_SP
-        @$copyBackgroundBuffers()  if @cycleFlags & F_COPY_BG
-        @$updateFramePixel()       if @cycleFlags & F_RENDER
-        @$shiftBackgroundBuffers() if @cycleFlags & F_SHIFT_BG
-        @$updateScrolling()        if @$isRenderingEnabled()
+        @$copyBackground()   if @cycleFlags & F_COPY_BG
+        @$updateFramePixel() if @cycleFlags & F_RENDER
+        @$shiftBackground()  if @cycleFlags & F_SHIFT_BG
+        @$updateScrolling()  if @$isRenderingEnabled()
         @$updateVBlank()
         @$incrementCycle()
 
@@ -480,6 +479,10 @@ class PPU
             @$fetchBackgroundLow()
         else if @cycleFlags & F_FETCH_BGH
             @$fetchBackgroundHigh()
+        else if @cycleFlags & F_FETCH_SPL
+            @$fetchSpriteLow()
+        else if @cycleFlags & F_FETCH_SPH
+            @$fetchSpriteHigh()
 
     isRenderingActive: ->
         not @vblankActive and @$isRenderingEnabled()
@@ -583,13 +586,13 @@ class PPU
         @addressBus = @patternRowAddress + 8
         @patternBufferNext1 = @ppuMemory.read @addressBus # High background byte fetch
 
-    copyBackgroundBuffers: ->
+    copyBackground: ->
         @patternBuffer0 |= @patternBufferNext0
         @patternBuffer1 |= @patternBufferNext1
         @paletteLatch0 = @paletteLatchNext0
         @paletteLatch1 = @paletteLatchNext1
 
-    shiftBackgroundBuffers: ->
+    shiftBackground: ->
         @patternBuffer0 = (@patternBuffer0 << 1)
         @patternBuffer1 = (@patternBuffer1 << 1)
         @paletteBuffer0 = (@paletteBuffer0 << 1) | @paletteLatch0
@@ -630,39 +633,53 @@ class PPU
     isSpritePixelInvisible: ->
         not @spritesVisible or @spriteClipping and (@cycleFlags & F_CLIP_LEFT)
 
-    fetchSpriteData: ->
+    evaluateSprites: ->
         @secondaryOAM = []
+        @spriteNumber = 0
         @spriteScalineOverflow = 0
         spriteHeight = if @bigSprites then 16 else 8
-        bottomY = @scanline - 1
+        bottomY = @scanline
         topY = Math.max 0, bottomY - spriteHeight
         for spriteY, address in @primaryOAM by 4 when topY < spriteY <= bottomY
-            @fetchSprite address, spriteHeight, bottomY - spriteY
+            @secondaryOAM.push
+                address: address
+                height: spriteHeight
+                rowNumber: bottomY - spriteY
             if @secondaryOAM.length is 8
                 @spriteScalineOverflow = 1
                 break
         undefined
 
-    fetchSprite: (address, height, rowNumber) ->
-        patternNumber = @primaryOAM[address + 1]
-        patternTableAddress = @spPatternTableAddress
-        if @bigSprites
-            patternTableAddress = (patternNumber & 1) << 12
-            patternNumber &= 0xFE
-        attributes = @primaryOAM[address + 2]
-        rowNumber = height - rowNumber - 1 if attributes & 0x80 # Vertical flip
-        if rowNumber >= 8
-            rowNumber -= 8
-            patternNumber++
-        patternAddress = patternTableAddress + (patternNumber << 4)
-        @secondaryOAM.push
-            x:              @primaryOAM[address + 3]
-            horizontalFlip: attributes & 0x40
-            paletteNumber:  0x10 | (attributes & 0x03) << 2
-            inFront:        (attributes & 0x20) is 0
-            zeroSprite:     address is 0
-            patternRow0:    @ppuMemory.read patternAddress + rowNumber
-            patternRow1:    @ppuMemory.read patternAddress + rowNumber + 8
+    fetchSpriteLow: ->
+        @sprite = @secondaryOAM[@spriteNumber]
+        if @sprite
+            address = @sprite.address
+            patternNumber = @primaryOAM[address + 1]
+            patternTableAddress = @spPatternTableAddress
+            if @bigSprites
+                patternTableAddress = (patternNumber & 1) << 12
+                patternNumber &= 0xFE
+            attributes = @primaryOAM[address + 2]
+            rowNumber = @sprite.rowNumber
+            height = @sprite.height
+            rowNumber = height - rowNumber - 1 if attributes & 0x80 # Vertical flip
+            if rowNumber >= 8
+                rowNumber -= 8
+                patternNumber++
+            patternAddress = patternTableAddress + (patternNumber << 4)
+            @addressBus = patternAddress + rowNumber
+            @sprite.x = @primaryOAM[address + 3]
+            @sprite.horizontalFlip = attributes & 0x40
+            @sprite.paletteNumber = 0x10 | (attributes & 0x03) << 2
+            @sprite.inFront = (attributes & 0x20) is 0
+            @sprite.zeroSprite = address is 0
+            @sprite.patternRow0 = @ppuMemory.read @addressBus
+
+    fetchSpriteHigh: ->
+        @addressBus += 8
+        if @sprite
+            @sprite.patternRow1 = @ppuMemory.read @addressBus
+            @spriteNumber++
 
     ###########################################################
     # Debug rendering
