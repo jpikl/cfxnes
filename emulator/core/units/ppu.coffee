@@ -29,7 +29,7 @@ F_SKIP      = 1 << 20 # Cycle which is skipped during odd frames
 
 # Tables containing flags for all cycles/scanlines
 cycleFlagsTable = (0 for [0..340])
-scanlineFlagsTable = (0 for [-1..261])
+scanlineFlagsTable = (0 for [0..261])
 
 cycleFlagsTable[i]    |= F_RENDER for i in [1..256]
 scanlineFlagsTable[i] |= F_RENDER for i in [0..239]
@@ -158,7 +158,7 @@ class PPU
         @paletteLatch1 = 0  #  1-bit palette (bit 1) latch register
 
     resetVariables: ->
-        @scanline = -1          # Total 262 scanlines (0..261)
+        @scanline = 261         # Total 262 scanlines (0..261)
         @cycle = 0              # Total 341 cycles per scanline (0..340)
         @cycleFlags = 0         # Flags for current cycle
         @renderedSprite = null  # Currently rendered sprite
