@@ -135,6 +135,8 @@ class PPU
         @secondaryOAM = (new Sprite for [0..7])
         @spriteCount = 0
         @spriteNumber = 0
+        @spriteScanline = (0 for [0..261])
+        @spriteScanlinePixels = (null for [0..261])
 
     resetRegisters: ->
         @setControl 0       #  8-bit PPUCTRL register
@@ -467,6 +469,7 @@ class PPU
         @cycle = 0
         @scanline++
         @incrementFrame() if @scanline > 261
+        @prerenderSprites() if 0 <= @scanline <= 239
 
     incrementFrame: ->
         @scanline = 0
@@ -516,7 +519,7 @@ class PPU
     renderFramePixel: ->
         @renderedSprite = null
         backgroundColor = @renderBackgroundPixel()
-        spriteColor = @renderSpritePixel()
+        spriteColor = @$renderSpritePixel()
         if (spriteColor & 0x03) and (backgroundColor & 0x03)
             @spriteZeroHit ||= @renderedSprite.zeroSprite                    # Both bagckground and sprite pixels are visible
             if @renderedSprite.inFront then spriteColor else backgroundColor # Choose target by rendering priority
@@ -631,22 +634,31 @@ class PPU
     #   C = color palette number
     # Byte 3 = x screen coordinate
 
-    renderSpritePixel: ->
-        return 0 if @$isSpritePixelInvisible()
-        rightX = @cycle - 1
-        leftX = rightX - 8
+    prerenderSprites: ->
+        for i in [0...@spriteScanline.length]
+            @spriteScanline[i] = null
+            @spriteScanlinePixels[i] = 0
         for spriteNumber in [0...@spriteCount]
             sprite = @secondaryOAM[spriteNumber]
-            if leftX <= sprite.x <= rightX
-                columnNumber = rightX - sprite.x
-                columnNumber ^= 0x07 if not sprite.horizontalFlip
+            for columnNumber in [0..7]
+                x = sprite.x + columnNumber + 1
+                break if x > FRAME_BUFFER_WIDTH
+                continue if x < 1 or @spriteScanline[x]
+                columnNumber ^= 0x07 unless sprite.horizontalFlip
                 colorBit0 = ((sprite.patternRow0 >>> columnNumber) & 1)
                 colorBit1 = ((sprite.patternRow1 >>> columnNumber) & 1) << 1
                 colorNumber = colorBit1 | colorBit0
                 if colorNumber
-                    @renderedSprite = sprite
-                    return sprite.paletteNumber | colorNumber
-        return 0
+                    @spriteScanlinePixels[x] = sprite.paletteNumber | colorNumber
+                    @spriteScanline[x] = sprite
+        undefined
+
+    renderSpritePixel: ->
+        if @$isSpritePixelInvisible()
+            0
+        else
+            @renderedSprite = @spriteScanline[@cycle]
+            @spriteScanlinePixels[@cycle]
 
     isSpritePixelInvisible: ->
         not @spritesVisible or @spriteClipping and (@cycleFlags & F_CLIP_LEFT)
