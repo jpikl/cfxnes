@@ -5,7 +5,10 @@ logger    = require("../utils/logger").get()
 FRAME_BUFFER_WIDTH  = require("../common/constants").VIDEO_WIDTH
 FRAME_BUFFER_HEIGHT = require("../common/constants").VIDEO_HEIGHT
 
-# Cycle/scanlines flags
+###########################################################
+# PPU cycle/scanlines flags
+###########################################################
+
 F_RENDER    = 1 <<  1 # Rendering cycle
 F_FETCH_NT  = 1 <<  2 # Cycle where nametable byte is fetched
 F_FETCH_AT  = 1 <<  3 # Cycle where attribute byte is fetched
@@ -27,7 +30,10 @@ F_VB_START2 = 1 << 18 # Cycle where VBlank starts and the 2 following cycles
 F_VB_END    = 1 << 19 # Cycle where VBlank ends
 F_SKIP      = 1 << 20 # Cycle which is skipped during odd frames
 
+###########################################################
 # Tables containing flags for all cycles/scanlines
+###########################################################
+
 cycleFlagsTable = (0 for [0..340])
 scanlineFlagsTable = (0 for [0..261])
 
@@ -58,8 +64,7 @@ scanlineFlagsTable[i] |= F_COPY_BG for i in [0..261] when not (239 < i < 261)
 cycleFlagsTable[i]    |= F_SHIFT_BG for i in [1..336] when not (256 < i < 321)
 scanlineFlagsTable[i] |= F_SHIFT_BG for i in [0..239]
 
-#cycleFlagsTable[65]   |= F_EVAL_SP
-cycleFlagsTable[257]  |= F_EVAL_SP
+cycleFlagsTable[65]   |= F_EVAL_SP
 scanlineFlagsTable[i] |= F_EVAL_SP for i in [0..261] when not (239 < i < 261)
 
 cycleFlagsTable[i]    |= F_CLIP_LEFT for i in [1..8]
@@ -92,19 +97,21 @@ scanlineFlagsTable[261] |= F_VB_END
 cycleFlagsTable[338]    |= F_SKIP
 scanlineFlagsTable[261] |= F_SKIP
 
+###########################################################
+# Sprite data for curently rendered scanline
+###########################################################
+
 class Sprite
 
     constructor: ->
-        @address = 0
-        @height = 0
-        @rowNumber = 0
-        @x = 0
-        @horizontalFlip = false
-        @paletteNumber = 0
-        @inFront = false
-        @zeroSprite = false
-        @patternRow0 = 0
-        @patternRow1 = 0
+        @x = 0                  # X position on scanline
+        @zeroSprite = false     # Whether this is a first sprite from OAM
+        @horizontalFlip = false # Whether is flipped horizontally
+        @paletteNumber = 0      # Palette number for rendering
+        @inFront = false        # Rendering priority
+        @patternRowAddress = 0  # Base address of sprite pattern row
+        @patternRow0 = 0        # Pattern row (bit 0)
+        @patternRow1 = 0        # Pattern row (bit 1)
 
 ###########################################################
 # Picture processing unit
@@ -118,7 +125,7 @@ class PPU
         @ppuMemory = ppuMemory
         @cpu = cpu
         @ntscMode = true
-        @colorEmphasis = 0
+        @colorEmphasis = 0 # Color palette BGR emphasis bits
 
     ###########################################################
     # Power-up state initialization
@@ -131,43 +138,43 @@ class PPU
         @resetVariables()
 
     resetOAM: ->
-        @primaryOAM = (0 for [0..0x100])  # 256B
-        @secondaryOAM = (new Sprite for [0..7])
-        @spriteCount = 0
-        @spriteNumber = 0
-        @spriteScanline = (0 for [0..261])
-        @spriteScanlinePixels = (null for [0..261])
+        @primaryOAM = (0 for [0...0x100])       # Sprite data - 256B (64 x 4B sprites)
+        @secondaryOAM = (new Sprite for [0..7]) # Sprite data for rendered scanline (up to 8 sprites)
 
     resetRegisters: ->
-        @setControl 0       #  8-bit PPUCTRL register
-        @setMask 0          #  8-bit PPUMASK register
-        @setStatus 0        #  8-bit PPUSTATUS register
-        @oamAddress = 0     # 15-bit OAMADDR register
-        @tempAddress = 0    # 15-bit 'Loopy T' register
-        @vramAddress = 0    # 15-bit 'Loopy V' register
-        @vramReadBuffer = 0 #  8-bit VRAM read buffer
-        @writeToogle = 0    #  1-bit 'Loopy W' register
-        @fineXScroll = 0    #  3-bit 'Loopy X' register
-        @patternBuffer0 = 0 # 16-bit pattern (bit 0) shift buffer
-        @patternBuffer1 = 0 # 16-bit pattern (bit 1) shift buffer
-        @paletteBuffer0 = 0 #  8-bit palette (bit 0) shift buffer
-        @paletteBuffer1 = 0 #  8-bit palette (bit 1) shift buffer
-        @patternBufferNext0 = 0
-        @patternBufferNext1 = 0
-        @paletteLatchNext0 = 0
-        @paletteLatchNext1 = 0
-        @paletteLatch0 = 0  #  1-bit palette (bit 0) latch register
-        @paletteLatch1 = 0  #  1-bit palette (bit 1) latch register
+        @setControl 0           #  8-bit PPUCTRL register
+        @setMask 0              #  8-bit PPUMASK register
+        @setStatus 0            #  8-bit PPUSTATUS register
+        @oamAddress = 0         # 15-bit OAMADDR register
+        @tempAddress = 0        # 15-bit 'Loopy T' register
+        @vramAddress = 0        # 15-bit 'Loopy V' register
+        @vramReadBuffer = 0     #  8-bit VRAM read buffer
+        @writeToogle = 0        #  1-bit 'Loopy W' register
+        @fineXScroll = 0        #  3-bit 'Loopy X' register
+        @patternBuffer0 = 0     # 16-bit pattern (bit 0) shift buffer
+        @patternBuffer1 = 0     # 16-bit pattern (bit 1) shift buffer
+        @paletteBuffer0 = 0     #  8-bit palette (bit 0) shift buffer
+        @paletteBuffer1 = 0     #  8-bit palette (bit 1) shift buffer
+        @paletteLatch0 = 0      #  1-bit palette (bit 0) latch register
+        @paletteLatch1 = 0      #  1-bit palette (bit 1) latch register
+        @patternBufferNext0 = 0 # Next value for pattern (bit 0) shift buffer
+        @patternBufferNext1 = 0 # Next value for pattern (bit 1) shift buffer
+        @paletteLatchNext0 = 0  # Next value for palette (bit 0) latch register
+        @paletteLatchNext1 = 0  # Next value for palette (bit 1) latch register
 
     resetVariables: ->
-        @scanline = 261         # Total 262 scanlines (0..261)
-        @cycle = 0              # Total 341 cycles per scanline (0..340)
-        @cycleFlags = 0         # Flags for current cycle
-        @renderedSprite = null  # Currently rendered sprite
+        @scanline = 261         # Current scanline - from total 262 scanlines (0..261)
+        @cycle = 0              # Current cycle - from total 341 cycles per scanline (0..340)
+        @cycleFlags = 0         # Flags for current cycle/scanline
         @suppressVBlank = false # Whether to suppress VBlank flag setting
         @supressNMI = false     # Whether to supress NMI generation
         @nmiDelay = 0           # Number of cycles after which NMI is generated
         @oddFrame = false       # Whether odd frame is being rendered
+        @renderedSprite = null  # Currently rendered sprite
+        @spriteCount = 0        # Total number of sprites on current scanline
+        @spriteNumber = 0       # Number of currently fetched sprite
+        @spriteCache = (0 for [0..261])         # Preprocesed sprite data for current scanline (cycle -> sprite rendered on that cycle)
+        @spritePixelCache = (null for [0..261]) # Prerendered sprite pixels for current scanline (cycle -> sprite pixel rendered on that cycle)
 
     ###########################################################
     # External configuration
@@ -254,14 +261,14 @@ class PPU
         value
 
     getStatus: ->
-        @spriteScalineOverflow << 5 | # S[5] Set when there is more than 8 sprites on current scanline
-        @spriteZeroHit         << 6 | # S[6] Set when a nonzero pixel of sprite 0 overlaps a nonzero background pixel
-        @vblankFlag            << 7   # S[7] Set at the start of the VBlank
+        @spriteOverflow << 5 | # S[5] Set when there is more than 8 sprites on current scanline
+        @spriteZeroHit  << 6 | # S[6] Set when a nonzero pixel of sprite 0 overlaps a nonzero background pixel
+        @vblankFlag     << 7   # S[7] Set at the start of the VBlank
 
     setStatus: (value) ->
-        @spriteScalineOverflow = (value >>> 5) & 1 # S[5]
-        @spriteZeroHit         = (value >>> 6) & 1 # S[6]
-        @vblankFlag            = (value >>> 7)     # S[7]
+        @spriteOverflow = (value >>> 5) & 1 # S[5]
+        @spriteZeroHit  = (value >>> 6) & 1 # S[6]
+        @vblankFlag     = (value >>> 7)     # S[7]
 
     ###########################################################
     # OAM access ($2003 - address / $2004 - data)
@@ -517,9 +524,8 @@ class PPU
             @setFramePixel @$readPalette colorAddress
 
     renderFramePixel: ->
-        @renderedSprite = null
         backgroundColor = @renderBackgroundPixel()
-        spriteColor = @$renderSpritePixel()
+        spriteColor = @renderSpritePixel()
         if (spriteColor & 0x03) and (backgroundColor & 0x03)
             @spriteZeroHit ||= @renderedSprite.zeroSprite                    # Both bagckground and sprite pixels are visible
             if @renderedSprite.inFront then spriteColor else backgroundColor # Choose target by rendering priority
@@ -569,17 +575,6 @@ class PPU
     #    Y = bit 1 of YYYYY
     #    X = bit 1 of XXXXX
 
-    renderBackgroundPixel: ->
-        return 0 if @$isBackgroundPixelInvisible()
-        colorBit0   = ((@patternBuffer0 << @fineXScroll) >> 15) & 0x1
-        colorBit1   = ((@patternBuffer1 << @fineXScroll) >> 14) & 0x2
-        paletteBit0 = ((@paletteBuffer0 << @fineXScroll) >>  5) & 0x4
-        paletteBit1 = ((@paletteBuffer1 << @fineXScroll) >>  4) & 0x8
-        return paletteBit1 | paletteBit0 | colorBit1 | colorBit0
-
-    isBackgroundPixelInvisible: ->
-        not @backgroundVisible or @backgroundClipping and (@cycleFlags & F_CLIP_LEFT)
-
     fetchNametable: ->
         @addressBus = 0x2000 | @vramAddress & 0x0FFF
         patternNumer = @ppuMemory.read @addressBus # Nametable byte fetch
@@ -617,6 +612,19 @@ class PPU
         @paletteBuffer0 = (@paletteBuffer0 << 1) | @paletteLatch0
         @paletteBuffer1 = (@paletteBuffer1 << 1) | @paletteLatch1
 
+    renderBackgroundPixel: ->
+        if @$isBackgroundPixelVisible()
+            colorBit0   = ((@patternBuffer0 << @fineXScroll) >> 15) & 0x1
+            colorBit1   = ((@patternBuffer1 << @fineXScroll) >> 14) & 0x2
+            paletteBit0 = ((@paletteBuffer0 << @fineXScroll) >>  5) & 0x4
+            paletteBit1 = ((@paletteBuffer1 << @fineXScroll) >>  4) & 0x8
+            paletteBit1 | paletteBit0 | colorBit1 | colorBit0
+        else
+            0
+
+    isBackgroundPixelVisible: ->
+        @backgroundVisible and not (@backgroundClipping and (@cycleFlags & F_CLIP_LEFT))
+
     ###########################################################
     # Sprite rendering
     ###########################################################
@@ -634,84 +642,79 @@ class PPU
     #   C = color palette number
     # Byte 3 = x screen coordinate
 
-    prerenderSprites: ->
-        for i in [0...@spriteScanline.length]
-            @spriteScanline[i] = null
-            @spriteScanlinePixels[i] = 0
-        for spriteNumber in [0...@spriteCount]
-            sprite = @secondaryOAM[spriteNumber]
-            for columnNumber in [0..7]
-                x = sprite.x + columnNumber + 1
-                break if x > FRAME_BUFFER_WIDTH
-                continue if x < 1 or @spriteScanline[x]
-                columnNumber ^= 0x07 unless sprite.horizontalFlip
-                colorBit0 = ((sprite.patternRow0 >>> columnNumber) & 1)
-                colorBit1 = ((sprite.patternRow1 >>> columnNumber) & 1) << 1
-                colorNumber = colorBit1 | colorBit0
-                if colorNumber
-                    @spriteScanlinePixels[x] = sprite.paletteNumber | colorNumber
-                    @spriteScanline[x] = sprite
-        undefined
-
-    renderSpritePixel: ->
-        if @$isSpritePixelInvisible()
-            0
-        else
-            @renderedSprite = @spriteScanline[@cycle]
-            @spriteScanlinePixels[@cycle]
-
-    isSpritePixelInvisible: ->
-        not @spritesVisible or @spriteClipping and (@cycleFlags & F_CLIP_LEFT)
-
     evaluateSprites: ->
         @spriteNumber = 0
         @spriteCount = 0
-        @spriteScalineOverflow = 0
+        @spriteOverflow = 0
         height = if @bigSprites then 16 else 8
         bottomY = @scanline
         topY = Math.max 0, bottomY - height
         for spriteY, address in @primaryOAM by 4 when topY < spriteY <= bottomY
+            patternTableAddress = @spPatternTableAddress
+            patternNumber = @primaryOAM[address + 1]
+            if @bigSprites
+                patternTableAddress = (patternNumber & 1) << 12
+                patternNumber &= 0xFE
+            attributes = @primaryOAM[address + 2]
+            rowNumber = bottomY - spriteY
+            rowNumber = height - rowNumber - 1 if attributes & 0x80 # Vertical flip
+            if rowNumber >= 8 # Overflow to next pattern
+                rowNumber -= 8
+                patternNumber++
+            patternAddress = patternTableAddress + (patternNumber << 4)
             sprite = @secondaryOAM[@spriteCount++]
-            sprite.address = address
-            sprite.height = height
-            sprite.rowNumber = bottomY - spriteY
+            sprite.x = @primaryOAM[address + 3]
+            sprite.zeroSprite = address is 0
+            sprite.horizontalFlip = attributes & 0x40
+            sprite.paletteNumber = 0x10 | (attributes & 0x03) << 2
+            sprite.inFront = (attributes & 0x20) is 0
+            sprite.patternRowAddress = patternAddress + rowNumber
             if @spriteCount is 8
-                @spriteScalineOverflow = 1
+                @spriteOverflow = 1
                 break
         undefined
 
     fetchSpriteLow: ->
         if @spriteNumber < @spriteCount
-            @sprite = @secondaryOAM[@spriteNumber]
-            address = @sprite.address
-            patternNumber = @primaryOAM[address + 1]
-            patternTableAddress = @spPatternTableAddress
-            if @bigSprites
-                patternTableAddress = (patternNumber & 1) << 12
-                patternNumber &= 0xFE
-            attributes = @primaryOAM[address + 2]
-            rowNumber = @sprite.rowNumber
-            height = @sprite.height
-            rowNumber = height - rowNumber - 1 if attributes & 0x80 # Vertical flip
-            if rowNumber >= 8
-                rowNumber -= 8
-                patternNumber++
-            patternAddress = patternTableAddress + (patternNumber << 4)
-            @addressBus = patternAddress + rowNumber
-            @sprite.x = @primaryOAM[address + 3]
-            @sprite.horizontalFlip = attributes & 0x40
-            @sprite.paletteNumber = 0x10 | (attributes & 0x03) << 2
-            @sprite.inFront = (attributes & 0x20) is 0
-            @sprite.zeroSprite = address is 0
-            @sprite.patternRow0 = @ppuMemory.read @addressBus
-        else
-            @sprite = null
+            sprite = @secondaryOAM[@spriteNumber]
+            @addressBus = sprite.patternRowAddress
+            sprite.patternRow0 = @ppuMemory.read @addressBus
 
     fetchSpriteHigh: ->
-        if @sprite
-            @addressBus += 8
-            @sprite.patternRow1 = @ppuMemory.read @addressBus
-            @spriteNumber++
+        if @spriteNumber < @spriteCount
+            sprite = @secondaryOAM[@spriteNumber++]
+            @addressBus = sprite.patternRowAddress + 8
+            sprite.patternRow1 = @ppuMemory.read @addressBus
+
+    prerenderSprites: ->
+        for i in [0...@spriteCache.length]
+            @spriteCache[i] = null
+            @spritePixelCache[i] = 0
+        for i in [0...@spriteCount]
+            sprite = @secondaryOAM[i]
+            for columnNumber in [0..7]
+                x = sprite.x + columnNumber + 1
+                break if x > FRAME_BUFFER_WIDTH
+                continue if x < 1 or @spriteCache[x]
+                columnNumber ^= 0x07 unless sprite.horizontalFlip
+                colorBit0 = ((sprite.patternRow0 >>> columnNumber) & 1)
+                colorBit1 = ((sprite.patternRow1 >>> columnNumber) & 1) << 1
+                colorNumber = colorBit1 | colorBit0
+                if colorNumber
+                    @spriteCache[x] = sprite
+                    @spritePixelCache[x] = sprite.paletteNumber | colorNumber
+        undefined
+
+    renderSpritePixel: ->
+        if @$isSpritePixelVisible()
+            @renderedSprite = @spriteCache[@cycle]
+            @spritePixelCache[@cycle]
+        else
+            @renderedSprite = null
+            0
+
+    isSpritePixelVisible: ->
+        @spritesVisible and not (@spriteClipping and (@cycleFlags & F_CLIP_LEFT))
 
     ###########################################################
     # Debug rendering
