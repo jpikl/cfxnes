@@ -53,6 +53,7 @@ class NES
         @cartridge = cartridge
         @mapper = @mapperFactory.createMapper cartridge
         @cpu.connectMapper @mapper
+        @ppu.connectMapper @mapper
         @cpuMemory.connectMapper @mapper
         @ppuMemory.connectMapper @mapper
         @updateTVSystem()

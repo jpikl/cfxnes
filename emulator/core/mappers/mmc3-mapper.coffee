@@ -39,6 +39,7 @@ class MMC3 extends AbstractMapper
         @irqCounter = 0 # IRQ counter value
         @irqEnabled = 0 # IRQ counter enable flag
         @irqReload = 0  # IRQ counter reload flag
+        @irqDelay = 0   # Delay befor checking whether to generate IRQ
 
     ###########################################################
     # Mapper writing
@@ -104,25 +105,23 @@ class MMC3 extends AbstractMapper
     # Scanline counter and IRQ generation
     ###########################################################
 
-    tick: ->
-        if @$isScanlineTick() and @updateScanlineCounter()
-            @cpu.activateInterrupt Interrupt.IRQ_EXT
 
-    isScanlineTick: ->
-        # Precise emulation would require watching changes of A12 ($1000) on the PPU bus.
-        # However we can use this simplification that would work for most games.
-        261 <= @ppu.cycle <= 263 and  # There is only one tick after dot 260 on each scanline (261, 262, 263, 261, etc.)
-        @ppu.scanline <= 240 and      # 240 rendering scanlines + 1 prerender scanline
-        @ppu.isRenderingEnabled() and # PPU must be enabled
-        @ppu.bgPatternTableAddress != @ppu.spPatternTableAddress # A12 must change from 0 to 1
+    tick: ->
+        if @irqDelay
+            @irqDelay--
+        else if @ppu.addressBus & 0x1000
+            @$updateScanlineCounter()
+        if @ppu.addressBus & 0x1000
+            @irqDelay = 7
 
     updateScanlineCounter: ->
         irqCounterOld = @irqCounter
         if not @irqCounter or @irqReload
             @irqCounter = @irqLatch
-            @irqReload = false
         else
             @irqCounter--
-        irqCounterOld and not @irqCounter and @irqEnabled
+        if (irqCounterOld or @irqReload) and not @irqCounter and @irqEnabled
+            @cpu.activateInterrupt Interrupt.IRQ_EXT
+        @irqReload = false
 
 module.exports = MMC3

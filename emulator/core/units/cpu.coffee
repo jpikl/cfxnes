@@ -211,7 +211,6 @@ class CPU
         @dma.tick() unless @apu.isBlockingDMA()
         @ppu.tick() for [1..3]
         @apu.tick()
-        @mapper.tick()
         undefined
 
     ###########################################################

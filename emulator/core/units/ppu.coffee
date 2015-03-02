@@ -213,7 +213,7 @@ class PPU
         @rgbaPalette = @rgbaPalettes[@colorEmphasis]
 
     ###########################################################
-    # Control register ($2000)
+    # Control register ($2000 - PPUCTRL)
     ###########################################################
 
     writeControl: (value) ->
@@ -232,7 +232,7 @@ class PPU
         @nmiEnabled            = (value >>> 7)          # C[7] Whether NMI is generated at the start of the VBlank
 
     ###########################################################
-    # Mask register ($2001)
+    # Mask register ($2001 - PPUMASK)
     ###########################################################
 
     writeMask: (value) ->
@@ -249,7 +249,7 @@ class PPU
         @colorEmphasis      =   (value >>> 5) & 7  #  M[5-7] Color palette BGR emphasis bits
 
     ###########################################################
-    # Status register ($2002)
+    # Status register ($2002 - PPUSTATUS)
     ###########################################################
 
     readStatus: ->
@@ -271,7 +271,7 @@ class PPU
         @vblankFlag     = (value >>> 7)     # S[7]
 
     ###########################################################
-    # OAM access ($2003 - address / $2004 - data)
+    # OAM access ($2003 - OAMADDR / $2004 - OAMDATA)
     ###########################################################
 
     writeOAMAddress: (address) ->
@@ -288,7 +288,7 @@ class PPU
         value
 
     ###########################################################
-    # VRAM access ($2006 - address / $2007 - data)
+    # VRAM access ($2006 - PPUADDR / $2007 - PPUDATA)
     ###########################################################
 
     writeAddress: (address) ->
@@ -349,7 +349,7 @@ class PPU
         @ppuMemory.write address, value
 
     ###########################################################
-    # Scrolling and scrolling register ($2005)
+    # Scrolling and scrolling register ($2005 - PPUSCROLL)
     ###########################################################
 
     # The position of currently rendered pattern and its pixel is stored in
@@ -469,10 +469,10 @@ class PPU
     incrementCycle: ->
         @cycle++ if (@cycleFlags & F_SKIP) and @oddFrame and @$isRenderingEnabled() # Skipped on odd frames
         @cycle++
-        @incementScanline() if @cycle > 340
+        @incrementScanline() if @cycle > 340
         @cycleFlags = cycleFlagsTable[@cycle] & scanlineFlagsTable[@scanline] # Update flags for new scanline/cycle
 
-    incementScanline: ->
+    incrementScanline: ->
         @cycle = 0
         @scanline++
         @incrementFrame() if @scanline > 261
@@ -487,14 +487,18 @@ class PPU
     ###########################################################
 
     tick: ->
-        @$evaluateSprites()  if @cycleFlags & F_EVAL_SP
-        @$fetchData()
-        @$copyBackground()   if @cycleFlags & F_COPY_BG
-        @$updateFramePixel() if @cycleFlags & F_RENDER
-        @$shiftBackground()  if @cycleFlags & F_SHIFT_BG
-        @$updateScrolling()  if @$isRenderingEnabled()
+        if @$isRenderingEnabled()
+            @$fetchData()
+            @$evaluateSprites()  if @cycleFlags & F_EVAL_SP
+            @$copyBackground()   if @cycleFlags & F_COPY_BG
+            @$updateFramePixel() if @cycleFlags & F_RENDER
+            @$shiftBackground()  if @cycleFlags & F_SHIFT_BG
+            @$updateScrolling()
+        else
+            @addressBus = @vramAddress
         @$updateVBlank()
         @$incrementCycle()
+        @mapper.tick()
 
     fetchData: ->
         if @cycleFlags & F_FETCH_NT
@@ -679,12 +683,16 @@ class PPU
             sprite = @secondaryOAM[@spriteNumber]
             @addressBus = sprite.patternRowAddress
             sprite.patternRow0 = @ppuMemory.read @addressBus
+        else
+            @addressBus = @spPatternTableAddress | 0xFF0 # Dummy fetch for tile $FF
 
     fetchSpriteHigh: ->
         if @spriteNumber < @spriteCount
             sprite = @secondaryOAM[@spriteNumber++]
             @addressBus = sprite.patternRowAddress + 8
             sprite.patternRow1 = @ppuMemory.read @addressBus
+        else
+            @addressBus = @spPatternTableAddress | 0xFF0 # Dummy fetch for tile $FF
 
     prerenderSprites: ->
         for i in [0...@spriteCache.length]
@@ -768,5 +776,12 @@ class PPU
         @frameBuffer[framePosition++] = @rgbaPalette[colorPosition++]
         @frameBuffer[framePosition++] = @rgbaPalette[colorPosition++]
         @frameBuffer[framePosition++] = @rgbaPalette[colorPosition++]
+
+    ###########################################################
+    # Mapper connection
+    ###########################################################
+
+    connectMapper: (mapper) ->
+        @mapper = mapper
 
 module.exports = PPU
