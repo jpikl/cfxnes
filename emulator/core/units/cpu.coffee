@@ -42,6 +42,7 @@ class CPU
         @emptyReadCycles = 0  # Number of dummy write cycles
         @emptyWriteCycles = 0 # Number of dummy read cycles
         @activeInterrupts = 0 # Bitmap of active interrupts (each type of interrupt has its own bit)
+        @halted = false       # Whether KIL opcode was readed
 
     resetMemory: ->
         @write address, 0xFF for address in [0...0x0800]
@@ -57,10 +58,12 @@ class CPU
     ###########################################################
 
     step: ->
-        if @dma.isBlockingCPU() or @apu.isBlockingCPU()
-            @tick() # CPU can't access memory (empty cycle)
+        blocked = @dma.isBlockingCPU() or @apu.isBlockingCPU()
+        if @activeInterrupts and not blocked
+            @resolveInterrupt()
+        if @halted or blocked
+            @tick() # Tick everything else
         else
-            @resolveInterrupt() if @activeInterrupts
             @executeOperation()
 
     ###########################################################
@@ -86,6 +89,7 @@ class CPU
         @tick() for [1..3]                               # 3 "dummy" writes, mentioned above
         @enterInterruptHandler 0xFFFC
         @clearInterrupt Interrupt.RESET
+        @halted = false
 
     handleNMI: ->
         @saveStateBeforeInterrupt()
@@ -111,7 +115,10 @@ class CPU
 
     executeOperation: ->
         operation = @$readOperation()
-        return @haltOperation() unless operation # CPU halt (KIL operation code)
+        unless operation
+            logger.info "CPU halted!"
+            @halted = true # CPU halt (KIL operation code)
+            return
 
         instruction = operation.instruction
         addressingMode = operation.addressingMode
@@ -126,9 +133,6 @@ class CPU
 
     readOperation: ->
         @operationsTable[@$readNextProgramByte()]
-
-    haltOperation: ->
-        @moveProgramCounter -1
 
     readNextProgramByte: ->
         @$readByte @$moveProgramCounter 1
