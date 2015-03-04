@@ -4,11 +4,14 @@
 
 format =
 
+    numberAsHex: (value) ->
+        (value.toString 16).toUpperCase()
+
     byteAsHex: (value) ->
-        hex = (value.toString 16).toUpperCase()
+        hex = format.numberAsHex value
         if hex.length == 1 then "0" + hex else hex
 
-    wordAsHex: (value, putSpace) ->
+    wordAsHex: (value) ->
         hex1 = format.byteAsHex value & 0xFF
         hex2 = format.byteAsHex value >>> 8
         hex2 + hex1
