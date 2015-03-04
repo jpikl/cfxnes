@@ -23,7 +23,7 @@ PRODUCTION_MODE    = yargs.argv.production?
 SERVER_PORT        = 5000
 EMULATOR_INLINING  = true
 DEPS_DIR           = "./bower_components"
-TEMP_DIR           = "./temp"
+BUILD_DIR          = "./build"
 EMULATOR_DIR       = "./emulator"
 CLIENT_DIR         = "./client"
 SERVER_DIR         = "./server"
@@ -63,13 +63,11 @@ minifyDstName = (path) ->
 
 gulp.task "default", [ "server", "browser" ]
 
+gulp.task "compile", [ "emulator-compile" ]
+
 gulp.task "test", [ "emulator-test" ]
 
-gulp.task "clean", [ "clean-temp" ], (callback) ->
-    del [ PUBLIC_DIR ], callback
-
-gulp.task "clean-temp", (callback) ->
-    del [ TEMP_DIR ], callback
+gulp.task "clean", [ "emulator-clean" ]
 
 ###########################################################
 # Emulator tasks
@@ -97,18 +95,21 @@ gulp.task "emulator", ->
         .pipe gulp.dest PUBLIC_SCRIPTS_DIR
         .on "error", gutil.log
 
-gulp.task "emulator-test", [ "emulator-test-init" ], ->
-    gulp.src "#{TEMP_DIR}/core/tests/*-test{,s}.js", read: false
+gulp.task "emulator-test", [ "emulator-compile" ], ->
+    gulp.src "#{BUILD_DIR}/core/tests/*-test{,s}.js", read: false
         .pipe mocha
             timeout: 60000 # 60 s
 
-gulp.task "emulator-test-init", [ "clean-temp" ], ->
+gulp.task "emulator-compile", [ "emulator-clean" ], ->
     gulp.src "#{EMULATOR_DIR}/**/*.coffee"
         .pipe coffee
             bare: true
             inline: EMULATOR_INLINING
-        .pipe gulp.dest TEMP_DIR
+        .pipe gulp.dest BUILD_DIR
         .on "error", gutil.log
+
+gulp.task "emulator-clean", (callback) ->
+    del [ BUILD_DIR ], callback
 
 ###########################################################
 # Client tasks
