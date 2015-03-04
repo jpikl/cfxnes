@@ -333,13 +333,13 @@ class PPU
             @ppuMemory.read address
 
     readPalette: (address) ->
-        value = @ppuMemory.read @$fixColorAddress address
+        value = @ppuMemory.read @$fixPaletteAddress address
         if @monochromeMode then value & 0x30 else value
 
     isPaletteAddress: (address) ->
         (address & 0x3F00) == 0x3F00
 
-    fixColorAddress: (address) ->
+    fixPaletteAddress: (address) ->
         if @$shouldUseBackdropColor address then 0x3F00 else address
 
     shouldUseBackdropColor: (address) ->
@@ -662,7 +662,7 @@ class PPU
             attributes = @primaryOAM[address + 2]
             rowNumber = bottomY - spriteY
             rowNumber = height - rowNumber - 1 if attributes & 0x80 # Vertical flip
-            if rowNumber >= 8 # Overflow to next pattern
+            if rowNumber >= 8 # Overflow to next (bottom) pattern
                 rowNumber -= 8
                 patternNumber++
             patternAddress = patternTableAddress + (patternNumber << 4)
@@ -684,7 +684,7 @@ class PPU
             @addressBus = sprite.patternRowAddress
             sprite.patternRow0 = @ppuMemory.read @addressBus
         else
-            @addressBus = @spPatternTableAddress | 0xFF0 # Dummy fetch for tile $FF
+            @addressBus = @spPatternTableAddress | 0x0FF0 # Dummy fetch for tile $FF
 
     fetchSpriteHigh: ->
         if @spriteNumber < @spriteCount
@@ -692,7 +692,7 @@ class PPU
             @addressBus = sprite.patternRowAddress + 8
             sprite.patternRow1 = @ppuMemory.read @addressBus
         else
-            @addressBus = @spPatternTableAddress | 0xFF0 # Dummy fetch for tile $FF
+            @addressBus = @spPatternTableAddress | 0x0FF0 # Dummy fetch for tile $FF
 
     prerenderSprites: ->
         for i in [0...@spriteCache.length]

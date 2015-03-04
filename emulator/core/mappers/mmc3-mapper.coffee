@@ -22,6 +22,7 @@ class MMC3 extends AbstractMapper
     init: (cartridge) ->
         super cartridge
         @hasPRGRAM = true
+        @alternateMode = false
 
     reset: ->
         @resetMapping()
@@ -35,11 +36,11 @@ class MMC3 extends AbstractMapper
 
     resetRegisters: ->
         @command = 0    # Bank command
-        @irqLatch = 0   # Initial IRQ counter value
         @irqCounter = 0 # IRQ counter value
-        @irqEnabled = 0 # IRQ counter enable flag
+        @irqLatch = 0   # IRQ counter reload value
         @irqReload = 0  # IRQ counter reload flag
-        @irqDelay = 0   # Delay befor checking whether to generate IRQ
+        @irqEnabled = 0 # IRQ counter enable flag
+        @irqDelay = 0   # Delay befor checking A12 rising edge
 
     ###########################################################
     # Mapper writing
@@ -47,14 +48,14 @@ class MMC3 extends AbstractMapper
 
     write: (address, value) ->
         switch address & 0xE001
-            when 0x8000 then @command = value         # $8000-$9FFE (100X), even
-            when 0x8001 then @writeBankSelect value   # $8001-$9FFF (100X), odd
-            when 0xA000 then @writeMirroring value    # $A000-$BFFE (101X), even
-            when 0xA001 then @writePRGRAMEnable value # $A001-$BFFF (101X), odd
-            when 0xC000 then @irqLatch = value        # $C000-$DFFE (110X), even
-            when 0xC001 then @irqReload = true        # $C001-$DFFF (110X), odd
-            when 0xE000 then @setIRQEnabled false     # $E000-$FFFE (111X), even
-            when 0xE001 then @setIRQEnabled true      # $E001-$FFFF (111X), odd
+            when 0x8000 then @command = value         # $8000-$9FFE (100X), even address
+            when 0x8001 then @writeBankSelect value   # $8001-$9FFF (100X), odd  address
+            when 0xA000 then @writeMirroring value    # $A000-$BFFE (101X), even address
+            when 0xA001 then @writePRGRAMEnable value # $A001-$BFFF (101X), odd  address
+            when 0xC000 then @irqLatch = value        # $C000-$DFFE (110X), even address
+            when 0xC001 then @writeIRQReload()        # $C001-$DFFF (110X), odd  address
+            when 0xE000 then @writeIRQEnable false    # $E000-$FFFE (111X), even address
+            when 0xE001 then @writeIRQEnable true     # $E001-$FFFF (111X), odd  address
 
     writeBankSelect: (value) ->
         switch @command & 7
@@ -70,7 +71,11 @@ class MMC3 extends AbstractMapper
     writePRGRAMEnable: (value) ->
         # TODO
 
-    setIRQEnabled: (enabled) ->
+    writeIRQReload: ->
+        @irqReload = true if @alternateMode
+        @irqCounter = 0
+
+    writeIRQEnable: (enabled) ->
         @irqEnabled = enabled
         @cpu.clearInterrupt Interrupt.IRQ_EXT unless enabled # Disabling IRQ clears IRQ flag
 
@@ -102,25 +107,44 @@ class MMC3 extends AbstractMapper
             @setVerticalMirroring()
 
     ###########################################################
-    # Scanline counter and IRQ generation
+    # IRQ generation
     ###########################################################
 
+    # Mapper watches changes on PPU address bus bit 12 (A12).
+    # Each time raising edge on A12 is detected, IRQ counter is updated.
+    # The rising edge is detected after A12 stays low for some time.
+    #
+    # A12  ____      _____  1
+    #          |    |
+    #          |____|       0
+    #
+    #               ^
+    #             rising
+    #              edge
+    #
+    # IRQ counter update:
+    # - When the counter reaches zero or reload flag is set, the counter is reloaded from latch.
+    #   Otherwise the counter value is decremented.
+    # - When the counter is reloaded the reload flag is also cleared.
+    #
+    # IRQ generation:
+    # - Normal behaviour    - checks whether IRQ is enabled and the counter is zero
+    # - Alternate behaviour - additionaly checks that the counter was set to zero either by decrementation or reload
 
     tick: ->
-        if @irqDelay
-            @irqDelay--
-        else if @ppu.addressBus & 0x1000
-            @$updateScanlineCounter()
         if @ppu.addressBus & 0x1000
+            @$updateIRQCounter() unless @irqDelay
             @irqDelay = 7
+        else if @irqDelay
+            @irqDelay--
 
-    updateScanlineCounter: ->
+    updateIRQCounter: ->
         irqCounterOld = @irqCounter
         if not @irqCounter or @irqReload
             @irqCounter = @irqLatch
         else
             @irqCounter--
-        if (irqCounterOld or @irqReload) and not @irqCounter and @irqEnabled
+        if @irqEnabled and not @irqCounter and  (not @alternateMode or not irqCounterOld or @irqReload)
             @cpu.activateInterrupt Interrupt.IRQ_EXT
         @irqReload = false
 
