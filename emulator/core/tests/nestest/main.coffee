@@ -1,6 +1,6 @@
 module.exports = (test) ->
-    BASIC_LOG_FILE    = "./temp/nestest.log"                              # This is what we will compare with the verified log
-    VERBOSE_LOG_FILE  = "./temp/nestest-full.log"                         # Contains more information for better debugging
+    BASIC_LOG_FILE    = "./build/nestest.log"                              # This is what we will compare with the verified log
+    VERBOSE_LOG_FILE  = "./build/nestest-full.log"                         # Contains more information for better debugging
     VERIFIED_LOG_FILE = "./emulator/core/tests/nestest/nintendulator.log" # Verified log from Nintendulator (modified to match structure of CFxNES log)
 
     test.openLog "debug-basic", BASIC_LOG_FILE
