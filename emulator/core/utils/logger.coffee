@@ -30,6 +30,11 @@ class Logger
         @writers.push writer
         this
 
+    detach: (writer) ->
+        if @writers
+            index = @writers.indexOf writer
+            @writers.splice index, 1 if index >= 0
+
     close: ->
         if @writers
             writer.close?() for writer in @writers
