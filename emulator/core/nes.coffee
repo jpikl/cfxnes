@@ -1,5 +1,6 @@
 Interrupt = require("./common/types").Interrupt
 TVSystem  = require("./common/types").TVSystem
+colors    = require "./utils/colors"
 
 ###########################################################
 # Nintendo Entertainment System
@@ -88,8 +89,8 @@ class NES
         @cpu.step() until @ppu.isFrameAvailable()
 
     renderEmptyFrame: (buffer) ->
-        for i in [0...buffer.length] by 4
-           buffer[i] = buffer[i + 1] = buffer[i + 2] = 0xFF * Math.random()
+        for i in [0...buffer.length]
+            buffer[i] = colors.pack 0xFF * Math.random()
         undefined
 
     ###########################################################
@@ -107,8 +108,7 @@ class NES
         @ppu.renderDebugFrame()
 
     renderEmptyDebugFrame: (buffer) ->
-        for i in [0...buffer.length] by 4
-           buffer[i] = buffer[i + 1] = buffer[i + 2] = 0
+        buffer[i] = colors.BLACK for i in [0...buffer.length]
         undefined
 
     ###########################################################

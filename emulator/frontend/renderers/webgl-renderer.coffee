@@ -1,4 +1,5 @@
 logger = require("../../core/utils/logger").get()
+colors = require "../../core/utils/colors"
 
 ###########################################################
 # Shaders
@@ -97,12 +98,14 @@ class WebGLRenderer
     createFrame: (x, y, width, height) ->
         width  = @roundUpToPowerOf2 width
         height = @roundUpToPowerOf2 height
-        width:     width
-        height:    height
-        data:      @createFrameData width, height
-        verticies: @createFrameVerticies x, y, width, height
-        coords:    @createFrameCoords()
-        texture:   @gl.createTexture()
+        {
+            width:     width
+            height:    height
+            data:      @createFrameData width, height
+            verticies: @createFrameVerticies x, y, width, height
+            coords:    @createFrameCoords()
+            texture:   @gl.createTexture()
+        }
 
     roundUpToPowerOf2: (number) ->
         result = 1
@@ -110,9 +113,9 @@ class WebGLRenderer
         result
 
     createFrameData: (width, height) ->
-        data = new Uint8Array width * height * 4
-        for i in [0...data.length]
-            data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
+        buffer = new ArrayBuffer width * height * 4
+        data = new Uint32Array buffer
+        data[i] = colors.BLACK for i in [0...data.length]
         data
 
     createFrameVerticies: (x, y, width, height) ->
@@ -150,11 +153,12 @@ class WebGLRenderer
 
     updateFrameTexture: (frame) ->
         filter = if @smoothing then @gl.LINEAR else @gl.NEAREST
+        data = new Uint8Array frame.data.buffer # We have to pass byte array to WebGL
         @gl.activeTexture @gl.TEXTURE0
         @gl.bindTexture @gl.TEXTURE_2D, frame.texture
         @gl.texParameteri @gl.TEXTURE_2D, @gl.TEXTURE_MAG_FILTER, filter
         @gl.texParameteri @gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, filter
-        @gl.texImage2D @gl.TEXTURE_2D, 0, @gl.RGBA, frame.width, frame.height, 0, @gl.RGBA, @gl.UNSIGNED_BYTE, frame.data
+        @gl.texImage2D @gl.TEXTURE_2D, 0, @gl.RGBA, frame.width, frame.height, 0, @gl.RGBA, @gl.UNSIGNED_BYTE, data
 
     updateShaderParameters: (frame) ->
         @gl.uniform1i @samplerUniform, 0

@@ -1,3 +1,5 @@
+colors = require "../../core/utils/colors"
+
 ###########################################################
 # Renderer using canvas API
 ###########################################################
@@ -16,15 +18,18 @@ class CanavsRenderer
     ###########################################################
 
     createFrame: (x, y, width, height) ->
-        frame = @context.createImageData width, height
-        frame.x = x
-        frame.y = y
-        for i in [0...frame.data.length]
-            frame.data[i] = if (i & 0x03) != 0x03 then 0x00 else 0xFF # RGBA = 000000FF
-        frame
+        imageData = @context.createImageData width, height
+        data = new Uint32Array imageData.data.buffer
+        data[i] = colors.BLACK for i in [0...data.length]
+        {
+            x: x
+            y: y
+            data: data
+            imageData: imageData
+        }
 
     drawFrame: (frame) ->
-        @context.putImageData frame, frame.x, frame.y
+        @context.putImageData frame.imageData, frame.x, frame.y
 
     ###########################################################
     # Begin / End

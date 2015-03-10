@@ -1,9 +1,10 @@
 Interrupt = require("../common/types").Interrupt
 logger    = require("../utils/logger").get()
+colors    = require "../utils/colors"
 
 # Frame size
-FRAME_BUFFER_WIDTH  = require("../common/constants").VIDEO_WIDTH
-FRAME_BUFFER_HEIGHT = require("../common/constants").VIDEO_HEIGHT
+VIDEO_WIDTH  = require("../common/constants").VIDEO_WIDTH
+VIDEO_HEIGHT = require("../common/constants").VIDEO_HEIGHT
 
 ###########################################################
 # PPU cycle/scanlines flags
@@ -183,31 +184,29 @@ class PPU
     setNTSCMode: (ntscMode) ->
         @ntscMode = ntscMode
 
-    setRGBAPalette: (rgbData) ->
-        @createRGBAPalettes rgbData
+    setRGBAPalette: (rgbPalette) ->
+        @createRGBAPalettes rgbPalette
         @updateRGBAPalette()
 
     ###########################################################
     # Palette generation
     ###########################################################
 
-    createRGBAPalettes: (rgbData) ->
-        # Emphasis bits: BGR
-        @rgbaPalettes = for colorEmphasis in [0..7]
+    createRGBAPalettes: (rgbPalette) ->
+        @rgbaPalettes = for colorEmphasis in [0..7]          # Emphasis bits: BGR
             rRatio = if colorEmphasis & 6 then 0.75 else 1.0 # Dim red when green or blue is emphasized
             gRatio = if colorEmphasis & 5 then 0.75 else 1.0 # Dim green when red or blue is emphasized
             bRatio = if colorEmphasis & 3 then 0.75 else 1.0 # Dim blue when red or green is emphasized
-            @createRGBAPalette rgbData, rRatio, gRatio, bRatio
+            @createRGBAPalette rgbPalette, rRatio, gRatio, bRatio
 
-    createRGBAPalette: (rgbData, rRatio, gRatio, bRatio) ->
-        palette = []          # Mapping of NES colors to RGBA colors
-        for rgb, i in rgbData # Eeach color from input is ecoded as one number 0xRRGGBB
-            colorStart = i << 2
-            palette[colorStart]     = Math.floor rRatio * ((rgb >>> 16) & 0xFF) # Red
-            palette[colorStart + 1] = Math.floor gRatio * ((rgb >>>  8) & 0xFF) # Green
-            palette[colorStart + 2] = Math.floor bRatio * ( rgb         & 0xFF) # Blue
-            palette[colorStart + 3] = 0xFF                                      # Alpha
-        palette
+    createRGBAPalette: (rgbPalette, rRatio, gRatio, bRatio) ->
+        rgbaPalette = new Array rgbPalette.length
+        for rgb, i in rgbPalette
+            r = Math.floor rRatio * ((rgb >>> 16) & 0xFF)
+            g = Math.floor gRatio * ((rgb >>>  8) & 0xFF)
+            b = Math.floor bRatio * ( rgb         & 0xFF)
+            rgbaPalette[i] = colors.pack r, g, b
+        rgbaPalette
 
     updateRGBAPalette: ->
         @rgbaPalette = @rgbaPalettes[@colorEmphasis]
@@ -421,21 +420,17 @@ class PPU
 
     isBrightFramePixel: (x, y) ->
         return false if y < @scanline - 5 or y >= @scanline # Screen luminance decreases in time
-        position = (y * FRAME_BUFFER_WIDTH + x) << 2
-        @frameBuffer[position++] > 0x12 or @frameBuffer[position++] > 0x12 or @frameBuffer[position] > 0x12
+        [ r, g, b ] = colors.unpack @frameBuffer[y * VIDEO_WIDTH + x]
+        r > 0x12 or g > 0x12 or b > 0x12
 
     setFramePixel: (color) ->
-        colorPosition = color << 2 # Each RGBA color is 4B.
-        @frameBuffer[@framePosition++] = @rgbaPalette[colorPosition++]
-        @frameBuffer[@framePosition++] = @rgbaPalette[colorPosition++]
-        @frameBuffer[@framePosition++] = @rgbaPalette[colorPosition]
-        @framePosition++ # Skip alpha because it was already set to 0xFF
+        @frameBuffer[@framePosition++] = @rgbaPalette[color]
+
+    setFramePixelOnPosition: (x, y, color) ->
+        @frameBuffer[y * VIDEO_WIDTH + x] = @rgbaPalette[color]
 
     clearFramePixel: ->
-        @frameBuffer[@framePosition++] = 0
-        @frameBuffer[@framePosition++] = 0
-        @frameBuffer[@framePosition++] = 0
-        @framePosition++ # Skip alpha because it was already set to 0xFF
+        @frameBuffer[@framePosition++] = colors.BLACK
 
     ###########################################################
     # VBlank detection / NMI generation
@@ -522,10 +517,10 @@ class PPU
 
     updateFramePixel: ->
         if @ntscMode and @cycleFlags & F_CLIP_NTSC # Clip top/bottom 8 scanlines in NTSC
-            @clearFramePixel()
+            @$clearFramePixel()
         else
             colorAddress = 0x3F00 | @renderFramePixel()
-            @setFramePixel @$readPalette colorAddress
+            @$setFramePixel @$readPalette colorAddress
 
     renderFramePixel: ->
         backgroundColor = @renderBackgroundPixel()
@@ -702,7 +697,7 @@ class PPU
             sprite = @secondaryOAM[i]
             for columnNumber in [0..7]
                 x = sprite.x + columnNumber + 1
-                break if x > FRAME_BUFFER_WIDTH
+                break if x > VIDEO_WIDTH
                 continue if x < 1 or @spriteCache[x]
                 columnNumber ^= 0x07 unless sprite.horizontalFlip
                 colorBit0 = ((sprite.patternRow0 >>> columnNumber) & 1)
@@ -769,13 +764,6 @@ class PPU
             for x in [baseX ... baseX + 32]
                 @setFramePixelOnPosition x, y, color
         undefined
-
-    setFramePixelOnPosition: (x, y, color) ->
-        colorPosition = color << 2
-        framePosition = ((y << 8) + x) << 2
-        @frameBuffer[framePosition++] = @rgbaPalette[colorPosition++]
-        @frameBuffer[framePosition++] = @rgbaPalette[colorPosition++]
-        @frameBuffer[framePosition++] = @rgbaPalette[colorPosition++]
 
     ###########################################################
     # Mapper connection
