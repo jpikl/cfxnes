@@ -332,13 +332,13 @@ class PPU
             @ppuMemory.read address
 
     readPalette: (address) ->
-        value = @ppuMemory.read @$fixColorAddress address
+        value = @ppuMemory.readPalette @$fixPaletteAddress address
         if @monochromeMode then value & 0x30 else value
 
     isPaletteAddress: (address) ->
         (address & 0x3F00) == 0x3F00
 
-    fixColorAddress: (address) ->
+    fixPaletteAddress: (address) ->
         if @$shouldUseBackdropColor address then 0x3F00 else address
 
     shouldUseBackdropColor: (address) ->
@@ -572,7 +572,7 @@ class PPU
 
     fetchNametable: ->
         @addressBus = 0x2000 | @vramAddress & 0x0FFF
-        patternNumer = @ppuMemory.read @addressBus # Nametable byte fetch
+        patternNumer = @ppuMemory.readNameAttr @addressBus # Nametable byte fetch
         patternAddress = @bgPatternTableAddress + (patternNumer << 4)
         fineYScroll = (@vramAddress >>> 12) & 0x07
         @patternRowAddress = patternAddress + fineYScroll
@@ -581,7 +581,7 @@ class PPU
         attributeTableAddress = 0x23C0 | @vramAddress & 0x0C00
         attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
         @addressBus = attributeTableAddress + attributeNumber
-        attribute = @ppuMemory.read @addressBus # Attribute byte fetch
+        attribute = @ppuMemory.readNameAttr @addressBus # Attribute byte fetch
         areaNumber = (@vramAddress >>> 4) & 0x04 | @vramAddress & 0x02
         paletteNumber = (attribute >>> areaNumber) & 0x03
         @paletteLatchNext0 = paletteNumber & 1
@@ -589,11 +589,11 @@ class PPU
 
     fetchBackgroundLow: ->
         @addressBus = @patternRowAddress
-        @patternBufferNext0 = @ppuMemory.read @addressBus # Low background byte fetch
+        @patternBufferNext0 = @ppuMemory.readPattern @addressBus # Low background byte fetch
 
     fetchBackgroundHigh: ->
         @addressBus = @patternRowAddress + 8
-        @patternBufferNext1 = @ppuMemory.read @addressBus # High background byte fetch
+        @patternBufferNext1 = @ppuMemory.readPattern @addressBus # High background byte fetch
 
     copyBackground: ->
         @patternBuffer0 |= @patternBufferNext0
@@ -673,13 +673,17 @@ class PPU
         if @spriteNumber < @spriteCount
             sprite = @secondaryOAM[@spriteNumber]
             @addressBus = sprite.patternRowAddress
-            sprite.patternRow0 = @ppuMemory.read @addressBus
+            sprite.patternRow0 = @ppuMemory.readPattern @addressBus
+        else
+            @addressBus = @spPatternTableAddress | 0x0FF0 # Dummy fetch for tile $FF
 
     fetchSpriteHigh: ->
         if @spriteNumber < @spriteCount
             sprite = @secondaryOAM[@spriteNumber++]
             @addressBus = sprite.patternRowAddress + 8
-            sprite.patternRow1 = @ppuMemory.read @addressBus
+            sprite.patternRow1 = @ppuMemory.readPattern @addressBus
+        else
+            @addressBus = @spPatternTableAddress | 0x0FF0 # Dummy fetch for tile $FF
 
     prerenderSprites: ->
         for i in [0...@spriteCache.length]
@@ -731,8 +735,8 @@ class PPU
     renderPatternTile: (baseX, baseY, address) ->
         for rowNumber in [0...8]
             y = baseY + rowNumber
-            patternBuffer0 = @ppuMemory.read address + rowNumber
-            patternBuffer1 = @ppuMemory.read address + rowNumber + 8
+            patternBuffer0 = @ppuMemory.readPattern address + rowNumber
+            patternBuffer1 = @ppuMemory.readPattern address + rowNumber + 8
             for columnNumber in [0...8]
                 x = baseX + columnNumber
                 bitPosition = columnNumber ^ 0x07

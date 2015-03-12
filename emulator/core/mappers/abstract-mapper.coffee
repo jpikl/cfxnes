@@ -136,7 +136,7 @@ class AbstractMapper
         srcBank = ratio * srcBank
         dstBank = ratio * dstBank
         maxBank = (@chrROMSize - 1) >> 10
-        @ppuMemory.mapCHRMemoryBank srcBank + i, (dstBank + i) & maxBank for i in [0...ratio]
+        @ppuMemory.mapPatternsBank srcBank + i, (dstBank + i) & maxBank for i in [0...ratio]
         undefined
 
     ###########################################################
@@ -176,7 +176,7 @@ class AbstractMapper
         srcBank = ratio * srcBank
         dstBank = ratio * dstBank
         maxBank = (@chrRAMSize - 1) >> 10
-        @ppuMemory.mapCHRMemoryBank srcBank + i, (dstBank + i) & maxBank for i in [0...ratio]
+        @ppuMemory.mapPatternsBank srcBank + i, (dstBank + i) & maxBank for i in [0...ratio]
         undefined
 
     printCHRRAMInfo: ->
