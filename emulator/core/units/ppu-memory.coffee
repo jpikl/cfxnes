@@ -22,45 +22,45 @@ class PPUMemory
 
     read: (address) ->
         address = @$mapAddress address
-        if      address < 0x2000 then @$readCHRMemory  address # $0000-$1FFF
-        else if address < 0x3F00 then @$readNamesAttrs address # $2000-$3EFF
-        else                          @$readPaletts    address # $3F00-$3FFF
+        if      address < 0x2000 then @$readPattern  address # $0000-$1FFF
+        else if address < 0x3F00 then @$readNameAttr address # $2000-$3EFF
+        else                          @$readPalette  address # $3F00-$3FFF
 
     write: (address, value) ->
         address = @$mapAddress address
-        if      address < 0x2000 then @$writeCHRMemory  address, value # $0000-$1FFF
-        else if address < 0x3F00 then @$writeNamesAttrs address, value # $2000-$3EFF
-        else                          @$writePaletts    address, value # $3F00-$3FFF
+        if      address < 0x2000 then @$writePattern  address, value # $0000-$1FFF
+        else if address < 0x3F00 then @$writeNameAttr address, value # $2000-$3EFF
+        else                          @$writePalette  address, value # $3F00-$3FFF
 
     mapAddress: (address) ->
         address & 0x3FFF # Mirroring of [$0000-$3FFF] in [$0000-$FFFF]
 
     ###########################################################
-    # CHR ROM/RAM access ($0000-$1FFF)
+    # Patterns access ($0000-$1FFF)
     ###########################################################
 
-    resetCHRMemory: (mapper) ->
+    resetPatterns: (mapper) ->
         if mapper.chrRAM
-            @chrMemory = mapper.chrRAM
-            @hasCHRRAM = true
+            @patterns = mapper.chrRAM
+            @canWritePattern = true
         else
-            @chrMemory = mapper.chrROM
-            @hasCHRRAM = false
+            @patterns = mapper.chrROM
+            @canWritePattern = false
         @chrMapping = []
 
-    readCHRMemory: (address) ->
-        @chrMemory[@mapCHRMemoryAddress address]
+    readPattern: (address) ->
+        @patterns[@mapPatternAddress address]
 
-    writeCHRMemory: (address, value) ->
-        if @hasCHRRAM
-            @chrMemory[@mapCHRMemoryAddress address] = value
+    writePattern: (address, value) ->
+        if @canWritePattern
+            @patterns[@mapPatternAddress address] = value
         else
             value # Read-only
 
-    mapCHRMemoryAddress: (address) ->
+    mapPatternAddress: (address) ->
         @chrMapping[address & 0x1C00] | address & 0x03FF
 
-    mapCHRMemoryBank: (srcBank, dstBank) ->
+    mapPatternsBank: (srcBank, dstBank) ->
         @chrMapping[srcBank * 0x0400] = dstBank * 0x0400 # 1K bank
 
     ###########################################################
@@ -74,13 +74,13 @@ class PPUMemory
     resetNamesAttrs: (mapper) ->
         @setNamesAttrsMirroring mapper.mirroring
 
-    readNamesAttrs: (address) ->
-        @namesAttrs[@mapNamesAttrsAddress address]
+    readNameAttr: (address) ->
+        @namesAttrs[@mapNameAttrAddres address]
 
-    writeNamesAttrs: (address, value) ->
-        @namesAttrs[@mapNamesAttrsAddress address] = value
+    writeNameAttr: (address, value) ->
+        @namesAttrs[@mapNameAttrAddres address] = value
 
-    mapNamesAttrsAddress: (address) ->
+    mapNameAttrAddres: (address) ->
         @namesAttrsMapping[address & 0x0C00] | address & 0x03FF
 
     mapNamesAttrsAreas: (area0, area1, area2, area3) ->
@@ -102,20 +102,20 @@ class PPUMemory
             else throw new Error "Undefined mirroring (#{mirroring})"
 
     ###########################################################
-    # Pallete access ($3F00-$3FFF)
+    # Palettes access ($3F00-$3FFF)
     ###########################################################
 
     createPaletts: ->
         @paletts = (0 for [0...0x20]) # 2 * 16B palette (background / sprites)
         undefined
 
-    readPaletts: (address) ->
-        @paletts[@$mapPalettsAddress address]
+    readPalette: (address) ->
+        @paletts[@$mapPaletteAddress address]
 
-    writePaletts: (address, value) ->
-        @paletts[@$mapPalettsAddress address] = value
+    writePalette: (address, value) ->
+        @paletts[@$mapPaletteAddress address] = value
 
-    mapPalettsAddress: (address) ->
+    mapPaletteAddress: (address) ->
         if address & 0x0003
             address & 0x001F # Mirroring of [$3F00-$3F1F] in [$3F00-$3FFF]
         else
@@ -126,7 +126,7 @@ class PPUMemory
     ###########################################################
 
     connectMapper: (mapper) ->
-        @resetCHRMemory mapper
+        @resetPatterns mapper
         @resetNamesAttrs mapper
 
 module.exports = PPUMemory

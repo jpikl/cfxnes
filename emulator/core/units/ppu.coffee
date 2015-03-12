@@ -171,7 +171,6 @@ class PPU
         @supressNMI = false     # Whether to supress NMI generation
         @nmiDelay = 0           # Number of cycles after which NMI is generated
         @oddFrame = false       # Whether odd frame is being rendered
-        @renderedSprite = null  # Currently rendered sprite
         @spriteCount = 0        # Total number of sprites on current scanline
         @spriteNumber = 0       # Number of currently fetched sprite
         @spriteCache = (0 for [0..261])         # Preprocesed sprite data for current scanline (cycle -> sprite rendered on that cycle)
@@ -304,12 +303,12 @@ class PPU
     readData: ->
         address = @$incrementAddress()
         oldBufferContent = @vramReadBuffer
-        @vramReadBuffer = @$read address                                         # Always increments the address
+        @vramReadBuffer = @ppuMemory.read address                                # Always increments the address
         if @$isPaletteAddress address then @vramReadBuffer else oldBufferContent # Delayed read outside the palette memory area
 
     writeData: (value) ->
         address = @$incrementAddress()                      # Always increments the address
-        @$write address, value unless @$isRenderingActive() # Only during VBlank or disabled rendering
+        @ppuMemory.write address, value unless @$isRenderingActive() # Only during VBlank or disabled rendering
         value
 
     incrementAddress: ->
@@ -321,31 +320,8 @@ class PPU
         if @bigAddressIncrement then 0x20 else 0x01 # Vertical/horizontal move in pattern table.
 
 
-    ###########################################################
-    # Internal VROM/VRAM access
-    ###########################################################
-
-    read: (address) ->
-        if @$isPaletteAddress address
-            @readPalette address
-        else
-            @ppuMemory.read address
-
-    readPalette: (address) ->
-        value = @ppuMemory.read @$fixPaletteAddress address
-        if @monochromeMode then value & 0x30 else value
-
     isPaletteAddress: (address) ->
-        (address & 0x3F00) == 0x3F00
-
-    fixPaletteAddress: (address) ->
-        if @$shouldUseBackdropColor address then 0x3F00 else address
-
-    shouldUseBackdropColor: (address) ->
-        (address & 0x0003) is 0 and not @vblankActive
-
-    write: (address, value) ->
-        @ppuMemory.write address, value
+        (address & 0x3F00) is 0x3F00
 
     ###########################################################
     # Scrolling and scrolling register ($2005 - PPUSCROLL)
@@ -519,19 +495,27 @@ class PPU
         if @ntscMode and @cycleFlags & F_CLIP_NTSC # Clip top/bottom 8 scanlines in NTSC
             @$clearFramePixel()
         else
-            colorAddress = 0x3F00 | @renderFramePixel()
-            @$setFramePixel @$readPalette colorAddress
+            address = @renderFramePixel()
+            color = @ppuMemory.readPalette address
+            @$setFramePixel color
 
     renderFramePixel: ->
         backgroundColor = @renderBackgroundPixel()
-        spriteColor = @renderSpritePixel()
-        if (spriteColor & 0x03) and (backgroundColor & 0x03)
-            @spriteZeroHit ||= @renderedSprite.zeroSprite                    # Both bagckground and sprite pixels are visible
-            if @renderedSprite.inFront then spriteColor else backgroundColor # Choose target by rendering priority
+        spriteColor = @$renderSpritePixel()
+        if backgroundColor & 0x03
+            if spriteColor & 0x03
+                sprite = @$getRenderedSprite()
+                @spriteZeroHit ||= sprite.zeroSprite
+                if sprite.inFront
+                    spriteColor     # Sprite has priority over background
+                else
+                    backgroundColor # Background has priority over sprite
+            else
+                backgroundColor     # Only background is visible
         else if spriteColor & 0x03
-            spriteColor      # Sprite pixel is visible
+            spriteColor             # Only sprite is visible
         else
-            backgroundColor  # Otherwise render backround
+            0                       # Use backdrop color
 
     ###########################################################
     # Background rendering
@@ -576,7 +560,7 @@ class PPU
 
     fetchNametable: ->
         @addressBus = 0x2000 | @vramAddress & 0x0FFF
-        patternNumer = @ppuMemory.read @addressBus # Nametable byte fetch
+        patternNumer = @ppuMemory.readNameAttr @addressBus # Nametable byte fetch
         patternAddress = @bgPatternTableAddress + (patternNumer << 4)
         fineYScroll = (@vramAddress >>> 12) & 0x07
         @patternRowAddress = patternAddress + fineYScroll
@@ -585,7 +569,7 @@ class PPU
         attributeTableAddress = 0x23C0 | @vramAddress & 0x0C00
         attributeNumber = (@vramAddress >>> 4) & 0x38 | (@vramAddress >>> 2) & 0x07
         @addressBus = attributeTableAddress + attributeNumber
-        attribute = @ppuMemory.read @addressBus # Attribute byte fetch
+        attribute = @ppuMemory.readNameAttr @addressBus # Attribute byte fetch
         areaNumber = (@vramAddress >>> 4) & 0x04 | @vramAddress & 0x02
         paletteNumber = (attribute >>> areaNumber) & 0x03
         @paletteLatchNext0 = paletteNumber & 1
@@ -593,11 +577,11 @@ class PPU
 
     fetchBackgroundLow: ->
         @addressBus = @patternRowAddress
-        @patternBufferNext0 = @ppuMemory.read @addressBus # Low background byte fetch
+        @patternBufferNext0 = @ppuMemory.readPattern @addressBus # Low background byte fetch
 
     fetchBackgroundHigh: ->
         @addressBus = @patternRowAddress + 8
-        @patternBufferNext1 = @ppuMemory.read @addressBus # High background byte fetch
+        @patternBufferNext1 = @ppuMemory.readPattern @addressBus # High background byte fetch
 
     copyBackground: ->
         @patternBuffer0 |= @patternBufferNext0
@@ -677,7 +661,7 @@ class PPU
         if @spriteNumber < @spriteCount
             sprite = @secondaryOAM[@spriteNumber]
             @addressBus = sprite.patternRowAddress
-            sprite.patternRow0 = @ppuMemory.read @addressBus
+            sprite.patternRow0 = @ppuMemory.readPattern @addressBus
         else
             @addressBus = @spPatternTableAddress | 0x0FF0 # Dummy fetch for tile $FF
 
@@ -685,7 +669,7 @@ class PPU
         if @spriteNumber < @spriteCount
             sprite = @secondaryOAM[@spriteNumber++]
             @addressBus = sprite.patternRowAddress + 8
-            sprite.patternRow1 = @ppuMemory.read @addressBus
+            sprite.patternRow1 = @ppuMemory.readPattern @addressBus
         else
             @addressBus = @spPatternTableAddress | 0x0FF0 # Dummy fetch for tile $FF
 
@@ -710,14 +694,15 @@ class PPU
 
     renderSpritePixel: ->
         if @$isSpritePixelVisible()
-            @renderedSprite = @spriteCache[@cycle]
             @spritePixelCache[@cycle]
         else
-            @renderedSprite = null
             0
 
     isSpritePixelVisible: ->
         @spritesVisible and not (@spriteClipping and (@cycleFlags & F_CLIP_LEFT))
+
+    getRenderedSprite: ->
+        @spriteCache[@cycle]
 
     ###########################################################
     # Debug rendering
@@ -739,14 +724,14 @@ class PPU
     renderPatternTile: (baseX, baseY, address) ->
         for rowNumber in [0...8]
             y = baseY + rowNumber
-            patternBuffer0 = @ppuMemory.read address + rowNumber
-            patternBuffer1 = @ppuMemory.read address + rowNumber + 8
+            patternBuffer0 = @ppuMemory.readPattern address + rowNumber
+            patternBuffer1 = @ppuMemory.readPattern address + rowNumber + 8
             for columnNumber in [0...8]
                 x = baseX + columnNumber
                 bitPosition = columnNumber ^ 0x07
                 colorSelect1 =  (patternBuffer0 >> bitPosition) & 0x01
                 colorSelect2 = ((patternBuffer1 >> bitPosition) & 0x01) << 1
-                color = @$readPalette 0x3F00 | colorSelect2 | colorSelect1
+                color = @ppuMemory.readPalette colorSelect2 | colorSelect1
                 @setFramePixelOnPosition x, y, color
         undefined
 
@@ -755,7 +740,7 @@ class PPU
             baseY = 128 + tileY * 28
             for tileX in [0...8]
                 baseX = tileX << 5
-                color = @$readPalette 0x3F00 | (tileY << 3) | tileX
+                color = @ppuMemory.readPalette (tileY << 3) | tileX
                 @renderPaletteTile baseX, baseY, color
         undefined
 
