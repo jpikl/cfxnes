@@ -2,6 +2,13 @@ Mirroring = require("../common/types").Mirroring
 logger    = require("../utils/logger").get()
 system    = require "../utils/system"
 
+POWER_UP_PALETTES = [
+    0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D
+    0x08, 0x10, 0x08, 0x24, 0x00, 0x00, 0x04, 0x2C
+    0x09, 0x01, 0x34, 0x03, 0x00, 0x04, 0x00, 0x14
+    0x08, 0x3A, 0x00, 0x02, 0x00, 0x20, 0x2C, 0x08
+]
+
 ###########################################################
 # PPU memory
 ###########################################################
@@ -108,6 +115,7 @@ class PPUMemory
 
     createPaletts: ->
         @paletts = system.allocateBytes 0x20 # 2 * 16B palette (background / sprites)
+        @paletts[i] = POWER_UP_PALETTES[i] for i in [0...@paletts.length]
         undefined
 
     readPalette: (address) ->
