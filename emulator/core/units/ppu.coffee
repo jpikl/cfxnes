@@ -302,24 +302,27 @@ class PPU
         address
 
     readData: ->
-        address = @$incrementAddress()
-        oldBufferContent = @vramReadBuffer
-        @vramReadBuffer = @ppuMemory.read address                                # Always increments the address
-        if @$isPaletteAddress address then @vramReadBuffer else oldBufferContent # Delayed read outside the palette memory area
+        if @$isPaletteAddress @vramAddress
+            value = @ppuMemory.read @vramAddress
+            @vramReadBuffer = @ppuMemory.read @vramAddress & 0x2FFF # Buffer musn't be reloaded from palette address, but from underlying nametable address
+            @incrementAddress()
+            value
+        else
+            value = @vramReadBuffer # Delayed read outside the palette memory area (values are passed through read buffer first)
+            @vramReadBuffer = @ppuMemory.read @vramAddress
+            @incrementAddress()
+            value
 
     writeData: (value) ->
-        address = @$incrementAddress()                      # Always increments the address
-        @ppuMemory.write address, value unless @$isRenderingActive() # Only during VBlank or disabled rendering
+        @ppuMemory.write @vramAddress, value unless @$isRenderingActive()
+        @incrementAddress()
         value
 
     incrementAddress: ->
-        previousAddress = @vramAddress
         @vramAddress = (@vramAddress + @$getAddressIncrement()) & 0xFFFF
-        previousAddress
 
     getAddressIncrement: ->
         if @bigAddressIncrement then 0x20 else 0x01 # Vertical/horizontal move in pattern table.
-
 
     isPaletteAddress: (address) ->
         (address & 0x3F00) is 0x3F00
