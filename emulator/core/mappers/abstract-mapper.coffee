@@ -3,6 +3,7 @@ computeMD5    = require("../utils/convert").computeMD5
 wordAsHex     = require("../utils/format").wordAsHex
 readableSize  = require("../utils/format").readableSize
 logger        = require("../utils/logger").get()
+system        = require "../utils/system"
 
 ###########################################################
 # Base class for PRGROM mappers
@@ -85,7 +86,7 @@ class AbstractMapper
 
     createPRGRAM: ->
         if @hasPRGRAM
-            @prgRAM = (0 for i in [0...@prgRAMSize])
+            @prgRAM = system.allocateBytes @prgRAMSize
             if @hasPRGRAMBattery and not @prgRAMSizeBattery?
                 @prgRAMSizeBattery = @prgRAMSize # If not defined, the whole PRG RAM is battery backed
         undefined
@@ -147,7 +148,7 @@ class AbstractMapper
 
     createCHRRAM: ->
         if @hasCHRRAM
-            @chrRAM = (0 for i in [0...@chrRAMSize])
+            @chrRAM = system.allocateBytes @chrRAMSize
             if @hasCHRRAMBattery and not @chrRAMSizeBattery?
                 @chrRAMSizeBattery = @chrRAMSize # If not defined, the whole CHR RAM is battery backed
         undefined

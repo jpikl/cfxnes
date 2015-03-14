@@ -1,5 +1,6 @@
 Mirroring = require("../common/types").Mirroring
 logger    = require("../utils/logger").get()
+system    = require "../utils/system"
 
 ###########################################################
 # PPU memory
@@ -68,7 +69,7 @@ class PPUMemory
     ###########################################################
 
     createNamesAttrs: ->
-        @namesAttrs = (0 for [0...0x1000]) # Max. 4KB
+        @namesAttrs = system.allocateBytes 0x1000 # Max. 4KB
         undefined
 
     resetNamesAttrs: (mapper) ->
@@ -106,7 +107,7 @@ class PPUMemory
     ###########################################################
 
     createPaletts: ->
-        @paletts = (0 for [0...0x20]) # 2 * 16B palette (background / sprites)
+        @paletts = system.allocateBytes 0x20 # 2 * 16B palette (background / sprites)
         undefined
 
     readPalette: (address) ->

@@ -1,6 +1,7 @@
 Interrupt = require("../common/types").Interrupt
 logger    = require("../utils/logger").get()
 colors    = require "../utils/colors"
+system    = require "../utils/system"
 
 # Frame size
 VIDEO_WIDTH  = require("../common/constants").VIDEO_WIDTH
@@ -35,8 +36,8 @@ F_SKIP      = 1 << 20 # Cycle which is skipped during odd frames
 # Tables containing flags for all cycles/scanlines
 ###########################################################
 
-cycleFlagsTable = (0 for [0..340])
-scanlineFlagsTable = (0 for [0..261])
+cycleFlagsTable = system.allocateInts 340
+scanlineFlagsTable = system.allocateInts 261
 
 cycleFlagsTable[i]    |= F_RENDER for i in [1..256]
 scanlineFlagsTable[i] |= F_RENDER for i in [0..239]
@@ -139,7 +140,7 @@ class PPU
         @resetVariables()
 
     resetOAM: ->
-        @primaryOAM = (0 for [0...0x100])       # Sprite data - 256B (64 x 4B sprites)
+        @primaryOAM = system.allocateBytes 0x100     # Sprite data - 256B (64 x 4B sprites)
         @secondaryOAM = (new Sprite for [0..7]) # Sprite data for rendered scanline (up to 8 sprites)
 
     resetRegisters: ->
@@ -173,8 +174,8 @@ class PPU
         @oddFrame = false       # Whether odd frame is being rendered
         @spriteCount = 0        # Total number of sprites on current scanline
         @spriteNumber = 0       # Number of currently fetched sprite
-        @spriteCache = (0 for [0..261])         # Preprocesed sprite data for current scanline (cycle -> sprite rendered on that cycle)
-        @spritePixelCache = (null for [0..261]) # Prerendered sprite pixels for current scanline (cycle -> sprite pixel rendered on that cycle)
+        @spriteCache = (null for [0..261])           # Preprocesed sprite data for current scanline (cycle -> sprite rendered on that cycle)
+        @spritePixelCache = system.allocateBytes 261 # Prerendered sprite pixels for current scanline (cycle -> sprite pixel rendered on that cycle)
 
     ###########################################################
     # External configuration
