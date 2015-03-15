@@ -6,14 +6,14 @@ CoreBaseConfig = require "../../core/config/base-config"
 
 class BaseConfig extends CoreBaseConfig
 
-    "deviceFactory":      "frontend/factories/device-factory"
-    "rendererFactory":    "frontend/factories/renderer-factory"
-    "audioManager":       "frontend/managers/audio-manager"
-    "cartridgeManager":   "frontend/managers/cartridge-manager"
-    "executionManager":   "frontend/managers/execution-manager"
-    "inputManager":       "frontend/managers/input-manager"
-    "persistenceManager": "frontend/managers/persistence-manager"
-    "videoManager":       "frontend/managers/video-manager"
-    "storage":            "frontend/storages/local-storage"
+    "deviceFactory":      require "../factories/device-factory"
+    "rendererFactory":    require "../factories/renderer-factory"
+    "audioManager":       require "../managers/audio-manager"
+    "cartridgeManager":   require "../managers/cartridge-manager"
+    "executionManager":   require "../managers/execution-manager"
+    "inputManager":       require "../managers/input-manager"
+    "persistenceManager": require "../managers/persistence-manager"
+    "videoManager":       require "../managers/video-manager"
+    "storage":            require "../storages/local-storage"
 
 module.exports = BaseConfig

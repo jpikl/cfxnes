@@ -29,16 +29,16 @@ class PPUMemory
     ###########################################################
 
     read: (address) ->
-        address = @$mapAddress address
-        if      address < 0x2000 then @$readPattern  address # $0000-$1FFF
-        else if address < 0x3F00 then @$readNameAttr address # $2000-$3EFF
-        else                          @$readPalette  address # $3F00-$3FFF
+        address = @mapAddress address
+        if      address < 0x2000 then @readPattern  address # $0000-$1FFF
+        else if address < 0x3F00 then @readNameAttr address # $2000-$3EFF
+        else                          @readPalette  address # $3F00-$3FFF
 
     write: (address, value) ->
-        address = @$mapAddress address
-        if      address < 0x2000 then @$writePattern  address, value # $0000-$1FFF
-        else if address < 0x3F00 then @$writeNameAttr address, value # $2000-$3EFF
-        else                          @$writePalette  address, value # $3F00-$3FFF
+        address = @mapAddress address
+        if      address < 0x2000 then @writePattern  address, value # $0000-$1FFF
+        else if address < 0x3F00 then @writeNameAttr address, value # $2000-$3EFF
+        else                          @writePalette  address, value # $3F00-$3FFF
 
     mapAddress: (address) ->
         address & 0x3FFF # Mirroring of [$0000-$3FFF] in [$0000-$FFFF]
@@ -119,10 +119,10 @@ class PPUMemory
         undefined
 
     readPalette: (address) ->
-        @paletts[@$mapPaletteAddress address]
+        @paletts[@mapPaletteAddress address]
 
     writePalette: (address, value) ->
-        @paletts[@$mapPaletteAddress address] = value
+        @paletts[@mapPaletteAddress address] = value
 
     mapPaletteAddress: (address) ->
         if address & 0x0003

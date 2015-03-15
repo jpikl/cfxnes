@@ -8,17 +8,17 @@ class MapperFactory
 
     constructor: (@injector) ->
         @mappers = []
-        @registerMapper 0x00, "NROM"
-        @registerMapper 0x01, "MMC1"
-        @registerMapper 0x02, "UNROM"
-        @registerMapper 0x03, "CNROM"
-        @registerMapper 0x04, "MMC3"
-        @registerMapper 0x07, "AOROM"
+        @registerMapper 0x00, "NROM",  require "../mappers/nrom-mapper"
+        @registerMapper 0x01, "MMC1",  require "../mappers/mmc1-mapper"
+        @registerMapper 0x02, "UNROM", require "../mappers/unrom-mapper"
+        @registerMapper 0x03, "CNROM", require "../mappers/cnrom-mapper"
+        @registerMapper 0x04, "MMC3",  require "../mappers/mmc3-mapper"
+        @registerMapper 0x07, "AOROM", require "../mappers/aorom-mapper"
 
-    registerMapper: (id, name) ->
+    registerMapper: (id, name, clazz) ->
         @mappers[id] =
             name:  name
-            class: require "../mappers/#{name.toLowerCase()}-mapper"
+            clazz: clazz
 
     createMapper: (cartridge) ->
         id = cartridge.mapperId
@@ -26,6 +26,6 @@ class MapperFactory
         unless mapper?
             throw new Error "Unsupported mapper (ID: #{id})."
         logger.info "Using '#{mapper.name}' mapper"
-        @injector.injectInstance new mapper.class cartridge
+        @injector.injectInstance new mapper.clazz cartridge
 
 module.exports = MapperFactory

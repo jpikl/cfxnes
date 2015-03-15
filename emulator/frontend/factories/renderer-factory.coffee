@@ -8,6 +8,11 @@ FALLBACK_RENDERER = "canvas"
 
 class RendererFactory
 
+    constructor: ->
+        @renderers =
+            "canvas": require "../renderers/canvas-renderer"
+            "webgl":  require "../renderers/webgl-renderer"
+
     isRendererSupported: (id) ->
         try
             @getRendererClass(id).isSupported()
@@ -25,10 +30,6 @@ class RendererFactory
             @createRendererUnsafe FALLBACK_RENDERER, canvas
 
     createRendererUnsafe: (id, canvas) ->
-        rendererClass = @getRendererClass id
-        new rendererClass canvas
-
-    getRendererClass: (id) ->
-        require "../renderers/#{id}-renderer"
+        new @renderers[id] canvas
 
 module.exports = RendererFactory

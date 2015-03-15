@@ -4,17 +4,17 @@
 
 class BaseConfig
 
-    "nes":              "core/nes",
-    "cpu":              "core/units/cpu"
-    "ppu":              "core/units/ppu"
-    "apu":              "core/units/apu"
-    "dma":              "core/units/dma"
-    "cpuMemory":        "core/units/cpu-memory"
-    "ppuMemory":        "core/units/ppu-memory"
-    "cartridgeFactory": "core/factories/cartridge-factory"
-    "deviceFactory":    "core/factories/device-factory"
-    "loaderFactory":    "core/factories/loader-factory"
-    "mapperFactory":    "core/factories/mapper-factory"
-    "paletteFactory":   "core/factories/palette-factory"
+    "nes":              require "../nes"
+    "cpu":              require "../units/cpu"
+    "ppu":              require "../units/ppu"
+    "apu":              require "../units/apu"
+    "dma":              require "../units/dma"
+    "cpuMemory":        require "../units/cpu-memory"
+    "ppuMemory":        require "../units/ppu-memory"
+    "cartridgeFactory": require "../factories/cartridge-factory"
+    "deviceFactory":    require "../factories/device-factory"
+    "loaderFactory":    require "../factories/loader-factory"
+    "mapperFactory":    require "../factories/mapper-factory"
+    "paletteFactory":   require "../factories/palette-factory"
 
 module.exports = BaseConfig

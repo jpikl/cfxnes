@@ -4,7 +4,7 @@
 
 convert =
 
-    computeMD5: md5 ? require "js-md5"
+    computeMD5: md5 #? require "js-md5"
 
     dataToString: (input) ->
         String.fromCharCode.apply null, input

@@ -7,14 +7,21 @@ CoreDeviceFactory = require "../../core/factories/device-factory"
 class DeviceFactory extends CoreDeviceFactory
 
     constructor: (@injector) ->
+        @sourceDevices =
+            "keyboard": require "../devices/keyboard"
+            "mouse":    require "../devices/mouse"
+        @targetDevices =
+            "joypad": require "../../core/devices/joypad"
+            "zapper": require "../../core/devices/zapper"
+        @targetDevicesAdapters =
+            "joypad": require "../devices/adapters/joypad-adapter"
+            "zapper": require "../devices/adapters/zapper-adapter"
 
     createSourceDevice: (id) ->
-        deviceClass = require "../devices/#{id}"
-        @injector.injectInstance new deviceClass id
+        @injector.injectInstance new @sourceDevices[id]
 
     createTargetDevice: (id) ->
-        device = @createDevice id
-        adapterClass = require "../devices/adapters/#{id}-adapter"
-        @injector.injectInstance new adapterClass device
+        device = @injector.injectInstance new @targetDevices[id]
+        @injector.injectInstance new @targetDevicesAdapters[id] device
 
 module.exports = DeviceFactory

@@ -116,7 +116,7 @@ class PulseChannel
         if @sweepCycle > 0
             @sweepCycle--
         else
-            @timerPeriod += @getSweep() if @sweepEnabled and @sweepShift and @$isTimerPeriodValid()
+            @timerPeriod += @getSweep() if @sweepEnabled and @sweepShift and @isTimerPeriodValid()
             @sweepCycle = @sweepPeriod
         if @sweepReset
             @sweepReset = false
@@ -137,7 +137,7 @@ class PulseChannel
     ###########################################################
 
     getOutputValue: ->
-        if @lengthCounter and @$isTimerPeriodValid()
+        if @lengthCounter and @isTimerPeriodValid()
             volume = if @useConstantVolume then @constantVolume else @envelopeVolume
             volume * DUTY_WAVEFORMS[@dutySelection][@dutyPosition]
         else

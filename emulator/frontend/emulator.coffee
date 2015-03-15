@@ -1,5 +1,6 @@
-Injector = require "../core/utils/injector"
-Logger   = require "../core/utils/logger"
+Injector   = require "../core/utils/injector"
+Logger     = require "../core/utils/logger"
+BaseConfig = require "./config/base-config"
 
 logger = Logger.get()
 logger.attach Logger.console()
@@ -12,9 +13,9 @@ class Emulator
 
     @dependencies: [ "executionManager", "cartridgeManager", "videoManager", "audioManager", "inputManager", "persistenceManager" ]
 
-    constructor: (mode = "base") ->
-        logger.info "Creating '#{mode}' dependency injection context"
-        injector = new Injector "frontend/config/#{mode}-config"
+    constructor: ->
+        logger.info "Creating dependency injection context"
+        injector = new Injector BaseConfig
         injector.injectInstance this
 
     init: (executionManager, cartridgeManager, videoManager, audioManager, inputManager, persistenceManager) ->

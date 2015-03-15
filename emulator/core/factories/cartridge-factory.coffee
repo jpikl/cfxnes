@@ -20,8 +20,8 @@ class CartridgeFactory
         @fromReader new ArrayBufferReader arrayBuffer
 
     fromLocalFile: (filePath) ->
-        LocalFileReader = require "../readers/local-file-reader"
-        @fromReader new LocalFileReader filePath
+        # LocalFileReader = require "../readers/local-file-reader"
+        # @fromReader new LocalFileReader filePath
 
     fromReader: (reader) ->
         loader = @loaderFactory.createLoader reader

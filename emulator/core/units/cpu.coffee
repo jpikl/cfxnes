@@ -115,7 +115,7 @@ class CPU
     ###########################################################
 
     executeOperation: ->
-        operation = @$readOperation()
+        operation = @readOperation()
         unless operation
             logger.info "CPU halted!"
             @halted = true # CPU halt (KIL operation code)
@@ -133,13 +133,13 @@ class CPU
         instruction.call this, address
 
     readOperation: ->
-        @operationsTable[@$readNextProgramByte()]
+        @operationsTable[@readNextProgramByte()]
 
     readNextProgramByte: ->
-        @$readByte @$moveProgramCounter 1
+        @readByte @moveProgramCounter 1
 
     readNextProgramWord: ->
-        @$readWord @$moveProgramCounter 2
+        @readWord @moveProgramCounter 2
 
     moveProgramCounter: (size) ->
         previousValue = @programCounter
@@ -155,45 +155,45 @@ class CPU
 
     readByte: (address) ->
         @resolveReadCycles()
-        @$read address
+        @read address
 
     readWord: (address) ->
-        highByte = @$readByte (address + 1) & 0xFFFF
-        highByte << 8 | @$readByte address
+        highByte = @readByte (address + 1) & 0xFFFF
+        highByte << 8 | @readByte address
 
     readWordFromSamePage: (address) ->
-        highByte = @$readByte address & 0xFF00 | (address + 1) & 0x00FF
-        highByte << 8 | @$readByte address
+        highByte = @readByte address & 0xFF00 | (address + 1) & 0x00FF
+        highByte << 8 | @readByte address
 
     write: (address, value) ->
         @cpuMemory.write address, value
 
     writeByte: (address, value) ->
         @resolveWriteCycles()
-        @$write address, value
+        @write address, value
 
     writeWord: (address, value) ->
-        @$writeByte address, value & 0xFF
-        @$writeByte (address + 1) & 0xFFFF, value >>> 8
+        @writeByte address, value & 0xFF
+        @writeByte (address + 1) & 0xFFFF, value >>> 8
 
     ###########################################################
     # Stack pushing / pulling
     ###########################################################
 
     pushByte: (value) ->
-        @$writeByte 0x100 + @stackPointer, value
+        @writeByte 0x100 + @stackPointer, value
         @stackPointer = (@stackPointer - 1) & 0xFF
 
     pushWord: (value) ->
-        @$pushByte value >>> 8
-        @$pushByte value & 0xFF
+        @pushByte value >>> 8
+        @pushByte value & 0xFF
 
     popByte: ->
         @stackPointer = (@stackPointer + 1) & 0xFF
-        @$readByte 0x100 + @stackPointer
+        @readByte 0x100 + @stackPointer
 
     popWord: ->
-        @$popByte() | @$popByte() << 8
+        @popByte() | @popByte() << 8
 
     ###########################################################
     # Memory reading / writing cycles handling
@@ -264,33 +264,33 @@ class CPU
         @tick()
 
     immediateMode: ->
-        @$moveProgramCounter 1
+        @moveProgramCounter 1
 
     ###########################################################
     # Zero page addressing modes
     ###########################################################
 
     zeroPageMode: ->
-        @$readNextProgramByte()
+        @readNextProgramByte()
 
     zeroPageXMode: ->
-        @$getIndexedAddressByte @$readNextProgramByte(), @registerX
+        @getIndexedAddressByte @readNextProgramByte(), @registerX
 
     zeroPageYMode: ->
-        @$getIndexedAddressByte @$readNextProgramByte(), @registerY
+        @getIndexedAddressByte @readNextProgramByte(), @registerY
 
     ###########################################################
     # Absolute addressing modes
     ###########################################################
 
     absoluteMode: ->
-        @$readNextProgramWord()
+        @readNextProgramWord()
 
     absoluteXMode: ->
-        @$getIndexedAddressWord @$readNextProgramWord(), @registerX
+        @getIndexedAddressWord @readNextProgramWord(), @registerX
 
     absoluteYMode: ->
-        @$getIndexedAddressWord @$readNextProgramWord(), @registerY
+        @getIndexedAddressWord @readNextProgramWord(), @registerY
 
     ###########################################################
     # Relative addressing mode
@@ -298,22 +298,22 @@ class CPU
 
     relativeMode: ->
         base = (@programCounter + 1) & 0xFFFF # We need to get address of the next instruction
-        offset = @$getSignedByte @$readNextProgramByte()
-        @$getIndexedAddressWord base, offset
+        offset = @getSignedByte @readNextProgramByte()
+        @getIndexedAddressWord base, offset
 
     ###########################################################
     # Indirect addressing modes
     ###########################################################
 
     indirectMode: ->
-        @$readWordFromSamePage @$readNextProgramWord()
+        @readWordFromSamePage @readNextProgramWord()
 
     indirectXMode: ->
-        @$readWordFromSamePage @zeroPageXMode()
+        @readWordFromSamePage @zeroPageXMode()
 
     indirectYMode: ->
-        base = @$readWordFromSamePage @$readNextProgramByte()
-        @$getIndexedAddressWord base, @registerY
+        base = @readWordFromSamePage @readNextProgramByte()
+        @getIndexedAddressWord base, @registerY
 
     ###########################################################
     # Address computation
@@ -370,67 +370,67 @@ class CPU
     ###########################################################
 
     STA: (address) ->
-        @$writeByte address, @accumulator
+        @writeByte address, @accumulator
 
     STX: (address) ->
-        @$writeByte address, @registerX
+        @writeByte address, @registerX
 
     SAX: (address) ->
-        @$writeByte address, @accumulator & @registerX
+        @writeByte address, @accumulator & @registerX
 
     STY: (address) ->
-        @$writeByte address, @registerY
+        @writeByte address, @registerY
 
     SHA: (address) -> # Also known as AHX
-        @$storeHighAddressIntoMemory address, @accumulator & @registerX
+        @storeHighAddressIntoMemory address, @accumulator & @registerX
 
     SHX: (address) -> # Also known as SXA
-        @$storeHighAddressIntoMemory address, @registerX
+        @storeHighAddressIntoMemory address, @registerX
 
     SHY: (address) -> # Also known as SYA
-        @$storeHighAddressIntoMemory address, @registerY
+        @storeHighAddressIntoMemory address, @registerY
 
     ###########################################################
     # Memory read instructions
     ###########################################################
 
     LDA: (address) ->
-        @$storeValueIntoAccumulator @$readByte address
+        @storeValueIntoAccumulator @readByte address
 
     LDX: (address) ->
-        @$storeValueIntoRegisterX @$readByte address
+        @storeValueIntoRegisterX @readByte address
 
     LDY: (address) ->
-        @$storeValueIntoRegisterY @$readByte address
+        @storeValueIntoRegisterY @readByte address
 
     LAX: (address) ->
-        value = @$readByte address
-        @$storeValueIntoAccumulator value
-        @$storeValueIntoRegisterX value
+        value = @readByte address
+        @storeValueIntoAccumulator value
+        @storeValueIntoRegisterX value
 
     LAS: (address) ->
-        @stackPointer &= @$readByte address
-        @$storeValueIntoAccumulator @stackPointer
-        @$storeValueIntoRegisterX @stackPointer
+        @stackPointer &= @readByte address
+        @storeValueIntoAccumulator @stackPointer
+        @storeValueIntoRegisterX @stackPointer
 
     ###########################################################
     # Register transfer instructions
     ###########################################################
 
     TAX: ->
-        @$storeValueIntoRegisterX @accumulator
+        @storeValueIntoRegisterX @accumulator
 
     TAY: ->
-        @$storeValueIntoRegisterY @accumulator
+        @storeValueIntoRegisterY @accumulator
 
     TXA: ->
-        @$storeValueIntoAccumulator @registerX
+        @storeValueIntoAccumulator @registerX
 
     TYA: ->
-        @$storeValueIntoAccumulator @registerY
+        @storeValueIntoAccumulator @registerY
 
     TSX: ->
-        @$storeValueIntoRegisterX @stackPointer
+        @storeValueIntoRegisterX @stackPointer
 
     TXS: ->
         @stackPointer = @registerX
@@ -440,36 +440,36 @@ class CPU
     ###########################################################
 
     PHA: ->
-        @$pushByte @accumulator
+        @pushByte @accumulator
 
     PHP: ->
-        @$pushByte @$getStatus() | 0x10 # It pushes status with bit 4 on (break command flag)
+        @pushByte @getStatus() | 0x10 # It pushes status with bit 4 on (break command flag)
 
     ###########################################################
     # Stack pop instructions
     ###########################################################
 
     PLA: ->
-        @$storeValueIntoAccumulator @$popByte()
+        @storeValueIntoAccumulator @popByte()
 
     PLP: ->
-        @$setStatus @$popByte()
+        @setStatus @popByte()
 
     ###########################################################
     # Accumulator bitwise instructions
     ###########################################################
 
     AND: (address) ->
-        @$storeValueIntoAccumulator @accumulator & @$readByte address
+        @storeValueIntoAccumulator @accumulator & @readByte address
 
     ORA: (address) ->
-        @$storeValueIntoAccumulator @accumulator | @$readByte address
+        @storeValueIntoAccumulator @accumulator | @readByte address
 
     EOR: (address) ->
-        @$storeValueIntoAccumulator @accumulator ^ @$readByte address
+        @storeValueIntoAccumulator @accumulator ^ @readByte address
 
     BIT: (address) ->
-        value = @$readByte address
+        value = @readByte address
         @zeroFlag = (@accumulator & value) == 0
         @overflowFlag = (value >>> 6) & 1
         @negativeFlag = (value >>> 7) & 1
@@ -479,67 +479,67 @@ class CPU
     ###########################################################
 
     INC: (address) ->
-        @$storeValueIntoMemory address, ((@$readByte address) + 1) & 0xFF
+        @storeValueIntoMemory address, ((@readByte address) + 1) & 0xFF
 
     INX: ->
-        @$storeValueIntoRegisterX (@registerX + 1) & 0xFF
+        @storeValueIntoRegisterX (@registerX + 1) & 0xFF
 
     INY: ->
-        @$storeValueIntoRegisterY (@registerY + 1) & 0xFF
+        @storeValueIntoRegisterY (@registerY + 1) & 0xFF
 
     ###########################################################
     # Decrement instructions
     ###########################################################
 
     DEC: (address) ->
-        @$storeValueIntoMemory address, ((@$readByte address) - 1) & 0xFF
+        @storeValueIntoMemory address, ((@readByte address) - 1) & 0xFF
 
     DEX: ->
-        @$storeValueIntoRegisterX (@registerX - 1) & 0xFF
+        @storeValueIntoRegisterX (@registerX - 1) & 0xFF
 
     DEY: ->
-        @$storeValueIntoRegisterY (@registerY - 1) & 0xFF
+        @storeValueIntoRegisterY (@registerY - 1) & 0xFF
 
     ###########################################################
     # Comparison instructions
     ###########################################################
 
     CMP: (address) ->
-        @$compareRegisterAndMemory @accumulator, address
+        @compareRegisterAndMemory @accumulator, address
 
     CPX: (address) ->
-        @$compareRegisterAndMemory @registerX, address
+        @compareRegisterAndMemory @registerX, address
 
     CPY: (address) ->
-        @$compareRegisterAndMemory @registerY, address
+        @compareRegisterAndMemory @registerY, address
 
     ###########################################################
     # Branching instructions
     ###########################################################
 
     BCC: (address) ->
-        @$branchIf not @carryFlag, address
+        @branchIf not @carryFlag, address
 
     BCS: (address) ->
-        @$branchIf @carryFlag, address
+        @branchIf @carryFlag, address
 
     BNE: (address) ->
-        @$branchIf not @zeroFlag, address
+        @branchIf not @zeroFlag, address
 
     BEQ: (address) ->
-        @$branchIf @zeroFlag, address
+        @branchIf @zeroFlag, address
 
     BVC: (address) ->
-        @$branchIf not @overflowFlag, address
+        @branchIf not @overflowFlag, address
 
     BVS: (address) ->
-        @$branchIf @overflowFlag,  address
+        @branchIf @overflowFlag,  address
 
     BPL: (address) ->
-        @$branchIf not @negativeFlag, address
+        @branchIf not @negativeFlag, address
 
     BMI: (address) ->
-        @$branchIf @negativeFlag, address
+        @branchIf @negativeFlag, address
 
     ###########################################################
     # Jump / subroutine instructions
@@ -549,11 +549,11 @@ class CPU
         @programCounter = address
 
     JSR: (address) ->
-        @$pushWord (@programCounter - 1) & 0xFFFF # The pushed address must be the end of the current instruction
+        @pushWord (@programCounter - 1) & 0xFFFF # The pushed address must be the end of the current instruction
         @programCounter = address
 
     RTS: ->
-        @programCounter = (@$popWord() + 1) & 0xFFFF # We decremented the address when pushing it during JSR
+        @programCounter = (@popWord() + 1) & 0xFFFF # We decremented the address when pushing it during JSR
         @tick()
 
     ###########################################################
@@ -561,72 +561,72 @@ class CPU
     ###########################################################
 
     BRK: ->
-        @$moveProgramCounter 1 # BRK is 2 byte instruction
-        @$pushWord @programCounter
-        @$pushByte @$getStatus() | 0x10 # It pushes status with bit 4 on (break command flag)
+        @moveProgramCounter 1 # BRK is 2 byte instruction
+        @pushWord @programCounter
+        @pushByte @getStatus() | 0x10 # It pushes status with bit 4 on (break command flag)
         @interruptDisable = 1
-        @programCounter = @$readWord 0xFFFE
+        @programCounter = @readWord 0xFFFE
 
     RTI: ->
-        @$setStatus @$popByte()
-        @programCounter = @$popWord()
+        @setStatus @popByte()
+        @programCounter = @popWord()
 
     ###########################################################
     # Addition / subtraction instructions
     ###########################################################
 
     ADC: (address) ->
-        @$addValueToAccumulator @$readByte address
+        @addValueToAccumulator @readByte address
 
     SBC: (address) ->
-        @$addValueToAccumulator (@$readByte address) ^ 0xFF # With internal carry incremment makes negative operand
+        @addValueToAccumulator (@readByte address) ^ 0xFF # With internal carry incremment makes negative operand
 
     ###########################################################
     # Shifting / rotation instructions
     ###########################################################
 
     ASL: (address) ->
-        @$rotateAccumulatorOrMemory address, @rotateLeft, false
+        @rotateAccumulatorOrMemory address, @rotateLeft, false
 
     LSR: (address) ->
-        @$rotateAccumulatorOrMemory address, @rotateRight, false
+        @rotateAccumulatorOrMemory address, @rotateRight, false
 
     ROL: (address) ->
-        @$rotateAccumulatorOrMemory address, @rotateLeft, true
+        @rotateAccumulatorOrMemory address, @rotateLeft, true
 
     ROR: (address) ->
-        @$rotateAccumulatorOrMemory address, @rotateRight, true
+        @rotateAccumulatorOrMemory address, @rotateRight, true
 
     ###########################################################
     # Hybrid instructions
     ###########################################################
 
     DCP: (address) ->
-        @$compareRegisterAndOperand @accumulator, @DEC address
+        @compareRegisterAndOperand @accumulator, @DEC address
 
     ISB: (address) ->
-        @$addValueToAccumulator (@INC address) ^ 0xFF # With internal carry incremment makes negative operand
+        @addValueToAccumulator (@INC address) ^ 0xFF # With internal carry incremment makes negative operand
 
     SLO: (address) ->
-        @$storeValueIntoAccumulator @accumulator | @ASL address
+        @storeValueIntoAccumulator @accumulator | @ASL address
 
     SRE: (address) ->
-        @$storeValueIntoAccumulator @accumulator ^ @LSR address
+        @storeValueIntoAccumulator @accumulator ^ @LSR address
 
     RLA: (address) ->
-        @$storeValueIntoAccumulator @accumulator & @ROL address
+        @storeValueIntoAccumulator @accumulator & @ROL address
 
     XAA: (address) -> # Also known as ANE
-        @$storeValueIntoAccumulator @registerX & @AND address
+        @storeValueIntoAccumulator @registerX & @AND address
 
     RRA: (address) ->
-        @$addValueToAccumulator @ROR address
+        @addValueToAccumulator @ROR address
 
     AXS: (address) -> # Also known as SBX
         @registerX = @compareRegisterAndMemory @accumulator & @registerX, address
 
     ANC: (address) ->
-        @$rotateLeft @AND(address), false # rotateLeft computes carry
+        @rotateLeft @AND(address), false # rotateLeft computes carry
 
     ALR: (address) ->
         @AND address
@@ -647,40 +647,40 @@ class CPU
     ###########################################################
 
     storeValueIntoAccumulator: (value) ->
-        @$updateZeroAndNegativeFlag value
+        @updateZeroAndNegativeFlag value
         @accumulator = value
 
     storeValueIntoRegisterX: (value) ->
-        @$updateZeroAndNegativeFlag value
+        @updateZeroAndNegativeFlag value
         @registerX = value
 
     storeValueIntoRegisterY: (value) ->
-        @$updateZeroAndNegativeFlag value
+        @updateZeroAndNegativeFlag value
         @registerY = value
 
     storeValueIntoMemory: (address, value) ->
-        @$updateZeroAndNegativeFlag value
-        @$writeByte address, value
+        @updateZeroAndNegativeFlag value
+        @writeByte address, value
 
     storeHighAddressIntoMemory: (address, register) ->
         if @pageCrossed
-            @$writeByte address, @read address # Just copy the same value
+            @writeByte address, @read address # Just copy the same value
         else
-            @$writeByte address, register & ((address >>> 8) + 1)
+            @writeByte address, register & ((address >>> 8) + 1)
 
     addValueToAccumulator: (operand) ->
         result = @accumulator + operand + @carryFlag
         @carryFlag = (result >>> 8) & 1
         @overflowFlag = (((@accumulator ^ result) & (operand ^ result)) >>> 7) & 1 # Signed overflow
-        @$storeValueIntoAccumulator result & 0xFF
+        @storeValueIntoAccumulator result & 0xFF
 
     compareRegisterAndMemory: (register, address) ->
-        @$compareRegisterAndOperand register, @$readByte address
+        @compareRegisterAndOperand register, @readByte address
 
     compareRegisterAndOperand: (register, operand) ->
         result = register - operand
         @carryFlag = result >= 0 # Unsigned comparison (bit 8 is actually the result sign)
-        @$updateZeroAndNegativeFlag result # Not a signed comparison
+        @updateZeroAndNegativeFlag result # Not a signed comparison
         result & 0xFF
 
     branchIf: (condition, address) ->
@@ -691,11 +691,11 @@ class CPU
 
     rotateAccumulatorOrMemory: (address, rotation, transferCarry) ->
         if address?
-            result = rotation (@$readByte address), transferCarry
-            @$storeValueIntoMemory address, result
+            result = rotation (@readByte address), transferCarry
+            @storeValueIntoMemory address, result
         else
             result = rotation @accumulator, transferCarry
-            @$storeValueIntoAccumulator result
+            @storeValueIntoAccumulator result
 
     rotateLeft: (value, transferCarry) =>
         value = value << 1 | transferCarry & @carryFlag

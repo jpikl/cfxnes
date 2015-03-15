@@ -29,18 +29,18 @@ class CPUMemory
     ###########################################################
 
     read: (address) ->
-        if      address >= 0x8000 then @$readPRGROM address # $8000-$FFFF
-        else if address <  0x2000 then @$readRAM    address # $0000-$1FFF
-        else if address <  0x4020 then @$readIO     address # $2000-$401F
-        else if address >= 0x6000 then @$readPRGRAM address # $6000-$7FFF
-        else                           @$readEXROM  address # $4020-$5FFF
+        if      address >= 0x8000 then @readPRGROM address # $8000-$FFFF
+        else if address <  0x2000 then @readRAM    address # $0000-$1FFF
+        else if address <  0x4020 then @readIO     address # $2000-$401F
+        else if address >= 0x6000 then @readPRGRAM address # $6000-$7FFF
+        else                           @readEXROM  address # $4020-$5FFF
 
     write: (address, value) ->
-        if      address >= 0x8000 then @$writePRGROM address, value # $8000-$FFFF
-        else if address <  0x2000 then @$writeRAM    address, value # $0000-$1FFF
-        else if address <  0x4020 then @$writeIO     address, value # $2000-$401F
-        else if address >= 0x6000 then @$writePRGRAM address, value # $6000-$7FFF
-        else                           @$writeEXROM  address, value # $4020-$5FFF
+        if      address >= 0x8000 then @writePRGROM address, value # $8000-$FFFF
+        else if address <  0x2000 then @writeRAM    address, value # $0000-$1FFF
+        else if address <  0x4020 then @writeIO     address, value # $2000-$401F
+        else if address >= 0x6000 then @writePRGRAM address, value # $6000-$7FFF
+        else                           @writeEXROM  address, value # $4020-$5FFF
 
     ###########################################################
     # RAM acceess ($0000-$1FFF)
@@ -51,10 +51,10 @@ class CPUMemory
         undefined
 
     readRAM: (address) ->
-        @ram[@$mapRAMAddress address]
+        @ram[@mapRAMAddress address]
 
     writeRAM: (address, value) ->
-        @ram[@$mapRAMAddress address] = value
+        @ram[@mapRAMAddress address] = value
 
     mapRAMAddress: (address) ->
         address & 0x07FF # Mirroring of [$0000-$07FFF] in [$0000-$1FFF]
@@ -67,7 +67,7 @@ class CPUMemory
         @inputDevicesStrobe = 0
 
     readIO: (address) ->
-        switch @$mapIOAddress address
+        switch @mapIOAddress address
             when 0x2002 then @ppu.readStatus()
             when 0x2004 then @ppu.readOAMData()
             when 0x2007 then @ppu.readData()
@@ -77,7 +77,7 @@ class CPUMemory
             else 0
 
     writeIO: (address, value) ->
-        switch @$mapIOAddress address
+        switch @mapIOAddress address
             when 0x2000 then @ppu.writeControl value
             when 0x2001 then @ppu.writeMask value
             when 0x2003 then @ppu.writeOAMAddress value
@@ -155,13 +155,13 @@ class CPUMemory
 
     readPRGRAM: (address) ->
         if @prgRAM
-            @prgRAM[@$mapPRGRAMAddress address]
+            @prgRAM[@mapPRGRAMAddress address]
         else
             0
 
     writePRGRAM: (address, value) ->
         if @prgRAM
-            @prgRAM[@$mapPRGRAMAddress address] = value
+            @prgRAM[@mapPRGRAMAddress address] = value
         else
             value
 
@@ -181,7 +181,7 @@ class CPUMemory
         @prgROMMapping = []
 
     readPRGROM: (address) ->
-        @prgROM[@$mapPRGROMAddress address]
+        @prgROM[@mapPRGROMAddress address]
 
     writePRGROM: (address, value) ->
         @writeMapper address, value # Writing to mapper registers

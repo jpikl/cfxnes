@@ -85,16 +85,16 @@ class APU
     ###########################################################
 
     writePulseDutyEnvelope: (channelId, value) ->
-        @$getPulseChannel(channelId).writeDutyEnvelope value
+        @getPulseChannel(channelId).writeDutyEnvelope value
 
     writePulseSweep: (channelId, value) ->
-        @$getPulseChannel(channelId).writeSweep value
+        @getPulseChannel(channelId).writeSweep value
 
     writePulseTimer: (channelId, value) ->
-        @$getPulseChannel(channelId).writeTimer value
+        @getPulseChannel(channelId).writeTimer value
 
     writePulseLengthCounter: (channelId, value) ->
-        @$getPulseChannel(channelId).writeLengthCounter value
+        @getPulseChannel(channelId).writeLengthCounter value
 
     getPulseChannel: (channelId) ->
         if channelId is 1 then @pulseChannel1 else @pulseChannel2
@@ -164,7 +164,7 @@ class APU
         value
 
     readStatus: ->
-        value = @$getStatus()
+        value = @getStatus()
         @clearFrameIRQ()
         value
 
@@ -192,13 +192,13 @@ class APU
     ###########################################################
 
     tick: ->
-        @$tickFrameCounter()
+        @tickFrameCounter()
         @pulseChannel1.tick()
         @pulseChannel2.tick()
         @triangleChannel.tick()
         @noiseChannel.tick()
         @dmcChannel.tick()
-        @$recordOutputValue() if @recordingActive
+        @recordOutputValue() if @recordingActive
 
     tickFrameCounter: ->
         if @frameCounterResetDelay and --@frameCounterResetDelay is 0
@@ -277,7 +277,7 @@ class APU
     recordOutputValue: ->
         position = ~~(@recordCycle++ * @sampleRate / @cpuFrequency)
         if position > @recordPosition
-            @$fillRecordBuffer position
+            @fillRecordBuffer position
 
     fillRecordBuffer: (position) ->
         outputValue = @getOutputValue()

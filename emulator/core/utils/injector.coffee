@@ -11,23 +11,23 @@ class Injector
     constructor: (configuration) ->
         logger.info "Creating injector"
         @dependencies = {}
-        for name, path of @resolveConfiguration configuration
-            @dependencies[name] = { path: path }
+        for name, clazz of @resolveConfiguration configuration
+            @dependencies[name] = { clazz: clazz }
 
     ###########################################################
     # Configuration processing
     ###########################################################
 
     resolveConfiguration: (configuration) ->
-        if typeof configuration is "string"
-            configuration = @readConfiguration configuration
+        # if typeof configuration is "string"
+        #     configuration = @readConfiguration configuration
         if typeof configuration is "function"
             configuration = @buildConfiguration configuration
         configuration
 
-    readConfiguration: (path) ->
-        logger.info "Reading injector configuration '#{path}'"
-        require "#{ROOT_PATH}/#{path}"
+    # readConfiguration: (path) ->
+    #     logger.info "Reading injector configuration '#{path}'"
+    #     require "#{ROOT_PATH}/#{path}"
 
     buildConfiguration: (builder) ->
         logger.info "Building injector configuration"
@@ -44,8 +44,7 @@ class Injector
         dependency
 
     getClass: (name) ->
-        dependency = @getDependency name
-        dependency.clazz ?= require "#{ROOT_PATH}/#{dependency.path}"
+        @getDependency(name).clazz
 
     getInstance: (name) ->
         dependency = @getDependency name

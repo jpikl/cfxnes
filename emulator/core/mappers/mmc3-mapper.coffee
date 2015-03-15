@@ -133,7 +133,7 @@ class MMC3 extends AbstractMapper
 
     tick: ->
         if @ppu.addressBus & 0x1000
-            @$updateIRQCounter() unless @irqDelay
+            @updateIRQCounter() unless @irqDelay
             @irqDelay = 7
         else if @irqDelay
             @irqDelay--

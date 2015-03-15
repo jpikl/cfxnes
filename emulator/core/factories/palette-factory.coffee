@@ -4,7 +4,13 @@
 
 class PaletteFactory
 
+    constructor: ->
+        @palettes =
+            "default":   require "../palettes/default-palette"
+            "bright":    require "../palettes/bright-palette"
+            "realistic": require "../palettes/realistic-palette"
+
     createPalette: (id) ->
-        require "../palettes/#{id}-palette"
+        @palettes[id]
 
 module.exports = PaletteFactory

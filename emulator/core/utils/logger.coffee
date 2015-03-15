@@ -70,8 +70,8 @@ class Logger
 class FileWriter
 
     constructor: (fileName) ->
-        @fs = require "fs"
-        @fd = @fs.openSync fileName, "w"
+        # @fs = require "fs"
+        # @fd = @fs.openSync fileName, "w"
 
     info: (message) ->
         @write message + "\n"

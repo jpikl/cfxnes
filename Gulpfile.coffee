@@ -73,27 +73,24 @@ gulp.task "clean", [ "emulator-clean" ]
 # Emulator tasks
 ###########################################################
 
-gulp.task "emulator", ->
-    gulp.src [ "#{EMULATOR_DIR}/**/*.coffee", "!#{EMULATOR_DIR}/**/{debug,tests}/**" ]
-        .pipe coffee
-            bare: true
-            inline: EMULATOR_INLINING
-        .pipe bundle
-            entry: "#{EMULATOR_DIR}/frontend/emulator.js"
-            output: "cfxnes.js"
-        .pipe gulpif PRODUCTION_MODE, closure
-            compilerPath: CLOSURE_JAR
-            fileName: "cfxnes.min.js"
-            compilerFlags:
-                compilation_level: "ADVANCED_OPTIMIZATIONS"
-                warning_level: "QUIET"
-                externs: [
-                    "#{EXTERNS_DIR}/md5.js"
-                    "#{EXTERNS_DIR}/screenfull.js"
-                    "#{EXTERNS_DIR}/w3c_audio.js"
-                ]
-        .pipe gulp.dest PUBLIC_SCRIPTS_DIR
-        .on "error", gutil.log
+gulp.task "emulator", [ "emulator-compile" ], ->
+    # gulp.src [ "#{BUILD_DIR}/**/*.js", "!#{BUILD_DIR}/**/{debug,tests}/**" ]
+    #     .pipe closure
+    #         compilerPath: CLOSURE_JAR
+    #         fileName: minifySrcName "cfxnes.js"
+    #         compilerFlags:
+    #             logging_level: "ALL"
+    #             compilation_level: if PRODUCTION_MODE then "ADVANCED_OPTIMIZATIONS" else "WHITESPACE_ONLY"
+    #             #warning_level: "QUIET"
+    #             process_common_js_modules: true
+    #             common_js_entry_module: "#{BUILD_DIR}/frontend/emulator.js"
+    #             externs: [
+    #                 "#{EXTERNS_DIR}/md5.js"
+    #                 "#{EXTERNS_DIR}/screenfull.js"
+    #                 "#{EXTERNS_DIR}/w3c_audio.js"
+    #             ]
+    #     .pipe gulp.dest PUBLIC_SCRIPTS_DIR
+    #     .on "error", gutil.log
 
 gulp.task "emulator-test", [ "emulator-compile" ], ->
     gulp.src "#{BUILD_DIR}/core/tests/*-test{,s}.js", read: false
@@ -101,7 +98,7 @@ gulp.task "emulator-test", [ "emulator-compile" ], ->
             timeout: 60000 # 60 s
 
 gulp.task "emulator-compile", [ "emulator-clean" ], ->
-    gulp.src "#{EMULATOR_DIR}/**/*.coffee"
+    gulp.src [ "#{EMULATOR_DIR}/**/*.coffee", "!#{EMULATOR_DIR}/**/{debug,tests}/**", "!#{EMULATOR_DIR}/core/readers/local-file-reader.coffee" ]
         .pipe coffee
             bare: true
             inline: EMULATOR_INLINING

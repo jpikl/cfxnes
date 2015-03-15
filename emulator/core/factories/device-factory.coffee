@@ -1,5 +1,10 @@
 logger = require("../utils/logger").get()
 
+deviceClasses = {
+    "joypad"
+}
+Joypad =
+
 ###########################################################
 # Factory for device creation
 ###########################################################
@@ -7,10 +12,12 @@ logger = require("../utils/logger").get()
 class DeviceFactory
 
     constructor: (@injector) ->
+        @devices =
+            "joypad": require "../devices/joypad"
+            "zapper": require "../devices/zapper"
 
     createDevice: (id) ->
         logger.info "Creating device '#{id}'"
-        deviceClass = require "../devices/#{id}"
-        @injector.injectInstance new deviceClass
+        @injector.injectInstance new @devices[id]
 
 module.exports = DeviceFactory

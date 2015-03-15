@@ -282,7 +282,7 @@ class PPU
         value
 
     writeOAMData: (value) ->
-        @primaryOAM[@oamAddress] = value unless @$isRenderingActive()
+        @primaryOAM[@oamAddress] = value unless @isRenderingActive()
         @oamAddress = (@oamAddress + 1) & 0xFF # Write always increments the address.
         value
 
@@ -302,7 +302,7 @@ class PPU
         address
 
     readData: ->
-        if @$isPaletteAddress @vramAddress
+        if @isPaletteAddress @vramAddress
             value = @ppuMemory.read @vramAddress
             @vramReadBuffer = @ppuMemory.read @vramAddress & 0x2FFF # Buffer musn't be reloaded from palette address, but from underlying nametable address
             @incrementAddress()
@@ -314,12 +314,12 @@ class PPU
             value
 
     writeData: (value) ->
-        @ppuMemory.write @vramAddress, value unless @$isRenderingActive()
+        @ppuMemory.write @vramAddress, value unless @isRenderingActive()
         @incrementAddress()
         value
 
     incrementAddress: ->
-        @vramAddress = (@vramAddress + @$getAddressIncrement()) & 0xFFFF
+        @vramAddress = (@vramAddress + @getAddressIncrement()) & 0xFFFF
 
     getAddressIncrement: ->
         if @bigAddressIncrement then 0x20 else 0x01 # Vertical/horizontal move in pattern table.
@@ -352,10 +352,10 @@ class PPU
         value
 
     updateScrolling: ->
-        @$incrementCoarseXScroll()   if @cycleFlags & F_INC_CX
-        @$incrementFineYScroll()     if @cycleFlags & F_INC_FY
-        @$copyHorizontalScrollBits() if @cycleFlags & F_COPY_HS
-        @$copyVerticalScrollBits()   if @cycleFlags & F_COPY_VS
+        @incrementCoarseXScroll()   if @cycleFlags & F_INC_CX
+        @incrementFineYScroll()     if @cycleFlags & F_INC_FY
+        @copyHorizontalScrollBits() if @cycleFlags & F_COPY_HS
+        @copyVerticalScrollBits()   if @cycleFlags & F_COPY_VS
 
     copyHorizontalScrollBits: ->
         @vramAddress = (@vramAddress & 0x7BE0) | (@tempAddress & 0x041F) # V[10,4-0] = T[10,4-0]
@@ -420,9 +420,9 @@ class PPU
         if @nmiDelay and not --@nmiDelay and @nmiEnabled and not @supressNMI
             @cpu.activateInterrupt Interrupt.NMI
         if @cycleFlags & F_VB_START
-            @$enterVBlank()
+            @enterVBlank()
         else if @cycleFlags & F_VB_END
-            @$leaveVBlank()
+            @leaveVBlank()
 
     enterVBlank: ->
         @vblankActive = true
@@ -442,7 +442,7 @@ class PPU
     ###########################################################
 
     incrementCycle: ->
-        @cycle++ if (@cycleFlags & F_SKIP) and @oddFrame and @$isRenderingEnabled() # Skipped on odd frames
+        @cycle++ if (@cycleFlags & F_SKIP) and @oddFrame and @isRenderingEnabled() # Skipped on odd frames
         @cycle++
         @incrementScanline() if @cycle > 340
         @cycleFlags = cycleFlagsTable[@cycle] & scanlineFlagsTable[@scanline] # Update flags for new scanline/cycle
@@ -462,54 +462,54 @@ class PPU
     ###########################################################
 
     tick: ->
-        if @$isRenderingEnabled()
-            @$fetchData()
-            @$evaluateSprites()  if @cycleFlags & F_EVAL_SP
-            @$copyBackground()   if @cycleFlags & F_COPY_BG
-            @$updateFramePixel() if @cycleFlags & F_RENDER
-            @$shiftBackground()  if @cycleFlags & F_SHIFT_BG
-            @$updateScrolling()
+        if @isRenderingEnabled()
+            @fetchData()
+            @evaluateSprites()  if @cycleFlags & F_EVAL_SP
+            @copyBackground()   if @cycleFlags & F_COPY_BG
+            @updateFramePixel() if @cycleFlags & F_RENDER
+            @shiftBackground()  if @cycleFlags & F_SHIFT_BG
+            @updateScrolling()
         else
-            @$clearFramePixel()  if @cycleFlags & F_RENDER
+            @clearFramePixel()  if @cycleFlags & F_RENDER
             @addressBus = @vramAddress
-        @$updateVBlank()
-        @$incrementCycle()
+        @updateVBlank()
+        @incrementCycle()
         @mapper.tick()
 
     fetchData: ->
         if @cycleFlags & F_FETCH_NT
-            @$fetchNametable()
+            @fetchNametable()
         else if @cycleFlags & F_FETCH_AT
-            @$fetchAttribute()
+            @fetchAttribute()
         else if @cycleFlags & F_FETCH_BGL
-            @$fetchBackgroundLow()
+            @fetchBackgroundLow()
         else if @cycleFlags & F_FETCH_BGH
-            @$fetchBackgroundHigh()
+            @fetchBackgroundHigh()
         else if @cycleFlags & F_FETCH_SPL
-            @$fetchSpriteLow()
+            @fetchSpriteLow()
         else if @cycleFlags & F_FETCH_SPH
-            @$fetchSpriteHigh()
+            @fetchSpriteHigh()
 
     isRenderingActive: ->
-        not @vblankActive and @$isRenderingEnabled()
+        not @vblankActive and @isRenderingEnabled()
 
     isRenderingEnabled: ->
         @spritesVisible or @backgroundVisible
 
     updateFramePixel: ->
         if @ntscMode and @cycleFlags & F_CLIP_NTSC # Clip top/bottom 8 scanlines in NTSC
-            @$clearFramePixel()
+            @clearFramePixel()
         else
             address = @renderFramePixel()
             color = @ppuMemory.readPalette address
-            @$setFramePixel color
+            @setFramePixel color
 
     renderFramePixel: ->
         backgroundColor = @renderBackgroundPixel()
-        spriteColor = @$renderSpritePixel()
+        spriteColor = @renderSpritePixel()
         if backgroundColor & 0x03
             if spriteColor & 0x03
-                sprite = @$getRenderedSprite()
+                sprite = @getRenderedSprite()
                 @spriteZeroHit ||= sprite.zeroSprite
                 if sprite.inFront
                     spriteColor     # Sprite has priority over background
@@ -601,7 +601,7 @@ class PPU
         @paletteBuffer1 = (@paletteBuffer1 << 1) | @paletteLatch1
 
     renderBackgroundPixel: ->
-        if @$isBackgroundPixelVisible()
+        if @isBackgroundPixelVisible()
             colorBit0   = ((@patternBuffer0 << @fineXScroll) >> 15) & 0x1
             colorBit1   = ((@patternBuffer1 << @fineXScroll) >> 14) & 0x2
             paletteBit0 = ((@paletteBuffer0 << @fineXScroll) >>  5) & 0x4
@@ -698,7 +698,7 @@ class PPU
         undefined
 
     renderSpritePixel: ->
-        if @$isSpritePixelVisible()
+        if @isSpritePixelVisible()
             @spritePixelCache[@cycle]
         else
             0
