@@ -1,118 +1,132 @@
-function Logger(id1) {
-  this.id = id1;
+var system = require("./system");
+
+//=========================================================
+// Logger object
+//=========================================================
+
+var loggers = {};
+
+class Logger {
+
+    constructor(id) {
+        this.id = id;
+        this.writers = null;
+    }
+
+    attach(writer) {
+        if (!this.writers) {
+            this.writers = [];
+        }
+        this.writers.push(writer);
+    }
+
+    detach(writer) {
+        if (this.writers) {
+            var index = this.writers.indexOf(writer);
+            if (index >= 0) {
+                this.writers.splice(index, 1);
+            }
+        }
+    }
+
+    close() {
+        if (this.writers) {
+            for (var writer of this.writers) {
+                if (typeof writer.close === "function") {
+                    writer.close();
+                }
+            }
+            this.writers = null;
+        }
+        loggers[this.id] = undefined;
+    }
+
+    info(message) {
+        if (this.writers) {
+            for (var writer of this.writers) {
+                writer.info(message);
+            }
+        }
+    }
+
+    warn(message) {
+        if (this.writers) {
+            for (var writer of this.writers) {
+                writer.warn(message);
+            }
+        }
+    }
+
+    error(message) {
+        if (this.writers) {
+            if (typeof message === "object" && message.stack && (typeof window === "undefined" || !window || window.chrome)) {
+                message = message.stack; // Fix ugly error output in chrome + fix terminal output
+            }
+            for (var writer of this.writers) {
+                writer.error(message);
+            }
+        }
+    }
+
+};
+
+//=========================================================
+// Logger factory method
+//=========================================================
+
+Logger["get"] = function(id) {
+    if (id == null) {
+        id = "default";
+    }
+    if (!loggers[id]) {
+        loggers[id] = new Logger(id);
+    }
+    return loggers[id];
+};
+
+//=========================================================
+// Console log writer
+//=========================================================
+
+Logger["console"] = function() {
+    return console;
+};
+
+//=========================================================
+// File log writer
+//=========================================================
+
+class FileWriter {
+
+    constructor(fileName) {
+        var fs = system.require("fs");
+        this.fd = fs.openSync(fileName, "w");
+    }
+
+    info(message) {
+        this.write(message + "\n");
+    }
+
+    warn(message) {
+        this.write(message + "\n");
+    }
+
+    error(message) {
+        this.write(message + "\n");
+    }
+
+    write(message) {
+        this.fs.writeSync(this.fd, message);
+    }
+
+    close() {
+        this.fs.close(this.fd);
+    }
+
 }
 
-Logger.loggers = [];
-
-Logger.get = function(id) {
-  var base;
-  if (id == null) {
-    id = "default";
-  }
-  return (base = this.loggers)[id] != null ? base[id] : base[id] = new Logger(id);
-};
-
-Logger.console = function() {
-  return console;
-};
-
-Logger.file = function(fileName) {
-  return new FileWriter(fileName);
-};
-
-Logger.prototype.attach = function(writer) {
-  if (this.writers == null) {
-    this.writers = [];
-  }
-  this.writers.push(writer);
-  return this;
-};
-
-Logger.prototype.detach = function(writer) {
-  var index;
-  if (this.writers) {
-    index = this.writers.indexOf(writer);
-    if (index >= 0) {
-      return this.writers.splice(index, 1);
-    }
-  }
-};
-
-Logger.prototype.close = function() {
-  var i, len, ref, writer;
-  if (this.writers) {
-    ref = this.writers;
-    for (i = 0, len = ref.length; i < len; i++) {
-      writer = ref[i];
-      if (typeof writer.close === "function") {
-        writer.close();
-      }
-    }
-    this.writers = null;
-  }
-  Logger.loggers[this.id] = void 0;
-  return void 0;
-};
-
-Logger.prototype.info = function(message) {
-  var i, len, ref, writer;
-  if (this.writers) {
-    ref = this.writers;
-    for (i = 0, len = ref.length; i < len; i++) {
-      writer = ref[i];
-      writer.info(message);
-    }
-  }
-  return void 0;
-};
-
-Logger.prototype.warn = function(message) {
-  var i, len, ref, writer;
-  if (this.writers) {
-    ref = this.writers;
-    for (i = 0, len = ref.length; i < len; i++) {
-      writer = ref[i];
-      writer.warn(message);
-    }
-  }
-  return void 0;
-};
-
-Logger.prototype.error = function(message) {
-  var i, len, ref, writer;
-  if (this.writers) {
-    if (typeof message === "object" && message.stack && ((typeof window === "undefined" || window === null) || window.chrome)) {
-      message = message.stack;
-    }
-    ref = this.writers;
-    for (i = 0, len = ref.length; i < len; i++) {
-      writer = ref[i];
-      writer.error(message);
-    }
-  }
-  return void 0;
-};
-
-function FileWriter(fileName) {}
-
-FileWriter.prototype.info = function(message) {
-  return this.write(message + "\n");
-};
-
-FileWriter.prototype.warn = function(message) {
-  return this.write(message + "\n");
-};
-
-FileWriter.prototype.error = function(message) {
-  return this.write(message + "\n");
-};
-
-FileWriter.prototype.write = function(message) {
-  return this.fs.writeSync(this.fd, message);
-};
-
-FileWriter.prototype.close = function() {
-  return this.fs.close(this.fd);
+Logger["file"] = function(fileName) {
+    return new FileWriter(fileName);
 };
 
 module.exports = Logger;

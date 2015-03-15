@@ -1,84 +1,72 @@
-var ROOT_PATH, logger;
+var logger = require("./logger").get();
 
-logger = require("./logger").get();
+//=========================================================
+// Dependency injection library
+//=========================================================
 
-ROOT_PATH = "../..";
+class Injector {
 
-function Injector(configuration) {
-  var clazz, name, ref;
-  logger.info("Creating injector");
-  this.dependencies = {};
-  ref = this.resolveConfiguration(configuration);
-  for (name in ref) {
-    clazz = ref[name];
-    this.dependencies[name] = {
-      clazz: clazz
-    };
-  }
+    constructor(config) {
+        logger.info("Creating injector");
+        this.dependencies = {};
+        this.processConfig(config);
+
+    }
+
+    processConfig(config) {
+        if (typeof config === "function") {
+            logger.info("Building injector configuration");
+            config = (config.constructor) ? new config : config();
+        }
+        logger.info("Processing injector configuration");
+        for (name in config) {
+            clazz = config[name];
+            this.dependencies[name] = {
+                clazz: clazz
+            };
+        }
+    }
+
+    getDependency(name) {
+        var dependency = this.dependencies[name];
+        if (!dependency) {
+            throw new Error("Dependency '" + name + "' not found.");
+        }
+        return dependency;
+    }
+
+    getClass(name) {
+        return this.getDependency(name).clazz;
+    }
+
+    getInstance(name) {
+        var dependency = this.getDependency(name);
+        if (!dependency.instance) {
+            dependency.instance = this.createInstance(name);
+            this.injectInstance(dependency.instance);
+        }
+        return dependency.instance;
+    }
+
+    createInstance(name) {
+        logger.info("Creating instance of '" + name + "'");
+        return new(this.getClass(name))(this);
+    }
+
+    injectInstance(instance) {
+        var dependencies = instance.constructor.dependencies;
+        var injectMethod = instance.inject || instance.init;
+        if (dependencies && injectMethod) {
+            logger.info("Injecting dependencies: " + (dependencies.join(', ')));
+            var resolvedDependencies = []
+            for (var name of dependencies) {
+                resolvedDependencies.push(this.getInstance(name));
+            }
+            injectMethod.apply(instance, resolvedDependencies);
+        }
+        return instance;
+    }
+
 }
-
-Injector.prototype.resolveConfiguration = function(configuration) {
-  if (typeof configuration === "function") {
-    configuration = this.buildConfiguration(configuration);
-  }
-  return configuration;
-};
-
-Injector.prototype.buildConfiguration = function(builder) {
-  logger.info("Building injector configuration");
-  if (builder.constructor != null) {
-    return new builder;
-  } else {
-    return builder();
-  }
-};
-
-Injector.prototype.getDependency = function(name) {
-  var dependency;
-  dependency = this.dependencies[name];
-  if (dependency == null) {
-    throw new Error("Dependency '" + name + "' not found.");
-  }
-  return dependency;
-};
-
-Injector.prototype.getClass = function(name) {
-  return this.getDependency(name).clazz;
-};
-
-Injector.prototype.getInstance = function(name) {
-  var dependency;
-  dependency = this.getDependency(name);
-  if (!dependency.instance) {
-    dependency.instance = this.createInstance(name);
-    this.injectInstance(dependency.instance);
-  }
-  return dependency.instance;
-};
-
-Injector.prototype.createInstance = function(name) {
-  logger.info("Creating instance of '" + name + "'");
-  return new (this.getClass(name))(this);
-};
-
-Injector.prototype.injectInstance = function(instance) {
-  var dependencies, dependency, injectMethod, resolvedDependencies;
-  dependencies = instance.constructor.dependencies;
-  injectMethod = instance.inject || instance.init;
-  if (dependencies && injectMethod) {
-    logger.info("Injecting dependencies: " + (dependencies.join(', ')));
-    resolvedDependencies = (function() {
-      var i, len, results;
-      results = [];
-      for (i = 0, len = dependencies.length; i < len; i++) {
-        dependency = dependencies[i];
-        results.push(this.getInstance(dependency));
-      }
-      return results;
-    }).call(this);
-    injectMethod.apply(instance, resolvedDependencies);
-  }
-  return instance;
-};
 
 module.exports = Injector;

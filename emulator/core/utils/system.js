@@ -4,6 +4,15 @@
 
 var system = {
 
+    // Alias for CommonJS require.
+    // Useful when requiring module outside Closure Compiler resolution.
+    require: function(module) {
+        if (typeof require !== "function") {
+            throw new Error("CommonJS require not avaialable.");
+        }
+        return require(module);
+    },
+
     detectEndianness: function () {
         var buffer = new ArrayBuffer(4);
         var u32 = new Uint32Array(buffer);
