@@ -1,4 +1,4 @@
-system = require "system"
+system = require "./system"
 
 ###########################################################
 # Color manipulation utilities

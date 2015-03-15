@@ -28,96 +28,105 @@ class DebugCPU extends CPU
     # Addressing modes
     ###########################################################
 
-    impliedMode:     => @logAddressingMode "imp", super()
-    accumulatorMode: => @logAddressingMode "acc", super()
-    immediateMode:   => @logAddressingMode "imm", super()
-    zeroPageMode:    => @logAddressingMode "zpg", super()
-    zeroPageXMode:   => @logAddressingMode "zpx", super()
-    zeroPageYMode:   => @logAddressingMode "zpy", super()
-    absoluteMode:    => @logAddressingMode "abs", super()
-    absoluteXMode:   => @logAddressingMode "abx", super()
-    absoluteYMode:   => @logAddressingMode "aby", super()
-    relativeMode:    => @logAddressingMode "abx", super()
-    indirectMode:    => @logAddressingMode "ind", super()
-    indirectXMode:   => @logAddressingMode "inx", super()
-    indirectYMode:   => @logAddressingMode "iny", super()
+    impliedMode:     -> @logAddressingMode "imp", super()
+    accumulatorMode: -> @logAddressingMode "acc", super()
+    immediateMode:   -> @logAddressingMode "imm", super()
+    zeroPageMode:    -> @logAddressingMode "zpg", super()
+    zeroPageXMode:   -> @logAddressingMode "zpx", super()
+    zeroPageYMode:   -> @logAddressingMode "zpy", super()
+    absoluteMode:    -> @logAddressingMode "abs", super()
+    absoluteXMode:   -> @logAddressingMode "abx", super()
+    absoluteYMode:   -> @logAddressingMode "aby", super()
+    relativeMode:    -> @logAddressingMode "abx", super()
+    indirectMode:    -> @logAddressingMode "ind", super()
+    indirectXMode:   -> @logAddressingMode "inx", super()
+    indirectYMode:   -> @logAddressingMode "iny", super()
 
     ###########################################################
     # Instructions
     ###########################################################
 
-    NOP: (address) => @logInstruction "NOP", super(address)
-    CLC: (address) => @logInstruction "CLC", super(address)
-    CLI: (address) => @logInstruction "CLI", super(address)
-    CLD: (address) => @logInstruction "CLD", super(address)
-    CLV: (address) => @logInstruction "CLV", super(address)
-    SEC: (address) => @logInstruction "SEC", super(address)
-    SEI: (address) => @logInstruction "SEI", super(address)
-    SED: (address) => @logInstruction "SED", super(address)
-    STA: (address) => @logInstruction "STA", super(address)
-    STX: (address) => @logInstruction "STX", super(address)
-    SAX: (address) => @logInstruction "SAX", super(address)
-    STY: (address) => @logInstruction "STY", super(address)
-    LDA: (address) => @logInstruction "LDA", super(address)
-    LDX: (address) => @logInstruction "LDX", super(address)
-    LAX: (address) => @logInstruction "LAX", super(address)
-    LDY: (address) => @logInstruction "LDY", super(address)
-    TAX: (address) => @logInstruction "TAX", super(address)
-    TAY: (address) => @logInstruction "TAY", super(address)
-    TXA: (address) => @logInstruction "TXA", super(address)
-    TYA: (address) => @logInstruction "TYA", super(address)
-    TSX: (address) => @logInstruction "TSX", super(address)
-    TXS: (address) => @logInstruction "TXS", super(address)
-    PHA: (address) => @logInstruction "PHA", super(address)
-    PHP: (address) => @logInstruction "PHP", super(address)
-    PLA: (address) => @logInstruction "PLA", super(address)
-    PLP: (address) => @logInstruction "PLP", super(address)
-    AND: (address) => @logInstruction "AND", super(address)
-    ORA: (address) => @logInstruction "ORA", super(address)
-    EOR: (address) => @logInstruction "EOR", super(address)
-    BIT: (address) => @logInstruction "BIT", super(address)
-    INC: (address) => @logInstruction "INC", super(address)
-    INX: (address) => @logInstruction "INX", super(address)
-    INY: (address) => @logInstruction "INY", super(address)
-    DEC: (address) => @logInstruction "DEC", super(address)
-    DEX: (address) => @logInstruction "DEX", super(address)
-    DEY: (address) => @logInstruction "DEY", super(address)
-    CMP: (address) => @logInstruction "CMP", super(address)
-    CPX: (address) => @logInstruction "CPX", super(address)
-    CPY: (address) => @logInstruction "CPY", super(address)
-    BCC: (address) => @logInstruction "BCC", super(address)
-    BCS: (address) => @logInstruction "BCS", super(address)
-    BNE: (address) => @logInstruction "BNE", super(address)
-    BEQ: (address) => @logInstruction "BEQ", super(address)
-    BVC: (address) => @logInstruction "BVC", super(address)
-    BVS: (address) => @logInstruction "BVS", super(address)
-    BPL: (address) => @logInstruction "BPL", super(address)
-    BMI: (address) => @logInstruction "BMI", super(address)
-    JMP: (address) => @logInstruction "JMP", super(address)
-    JSR: (address) => @logInstruction "JSR", super(address)
-    RTS: (address) => @logInstruction "RTS", super(address)
-    BRK: (address) => @logInstruction "BRK", super(address)
-    RTI: (address) => @logInstruction "RTI", super(address)
-    ADC: (address) => @logInstruction "ADC", super(address)
-    SBC: (address) => @logInstruction "SBC", super(address)
-    ASL: (address) => @logInstruction "ASL", super(address)
-    LSR: (address) => @logInstruction "LSR", super(address)
-    ROL: (address) => @logInstruction "ROL", super(address)
-    ROR: (address) => @logInstruction "ROR", super(address)
-    DCP: (address) => @logInstruction "DCP", super(address)
-    ISB: (address) => @logInstruction "ISB", super(address)
-    SLO: (address) => @logInstruction "SLO", super(address)
-    SRE: (address) => @logInstruction "SRE", super(address)
-    RLA: (address) => @logInstruction "RLA", super(address)
-    RRA: (address) => @logInstruction "RRA", super(address)
+    NOP: (address) -> @logInstruction "NOP", super(address)
+    CLC: (address) -> @logInstruction "CLC", super(address)
+    CLI: (address) -> @logInstruction "CLI", super(address)
+    CLD: (address) -> @logInstruction "CLD", super(address)
+    CLV: (address) -> @logInstruction "CLV", super(address)
+    SEC: (address) -> @logInstruction "SEC", super(address)
+    SEI: (address) -> @logInstruction "SEI", super(address)
+    SED: (address) -> @logInstruction "SED", super(address)
+    STA: (address) -> @logInstruction "STA", super(address)
+    STX: (address) -> @logInstruction "STX", super(address)
+    SAX: (address) -> @logInstruction "SAX", super(address)
+    STY: (address) -> @logInstruction "STY", super(address)
+    SHX: (address) -> @logInstruction "SHX", super(address)
+    SHY: (address) -> @logInstruction "SHY", super(address)
+    LDA: (address) -> @logInstruction "LDA", super(address)
+    LDX: (address) -> @logInstruction "LDX", super(address)
+    LDY: (address) -> @logInstruction "LDY", super(address)
+    LAX: (address) -> @logInstruction "LAX", super(address)
+    LAS: (address) -> @logInstruction "LAS", super(address)
+    TAX: (address) -> @logInstruction "TAX", super(address)
+    TAY: (address) -> @logInstruction "TAY", super(address)
+    TXA: (address) -> @logInstruction "TXA", super(address)
+    TYA: (address) -> @logInstruction "TYA", super(address)
+    TSX: (address) -> @logInstruction "TSX", super(address)
+    TXS: (address) -> @logInstruction "TXS", super(address)
+    PHA: (address) -> @logInstruction "PHA", super(address)
+    PHP: (address) -> @logInstruction "PHP", super(address)
+    PLA: (address) -> @logInstruction "PLA", super(address)
+    PLP: (address) -> @logInstruction "PLP", super(address)
+    AND: (address) -> @logInstruction "AND", super(address)
+    ORA: (address) -> @logInstruction "ORA", super(address)
+    EOR: (address) -> @logInstruction "EOR", super(address)
+    BIT: (address) -> @logInstruction "BIT", super(address)
+    INC: (address) -> @logInstruction "INC", super(address)
+    INX: (address) -> @logInstruction "INX", super(address)
+    INY: (address) -> @logInstruction "INY", super(address)
+    DEC: (address) -> @logInstruction "DEC", super(address)
+    DEX: (address) -> @logInstruction "DEX", super(address)
+    DEY: (address) -> @logInstruction "DEY", super(address)
+    CMP: (address) -> @logInstruction "CMP", super(address)
+    CPX: (address) -> @logInstruction "CPX", super(address)
+    CPY: (address) -> @logInstruction "CPY", super(address)
+    BCC: (address) -> @logInstruction "BCC", super(address)
+    BCS: (address) -> @logInstruction "BCS", super(address)
+    BNE: (address) -> @logInstruction "BNE", super(address)
+    BEQ: (address) -> @logInstruction "BEQ", super(address)
+    BVC: (address) -> @logInstruction "BVC", super(address)
+    BVS: (address) -> @logInstruction "BVS", super(address)
+    BPL: (address) -> @logInstruction "BPL", super(address)
+    BMI: (address) -> @logInstruction "BMI", super(address)
+    JMP: (address) -> @logInstruction "JMP", super(address)
+    JSR: (address) -> @logInstruction "JSR", super(address)
+    RTS: (address) -> @logInstruction "RTS", super(address)
+    BRK: (address) -> @logInstruction "BRK", super(address)
+    RTI: (address) -> @logInstruction "RTI", super(address)
+    ADC: (address) -> @logInstruction "ADC", super(address)
+    SBC: (address) -> @logInstruction "SBC", super(address)
+    ASL: (address) -> @logInstruction "ASL", super(address)
+    LSR: (address) -> @logInstruction "LSR", super(address)
+    ROL: (address) -> @logInstruction "ROL", super(address)
+    ROR: (address) -> @logInstruction "ROR", super(address)
+    DCP: (address) -> @logInstruction "DCP", super(address)
+    ISB: (address) -> @logInstruction "ISB", super(address)
+    SLO: (address) -> @logInstruction "SLO", super(address)
+    SRE: (address) -> @logInstruction "SRE", super(address)
+    RLA: (address) -> @logInstruction "RLA", super(address)
+    XAA: (address) -> @logInstruction "XAA", super(address)
+    RRA: (address) -> @logInstruction "RRA", super(address)
+    AXS: (address) -> @logInstruction "AXS", super(address)
+    ANC: (address) -> @logInstruction "ANC", super(address)
+    ALR: (address) -> @logInstruction "ALR", super(address)
+    ARR: (address) -> @logInstruction "ARR", super(address)
+    TAS: (address) -> @logInstruction "TAS", super(address)
 
     ###########################################################
     # Logging
     ###########################################################
 
     startLogging: ->
+        @line = 0
         @logHeader()
-        @linesCount = 0
         @basicLogFormatterMethods = [
             @formatInstructionAddress
             @formatInstructionData
@@ -125,8 +134,8 @@ class DebugCPU extends CPU
             @formatRegisters
         ]
         @verboseLogFormatterMethods = [
-            @formatLinesCount
-            @formatCyclesCount
+            @formatLine
+            @formatCycle
             @formatInstructionAddress
             @formatInstructionData
             @formatInstructionCode
@@ -152,7 +161,7 @@ class DebugCPU extends CPU
         result
 
     logOperationBefore: ->
-        @cyclesCountBefore = @cyclesCount
+        @cycleBefore = @cycle
         @registers = [ @accumulator, @registerX, @registerY, @getStatus(), @stackPointer ]
         @flags = [ @negativeFlag, @overflowFlag, false, false, @decimalMode, @interruptDisable, @zeroFlag, @carryFlag ]
         @instructionAddress = @programCounter
@@ -163,8 +172,8 @@ class DebugCPU extends CPU
         ]
 
     logOperationAfter: ->
-        @linesCount++
-        @instructionCycles = @cyclesCount - @cyclesCountBefore
+        @line++
+        @instructionCycles = @cycle - @cycleBefore
         basicResult = (method() for method in @basicLogFormatterMethods)
         basicLogger.info basicResult.join "  "
         verboseResult = (method() for method in @verboseLogFormatterMethods)
@@ -174,11 +183,11 @@ class DebugCPU extends CPU
     # Formatting
     ###########################################################
 
-    formatLinesCount: =>
-        fillLeft @linesCount, 5
+    formatLine: =>
+        fillLeft @line, 5
 
-    formatCyclesCount: =>
-        fillLeft @cyclesCountBefore, 5
+    formatCycle: =>
+        fillLeft @cycleBefore, 5
 
     formatInstructionAddress: =>
         wordAsHex @instructionAddress

@@ -38,7 +38,7 @@ class CPU
                             #         because bits 4 and 5 are not physically stored in status register)
 
     resetVariables: ->
-        @cyclesCount = 0
+        @cycle = 0            # Number of cycles after power on / reset
         @emptyReadCycles = 0  # Number of dummy write cycles
         @emptyWriteCycles = 0 # Number of dummy read cycles
         @activeInterrupts = 0 # Bitmap of active interrupts (each type of interrupt has its own bit)
@@ -83,6 +83,7 @@ class CPU
         @tick() # To make totally 7 cycles during interrupt
 
     handleReset: ->
+        @cycle = 0
         @write 0x4015, 0x00                              # Disable all APU channels immediatelly
         @write 0x4017, @apu.frameCounterLastWrittenValue # It's allways 0 on power up (which will disable all APU channels)
         @stackPointer = (@stackPointer - 3) & 0xFF       # Unlike IRQ/NMI, writing on stack here does not modify CPU memory, so we just decrement the stack pointer 3 times
@@ -211,7 +212,7 @@ class CPU
             @tick()
 
     tick: ->
-        @cyclesCount++
+        @cycle++
         @dma.tick() unless @apu.isBlockingDMA()
         @ppu.tick() for [1..3]
         @apu.tick()

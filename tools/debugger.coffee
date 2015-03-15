@@ -70,7 +70,7 @@ breakCondition = null
 helpCommand = (param) ->
     stdout.write "s, step  <number> ... Performs specified number of steps (default: 1).\n"
     stdout.write "j, jump  <number> ... Same as 'step' but does not print output.\n"
-    stdout.write "b, break <code>   ... Sets JS code that will break 'step'/'jump' if evaluated to true (empty value to disable)."
+    stdout.write "b, break <code>   ... Sets JS code that will break 'step'/'jump' if evaluated to true (empty value to disable).\n"
     stdout.write "x, exec  <code>   ... Executes JS code.\n"
     stdout.write "h, help           ... Prints this help.\n"
     stdout.write "q, quit           ... Quits the debugger.\n"
@@ -83,7 +83,7 @@ jumpCommand = (param) ->
                 result = eval breakCondition
                 if result
                     nes.step()
-                    stdout.write "[Break] #{breakCondition} = #{result}\n"
+                    stdout.write "[Break] #{breakCondition} => #{result}\n"
                     break
             catch error
                 stdout.write "[Error] #{error.message}\n"
