@@ -58,8 +58,7 @@ cartridge = cartridgeFactory.fromLocalFile argv._[0]
 nes = injector.getInstance "nes"
 nes.insertCartridge cartridge
 
-stdin = process.stdin
-stdout = process.stdout
+print = console.log
 
 ###########################################################
 # Commands
@@ -68,12 +67,13 @@ stdout = process.stdout
 breakCondition = null
 
 helpCommand = (param) ->
-    stdout.write "s, step  <number> ... Performs specified number of steps (default: 1).\n"
-    stdout.write "j, jump  <number> ... Same as 'step' but does not print output.\n"
-    stdout.write "b, break <code>   ... Sets JS code that will break 'step'/'jump' if evaluated to true (empty value to disable).\n"
-    stdout.write "x, exec  <code>   ... Executes JS code.\n"
-    stdout.write "h, help           ... Prints this help.\n"
-    stdout.write "q, quit           ... Quits the debugger.\n"
+    print "s, step  <number> ... Performs specified number of steps (default: 1)."
+    print "j, jump  <number> ... Same as 'step' but does not print output."
+    print "b, break <code>   ... Sets JS code that will break 'step'/'jump' if evaluated to true (empty value to disable)."
+    print "x, exec  <code>   ... Executes JS code."
+    print "r, reset          ... Resets CPU."
+    print "h, help           ... Prints this help."
+    print "q, quit           ... Quits the debugger."
 
 jumpCommand = (param) ->
     count = parseInt(param) or 1
@@ -82,11 +82,10 @@ jumpCommand = (param) ->
             try
                 result = eval breakCondition
                 if result
-                    nes.step()
-                    stdout.write "[Break] #{breakCondition} => #{result}\n"
+                    print "Break condition '#{breakCondition}' evaluated to #{result}"
                     break
             catch error
-                stdout.write "[Error] #{error.message}\n"
+                print "Error when evaluating break condition '#{breakCondition}': #{error.message}"
                 break
         nes.step()
 
@@ -97,7 +96,11 @@ stepCommand = (param) ->
 
 breakCommand = (param) ->
     breakCondition = param
-    stdout.write "[Break] #{breakCondition or '-- cleared --'}\n"
+    if breakCondition
+        print "Break condition set to '#{breakCondition}'"
+    else
+        print "Break condition cleared"
+
 
 execCommand = (param) ->
     return unless param
@@ -113,9 +116,12 @@ execCommand = (param) ->
                 .replace /.*\[Function\].*\n/g, ""
         else if typeof result is "number"
             result = "0x#{numberAsHex result}"
-        stdout.write "[Exec] #{param} = #{result}\n"
+        print "#{param} = #{result}"
     catch error
-        stdout.write "[Error] #{error.message}\n"
+        print "Error: #{error.message}"
+
+resetCommand = (param) ->
+    nes.pressReset()
 
 quitCommand = (param) ->
     process.exit 0
@@ -127,19 +133,17 @@ quitCommand = (param) ->
 if argv.step?
     breakCommand argv.break if argv.break?.trim()
     stepCommand argv.step
-    process.exit 0
+    quitCommand()
 
 ###########################################################
 # Interactive mode
 ###########################################################
 
-rl = readline.createInterface stdin, stdout
+rl = readline.createInterface process.stdin, process.stdout
 rl.setPrompt "command>"
 rl.prompt()
 
 rl.on "line", (line) ->
-    stdout.moveCursor 0, -1
-    stdout.clearLine()
     input = line.trim().split /\s+/
     command = input[0]
     param = input[1..].join " "
@@ -149,10 +153,10 @@ rl.on "line", (line) ->
         when "j", "jump"  then jumpCommand param
         when "b", "break" then breakCommand param
         when "x", "exec"  then execCommand param
+        when "r", "reset" then resetCommand param
         when "q", "quit"  then quitCommand param
-        else stdout.write "Type 'help' to print available commands.\n"
+        else print "Type 'help' to print available commands."
     rl.prompt()
 
 rl.on "close", ->
-    stdout.write "\n"
-    process.exit 0
+    quitCommand()
