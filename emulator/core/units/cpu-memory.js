@@ -53,7 +53,7 @@ CPUMemory.prototype.write = function(address, value) {
 };
 
 CPUMemory.prototype.createRAM = function() {
-  this.ram = system.allocateBytes(0x800);
+  this.ram = system.newUint8Array(0x800);
   return void 0;
 };
 

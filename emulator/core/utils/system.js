@@ -1,28 +1,41 @@
-var littleEndian, system;
-
-littleEndian = (function() {
-  return true;
-})();
+//=========================================================
+// System utilities
+//=========================================================
 
 system = {
-  littleEndian: littleEndian,
-  bigEndian: !littleEndian,
-  allocateBytes: function(size) {
-    var data, i, j, ref;
-    data = new Array(size);
-    for (i = j = 0, ref = data.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-      data[i] = 0;
+
+    detectEndianness: function () {
+        var buffer = new ArrayBuffer(4);
+        var u32 = new Uint32Array(buffer);
+        var u8 = new Uint8Array(buffer);
+        u32[0] = 0xFF;
+        return (u8[0] === 0xFF) ? "LE" : "BE";
+    },
+
+    newUint8Array: function(size) {
+        return new Uint8ClampedArray(size);
+    },
+
+    newUint32Array: function(size) {
+        // For some strange reason, Uint32Array is much slower
+        // than ordinary array in Chrome.
+        data = new Array(size);
+        system.clearArray(data);
+        return data;
+    },
+
+    clearArray: function(array, value) {
+        if (value == null) {
+            value = 0;
+        }
+        for (var i = 0; i < array.length; i++) {
+            array[i] = value;
+        }
     }
-    return data;
-  },
-  allocateInts: function(size) {
-    var data, i, j, ref;
-    data = new Array(size);
-    for (i = j = 0, ref = data.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-      data[i] = 0;
-    }
-    return data;
-  }
+
 };
+
+system.littleEndian = system.detectEndianness() === "LE";
+system.bigEndian    = system.detectEndianness() === "BE";
 
 module.exports = system;

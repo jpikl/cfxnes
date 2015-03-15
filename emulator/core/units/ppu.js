@@ -52,9 +52,9 @@ F_VB_END = 1 << 19;
 
 F_SKIP = 1 << 20;
 
-cycleFlagsTable = system.allocateInts(340);
+cycleFlagsTable = system.newUint32Array(340);
 
-scanlineFlagsTable = system.allocateInts(261);
+scanlineFlagsTable = system.newUint32Array(261);
 
 for (i = j = 1; j <= 256; i = ++j) {
   cycleFlagsTable[i] |= F_RENDER;
@@ -266,7 +266,7 @@ PPU.prototype.powerUp = function() {
 };
 
 PPU.prototype.resetOAM = function() {
-  this.primaryOAM = system.allocateBytes(0x100);
+  this.primaryOAM = system.newUint8Array(0x100);
   return this.secondaryOAM = (function() {
     var ap, results;
     results = [];
@@ -317,7 +317,7 @@ PPU.prototype.resetVariables = function() {
     }
     return results;
   })();
-  return this.spritePixelCache = system.allocateBytes(261);
+  return this.spritePixelCache = system.newUint8Array(261);
 };
 
 PPU.prototype.setNTSCMode = function(ntscMode) {

@@ -74,7 +74,7 @@ PPUMemory.prototype.mapPatternsBank = function(srcBank, dstBank) {
 };
 
 PPUMemory.prototype.createNamesAttrs = function() {
-  this.namesAttrs = system.allocateBytes(0x1000);
+  this.namesAttrs = system.newUint8Array(0x1000);
   return void 0;
 };
 
@@ -127,7 +127,7 @@ PPUMemory.prototype.setNamesAttrsMirroring = function(mirroring) {
 
 PPUMemory.prototype.createPaletts = function() {
   var i, j, ref;
-  this.paletts = system.allocateBytes(0x20);
+  this.paletts = system.newUint8Array(0x20);
   for (i = j = 0, ref = this.paletts.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
     this.paletts[i] = POWER_UP_PALETTES[i];
   }

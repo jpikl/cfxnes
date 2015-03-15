@@ -84,7 +84,7 @@ AbstractMapper.prototype.mapPRGROMBank8K = function(srcBank, dstBank, ratio) {
 
 AbstractMapper.prototype.createPRGRAM = function() {
   if (this.hasPRGRAM) {
-    this.prgRAM = system.allocateBytes(this.prgRAMSize);
+    this.prgRAM = system.newUint8Array(this.prgRAMSize);
     if (this.hasPRGRAMBattery && (this.prgRAMSizeBattery == null)) {
       this.prgRAMSizeBattery = this.prgRAMSize;
     }
@@ -162,7 +162,7 @@ AbstractMapper.prototype.mapCHRROMBank1K = function(srcBank, dstBank, ratio) {
 
 AbstractMapper.prototype.createCHRRAM = function() {
   if (this.hasCHRRAM) {
-    this.chrRAM = system.allocateBytes(this.chrRAMSize);
+    this.chrRAM = system.newUint8Array(this.chrRAMSize);
     if (this.hasCHRRAMBattery && (this.chrRAMSizeBattery == null)) {
       this.chrRAMSizeBattery = this.chrRAMSize;
     }
