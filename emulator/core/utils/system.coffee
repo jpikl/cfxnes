@@ -3,11 +3,12 @@
 ###########################################################
 
 littleEndian = do ->
-    buffer =  new ArrayBuffer 4
-    u32 = new Uint32Array buffer
-    u8 = new Uint8Array buffer
-    u32[0] = 0xFF
-    u8[0] is 0xFF
+    # buffer =  new ArrayBuffer 4
+    # u32 = new Uint32Array buffer
+    # u8 = new Uint8Array buffer
+    # u32[0] = 0xFF
+    # u8[0] is 0xFF
+    true
 
 system =
 

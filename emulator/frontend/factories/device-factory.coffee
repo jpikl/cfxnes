@@ -18,7 +18,7 @@ class DeviceFactory extends CoreDeviceFactory
             "zapper": require "../devices/adapters/zapper-adapter"
 
     createSourceDevice: (id) ->
-        @injector.injectInstance new @sourceDevices[id]
+        @injector.injectInstance new @sourceDevices[id] id
 
     createTargetDevice: (id) ->
         device = @injector.injectInstance new @targetDevices[id]
