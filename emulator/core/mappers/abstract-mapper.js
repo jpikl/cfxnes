@@ -1,8 +1,8 @@
-var Mirroring, computeMD5, logger, readableSize, system, wordAsHex;
+var Mirroring, md5, logger, readableSize, system, wordAsHex;
 
 Mirroring = require("../common/types").Mirroring;
 
-computeMD5 = require("../utils/convert").computeMD5;
+md5 = require("../utils/convert").md5;
 
 wordAsHex = require("../utils/format").wordAsHex;
 
@@ -116,7 +116,7 @@ AbstractMapper.prototype.savePRGRAM = function(storage) {
 };
 
 AbstractMapper.prototype.getPRGRAMKey = function() {
-  return this.prgRAMKey != null ? this.prgRAMKey : this.prgRAMKey = (computeMD5(this.prgROM)) + "/PRGRAM";
+  return this.prgRAMKey != null ? this.prgRAMKey : this.prgRAMKey = (md5(this.prgROM)) + "/PRGRAM";
 };
 
 AbstractMapper.prototype.mapPRGRAMBank8K = function(srcBank, dstBank) {
@@ -194,7 +194,7 @@ AbstractMapper.prototype.saveCHRRAM = function(storage) {
 };
 
 AbstractMapper.prototype.getCHRRAMKey = function() {
-  return this.chrRAMKey != null ? this.chrRAMKey : this.chrRAMKey = (computeMD5(this.prgROM)) + "/CHRRAM";
+  return this.chrRAMKey != null ? this.chrRAMKey : this.chrRAMKey = (md5(this.prgROM)) + "/CHRRAM";
 };
 
 AbstractMapper.prototype.mapCHRRAMBank8K = function(srcBank, dstBank) {

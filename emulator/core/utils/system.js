@@ -2,7 +2,7 @@
 // System utilities
 //=========================================================
 
-system = {
+var system = {
 
     detectEndianness: function () {
         var buffer = new ArrayBuffer(4);

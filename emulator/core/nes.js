@@ -101,7 +101,8 @@ NES = (function() {
   NES.prototype.renderEmptyFrame = function(buffer) {
     var i, j, ref;
     for (i = j = 0, ref = buffer.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-      buffer[i] = colors.pack(0xFF * Math.random());
+      var color = 0xFF * Math.random();
+      buffer[i] = colors.pack(color, color, color);
     }
     return void 0;
   };
