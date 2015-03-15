@@ -470,6 +470,7 @@ class PPU
             @$shiftBackground()  if @cycleFlags & F_SHIFT_BG
             @$updateScrolling()
         else
+            @$clearFramePixel()  if @cycleFlags & F_RENDER
             @addressBus = @vramAddress
         @$updateVBlank()
         @$incrementCycle()
