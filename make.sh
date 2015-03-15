@@ -1,6 +1,6 @@
 #!/bin/bash
 
-gulp compile
+#gulp compile
 closure --compilation_level=ADVANCED_OPTIMIZATIONS\
         --process_common_js_modules\
         --externs "emulator/externs/md5.js"\

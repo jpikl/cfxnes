@@ -63,17 +63,17 @@ minifyDstName = (path) ->
 
 gulp.task "default", [ "server", "browser" ]
 
-gulp.task "compile", [ "emulator-compile" ]
+#gulp.task "compile", [ "emulator-compile" ]
 
 gulp.task "test", [ "emulator-test" ]
 
-gulp.task "clean", [ "emulator-clean" ]
+#gulp.task "clean", [ "emulator-clean" ]
 
 ###########################################################
 # Emulator tasks
 ###########################################################
 
-gulp.task "emulator", [ "emulator-compile" ], ->
+gulp.task "emulator", ->
     # gulp.src [ "#{BUILD_DIR}/**/*.js", "!#{BUILD_DIR}/**/{debug,tests}/**" ]
     #     .pipe closure
     #         compilerPath: CLOSURE_JAR
@@ -92,21 +92,21 @@ gulp.task "emulator", [ "emulator-compile" ], ->
     #     .pipe gulp.dest PUBLIC_SCRIPTS_DIR
     #     .on "error", gutil.log
 
-gulp.task "emulator-test", [ "emulator-compile" ], ->
-    gulp.src "#{BUILD_DIR}/core/tests/*-test{,s}.js", read: false
-        .pipe mocha
-            timeout: 60000 # 60 s
+# gulp.task "emulator-test", [ "emulator-compile" ], ->
+#     gulp.src "#{BUILD_DIR}/core/tests/*-test{,s}.js", read: false
+#         .pipe mocha
+#             timeout: 60000 # 60 s
 
-gulp.task "emulator-compile", [ "emulator-clean" ], ->
-    gulp.src [ "#{EMULATOR_DIR}/**/*.coffee", "!#{EMULATOR_DIR}/**/{debug,tests}/**", "!#{EMULATOR_DIR}/core/readers/local-file-reader.coffee" ]
-        .pipe coffee
-            bare: true
-            inline: EMULATOR_INLINING
-        .pipe gulp.dest BUILD_DIR
-        .on "error", gutil.log
+# gulp.task "emulator-compile", [ "emulator-clean" ], ->
+#     gulp.src [ "#{EMULATOR_DIR}/**/*.coffee", "!#{EMULATOR_DIR}/**/{debug,tests}/**", "!#{EMULATOR_DIR}/core/readers/local-file-reader.coffee" ]
+#         .pipe coffee
+#             bare: true
+#             inline: EMULATOR_INLINING
+#         .pipe gulp.dest BUILD_DIR
+#         .on "error", gutil.log
 
-gulp.task "emulator-clean", (callback) ->
-    del [ BUILD_DIR ], callback
+# gulp.task "emulator-clean", (callback) ->
+#     del [ BUILD_DIR ], callback
 
 ###########################################################
 # Client tasks
