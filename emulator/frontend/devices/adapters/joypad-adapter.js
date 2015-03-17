@@ -3,14 +3,14 @@ var Joypad, joypadButtonAliases;
 Joypad = require("../../../core/devices/joypad");
 
 joypadButtonAliases = {
-  "a": Joypad.Button.A,
-  "b": Joypad.Button.B,
-  "select": Joypad.Button.SELECT,
-  "start": Joypad.Button.START,
-  "up": Joypad.Button.UP,
-  "down": Joypad.Button.DOWN,
-  "left": Joypad.Button.LEFT,
-  "right": Joypad.Button.RIGHT
+  "a": Joypad["Button"].A,
+  "b": Joypad["Button"].B,
+  "select": Joypad["Button"].SELECT,
+  "start": Joypad["Button"].START,
+  "up": Joypad["Button"].UP,
+  "down": Joypad["Button"].DOWN,
+  "left": Joypad["Button"].LEFT,
+  "right": Joypad["Button"].RIGHT
 };
 
 function JoypadAdapter(joypad) {

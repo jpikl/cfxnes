@@ -14,7 +14,6 @@ class Injector {
     }
 
     processConfig(config) {
-        console.log(config);
         if (typeof config === "function") {
             logger.info("Building injector configuration");
             config = (config.constructor) ? new config : config();
@@ -55,7 +54,7 @@ class Injector {
     }
 
     inject(instance) {
-        var dependencies = instance.constructor.dependencies;
+        var dependencies = instance.constructor.dependencies || instance.constructor["dependencies"];
         var injectMethod = instance.inject || instance.init;
         if (dependencies && injectMethod) {
             logger.info(`Injecting dependencies: ${dependencies.join(", ")}`);
