@@ -23,13 +23,13 @@ function DeviceFactory(injector) {
 extend(DeviceFactory, CoreDeviceFactory);
 
 DeviceFactory.prototype.createSourceDevice = function(id) {
-  return this.injector.injectInstance(new this.sourceDevices[id](id));
+  return this.injector.inject(new this.sourceDevices[id](id));
 };
 
 DeviceFactory.prototype.createTargetDevice = function(id) {
   var device;
-  device = this.injector.injectInstance(new this.targetDevices[id]);
-  return this.injector.injectInstance(new this.targetDevicesAdapters[id](device));
+  device = this.injector.inject(new this.targetDevices[id]);
+  return this.injector.inject(new this.targetDevicesAdapters[id](device));
 };
 
 module.exports = DeviceFactory;

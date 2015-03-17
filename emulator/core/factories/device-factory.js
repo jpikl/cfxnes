@@ -12,7 +12,7 @@ function DeviceFactory(injector) {
 
 DeviceFactory.prototype.createDevice = function(id) {
   logger.info("Creating device '" + id + "'");
-  return this.injector.injectInstance(new this.devices[id]);
+  return this.injector.inject(new this.devices[id]);
 };
 
 

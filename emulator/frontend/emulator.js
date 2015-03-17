@@ -16,7 +16,7 @@ function Emulator() {
   var injector;
   logger.info("Creating dependency injection context");
   injector = new Injector(BaseConfig);
-  injector.injectInstance(this);
+  injector.inject(this);
 }
 
 Emulator.prototype.init = function(executionManager, cartridgeManager, videoManager, audioManager, inputManager, persistenceManager) {

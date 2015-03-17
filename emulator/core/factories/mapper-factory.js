@@ -28,7 +28,7 @@ MapperFactory.prototype.createMapper = function(cartridge) {
     throw new Error("Unsupported mapper (ID: " + id + ").");
   }
   logger.info("Using '" + mapper.name + "' mapper");
-  return this.injector.injectInstance(new mapper.clazz(cartridge));
+  return this.injector.inject(new mapper.clazz(cartridge));
 };
 
 

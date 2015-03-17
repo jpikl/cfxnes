@@ -30,7 +30,7 @@ class Injector {
     getDependency(name) {
         var dependency = this.dependencies[name];
         if (!dependency) {
-            throw new Error("Dependency '" + name + "' not found.");
+            throw new Error(`Dependency '${name}' not found.`);
         }
         return dependency;
     }
@@ -39,28 +39,28 @@ class Injector {
         return this.getDependency(name).clazz;
     }
 
-    getInstance(name) {
+    get(name) {
         var dependency = this.getDependency(name);
         if (!dependency.instance) {
-            dependency.instance = this.createInstance(name);
-            this.injectInstance(dependency.instance);
+            dependency.instance = this.create(name);
+            this.inject(dependency.instance);
         }
         return dependency.instance;
     }
 
-    createInstance(name) {
-        logger.info("Creating instance of '" + name + "'");
+    create(name) {
+        logger.info(`Creating instance of '${name}'`);
         return new(this.getClass(name))(this);
     }
 
-    injectInstance(instance) {
+    inject(instance) {
         var dependencies = instance.constructor.dependencies;
         var injectMethod = instance.inject || instance.init;
         if (dependencies && injectMethod) {
-            logger.info("Injecting dependencies: " + (dependencies.join(', ')));
+            logger.info(`Injecting dependencies: ${dependencies.join(", ")}`);
             var resolvedDependencies = []
             for (var name of dependencies) {
-                resolvedDependencies.push(this.getInstance(name));
+                resolvedDependencies.push(this.get(name));
             }
             injectMethod.apply(instance, resolvedDependencies);
         }
