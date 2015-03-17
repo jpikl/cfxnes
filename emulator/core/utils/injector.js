@@ -14,6 +14,7 @@ class Injector {
     }
 
     processConfig(config) {
+        console.log(config);
         if (typeof config === "function") {
             logger.info("Building injector configuration");
             config = (config.constructor) ? new config : config();

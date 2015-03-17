@@ -1,27 +1,22 @@
-function BaseConfig() {}
+var Config = require("../utils/config");
 
-BaseConfig.prototype["nes"] = require("../nes");
+//=========================================================
+// Base configuration of emulator core
+//=========================================================
 
-BaseConfig.prototype["cpu"] = require("../units/cpu");
+module.exports = new Config({
 
-BaseConfig.prototype["ppu"] = require("../units/ppu");
+    "nes":              require("../nes"),
+    "cpu":              require("../units/cpu"),
+    "ppu":              require("../units/ppu"),
+    "apu":              require("../units/apu"),
+    "dma":              require("../units/dma"),
+    "cpuMemory":        require("../units/cpu-memory"),
+    "ppuMemory":        require("../units/ppu-memory"),
+    "cartridgeFactory": require("../factories/cartridge-factory"),
+    "deviceFactory":    require("../factories/device-factory"),
+    "loaderFactory":    require("../factories/loader-factory"),
+    "mapperFactory":    require("../factories/mapper-factory"),
+    "paletteFactory":   require("../factories/palette-factory")
 
-BaseConfig.prototype["apu"] = require("../units/apu");
-
-BaseConfig.prototype["dma"] = require("../units/dma");
-
-BaseConfig.prototype["cpuMemory"] = require("../units/cpu-memory");
-
-BaseConfig.prototype["ppuMemory"] = require("../units/ppu-memory");
-
-BaseConfig.prototype["cartridgeFactory"] = require("../factories/cartridge-factory");
-
-BaseConfig.prototype["deviceFactory"] = require("../factories/device-factory");
-
-BaseConfig.prototype["loaderFactory"] = require("../factories/loader-factory");
-
-BaseConfig.prototype["mapperFactory"] = require("../factories/mapper-factory");
-
-BaseConfig.prototype["paletteFactory"] = require("../factories/palette-factory");
-
-module.exports = BaseConfig;
+});

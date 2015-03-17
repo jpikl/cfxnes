@@ -1,10 +1,10 @@
-var BaseConfig, Injector, Logger, logger;
+var config, Injector, Logger, logger;
 
 Injector = require("../core/utils/injector");
 
 Logger = require("../core/utils/logger");
 
-BaseConfig = require("./config/base-config");
+config = require("./config/base-config");
 
 logger = Logger.get();
 
@@ -13,9 +13,7 @@ logger.attach(Logger.console());
 Emulator.dependencies = ["executionManager", "cartridgeManager", "videoManager", "audioManager", "inputManager", "persistenceManager"];
 
 function Emulator() {
-  var injector;
-  logger.info("Creating dependency injection context");
-  injector = new Injector(BaseConfig);
+  var injector = new Injector(config);
   injector.inject(this);
 }
 
