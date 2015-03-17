@@ -16,12 +16,15 @@ class Config {
                 this[name] = config[name];
             }
         }
+        return this;
+    }
+
+    clone() {
+        return new Config(this);
     }
 
     merge(config) {
-        var result = new Config(this);
-        result.include(config);
-        return result;
+        return this.clone().include(config);
     }
 
 }
