@@ -6,10 +6,7 @@ var system = require("./system");
 
 var colors = {
 
-    pack: function(r, g, b, a) {
-        if (a == null) {
-            a = 0xFF;
-        }
+    pack(r, g, b, a = 0xFF) {
         if (system.littleEndian) {
             return a << 24 | b << 16 | g << 8 | r;
         } else {
@@ -17,7 +14,7 @@ var colors = {
         }
     },
 
-    unpack: function(color) {
+    unpack(color) {
         if (system.littleEndian) {
             return [
                 (color       ) & 0xFF,

@@ -35,11 +35,11 @@ Mirroring = {
     VERTICAL:        6, // 0 1 0 1
     FOUR_SCREEN:     7, // 0 1 2 3
 
-    getSingleScreen: function(area) {
+    getSingleScreen(area) {
         return Mirroring.SINGLE_SCREEN_0 + area;
     },
 
-    toString: function(mirroring) {
+    toString(mirroring) {
         switch (mirroring) {
             case Mirroring.SINGLE_SCREEN_0:
                 return "single screen (0)";
@@ -73,7 +73,7 @@ TVSystem = {
     NTSC: 1,
     PAL:  2,
 
-    toString: function(tvSystem) {
+    toString(tvSystem) {
         switch (tvSystem) {
             case TVSystem.PAL:
                 return "PAL";

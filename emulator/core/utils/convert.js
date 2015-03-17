@@ -6,11 +6,11 @@ var convert = {
 
     md5: require("../../../node_modules/js-md5/src//md5"),
 
-    dataToString: function(input) {
+    dataToString(input) {
         return String.fromCharCode.apply(null, input);
     },
 
-    stringToData: function(input, output) {
+    stringToData(input, output) {
         if (output == null) {
             output = new Uint8Array(input.length);
         }
@@ -20,11 +20,11 @@ var convert = {
         return output;
     },
 
-    objectToString: function(input) {
+    objectToString(input) {
         return JSON.stringify(input);
     },
 
-    stringToObject: function(input) {
+    stringToObject(input) {
         return JSON.parse(input);
     }
 

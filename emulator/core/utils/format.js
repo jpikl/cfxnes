@@ -4,22 +4,22 @@
 
 var format = {
 
-    numberAsHex: function(value) {
+    numberAsHex(value) {
         return value.toString(16).toUpperCase();
     },
 
-    byteAsHex: function(value) {
+    byteAsHex(value) {
         var hex = format.numberAsHex(value);
         return (hex.length === 1) ? "0" + hex : hex;
     },
 
-    wordAsHex: function(value) {
+    wordAsHex(value) {
         var hex1 = format.byteAsHex(value & 0xFF);
         var hex2 = format.byteAsHex(value >>> 8);
         return hex2 + hex1;
     },
 
-    fillLeft: function(value, width, character) {
+    fillLeft(value, width, character) {
         if (character == null) {
             character = " ";
         }
@@ -27,7 +27,7 @@ var format = {
         return result.slice(result.length - width);
     },
 
-    fillRight: function(value, width, character) {
+    fillRight(value, width, character) {
         if (character == null) {
             character = " ";
         }
@@ -35,7 +35,7 @@ var format = {
         return result.slice(0, width);
     },
 
-    capitalize: function(value) {
+    capitalize(value) {
         var words = value.split(" ");
         for (var i = 0; i < words.length; i++) {
             words[i] = words[i].slice(0, 1).toUpperCase() + words[i].slice(1).toLowerCase();
@@ -43,7 +43,7 @@ var format = {
         return words.join(" ");
     },
 
-    readableSize: function(size) {
+    readableSize(size) {
         if (typeof size !== "number") {
             return "???";
         }
@@ -56,7 +56,7 @@ var format = {
         return size + " B";
     },
 
-    readableBytes: function(bytes) {
+    readableBytes(bytes) {
         if (!bytes) {
             return "???";
         }

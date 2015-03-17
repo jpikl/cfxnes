@@ -6,14 +6,14 @@ var system = {
 
     // Alias for CommonJS require.
     // Useful when requiring module outside Closure Compiler resolution.
-    require: function(module) {
+    require(module) {
         if (typeof require !== "function") {
             throw new Error("CommonJS require not avaialable.");
         }
         return require(module);
     },
 
-    detectEndianness: function () {
+    detectEndianness () {
         var buffer = new ArrayBuffer(4);
         var u32 = new Uint32Array(buffer);
         var u8 = new Uint8Array(buffer);
@@ -21,11 +21,11 @@ var system = {
         return (u8[0] === 0xFF) ? "LE" : "BE";
     },
 
-    newUint8Array: function(size) {
+    newUint8Array(size) {
         return new Uint8ClampedArray(size);
     },
 
-    newUint32Array: function(size) {
+    newUint32Array(size) {
         // For some strange reason, Uint32Array is much slower
         // than ordinary array in Chrome.
         data = new Array(size);
@@ -33,10 +33,7 @@ var system = {
         return data;
     },
 
-    clearArray: function(array, value) {
-        if (value == null) {
-            value = 0;
-        }
+    clearArray(array, value = 0) {
         for (var i = 0; i < array.length; i++) {
             array[i] = value;
         }
