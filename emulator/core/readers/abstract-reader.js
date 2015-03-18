@@ -1,20 +1,24 @@
-function AbstractReader() {
-  this.reset();
+//=========================================================
+// Base class of readers
+//=========================================================
+
+class AbstractReader {
+
+    constructor() {
+        this.reset();
+    }
+
+    reset () {
+        this.position = 0;
+    }
+
+    read(size = this.getLength()) {
+        var start = this.position;
+        var end = Math.min(start + size, this.getLength())
+        this.position = end;
+        return this.getData(start, end);
+    }
+
 }
-
-AbstractReader.prototype.reset = function() {
-  return this.position = 0;
-};
-
-AbstractReader.prototype.read = function(size) {
-  return this.getData(this.position, this.movePosition(size));
-};
-
-AbstractReader.prototype.movePosition = function(size) {
-  if (size == null) {
-    size = this.getLength();
-  }
-  return this.position = Math.min(this.position + size, this.getLength());
-};
 
 module.exports = AbstractReader;
