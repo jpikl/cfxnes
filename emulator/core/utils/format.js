@@ -19,18 +19,12 @@ var format = {
         return hex2 + hex1;
     },
 
-    fillLeft(value, width, character) {
-        if (character == null) {
-            character = " ";
-        }
+    fillLeft(value, width, character = " ") {
         var result = Array(width + 1).join(character) + value;
         return result.slice(result.length - width);
     },
 
-    fillRight(value, width, character) {
-        if (character == null) {
-            character = " ";
-        }
+    fillRight(value, width, character = " ") {
         var result = value + Array(width + 1).join(character);
         return result.slice(0, width);
     },

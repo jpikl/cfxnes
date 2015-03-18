@@ -1,10 +1,10 @@
 var system = require("./system");
 
+var loggers = {};
+
 //=========================================================
 // Logger object
 //=========================================================
-
-var loggers = {};
 
 class Logger {
 
@@ -68,28 +68,25 @@ class Logger {
         }
     }
 
-};
+    //=========================================================
+    // Factory methods
+    //=========================================================
 
-//=========================================================
-// Logger factory method
-//=========================================================
-
-Logger["get"] = function(id) {
-    if (id == null) {
-        id = "default";
+    static ["get"](id = "default") {
+        if (!loggers[id]) {
+            loggers[id] = new Logger(id);
+        }
+        return loggers[id];
     }
-    if (!loggers[id]) {
-        loggers[id] = new Logger(id);
+
+    static ["console"]() {
+        return console;
     }
-    return loggers[id];
-};
 
-//=========================================================
-// Console log writer
-//=========================================================
+    static ["file"]() {
+        return new FileWriter(fileName);
+    }
 
-Logger["console"] = function() {
-    return console;
 };
 
 //=========================================================
@@ -99,8 +96,8 @@ Logger["console"] = function() {
 class FileWriter {
 
     constructor(fileName) {
-        var fs = system.require("fs");
-        this.fd = fs.openSync(fileName, "w");
+        this.fs = system.require("fs");
+        this.fd = this.fs.openSync(fileName, "w");
     }
 
     info(message) {
@@ -124,9 +121,5 @@ class FileWriter {
     }
 
 }
-
-Logger["file"] = function(fileName) {
-    return new FileWriter(fileName);
-};
 
 module.exports = Logger;

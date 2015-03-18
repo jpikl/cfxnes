@@ -12,7 +12,7 @@ class AbstractReader {
         this.position = 0;
     }
 
-    read(size = this.getLength()) {
+    read(size) {
         var start = this.position;
         var end = Math.min(start + size, this.getLength())
         this.position = end;

@@ -9,8 +9,7 @@ class LocalFileReader extends AbstractReader {
 
     constructor(path) {
         super();
-        var fs = system.require("fs");
-        this.data = fs.readFileSync(path);
+        this.data = system.require("fs").readFileSync(path);
     }
 
     getLength() {

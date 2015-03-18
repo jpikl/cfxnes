@@ -13,7 +13,7 @@ var system = {
         return require(module);
     },
 
-    detectEndianness () {
+    detectEndianness() {
         var buffer = new ArrayBuffer(4);
         var u32 = new Uint32Array(buffer);
         var u8 = new Uint8Array(buffer);
