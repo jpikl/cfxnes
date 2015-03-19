@@ -1,28 +1,23 @@
-var AbstractStorage,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var AbstractStorage = require("../../core/storages/abstract-storage");
 
-AbstractStorage = require("../../core/storages/abstract-storage");
+//=========================================================
+// Local storage
+//=========================================================
 
+class LocalStorage extends AbstractStorage {
 
-  function LocalStorage() {
-    return LocalStorage.__super__.constructor.apply(this, arguments);
-  }
+    read(key) {
+        return window.localStorage[this.getFullKey(key)];
+    }
 
-  extend(LocalStorage, AbstractStorage);
+    write(key, value) {
+        window.localStorage[this.getFullKey(key)] = value;
+    }
 
-  LocalStorage.prototype.read = function(key) {
-    var ref;
-    return (ref = window.localStorage) != null ? ref[this.getFullKey(key)] : void 0;
-  };
+    getFullKey(key) {
+        return "CFxNES/" + key;
+    }
 
-  LocalStorage.prototype.write = function(key, value) {
-    var ref;
-    return (ref = window.localStorage) != null ? ref[this.getFullKey(key)] = value : void 0;
-  };
-
-  LocalStorage.prototype.getFullKey = function(key) {
-    return "CFxNES/" + key;
-  };
+}
 
 module.exports = LocalStorage;

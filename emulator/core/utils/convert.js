@@ -1,10 +1,12 @@
+var system = require("./system");
+
 //=========================================================
 // Conversion utilities
 //=========================================================
 
 var convert = {
 
-    md5: require("../../../node_modules/js-md5/src//md5"),
+    md5: window.md5 || system.require("js-md5"),
 
     dataToString(input) {
         return String.fromCharCode.apply(null, input);

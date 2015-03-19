@@ -111,7 +111,8 @@ AbstractMapper.prototype.loadPRGRAM = function(storage) {
 
 AbstractMapper.prototype.savePRGRAM = function(storage) {
   if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-    return storage.writeData(this.getPRGRAMKey(), this.prgRAM.slice(0, this.prgRAMSizeBattery));
+    // TODO slice vs subarray
+    return storage.writeData(this.getPRGRAMKey(), this.prgRAM.subarray(0, this.prgRAMSizeBattery));
   }
 };
 
@@ -189,7 +190,8 @@ AbstractMapper.prototype.loadCHRRAM = function(storage) {
 
 AbstractMapper.prototype.saveCHRRAM = function(storage) {
   if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-    return storage.writeData(this.getCHRRAMKey(), this.chrRAM.slice(0, this.chrRAMSizeBattery));
+    // TODO slice vs subarray
+    return storage.writeData(this.getCHRRAMKey(), this.chrRAM.subarray(0, this.chrRAMSizeBattery));
   }
 };
 
