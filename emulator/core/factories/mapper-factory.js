@@ -1,35 +1,38 @@
-var logger;
+var AOROMMapper = require("../mappers/aorom-mapper");
+var CNROMMapper = require("../mappers/cnrom-mapper");
+var MMC1Mapper  = require("../mappers/mmc1-mapper");
+var MMC3Mapper  = require("../mappers/mmc3-mapper");
+var NROMMapper  = require("../mappers/nrom-mapper");
+var UNROMMapper = require("../mappers/unrom-mapper");
+var logger      = require("../utils/logger").get();
 
-logger = require("../utils/logger").get();
+//=========================================================
+// Factory for mapper creation
+//=========================================================
 
-function MapperFactory(injector) {
-  this.injector = injector;
-  this.mappers = [];
-  this.registerMapper(0x00, "NROM", require("../mappers/nrom-mapper"));
-  this.registerMapper(0x01, "MMC1", require("../mappers/mmc1-mapper"));
-  this.registerMapper(0x02, "UNROM", require("../mappers/unrom-mapper"));
-  this.registerMapper(0x03, "CNROM", require("../mappers/cnrom-mapper"));
-  this.registerMapper(0x04, "MMC3", require("../mappers/mmc3-mapper"));
-  this.registerMapper(0x07, "AOROM", require("../mappers/aorom-mapper"));
+class MapperFactory {
+
+    constructor(injector) {
+        this.injector = injector;
+        this.mappers = {};
+        this.mappers[0x00] = NROMMapper;
+        this.mappers[0x01] = MMC1Mapper;
+        this.mappers[0x02] = UNROMMapper;
+        this.mappers[0x03] = CNROMMapper;
+        this.mappers[0x04] = MMC3Mapper;
+        this.mappers[0x07] = AOROMMapper;
+    }
+
+    createMapper(cartridge) {
+        var id = cartridge.mapperId;
+        var clazz = this.mappers[id];
+        if (!clazz) {
+            throw new Error(`Unsupported mapper (ID: ${id}).`);
+        }
+        var mapper = new clazz(cartridge);
+        return this.injector.inject(mapper);
+    }
+
 }
-
-MapperFactory.prototype.registerMapper = function(id, name, clazz) {
-  return this.mappers[id] = {
-    name: name,
-    clazz: clazz
-  };
-};
-
-MapperFactory.prototype.createMapper = function(cartridge) {
-  var id, mapper;
-  id = cartridge.mapperId;
-  mapper = this.mappers[id];
-  if (mapper == null) {
-    throw new Error("Unsupported mapper (ID: " + id + ").");
-  }
-  logger.info("Using '" + mapper.name + "' mapper");
-  return this.injector.inject(new mapper.clazz(cartridge));
-};
-
 
 module.exports = MapperFactory;

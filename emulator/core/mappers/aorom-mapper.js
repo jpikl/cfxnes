@@ -4,8 +4,8 @@ var AbstractMapper,
 
 AbstractMapper = require("./abstract-mapper");
 
-function AOROM() {
-  return AOROM.__super__.constructor.apply(this, arguments);
+function AOROM(cartridge) {
+  return AOROM.__super__.constructor.call(this, "AOROM", cartridge);
 }
 
 extend(AOROM, AbstractMapper);

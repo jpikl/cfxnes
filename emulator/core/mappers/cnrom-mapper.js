@@ -4,8 +4,8 @@ var AbstractMapper,
 
 AbstractMapper = require("./abstract-mapper");
 
-function CNROMMapper() {
-  return CNROMMapper.__super__.constructor.apply(this, arguments);
+function CNROMMapper(cartridge) {
+  return CNROMMapper.__super__.constructor.call(this, "CNROM", cartridge);
 }
 
 extend(CNROMMapper, AbstractMapper);

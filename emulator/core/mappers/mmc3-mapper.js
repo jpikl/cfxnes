@@ -9,8 +9,8 @@ Interrupt = require("../common/types").Interrupt;
 Mirroring = require("../common/types").Mirroring;
 
 
-function MMC3() {
-  return MMC3.__super__.constructor.apply(this, arguments);
+function MMC3(cartridge) {
+  return MMC3.__super__.constructor.call(this, "MMC3", cartridge);
 }
 
 extend(MMC3, AbstractMapper);

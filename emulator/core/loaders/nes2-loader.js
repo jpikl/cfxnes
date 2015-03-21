@@ -8,7 +8,7 @@ var TVSystem   = require("../common/types").TVSystem;
 class NES2Loader extends INESLoader {
 
     constructor() {
-        this.name = "NES 2.0";
+        super("NES 2.0");
     }
 
     supports(reader) {

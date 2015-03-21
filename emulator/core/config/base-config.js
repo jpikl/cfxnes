@@ -15,7 +15,6 @@ module.exports = new Config({
     "ppuMemory":        require("../units/ppu-memory"),
     "cartridgeFactory": require("../factories/cartridge-factory"),
     "deviceFactory":    require("../factories/device-factory"),
-    "loaderFactory":    require("../factories/loader-factory"),
     "mapperFactory":    require("../factories/mapper-factory"),
     "paletteFactory":   require("../factories/palette-factory")
 

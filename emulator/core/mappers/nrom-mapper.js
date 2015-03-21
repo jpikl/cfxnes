@@ -4,8 +4,8 @@ var AbstractMapper,
 
 AbstractMapper = require("./abstract-mapper");
 
-function NROMMapper() {
-  return NROMMapper.__super__.constructor.apply(this, arguments);
+function NROMMapper(cartridge) {
+  return NROMMapper.__super__.constructor.call(this, "NROM", cartridge);
 }
 
 extend(NROMMapper, AbstractMapper);

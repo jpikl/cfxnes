@@ -4,8 +4,8 @@ var AbstractMapper,
 
 AbstractMapper = require("./abstract-mapper");
 
-function MMC1Mapper() {
-  return MMC1Mapper.__super__.constructor.apply(this, arguments);
+function MMC1Mapper(cartridge) {
+  return MMC1Mapper.__super__.constructor.call(this, "MMC1", cartridge);
 }
 
 extend(MMC1Mapper, AbstractMapper);

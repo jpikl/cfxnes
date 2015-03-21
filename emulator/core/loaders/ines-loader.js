@@ -11,7 +11,7 @@ var INES_SIGNATURE = [0x4E, 0x45, 0x53, 0x1A]; // "NES^Z"
 class INESLoader extends AbstractLoader {
 
     constructor() {
-        this.name = "iNES";
+        super("iNES");
     }
 
     supports(reader) {

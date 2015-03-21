@@ -19,8 +19,8 @@ AbstractMapper.prototype.inject = function(cpuMemory, ppuMemory) {
 
 AbstractMapper.dependencies = ["cpuMemory", "ppuMemory"];
 
-function AbstractMapper(cartridge) {
-  logger.info("Constructing mapper");
+function AbstractMapper(name, cartridge) {
+  logger.info(`Constructing '${name}' mapper`);
   this.init(cartridge);
   this.createPRGRAM();
   this.createCHRRAM();

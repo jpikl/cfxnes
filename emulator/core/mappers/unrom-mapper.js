@@ -4,8 +4,8 @@ var AbstractMapper,
 
 AbstractMapper = require("./abstract-mapper");
 
-function UNROMMapper() {
-  return UNROMMapper.__super__.constructor.apply(this, arguments);
+function UNROMMapper(cartridge) {
+  return UNROMMapper.__super__.constructor.call(this, "UNROM", cartridge);
 }
 
 extend(UNROMMapper, AbstractMapper);
