@@ -1,184 +1,204 @@
-var Interrupt, NES, TVSystem, colors;
+var Interrupt = require("./common/types").Interrupt;
+var TVSystem  = require("./common/types").TVSystem;
+var colors    = require("./utils/colors");
 
-Interrupt = require("./common/types").Interrupt;
+//=========================================================
+// Nintendo Entertainment System
+//=========================================================
 
-TVSystem = require("./common/types").TVSystem;
+class NES {
 
-colors = require("./utils/colors");
-
-NES = (function() {
-  function NES() {}
-
-  NES.dependencies = ["cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory"];
-
-  NES.prototype.init = function(cpu, cpuMemory, ppu, ppuMemory, apu, dma, mapperFactory) {
-    this.cpu = cpu;
-    this.ppu = ppu;
-    this.apu = apu;
-    this.dma = dma;
-    this.cpuMemory = cpuMemory;
-    this.ppuMemory = ppuMemory;
-    return this.mapperFactory = mapperFactory;
-  };
-
-  NES.prototype.pressPower = function() {
-    if (this.isCartridgeInserted()) {
-      this.mapper.powerUp();
-      this.dma.powerUp();
-      this.apu.powerUp();
-      this.ppuMemory.powerUp();
-      this.ppu.powerUp();
-      this.cpuMemory.powerUp();
-      return this.cpu.powerUp();
+    init(cpu, cpuMemory, ppu, ppuMemory, apu, dma, mapperFactory) {
+        this.cpu = cpu;
+        this.ppu = ppu;
+        this.apu = apu;
+        this.dma = dma;
+        this.cpuMemory = cpuMemory;
+        this.ppuMemory = ppuMemory;
+        this.mapperFactory = mapperFactory;
     }
-  };
 
-  NES.prototype.pressReset = function() {
-    return this.cpu.activateInterrupt(Interrupt.RESET);
-  };
+    //=========================================================
+    // Buttons
+    //=========================================================
 
-  NES.prototype.connectInputDevice = function(port, device) {
-    return this.cpuMemory.setInputDevice(port, device);
-  };
-
-  NES.prototype.getConnectedInputDevice = function(port) {
-    return this.cpuMemory.getInputDevice(port);
-  };
-
-  NES.prototype.insertCartridge = function(cartridge) {
-    this.cartridge = cartridge;
-    this.mapper = this.mapperFactory.createMapper(cartridge);
-    this.cpu.connectMapper(this.mapper);
-    this.ppu.connectMapper(this.mapper);
-    this.cpuMemory.connectMapper(this.mapper);
-    this.ppuMemory.connectMapper(this.mapper);
-    this.updateTVSystem();
-    return this.pressPower();
-  };
-
-  NES.prototype.isCartridgeInserted = function() {
-    return this.cartridge != null;
-  };
-
-  NES.prototype.removeCartridge = function() {
-    return this.cartridge = null;
-  };
-
-  NES.prototype.loadCartridgeData = function(storage) {
-    var ref, ref1;
-    if ((ref = this.mapper) != null) {
-      ref.loadPRGRAM(storage);
+    pressPower() {
+        if (this.isCartridgeInserted()) {
+            this.mapper.powerUp();
+            this.dma.powerUp();
+            this.apu.powerUp();
+            this.ppuMemory.powerUp();
+            this.ppu.powerUp();
+            this.cpuMemory.powerUp();
+            this.cpu.powerUp();
+        }
     }
-    return (ref1 = this.mapper) != null ? ref1.loadCHRRAM(storage) : void 0;
-  };
 
-  NES.prototype.saveCartridgeData = function(storage) {
-    var ref, ref1;
-    if ((ref = this.mapper) != null) {
-      ref.savePRGRAM(storage);
+    pressReset() {
+        this.cpu.activateInterrupt(Interrupt.RESET);
     }
-    return (ref1 = this.mapper) != null ? ref1.saveCHRRAM(storage) : void 0;
-  };
 
-  NES.prototype.renderFrame = function(buffer) {
-    if (this.isCartridgeInserted()) {
-      return this.renderNormalFrame(buffer);
-    } else {
-      return this.renderEmptyFrame(buffer);
+    //=========================================================
+    // Input devices
+    //=========================================================
+
+    connectInputDevice(port, device) {
+        this.cpuMemory.setInputDevice(port, device);
     }
-  };
 
-  NES.prototype.renderNormalFrame = function(buffer) {
-    var results;
-    this.ppu.startFrame(buffer);
-    results = [];
-    while (!this.ppu.isFrameAvailable()) {
-      results.push(this.cpu.step());
+    getConnectedInputDevice(port) {
+        return this.cpuMemory.getInputDevice(port);
     }
-    return results;
-  };
 
-  NES.prototype.renderEmptyFrame = function(buffer) {
-    var i, j, ref;
-    for (i = j = 0, ref = buffer.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-      var color = 0xFF * Math.random();
-      buffer[i] = colors.pack(color, color, color);
+    //=========================================================
+    // Cartridge
+    //=========================================================
+
+    insertCartridge(cartridge) {
+        this.cartridge = cartridge;
+        this.mapper = this.mapperFactory.createMapper(cartridge);
+        this.cpu.connectMapper(this.mapper);
+        this.ppu.connectMapper(this.mapper);
+        this.cpuMemory.connectMapper(this.mapper);
+        this.ppuMemory.connectMapper(this.mapper);
+        this.updateTVSystem();
+        this.pressPower();
     }
-    return void 0;
-  };
 
-  NES.prototype.renderDebugFrame = function(buffer) {
-    if (this.isCartridgeInserted()) {
-      return this.renderNormalDebugFrame(buffer);
-    } else {
-      return this.renderEmptyDebugFrame(buffer);
+    isCartridgeInserted() {
+        return this.cartridge != null;
     }
-  };
 
-  NES.prototype.renderNormalDebugFrame = function(buffer) {
-    this.ppu.startFrame(buffer);
-    return this.ppu.renderDebugFrame();
-  };
-
-  NES.prototype.renderEmptyDebugFrame = function(buffer) {
-    var i, j, ref;
-    for (i = j = 0, ref = buffer.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-      buffer[i] = colors.BLACK;
+    removeCartridge() {
+        this.cartridge = null;
     }
-    return void 0;
-  };
 
-  NES.prototype.initAudioRecording = function(bufferSize) {
-    return this.apu.initRecording(bufferSize);
-  };
+    loadCartridgeData(storage) {
+        if (this.mapper) {
+            this.mapper.loadPRGRAM(storage);
+            this.mapper.loadCHRRAM(storage);
+        }
+    }
 
-  NES.prototype.startAudioRecording = function(sampleRate) {
-    return this.apu.startRecording(sampleRate);
-  };
+    saveCartridgeData(storage) {
+        if (this.mapper) {
+            this.mapper.savePRGRAM(storage);
+            this.mapper.saveCHRRAM(storage);
+        }
+    }
 
-  NES.prototype.stopAudioRecording = function() {
-    return this.apu.stopRecording();
-  };
+    //=========================================================
+    // Video output
+    //=========================================================
 
-  NES.prototype.readAudioBuffer = function() {
-    return this.apu.readOutputBuffer();
-  };
+    renderFrame(buffer) {
+        if (this.isCartridgeInserted()) {
+            this.renderNormalFrame(buffer);
+        } else {
+            this.renderEmptyFrame(buffer);
+        }
+    }
 
-  NES.prototype.setChannelEnabled = function(id, enabled) {
-    return this.apu.setChannelEnabled(id, enabled);
-  };
+    renderNormalFrame(buffer) {
+        this.ppu.startFrame(buffer);
+        while (!this.ppu.isFrameAvailable()) {
+            this.cpu.step();
+        }
+    }
 
-  NES.prototype.isChannelEnabled = function(id) {
-    return this.apu.isChannelEnabled(id);
-  };
+    renderEmptyFrame(buffer) {
+        for (var i = 0; i < buffer.length; i++) {
+            var color = ~~(0xFF * Math.random());
+            buffer[i] = colors.pack(color, color, color);
+        }
+    }
 
-  NES.prototype.step = function() {
-    return this.cpu.step();
-  };
+    //=========================================================
+    // Video output - debugging
+    //=========================================================
 
-  NES.prototype.setRGBAPalette = function(rgbaData) {
-    return this.ppu.setRGBAPalette(rgbaData);
-  };
+    renderDebugFrame(buffer) {
+        if (this.isCartridgeInserted()) {
+            this.renderNormalDebugFrame(buffer);
+        } else {
+            this.renderEmptyDebugFrame(buffer);
+        }
+    }
 
-  NES.prototype.setTVSystem = function(tvSystem) {
-    this.tvSystem = tvSystem;
-    return this.updateTVSystem();
-  };
+    renderNormalDebugFrame(buffer) {
+        this.ppu.startFrame(buffer);
+        this.ppu.renderDebugFrame();
+    }
 
-  NES.prototype.getTVSystem = function() {
-    var ref;
-    return this.tvSystem || ((ref = this.cartridge) != null ? ref.tvSystem : void 0) || TVSystem.NTSC;
-  };
+    renderEmptyDebugFrame(buffer) {
+        for (var i = 0; i < buffer.length; i++) {
+            buffer[i] = colors.BLACK;
+        }
+    }
 
-  NES.prototype.updateTVSystem = function() {
-    var ntscMode;
-    ntscMode = this.getTVSystem() === TVSystem.NTSC;
-    this.ppu.setNTSCMode(ntscMode);
-    return this.apu.setNTSCMode(ntscMode);
-  };
+    //=========================================================
+    // Audio output
+    //=========================================================
 
-  return NES;
+    initAudioRecording(bufferSize) {
+        this.apu.initRecording(bufferSize);
+    }
 
-})();
+    startAudioRecording(sampleRate) {
+        this.apu.startRecording(sampleRate);
+    }
+
+    stopAudioRecording() {
+        this.apu.stopRecording();
+    }
+
+    readAudioBuffer() {
+        return this.apu.readOutputBuffer();
+    }
+
+    setChannelEnabled(id, enabled) {
+        this.apu.setChannelEnabled(id, enabled);
+    }
+
+    isChannelEnabled(id) {
+        return this.apu.isChannelEnabled(id);
+    }
+
+    //=========================================================
+    // Emulation
+    //=========================================================
+
+    step() {
+        this.cpu.step();
+    }
+
+    //=========================================================
+    // Configuration
+    //=========================================================
+
+    setRGBPalette(rgbPalette) {
+        this.ppu.setRGBPalette(rgbPalette);
+    }
+
+    setTVSystem(tvSystem) {
+        this.tvSystem = tvSystem;
+        this.updateTVSystem();
+    }
+
+    getTVSystem() {
+        return this.tvSystem
+            || this.cartridge && this.cartridge.tvSystem
+            || TVSystem.NTSC;
+    }
+
+    updateTVSystem() {
+        var ntscMode = this.getTVSystem() === TVSystem.NTSC;
+        this.ppu.setNTSCMode(ntscMode);
+        this.apu.setNTSCMode(ntscMode);
+    }
+
+}
+
+NES["dependencies"] = ["cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory"];
 
 module.exports = NES;

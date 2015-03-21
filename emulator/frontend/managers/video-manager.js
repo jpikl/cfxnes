@@ -151,7 +151,7 @@ VideoManager.prototype.setPalette = function(id) {
   }
   logger.info("Setting video palette to '" + id + "'");
   this.paletteId = id;
-  return this.nes.setRGBAPalette(this.paletteFactory.createPalette(id));
+  return this.nes.setRGBPalette(this.paletteFactory.createPalette(id));
 };
 
 VideoManager.prototype.getPalette = function() {

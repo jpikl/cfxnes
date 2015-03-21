@@ -324,7 +324,7 @@ PPU.prototype.setNTSCMode = function(ntscMode) {
   return this.ntscMode = ntscMode;
 };
 
-PPU.prototype.setRGBAPalette = function(rgbPalette) {
+PPU.prototype.setRGBPalette = function(rgbPalette) {
   this.createRGBAPalettes(rgbPalette);
   return this.updateRGBAPalette();
 };
