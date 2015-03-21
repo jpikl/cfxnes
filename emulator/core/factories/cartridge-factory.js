@@ -29,7 +29,7 @@ CartridgeFactory.prototype.fromLocalFile = function(filePath) {};
 CartridgeFactory.prototype.fromReader = function(reader) {
   var cartridge, loader;
   loader = this.loaderFactory.createLoader(reader);
-  cartridge = loader.loadCartridge();
+  cartridge = loader.load(reader);
   this.printCartridgeInfo(cartridge);
   return cartridge;
 };

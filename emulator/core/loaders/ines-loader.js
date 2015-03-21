@@ -1,122 +1,125 @@
-var AbstractLoader, INES_SIGNATURE, Mirroring, TVSystem,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var AbstractLoader = require("./abstract-loader");
+var Mirroring      = require("../common/types").Mirroring;
+var TVSystem       = require("../common/types").TVSystem;
 
-AbstractLoader = require("./abstract-loader");
+var INES_SIGNATURE = [0x4E, 0x45, 0x53, 0x1A]; // "NES^Z"
 
-Mirroring = require("../common/types").Mirroring;
+//=========================================================
+// Loader for the iNES ROM format
+//=========================================================
 
-TVSystem = require("../common/types").TVSystem;
+class INESLoader extends AbstractLoader {
 
-INES_SIGNATURE = [0x4E, 0x45, 0x53, 0x1A];
+    constructor() {
+        this.name = "iNES";
+    }
 
-function INESLoader() {
-  return INESLoader.__super__.constructor.apply(this, arguments);
+    supports(reader) {
+        return reader.contains(INES_SIGNATURE);
+    }
+
+    read(reader, cartridge) {
+        this.readHeader(reader, cartridge);  //  16 B [$00-$0F]
+        this.readTrainer(reader, cartridge); // 512 B (optional)
+        this.readPRGROM(reader, cartridge);  //  16KB x number of units
+        this.readCHRROM(reader, cartridge);  //   8KB x number of units
+    }
+
+    //=========================================================
+    // Header reading
+    //=========================================================
+
+    readHeader(reader, cartridge) {
+        reader.check(INES_SIGNATURE);            // 4B [$00-$03]
+        this.readPRGROMSize(reader, cartridge);  // 1B [$04]
+        this.readCHRROMSize(reader, cartridge);  // 1B [$05]
+        this.readControlBytes(reader, cartridge);// 2B [$06,$07]
+        this.readByte8(reader, cartridge);       // 1B [$08]
+        this.readByte9(reader, cartridge);       // 1B [$09]
+        this.readByte10(reader, cartridge);      // 1B [$0A]
+        this.readByte11(reader, cartridge);      // 1B [$0B]
+        this.readByte12(reader, cartridge);      // 1B [$0C]
+        this.readByte13(reader, cartridge);      // 1B [$0D]
+        reader.skip(2);                          // 2B [$0E,$0F]
+    }
+
+    readPRGROMSize(reader, cartridge) {
+        cartridge.prgROMSize = reader.readByte() * 0x4000; // N x 16KB
+    }
+
+    readCHRROMSize(reader, cartridge) {
+        cartridge.chrROMSize = reader.readByte() * 0x2000; // N x 8KB
+        cartridge.hasCHRRAM = cartridge.chrROMSize === 0;
+    }
+
+    readControlBytes(reader, cartridge) {
+        var control1 = reader.readByte();
+        var control2 = reader.readByte();
+        if (control1 & 0x08) {
+            cartridge.mirroring = Mirroring.FOUR_SCREEN;
+        } else if (control1 & 0x01) {
+            cartridge.mirroring = Mirroring.VERTICAL;
+        } else {
+            cartridge.mirroring = Mirroring.HORIZONTAL;
+        }
+        cartridge.hasPRGRAMBattery = (control1 & 0x02) !== 0;
+        cartridge.hasTrainer = (control1 & 0x04) !== 0;
+        cartridge.isVsUnisistem = (control2 & 0x01) !== 0;
+        cartridge.isPlayChoice = (control2 & 0x02) !== 0;
+        cartridge.mapperId = (control2 & 0xF0) | (control1 >>> 4);
+    }
+
+    readByte8(reader, cartridge) {
+        var units = reader.readByte() || 1; // At least 1 unit (compatibility purposes)
+        if (cartridge.hasCHRRAM) {
+            return cartridge.chrRAMSize = units * 0x2000; // N x 8KB
+        }
+    }
+
+    readByte9(reader, cartridge) {
+        var flags = reader.readByte();
+        cartridge.tvSystem = flags & 0x01 ? TVSystem.PAL : TVSystem.NTSC;
+    }
+
+    readByte10(reader, cartridge) {
+        var flags = reader.readByte();
+        if (flags & 0x02) {
+            cartridge.tvSystem = TVSystem.PAL; // Overrides previous value
+        }
+        cartridge.hasPRGRAM = (flags & 0x10) === 0;
+        cartridge.hasBUSConflicts = (flags & 0x20) !== 0;
+    }
+
+    readByte11(reader, cartridge) {
+        reader.skip(1);
+    }
+
+    readByte12(reader, cartridge) {
+        reader.skip(1);
+    }
+
+    readByte13(reader, cartridge) {
+        reader.skip(1);
+    }
+
+    //=========================================================
+    // Data reading
+    //=========================================================
+
+    readTrainer(reader, cartridge) {
+        if (cartridge.hasTrainer) {
+            cartridge.trainer = reader.read(0x200); // 512B
+        }
+    }
+
+    readPRGROM(reader, cartridge) {
+        cartridge.prgROM = reader.read(cartridge.prgROMSize);
+    }
+
+    readCHRROM(reader, cartridge) {
+        cartridge.chrROM = reader.read(cartridge.chrROMSize);
+    }
+
 }
-
-extend(INESLoader, AbstractLoader);
-
-
-INESLoader.supportsInput = function(reader) {
-  return this.containsSignature(reader, INES_SIGNATURE);
-};
-
-INESLoader.prototype.readCartridge = function() {
-  this.readHeader();
-  this.readTrainer();
-  this.readPRGROM();
-  return this.readCHRROM();
-};
-
-INESLoader.prototype.readHeader = function() {
-  this.checkSignature(INES_SIGNATURE);
-  this.readPRGROMSize();
-  this.readCHRROMSize();
-  this.readControlBytes();
-  this.readByte8();
-  this.readByte9();
-  this.readByte10();
-  this.readByte11();
-  this.readByte12();
-  this.readByte13();
-  return this.readArray(2);
-};
-
-INESLoader.prototype.readPRGROMSize = function() {
-  return this.cartridge.prgROMSize = this.readByte() * 0x4000;
-};
-
-INESLoader.prototype.readCHRROMSize = function() {
-  this.cartridge.chrROMSize = this.readByte() * 0x2000;
-  return this.cartridge.hasCHRRAM = this.cartridge.chrROMSize === 0;
-};
-
-INESLoader.prototype.readControlBytes = function() {
-  var controlByte1, controlByte2;
-  controlByte1 = this.readByte();
-  controlByte2 = this.readByte();
-  if (controlByte1 & 0x08) {
-    this.cartridge.mirroring = Mirroring.FOUR_SCREEN;
-  } else if (controlByte1 & 0x01) {
-    this.cartridge.mirroring = Mirroring.VERTICAL;
-  } else {
-    this.cartridge.mirroring = Mirroring.HORIZONTAL;
-  }
-  this.cartridge.hasPRGRAMBattery = (controlByte1 & 0x02) !== 0;
-  this.cartridge.hasTrainer = (controlByte1 & 0x04) !== 0;
-  this.cartridge.isVsUnisistem = (controlByte2 & 0x01) !== 0;
-  this.cartridge.isPlayChoice = (controlByte2 & 0x02) !== 0;
-  return this.cartridge.mapperId = (controlByte2 & 0xF0) | (controlByte1 >>> 4);
-};
-
-INESLoader.prototype.readByte8 = function() {
-  var unitsCount;
-  unitsCount = Math.max(1, this.readByte());
-  if (this.cartridge.hasCHRRAM) {
-    return this.cartridge.chrRAMSize = unitsCount * 0x2000;
-  }
-};
-
-INESLoader.prototype.readByte9 = function() {
-  var flags;
-  flags = this.readByte();
-  return this.cartridge.tvSystem = flags & 0x01 ? TVSystem.PAL : TVSystem.NTSC;
-};
-
-INESLoader.prototype.readByte10 = function() {
-  var flags;
-  flags = this.readByte();
-  if (flags & 0x02) {
-    this.cartridge.tvSystem = TVSystem.PAL;
-  }
-  this.cartridge.hasPRGRAM = (flags & 0x10) === 0;
-  return this.cartridge.hasBUSConflicts = (flags & 0x20) !== 0;
-};
-
-INESLoader.prototype.readByte11 = function() {
-  return this.readByte();
-};
-
-INESLoader.prototype.readByte12 = function() {
-  return this.readByte();
-};
-
-INESLoader.prototype.readByte13 = function() {
-  return this.readByte();
-};
-
-INESLoader.prototype.readTrainer = function() {
-  if (this.cartridge.hasTrainer) {
-    return this.cartridge.trainer = this.readArray(0x200);
-  }
-};
-
-INESLoader.prototype.readPRGROM = function() {
-  return this.cartridge.prgROM = this.readArray(this.cartridge.prgROMSize);
-};
-
-INESLoader.prototype.readCHRROM = function() {
-  return this.cartridge.chrROM = this.readArray(this.cartridge.chrROMSize);
-};
 
 module.exports = INESLoader;

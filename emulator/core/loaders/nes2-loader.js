@@ -1,63 +1,68 @@
-var INESLoader, TVSystem,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var INESLoader = require("./ines-loader");
+var TVSystem   = require("../common/types").TVSystem;
 
-INESLoader = require("./ines-loader");
+//=========================================================
+// Loader for the NES 2.0 ROM format
+//=========================================================
 
-TVSystem = require("../common/types").TVSystem;
+class NES2Loader extends INESLoader {
 
-function NES2Loader() {
-  return NES2Loader.__super__.constructor.apply(this, arguments);
+    constructor() {
+        this.name = "NES 2.0";
+    }
+
+    supports(reader) {
+        if (super.supports(reader)) {
+            var flags = reader.peek(8); // Byte 7 must be ????10??
+            return flags.length === 8 && flags[7] & 0x0C === 0x08;
+        }
+        return false;
+    }
+
+    //=========================================================
+    // Header reading
+    //=========================================================
+
+    readByte8(reader, cartridge) {
+        var flags = reader.readByte();
+        cartridge.mapperId |= (flags & 0x0F) << 8;    // Bits 8-11 of mapper number
+        cartridge.subMapperId = (flags & 0xF0) >>> 4; // Zero when not used
+    }
+
+    readByte9(reader, cartridge) {
+        var flags = reader.readByte();
+        cartridge.prgROMSize += ((flags & 0x0F) << 8) * 0x4000; // + N x 16KB (bits 8-11 of N)
+        cartridge.chrROMSize += ((flags & 0xF0) << 4) * 0x2000; // + N x  8KB (bits 8-11 of N)
+    }
+
+    readByte10(reader, cartridge) {
+        var flags = reader.readByte();
+        cartridge.prgRAMSizeBattery = this.computeRAMSize((flags & 0xF0) >>> 4);
+        cartridge.prgRAMSize = this.computeRAMSize(flags & 0x0F);
+        cartridge.hasPRGRAM = cartridge.prgRAMSize !== 0;
+        cartridge.hasPRGRAMBattery |= cartridge.prgRAMSizeBattery !== 0 // Previous value set from byte 6
+    }
+
+    readByte11(reader, cartridge) {
+        var flags = reader.readByte();
+        cartridge.chrRAMSizeBattery = this.computeRAMSize((flags & 0xF0) >>> 4);
+        cartridge.chrRAMSize = this.computeRAMSize(flags & 0x0F) + cartridge.chrRAMSizeBattery;
+        cartridge.hasCHRRAM = cartridge.chrRAMSize !== 0;
+        cartridge.hasCHRRAMBattery = cartridge.chrRAMSizeBattery !== 0;
+    }
+
+    readByte12(reader, cartridge) {
+        var flags = reader.readByte();
+        cartridge.tvSystem = flags & 0x01 ? TVSystem.PAL : TVSystem.NTSC;
+    }
+
+    computeRAMSize(value) {
+        if (value > 0) {
+            Math.pow(2, value - 1) * 0x80; // grows exponentially: 128B, 256B, 512B, ...
+        }
+        return 0;
+    }
+
 }
-
-extend(NES2Loader, INESLoader);
-
-NES2Loader.supportsInput = function(reader) {
-  var flags;
-  if (INESLoader.supportsInput(reader)) {
-    flags = reader.read(4);
-    return flags.length === 4 && flags[3] & 0x0C === 0x08;
-  } else {
-    return false;
-  }
-};
-
-NES2Loader.prototype.readByte8 = function() {
-  var flags;
-  flags = this.readByte();
-  this.cartridge.mapperId |= (flags & 0x0F) << 8;
-  return this.cartridge.subMapperId = (flags & 0xF0) >>> 4;
-};
-
-NES2Loader.prototype.readByte9 = function() {
-  var flags;
-  flags = this.readByte();
-  this.cartridge.prgROMSize |= (flags & 0x0F) << 8;
-  return this.cartridge.chrROMSize |= (flags & 0xF0) << 4;
-};
-
-NES2Loader.prototype.readByte10 = function() {
-  var base, flags;
-  flags = this.readByte();
-  this.cartridge.prgRAMSizeBattery = (flags & 0xF0) >>> 4;
-  this.cartridge.prgRAMSize = (flags & 0x0F) + this.cartridge.prgRAMSizeBattery;
-  this.cartridge.hasPRGRAM = this.cartridge.prgRAMSize !== 0;
-  return (base = this.cartridge).hasPRGRAMBattery || (base.hasPRGRAMBattery = this.cartridge.prgRAMSizeBattery !== 0);
-};
-
-NES2Loader.prototype.readByte11 = function() {
-  var flags;
-  flags = this.readByte();
-  this.cartridge.chrRAMSizeBattery = (flags & 0xF0) >>> 4;
-  this.cartridge.chrRAMSize = (flags & 0x0F) + this.cartridge.chrRAMSizeBattery;
-  this.cartridge.hasCHRRAM = this.cartridge.chrRAMSize !== 0;
-  return this.cartridge.hasCHRRAMBattery = this.cartridge.chrRAMSizeBattery !== 0;
-};
-
-NES2Loader.prototype.readByte12 = function() {
-  var flags;
-  flags = this.readByte();
-  return this.cartridge.tvSystem = flags & 0x01 ? TVSystem.PAL : TVSystem.NTSC;
-};
 
 module.exports = NES2Loader;

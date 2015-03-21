@@ -1,29 +1,24 @@
 var logger;
 
 logger = require("../utils/logger").get();
+var INESLoader = require("../loaders/ines-loader");
+var NES2Loader = require("../loaders/nes2-loader");
 
 function LoaderFactory() {
-  this.loaders = [];
-  this.registerLoader("NES2", require("../loaders/nes2-loader"));
-  this.registerLoader("INES", require("../loaders/ines-loader"));
+  this.loaders = [
+    new INESLoader,
+    new NES2Loader
+  ];
 }
-
-LoaderFactory.prototype.registerLoader = function(name, clazz) {
-  return this.loaders.push({
-    name: name,
-    clazz: clazz
-  });
-};
 
 LoaderFactory.prototype.createLoader = function(reader) {
   var i, len, loader, ref;
   ref = this.loaders;
   for (i = 0, len = ref.length; i < len; i++) {
     loader = ref[i];
-    reader.reset();
-    if (loader.clazz.supportsInput(reader)) {
+    if (loader.supports(reader)) {
       logger.info("Using '" + loader.name + "' loader");
-      return new loader.clazz(reader);
+      return loader;
     }
   }
   throw new Error("Unsupported data format.");

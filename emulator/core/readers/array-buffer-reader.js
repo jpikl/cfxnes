@@ -8,15 +8,15 @@ class ArrayBufferReader extends AbstractReader {
 
     constructor(buffer) {
         super();
-        this.view = new Uint8Array(buffer);
+        this.array = new Uint8Array(buffer);
     }
 
     getLength() {
-        return this.view.length;
+        return this.array.length;
     }
 
-    getData(start, end) {
-        return this.view.subarray(start, end);
+    peekOffset(offset, length) {
+        return this.array.subarray(offset, offset + length);
     }
 
 }

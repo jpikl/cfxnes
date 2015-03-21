@@ -16,8 +16,8 @@ class LocalFileReader extends AbstractReader {
         return this.data.length;
     }
 
-    getData(start, end) {
-        return this.data.slice(start, end);
+    peekOffset(offset, length) {
+        return this.data.slice(offset, offset + length);
     }
 
 }
