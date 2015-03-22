@@ -4,239 +4,265 @@ import { wordAsHex, readableSize } from "../utils/format";
 import { logger }                  from "../utils/logger";
 import { newUint8Array }           from "../utils/system";
 
-AbstractMapper.prototype.inject = function(cpuMemory, ppuMemory) {
-  this.cpuMemory = cpuMemory;
-  return this.ppuMemory = ppuMemory;
-};
+//=========================================================
+// Base class of mappers
+//=========================================================
 
-AbstractMapper["dependencies"] = [ "cpuMemory", "ppuMemory" ];
+export class AbstractMapper {
 
-export function AbstractMapper(name, cartridge) {
-  logger.info(`Constructing '${name}' mapper`);
-  this.init(cartridge);
-  this.createPRGRAM();
-  this.createCHRRAM();
-  this.printPRGRAMInfo();
-  this.printCHRRAMInfo();
+    //=========================================================
+    // Mapper initialization
+    //=========================================================
+
+    constructor(name, cartridge) {
+        logger.info(`Constructing '${name}' mapper`);
+        this.init(cartridge);
+        this.createPRGRAM();
+        this.createCHRRAM();
+        this.printPRGRAMInfo();
+        this.printCHRRAMInfo();
+    }
+
+    init(cartridge) {
+        this.mirroring = cartridge.mirroring;
+        this.hasPRGRAM = cartridge.hasPRGRAM; // Not reliable information on iNES ROMs (should provide mapper itself)
+        this.hasPRGRAMBattery = cartridge.hasPRGRAMBattery;
+        this.hasCHRRAM = cartridge.hasCHRRAM;
+        this.hasCHRRAMBattery = cartridge.hasCHRRAMBattery;   // Not present on iNES ROMs
+        this.prgROMSize = cartridge.prgROMSize || cartridge.prgROM.length;
+        this.prgRAMSize = cartridge.prgRAMSize;               // Not present on iNES ROMs (should provide mapper itself)
+        this.prgRAMSizeBattery = cartridge.prgRAMSizeBattery; // Not present on iNES ROMs
+        this.chrROMSize = cartridge.chrROMSize || cartridge.chrROM.length;
+        this.chrRAMSize = cartridge.chrRAMSize;
+        this.chrRAMSizeBattery = cartridge.chrRAMSizeBattery; // Not present on iNES ROMs
+        this.prgROM = cartridge.prgROM;
+        this.chrROM = cartridge.chrROM;
+    }
+
+    inject(cpuMemory, ppuMemory) {
+        this.cpuMemory = cpuMemory;
+        this.ppuMemory = ppuMemory;
+    }
+
+    //=========================================================
+    // Mapper reset
+    //=========================================================
+
+    powerUp() {
+        logger.info("Resetting mapper");
+        this.resetPRGRAM();
+        this.resetCHRRAM();
+        this.reset();
+    }
+
+    reset() {
+        // For mapper to implement
+    }
+
+    //=========================================================
+    // Mapper inputs
+    //=========================================================
+
+    write(address, value) {
+        // For mapper to implement
+    }
+
+    tick() {
+        // For mapper to implement
+    }
+
+    //=========================================================
+    // PRG ROM mapping
+    //=========================================================
+
+    mapPRGROMBank32K(srcBank, dstBank) {
+        this.mapPRGROMBank8K(srcBank, dstBank, 4);
+    }
+
+    mapPRGROMBank16K(srcBank, dstBank) {
+        this.mapPRGROMBank8K(srcBank, dstBank, 2);
+    }
+
+    mapPRGROMBank8K(srcBank, dstBank, ratio = 1) {
+        var srcBank = ratio * srcBank;
+        var dstBank = ratio * dstBank;
+        var maxBank = (this.prgROMSize - 1) >> 13;
+        for (var i = 0; i < ratio; i++) {
+            this.cpuMemory.mapPRGROMBank(srcBank + i, (dstBank + i) & maxBank);
+        }
+    }
+
+    //=========================================================
+    // PRG RAM mapping
+    //=========================================================
+
+    createPRGRAM() {
+        if (this.hasPRGRAM) {
+            this.prgRAM = newUint8Array(this.prgRAMSize);
+            if (this.hasPRGRAMBattery && this.prgRAMSizeBattery == null) {
+                this.prgRAMSizeBattery = this.prgRAMSize; // If not defined, the whole PRG RAM is battery backed
+            }
+        }
+    }
+
+    resetPRGRAM() {
+        if (this.hasPRGRAM) {
+            var clearFrom = this.hasPRGRAMBattery ? this.prgRAMSizeBattery : 0;
+            for (var i = clearFrom; i < this.prgRAMSize; i++) {
+                this.prgRAM[i] = 0;
+            }
+        }
+    }
+
+    loadPRGRAM(storage) {
+        if (this.hasPRGRAM && this.hasPRGRAMBattery) {
+            storage.readData(this.getPRGRAMKey(), this.prgRAM);
+        }
+    }
+
+    savePRGRAM(storage) {
+        if (this.hasPRGRAM && this.hasPRGRAMBattery) {
+            var data = this.prgRAM.subarray(0, this.prgRAMSizeBattery);
+            storage.writeData(this.getPRGRAMKey(), data);
+        }
+    }
+
+    getPRGRAMKey() {
+        if (this.prgRAMKey == null) {
+            this.prgRAMKey = md5(this.prgROM) + "/PRGRAM";
+        }
+        return this.prgRAMKey;
+    }
+
+    mapPRGRAMBank8K(srcBank, dstBank) {
+        var maxBank = (this.prgRAMSize - 1) >> 13;
+        this.cpuMemory.mapPRGRAMBank(srcBank, dstBank & maxBank);
+    }
+
+    printPRGRAMInfo() {
+        logger.info("==========[Mapper PRG RAM Info - Start]==========");
+        logger.info("has PRG RAM           : " + this.hasPRGRAM);
+        logger.info("has PRG RAM battery   : " + this.hasPRGRAMBattery);
+        logger.info("PRG RAM size          : " + readableSize(this.prgRAMSize));
+        logger.info("PRG RAM size (battery): " + readableSize(this.prgRAMSizeBattery));
+        logger.info("==========[Mapper PRG RAM Info - End]==========");
+    }
+
+    //=========================================================
+    // CHR ROM mapping
+    //=========================================================
+
+    mapCHRROMBank8K(srcBank, dstBank) {
+        this.mapCHRROMBank1K(srcBank, dstBank, 8);
+    }
+
+    mapCHRROMBank4K(srcBank, dstBank) {
+        this.mapCHRROMBank1K(srcBank, dstBank, 4);
+    }
+
+    mapCHRROMBank2K(srcBank, dstBank) {
+        this.mapCHRROMBank1K(srcBank, dstBank, 2);
+    }
+
+    mapCHRROMBank1K(srcBank, dstBank, ratio = 1) {
+        var srcBank = ratio * srcBank;
+        var dstBank = ratio * dstBank;
+        var maxBank = (this.chrROMSize - 1) >> 10;
+        for (var i = 0; i < ratio; i++) {
+            this.ppuMemory.mapPatternsBank(srcBank + i, (dstBank + i) & maxBank);
+        }
+    }
+
+    //=========================================================
+    // CHR RAM mapping
+    //=========================================================
+
+    // Note: Only known game using battery-backed CHR RAM is RacerMate Challenge II
+
+    createCHRRAM() {
+        if (this.hasCHRRAM) {
+            this.chrRAM = newUint8Array(this.chrRAMSize);
+            if (this.hasCHRRAMBattery && this.chrRAMSizeBattery == null) {
+                this.chrRAMSizeBattery = this.chrRAMSize; // If not defined, the whole CHR RAM is battery backed
+            }
+        }
+    }
+
+    resetCHRRAM() {
+        if (this.hasCHRRAM) {
+            var clearFrom = this.hasCHRRAMBattery ? this.chrRAMSizeBattery : 0;
+            for (var i = clearFrom; i < this.chrRAMSize; i++) {
+                this.chrRAM[i] = 0;
+            }
+        }
+    }
+
+    loadCHRRAM(storage) {
+        if (this.hasCHRRAM && this.hasCHRRAMBattery) {
+            storage.readData(this.getCHRRAMKey(), this.chrRAM);
+        }
+    }
+
+    saveCHRRAM(storage) {
+        if (this.hasCHRRAM && this.hasCHRRAMBattery) {
+            var data = this.chrRAM.subarray(0, this.chrRAMSizeBattery);
+            storage.writeData(this.getCHRRAMKey(), data);
+        }
+    }
+
+    getCHRRAMKey() {
+        if (this.chrRAMKey == null) {
+            this.chrRAMKey = md5(this.prgROM) + "/CHRRAM";
+        }
+        return this.chrRAMKey;
+    }
+
+    mapCHRRAMBank8K(srcBank, dstBank) {
+        this.mapCHRRAMBank4K(srcBank, dstBank, 8);
+    }
+
+    mapCHRRAMBank4K(srcBank, dstBank, ratio = 4) {
+        var srcBank = ratio * srcBank;
+        var dstBank = ratio * dstBank;
+        var maxBank = (this.chrRAMSize - 1) >> 10;
+        for (var i = 0; i < ratio; i++) {
+            this.ppuMemory.mapPatternsBank(srcBank + i, (dstBank + i) & maxBank);
+        }
+    }
+
+    printCHRRAMInfo() {
+        logger.info("==========[Mapper CHR RAM Info - Start]==========");
+        logger.info("has CHR RAM           : " + this.hasCHRRAM);
+        logger.info("has CHR RAM battery   : " + this.hasCHRRAMBattery);
+        logger.info("CHR RAM size          : " + readableSize(this.chrRAMSize));
+        logger.info("CHR RAM size (battery): " + readableSize(this.chrRAMSizeBattery));
+        logger.info("==========[Mapper CHR RAM Info - End]==========");
+    }
+
+    //=========================================================
+    // Names / attribute tables mirroring
+    //=========================================================
+
+    setSingleScreenMirroring(area = 0) {
+        this.ppuMemory.setNamesAttrsMirroring(Mirroring.getSingleScreen(area));
+    }
+
+    setVerticalMirroring() {
+        this.ppuMemory.setNamesAttrsMirroring(Mirroring.VERTICAL);
+    }
+
+    setHorizontalMirroring() {
+        this.ppuMemory.setNamesAttrsMirroring(Mirroring.HORIZONTAL);
+    }
+
+    setFourScreenMirroring() {
+        this.ppuMemory.setNamesAttrsMirroring(Mirroring.FOUR_SCREEN);
+    }
+
+    setMirroring(area0, area1, area2, area3) {
+        this.ppuMemory.mapNamesAttrsAreas(area0, area1, area2, area3);
+    }
+
 }
 
-AbstractMapper.prototype.init = function(cartridge) {
-  var ref, ref1;
-  this.mirroring = cartridge.mirroring;
-  this.hasPRGRAM = cartridge.hasPRGRAM;
-  this.hasPRGRAMBattery = cartridge.hasPRGRAMBattery;
-  this.hasCHRRAM = cartridge.hasCHRRAM;
-  this.hasCHRRAMBattery = cartridge.hasCHRRAMBattery;
-  this.prgROMSize = (ref = cartridge.prgROMSize) != null ? ref : cartridge.prgROM.length;
-  this.prgRAMSize = cartridge.prgRAMSize;
-  this.prgRAMSizeBattery = cartridge.prgRAMSizeBattery;
-  this.chrROMSize = (ref1 = cartridge.chrROMSize) != null ? ref1 : cartridge.chrROM.length;
-  this.chrRAMSize = cartridge.chrRAMSize;
-  this.chrRAMSizeBattery = cartridge.chrRAMSizeBattery;
-  this.prgROM = cartridge.prgROM;
-  return this.chrROM = cartridge.chrROM;
-};
-
-AbstractMapper.prototype.reset = function() {};
-
-AbstractMapper.prototype.write = function(address, value) {
-  return value;
-};
-
-AbstractMapper.prototype.tick = function() {};
-
-AbstractMapper.prototype.powerUp = function() {
-  logger.info("Resetting mapper");
-  this.resetPRGRAM();
-  this.resetCHRRAM();
-  return this.reset();
-};
-
-AbstractMapper.prototype.mapPRGROMBank32K = function(srcBank, dstBank) {
-  return this.mapPRGROMBank8K(srcBank, dstBank, 4);
-};
-
-AbstractMapper.prototype.mapPRGROMBank16K = function(srcBank, dstBank) {
-  return this.mapPRGROMBank8K(srcBank, dstBank, 2);
-};
-
-AbstractMapper.prototype.mapPRGROMBank8K = function(srcBank, dstBank, ratio) {
-  var i, j, maxBank, ref;
-  if (ratio == null) {
-    ratio = 1;
-  }
-  srcBank = ratio * srcBank;
-  dstBank = ratio * dstBank;
-  maxBank = (this.prgROMSize - 1) >> 13;
-  for (i = j = 0, ref = ratio; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-    this.cpuMemory.mapPRGROMBank(srcBank + i, (dstBank + i) & maxBank);
-  }
-  return void 0;
-};
-
-AbstractMapper.prototype.createPRGRAM = function() {
-  if (this.hasPRGRAM) {
-    this.prgRAM = newUint8Array(this.prgRAMSize);
-    if (this.hasPRGRAMBattery && (this.prgRAMSizeBattery == null)) {
-      this.prgRAMSizeBattery = this.prgRAMSize;
-    }
-  }
-  return void 0;
-};
-
-AbstractMapper.prototype.resetPRGRAM = function() {
-  var clearFrom, i, j, ref, ref1;
-  if (this.hasPRGRAM) {
-    clearFrom = this.hasPRGRAMBattery ? this.prgRAMSizeBattery : 0;
-    for (i = j = ref = clearFrom, ref1 = this.prgRAMSize; ref <= ref1 ? j < ref1 : j > ref1; i = ref <= ref1 ? ++j : --j) {
-      this.prgRAM[i] = 0;
-    }
-  }
-  return void 0;
-};
-
-AbstractMapper.prototype.loadPRGRAM = function(storage) {
-  if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-    return storage.readData(this.getPRGRAMKey(), this.prgRAM);
-  }
-};
-
-AbstractMapper.prototype.savePRGRAM = function(storage) {
-  if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-    // TODO slice vs subarray
-    return storage.writeData(this.getPRGRAMKey(), this.prgRAM.subarray(0, this.prgRAMSizeBattery));
-  }
-};
-
-AbstractMapper.prototype.getPRGRAMKey = function() {
-  return this.prgRAMKey != null ? this.prgRAMKey : this.prgRAMKey = (md5(this.prgROM)) + "/PRGRAM";
-};
-
-AbstractMapper.prototype.mapPRGRAMBank8K = function(srcBank, dstBank) {
-  var maxBank;
-  maxBank = (this.prgRAMSize - 1) >> 13;
-  return this.cpuMemory.mapPRGRAMBank(srcBank, dstBank & maxBank);
-};
-
-AbstractMapper.prototype.printPRGRAMInfo = function() {
-  logger.info("==========[Mapper PRG RAM Info - Start]==========");
-  logger.info("has PRG RAM           : " + this.hasPRGRAM);
-  logger.info("has PRG RAM battery   : " + this.hasPRGRAMBattery);
-  logger.info("PRG RAM size          : " + (readableSize(this.prgRAMSize)));
-  logger.info("PRG RAM size (battery): " + (readableSize(this.prgRAMSizeBattery)));
-  return logger.info("==========[Mapper PRG RAM Info - End]==========");
-};
-
-AbstractMapper.prototype.mapCHRROMBank8K = function(srcBank, dstBank) {
-  return this.mapCHRROMBank1K(srcBank, dstBank, 8);
-};
-
-AbstractMapper.prototype.mapCHRROMBank4K = function(srcBank, dstBank) {
-  return this.mapCHRROMBank1K(srcBank, dstBank, 4);
-};
-
-AbstractMapper.prototype.mapCHRROMBank2K = function(srcBank, dstBank) {
-  return this.mapCHRROMBank1K(srcBank, dstBank, 2);
-};
-
-AbstractMapper.prototype.mapCHRROMBank1K = function(srcBank, dstBank, ratio) {
-  var i, j, maxBank, ref;
-  if (ratio == null) {
-    ratio = 1;
-  }
-  srcBank = ratio * srcBank;
-  dstBank = ratio * dstBank;
-  maxBank = (this.chrROMSize - 1) >> 10;
-  for (i = j = 0, ref = ratio; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-    this.ppuMemory.mapPatternsBank(srcBank + i, (dstBank + i) & maxBank);
-  }
-  return void 0;
-};
-
-AbstractMapper.prototype.createCHRRAM = function() {
-  if (this.hasCHRRAM) {
-    this.chrRAM = newUint8Array(this.chrRAMSize);
-    if (this.hasCHRRAMBattery && (this.chrRAMSizeBattery == null)) {
-      this.chrRAMSizeBattery = this.chrRAMSize;
-    }
-  }
-  return void 0;
-};
-
-AbstractMapper.prototype.resetCHRRAM = function() {
-  var clearFrom, i, j, ref, ref1;
-  if (this.hasCHRRAM) {
-    clearFrom = this.hasCHRRAMBattery ? this.chrRAMSizeBattery : 0;
-    for (i = j = ref = clearFrom, ref1 = this.chrRAMSize; ref <= ref1 ? j < ref1 : j > ref1; i = ref <= ref1 ? ++j : --j) {
-      this.chrRAM[i] = 0;
-    }
-  }
-  return void 0;
-};
-
-AbstractMapper.prototype.loadCHRRAM = function(storage) {
-  if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-    return storage.readData(this.getCHRRAMKey(), this.chrRAM);
-  }
-};
-
-AbstractMapper.prototype.saveCHRRAM = function(storage) {
-  if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-    // TODO slice vs subarray
-    return storage.writeData(this.getCHRRAMKey(), this.chrRAM.subarray(0, this.chrRAMSizeBattery));
-  }
-};
-
-AbstractMapper.prototype.getCHRRAMKey = function() {
-  return this.chrRAMKey != null ? this.chrRAMKey : this.chrRAMKey = (md5(this.prgROM)) + "/CHRRAM";
-};
-
-AbstractMapper.prototype.mapCHRRAMBank8K = function(srcBank, dstBank) {
-  return this.mapCHRRAMBank4K(srcBank, dstBank, 8);
-};
-
-AbstractMapper.prototype.mapCHRRAMBank4K = function(srcBank, dstBank, ratio) {
-  var i, j, maxBank, ref;
-  if (ratio == null) {
-    ratio = 4;
-  }
-  srcBank = ratio * srcBank;
-  dstBank = ratio * dstBank;
-  maxBank = (this.chrRAMSize - 1) >> 10;
-  for (i = j = 0, ref = ratio; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-    this.ppuMemory.mapPatternsBank(srcBank + i, (dstBank + i) & maxBank);
-  }
-  return void 0;
-};
-
-AbstractMapper.prototype.printCHRRAMInfo = function() {
-  logger.info("==========[Mapper CHR RAM Info - Start]==========");
-  logger.info("has CHR RAM           : " + this.hasCHRRAM);
-  logger.info("has CHR RAM battery   : " + this.hasCHRRAMBattery);
-  logger.info("CHR RAM size          : " + (readableSize(this.chrRAMSize)));
-  logger.info("CHR RAM size (battery): " + (readableSize(this.chrRAMSizeBattery)));
-  return logger.info("==========[Mapper CHR RAM Info - End]==========");
-};
-
-AbstractMapper.prototype.setSingleScreenMirroring = function(area) {
-  if (area == null) {
-    area = 0;
-  }
-  return this.ppuMemory.setNamesAttrsMirroring(Mirroring.getSingleScreen(area));
-};
-
-AbstractMapper.prototype.setVerticalMirroring = function() {
-  return this.ppuMemory.setNamesAttrsMirroring(Mirroring.VERTICAL);
-};
-
-AbstractMapper.prototype.setHorizontalMirroring = function() {
-  return this.ppuMemory.setNamesAttrsMirroring(Mirroring.HORIZONTAL);
-};
-
-AbstractMapper.prototype.setFourScreenMirroring = function() {
-  return this.ppuMemory.setNamesAttrsMirroring(Mirroring.FOUR_SCREEN);
-};
-
-AbstractMapper.prototype.setMirroring = function(area0, area1, area2, area3) {
-  return this.ppuMemory.mapNamesAttrsAreas(area0, area1, area2, area3);
-};
+AbstractMapper["dependencies"] = [ "cpuMemory", "ppuMemory" ];

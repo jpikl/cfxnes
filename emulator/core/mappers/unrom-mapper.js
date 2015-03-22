@@ -1,28 +1,42 @@
 import { AbstractMapper } from "./abstract-mapper";
 
-var
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+//=========================================================
+// UNROM mapper
+//=========================================================
 
-export function UNROMMapper(cartridge) {
-  return UNROMMapper.__super__.constructor.call(this, "UNROM", cartridge);
+export class UNROMMapper extends AbstractMapper {
+
+    //=========================================================
+    // Mapper initialization
+    //=========================================================
+
+    constructor(cartridge) {
+        super("UNROM", cartridge);
+    }
+
+    init(cartridge) {
+        super(cartridge);
+        this.hasPRGRAM = true;
+        this.prgRAMSize = 0x2000; // 8K PRG RAM
+    }
+
+    //=========================================================
+    // Mapper reset
+    //=========================================================
+
+    reset() {
+        this.mapPRGROMBank16K(0,  0); // First 16K PRG ROM bank
+        this.mapPRGROMBank16K(1, -1); // Last 16K PRG ROM bank
+        this.mapPRGRAMBank8K (0,  0); // 8K PRG RAM
+        this.mapCHRRAMBank8K (0,  0); // 8K CHR RAM
+    }
+
+    //=========================================================
+    // Mapper writing
+    //=========================================================
+
+    write(address, value) {
+        this.mapPRGROMBank16K(0, value); // Select lower 16K PRG ROM bank
+    }
+
 }
-
-extend(UNROMMapper, AbstractMapper);
-
-UNROMMapper.prototype.init = function(cartridge) {
-  UNROMMapper.__super__.init.call(this, cartridge);
-  this.hasPRGRAM = true;
-  return this.prgRAMSize = 0x2000;
-};
-
-UNROMMapper.prototype.reset = function() {
-  this.mapPRGROMBank16K(0, 0);
-  this.mapPRGROMBank16K(1, -1);
-  this.mapPRGRAMBank8K(0, 0);
-  return this.mapCHRRAMBank8K(0, 0);
-};
-
-UNROMMapper.prototype.write = function(address, value) {
-  return this.mapPRGROMBank16K(0, value);
-};

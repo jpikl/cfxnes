@@ -6,7 +6,7 @@ logger        = require("../utils/logger").get()
 system        = require "../utils/system"
 
 ###########################################################
-# Base class for PRGROM mappers
+# Base class for mappers
 ###########################################################
 
 class AbstractMapper

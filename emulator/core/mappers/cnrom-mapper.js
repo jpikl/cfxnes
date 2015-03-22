@@ -1,26 +1,40 @@
 import { AbstractMapper } from "./abstract-mapper";
 
-var
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+//=========================================================
+// CNROM mapper
+//=========================================================
 
-export function CNROMMapper(cartridge) {
-  return CNROMMapper.__super__.constructor.call(this, "CNROM", cartridge);
+export class CNROMMapper extends AbstractMapper {
+
+    //=========================================================
+    // Mapper initialization
+    //=========================================================
+
+    constructor(cartridge) {
+        super("CNROM", cartridge);
+    }
+
+    init(cartridge) {
+        super(cartridge);
+        this.hasPRGRAM = false;
+    }
+
+    //=========================================================
+    // Mapper reset
+    //=========================================================
+
+    reset() {
+        this.mapPRGROMBank16K(0,  0); // First 16K PRG ROM bank
+        this.mapPRGROMBank16K(1, -1); // Last 16K PRG ROM bank (or mirror of the first one)
+        this.mapCHRROMBank8K (0,  0); // First 8K CHR ROM bank
+    }
+
+    //=========================================================
+    // Mapper writing
+    //=========================================================
+
+    write(address, value) {
+        this.mapCHRROMBank8K(0, value); // Select 8K CHR ROM bank
+    }
+
 }
-
-extend(CNROMMapper, AbstractMapper);
-
-CNROMMapper.prototype.init = function(cartridge) {
-  CNROMMapper.__super__.init.call(this, cartridge);
-  return this.hasPRGRAM = false;
-};
-
-CNROMMapper.prototype.reset = function() {
-  this.mapPRGROMBank16K(0, 0);
-  this.mapPRGROMBank16K(1, -1);
-  return this.mapCHRROMBank8K(0, 0);
-};
-
-CNROMMapper.prototype.write = function(address, value) {
-  return this.mapCHRROMBank8K(0, value);
-};
