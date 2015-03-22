@@ -1,15 +1,16 @@
 //=============================================================================
-// Test:   instr_timing
-// Source: http://blargg.8bitalley.com/parodius/nes-tests/instr_timing.zip
+// Test:   instr_test
+// Source: http://blargg.8bitalley.com/nes-tests/instr_test-v4.zip
 //=============================================================================
 
 import { FakeUnit } from "../../debug/fake-unit"
 
-export const name = "instr_timing";
-export const rom = "./emulator/core/tests/instr_timing/instr_timing.nes"
+export const name = "instr_test";
+export const rom = "./emulator/core/tests/instr_test/instr_test-v4.nes"
 
 export function configure(config) {
     config["ppu"] = FakeUnit;
+    config["apu"] = FakeUnit;
 }
 
 export function execute(test) {

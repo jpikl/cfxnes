@@ -1,21 +1,25 @@
+//=============================================================================
+// Collection of ROM-based tests
+// Source: http://wiki.nesdev.com/w/index.php/Emulator_tests
+//=============================================================================
 
-import chai               from "chai"
-import chaiFs             from "chai-fs"
-import fs                 from "fs"
-import * as nestest       from "./nestest/nestest"
-import * as instr_test_v4 from "./instr_test-v4/instr_test-v4"
-import * as instr_timing  from "./instr_timing/instr_timing"
-import * as ppu_vbl_nmi   from "./ppu_vbl_nmi/ppu_vbl_nmi"
-import baseConfig         from "../config/base-config"
-import { dataToString }   from "../utils/convert"
-import { Injector }       from "../utils/inject"
-import { Logger }         from "../utils/logger"
+import chai              from "chai"
+import chaiFs            from "chai-fs"
+import fs                from "fs"
+import * as nestest      from "./nestest/nestest"
+import * as instr_test   from "./instr_test/instr_test-v4"
+import * as instr_timing from "./instr_timing/instr_timing"
+import * as ppu_vbl_nmi  from "./ppu_vbl_nmi/ppu_vbl_nmi"
+import baseConfig        from "../config/base-config"
+import { dataToString }  from "../utils/convert"
+import { Injector }      from "../utils/inject"
+import { Logger }        from "../utils/logger"
 
 chai.use(chaiFs);
 
 describe("CPU", () => {
     itShouldPass(nestest);
-    itShouldPass(instr_test_v4);
+    itShouldPass(instr_test);
     itShouldPass(instr_timing);
 });
 
@@ -84,6 +88,7 @@ function execute(test) {
         },
 
         blargg() {
+            // Test code for all Blargg's test ROMs
             const RESULT_ADDRESS = 0x6000;
             const RESULT_RUNNING = 0x80;
             const RESULT_OK = 0x00;

@@ -4,6 +4,10 @@ var
 
 import { DebugCPU } from "../../debug/debug-cpu";
 
+//=========================================================
+// CPU mofified to execute all tests on nestest ROM
+//=========================================================
+
 export function NestestCPU() {
     return NestestCPU.__super__.constructor.apply(this, arguments);
 }
