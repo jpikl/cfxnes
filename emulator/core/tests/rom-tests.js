@@ -1,24 +1,27 @@
 
-import chai             from "chai"
-import chaiFs           from "chai-fs"
-import fs               from "fs"
-import * as nestest     from "./nestest/nestest"
-import baseConfig       from "../config/base-config"
-import { dataToString } from "../utils/convert"
-import { Injector }     from "../utils/inject"
-import { Logger }       from "../utils/logger"
+import chai               from "chai"
+import chaiFs             from "chai-fs"
+import fs                 from "fs"
+import * as nestest       from "./nestest/nestest"
+import * as instr_test_v4 from "./instr_test-v4/instr_test-v4"
+import * as instr_timing  from "./instr_timing/instr_timing"
+import * as ppu_vbl_nmi   from "./ppu_vbl_nmi/ppu_vbl_nmi"
+import baseConfig         from "../config/base-config"
+import { dataToString }   from "../utils/convert"
+import { Injector }       from "../utils/inject"
+import { Logger }         from "../utils/logger"
 
 chai.use(chaiFs);
 
 describe("CPU", () => {
     itShouldPass(nestest);
-    // itShouldPass("instr_test-v4");
-    // itShouldPass("instr_timing");
+    itShouldPass(instr_test_v4);
+    itShouldPass(instr_timing);
 });
 
-// describe("PPU", () => {
-//     itShouldPass("ppu_vbl_nmi");
-// });
+describe("PPU", () => {
+    itShouldPass(ppu_vbl_nmi);
+});
 
 function itShouldPass(test) {
     it(`should pass '${test.name}'`, () => execute(test));
@@ -53,11 +56,11 @@ function execute(test) {
             }
         },
 
-        readByte: function(address) {
+        readByte(address) {
             return cpuMemory.read(address);
         },
 
-        readString: function(address) {
+        readString(address) {
             var data = [];
             while (true) {
                 var value = this.readByte(address++);
@@ -66,21 +69,21 @@ function execute(test) {
                 }
                 data.push(value);
             }
-            return dataToString(bytes);
+            return dataToString(data);
         },
 
-        readFile: function(file) {
+        readFile(file) {
             return fs.readFileSync(file, "utf8");
         },
 
-        openLog: function(id, file) {
+        openLog(id, file) {
             loggerIds.push(id);
             var logger = Logger.get(id);
             logger.attach(Logger.file(file));
             return logger;
         },
 
-        blargg: () => {
+        blargg() {
             const RESULT_ADDRESS = 0x6000;
             const RESULT_RUNNING = 0x80;
             const RESULT_OK = 0x00;

@@ -11,13 +11,12 @@ export function DebugPPU() {
 
 extend(DebugPPU, PPU);
 
-DebugPPU.prototype.powerUp = function() {
-  DebugPPU.__super__.powerUp.call(this);
-  this.setRGBAPalette(new Uint32Array(64));
-  return this.startFrame(new Array(1));
+DebugPPU.prototype.updateRGBAPalette = function() {
 };
 
-DebugPPU.prototype.tick = function() {
-  this.framePosition = 0;
-  return DebugPPU.__super__.tick.call(this);
+DebugPPU.prototype.setFramePixel = function() {
 };
+
+DebugPPU.prototype.clearFramePixel = function() {
+};
+
