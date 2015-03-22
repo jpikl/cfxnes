@@ -15,6 +15,8 @@ yargs   = require "yargs"
 bundle  = require "./gulp/gulp-bundle-modules"
 coffee  = require "./gulp/gulp-inlined-coffee"
 
+require "mocha-traceur" # Enables ES6 transpiling for mocha
+
 ###########################################################
 # Constants
 ###########################################################
@@ -92,10 +94,10 @@ gulp.task "emulator", ->
     #     .pipe gulp.dest PUBLIC_SCRIPTS_DIR
     #     .on "error", gutil.log
 
-# gulp.task "emulator-test", [ "emulator-compile" ], ->
-#     gulp.src "#{BUILD_DIR}/core/tests/*-test{,s}.js", read: false
-#         .pipe mocha
-#             timeout: 60000 # 60 s
+gulp.task "emulator-test", ->
+    gulp.src "#{EMULATOR_DIR}/core/tests/*-test{,s}.js", read: false
+        .pipe mocha
+            timeout: 60000 # 60 s
 
 # gulp.task "emulator-compile", [ "emulator-clean" ], ->
 #     gulp.src [ "#{EMULATOR_DIR}/**/*.coffee", "!#{EMULATOR_DIR}/**/{debug,tests}/**", "!#{EMULATOR_DIR}/core/readers/local-file-reader.coffee" ]
