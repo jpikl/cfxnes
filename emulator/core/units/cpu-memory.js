@@ -40,16 +40,17 @@ CPUMemory.prototype.read = function(address) {
 
 CPUMemory.prototype.write = function(address, value) {
   if (address >= 0x8000) {
-    return this.writePRGROM(address, value);
+    this.writePRGROM(address, value);
   } else if (address < 0x2000) {
-    return this.writeRAM(address, value);
+    this.writeRAM(address, value);
   } else if (address < 0x4020) {
-    return this.writeIO(address, value);
+    this.writeIO(address, value);
   } else if (address >= 0x6000) {
-    return this.writePRGRAM(address, value);
+    this.writePRGRAM(address, value);
   } else {
-    return this.writeEXROM(address, value);
+    this.writeEXROM(address, value);
   }
+  return value;
 };
 
 CPUMemory.prototype.createRAM = function() {
