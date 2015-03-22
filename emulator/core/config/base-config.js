@@ -1,21 +1,32 @@
-var Config = require("../utils/config");
+import { NES } from "../nes";
+import { CPU } from "../units/cpu";
+import { PPU } from "../units/ppu";
+import { APU } from "../units/apu";
+import { DMA } from "../units/dma";
+import { CPUMemory } from "../units/cpu-memory";
+import { PPUMemory } from "../units/ppu-memory";
+import { CartridgeFactory } from "../factories/cartridge-factory";
+import { DeviceFactory } from "../factories/device-factory";
+import { MapperFactory } from "../factories/mapper-factory";
+import { PaletteFactory } from "../factories/palette-factory";
+import { Config } from "../utils/inject";
 
 //=========================================================
 // Base configuration of emulator core
 //=========================================================
 
-module.exports = new Config({
+export default new Config({
 
-    "nes":              require("../nes"),
-    "cpu":              require("../units/cpu"),
-    "ppu":              require("../units/ppu"),
-    "apu":              require("../units/apu"),
-    "dma":              require("../units/dma"),
-    "cpuMemory":        require("../units/cpu-memory"),
-    "ppuMemory":        require("../units/ppu-memory"),
-    "cartridgeFactory": require("../factories/cartridge-factory"),
-    "deviceFactory":    require("../factories/device-factory"),
-    "mapperFactory":    require("../factories/mapper-factory"),
-    "paletteFactory":   require("../factories/palette-factory")
+    "nes":              NES,
+    "cpu":              CPU,
+    "ppu":              PPU,
+    "apu":              APU,
+    "dma":              DMA,
+    "cpuMemory":        CPUMemory,
+    "ppuMemory":        PPUMemory,
+    "cartridgeFactory": CartridgeFactory,
+    "deviceFactory":    DeviceFactory,
+    "mapperFactory":    MapperFactory,
+    "paletteFactory":   PaletteFactory
 
 });

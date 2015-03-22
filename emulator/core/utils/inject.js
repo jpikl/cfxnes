@@ -1,10 +1,10 @@
-var logger = require("./logger").get();
+import { logger } from "./logger";
 
 //=========================================================
 // Dependency injection library
 //=========================================================
 
-class Injector {
+export class Injector {
 
     constructor(config) {
         logger.info("Creating injector");
@@ -14,13 +14,9 @@ class Injector {
     }
 
     processConfig(config) {
-        if (typeof config === "function") {
-            logger.info("Building injector configuration");
-            config = (config.constructor) ? new config : config();
-        }
         logger.info("Processing injector configuration");
         for (name in config) {
-            clazz = config[name];
+            var clazz = config[name];
             this.dependencies[name] = {
                 clazz: clazz
             };
@@ -54,7 +50,7 @@ class Injector {
     }
 
     inject(instance) {
-        var dependencies = instance.constructor.dependencies || instance.constructor["dependencies"];
+        var dependencies = instance.constructor["dependencies"];
         var injectMethod = instance.inject || instance.init;
         if (dependencies && injectMethod) {
             logger.info(`Injecting dependencies: ${dependencies.join(", ")}`);
@@ -69,4 +65,33 @@ class Injector {
 
 }
 
-module.exports = Injector;
+//=========================================================
+// Dependency injection configuration
+//=========================================================
+
+export class Config {
+
+    constructor(config) {
+        if (config) {
+            this.include(config)
+        }
+    }
+
+    include(config) {
+        for (name in config) {
+            if (config.hasOwnProperty(name)) {
+                this[name] = config[name];
+            }
+        }
+        return this;
+    }
+
+    clone() {
+        return new Config(this);
+    }
+
+    merge(config) {
+        return this.clone().include(config);
+    }
+
+}

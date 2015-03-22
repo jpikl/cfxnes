@@ -1,22 +1,21 @@
-var BUTTON_ALIASES,
+var
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-BUTTON_ALIASES = {
+const BUTTON_ALIASES = {
   1: "left",
   2: "right",
   3: "middle",
   4: "middle"
 };
 
-
-function Mouse(id) {
+export function Mouse(id) {
   this.id = id;
   this.onMouseUp = bind(this.onMouseUp, this);
   this.onMouseDown = bind(this.onMouseDown, this);
   this.onMouseMove = bind(this.onMouseMove, this);
 }
 
-Mouse.dependencies = ["inputManager", "videoManager"];
+Mouse["dependencies"] = ["inputManager", "videoManager"];
 
 Mouse.prototype.init = function(inputManager, videoManager) {
   this.inputManager = inputManager;
@@ -72,5 +71,3 @@ Mouse.prototype.readState = function(state) {
 Mouse.prototype.getInputName = function(input) {
   return input[0].toUpperCase() + input.slice(1) + " mouse button";
 };
-
-module.exports = Mouse;

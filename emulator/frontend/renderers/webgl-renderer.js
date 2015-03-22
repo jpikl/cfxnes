@@ -1,23 +1,20 @@
-var FRAGMENT_SHADER_SOURCE, VERTEX_SHADER_SOURCE, colors, logger;
+import { logger } from "../../core/utils/logger";
+import { BLACK_COLOR } from "../../core/utils/colors";
 
-logger = require("../../core/utils/logger").get();
+const VERTEX_SHADER_SOURCE = "uniform   vec2 uScreenSize;\nattribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\nvarying   vec2 vTextureCoord;\n\nvoid main(void) {\n    float x = aVertexPosition.x / (0.5 * uScreenSize.x) - 1.0; // [-1, 1] -> [0, width]\n    float y = 1.0 - aVertexPosition.y / (0.5 * uScreenSize.y); // [-1, 1] -> [height, 0]\n    gl_Position = vec4(x, y, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}";
 
-colors = require("../../core/utils/colors");
+const FRAGMENT_SHADER_SOURCE = "precision mediump float;\n\nuniform sampler2D uSampler;\nvarying vec2      vTextureCoord;\n\nvoid main(void) {\n    gl_FragColor = texture2D(uSampler, vTextureCoord);\n}";
 
-VERTEX_SHADER_SOURCE = "uniform   vec2 uScreenSize;\nattribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\nvarying   vec2 vTextureCoord;\n\nvoid main(void) {\n    float x = aVertexPosition.x / (0.5 * uScreenSize.x) - 1.0; // [-1, 1] -> [0, width]\n    float y = 1.0 - aVertexPosition.y / (0.5 * uScreenSize.y); // [-1, 1] -> [height, 0]\n    gl_Position = vec4(x, y, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}";
-
-FRAGMENT_SHADER_SOURCE = "precision mediump float;\n\nuniform sampler2D uSampler;\nvarying vec2      vTextureCoord;\n\nvoid main(void) {\n    gl_FragColor = texture2D(uSampler, vTextureCoord);\n}";
-
-WebGLRenderer.isSupported = function() {
-  return window["WebGLRenderingContext"] != null;
-};
-
-function WebGLRenderer(canvas) {
+export function WebGLRenderer(canvas) {
   this.canvas = canvas;
   this.initWebGL();
   this.initParameters();
   this.initShaders();
-}
+};
+
+WebGLRenderer.isSupported = function() {
+  return window["WebGLRenderingContext"] != null;
+};
 
 WebGLRenderer.prototype.initWebGL = function() {
   var id, j, len, ref;
@@ -110,7 +107,7 @@ WebGLRenderer.prototype.createFrameData = function(width, height) {
   buffer = new ArrayBuffer(width * height * 4);
   data = new Uint32Array(buffer);
   for (i = j = 0, ref = data.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-    data[i] = colors.BLACK;
+    data[i] = BLACK_COLOR;
   }
   return data;
 };
@@ -186,5 +183,3 @@ WebGLRenderer.prototype.setScale = function(scale) {
 WebGLRenderer.prototype.setSmoothing = function(smoothing) {
   return this.smoothing = smoothing;
 };
-
-module.exports = WebGLRenderer;

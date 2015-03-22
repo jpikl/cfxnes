@@ -1,10 +1,8 @@
-var logger;
+import { logger } from "../../core/utils/logger";
 
-logger = require("../../core/utils/logger").get();
+export function InputManager() {}
 
-function InputManager() {}
-
-InputManager.dependencies = ["nes", "deviceFactory"];
+InputManager["dependencies"] = ["nes", "deviceFactory"];
 
 InputManager.prototype.init = function(nes, deviceFactory) {
   logger.info("Initializing input manager");
@@ -262,5 +260,3 @@ InputManager.prototype.writeConfiguration = function(config) {
   }
   return results;
 };
-
-module.exports = InputManager;

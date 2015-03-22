@@ -2,7 +2,7 @@
 // Base class of readers
 //=========================================================
 
-class AbstractReader {
+export class AbstractReader {
 
     constructor() {
         this.reset();
@@ -54,5 +54,3 @@ class AbstractReader {
     }
 
 }
-
-module.exports = AbstractReader;

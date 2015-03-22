@@ -1,10 +1,10 @@
-var AbstractMapper,
+import { AbstractMapper } from "./abstract-mapper";
+
+var
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-AbstractMapper = require("./abstract-mapper");
-
-function UNROMMapper(cartridge) {
+export function UNROMMapper(cartridge) {
   return UNROMMapper.__super__.constructor.call(this, "UNROM", cartridge);
 }
 
@@ -26,5 +26,3 @@ UNROMMapper.prototype.reset = function() {
 UNROMMapper.prototype.write = function(address, value) {
   return this.mapPRGROMBank16K(0, value);
 };
-
-module.exports = UNROMMapper;

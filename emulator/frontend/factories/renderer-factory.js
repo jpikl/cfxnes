@@ -1,13 +1,13 @@
-var FALLBACK_RENDERER, logger;
+import { logger } from "../../core/utils/logger";
+import { CanvasRenderer } from "../renderers/canvas-renderer";
+import { WebGLRenderer } from "../renderers/webgl-renderer";
 
-logger = require("../../core/utils/logger").get();
+const FALLBACK_RENDERER = "canvas";
 
-FALLBACK_RENDERER = "canvas";
-
-function RendererFactory() {
+export function RendererFactory() {
   this.renderers = {
-    "canvas": require("../renderers/canvas-renderer"),
-    "webgl": require("../renderers/webgl-renderer")
+    "canvas": CanvasRenderer,
+    "webgl": WebGLRenderer
   };
 }
 
@@ -38,5 +38,3 @@ RendererFactory.prototype.createRenderer = function(id, canvas) {
 RendererFactory.prototype.createRendererUnsafe = function(id, canvas) {
   return new this.renderers[id](canvas);
 };
-
-module.exports = RendererFactory;

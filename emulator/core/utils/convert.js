@@ -1,35 +1,27 @@
-var system = require("./system");
-
 //=========================================================
 // Conversion utilities
 //=========================================================
 
-var convert = {
+export var md5 = window.md5 || require("js-md5");
 
-    md5: window.md5 || system.require("js-md5"),
+export function dataToString(input) {
+    return String.fromCharCode.apply(null, input);
+}
 
-    dataToString(input) {
-        return String.fromCharCode.apply(null, input);
-    },
-
-    stringToData(input, output) {
-        if (output == null) {
-            output = new Uint8Array(input.length);
-        }
-        for (var i = 0; i < input.length; i++) {
-            output[i] = input.charCodeAt(i);
-        }
-        return output;
-    },
-
-    objectToString(input) {
-        return JSON.stringify(input);
-    },
-
-    stringToObject(input) {
-        return JSON.parse(input);
+export function stringToData(input, output) {
+    if (output == null) {
+        output = new Uint8Array(input.length);
     }
+    for (var i = 0; i < input.length; i++) {
+        output[i] = input.charCodeAt(i);
+    }
+    return output;
+}
 
-};
+export function objectToString(input) {
+    return JSON.stringify(input);
+}
 
-module.exports = convert;
+export function stringToObject(input) {
+    return JSON.parse(input);
+}

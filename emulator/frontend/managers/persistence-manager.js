@@ -1,15 +1,15 @@
-var DEFAULT_SAVE_PERIOD, logger,
+import { logger } from "../../core/utils/logger";
+
+var
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-logger = require("../../core/utils/logger").get();
+const DEFAULT_SAVE_PERIOD = 60000;
 
-DEFAULT_SAVE_PERIOD = 60000;
-
-function PersistenceManager() {
+export function PersistenceManager() {
   this.saveAll = bind(this.saveAll, this);
 }
 
-PersistenceManager.dependencies = ["nes", "storage", "videoManager", "audioManager", "inputManager", "executionManager"];
+PersistenceManager["dependencies"] = ["nes", "storage", "videoManager", "audioManager", "inputManager", "executionManager"];
 
 PersistenceManager.prototype.init = function(nes, storage, videoManager, audioManager, inputManager, executionManager) {
   this.nes = nes;
@@ -93,5 +93,3 @@ PersistenceManager.prototype.saveConfiguration = function() {
   this.executionManager.writeConfiguration(config);
   return this.storage.writeObject("config", config);
 };
-
-module.exports = PersistenceManager;

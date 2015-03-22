@@ -1,14 +1,14 @@
-var AbstractLoader = require("./abstract-loader");
-var Mirroring      = require("../common/types").Mirroring;
-var TVSystem       = require("../common/types").TVSystem;
+import { AbstractLoader } from "./abstract-loader";
+import { Mirroring } from "../common/types";
+import { TVSystem } from "../common/types";
 
-var INES_SIGNATURE = [0x4E, 0x45, 0x53, 0x1A]; // "NES^Z"
+const INES_SIGNATURE = [0x4E, 0x45, 0x53, 0x1A]; // "NES^Z"
 
 //=========================================================
 // Loader for the iNES ROM format
 //=========================================================
 
-class INESLoader extends AbstractLoader {
+export class INESLoader extends AbstractLoader {
 
     constructor() {
         super("iNES");
@@ -121,5 +121,3 @@ class INESLoader extends AbstractLoader {
     }
 
 }
-
-module.exports = INESLoader;

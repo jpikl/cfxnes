@@ -1,21 +1,15 @@
-var config, Injector, Logger, logger;
-
-Injector = require("../core/utils/injector");
-
-Logger = require("../core/utils/logger");
-
-config = require("./config/base-config");
-
-logger = Logger.get();
+import { Injector } from "../core/utils/inject";
+import { logger, Logger } from "../core/utils/logger";
+import config from "./config/base-config";
 
 logger.attach(Logger.console());
 
-Emulator.dependencies = ["executionManager", "cartridgeManager", "videoManager", "audioManager", "inputManager", "persistenceManager"];
-
-function Emulator() {
+export function Emulator() {
   var injector = new Injector(config);
   injector.inject(this);
 }
+
+Emulator["dependencies"] = ["executionManager", "cartridgeManager", "videoManager", "audioManager", "inputManager", "persistenceManager"];
 
 Emulator.prototype.init = function(executionManager, cartridgeManager, videoManager, audioManager, inputManager, persistenceManager) {
   this["audioChannels"] = audioManager.channels;
@@ -245,4 +239,4 @@ Emulator.prototype["isPeriodicSave"] = function() {
   return this.persistenceManager.isPeriodicSave();
 };
 
-module.exports = window["CFxNES"] = Emulator;
+window["CFxNES"] = Emulator;

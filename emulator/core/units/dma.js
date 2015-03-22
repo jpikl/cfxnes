@@ -1,12 +1,10 @@
-var TOTAL_DMA_CYCLES, logger;
+import { logger } from "../utils/logger";
 
-logger = require("../utils/logger").get();
+const TOTAL_DMA_CYCLES = 0x200;
 
-TOTAL_DMA_CYCLES = 0x200;
+export function DMA() {}
 
-function DMA() {}
-
-DMA.dependencies = ["cpuMemory"];
+DMA["dependencies"] = ["cpuMemory"];
 
 DMA.prototype.init = function(cpuMemory) {
   return this.cpuMemory = cpuMemory;
@@ -42,5 +40,3 @@ DMA.prototype.transferData = function() {
   data = this.cpuMemory.read(address);
   return this.cpuMemory.write(0x2004, data);
 };
-
-module.exports = DMA;

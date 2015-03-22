@@ -1,6 +1,5 @@
-var logger = require("../utils/logger").get();
-
-var LENGTH_COUNTER_VALUES = require("../common/constants").APU_LENGTH_COUNTER_VALUES;
+import { logger } from "../utils/logger";
+import { LENGTH_COUNTER_VALUES } from "../common/constants";
 
 var DUTY_WAVEFORM = [
     15, 14, 13, 12, 11, 10,  9,  8,  7,  6,  5,  4,  3,  2,  1,  0,
@@ -11,7 +10,7 @@ var DUTY_WAVEFORM = [
 // Triangle channel
 //=========================================================
 
-class TriangleChannel {
+export class TriangleChannel {
 
     powerUp() {
         logger.info("Reseting triangle channel");
@@ -109,5 +108,3 @@ class TriangleChannel {
     }
 
 }
-
-module.exports = TriangleChannel;

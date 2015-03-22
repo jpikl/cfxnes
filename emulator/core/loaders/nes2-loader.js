@@ -1,11 +1,11 @@
-var INESLoader = require("./ines-loader");
-var TVSystem   = require("../common/types").TVSystem;
+import { INESLoader } from "./ines-loader";
+import { TVSystem } from "../common/types";
 
 //=========================================================
 // Loader for the NES 2.0 ROM format
 //=========================================================
 
-class NES2Loader extends INESLoader {
+export class NES2Loader extends INESLoader {
 
     constructor() {
         super("NES 2.0");
@@ -58,11 +58,9 @@ class NES2Loader extends INESLoader {
 
     computeRAMSize(value) {
         if (value > 0) {
-            Math.pow(2, value - 1) * 0x80; // grows exponentially: 128B, 256B, 512B, ...
+            return Math.pow(2, value - 1) * 0x80; // grows exponentially: 128B, 256B, 512B, ...
         }
         return 0;
     }
 
 }
-
-module.exports = NES2Loader;

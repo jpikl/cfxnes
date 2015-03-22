@@ -1,18 +1,15 @@
-var Interrupt, byteAsHex, logger,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+import { Interrupt } from "../common/types";
+import { byteAsHex } from "../utils/format";
+import { logger } from "../utils/logger";
 
-Interrupt = require("../common/types").Interrupt;
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-byteAsHex = require("../utils/format").byteAsHex;
-
-logger = require("../utils/logger").get();
-
-function CPU() {
+export function CPU() {
   this.rotateRight = bind(this.rotateRight, this);
   this.rotateLeft = bind(this.rotateLeft, this);
 }
 
-CPU.dependencies = ["cpuMemory", "ppu", "apu", "dma"];
+CPU["dependencies"] = ["cpuMemory", "ppu", "apu", "dma"];
 
 CPU.prototype.init = function(cpuMemory, ppu, apu, dma) {
   this.cpuMemory = cpuMemory;
@@ -1006,5 +1003,3 @@ CPU.prototype.registerOperation = function(operationCode, instruction, addressin
 CPU.prototype.connectMapper = function(mapper) {
   return this.mapper = mapper;
 };
-
-module.exports = CPU;

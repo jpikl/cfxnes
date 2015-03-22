@@ -2,7 +2,7 @@
 // Base class of loaders
 //=========================================================
 
-class AbstractLoader {
+export class AbstractLoader {
 
     constructor(name) {
         this.name = name;
@@ -15,5 +15,3 @@ class AbstractLoader {
     }
 
 }
-
-module.exports = AbstractLoader;

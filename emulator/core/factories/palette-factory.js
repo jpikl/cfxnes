@@ -1,13 +1,13 @@
-var defaultPalette   = require("../palettes/default-palette");
-var brightPalette    = require("../palettes/bright-palette");
-var realisticPalette = require("../palettes/realistic-palette");
-var logger           = require("../utils/logger").get();
+import defaultPalette from "../palettes/default-palette";
+import brightPalette from "../palettes/bright-palette";
+import realisticPalette from "../palettes/realistic-palette";
+import { logger } from "../utils/logger";
 
 //=========================================================
 // Factory for palette creation
 //=========================================================
 
-class PaletteFactory {
+export class PaletteFactory {
 
     constructor() {
         this.palettes = {
@@ -26,5 +26,3 @@ class PaletteFactory {
     }
 
 }
-
-module.exports = PaletteFactory;

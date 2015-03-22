@@ -1,25 +1,17 @@
-var Mirroring, md5, logger, readableSize, system, wordAsHex;
-
-Mirroring = require("../common/types").Mirroring;
-
-md5 = require("../utils/convert").md5;
-
-wordAsHex = require("../utils/format").wordAsHex;
-
-readableSize = require("../utils/format").readableSize;
-
-logger = require("../utils/logger").get();
-
-system = require("../utils/system");
+import { Mirroring } from "../common/types";
+import { md5 } from "../utils/convert";
+import { wordAsHex, readableSize } from "../utils/format";
+import { logger } from "../utils/logger";
+import { newUint8Array } from "../utils/system";
 
 AbstractMapper.prototype.inject = function(cpuMemory, ppuMemory) {
   this.cpuMemory = cpuMemory;
   return this.ppuMemory = ppuMemory;
 };
 
-AbstractMapper.dependencies = ["cpuMemory", "ppuMemory"];
+AbstractMapper["dependencies"] = ["cpuMemory", "ppuMemory"];
 
-function AbstractMapper(name, cartridge) {
+export function AbstractMapper(name, cartridge) {
   logger.info(`Constructing '${name}' mapper`);
   this.init(cartridge);
   this.createPRGRAM();
@@ -84,7 +76,7 @@ AbstractMapper.prototype.mapPRGROMBank8K = function(srcBank, dstBank, ratio) {
 
 AbstractMapper.prototype.createPRGRAM = function() {
   if (this.hasPRGRAM) {
-    this.prgRAM = system.newUint8Array(this.prgRAMSize);
+    this.prgRAM = newUint8Array(this.prgRAMSize);
     if (this.hasPRGRAMBattery && (this.prgRAMSizeBattery == null)) {
       this.prgRAMSizeBattery = this.prgRAMSize;
     }
@@ -163,7 +155,7 @@ AbstractMapper.prototype.mapCHRROMBank1K = function(srcBank, dstBank, ratio) {
 
 AbstractMapper.prototype.createCHRRAM = function() {
   if (this.hasCHRRAM) {
-    this.chrRAM = system.newUint8Array(this.chrRAMSize);
+    this.chrRAM = newUint8Array(this.chrRAMSize);
     if (this.hasCHRRAMBattery && (this.chrRAMSizeBattery == null)) {
       this.chrRAMSizeBattery = this.chrRAMSize;
     }
@@ -248,5 +240,3 @@ AbstractMapper.prototype.setFourScreenMirroring = function() {
 AbstractMapper.prototype.setMirroring = function(area0, area1, area2, area3) {
   return this.ppuMemory.mapNamesAttrsAreas(area0, area1, area2, area3);
 };
-
-module.exports = AbstractMapper;

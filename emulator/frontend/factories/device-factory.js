@@ -1,22 +1,30 @@
-var CoreDeviceFactory,
+import { DeviceFactory as CoreDeviceFactory } from "../../core/factories/device-factory";
+import { Keyboard } from "../devices/keyboard";
+import { Mouse } from "../devices/mouse";
+import { Joypad } from "../../core/devices/joypad";
+import { Zapper } from "../../core/devices/zapper";
+import { JoypadAdapter } from "../devices/adapters/joypad-adapter";
+import { ZapperAdapter } from "../devices/adapters/zapper-adapter";
+
+
+var
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-CoreDeviceFactory = require("../../core/factories/device-factory");
 
-function DeviceFactory(injector) {
+export function DeviceFactory(injector) {
   this.injector = injector;
   this.sourceDevices = {
-    "keyboard": require("../devices/keyboard"),
-    "mouse": require("../devices/mouse")
+    "keyboard": Keyboard,
+    "mouse": Mouse
   };
   this.targetDevices = {
-    "joypad": require("../../core/devices/joypad"),
-    "zapper": require("../../core/devices/zapper")
+    "joypad": Joypad,
+    "zapper": Zapper
   };
   this.targetDevicesAdapters = {
-    "joypad": require("../devices/adapters/joypad-adapter"),
-    "zapper": require("../devices/adapters/zapper-adapter")
+    "joypad": JoypadAdapter,
+    "zapper": ZapperAdapter
   };
 }
 
@@ -31,5 +39,3 @@ DeviceFactory.prototype.createTargetDevice = function(id) {
   device = this.injector.inject(new this.targetDevices[id]);
   return this.injector.inject(new this.targetDevicesAdapters[id](device));
 };
-
-module.exports = DeviceFactory;

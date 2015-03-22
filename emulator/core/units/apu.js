@@ -1,24 +1,16 @@
-var CPU_FREQUENCY_NTSC, CPU_FREQUENCY_PAL, DMCChannel, Interrupt, NoiseChannel, PulseChannel, TriangleChannel, logger;
+import { Interrupt } from "../common/types";
+import { PulseChannel } from "../channels/pulse-channel";
+import { TriangleChannel } from "../channels/triangle-channel";
+import { NoiseChannel } from "../channels/noise-channel";
+import { DMCChannel } from "../channels/dmc-channel";
+import { logger } from "../utils/logger";
 
-Interrupt = require("../common/types").Interrupt;
+const CPU_FREQUENCY_NTSC = 1789773;
+const CPU_FREQUENCY_PAL = CPU_FREQUENCY_NTSC * 5 / 6;
 
-PulseChannel = require("../channels/pulse-channel");
+export function APU() {}
 
-TriangleChannel = require("../channels/triangle-channel");
-
-NoiseChannel = require("../channels/noise-channel");
-
-DMCChannel = require("../channels/dmc-channel");
-
-logger = require("../utils/logger").get();
-
-CPU_FREQUENCY_NTSC = 1789773;
-
-CPU_FREQUENCY_PAL = CPU_FREQUENCY_NTSC * 5 / 6;
-
-function APU() {}
-
-APU.dependencies = ["cpu", "cpuMemory"];
+APU["dependencies"] = ["cpu", "cpuMemory"];
 
 APU.prototype.init = function(cpu, cpuMemory) {
   this.cpu = cpu;
@@ -340,5 +332,3 @@ APU.prototype.computeSampleRateAdjustment = function() {
   percentageDifference = 0.5 - this.recordPosition / this.bufferSize;
   return this.sampleRateAdjustment = 100 * percentageDifference / this.bufferSize;
 };
-
-module.exports = APU;

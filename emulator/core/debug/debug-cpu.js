@@ -1,21 +1,17 @@
-  var CPU, DebugCPU, basicLogger, byteAsHex, fillLeft, verboseLogger, wordAsHex,
+import { CPU } from "../units/cpu";
+import { byteAsHex, wordAsHex, fillLeft } from "../utils/format";
+import { Logger } from "../utils/logger";
+
+  var
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
-CPU = require("../units/cpu");
 
-byteAsHex = require("../utils/format").byteAsHex;
+var basicLogger = Logger.get("debug-basic");
+var verboseLogger = Logger.get("debug-verbose");
 
-wordAsHex = require("../utils/format").wordAsHex;
-
-fillLeft = require("../utils/format").fillLeft;
-
-basicLogger = require("../utils/logger").get("debug-basic");
-
-verboseLogger = require("../utils/logger").get("debug-verbose");
-
-function DebugCPU() {
+export function DebugCPU() {
   this.formatFlags = bind(this.formatFlags, this);
   this.formatRegisters = bind(this.formatRegisters, this);
   this.formatAddressingDetails = bind(this.formatAddressingDetails, this);
@@ -519,5 +515,3 @@ DebugCPU.prototype.formatFlags = function() {
     return results;
   }).call(this)).join(" ");
 };
-
-module.exports = DebugCPU;

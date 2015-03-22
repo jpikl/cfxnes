@@ -1,60 +1,32 @@
-var F_CLIP_LEFT, F_CLIP_NTSC, F_COPY_BG, F_COPY_HS, F_COPY_VS, F_EVAL_SP, F_FETCH_AT, F_FETCH_BGH, F_FETCH_BGL, F_FETCH_NT, F_FETCH_SPH, F_FETCH_SPL, F_INC_CX, F_INC_FY, F_RENDER, F_SHIFT_BG, F_SKIP, F_VB_END, F_VB_START, F_VB_START2, Interrupt, Sprite, VIDEO_HEIGHT, VIDEO_WIDTH, aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao, colors, cycleFlagsTable, i, j, k, l, logger, m, n, o, p, q, s, scanlineFlagsTable, system, t, u, v, w, z;
+import { Interrupt } from "../common/types";
+import { logger } from "../utils/logger";
+import { packColor, unpackColor, BLACK_COLOR } from "../utils/colors";
+import { newUint8Array, newUint32Array } from "../utils/system";
+import { VIDEO_WIDTH, VIDEO_HEIGHT } from "../common/constants";
 
-Interrupt = require("../common/types").Interrupt;
+const F_RENDER = 1 << 1;
+const F_FETCH_NT = 1 << 2;
+const F_FETCH_AT = 1 << 3;
+const F_FETCH_BGL = 1 << 4;
+const F_FETCH_BGH = 1 << 5;
+const F_FETCH_SPL = 1 << 6;
+const F_FETCH_SPH = 1 << 7;
+const F_COPY_BG = 1 << 8;
+const F_SHIFT_BG = 1 << 9;
+const F_EVAL_SP = 1 << 10;
+const F_CLIP_LEFT = 1 << 11;
+const F_CLIP_NTSC = 1 << 12;
+const F_INC_CX = 1 << 13;
+const F_INC_FY = 1 << 14;
+const F_COPY_HS = 1 << 15;
+const F_COPY_VS = 1 << 16;
+const F_VB_START = 1 << 17;
+const F_VB_START2 = 1 << 18;
+const F_VB_END = 1 << 19;
+const F_SKIP = 1 << 20;
 
-logger = require("../utils/logger").get();
-
-colors = require("../utils/colors");
-
-system = require("../utils/system");
-
-VIDEO_WIDTH = require("../common/constants").VIDEO_WIDTH;
-
-VIDEO_HEIGHT = require("../common/constants").VIDEO_HEIGHT;
-
-F_RENDER = 1 << 1;
-
-F_FETCH_NT = 1 << 2;
-
-F_FETCH_AT = 1 << 3;
-
-F_FETCH_BGL = 1 << 4;
-
-F_FETCH_BGH = 1 << 5;
-
-F_FETCH_SPL = 1 << 6;
-
-F_FETCH_SPH = 1 << 7;
-
-F_COPY_BG = 1 << 8;
-
-F_SHIFT_BG = 1 << 9;
-
-F_EVAL_SP = 1 << 10;
-
-F_CLIP_LEFT = 1 << 11;
-
-F_CLIP_NTSC = 1 << 12;
-
-F_INC_CX = 1 << 13;
-
-F_INC_FY = 1 << 14;
-
-F_COPY_HS = 1 << 15;
-
-F_COPY_VS = 1 << 16;
-
-F_VB_START = 1 << 17;
-
-F_VB_START2 = 1 << 18;
-
-F_VB_END = 1 << 19;
-
-F_SKIP = 1 << 20;
-
-cycleFlagsTable = system.newUint32Array(340);
-
-scanlineFlagsTable = system.newUint32Array(261);
+var cycleFlagsTable = newUint32Array(340);
+var scanlineFlagsTable = newUint32Array(261);
 
 for (i = j = 1; j <= 256; i = ++j) {
   cycleFlagsTable[i] |= F_RENDER;
@@ -247,9 +219,9 @@ function Sprite() {
   this.patternRow1 = 0;
 }
 
-function PPU() {}
+export function PPU() {}
 
-PPU.dependencies = ["ppuMemory", "cpu"];
+PPU["dependencies"] = ["ppuMemory", "cpu"];
 
 PPU.prototype.init = function(ppuMemory, cpu) {
   this.ppuMemory = ppuMemory;
@@ -266,7 +238,7 @@ PPU.prototype.powerUp = function() {
 };
 
 PPU.prototype.resetOAM = function() {
-  this.primaryOAM = system.newUint8Array(0x100);
+  this.primaryOAM = newUint8Array(0x100);
   return this.secondaryOAM = (function() {
     var ap, results;
     results = [];
@@ -317,7 +289,7 @@ PPU.prototype.resetVariables = function() {
     }
     return results;
   })();
-  return this.spritePixelCache = system.newUint8Array(261);
+  return this.spritePixelCache = newUint8Array(261);
 };
 
 PPU.prototype.setNTSCMode = function(ntscMode) {
@@ -352,7 +324,7 @@ PPU.prototype.createRGBAPalette = function(rgbPalette, rRatio, gRatio, bRatio) {
     r = Math.floor(rRatio * ((rgb >>> 16) & 0xFF));
     g = Math.floor(gRatio * ((rgb >>> 8) & 0xFF));
     b = Math.floor(bRatio * (rgb & 0xFF));
-    rgbaPalette[i] = colors.pack(r, g, b);
+    rgbaPalette[i] = packColor(r, g, b);
   }
   return rgbaPalette;
 };
@@ -575,7 +547,7 @@ PPU.prototype.isBrightFramePixel = function(x, y) {
   if (y < this.scanline - 5 || y >= this.scanline) {
     return false;
   }
-  ref = colors.unpack(this.frameBuffer[y * VIDEO_WIDTH + x]), r = ref[0], g = ref[1], b = ref[2];
+  ref = unpackColor(this.frameBuffer[y * VIDEO_WIDTH + x]), r = ref[0], g = ref[1], b = ref[2];
   return r > 0x12 || g > 0x12 || b > 0x12;
 };
 
@@ -588,7 +560,7 @@ PPU.prototype.setFramePixelOnPosition = function(x, y, color) {
 };
 
 PPU.prototype.clearFramePixel = function() {
-  return this.frameBuffer[this.framePosition++] = colors.BLACK;
+  return this.frameBuffer[this.framePosition++] = BLACK_COLOR;
 };
 
 PPU.prototype.updateVBlank = function() {
@@ -970,5 +942,3 @@ PPU.prototype.renderPaletteTile = function(baseX, baseY, color) {
 PPU.prototype.connectMapper = function(mapper) {
   return this.mapper = mapper;
 };
-
-module.exports = PPU;

@@ -1,15 +1,14 @@
-var AbstractReader = require("./abstract-reader");
-var system         = require("../utils/system");
+import { AbstractReader } from "./abstract-reader";
 
 //=========================================================
 // Reader of local files
 //=========================================================
 
-class LocalFileReader extends AbstractReader {
+export class LocalFileReader extends AbstractReader {
 
     constructor(path) {
         super();
-        this.data = system.require("fs").readFileSync(path);
+        this.data = require("fs").readFileSync(path);
     }
 
     getLength() {
@@ -21,5 +20,3 @@ class LocalFileReader extends AbstractReader {
     }
 
 }
-
-module.exports = LocalFileReader;

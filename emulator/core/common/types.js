@@ -2,24 +2,24 @@
 // Interupt types (flags)
 //=========================================================
 
-var Interrupt = {
+export var Interrupt = {
+
     RESET:   0x01, // CPU reset
     NMI:     0x02, // Non-maskable interrupt
     IRQ_APU: 0x04, // Interrupt caused by APU
     IRQ_DCM: 0x08, // Interrupt caused by DCM channel
     IRQ_EXT: 0x10  // Interrupt caused by mapper
+
 };
 
 // Mask for all IRQ types
 Interrupt.IRQ = Interrupt.IRQ_APU | Interrupt.IRQ_DCM | Interrupt.IRQ_EXT;
 
-exports.Interrupt = Interrupt;
-
 //=========================================================
 // Nametable mirroring types
 //=========================================================
 
-Mirroring = {
+export var Mirroring = {
 
     // Alignment of name    A | B
     // tables on screen    ---+---
@@ -62,13 +62,11 @@ Mirroring = {
 
 };
 
-exports.Mirroring = Mirroring;
-
 //=========================================================
 // TV system types
 //=========================================================
 
-TVSystem = {
+export var TVSystem = {
 
     NTSC: 1,
     PAL:  2,
@@ -85,5 +83,3 @@ TVSystem = {
     }
 
 };
-
-exports.TVSystem = TVSystem;

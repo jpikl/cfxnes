@@ -1,4 +1,4 @@
-function FakeUnit() {}
+export function FakeUnit() {}
 
 FakeUnit.prototype.powerUp = function() {};
 
@@ -111,5 +111,3 @@ FakeUnit.prototype.isBlockingCPU = function() {
 FakeUnit.prototype.isBlockingDMA = function() {
   return false;
 };
-
-module.exports = FakeUnit;

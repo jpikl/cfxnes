@@ -1,6 +1,5 @@
-var logger = require("../utils/logger").get();
-
-var LENGTH_COUNTER_VALUES = require("../common/constants").APU_LENGTH_COUNTER_VALUES;
+import { logger } from "../utils/logger";
+import { LENGTH_COUNTER_VALUES } from "../common/constants";
 
 var DUTY_WAVEFORMS = [
     [ 0, 1, 0, 0, 0, 0, 0, 0 ], // _X______ (12.5%)
@@ -13,7 +12,7 @@ var DUTY_WAVEFORMS = [
 // Pulse channel
 //=========================================================
 
-class PulseChannel {
+export class PulseChannel {
 
     constructor(channelId) {
         this.channelId = channelId;
@@ -175,5 +174,3 @@ class PulseChannel {
     }
 
 }
-
-module.exports = PulseChannel;

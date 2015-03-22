@@ -1,10 +1,10 @@
-var AbstractStorage = require("./abstract-storage");
+import { AbstractStorage } from "./abstract-storage";
 
 //=========================================================
 // Memory storage
 //=========================================================
 
-class MemoryStorage extends AbstractStorage {
+export class MemoryStorage extends AbstractStorage {
 
     constructor() {
         this.data = {};
@@ -19,5 +19,3 @@ class MemoryStorage extends AbstractStorage {
     }
 
 }
-
-module.exports = MemoryStorage;

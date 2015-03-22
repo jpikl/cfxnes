@@ -1,10 +1,10 @@
-var AbstractStorage = require("../../core/storages/abstract-storage");
+import { AbstractStorage } from "../../core/storages/abstract-storage";
 
 //=========================================================
 // Local storage
 //=========================================================
 
-class LocalStorage extends AbstractStorage {
+export class LocalStorage extends AbstractStorage {
 
     read(key) {
         return window.localStorage[this.getFullKey(key)];
@@ -19,5 +19,3 @@ class LocalStorage extends AbstractStorage {
     }
 
 }
-
-module.exports = LocalStorage;

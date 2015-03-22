@@ -1,7 +1,7 @@
-var KEY_CODE_ALIASES,
+var
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-KEY_CODE_ALIASES = {
+const KEY_CODE_ALIASES = {
   48: "0",
   49: "1",
   50: "2",
@@ -100,13 +100,13 @@ KEY_CODE_ALIASES = {
   111: "divide"
 };
 
-function Keyboard(id) {
+export function Keyboard(id) {
   this.id = id;
   this.onKeyUp = bind(this.onKeyUp, this);
   this.onKeyDown = bind(this.onKeyDown, this);
 }
 
-Keyboard.dependencies = ["inputManager", "videoManager"];
+Keyboard["dependencies"] = ["inputManager", "videoManager"];
 
 Keyboard.prototype.init = function(inputManager, videoManager) {
   this.inputManager = inputManager;
@@ -160,5 +160,3 @@ Keyboard.prototype.getInputName = function(input) {
   }
   return words.join(" ");
 };
-
-module.exports = Keyboard;

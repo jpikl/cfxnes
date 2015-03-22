@@ -1,12 +1,10 @@
-var system = require("./system");
-
 var loggers = {};
 
 //=========================================================
 // Logger object
 //=========================================================
 
-class Logger {
+export class Logger {
 
     constructor(id) {
         this.id = id;
@@ -72,22 +70,28 @@ class Logger {
     // Factory methods
     //=========================================================
 
-    static ["get"](id = "default") {
+    static get(id = "default") {
         if (!loggers[id]) {
             loggers[id] = new Logger(id);
         }
         return loggers[id];
     }
 
-    static ["console"]() {
+    static console() {
         return console;
     }
 
-    static ["file"]() {
+    static file() {
         return new FileWriter(fileName);
     }
 
-};
+}
+
+//=========================================================
+// Default logger
+//=========================================================
+
+export var logger = Logger.get();
 
 //=========================================================
 // File log writer
@@ -96,7 +100,7 @@ class Logger {
 class FileWriter {
 
     constructor(fileName) {
-        this.fs = system.require("fs");
+        this.fs = require("fs");
         this.fd = this.fs.openSync(fileName, "w");
     }
 
@@ -121,5 +125,3 @@ class FileWriter {
     }
 
 }
-
-module.exports = Logger;

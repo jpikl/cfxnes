@@ -1,14 +1,10 @@
-var VIDEO_HEIGHT, VIDEO_WIDTH;
+import { VIDEO_HEIGHT, VIDEO_WIDTH } from "../../../core/common/constants";
 
-VIDEO_WIDTH = require("../../../core/common/constants").VIDEO_WIDTH;
-
-VIDEO_HEIGHT = require("../../../core/common/constants").VIDEO_HEIGHT;
-
-function ZapperAdapter(zapper) {
+export function ZapperAdapter(zapper) {
   this.zapper = zapper;
 }
 
-ZapperAdapter.dependencies = ["videoManager"];
+ZapperAdapter["dependencies"] = ["videoManager"];
 
 ZapperAdapter.prototype.init = function(videoManager) {
   return this.videoManager = videoManager;
@@ -33,6 +29,3 @@ ZapperAdapter.prototype.stateChanged = function(state) {
   y = ~~(((state.cursorY || 0) - rect.top) / verticalScale);
   return this.zapper.setBeamPosition(x, y);
 };
-
-
-module.exports = ZapperAdapter;

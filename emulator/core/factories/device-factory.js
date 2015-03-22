@@ -1,12 +1,12 @@
-var Joypad = require("../devices/joypad");
-var Zapper = require("../devices/zapper");
-var logger = require("../utils/logger").get();
+import { Joypad } from "../devices/joypad";
+import { Zapper } from "../devices/zapper";
+import { logger } from "../utils/logger";
 
 //=========================================================
 // Factory for device creation
 //=========================================================
 
-class DeviceFactory {
+export class DeviceFactory {
 
     constructor(injector) {
         this.injector = injector;
@@ -26,5 +26,3 @@ class DeviceFactory {
     }
 
 }
-
-module.exports = DeviceFactory;

@@ -1,13 +1,13 @@
-var system = require("../utils/system")
+import { newUint8Array } from "../utils/system";
 
 //=========================================================
 // Joypad input device
 //=========================================================
 
-class Joypad {
+export class Joypad {
 
     constructor() {
-        this.buttonStates = system.newUint8Array(24);
+        this.buttonStates = newUint8Array(24);
         this.buttonStates[19] = 1;
         this.readPosition = 0;
     }
@@ -32,7 +32,8 @@ class Joypad {
 // Joypad buttons
 //=========================================================
 
-Joypad["Button"] = {
+export var Button = {
+
     A:      0,
     B:      1,
     SELECT: 2,
@@ -41,6 +42,5 @@ Joypad["Button"] = {
     DOWN:   5,
     LEFT:   6,
     RIGHT:  7
-};
 
-module.exports = Joypad;
+};

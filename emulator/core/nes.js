@@ -1,12 +1,12 @@
-var Interrupt = require("./common/types").Interrupt;
-var TVSystem  = require("./common/types").TVSystem;
-var colors    = require("./utils/colors");
+import { Interrupt } from "./common/types";
+import { TVSystem } from "./common/types";
+import { packColor, BLACK_COLOR } from "./utils/colors";
 
 //=========================================================
 // Nintendo Entertainment System
 //=========================================================
 
-class NES {
+export class NES {
 
     init(cpu, cpuMemory, ppu, ppuMemory, apu, dma, mapperFactory) {
         this.cpu = cpu;
@@ -109,7 +109,7 @@ class NES {
     renderEmptyFrame(buffer) {
         for (var i = 0; i < buffer.length; i++) {
             var color = ~~(0xFF * Math.random());
-            buffer[i] = colors.pack(color, color, color);
+            buffer[i] = packColor(color, color, color);
         }
     }
 
@@ -132,7 +132,7 @@ class NES {
 
     renderEmptyDebugFrame(buffer) {
         for (var i = 0; i < buffer.length; i++) {
-            buffer[i] = colors.BLACK;
+            buffer[i] = BLACK_COLOR;
         }
     }
 
@@ -200,5 +200,3 @@ class NES {
 }
 
 NES["dependencies"] = ["cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory"];
-
-module.exports = NES;

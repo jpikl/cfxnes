@@ -1,6 +1,5 @@
-var logger = require("../utils/logger").get();
-
-var LENGTH_COUNTER_VALUES = require("../common/constants").APU_LENGTH_COUNTER_VALUES;
+import { logger } from "../utils/logger";
+import { LENGTH_COUNTER_VALUES } from "../common/constants";
 
 var TIMER_PERIODS_NTSC = [ 4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068 ];
 var TIMER_PERIODS_PAL  = [ 4, 8, 14, 30, 60, 88, 118, 148, 188, 236, 354, 472, 708,  944, 1890, 3778 ];
@@ -9,7 +8,7 @@ var TIMER_PERIODS_PAL  = [ 4, 8, 14, 30, 60, 88, 118, 148, 188, 236, 354, 472, 7
 // Noise channel
 //=========================================================
 
-class NoiseChannel {
+export class NoiseChannel {
 
     powerUp() {
         logger.info("Reseting noise channel");
@@ -130,5 +129,3 @@ class NoiseChannel {
     }
 
 }
-
-module.exports = NoiseChannel;

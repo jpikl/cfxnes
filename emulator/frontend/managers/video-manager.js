@@ -1,27 +1,20 @@
-var DEFAULT_DEBUGGING, DEFAULT_PALETTE, DEFAULT_RENDERER, DEFAULT_SCALE, DEFAULT_SMOOTHING, VIDEO_HEIGHT, VIDEO_WIDTH, logger,
+import { logger } from "../../core/utils/logger";
+import { VIDEO_WIDTH, VIDEO_HEIGHT } from "../../core/common/constants";
+
+var
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-logger = require("../../core/utils/logger").get();
+const DEFAULT_DEBUGGING = false;
+const DEFAULT_SMOOTHING = false;
+const DEFAULT_SCALE = 1;
+const DEFAULT_PALETTE = "default";
+const DEFAULT_RENDERER = "webgl";
 
-VIDEO_WIDTH = require("../../core/common/constants").VIDEO_WIDTH;
-
-VIDEO_HEIGHT = require("../../core/common/constants").VIDEO_HEIGHT;
-
-DEFAULT_DEBUGGING = false;
-
-DEFAULT_SMOOTHING = false;
-
-DEFAULT_SCALE = 1;
-
-DEFAULT_PALETTE = "default";
-
-DEFAULT_RENDERER = "webgl";
-
-function VideoManager() {
+export function VideoManager() {
   this.onFullscreenChange = bind(this.onFullscreenChange, this);
 }
 
-VideoManager.dependencies = ["nes", "rendererFactory", "paletteFactory"];
+VideoManager["dependencies"] = ["nes", "rendererFactory", "paletteFactory"];
 
 VideoManager.prototype.init = function(nes, rendererFactory, paletteFactory) {
   logger.info("Initializing video manager");
@@ -271,5 +264,3 @@ VideoManager.prototype.writeConfiguration = function(config) {
     "renderer": this.getRenderer()
   };
 };
-
-module.exports = VideoManager;

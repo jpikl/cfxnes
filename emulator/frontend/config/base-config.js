@@ -1,19 +1,28 @@
-var config = require("../../core/config/base-config");
+import { DeviceFactory } from "../factories/device-factory";
+import { RendererFactory } from "../factories/renderer-factory";
+import { AudioManager } from "../managers/audio-manager";
+import { CartridgeManager } from "../managers/cartridge-manager";
+import { ExecutionManager } from "../managers/execution-manager";
+import { InputManager } from "../managers/input-manager";
+import { PersistenceManager } from "../managers/persistence-manager";
+import { VideoManager } from "../managers/video-manager";
+import { LocalStorage } from "../storages/local-storage";
+import config from  "../../core/config/base-config";
 
 //=========================================================
 // Base configuration of emulator frontend
 //=========================================================
 
-module.exports = config.merge({
+export default config.merge({
 
-    "deviceFactory":      require("../factories/device-factory"),
-    "rendererFactory":    require("../factories/renderer-factory"),
-    "audioManager":       require("../managers/audio-manager"),
-    "cartridgeManager":   require("../managers/cartridge-manager"),
-    "executionManager":   require("../managers/execution-manager"),
-    "inputManager":       require("../managers/input-manager"),
-    "persistenceManager": require("../managers/persistence-manager"),
-    "videoManager":       require("../managers/video-manager"),
-    "storage":            require("../storages/local-storage")
+    "deviceFactory":      DeviceFactory,
+    "rendererFactory":    RendererFactory,
+    "audioManager":       AudioManager,
+    "cartridgeManager":   CartridgeManager,
+    "executionManager":   ExecutionManager,
+    "inputManager":       InputManager,
+    "persistenceManager": PersistenceManager,
+    "videoManager":       VideoManager,
+    "storage":            LocalStorage
 
 });

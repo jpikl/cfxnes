@@ -1,19 +1,17 @@
-var Joypad, joypadButtonAliases;
+import { Joypad, Button } from "../../../core/devices/joypad";
 
-Joypad = require("../../../core/devices/joypad");
-
-joypadButtonAliases = {
-  "a": Joypad["Button"].A,
-  "b": Joypad["Button"].B,
-  "select": Joypad["Button"].SELECT,
-  "start": Joypad["Button"].START,
-  "up": Joypad["Button"].UP,
-  "down": Joypad["Button"].DOWN,
-  "left": Joypad["Button"].LEFT,
-  "right": Joypad["Button"].RIGHT
+var buttonAliases = {
+  "a": Button.A,
+  "b": Button.B,
+  "select": Button.SELECT,
+  "start": Button.START,
+  "up": Button.UP,
+  "down": Button.DOWN,
+  "left": Button.LEFT,
+  "right": Button.RIGHT
 };
 
-function JoypadAdapter(joypad) {
+export function JoypadAdapter(joypad) {
   this.joypad = joypad;
 }
 
@@ -23,10 +21,8 @@ JoypadAdapter.prototype.getDevice = function() {
 
 JoypadAdapter.prototype.inputChanged = function(input, down) {
   var button;
-  button = joypadButtonAliases[input];
+  button = buttonAliases[input];
   if (button != null) {
     return this.joypad.setButtonPressed(button, down);
   }
 };
-
-module.exports = JoypadAdapter;

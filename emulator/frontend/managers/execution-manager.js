@@ -1,26 +1,25 @@
-var DEFAULT_TV_SYSTEM, DFEFAULT_SPEED, TVSystem, logger, tvSystemAliases,
+import { logger } from "../../core/utils/logger";
+import { TVSystem } from "../../core/common/types";
+
+var
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-logger = require("../../core/utils/logger").get();
 
-TVSystem = require("../../core/common/types").TVSystem;
-
-tvSystemAliases = {
+var tvSystemAliases = {
   "ntsc": TVSystem.NTSC,
   "pal": TVSystem.PAL
 };
 
-DEFAULT_TV_SYSTEM = null;
+const DEFAULT_TV_SYSTEM = null;
+const DFEFAULT_SPEED = 1;
 
-DFEFAULT_SPEED = 1;
-
-function ExecutionManager() {
+export function ExecutionManager() {
   this.onVisibilityChange = bind(this.onVisibilityChange, this);
   this.draw = bind(this.draw, this);
   this.step = bind(this.step, this);
 }
 
-ExecutionManager.dependencies = ["nes", "videoManager", "audioManager", "inputManager"];
+ExecutionManager["dependencies"] = ["nes", "videoManager", "audioManager", "inputManager"];
 
 ExecutionManager.prototype.init = function(nes, videoManager, audioManager, inputManager) {
   this.nes = nes;
@@ -192,5 +191,3 @@ ExecutionManager.prototype.writeConfiguration = function(config) {
     "speed": this.getSpeed()
   };
 };
-
-module.exports = ExecutionManager;

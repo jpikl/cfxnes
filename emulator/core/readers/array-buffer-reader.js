@@ -1,10 +1,10 @@
-var AbstractReader = require("./abstract-reader");
+import { AbstractReader } from "./abstract-reader";
 
 //=========================================================
 // Reader of array buffers
 //=========================================================
 
-class ArrayBufferReader extends AbstractReader {
+export class ArrayBufferReader extends AbstractReader {
 
     constructor(buffer) {
         super();
@@ -20,5 +20,3 @@ class ArrayBufferReader extends AbstractReader {
     }
 
 }
-
-module.exports = ArrayBufferReader;

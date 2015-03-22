@@ -1,10 +1,8 @@
-var logger;
+import { logger } from "../../core/utils/logger";
 
-logger = require("../../core/utils/logger").get();
+export function CartridgeManager() {}
 
-function CartridgeManager() {}
-
-CartridgeManager.dependencies = ["nes", "cartridgeFactory", "executionManager", "persistenceManager"];
+CartridgeManager["dependencies"] = ["nes", "cartridgeFactory", "executionManager", "persistenceManager"];
 
 CartridgeManager.prototype.init = function(nes, cartridgeFactory, executionManager, persistenceManager) {
   this.nes = nes;
@@ -92,5 +90,3 @@ CartridgeManager.prototype.isCartridgeInserted = function() {
 CartridgeManager.prototype.removeCartridge = function() {
   return this.nes.removeCartridge();
 };
-
-module.exports = CartridgeManager;

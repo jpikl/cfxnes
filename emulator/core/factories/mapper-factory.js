@@ -1,16 +1,16 @@
-var AOROMMapper = require("../mappers/aorom-mapper");
-var CNROMMapper = require("../mappers/cnrom-mapper");
-var MMC1Mapper  = require("../mappers/mmc1-mapper");
-var MMC3Mapper  = require("../mappers/mmc3-mapper");
-var NROMMapper  = require("../mappers/nrom-mapper");
-var UNROMMapper = require("../mappers/unrom-mapper");
-var logger      = require("../utils/logger").get();
+import { AOROMMapper } from "../mappers/aorom-mapper";
+import { CNROMMapper } from "../mappers/cnrom-mapper";
+import { MMC1Mapper } from "../mappers/mmc1-mapper";
+import { MMC3Mapper } from "../mappers/mmc3-mapper";
+import { NROMMapper } from "../mappers/nrom-mapper";
+import { UNROMMapper } from "../mappers/unrom-mapper";
+import { logger } from "../utils/logger";
 
 //=========================================================
 // Factory for mapper creation
 //=========================================================
 
-class MapperFactory {
+export class MapperFactory {
 
     constructor(injector) {
         this.injector = injector;
@@ -34,5 +34,3 @@ class MapperFactory {
     }
 
 }
-
-module.exports = MapperFactory;

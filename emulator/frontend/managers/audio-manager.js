@@ -1,15 +1,13 @@
-var BUFFER_SIZE, CHANNEL_ALIASES, DEFAULT_ENABLED, DEFAULT_VOLUME, logger,
+import { logger } from "../../core/utils/logger";
+
+var
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-logger = require("../../core/utils/logger").get();
+const BUFFER_SIZE = 4096;
+const DEFAULT_ENABLED = true;
+const DEFAULT_VOLUME = 1.0;
 
-BUFFER_SIZE = 4096;
-
-DEFAULT_ENABLED = true;
-
-DEFAULT_VOLUME = 1.0;
-
-CHANNEL_ALIASES = {
+const CHANNEL_ALIASES = {
   "pulse1": 0,
   "pulse2": 1,
   "triangle": 2,
@@ -17,11 +15,11 @@ CHANNEL_ALIASES = {
   "dmc": 4
 };
 
-function AudioManager() {
+export function AudioManager() {
   this.updateAudio = bind(this.updateAudio, this);
 }
 
-AudioManager.dependencies = ["nes"];
+AudioManager["dependencies"] = ["nes"];
 
 AudioManager.prototype.init = function(nes) {
   var channel;
@@ -174,5 +172,3 @@ AudioManager.prototype.writeConfiguration = function(config) {
   }
   return results;
 };
-
-module.exports = AudioManager;

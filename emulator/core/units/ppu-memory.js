@@ -1,14 +1,10 @@
-var Mirroring, POWER_UP_PALETTES, logger, system;
+import { Mirroring } from "../common/types";
+import { logger } from "../utils/logger";
+import { newUint8Array } from "../utils/system";
 
-Mirroring = require("../common/types").Mirroring;
+const POWER_UP_PALETTES = [0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D, 0x08, 0x10, 0x08, 0x24, 0x00, 0x00, 0x04, 0x2C, 0x09, 0x01, 0x34, 0x03, 0x00, 0x04, 0x00, 0x14, 0x08, 0x3A, 0x00, 0x02, 0x00, 0x20, 0x2C, 0x08];
 
-logger = require("../utils/logger").get();
-
-system = require("../utils/system");
-
-POWER_UP_PALETTES = [0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D, 0x08, 0x10, 0x08, 0x24, 0x00, 0x00, 0x04, 0x2C, 0x09, 0x01, 0x34, 0x03, 0x00, 0x04, 0x00, 0x14, 0x08, 0x3A, 0x00, 0x02, 0x00, 0x20, 0x2C, 0x08];
-
-function PPUMemory() {}
+export function PPUMemory() {}
 
 PPUMemory.prototype.powerUp = function() {
   logger.info("Reseting PPU memory");
@@ -74,7 +70,7 @@ PPUMemory.prototype.mapPatternsBank = function(srcBank, dstBank) {
 };
 
 PPUMemory.prototype.createNamesAttrs = function() {
-  this.namesAttrs = system.newUint8Array(0x1000);
+  this.namesAttrs = newUint8Array(0x1000);
   return void 0;
 };
 
@@ -127,7 +123,7 @@ PPUMemory.prototype.setNamesAttrsMirroring = function(mirroring) {
 
 PPUMemory.prototype.createPaletts = function() {
   var i, j, ref;
-  this.paletts = system.newUint8Array(0x20);
+  this.paletts = newUint8Array(0x20);
   for (i = j = 0, ref = this.paletts.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
     this.paletts[i] = POWER_UP_PALETTES[i];
   }
@@ -154,5 +150,3 @@ PPUMemory.prototype.connectMapper = function(mapper) {
   this.resetPatterns(mapper);
   return this.resetNamesAttrs(mapper);
 };
-
-module.exports = PPUMemory;

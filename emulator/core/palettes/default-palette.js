@@ -1,4 +1,4 @@
-module.exports = [
+export default [
     // RGB0     RGB1      RGB2      RGB3
     0x757575, 0x271B8F, 0x0000AB, 0x47009F, // +00
     0x8F0077, 0xAB0013, 0xA70000, 0x7F0B00, // +04

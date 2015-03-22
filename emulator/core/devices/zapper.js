@@ -2,7 +2,7 @@
 // Zapper input device
 //=========================================================
 
-class Zapper {
+export class Zapper {
 
     init(ppu) {
         this.ppu = ppu;
@@ -35,5 +35,3 @@ class Zapper {
 }
 
 Zapper["dependencies"] = [ "ppu" ];
-
-module.exports = Zapper;

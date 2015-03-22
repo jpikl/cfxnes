@@ -1,12 +1,9 @@
-var logger, system;
+import { logger } from "../utils/logger";
+import { newUint8Array } from "../utils/system";
 
-logger = require("../utils/logger").get();
+export function CPUMemory() {}
 
-system = require("../utils/system");
-
-function CPUMemory() {}
-
-CPUMemory.dependencies = ["ppu", "apu", "dma"];
+CPUMemory["dependencies"] = ["ppu", "apu", "dma"];
 
 CPUMemory.prototype.init = function(ppu, apu, dma) {
   this.ppu = ppu;
@@ -54,7 +51,7 @@ CPUMemory.prototype.write = function(address, value) {
 };
 
 CPUMemory.prototype.createRAM = function() {
-  this.ram = system.newUint8Array(0x800);
+  this.ram = newUint8Array(0x800);
   return void 0;
 };
 
@@ -258,5 +255,3 @@ CPUMemory.prototype.connectMapper = function(mapper) {
   this.resetPRGROM(mapper);
   return this.resetPRGRAM(mapper);
 };
-
-module.exports = CPUMemory;
