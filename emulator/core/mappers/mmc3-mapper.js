@@ -27,6 +27,7 @@ MMC3.prototype.inject = function(cpu, ppu, cpuMemory, ppuMemory) {
 MMC3.prototype.init = function(cartridge) {
   MMC3.__super__.init.call(this, cartridge);
   this.hasPRGRAM = true;
+  this.prgRAMSize = 0x2000;
   return this.alternateMode = false;
 };
 
