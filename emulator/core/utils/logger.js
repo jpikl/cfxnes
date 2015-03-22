@@ -81,8 +81,8 @@ export class Logger {
         return console;
     }
 
-    static file() {
-        return new FileWriter(fileName);
+    static file(filename) {
+        return new FileWriter(filename);
     }
 
 }
@@ -99,9 +99,9 @@ export var logger = Logger.get();
 
 class FileWriter {
 
-    constructor(fileName) {
+    constructor(filename) {
         this.fs = require("fs");
-        this.fd = this.fs.openSync(fileName, "w");
+        this.fd = this.fs.openSync(filename, "w");
     }
 
     info(message) {

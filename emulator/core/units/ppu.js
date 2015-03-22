@@ -28,6 +28,8 @@ const F_SKIP = 1 << 20;
 var cycleFlagsTable = newUint32Array(340);
 var scanlineFlagsTable = newUint32Array(261);
 
+var i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z;
+var aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao;
 for (i = j = 1; j <= 256; i = ++j) {
   cycleFlagsTable[i] |= F_RENDER;
 }

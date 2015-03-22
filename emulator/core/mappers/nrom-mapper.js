@@ -15,7 +15,7 @@ export class NROMMapper extends AbstractMapper {
     }
 
     init(cartridge) {
-        super(cartridge);
+        super.init(cartridge);
         this.hasPRGRAM = false;
     }
 

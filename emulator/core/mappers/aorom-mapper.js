@@ -15,7 +15,7 @@ export class AOROMMapper extends AbstractMapper {
     }
 
     init(cartridge) {
-        super(cartridge);
+        super.init(cartridge);
         this.hasPRGRAM = false;
     }
 

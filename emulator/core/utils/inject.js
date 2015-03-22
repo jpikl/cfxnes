@@ -15,7 +15,7 @@ export class Injector {
 
     processConfig(config) {
         logger.info("Processing injector configuration");
-        for (name in config) {
+        for (var name in config) {
             var clazz = config[name];
             this.dependencies[name] = {
                 clazz: clazz
@@ -78,7 +78,7 @@ export class Config {
     }
 
     include(config) {
-        for (name in config) {
+        for (var name in config) {
             if (config.hasOwnProperty(name)) {
                 this[name] = config[name];
             }

@@ -15,7 +15,7 @@ export class UNROMMapper extends AbstractMapper {
     }
 
     init(cartridge) {
-        super(cartridge);
+        super.init(cartridge);
         this.hasPRGRAM = true;
         this.prgRAMSize = 0x2000; // 8K PRG RAM
     }

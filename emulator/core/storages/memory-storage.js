@@ -7,6 +7,7 @@ import { AbstractStorage } from "./abstract-storage";
 export class MemoryStorage extends AbstractStorage {
 
     constructor() {
+        super();
         this.data = {};
     }
 

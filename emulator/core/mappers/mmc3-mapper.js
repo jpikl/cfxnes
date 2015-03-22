@@ -16,14 +16,14 @@ export class MMC3Mapper extends AbstractMapper {
     }
 
     init(cartridge) {
-        super(cartridge);
+        super.init(cartridge);
         this.hasPRGRAM = true;
         this.prgRAMSize = 0x2000;
         this.alternateMode = false;
     }
 
     inject(cpu, ppu, cpuMemory, ppuMemory) {
-        super(cpuMemory, ppuMemory);
+        super.inject(cpuMemory, ppuMemory);
         this.cpu = cpu;
         this.ppu = ppu;
     }

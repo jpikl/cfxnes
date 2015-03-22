@@ -15,7 +15,7 @@ export class MMC1Mapper extends AbstractMapper {
     }
 
     init(cartridge) {
-        super(cartridge);
+        super.init(cartridge);
         this.hasPRGRAM = true;    // Depends on board, so we presume PRG RAM is present
         this.prgRAMSize = 0x8000; // Depends on board, the largest value is 32K on SXROM
     }
