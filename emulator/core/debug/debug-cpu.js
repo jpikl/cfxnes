@@ -1,6 +1,6 @@
-import { CPU } from "../units/cpu";
+import { CPU }                            from "../units/cpu";
 import { byteAsHex, wordAsHex, fillLeft } from "../utils/format";
-import { Logger } from "../utils/logger";
+import { Logger }                         from "../utils/logger";
 
   var
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },

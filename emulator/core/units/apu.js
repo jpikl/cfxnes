@@ -1,16 +1,16 @@
-import { Interrupt } from "../common/types";
-import { PulseChannel } from "../channels/pulse-channel";
+import { Interrupt }       from "../common/types";
+import { PulseChannel }    from "../channels/pulse-channel";
 import { TriangleChannel } from "../channels/triangle-channel";
-import { NoiseChannel } from "../channels/noise-channel";
-import { DMCChannel } from "../channels/dmc-channel";
-import { logger } from "../utils/logger";
+import { NoiseChannel }    from "../channels/noise-channel";
+import { DMCChannel }      from "../channels/dmc-channel";
+import { logger }          from "../utils/logger";
 
 const CPU_FREQUENCY_NTSC = 1789773;
 const CPU_FREQUENCY_PAL = CPU_FREQUENCY_NTSC * 5 / 6;
 
 export function APU() {}
 
-APU["dependencies"] = ["cpu", "cpuMemory"];
+APU["dependencies"] = [ "cpu", "cpuMemory" ];
 
 APU.prototype.init = function(cpu, cpuMemory) {
   this.cpu = cpu;

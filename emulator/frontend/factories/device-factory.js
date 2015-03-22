@@ -1,11 +1,11 @@
-import { DeviceFactory as CoreDeviceFactory } from "../../core/factories/device-factory";
-import { Keyboard } from "../devices/keyboard";
-import { Mouse } from "../devices/mouse";
-import { Joypad } from "../../core/devices/joypad";
-import { Zapper } from "../../core/devices/zapper";
-import { JoypadAdapter } from "../devices/adapters/joypad-adapter";
-import { ZapperAdapter } from "../devices/adapters/zapper-adapter";
-
+import { Keyboard }          from "../devices/keyboard";
+import { Mouse }             from "../devices/mouse";
+import { JoypadAdapter }     from "../devices/adapters/joypad-adapter";
+import { ZapperAdapter }     from "../devices/adapters/zapper-adapter";
+import { Joypad }            from "../../core/devices/joypad";
+import { Zapper }            from "../../core/devices/zapper";
+import { DeviceFactory as
+         CoreDeviceFactory } from "../../core/factories/device-factory";
 
 var
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },

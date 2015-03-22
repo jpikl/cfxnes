@@ -1,5 +1,5 @@
-import { logger } from "../../core/utils/logger";
 import { TVSystem } from "../../core/common/types";
+import { logger }   from "../../core/utils/logger";
 
 var
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -19,7 +19,7 @@ export function ExecutionManager() {
   this.step = bind(this.step, this);
 }
 
-ExecutionManager["dependencies"] = ["nes", "videoManager", "audioManager", "inputManager"];
+ExecutionManager["dependencies"] = [ "nes", "videoManager", "audioManager", "inputManager" ];
 
 ExecutionManager.prototype.init = function(nes, videoManager, audioManager, inputManager) {
   this.nes = nes;

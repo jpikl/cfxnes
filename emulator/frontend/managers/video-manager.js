@@ -1,5 +1,6 @@
-import { logger } from "../../core/utils/logger";
-import { VIDEO_WIDTH, VIDEO_HEIGHT } from "../../core/common/constants";
+import { VIDEO_WIDTH,
+         VIDEO_HEIGHT } from "../../core/common/constants";
+import { logger }       from "../../core/utils/logger";
 
 var
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -14,7 +15,7 @@ export function VideoManager() {
   this.onFullscreenChange = bind(this.onFullscreenChange, this);
 }
 
-VideoManager["dependencies"] = ["nes", "rendererFactory", "paletteFactory"];
+VideoManager["dependencies"] = [ "nes", "rendererFactory", "paletteFactory" ];
 
 VideoManager.prototype.init = function(nes, rendererFactory, paletteFactory) {
   logger.info("Initializing video manager");

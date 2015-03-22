@@ -1,23 +1,21 @@
-import { Mirroring, TVSystem } from "../common/types";
-import { INESLoader } from "../loaders/ines-loader";
-import { NES2Loader } from "../loaders/nes2-loader";
-import { ArrayBufferReader } from "../readers/array-buffer-reader";
-import { LocalFileReader } from "../readers/local-file-reader";
+import { Mirroring, TVSystem }         from "../common/types";
+import { INESLoader }                  from "../loaders/ines-loader";
+import { NES2Loader }                  from "../loaders/nes2-loader";
+import { ArrayBufferReader }           from "../readers/array-buffer-reader";
+import { LocalFileReader }             from "../readers/local-file-reader";
 import { readableSize, readableBytes } from "../utils/format";
-import { logger } from "../utils/logger";
+import { logger }                      from "../utils/logger";
+
+var loaders = [
+    new INESLoader, // Must be processed before iNES
+    new NES2Loader
+]
 
 //=========================================================
 // Factory for cartridge creation
 //=========================================================
 
 export class CartridgeFactory {
-
-    constructor() {
-        this.loaders = [
-            new INESLoader, // Must be processed before iNES
-            new NES2Loader
-        ];
-    }
 
     fromArrayBuffer(buffer) {
         logger.info("Loading cartridge from array buffer");
@@ -30,7 +28,7 @@ export class CartridgeFactory {
     }
 
     fromReader(reader) {
-        for (var loader of this.loaders) {
+        for (var loader of loaders) {
             if (loader.supports(reader)) {
                 logger.info(`Using '${loader.name}' loader`);
                 var cartridge = loader.load(reader);

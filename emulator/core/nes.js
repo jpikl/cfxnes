@@ -1,6 +1,5 @@
-import { Interrupt } from "./common/types";
-import { TVSystem } from "./common/types";
-import { packColor, BLACK_COLOR } from "./utils/colors";
+import { Interrupt, TVSystem }    from "./common/types";
+import { BLACK_COLOR, packColor } from "./utils/colors";
 
 //=========================================================
 // Nintendo Entertainment System
@@ -199,4 +198,4 @@ export class NES {
 
 }
 
-NES["dependencies"] = ["cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory"];
+NES["dependencies"] = [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory" ];

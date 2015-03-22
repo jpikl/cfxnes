@@ -1,10 +1,10 @@
-import { VIDEO_HEIGHT, VIDEO_WIDTH } from "../../../core/common/constants";
+import { VIDEO_WIDTH, VIDEO_HEIGHT } from "../../../core/common/constants";
 
 export function ZapperAdapter(zapper) {
   this.zapper = zapper;
 }
 
-ZapperAdapter["dependencies"] = ["videoManager"];
+ZapperAdapter["dependencies"] = [ "videoManager" ];
 
 ZapperAdapter.prototype.init = function(videoManager) {
   return this.videoManager = videoManager;

@@ -19,7 +19,7 @@ export function AudioManager() {
   this.updateAudio = bind(this.updateAudio, this);
 }
 
-AudioManager["dependencies"] = ["nes"];
+AudioManager["dependencies"] = [ "nes" ];
 
 AudioManager.prototype.init = function(nes) {
   var channel;

@@ -9,7 +9,7 @@ export function PersistenceManager() {
   this.saveAll = bind(this.saveAll, this);
 }
 
-PersistenceManager["dependencies"] = ["nes", "storage", "videoManager", "audioManager", "inputManager", "executionManager"];
+PersistenceManager["dependencies"] = [ "nes", "storage", "videoManager", "audioManager", "inputManager", "executionManager" ];
 
 PersistenceManager.prototype.init = function(nes, storage, videoManager, audioManager, inputManager, executionManager) {
   this.nes = nes;

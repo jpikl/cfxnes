@@ -1,5 +1,6 @@
-import { stringToData, dataToString, stringToObject, objectToString } from "../utils/convert";
-import { logger } from "../utils/logger";
+import { stringToData, dataToString,
+         stringToObject, objectToString } from "../utils/convert";
+import { logger }                         from "../utils/logger";
 
 //=========================================================
 // Base class of storages

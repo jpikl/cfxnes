@@ -1,8 +1,8 @@
-import { Interrupt } from "../common/types";
-import { logger } from "../utils/logger";
-import { packColor, unpackColor, BLACK_COLOR } from "../utils/colors";
-import { newUint8Array, newUint32Array } from "../utils/system";
-import { VIDEO_WIDTH, VIDEO_HEIGHT } from "../common/constants";
+import { VIDEO_WIDTH, VIDEO_HEIGHT }           from "../common/constants";
+import { Interrupt }                           from "../common/types";
+import { BLACK_COLOR, packColor, unpackColor } from "../utils/colors";
+import { logger }                              from "../utils/logger";
+import { newUint8Array, newUint32Array }       from "../utils/system";
 
 const F_RENDER = 1 << 1;
 const F_FETCH_NT = 1 << 2;
@@ -221,7 +221,7 @@ function Sprite() {
 
 export function PPU() {}
 
-PPU["dependencies"] = ["ppuMemory", "cpu"];
+PPU["dependencies"] = [ "ppuMemory", "cpu" ];
 
 PPU.prototype.init = function(ppuMemory, cpu) {
   this.ppuMemory = ppuMemory;

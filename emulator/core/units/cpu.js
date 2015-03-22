@@ -1,6 +1,6 @@
 import { Interrupt } from "../common/types";
 import { byteAsHex } from "../utils/format";
-import { logger } from "../utils/logger";
+import { logger }    from "../utils/logger";
 
 var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -9,7 +9,7 @@ export function CPU() {
   this.rotateLeft = bind(this.rotateLeft, this);
 }
 
-CPU["dependencies"] = ["cpuMemory", "ppu", "apu", "dma"];
+CPU["dependencies"] = [ "cpuMemory", "ppu", "apu", "dma" ];
 
 CPU.prototype.init = function(cpuMemory, ppu, apu, dma) {
   this.cpuMemory = cpuMemory;

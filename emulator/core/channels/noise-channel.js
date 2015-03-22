@@ -1,8 +1,8 @@
-import { logger } from "../utils/logger";
 import { LENGTH_COUNTER_VALUES } from "../common/constants";
+import { logger }                from "../utils/logger";
 
-var TIMER_PERIODS_NTSC = [ 4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068 ];
-var TIMER_PERIODS_PAL  = [ 4, 8, 14, 30, 60, 88, 118, 148, 188, 236, 354, 472, 708,  944, 1890, 3778 ];
+const TIMER_PERIODS_NTSC = [ 4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068 ];
+const TIMER_PERIODS_PAL  = [ 4, 8, 14, 30, 60, 88, 118, 148, 188, 236, 354, 472, 708,  944, 1890, 3778 ];
 
 //=========================================================
 // Noise channel

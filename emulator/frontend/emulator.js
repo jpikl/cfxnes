@@ -1,6 +1,6 @@
-import { Injector } from "../core/utils/inject";
+import config             from "./config/base-config";
+import { Injector }       from "../core/utils/inject";
 import { logger, Logger } from "../core/utils/logger";
-import config from "./config/base-config";
 
 logger.attach(Logger.console());
 
@@ -9,7 +9,7 @@ export function Emulator() {
   injector.inject(this);
 }
 
-Emulator["dependencies"] = ["executionManager", "cartridgeManager", "videoManager", "audioManager", "inputManager", "persistenceManager"];
+Emulator["dependencies"] = [ "executionManager", "cartridgeManager", "videoManager", "audioManager", "inputManager", "persistenceManager" ];
 
 Emulator.prototype.init = function(executionManager, cartridgeManager, videoManager, audioManager, inputManager, persistenceManager) {
   this["audioChannels"] = audioManager.channels;

@@ -1,8 +1,8 @@
 import { AbstractLoader } from "./abstract-loader";
-import { Mirroring } from "../common/types";
-import { TVSystem } from "../common/types";
+import { Mirroring }      from "../common/types";
+import { TVSystem }       from "../common/types";
 
-const INES_SIGNATURE = [0x4E, 0x45, 0x53, 0x1A]; // "NES^Z"
+const INES_SIGNATURE = [ 0x4E, 0x45, 0x53, 0x1A ]; // "NES^Z"
 
 //=========================================================
 // Loader for the iNES ROM format

@@ -26,7 +26,6 @@ export var Mirroring = {
     //                      C | D
 
                         // A B C D
-                        // -------
     SINGLE_SCREEN_0: 1, // 0 0 0 0
     SINGLE_SCREEN_1: 2, // 1 1 1 1
     SINGLE_SCREEN_2: 3, // 2 2 2 2

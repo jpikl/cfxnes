@@ -2,7 +2,7 @@ import { logger } from "../../core/utils/logger";
 
 export function CartridgeManager() {}
 
-CartridgeManager["dependencies"] = ["nes", "cartridgeFactory", "executionManager", "persistenceManager"];
+CartridgeManager["dependencies"] = [ "nes", "cartridgeFactory", "executionManager", "persistenceManager" ];
 
 CartridgeManager.prototype.init = function(nes, cartridgeFactory, executionManager, persistenceManager) {
   this.nes = nes;

@@ -1,8 +1,8 @@
 import { Interrupt } from "../common/types";
-import { logger } from "../utils/logger";
+import { logger }    from "../utils/logger";
 
-var TIMER_PERIODS_NTSC = [ 428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106, 84, 72, 54 ];
-var TIMER_PERIODS_PAL  = [ 398, 354, 316, 298, 276, 236, 210, 198, 176, 148, 132, 118,  98, 78, 66, 50 ];
+const TIMER_PERIODS_NTSC = [ 428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106, 84, 72, 54 ];
+const TIMER_PERIODS_PAL  = [ 398, 354, 316, 298, 276, 236, 210, 198, 176, 148, 132, 118,  98, 78, 66, 50 ];
 
 //=========================================================
 // DMC Channel

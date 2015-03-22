@@ -7,4 +7,4 @@ closure --compilation_level=ADVANCED_OPTIMIZATIONS\
         --externs "emulator/externs/md5.js"\
         --externs "emulator/externs/screenfull.js"\
         --externs "emulator/externs/w3c_audio.js"\
-         ./emulator/*/*.js ./emulator/*/*/*.js ./emulator/*/*/*/*.js > ./server/public/scripts/cfxnes.js\
+         ./emulator/core/*{,/*}.js ./emulator/frontend/*{,/*{,/*}}.js > ./server/public/scripts/cfxnes.js\

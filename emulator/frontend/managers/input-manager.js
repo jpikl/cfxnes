@@ -2,7 +2,7 @@ import { logger } from "../../core/utils/logger";
 
 export function InputManager() {}
 
-InputManager["dependencies"] = ["nes", "deviceFactory"];
+InputManager["dependencies"] = [ "nes", "deviceFactory" ];
 
 InputManager.prototype.init = function(nes, deviceFactory) {
   logger.info("Initializing input manager");

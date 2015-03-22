@@ -1,5 +1,5 @@
 import { INESLoader } from "./ines-loader";
-import { TVSystem } from "../common/types";
+import { TVSystem }   from "../common/types";
 
 //=========================================================
 // Loader for the NES 2.0 ROM format

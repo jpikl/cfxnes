@@ -1,5 +1,5 @@
-import { logger } from "../../core/utils/logger";
 import { BLACK_COLOR } from "../../core/utils/colors";
+import { logger }      from "../../core/utils/logger";
 
 const VERTEX_SHADER_SOURCE = "uniform   vec2 uScreenSize;\nattribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\nvarying   vec2 vTextureCoord;\n\nvoid main(void) {\n    float x = aVertexPosition.x / (0.5 * uScreenSize.x) - 1.0; // [-1, 1] -> [0, width]\n    float y = 1.0 - aVertexPosition.y / (0.5 * uScreenSize.y); // [-1, 1] -> [height, 0]\n    gl_Position = vec4(x, y, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}";
 

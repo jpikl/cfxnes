@@ -1,7 +1,7 @@
-import { logger } from "../utils/logger";
 import { LENGTH_COUNTER_VALUES } from "../common/constants";
+import { logger }                from "../utils/logger";
 
-var DUTY_WAVEFORMS = [
+const DUTY_WAVEFORMS = [
     [ 0, 1, 0, 0, 0, 0, 0, 0 ], // _X______ (12.5%)
     [ 0, 1, 1, 0, 0, 0, 0, 0 ], // _XX_____ (25%)
     [ 0, 1, 1, 1, 1, 0, 0, 0 ], // _XXXX___ (50%)

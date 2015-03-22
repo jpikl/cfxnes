@@ -1,6 +1,6 @@
-import { logger } from "../../core/utils/logger";
 import { CanvasRenderer } from "../renderers/canvas-renderer";
-import { WebGLRenderer } from "../renderers/webgl-renderer";
+import { WebGLRenderer }  from "../renderers/webgl-renderer";
+import { logger }         from "../../core/utils/logger";
 
 const FALLBACK_RENDERER = "canvas";
 

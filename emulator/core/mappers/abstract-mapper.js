@@ -1,15 +1,15 @@
-import { Mirroring } from "../common/types";
-import { md5 } from "../utils/convert";
+import { Mirroring }               from "../common/types";
+import { md5 }                     from "../utils/convert";
 import { wordAsHex, readableSize } from "../utils/format";
-import { logger } from "../utils/logger";
-import { newUint8Array } from "../utils/system";
+import { logger }                  from "../utils/logger";
+import { newUint8Array }           from "../utils/system";
 
 AbstractMapper.prototype.inject = function(cpuMemory, ppuMemory) {
   this.cpuMemory = cpuMemory;
   return this.ppuMemory = ppuMemory;
 };
 
-AbstractMapper["dependencies"] = ["cpuMemory", "ppuMemory"];
+AbstractMapper["dependencies"] = [ "cpuMemory", "ppuMemory" ];
 
 export function AbstractMapper(name, cartridge) {
   logger.info(`Constructing '${name}' mapper`);

@@ -1,9 +1,9 @@
-import { logger } from "../utils/logger";
+import { logger }        from "../utils/logger";
 import { newUint8Array } from "../utils/system";
 
 export function CPUMemory() {}
 
-CPUMemory["dependencies"] = ["ppu", "apu", "dma"];
+CPUMemory["dependencies"] = [ "ppu", "apu", "dma" ];
 
 CPUMemory.prototype.init = function(ppu, apu, dma) {
   this.ppu = ppu;

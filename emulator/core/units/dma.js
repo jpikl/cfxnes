@@ -4,7 +4,7 @@ const TOTAL_DMA_CYCLES = 0x200;
 
 export function DMA() {}
 
-DMA["dependencies"] = ["cpuMemory"];
+DMA["dependencies"] = [ "cpuMemory" ];
 
 DMA.prototype.init = function(cpuMemory) {
   return this.cpuMemory = cpuMemory;

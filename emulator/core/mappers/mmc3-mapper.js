@@ -1,4 +1,4 @@
-import { AbstractMapper } from "./abstract-mapper";
+import { AbstractMapper }       from "./abstract-mapper";
 import { Interrupt, Mirroring } from "../common/types";
 
 var
@@ -12,7 +12,7 @@ export function MMC3Mapper(cartridge) {
 extend(MMC3Mapper, AbstractMapper);
 
 
-MMC3Mapper["dependencies"] = ["cpu", "ppu", "cpuMemory", "ppuMemory"];
+MMC3Mapper["dependencies"] = [ "cpu", "ppu", "cpuMemory", "ppuMemory" ];
 
 MMC3Mapper.prototype.inject = function(cpu, ppu, cpuMemory, ppuMemory) {
   MMC3Mapper.__super__.inject.call(this, cpuMemory, ppuMemory);
