@@ -1,4 +1,4 @@
-require "babel/register" # ES6 transpiling
+# require "babel/register" # ES6 transpiling
 
 del     = require "del"
 gulp    = require "gulp"
@@ -12,6 +12,7 @@ open    = require "gulp-open"
 rename  = require "gulp-rename"
 stylus  = require "gulp-stylus"
 gutil   = require "gulp-util"
+coffee  = require "gulp-coffee"
 yargs   = require "yargs"
 
 ###########################################################
