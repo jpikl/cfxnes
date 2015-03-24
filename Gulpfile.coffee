@@ -1,3 +1,5 @@
+require "babel/register" # ES6 transpiling
+
 del     = require "del"
 gulp    = require "gulp"
 closure = require "gulp-closure-compiler"
@@ -11,11 +13,6 @@ rename  = require "gulp-rename"
 stylus  = require "gulp-stylus"
 gutil   = require "gulp-util"
 yargs   = require "yargs"
-
-bundle  = require "./gulp/gulp-bundle-modules"
-coffee  = require "./gulp/gulp-inlined-coffee"
-
-require "mocha-traceur" # Enables ES6 transpiling for mocha
 
 ###########################################################
 # Constants
