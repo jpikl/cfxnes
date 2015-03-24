@@ -1,152 +1,180 @@
-import { Mirroring }     from "../common/types";
-import { logger }        from "../utils/logger";
-import { newUint8Array } from "../utils/system";
+import { Mirroring }             from "../common/types";
+import { logger }                from "../utils/logger";
+import { newUint8Array,
+         copyArray, clearArray } from "../utils/system";
 
-const POWER_UP_PALETTES = [0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D, 0x08, 0x10, 0x08, 0x24, 0x00, 0x00, 0x04, 0x2C, 0x09, 0x01, 0x34, 0x03, 0x00, 0x04, 0x00, 0x14, 0x08, 0x3A, 0x00, 0x02, 0x00, 0x20, 0x2C, 0x08];
+const POWER_UP_PALETTES = [
+    0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D,
+    0x08, 0x10, 0x08, 0x24, 0x00, 0x00, 0x04, 0x2C,
+    0x09, 0x01, 0x34, 0x03, 0x00, 0x04, 0x00, 0x14,
+    0x08, 0x3A, 0x00, 0x02, 0x00, 0x20, 0x2C, 0x08
+]
 
-export function PPUMemory() {}
+//=========================================================
+// PPU memory
+//=========================================================
 
-PPUMemory.prototype.powerUp = function() {
-  logger.info("Reseting PPU memory");
-  this.createNamesAttrs();
-  return this.createPaletts();
-};
+export class PPUMemory {
 
-PPUMemory.prototype.read = function(address) {
-  address = this.mapAddress(address);
-  if (address < 0x2000) {
-    return this.readPattern(address);
-  } else if (address < 0x3F00) {
-    return this.readNameAttr(address);
-  } else {
-    return this.readPalette(address);
-  }
-};
+    constructor() {
+        this.createPatterns();
+        this.createNamesAttrs();
+        this.createPalettes();
+    }
 
-PPUMemory.prototype.write = function(address, value) {
-  address = this.mapAddress(address);
-  if (address < 0x2000) {
-    return this.writePattern(address, value);
-  } else if (address < 0x3F00) {
-    return this.writeNameAttr(address, value);
-  } else {
-    return this.writePalette(address, value);
-  }
-};
+    //=========================================================
+    // Power-up state initialization
+    //=========================================================
 
-PPUMemory.prototype.mapAddress = function(address) {
-  return address & 0x3FFF;
-};
+    powerUp() {
+        logger.info("Reseting PPU memory");
+        this.resetNamesAttrs();
+        this.resetPaletts();
+    }
 
-PPUMemory.prototype.resetPatterns = function(mapper) {
-  if (mapper.chrRAM) {
-    this.patterns = mapper.chrRAM;
-    this.canWritePattern = true;
-  } else {
-    this.patterns = mapper.chrROM;
-    this.canWritePattern = false;
-  }
-  return this.chrMapping = [];
-};
+    //=========================================================
+    // PPU memory access
+    //=========================================================
 
-PPUMemory.prototype.readPattern = function(address) {
-  return this.patterns[this.mapPatternAddress(address)];
-};
+    read(address) {
+        address = this.mapAddress(address);
+        if      (address < 0x2000) return this.readPattern(address);  // $0000-$1FFF
+        else if (address < 0x3F00) return this.readNameAttr(address); // $2000-$3EFF
+        else                       return this.readPalette(address);  // $3F00-$3FFF
+    }
 
-PPUMemory.prototype.writePattern = function(address, value) {
-  if (this.canWritePattern) {
-    return this.patterns[this.mapPatternAddress(address)] = value;
-  } else {
-    return value;
-  }
-};
+    write(address, value) {
+        address = this.mapAddress(address);
+        if      (address < 0x2000) this.writePattern(address, value);  // $0000-$1FFF
+        else if (address < 0x3F00) this.writeNameAttr(address, value); // $2000-$3EFF
+        else                       this.writePalette(address, value);  // $3F00-$3FFF
+    }
 
-PPUMemory.prototype.mapPatternAddress = function(address) {
-  return this.chrMapping[address & 0x1C00] | address & 0x03FF;
-};
+    mapAddress(address) {
+        return address & 0x3FFF;
+    }
 
-PPUMemory.prototype.mapPatternsBank = function(srcBank, dstBank) {
-  return this.chrMapping[srcBank * 0x0400] = dstBank * 0x0400;
-};
+    //=========================================================
+    // Patterns access ($0000-$1FFF)
+    //=========================================================
 
-PPUMemory.prototype.createNamesAttrs = function() {
-  this.namesAttrs = newUint8Array(0x1000);
-  return void 0;
-};
+    createPatterns() {
+        this.patterns = null; // Will be loaded with CHR RAM/ROM from cartridge
+        this.patternsMapping = [];
+    }
 
-PPUMemory.prototype.resetNamesAttrs = function(mapper) {
-  return this.setNamesAttrsMirroring(mapper.mirroring);
-};
+    remapPatterns(mapper) {
+        if (mapper.hasCHRRAM) {
+            this.patterns = mapper.chrRAM;
+            this.canWritePattern = true;
+        } else {
+            this.patterns = mapper.chrROM;
+            this.canWritePattern = false;
+        }
+    }
 
-PPUMemory.prototype.readNameAttr = function(address) {
-  return this.namesAttrs[this.mapNameAttrAddres(address)];
-};
+    readPattern(address) {
+        return this.patterns[this.mapPatternAddress(address)];
+    }
 
-PPUMemory.prototype.writeNameAttr = function(address, value) {
-  return this.namesAttrs[this.mapNameAttrAddres(address)] = value;
-};
+    writePattern(address, value) {
+        if (this.canWritePattern) {
+            this.patterns[this.mapPatternAddress(address)] = value;
+        }
+    }
 
-PPUMemory.prototype.mapNameAttrAddres = function(address) {
-  return this.namesAttrsMapping[address & 0x0C00] | address & 0x03FF;
-};
+    mapPatternAddress(address) {
+        return this.patternsMapping[address & 0x1C00] | address & 0x03FF;
+    }
 
-PPUMemory.prototype.mapNamesAttrsAreas = function(area0, area1, area2, area3) {
-  if (this.namesAttrsMapping == null) {
-    this.namesAttrsMapping = [];
-  }
-  this.namesAttrsMapping[0x0000] = area0 * 0x0400;
-  this.namesAttrsMapping[0x0400] = area1 * 0x0400;
-  this.namesAttrsMapping[0x0800] = area2 * 0x0400;
-  return this.namesAttrsMapping[0x0C00] = area3 * 0x0400;
-};
+    mapPatternsBank(srcBank, dstBank) {
+        this.patternsMapping[srcBank * 0x0400] = dstBank * 0x0400; // 1K bank
+    }
 
-PPUMemory.prototype.setNamesAttrsMirroring = function(mirroring) {
-  switch (mirroring) {
-    case Mirroring.SINGLE_SCREEN_0:
-      return this.mapNamesAttrsAreas(0, 0, 0, 0);
-    case Mirroring.SINGLE_SCREEN_1:
-      return this.mapNamesAttrsAreas(1, 1, 1, 1);
-    case Mirroring.SINGLE_SCREEN_2:
-      return this.mapNamesAttrsAreas(2, 2, 2, 2);
-    case Mirroring.SINGLE_SCREEN_3:
-      return this.mapNamesAttrsAreas(3, 3, 3, 3);
-    case Mirroring.HORIZONTAL:
-      return this.mapNamesAttrsAreas(0, 0, 1, 1);
-    case Mirroring.VERTICAL:
-      return this.mapNamesAttrsAreas(0, 1, 0, 1);
-    case Mirroring.FOUR_SCREEN:
-      return this.mapNamesAttrsAreas(0, 1, 2, 3);
-    default:
-      throw new Error("Undefined mirroring (" + mirroring + ")");
-  }
-};
+    //=========================================================
+    // Names/attributes access ($2000-$3EFF)
+    //=========================================================
 
-PPUMemory.prototype.createPaletts = function() {
-  var i, j, ref;
-  this.paletts = newUint8Array(0x20);
-  for (i = j = 0, ref = this.paletts.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-    this.paletts[i] = POWER_UP_PALETTES[i];
-  }
-  return void 0;
-};
+    createNamesAttrs() {
+        this.namesAttrs = newUint8Array(0x1000); // Up to 4KB
+        this.namesAttrsMapping = [];
+    }
 
-PPUMemory.prototype.readPalette = function(address) {
-  return this.paletts[this.mapPaletteAddress(address)];
-};
+    resetNamesAttrs() {
+        clearArray(this.namesAttrs);
+    }
 
-PPUMemory.prototype.writePalette = function(address, value) {
-  return this.paletts[this.mapPaletteAddress(address)] = value;
-};
+    remapNamesAttrs(mapper) {
+        this.setNamesAttrsMirroring(mapper.mirroring);
+    }
 
-PPUMemory.prototype.mapPaletteAddress = function(address) {
-  if (address & 0x0003) {
-    return address & 0x001F;
-  } else {
-    return address & 0x000F;
-  }
-};
+    readNameAttr(address) {
+        return this.namesAttrs[this.mapNameAttrAddres(address)];
+    }
 
-PPUMemory.prototype.connectMapper = function(mapper) {
-  this.resetPatterns(mapper);
-  return this.resetNamesAttrs(mapper);
-};
+    writeNameAttr(address, value) {
+        this.namesAttrs[this.mapNameAttrAddres(address)] = value;
+    }
+
+    mapNameAttrAddres(address) {
+        return this.namesAttrsMapping[address & 0x0C00] | address & 0x03FF;
+    }
+
+    mapNamesAttrsAreas(area0, area1, area2, area3) {
+        this.namesAttrsMapping[0x0000] = area0 * 0x0400;
+        this.namesAttrsMapping[0x0400] = area1 * 0x0400;
+        this.namesAttrsMapping[0x0800] = area2 * 0x0400;
+        this.namesAttrsMapping[0x0C00] = area3 * 0x0400;
+    }
+
+    setNamesAttrsMirroring(mirroring) {
+        switch (mirroring) {                // Mirroring of areas [A|B|C|D] in [$2000-$2FFF]
+            case Mirroring.SINGLE_SCREEN_0: this.mapNamesAttrsAreas(0, 0, 0, 0); break;
+            case Mirroring.SINGLE_SCREEN_1: this.mapNamesAttrsAreas(1, 1, 1, 1); break;
+            case Mirroring.SINGLE_SCREEN_2: this.mapNamesAttrsAreas(2, 2, 2, 2); break;
+            case Mirroring.SINGLE_SCREEN_3: this.mapNamesAttrsAreas(3, 3, 3, 3); break;
+            case Mirroring.HORIZONTAL:      this.mapNamesAttrsAreas(0, 0, 1, 1); break;
+            case Mirroring.VERTICAL:        this.mapNamesAttrsAreas(0, 1, 0, 1); break;
+            case Mirroring.FOUR_SCREEN:     this.mapNamesAttrsAreas(0, 1, 2, 3); break;
+            default: throw new Error(`Undefined mirroring (${mirroring})`);
+        }
+    }
+
+    //=========================================================
+    // Palettes access ($3F00-$3FFF)
+    //=========================================================
+
+    createPalettes() {
+        this.paletts = newUint8Array(0x20); // 2 * 16B palette (background / sprites)
+    }
+
+    resetPaletts() {
+        copyArray(POWER_UP_PALETTES, this.paletts);
+    }
+
+    readPalette(address) {
+        return this.paletts[this.mapPaletteAddress(address)];
+    }
+
+    writePalette(address, value) {
+        this.paletts[this.mapPaletteAddress(address)] = value;
+    }
+
+    mapPaletteAddress(address) {
+        if (address & 0x0003) {
+            return address & 0x001F; // Mirroring of [$3F00-$3F1F] in [$3F00-$3FFF]
+        } else {
+            return address & 0x000F; // $3F10/$3F14/$3F18/$3F1C are mirrorors of $3F00/$3F04/$3F08$/3F0C
+        }
+    }
+
+    //=========================================================
+    // Mapper connection
+    //=========================================================
+
+    connectMapper(mapper) {
+        this.remapPatterns(mapper);
+        this.remapNamesAttrs(mapper);
+    }
+
+}

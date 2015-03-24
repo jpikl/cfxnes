@@ -30,3 +30,10 @@ export function clearArray(array, value = 0) {
         array[i] = value;
     }
 }
+
+export function copyArray(source, target) {
+    var length = Math.min(source.length, target.length);
+    for (var i = 0; i < length; i++) {
+        target[i] = source[i];
+    }
+}
