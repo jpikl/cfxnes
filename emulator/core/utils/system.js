@@ -13,11 +13,11 @@ export function detectEndianness() {
     return (u8[0] === 0xFF) ? "LE" : "BE";
 }
 
-export function newUint8Array(size) {
+export function newByteArray(size) {
     return new Uint8ClampedArray(size);
 }
 
-export function newUint32Array(size) {
+export function newUintArray(size) {
     // For some strange reason, Uint32Array is much slower
     // than ordinary array in Chrome.
     var data = new Array(size);

@@ -1,7 +1,7 @@
-import { Mirroring }                  from "../common/types";
-import { logger }                     from "../utils/logger";
-import { newUint8Array, copyArray,
-         newUint32Array, clearArray } from "../utils/system";
+import { Mirroring }                from "../common/types";
+import { logger }                   from "../utils/logger";
+import { newByteArray, copyArray,
+         newUintArray, clearArray } from "../utils/system";
 
 const POWER_UP_PALETTES = [
     0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D,
@@ -60,7 +60,7 @@ export class PPUMemory {
 
     createPatterns() {
         this.patterns = null; // Will be loaded with CHR RAM/ROM from cartridge
-        this.patternsMapping = newUint32Array(8);
+        this.patternsMapping = newUintArray(8);
     }
 
     remapPatterns(mapper) {
@@ -96,8 +96,8 @@ export class PPUMemory {
     //=========================================================
 
     createNamesAttrs() {
-        this.namesAttrs = newUint8Array(0x1000); // Up to 4KB
-        this.namesAttrsMapping = newUint32Array(4);
+        this.namesAttrs = newByteArray(0x1000); // Up to 4KB
+        this.namesAttrsMapping = newUintArray(4);
     }
 
     resetNamesAttrs() {
@@ -145,7 +145,7 @@ export class PPUMemory {
     //=========================================================
 
     createPalettes() {
-        this.paletts = newUint8Array(0x20); // 2 * 16B palette (background / sprites)
+        this.paletts = newByteArray(0x20); // 2 * 16B palette (background / sprites)
     }
 
     resetPaletts() {

@@ -1,5 +1,5 @@
-import { logger }        from "../utils/logger";
-import { newUint8Array } from "../utils/system";
+import { logger }       from "../utils/logger";
+import { newByteArray } from "../utils/system";
 
 export function CPUMemory() {}
 
@@ -51,7 +51,7 @@ CPUMemory.prototype.write = function(address, value) {
 };
 
 CPUMemory.prototype.createRAM = function() {
-  this.ram = newUint8Array(0x800);
+  this.ram = newByteArray(0x800);
   return void 0;
 };
 

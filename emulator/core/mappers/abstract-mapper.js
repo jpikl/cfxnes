@@ -2,7 +2,7 @@ import { Mirroring }               from "../common/types";
 import { md5 }                     from "../utils/convert";
 import { wordAsHex, readableSize } from "../utils/format";
 import { logger }                  from "../utils/logger";
-import { newUint8Array }           from "../utils/system";
+import { newByteArray }            from "../utils/system";
 
 //=========================================================
 // Base class of mappers
@@ -98,7 +98,7 @@ export class AbstractMapper {
 
     createPRGRAM() {
         if (this.hasPRGRAM) {
-            this.prgRAM = newUint8Array(this.prgRAMSize);
+            this.prgRAM = newByteArray(this.prgRAMSize);
             if (this.hasPRGRAMBattery && this.prgRAMSizeBattery == null) {
                 this.prgRAMSizeBattery = this.prgRAMSize; // If not defined, the whole PRG RAM is battery backed
             }
@@ -181,7 +181,7 @@ export class AbstractMapper {
 
     createCHRRAM() {
         if (this.hasCHRRAM) {
-            this.chrRAM = newUint8Array(this.chrRAMSize);
+            this.chrRAM = newByteArray(this.chrRAMSize);
             if (this.hasCHRRAMBattery && this.chrRAMSizeBattery == null) {
                 this.chrRAMSizeBattery = this.chrRAMSize; // If not defined, the whole CHR RAM is battery backed
             }

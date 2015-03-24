@@ -2,7 +2,7 @@ import { VIDEO_WIDTH, VIDEO_HEIGHT }           from "../common/constants";
 import { Interrupt }                           from "../common/types";
 import { BLACK_COLOR, packColor, unpackColor } from "../utils/colors";
 import { logger }                              from "../utils/logger";
-import { newUint8Array, newUint32Array }       from "../utils/system";
+import { newByteArray, newUintArray }          from "../utils/system";
 
 const F_RENDER = 1 << 1;
 const F_FETCH_NT = 1 << 2;
@@ -25,8 +25,8 @@ const F_VB_START2 = 1 << 18;
 const F_VB_END = 1 << 19;
 const F_SKIP = 1 << 20;
 
-var cycleFlagsTable = newUint32Array(340);
-var scanlineFlagsTable = newUint32Array(261);
+var cycleFlagsTable = newUintArray(340);
+var scanlineFlagsTable = newUintArray(261);
 
 var i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z;
 var aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao;
@@ -240,7 +240,7 @@ PPU.prototype.powerUp = function() {
 };
 
 PPU.prototype.resetOAM = function() {
-  this.primaryOAM = newUint8Array(0x100);
+  this.primaryOAM = newByteArray(0x100);
   return this.secondaryOAM = (function() {
     var ap, results;
     results = [];
@@ -291,7 +291,7 @@ PPU.prototype.resetVariables = function() {
     }
     return results;
   })();
-  return this.spritePixelCache = newUint8Array(261);
+  return this.spritePixelCache = newByteArray(261);
 };
 
 PPU.prototype.setNTSCMode = function(ntscMode) {
