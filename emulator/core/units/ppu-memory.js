@@ -1,7 +1,7 @@
-import { Mirroring }             from "../common/types";
-import { logger }                from "../utils/logger";
-import { newUint8Array,
-         copyArray, clearArray } from "../utils/system";
+import { Mirroring }                  from "../common/types";
+import { logger }                     from "../utils/logger";
+import { newUint8Array, copyArray,
+         newUint32Array, clearArray } from "../utils/system";
 
 const POWER_UP_PALETTES = [
     0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D,
@@ -60,7 +60,7 @@ export class PPUMemory {
 
     createPatterns() {
         this.patterns = null; // Will be loaded with CHR RAM/ROM from cartridge
-        this.patternsMapping = [];
+        this.patternsMapping = newUint32Array(8);
     }
 
     remapPatterns(mapper) {
@@ -84,11 +84,11 @@ export class PPUMemory {
     }
 
     mapPatternAddress(address) {
-        return this.patternsMapping[address & 0x1C00] | address & 0x03FF;
+        return this.patternsMapping[(address & 0x1C00) >>> 10] | address & 0x03FF;
     }
 
     mapPatternsBank(srcBank, dstBank) {
-        this.patternsMapping[srcBank * 0x0400] = dstBank * 0x0400; // 1K bank
+        this.patternsMapping[srcBank] = dstBank * 0x0400; // 1K bank
     }
 
     //=========================================================
@@ -97,7 +97,7 @@ export class PPUMemory {
 
     createNamesAttrs() {
         this.namesAttrs = newUint8Array(0x1000); // Up to 4KB
-        this.namesAttrsMapping = [];
+        this.namesAttrsMapping = newUint32Array(4);
     }
 
     resetNamesAttrs() {
@@ -117,14 +117,14 @@ export class PPUMemory {
     }
 
     mapNameAttrAddres(address) {
-        return this.namesAttrsMapping[address & 0x0C00] | address & 0x03FF;
+        return this.namesAttrsMapping[(address & 0x0C00) >>> 10] | address & 0x03FF;
     }
 
     mapNamesAttrsAreas(area0, area1, area2, area3) {
-        this.namesAttrsMapping[0x0000] = area0 * 0x0400;
-        this.namesAttrsMapping[0x0400] = area1 * 0x0400;
-        this.namesAttrsMapping[0x0800] = area2 * 0x0400;
-        this.namesAttrsMapping[0x0C00] = area3 * 0x0400;
+        this.namesAttrsMapping[0] = area0 * 0x0400;
+        this.namesAttrsMapping[1] = area1 * 0x0400;
+        this.namesAttrsMapping[2] = area2 * 0x0400;
+        this.namesAttrsMapping[3] = area3 * 0x0400;
     }
 
     setNamesAttrsMirroring(mirroring) {
