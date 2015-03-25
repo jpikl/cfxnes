@@ -28,6 +28,7 @@ export class PPUMemory {
 
     powerUp() {
         logger.info("Reseting PPU memory");
+        this.resetPatterns();
         this.resetNamesAttrs();
         this.resetPaletts();
     }
@@ -59,7 +60,6 @@ export class PPUMemory {
     //=========================================================
 
     createPatterns() {
-        this.patterns = null; // Will be loaded with CHR RAM/ROM from cartridge
         this.patternsMapping = newUintArray(8);
     }
 
@@ -71,6 +71,10 @@ export class PPUMemory {
             this.patterns = mapper.chrROM;
             this.canWritePattern = false;
         }
+    }
+
+    resetPatterns() {
+        clearArray(this.patternsMapping);
     }
 
     readPattern(address) {
@@ -100,12 +104,13 @@ export class PPUMemory {
         this.namesAttrsMapping = newUintArray(4);
     }
 
-    resetNamesAttrs() {
-        clearArray(this.namesAttrs);
+    remapNamesAttrs(mapper) {
+        this.defaultMirroring = mapper.mirroring;
     }
 
-    remapNamesAttrs(mapper) {
-        this.setNamesAttrsMirroring(mapper.mirroring);
+    resetNamesAttrs() {
+        clearArray(this.namesAttrs);
+        this.setNamesAttrsMirroring(this.defaultMirroring);
     }
 
     readNameAttr(address) {

@@ -181,7 +181,8 @@ CPU.prototype.readWordFromSamePage = function(address) {
 };
 
 CPU.prototype.write = function(address, value) {
-  return this.cpuMemory.write(address, value);
+  this.cpuMemory.write(address, value);
+  return value;
 };
 
 CPU.prototype.writeByte = function(address, value) {

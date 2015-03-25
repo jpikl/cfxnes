@@ -1,4 +1,4 @@
-# require "babel/register" # ES6 transpiling
+require "babel/register" # ES6 transpiling
 
 del     = require "del"
 gulp    = require "gulp"

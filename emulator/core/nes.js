@@ -23,13 +23,13 @@ export class NES {
 
     pressPower() {
         if (this.isCartridgeInserted()) {
-            this.mapper.powerUp();
-            this.dma.powerUp();
-            this.apu.powerUp();
-            this.ppuMemory.powerUp();
-            this.ppu.powerUp();
             this.cpuMemory.powerUp();
-            this.cpu.powerUp();
+            this.ppuMemory.powerUp();
+            this.mapper.powerUp(); // Must be done after memory
+            this.ppu.powerUp();
+            this.apu.powerUp();
+            this.dma.powerUp();
+            this.cpu.powerUp(); // Must be done last
         }
     }
 
