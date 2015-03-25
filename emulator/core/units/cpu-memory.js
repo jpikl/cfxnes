@@ -9,13 +9,13 @@ import { newByteArray,
 export class CPUMemory {
 
     constructor() {
-        this.createRAM();
-        this.createIO();
-        this.createPRGRAM();
-        this.createPRGROM();
+        this.initRAM();
+        this.initIO();
+        this.initPRGRAM();
+        this.initPRGROM();
     }
 
-    init(ppu, apu, dma) {
+    inject(ppu, apu, dma) {
         this.ppu = ppu;
         this.apu = apu;
         this.dma = dma;
@@ -57,7 +57,7 @@ export class CPUMemory {
     // RAM acceess ($0000-$1FFF)
     //=========================================================
 
-    createRAM() {
+    initRAM() {
         this.ram = newByteArray(0x800); // 2KB of RAM (mirrored in 8K at $0000-$1FFF)
     }
 
@@ -81,7 +81,7 @@ export class CPUMemory {
     // IO acceess ($2000-$401F)
     //=========================================================
 
-    createIO() {
+    initIO() {
         this.inputDevices = { 1: null, 2: null };
         this.inputStrobe = 0;
     }
@@ -196,7 +196,7 @@ export class CPUMemory {
     // PRG RAM acceess ($6000-$7FFF)
     //=========================================================
 
-    createPRGRAM() {
+    initPRGRAM() {
         this.prgRAMMapping = 0;
     }
 
@@ -233,7 +233,7 @@ export class CPUMemory {
     // PRG ROM acceess ($8000-$FFFF)
     //=========================================================
 
-    createPRGROM() {
+    initPRGROM() {
         this.prgROMMapping = newUintArray(4);
     }
 

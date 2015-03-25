@@ -38,7 +38,7 @@ export class DMA {
     transferData() {
         var address = this.baseAddress + (this.cyclesCount >> 1);
         var data = this.cpuMemory.read(address);
-        this.cpuMemory.write(0x2004, data); // Automatically increments destination address
+        this.cpuMemory.write(0x2004, data);
     }
 
 }

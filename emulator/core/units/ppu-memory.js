@@ -17,9 +17,9 @@ const POWER_UP_PALETTES = [
 export class PPUMemory {
 
     constructor() {
-        this.createPatterns();
-        this.createNamesAttrs();
-        this.createPalettes();
+        this.initPatterns();
+        this.initNamesAttrs();
+        this.initPalettes();
     }
 
     //=========================================================
@@ -59,7 +59,7 @@ export class PPUMemory {
     // Patterns access ($0000-$1FFF)
     //=========================================================
 
-    createPatterns() {
+    initPatterns() {
         this.patternsMapping = newUintArray(8);
     }
 
@@ -99,7 +99,7 @@ export class PPUMemory {
     // Names/attributes access ($2000-$3EFF)
     //=========================================================
 
-    createNamesAttrs() {
+    initNamesAttrs() {
         this.namesAttrs = newByteArray(0x1000); // Up to 4KB
         this.namesAttrsMapping = newUintArray(4);
     }
@@ -149,7 +149,7 @@ export class PPUMemory {
     // Palettes access ($3F00-$3FFF)
     //=========================================================
 
-    createPalettes() {
+    initPalettes() {
         this.paletts = newByteArray(0x20); // 2 * 16B palette (background / sprites)
     }
 

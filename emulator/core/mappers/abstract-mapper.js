@@ -1,8 +1,8 @@
-import { Mirroring }               from "../common/types";
-import { md5 }                     from "../utils/convert";
-import { wordAsHex, readableSize } from "../utils/format";
-import { logger }                  from "../utils/logger";
-import { newByteArray }            from "../utils/system";
+import { Mirroring }                from "../common/types";
+import { md5 }                      from "../utils/convert";
+import { wordAsHex, readableSize }  from "../utils/format";
+import { logger }                   from "../utils/logger";
+import { newByteArray, clearArray } from "../utils/system";
 
 //=========================================================
 // Base class of mappers
@@ -17,8 +17,8 @@ export class AbstractMapper {
     constructor(name, cartridge) {
         logger.info(`Constructing '${name}' mapper`);
         this.init(cartridge);
-        this.createPRGRAM();
-        this.createCHRRAM();
+        this.initPRGRAM();
+        this.initCHRRAM();
         this.printPRGRAMInfo();
         this.printCHRRAMInfo();
     }
@@ -96,7 +96,7 @@ export class AbstractMapper {
     // PRG RAM mapping
     //=========================================================
 
-    createPRGRAM() {
+    initPRGRAM() {
         if (this.hasPRGRAM) {
             this.prgRAM = newByteArray(this.prgRAMSize);
             if (this.hasPRGRAMBattery && this.prgRAMSizeBattery == null) {
@@ -107,10 +107,7 @@ export class AbstractMapper {
 
     resetPRGRAM() {
         if (this.hasPRGRAM) {
-            var clearFrom = this.hasPRGRAMBattery ? this.prgRAMSizeBattery : 0;
-            for (var i = clearFrom; i < this.prgRAMSize; i++) {
-                this.prgRAM[i] = 0;
-            }
+            clearArray(this.prgRAM, this.prgRAMSizeBattery || 0); // Keep battery-backed part of PRGRAM
         }
     }
 
@@ -179,7 +176,7 @@ export class AbstractMapper {
 
     // Note: Only known game using battery-backed CHR RAM is RacerMate Challenge II
 
-    createCHRRAM() {
+    initCHRRAM() {
         if (this.hasCHRRAM) {
             this.chrRAM = newByteArray(this.chrRAMSize);
             if (this.hasCHRRAMBattery && this.chrRAMSizeBattery == null) {
@@ -190,10 +187,7 @@ export class AbstractMapper {
 
     resetCHRRAM() {
         if (this.hasCHRRAM) {
-            var clearFrom = this.hasCHRRAMBattery ? this.chrRAMSizeBattery : 0;
-            for (var i = clearFrom; i < this.chrRAMSize; i++) {
-                this.chrRAM[i] = 0;
-            }
+            clearArray(this.chrRAM, this.chrRAMSizeBattery || 0); // Keep battery-backed part of CHRRAM
         }
     }
 
