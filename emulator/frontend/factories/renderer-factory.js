@@ -13,7 +13,7 @@ export function RendererFactory() {
 
 RendererFactory.prototype.isRendererSupported = function(id) {
   try {
-    return this.getRendererClass(id).isSupported();
+    return this.renderers[id].isSupported();
   } catch (_error) {
     return false;
   }
