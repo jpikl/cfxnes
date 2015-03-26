@@ -554,11 +554,11 @@ PPU.prototype.isBrightFramePixel = function(x, y) {
 };
 
 PPU.prototype.setFramePixel = function(color) {
-  return this.frameBuffer[this.framePosition++] = this.rgbaPalette[color];
+  return this.frameBuffer[this.framePosition++] = this.rgbaPalette[color & 0x3F]; // Only 64 colors
 };
 
 PPU.prototype.setFramePixelOnPosition = function(x, y, color) {
-  return this.frameBuffer[y * VIDEO_WIDTH + x] = this.rgbaPalette[color];
+  return this.frameBuffer[y * VIDEO_WIDTH + x] = this.rgbaPalette[color & 0x3F];
 };
 
 PPU.prototype.clearFramePixel = function() {
