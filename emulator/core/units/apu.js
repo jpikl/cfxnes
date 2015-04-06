@@ -60,11 +60,11 @@ export class APU {
     }
 
     //=========================================================
-    // Frame counter register
+    // Frame counter register ($4017)
     //=========================================================
 
     writeFrameCounter(value) {
-        this.frameCounterLastWrittenValue = value;     // Used by CPU during reset when the last value written to $4017 is written to $4017 again
+        this.frameCounterLast = value;                 // Used by CPU during reset when the last value written to $4017 is written to $4017 again
         this.frameFiveStepMode = (value & 0x80) !== 0; // 0 - mode 4 (4-step counter) / 1 - mode 5 (5-step counter)
         this.frameIrqDisabled = (value & 0x40) !== 0;  // IRQ generation is inhibited (in mode 4)
         this.frameStep = 0;                            // Step of the frame counter
@@ -178,7 +178,7 @@ export class APU {
     }
 
     //=========================================================
-    // Status register
+    // Status register ($4015)
     //=========================================================
 
     writeStatus(value) {

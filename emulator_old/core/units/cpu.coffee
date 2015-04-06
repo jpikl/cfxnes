@@ -719,7 +719,7 @@ class CPU
         @operationsTable = []
 
         ###########################################################
-        # 0 operation instruction
+        # No operation instruction
         ###########################################################
 
         @registerOperation 0x1A, @NOP, @impliedMode,   0, 0, 0 # 2 cycles (undocumented operation)

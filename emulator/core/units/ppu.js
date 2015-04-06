@@ -341,7 +341,7 @@ PPU.prototype.writeControl = function(value) {
   this.setControl(value);
   this.tempAddress = (this.tempAddress & 0xF3FF) | (value & 0x03) << 10;
   if (this.vblankFlag && !nmiEnabledOld && this.nmiEnabled && !(this.cycleFlags & F_VB_END)) {
-    this.nmiDelay = 1;
+     this.nmiDelay = 15; // Immediate occurence should be after next instruction.
   }
   return value;
 };
@@ -566,14 +566,19 @@ PPU.prototype.clearFramePixel = function() {
 };
 
 PPU.prototype.updateVBlank = function() {
-  if (this.nmiDelay && !--this.nmiDelay && this.nmiEnabled && !this.supressNMI) {
-    this.cpu.activateInterrupt(Interrupt.NMI);
+  if (this.nmiDelay) {
+    if (this.nmiDelay > 12 && !this.nmiEnabled) {
+      this.nmiDelay = 0; // NMI disabled near the time vlbank flag is set
+    } else if (!--this.nmiDelay && !this.supressNMI) {
+      this.cpu.activateInterrupt(Interrupt.NMI);
+    }
   }
   if (this.cycleFlags & F_VB_START) {
-    return this.enterVBlank();
+    this.enterVBlank();
   } else if (this.cycleFlags & F_VB_END) {
-    return this.leaveVBlank();
+    this.leaveVBlank();
   }
+
 };
 
 PPU.prototype.enterVBlank = function() {
@@ -581,7 +586,7 @@ PPU.prototype.enterVBlank = function() {
   if (!this.suppressVBlank) {
     this.vblankFlag = 1;
   }
-  this.nmiDelay = 2;
+  this.nmiDelay = 14;
   return this.frameAvailable = true;
 };
 

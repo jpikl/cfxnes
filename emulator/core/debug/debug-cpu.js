@@ -407,7 +407,7 @@ DebugCPU.prototype.logOperationBefore = function() {
   this.registers = [this.accumulator, this.registerX, this.registerY, this.getStatus(), this.stackPointer];
   this.flags = [this.negativeFlag, this.overflowFlag, false, false, this.decimalMode, this.interruptDisable, this.zeroFlag, this.carryFlag];
   this.instructionAddress = this.programCounter;
-  return this.instructionData = [this.read(this.instructionAddress), this.read((this.instructionAddress + 1) & 0xFFFF), this.read((this.instructionAddress + 2) & 0xFFFF)];
+  return this.instructionData = [this.readByte(this.instructionAddress), this.readByte((this.instructionAddress + 1) & 0xFFFF), this.readByte((this.instructionAddress + 2) & 0xFFFF)];
 };
 
 DebugCPU.prototype.logOperationAfter = function() {

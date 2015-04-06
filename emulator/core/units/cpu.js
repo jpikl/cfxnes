@@ -1,50 +1,83 @@
 import { Interrupt } from "../common/types";
-import { byteAsHex } from "../utils/format";
 import { logger }    from "../utils/logger";
+
+//=========================================================
+// CPU operation
+//=========================================================
+
+class Operation {
+
+    constructor(instruction, addressingMode, cycles, pageCrossEnabled) {
+        this.instruction = instruction;            // CPU instruction
+        this.addressingMode = addressingMode;      // CPU addressing mode
+        this.cycles = cycles;                      // Number of CPU cycles
+        this.pageCrossEnabled = pageCrossEnabled;  // Whether memory page crossing can happen during the operation
+    }
+
+}
+
+//=========================================================
+// Central processing unit
+//=========================================================
 
 export class CPU {
 
-    init(cpuMemory, ppu, apu, dma) {
+    constructor() {
+        this.initOperations();
+    }
+
+    inject(cpuMemory, ppu, apu, dma) {
         this.cpuMemory = cpuMemory;
         this.ppu = ppu;
         this.apu = apu;
         this.dma = dma;
-        this.initOperationsTable();
     }
+
+    //=========================================================
+    // Power-up state initialization
+    //=========================================================
 
     powerUp() {
         logger.info("Reseting CPU");
         this.resetRegisters();
         this.resetVariables();
         this.resetMemory();
-        this.handleReset();
+        this.handleReset(); // Reset will appropriately initialize some CPU registers and $4015/$4017 registers (see bellow)
     }
 
     resetRegisters() {
-        this.programCounter = 0;
-        this.stackPointer = 0;
-        this.accumulator = 0;
-        this.registerX = 0;
-        this.registerY = 0;
-        this.setStatus(0);
+        this.programCounter = 0; // 16-bit (will be initialized to value at address 0xFFFC during following reset)
+        this.stackPointer = 0;   //  8-bit (will be set to 0x7D during following reset)
+        this.accumulator = 0;    //  8-bit
+        this.registerX = 0;      //  8-bit
+        this.registerY = 0;      //  8-bit
+        this.setStatus(0);       //  8-bit (will be initialized to 0x34 during following reset; actually, only bit 2 will be set,
+                                 //         because bits 4 and 5 are not physically stored in status register)
     }
 
     resetVariables() {
-        this.cycle = 0;
-        this.emptyReadCycles = 0;
-        this.emptyWriteCycles = 0;
-        this.activeInterrupts = 0;
-        this.halted = false;
+        this.cycle = 0;            // Number of CPU cycles after power / reset
+        this.activeInterrupts = 0; // Bitmap of active interrupts (each type of interrupt has its own bit)
+        this.halted = false;       // Whether KIL opcode was readed
     }
 
     resetMemory() {
-        for (var i = 0x0000; i < 0x0800; i++) this.write(i, 0xFF);
-        for (var i = 0x4000; i < 0x4010; i++) this.write(i, 0x00);
-        this.write(0x0008, 0xF7);
-        this.write(0x0009, 0xEF);
-        this.write(0x000A, 0xDF);
-        this.write(0x000F, 0xBF);
+        for (var i = 0x0000; i < 0x0800; i++) {
+            this.writeByte(i, 0xFF);
+        }
+        for (var i = 0x4000; i < 0x4010; i++) {
+            this.writeByte(i, 0x00);
+        }
+        this.writeByte(0x0008, 0xF7);
+        this.writeByte(0x0009, 0xEF);
+        this.writeByte(0x000A, 0xDF);
+        this.writeByte(0x000F, 0xBF);
+        // Writes to $4015 and $4017 are done during following reset
     }
+
+    //=========================================================
+    // Execution step
+    //=========================================================
 
     step() {
         var blocked = this.dma.isBlockingCPU() || this.apu.isBlockingCPU();
@@ -52,11 +85,15 @@ export class CPU {
             this.resolveInterrupt();
         }
         if (this.halted || blocked) {
-            this.tick();
+            this.tick(1); // Tick everything else
         } else {
             this.executeOperation();
         }
     }
+
+    //=========================================================
+    // Interrupt handling
+    //=========================================================
 
     resolveInterrupt() {
         if (this.activeInterrupts & Interrupt.RESET) {
@@ -64,20 +101,18 @@ export class CPU {
         } else if (this.activeInterrupts & Interrupt.NMI) {
             this.handleNMI();
         } else if (this.interruptDisable) {
-            return;
+            return; // IRQ requested, but disabled
         } else {
             this.handleIRQ();
         }
-        this.tick();
-        this.tick();
+        this.tick(7); // Each interrupt takes 7 cycles
     }
 
     handleReset() {
         this.cycle = 0;
-        this.write(0x4015, 0x00);
-        this.write(0x4017, this.apu.frameCounterLastWrittenValue);
-        this.stackPointer = (this.stackPointer - 3) & 0xFF;
-        for (var i = 0; i < 3; i++) this.tick();
+        this.writeByte(0x4015, 0x00);                       // Disable all APU channels immediatelly
+        this.writeByte(0x4017, this.apu.frameCounterLast);  // Zero on power up, last written frame counter value otherwise
+        this.stackPointer = (this.stackPointer - 3) & 0xFF; // Unlike IRQ/NMI, writing on stack does not modify CPU memory, so we just decrement the stack pointer 3 times
         this.enterInterruptHandler(0xFFFC);
         this.clearInterrupt(Interrupt.RESET);
         this.halted = false;
@@ -92,6 +127,7 @@ export class CPU {
     handleIRQ() {
         this.saveStateBeforeInterrupt();
         this.enterInterruptHandler(0xFFFE);
+        // Unlike reset/NMI, the interrupt flag is not cleared
     }
 
     saveStateBeforeInterrupt() {
@@ -104,11 +140,15 @@ export class CPU {
         this.programCounter = this.readWord(address);
     }
 
+    //=========================================================
+    // Program execution
+    //=========================================================
+
     executeOperation() {
         var operation = this.readOperation();
         if (!operation) {
             logger.info("CPU halted!");
-            this.halted = true;
+            this.halted = true; // CPU halt (KIL operation code)
             return;
         }
 
@@ -117,15 +157,16 @@ export class CPU {
 
         this.pageCrossed = false;
         this.pageCrossEnabled = operation.pageCrossEnabled;
-        this.emptyReadCycles = operation.emptyReadCycles;
-        this.emptyWriteCycles = operation.emptyWriteCycles;
+        this.operationCycles = operation.cycles;
 
         var address = addressingMode.call(this);
         instruction.call(this, address);
+
+        this.tick(this.operationCycles);
     }
 
     readOperation() {
-        return this.operationsTable[this.readNextProgramByte()];
+        return this.operations[this.readNextProgramByte()];
     }
 
     readNextProgramByte() {
@@ -142,13 +183,12 @@ export class CPU {
         return previousProgramCounter;
     }
 
-    read(address) {
-        return this.cpuMemory.read(address);
-    }
+    //=========================================================
+    // Memory access
+    //=========================================================
 
     readByte(address) {
-        this.resolveReadCycles();
-        return this.read(address);
+        return this.cpuMemory.read(address);
     }
 
     readWord(address) {
@@ -163,13 +203,8 @@ export class CPU {
         return highByte << 8 | this.readByte(address);
     }
 
-    write(address, value) {
-        this.cpuMemory.write(address, value);
-    }
-
     writeByte(address, value) {
-        this.resolveWriteCycles();
-        this.write(address, value);
+        this.cpuMemory.write(address, value);
         return value;
     }
 
@@ -177,6 +212,10 @@ export class CPU {
         this.writeByte(address, value & 0xFF);
         return this.writeByte((address + 1) & 0xFFFF, value >>> 8);
     }
+
+    //=========================================================
+    // Stack access
+    //=========================================================
 
     pushByte(value) {
         this.writeByte(0x100 + this.stackPointer, value);
@@ -197,51 +236,36 @@ export class CPU {
         return this.popByte() | this.popByte() << 8;
     }
 
-    resolveReadCycles() {
-        this.tick();
-        if (this.emptyReadCycles) {
-            this.emptyReadCycles--;
-            this.tick();
-        }
-    }
+    //=========================================================
+    // Stack access
+    //=========================================================
 
-    resolveWriteCycles() {
-        this.tick();
-        if (this.emptyWriteCycles) {
-            this.emptyWriteCycles--;
-            this.tick();
-        }
-    }
-
-    tick() {
-        this.cycle++;
-        if (!this.apu.isBlockingDMA()) {
-            this.dma.tick();
-        }
-        for (var i = 0; i < 3; i++) {
-            this.ppu.tick();
-        }
-        this.apu.tick();
-    }
+    // Bits 4 and 5 are not physically stored in status register
+    // - bit 4 is written on stack as 1 during PHP/BRK instructions (break command flag)
+    // - bit 5 is written on stack as 1 during PHP/BRK instructions and IRQ/NMI
 
     getStatus() {
-        return this.carryFlag
-             | this.zeroFlag         << 1
-             | this.interruptDisable << 2
-             | this.decimalMode      << 3
-             | 1                     << 5
-             | this.overflowFlag     << 6
-             | this.negativeFlag     << 7;
+        return this.carryFlag              // S[0] - carry bit of the last operation
+             | this.zeroFlag         << 1  // S[1] - whether result of the last operation was zero
+             | this.interruptDisable << 2  // S[2] - whether IRQs are disabled (this does not affect NMI/reset)
+             | this.decimalMode      << 3  // S[3] - NES CPU actually does not use this flag, but it's stored in status register and modified by CLD/SED instructions
+             | 1                     << 5  // S[5] - allways 1, see comment above
+             | this.overflowFlag     << 6  // S[6] - wheter result of the last operation caused overflow
+             | this.negativeFlag     << 7; // S[7] - wheter result of the last operation was negative number (bit 7 of the result was 1)
     }
 
     setStatus(value) {
-        this.carryFlag        =  value        & 1;
-        this.zeroFlag         = (value >>> 1) & 1;
-        this.interruptDisable = (value >>> 2) & 1;
-        this.decimalMode      = (value >>> 3) & 1;
-        this.overflowFlag     = (value >>> 6) & 1;
-        this.negativeFlag     =  value >>> 7;
+        this.carryFlag        =  value        & 1; // S[0]
+        this.zeroFlag         = (value >>> 1) & 1; // S[1]
+        this.interruptDisable = (value >>> 2) & 1; // S[2]
+        this.decimalMode      = (value >>> 3) & 1; // S[3]
+        this.overflowFlag     = (value >>> 6) & 1; // S[6]
+        this.negativeFlag     =  value >>> 7;      // S[7]
     }
+
+    //=========================================================
+    // Input signals
+    //=========================================================
 
     activateInterrupt(type) {
         this.activeInterrupts |= type;
@@ -251,51 +275,82 @@ export class CPU {
         this.activeInterrupts &= ~type;
     }
 
+    //=========================================================
+    // Tick
+    //=========================================================
+
+    tick(count) {
+        for (var i = 0; i < count; i++) {
+            if (!this.apu.isBlockingDMA()) {
+                this.dma.tick();
+            }
+            this.ppu.tick(); // 3 times faster than CPU
+            this.ppu.tick();
+            this.ppu.tick();
+            this.apu.tick(); // Same rate as CPU
+            this.cycle++;
+        }
+    }
+
+    //=========================================================
+    // Basic addressing modes
+    //=========================================================
+
     impliedMode() {
-        this.tick();
     }
 
     accumulatorMode() {
-        this.tick();
     }
 
     immediateMode() {
         return this.moveProgramCounter(1);
     }
 
+    //=========================================================
+    // Zero page addressing modes
+    //=========================================================
+
     zeroPageMode() {
         return this.readNextProgramByte();
     }
 
     zeroPageXMode() {
-        var base = this.readNextProgramByte();
-        return this.getIndexedAddressByte(base, this.registerX);
+        return this.getIndexedAddressByte(this.readNextProgramByte(), this.registerX);
     }
 
     zeroPageYMode() {
-        var base = this.readNextProgramByte();
-        return this.getIndexedAddressByte(base, this.registerY);
+        return this.getIndexedAddressByte(this.readNextProgramByte(), this.registerY);
     }
+
+    //=========================================================
+    // Absolute addressing modes
+    //=========================================================
 
     absoluteMode() {
         return this.readNextProgramWord();
     }
 
     absoluteXMode() {
-        var base = this.readNextProgramWord();
-        return this.getIndexedAddressWord(base, this.registerX);
+        return this.getIndexedAddressWord(this.readNextProgramWord(), this.registerX);
     }
 
     absoluteYMode() {
-        var base = this.readNextProgramWord();
-        return this.getIndexedAddressWord(base, this.registerY);
+        return this.getIndexedAddressWord(this.readNextProgramWord(), this.registerY);
     }
 
+    //=========================================================
+    // Relative addressing mode
+    //=========================================================
+
     relativeMode() {
-        var base = (this.programCounter + 1) & 0xFFFF;
+        var base = (this.programCounter + 1) & 0xFFFF; // We need to get address of the next instruction
         var offset = this.getSignedByte(this.readNextProgramByte());
         return this.getIndexedAddressWord(base, offset);
     }
+
+    //=========================================================
+    // Indirect addressing modes
+    //=========================================================
 
     indirectMode() {
         return this.readWordFromSamePage(this.readNextProgramWord());
@@ -310,6 +365,10 @@ export class CPU {
         return this.getIndexedAddressWord(base, this.registerY);
     }
 
+    //=========================================================
+    // Address computation
+    //=========================================================
+
     getIndexedAddressByte(base, offset) {
         return (base + offset) & 0xFF;
     }
@@ -317,21 +376,25 @@ export class CPU {
     getIndexedAddressWord(base, offset) {
         this.pageCrossed = (base & 0xFF00) !== ((base + offset) & 0xFF00);
         if (this.pageCrossEnabled && this.pageCrossed) {
-            this.emptyReadCycles++;
+            this.operationCycles++;
         }
         return (base + offset) & 0xFFFF;
     }
 
     getSignedByte(value) {
-        if (value >= 0x80) {
-            return value - 0x100;
-        } else {
-            return value;
-        }
+        return (value >= 0x80) ? value - 0x100 : value;
     }
+
+    //=========================================================
+    // No operation instruction
+    //=========================================================
 
     NOP() {
     }
+
+    //=========================================================
+    // Clear flag instructions
+    //=========================================================
 
     CLC() {
         this.carryFlag = 0;
@@ -349,6 +412,10 @@ export class CPU {
         this.overflowFlag = 0;
     }
 
+    //=========================================================
+    // Set flag instructions
+    //=========================================================
+
     SEC() {
         this.carryFlag = 1;
     }
@@ -360,6 +427,10 @@ export class CPU {
     SED() {
         this.decimalMode = 1;
     }
+
+    //=========================================================
+    // Memory write instructions
+    //=========================================================
 
     STA(address) {
         this.writeByte(address, this.accumulator);
@@ -377,17 +448,21 @@ export class CPU {
         this.writeByte(address, this.registerY);
     }
 
-    SHA(address) {
+    SHA(address) { // Also known as AHX
         this.storeHighAddressIntoMemory(address, this.accumulator & this.registerX);
     }
 
-    SHX(address) {
+    SHX(address) { // Also known as SXA
         this.storeHighAddressIntoMemory(address, this.registerX);
     }
 
-    SHY(address) {
+    SHY(address) { // Also known as SYA
         this.storeHighAddressIntoMemory(address, this.registerY);
     }
+
+    //=========================================================
+    // Memory read instructions
+    //=========================================================
 
     LDA(address) {
         this.storeValueIntoAccumulator(this.readByte(address));
@@ -413,6 +488,10 @@ export class CPU {
         this.storeValueIntoRegisterX(this.stackPointer);
     }
 
+    //=========================================================
+    // Register transfer instructions
+    //=========================================================
+
     TAX() {
         this.storeValueIntoRegisterX(this.accumulator);
     }
@@ -437,13 +516,21 @@ export class CPU {
         this.stackPointer = this.registerX;
     }
 
+    //=========================================================
+    // Stack push instructions
+    //=========================================================
+
     PHA() {
         this.pushByte(this.accumulator);
     }
 
     PHP() {
-        this.pushByte(this.getStatus() | 0x10);
+        this.pushByte(this.getStatus() | 0x10); // Push status with bit 4 on (break command flag)
     }
+
+    //=========================================================
+    // Stack pull instructions
+    //=========================================================
 
     PLA() {
         this.storeValueIntoAccumulator(this.popByte());
@@ -453,19 +540,20 @@ export class CPU {
         this.setStatus(this.popByte());
     }
 
+    //=========================================================
+    // Accumulator bitwise instructions
+    //=========================================================
+
     AND(address) {
-        var value = this.readByte(address);
-        return this.storeValueIntoAccumulator(this.accumulator & value);
+        return this.storeValueIntoAccumulator(this.accumulator & this.readByte(address));
     }
 
     ORA(address) {
-        var value = this.readByte(address);
-        this.storeValueIntoAccumulator(this.accumulator | value);
+        this.storeValueIntoAccumulator(this.accumulator | this.readByte(address));
     }
 
     EOR(address) {
-        var value = this.readByte(address);
-        this.storeValueIntoAccumulator(this.accumulator ^ value);
+        this.storeValueIntoAccumulator(this.accumulator ^ this.readByte(address));
     }
 
     BIT(address) {
@@ -475,9 +563,12 @@ export class CPU {
         this.negativeFlag = value >>> 7;
     }
 
+    //=========================================================
+    // Increment instructions
+    //=========================================================
+
     INC(address) {
-        var value = this.readByte(address)
-        return this.storeValueIntoMemory(address, (value + 1) & 0xFF);
+        return this.storeValueIntoMemory(address, (this.readByte(address) + 1) & 0xFF);
     }
 
     INX() {
@@ -488,9 +579,12 @@ export class CPU {
         this.storeValueIntoRegisterY((this.registerY + 1) & 0xFF);
     }
 
+    //=========================================================
+    // Decrement instructions
+    //=========================================================
+
     DEC(address) {
-        var value = this.readByte(address);
-        return this.storeValueIntoMemory(address, (value - 1) & 0xFF);
+        return this.storeValueIntoMemory(address, (this.readByte(address) - 1) & 0xFF);
     }
 
     DEX() {
@@ -500,6 +594,10 @@ export class CPU {
     DEY() {
         this.storeValueIntoRegisterY((this.registerY - 1) & 0xFF);
     }
+
+    //=========================================================
+    // Comparison instructions
+    //=========================================================
 
     CMP(address) {
         this.compareRegisterAndMemory(this.accumulator, address);
@@ -512,6 +610,10 @@ export class CPU {
     CPY(address) {
         this.compareRegisterAndMemory(this.registerY, address);
     }
+
+    //=========================================================
+    // Branching instructions
+    //=========================================================
 
     BCC(address) {
         this.branchIf(!this.carryFlag, address);
@@ -545,24 +647,31 @@ export class CPU {
         this.branchIf(this.negativeFlag, address);
     }
 
+    //=========================================================
+    // Jump / subroutine instructions
+    //=========================================================
+
     JMP(address) {
         this.programCounter = address;
     }
 
     JSR(address) {
-        this.pushWord((this.programCounter - 1) & 0xFFFF);
+        this.pushWord((this.programCounter - 1) & 0xFFFF); // The pushed address must be the end of the current instruction
         this.programCounter = address;
     }
 
     RTS() {
-        this.programCounter = (this.popWord() + 1) & 0xFFFF;
-        this.tick();
+        this.programCounter = (this.popWord() + 1) & 0xFFFF; // We decremented the address when pushing it during JSR
     }
 
+    //=========================================================
+    // Interrupt control instructions
+    //=========================================================
+
     BRK() {
-        this.moveProgramCounter(1);
+        this.moveProgramCounter(1);             // BRK is 2 byte instruction
         this.pushWord(this.programCounter);
-        this.pushByte(this.getStatus() | 0x10);
+        this.pushByte(this.getStatus() | 0x10); // Push status with bit 4 on (break command flag)
         this.interruptDisable = 1;
         this.programCounter = this.readWord(0xFFFE);
     }
@@ -572,13 +681,21 @@ export class CPU {
         this.programCounter = this.popWord();
     }
 
+    //=========================================================
+    // Addition / subtraction instructions
+    //=========================================================
+
     ADC(address) {
         this.addValueToAccumulator(this.readByte(address));
     }
 
     SBC(address) {
-        this.addValueToAccumulator((this.readByte(address)) ^ 0xFF);
+        this.addValueToAccumulator((this.readByte(address)) ^ 0xFF); // With internal carry incremment makes negative operand
     }
+
+    //=========================================================
+    // Shifting / rotation instructions
+    //=========================================================
 
     ASL(address) {
         return this.rotateAccumulatorOrMemory(address, this.rotateLeft, false);
@@ -596,12 +713,16 @@ export class CPU {
         return this.rotateAccumulatorOrMemory(address, this.rotateRight, true);
     }
 
+    //=========================================================
+    // Hybrid instructions
+    //=========================================================
+
     DCP(address) {
         this.compareRegisterAndOperand(this.accumulator, this.DEC(address));
     }
 
     ISB(address) {
-        this.addValueToAccumulator((this.INC(address)) ^ 0xFF);
+        this.addValueToAccumulator((this.INC(address)) ^ 0xFF); // With internal carry incremment makes negative operand
     }
 
     SLO(address) {
@@ -616,7 +737,7 @@ export class CPU {
         this.storeValueIntoAccumulator(this.accumulator & this.ROL(address));
     }
 
-    XAA(address) {
+    XAA(address) { // Also known as ANE
         this.storeValueIntoAccumulator(this.registerX & this.AND(address));
     }
 
@@ -624,12 +745,12 @@ export class CPU {
         this.addValueToAccumulator(this.ROR(address));
     }
 
-    AXS(address) {
+    AXS(address) { // Also known as SBX
         this.registerX = this.compareRegisterAndMemory(this.accumulator & this.registerX, address);
     }
 
     ANC(address) {
-        this.rotateLeft(this.AND(address), false);
+        this.rotateLeft(this.AND(address), false); // rotateLeft computes carry
     }
 
     ALR(address) {
@@ -644,10 +765,14 @@ export class CPU {
         this.overflowFlag = ((this.accumulator >>> 5) & 1) ^ this.carryFlag;
     }
 
-    TAS(address) {
+    TAS(address) { // Also known as SHS
         this.stackPointer = this.accumulator & this.registerX;
         this.SHA(address);
     }
+
+    //=========================================================
+    // Instruction helpers
+    //=========================================================
 
     storeValueIntoAccumulator(value) {
         this.updateZeroAndNegativeFlag(value);
@@ -671,7 +796,7 @@ export class CPU {
 
     storeHighAddressIntoMemory(address, register) {
         if (this.pageCrossed) {
-            this.writeByte(address, this.read(address));
+            this.writeByte(address, this.readByte(address)); // Just copy the same value
         } else {
             this.writeByte(address, register & ((address >>> 8) + 1));
         }
@@ -680,7 +805,7 @@ export class CPU {
     addValueToAccumulator(operand) {
         var result = this.accumulator + operand + this.carryFlag;
         this.carryFlag = (result >>> 8) & 1;
-        this.overflowFlag = (((this.accumulator ^ result) & (operand ^ result)) >>> 7) & 1;
+        this.overflowFlag = (((this.accumulator ^ result) & (operand ^ result)) >>> 7) & 1; // Signed overflow
         return this.storeValueIntoAccumulator(result & 0xFF);
     }
 
@@ -690,18 +815,15 @@ export class CPU {
 
     compareRegisterAndOperand(register, operand) {
         var result = register - operand;
-        this.carryFlag = result >= 0;
-        this.updateZeroAndNegativeFlag(result);
+        this.carryFlag = result >= 0; // Unsigned comparison (bit 8 is actually the result sign)
+        this.updateZeroAndNegativeFlag(result); // Not a signed comparison
         return result & 0xFF;
     }
 
     branchIf(condition, address) {
         if (condition) {
             this.programCounter = address;
-            this.tick();
-            if (this.pageCrossed) {
-                this.tick();
-            }
+            this.operationCycles += this.pageCrossed ? 2 : 1;
         }
     }
 
@@ -732,263 +854,388 @@ export class CPU {
         this.negativeFlag = (value >>> 7) & 1;
     }
 
-    initOperationsTable() {
-        this.operationsTable = [];
-        this.registerOperation(0x1A, this.NOP, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x3A, this.NOP, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x5A, this.NOP, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x7A, this.NOP, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0xDA, this.NOP, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0xEA, this.NOP, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0xFA, this.NOP, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x80, this.NOP, this.immediateMode, 0, 1, 0);
-        this.registerOperation(0x82, this.NOP, this.immediateMode, 0, 1, 0);
-        this.registerOperation(0x89, this.NOP, this.immediateMode, 0, 1, 0);
-        this.registerOperation(0xC2, this.NOP, this.immediateMode, 0, 1, 0);
-        this.registerOperation(0xE2, this.NOP, this.immediateMode, 0, 1, 0);
-        this.registerOperation(0x04, this.NOP, this.zeroPageMode, 0, 1, 0);
-        this.registerOperation(0x44, this.NOP, this.zeroPageMode, 0, 1, 0);
-        this.registerOperation(0x64, this.NOP, this.zeroPageMode, 0, 1, 0);
-        this.registerOperation(0x14, this.NOP, this.zeroPageXMode, 0, 2, 0);
-        this.registerOperation(0x34, this.NOP, this.zeroPageXMode, 0, 2, 0);
-        this.registerOperation(0x54, this.NOP, this.zeroPageXMode, 0, 2, 0);
-        this.registerOperation(0x74, this.NOP, this.zeroPageXMode, 0, 2, 0);
-        this.registerOperation(0xD4, this.NOP, this.zeroPageXMode, 0, 2, 0);
-        this.registerOperation(0xF4, this.NOP, this.zeroPageXMode, 0, 2, 0);
-        this.registerOperation(0x0C, this.NOP, this.absoluteMode, 0, 1, 0);
-        this.registerOperation(0x1C, this.NOP, this.absoluteXMode, 1, 1, 0);
-        this.registerOperation(0x3C, this.NOP, this.absoluteXMode, 1, 1, 0);
-        this.registerOperation(0x5C, this.NOP, this.absoluteXMode, 1, 1, 0);
-        this.registerOperation(0x7C, this.NOP, this.absoluteXMode, 1, 1, 0);
-        this.registerOperation(0xDC, this.NOP, this.absoluteXMode, 1, 1, 0);
-        this.registerOperation(0xFC, this.NOP, this.absoluteXMode, 1, 1, 0);
-        this.registerOperation(0x18, this.CLC, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x58, this.CLI, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0xD8, this.CLD, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0xB8, this.CLV, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x38, this.SEC, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x78, this.SEI, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0xF8, this.SED, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x85, this.STA, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0x95, this.STA, this.zeroPageXMode, 0, 1, 0);
-        this.registerOperation(0x8D, this.STA, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0x9D, this.STA, this.absoluteXMode, 0, 1, 0);
-        this.registerOperation(0x99, this.STA, this.absoluteYMode, 0, 1, 0);
-        this.registerOperation(0x81, this.STA, this.indirectXMode, 0, 1, 0);
-        this.registerOperation(0x91, this.STA, this.indirectYMode, 0, 1, 0);
-        this.registerOperation(0x86, this.STX, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0x96, this.STX, this.zeroPageYMode, 0, 1, 0);
-        this.registerOperation(0x8E, this.STX, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0x87, this.SAX, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0x97, this.SAX, this.zeroPageYMode, 0, 1, 0);
-        this.registerOperation(0x8F, this.SAX, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0x83, this.SAX, this.indirectXMode, 0, 1, 0);
-        this.registerOperation(0x84, this.STY, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0x94, this.STY, this.zeroPageXMode, 0, 1, 0);
-        this.registerOperation(0x8C, this.STY, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0x93, this.SHA, this.indirectYMode, 0, 1, 0);
-        this.registerOperation(0x9F, this.SHA, this.absoluteYMode, 0, 1, 0);
-        this.registerOperation(0x9E, this.SHX, this.absoluteYMode, 0, 1, 0);
-        this.registerOperation(0x9C, this.SHY, this.absoluteXMode, 0, 1, 0);
-        this.registerOperation(0xA9, this.LDA, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0xA5, this.LDA, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0xB5, this.LDA, this.zeroPageXMode, 0, 1, 0);
-        this.registerOperation(0xAD, this.LDA, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0xBD, this.LDA, this.absoluteXMode, 1, 0, 0);
-        this.registerOperation(0xB9, this.LDA, this.absoluteYMode, 1, 0, 0);
-        this.registerOperation(0xA1, this.LDA, this.indirectXMode, 0, 1, 0);
-        this.registerOperation(0xB1, this.LDA, this.indirectYMode, 1, 0, 0);
-        this.registerOperation(0xA2, this.LDX, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0xA6, this.LDX, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0xB6, this.LDX, this.zeroPageYMode, 0, 1, 0);
-        this.registerOperation(0xAE, this.LDX, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0xBE, this.LDX, this.absoluteYMode, 1, 0, 0);
-        this.registerOperation(0xA0, this.LDY, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0xA4, this.LDY, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0xB4, this.LDY, this.zeroPageXMode, 0, 1, 0);
-        this.registerOperation(0xAC, this.LDY, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0xBC, this.LDY, this.absoluteXMode, 1, 0, 0);
-        this.registerOperation(0xAB, this.LAX, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0xA7, this.LAX, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0xB7, this.LAX, this.zeroPageYMode, 0, 1, 0);
-        this.registerOperation(0xAF, this.LAX, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0xBF, this.LAX, this.absoluteYMode, 1, 0, 0);
-        this.registerOperation(0xA3, this.LAX, this.indirectXMode, 0, 1, 0);
-        this.registerOperation(0xB3, this.LAX, this.indirectYMode, 1, 0, 0);
-        this.registerOperation(0xBB, this.LAS, this.absoluteYMode, 1, 0, 0);
-        this.registerOperation(0xAA, this.TAX, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0xA8, this.TAY, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x8A, this.TXA, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x98, this.TYA, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x9A, this.TXS, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0xBA, this.TSX, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x48, this.PHA, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x08, this.PHP, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x68, this.PLA, this.impliedMode, 0, 1, 0);
-        this.registerOperation(0x28, this.PLP, this.impliedMode, 0, 1, 0);
-        this.registerOperation(0x29, this.AND, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0x25, this.AND, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0x35, this.AND, this.zeroPageXMode, 0, 1, 0);
-        this.registerOperation(0x2D, this.AND, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0x3D, this.AND, this.absoluteXMode, 1, 0, 0);
-        this.registerOperation(0x39, this.AND, this.absoluteYMode, 1, 0, 0);
-        this.registerOperation(0x21, this.AND, this.indirectXMode, 0, 1, 0);
-        this.registerOperation(0x31, this.AND, this.indirectYMode, 1, 0, 0);
-        this.registerOperation(0x09, this.ORA, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0x05, this.ORA, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0x15, this.ORA, this.zeroPageXMode, 0, 1, 0);
-        this.registerOperation(0x0D, this.ORA, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0x1D, this.ORA, this.absoluteXMode, 1, 0, 0);
-        this.registerOperation(0x19, this.ORA, this.absoluteYMode, 1, 0, 0);
-        this.registerOperation(0x01, this.ORA, this.indirectXMode, 0, 1, 0);
-        this.registerOperation(0x11, this.ORA, this.indirectYMode, 1, 0, 0);
-        this.registerOperation(0x49, this.EOR, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0x45, this.EOR, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0x55, this.EOR, this.zeroPageXMode, 0, 1, 0);
-        this.registerOperation(0x4D, this.EOR, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0x5D, this.EOR, this.absoluteXMode, 1, 0, 0);
-        this.registerOperation(0x59, this.EOR, this.absoluteYMode, 1, 0, 0);
-        this.registerOperation(0x41, this.EOR, this.indirectXMode, 0, 1, 0);
-        this.registerOperation(0x51, this.EOR, this.indirectYMode, 1, 0, 0);
-        this.registerOperation(0x24, this.BIT, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0x2C, this.BIT, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0xE6, this.INC, this.zeroPageMode, 0, 0, 1);
-        this.registerOperation(0xF6, this.INC, this.zeroPageXMode, 0, 1, 1);
-        this.registerOperation(0xEE, this.INC, this.absoluteMode, 0, 0, 1);
-        this.registerOperation(0xFE, this.INC, this.absoluteXMode, 0, 1, 1);
-        this.registerOperation(0xE8, this.INX, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0xC8, this.INY, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0xC6, this.DEC, this.zeroPageMode, 0, 0, 1);
-        this.registerOperation(0xD6, this.DEC, this.zeroPageXMode, 0, 1, 1);
-        this.registerOperation(0xCE, this.DEC, this.absoluteMode, 0, 0, 1);
-        this.registerOperation(0xDE, this.DEC, this.absoluteXMode, 0, 1, 1);
-        this.registerOperation(0xCA, this.DEX, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x88, this.DEY, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0xC9, this.CMP, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0xC5, this.CMP, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0xD5, this.CMP, this.zeroPageXMode, 0, 1, 0);
-        this.registerOperation(0xCD, this.CMP, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0xDD, this.CMP, this.absoluteXMode, 1, 0, 0);
-        this.registerOperation(0xD9, this.CMP, this.absoluteYMode, 1, 0, 0);
-        this.registerOperation(0xC1, this.CMP, this.indirectXMode, 0, 1, 0);
-        this.registerOperation(0xD1, this.CMP, this.indirectYMode, 1, 0, 0);
-        this.registerOperation(0xE0, this.CPX, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0xE4, this.CPX, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0xEC, this.CPX, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0xC0, this.CPY, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0xC4, this.CPY, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0xCC, this.CPY, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0x90, this.BCC, this.relativeMode, 0, 0, 0);
-        this.registerOperation(0xB0, this.BCS, this.relativeMode, 0, 0, 0);
-        this.registerOperation(0xD0, this.BNE, this.relativeMode, 0, 0, 0);
-        this.registerOperation(0xF0, this.BEQ, this.relativeMode, 0, 0, 0);
-        this.registerOperation(0x50, this.BVC, this.relativeMode, 0, 0, 0);
-        this.registerOperation(0x70, this.BVS, this.relativeMode, 0, 0, 0);
-        this.registerOperation(0x10, this.BPL, this.relativeMode, 0, 0, 0);
-        this.registerOperation(0x30, this.BMI, this.relativeMode, 0, 0, 0);
-        this.registerOperation(0x4C, this.JMP, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0x6C, this.JMP, this.indirectMode, 0, 0, 0);
-        this.registerOperation(0x20, this.JSR, this.absoluteMode, 0, 1, 0);
-        this.registerOperation(0x60, this.RTS, this.impliedMode, 0, 1, 0);
-        this.registerOperation(0x00, this.BRK, this.impliedMode, 0, 0, 0);
-        this.registerOperation(0x40, this.RTI, this.impliedMode, 0, 1, 0);
-        this.registerOperation(0x69, this.ADC, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0x65, this.ADC, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0x75, this.ADC, this.zeroPageXMode, 0, 1, 0);
-        this.registerOperation(0x6D, this.ADC, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0x7D, this.ADC, this.absoluteXMode, 1, 0, 0);
-        this.registerOperation(0x79, this.ADC, this.absoluteYMode, 1, 0, 0);
-        this.registerOperation(0x61, this.ADC, this.indirectXMode, 0, 1, 0);
-        this.registerOperation(0x71, this.ADC, this.indirectYMode, 1, 0, 0);
-        this.registerOperation(0xE9, this.SBC, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0xEB, this.SBC, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0xE5, this.SBC, this.zeroPageMode, 0, 0, 0);
-        this.registerOperation(0xF5, this.SBC, this.zeroPageXMode, 0, 1, 0);
-        this.registerOperation(0xED, this.SBC, this.absoluteMode, 0, 0, 0);
-        this.registerOperation(0xFD, this.SBC, this.absoluteXMode, 1, 0, 0);
-        this.registerOperation(0xF9, this.SBC, this.absoluteYMode, 1, 0, 0);
-        this.registerOperation(0xE1, this.SBC, this.indirectXMode, 0, 1, 0);
-        this.registerOperation(0xF1, this.SBC, this.indirectYMode, 1, 0, 0);
-        this.registerOperation(0x0A, this.ASL, this.accumulatorMode, 0, 0, 0);
-        this.registerOperation(0x06, this.ASL, this.zeroPageMode, 0, 0, 1);
-        this.registerOperation(0x16, this.ASL, this.zeroPageXMode, 0, 1, 1);
-        this.registerOperation(0x0E, this.ASL, this.absoluteMode, 0, 0, 1);
-        this.registerOperation(0x1E, this.ASL, this.absoluteXMode, 0, 1, 1);
-        this.registerOperation(0x4A, this.LSR, this.accumulatorMode, 0, 0, 0);
-        this.registerOperation(0x46, this.LSR, this.zeroPageMode, 0, 0, 1);
-        this.registerOperation(0x56, this.LSR, this.zeroPageXMode, 0, 1, 1);
-        this.registerOperation(0x4E, this.LSR, this.absoluteMode, 0, 0, 1);
-        this.registerOperation(0x5E, this.LSR, this.absoluteXMode, 0, 1, 1);
-        this.registerOperation(0x2A, this.ROL, this.accumulatorMode, 0, 0, 0);
-        this.registerOperation(0x26, this.ROL, this.zeroPageMode, 0, 0, 1);
-        this.registerOperation(0x36, this.ROL, this.zeroPageXMode, 0, 1, 1);
-        this.registerOperation(0x2E, this.ROL, this.absoluteMode, 0, 0, 1);
-        this.registerOperation(0x3E, this.ROL, this.absoluteXMode, 0, 1, 1);
-        this.registerOperation(0x6A, this.ROR, this.accumulatorMode, 0, 0, 0);
-        this.registerOperation(0x66, this.ROR, this.zeroPageMode, 0, 0, 1);
-        this.registerOperation(0x76, this.ROR, this.zeroPageXMode, 0, 1, 1);
-        this.registerOperation(0x6E, this.ROR, this.absoluteMode, 0, 0, 1);
-        this.registerOperation(0x7E, this.ROR, this.absoluteXMode, 0, 1, 1);
-        this.registerOperation(0xC7, this.DCP, this.zeroPageMode, 0, 0, 1);
-        this.registerOperation(0xD7, this.DCP, this.zeroPageXMode, 0, 1, 1);
-        this.registerOperation(0xCF, this.DCP, this.absoluteMode, 0, 0, 1);
-        this.registerOperation(0xDF, this.DCP, this.absoluteXMode, 0, 1, 1);
-        this.registerOperation(0xDB, this.DCP, this.absoluteYMode, 0, 1, 1);
-        this.registerOperation(0xC3, this.DCP, this.indirectXMode, 0, 1, 1);
-        this.registerOperation(0xD3, this.DCP, this.indirectYMode, 0, 1, 1);
-        this.registerOperation(0xE7, this.ISB, this.zeroPageMode, 0, 0, 1);
-        this.registerOperation(0xF7, this.ISB, this.zeroPageXMode, 0, 1, 1);
-        this.registerOperation(0xEF, this.ISB, this.absoluteMode, 0, 0, 1);
-        this.registerOperation(0xFF, this.ISB, this.absoluteXMode, 0, 1, 1);
-        this.registerOperation(0xFB, this.ISB, this.absoluteYMode, 0, 1, 1);
-        this.registerOperation(0xE3, this.ISB, this.indirectXMode, 0, 1, 1);
-        this.registerOperation(0xF3, this.ISB, this.indirectYMode, 0, 1, 1);
-        this.registerOperation(0x07, this.SLO, this.zeroPageMode, 0, 0, 1);
-        this.registerOperation(0x17, this.SLO, this.zeroPageXMode, 0, 1, 1);
-        this.registerOperation(0x0F, this.SLO, this.absoluteMode, 0, 0, 1);
-        this.registerOperation(0x1F, this.SLO, this.absoluteXMode, 0, 1, 1);
-        this.registerOperation(0x1B, this.SLO, this.absoluteYMode, 0, 1, 1);
-        this.registerOperation(0x03, this.SLO, this.indirectXMode, 0, 1, 1);
-        this.registerOperation(0x13, this.SLO, this.indirectYMode, 0, 1, 1);
-        this.registerOperation(0x47, this.SRE, this.zeroPageMode, 0, 0, 1);
-        this.registerOperation(0x57, this.SRE, this.zeroPageXMode, 0, 1, 1);
-        this.registerOperation(0x4F, this.SRE, this.absoluteMode, 0, 0, 1);
-        this.registerOperation(0x5F, this.SRE, this.absoluteXMode, 0, 1, 1);
-        this.registerOperation(0x5B, this.SRE, this.absoluteYMode, 0, 1, 1);
-        this.registerOperation(0x43, this.SRE, this.indirectXMode, 0, 1, 1);
-        this.registerOperation(0x53, this.SRE, this.indirectYMode, 0, 1, 1);
-        this.registerOperation(0x27, this.RLA, this.zeroPageMode, 0, 0, 1);
-        this.registerOperation(0x37, this.RLA, this.zeroPageXMode, 0, 1, 1);
-        this.registerOperation(0x2F, this.RLA, this.absoluteMode, 0, 0, 1);
-        this.registerOperation(0x3F, this.RLA, this.absoluteXMode, 0, 1, 1);
-        this.registerOperation(0x3B, this.RLA, this.absoluteYMode, 0, 1, 1);
-        this.registerOperation(0x23, this.RLA, this.indirectXMode, 0, 1, 1);
-        this.registerOperation(0x33, this.RLA, this.indirectYMode, 0, 1, 1);
-        this.registerOperation(0x8B, this.XAA, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0x67, this.RRA, this.zeroPageMode, 0, 0, 1);
-        this.registerOperation(0x77, this.RRA, this.zeroPageXMode, 0, 1, 1);
-        this.registerOperation(0x6F, this.RRA, this.absoluteMode, 0, 0, 1);
-        this.registerOperation(0x7F, this.RRA, this.absoluteXMode, 0, 1, 1);
-        this.registerOperation(0x7B, this.RRA, this.absoluteYMode, 0, 1, 1);
-        this.registerOperation(0x63, this.RRA, this.indirectXMode, 0, 1, 1);
-        this.registerOperation(0x73, this.RRA, this.indirectYMode, 0, 1, 1);
-        this.registerOperation(0xCB, this.AXS, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0x0B, this.ANC, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0x2B, this.ANC, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0x4B, this.ALR, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0x6B, this.ARR, this.immediateMode, 0, 0, 0);
-        this.registerOperation(0x9B, this.TAS, this.absoluteYMode, 0, 1, 0);
+    //=========================================================
+    // Operations table
+    //=========================================================
+
+    initOperations() {
+        this.operations = new Array(0xFF);
+
+        //=========================================================
+        // No operation instruction
+        //=========================================================
+
+        this.operations[0x1A] = new Operation(this.NOP, this.impliedMode, 2, 0);
+        this.operations[0x3A] = new Operation(this.NOP, this.impliedMode, 2, 0);
+        this.operations[0x5A] = new Operation(this.NOP, this.impliedMode, 2, 0);
+        this.operations[0x7A] = new Operation(this.NOP, this.impliedMode, 2, 0);
+        this.operations[0xDA] = new Operation(this.NOP, this.impliedMode, 2, 0);
+        this.operations[0xEA] = new Operation(this.NOP, this.impliedMode, 2, 0);
+        this.operations[0xFA] = new Operation(this.NOP, this.impliedMode, 2, 0);
+
+        this.operations[0x80] = new Operation(this.NOP, this.immediateMode, 2, 0);
+        this.operations[0x82] = new Operation(this.NOP, this.immediateMode, 2, 0);
+        this.operations[0x89] = new Operation(this.NOP, this.immediateMode, 2, 0);
+        this.operations[0xC2] = new Operation(this.NOP, this.immediateMode, 2, 0);
+        this.operations[0xE2] = new Operation(this.NOP, this.immediateMode, 2, 0);
+
+        this.operations[0x04] = new Operation(this.NOP, this.zeroPageMode, 3, 0);
+        this.operations[0x44] = new Operation(this.NOP, this.zeroPageMode, 3, 0);
+        this.operations[0x64] = new Operation(this.NOP, this.zeroPageMode, 3, 0);
+
+        this.operations[0x14] = new Operation(this.NOP, this.zeroPageXMode, 4, 0);
+        this.operations[0x34] = new Operation(this.NOP, this.zeroPageXMode, 4, 0);
+        this.operations[0x54] = new Operation(this.NOP, this.zeroPageXMode, 4, 0);
+        this.operations[0x74] = new Operation(this.NOP, this.zeroPageXMode, 4, 0);
+        this.operations[0xD4] = new Operation(this.NOP, this.zeroPageXMode, 4, 0);
+        this.operations[0xF4] = new Operation(this.NOP, this.zeroPageXMode, 4, 0);
+
+        this.operations[0x0C] = new Operation(this.NOP, this.absoluteMode, 4, 0);
+
+        this.operations[0x1C] = new Operation(this.NOP, this.absoluteXMode, 4, 1);
+        this.operations[0x3C] = new Operation(this.NOP, this.absoluteXMode, 4, 1);
+        this.operations[0x5C] = new Operation(this.NOP, this.absoluteXMode, 4, 1);
+        this.operations[0x7C] = new Operation(this.NOP, this.absoluteXMode, 4, 1);
+        this.operations[0xDC] = new Operation(this.NOP, this.absoluteXMode, 4, 1);
+        this.operations[0xFC] = new Operation(this.NOP, this.absoluteXMode, 4, 1);
+
+        //=========================================================
+        // Clear flag instructions
+        //=========================================================
+
+        this.operations[0x18] = new Operation(this.CLC, this.impliedMode, 2, 0);
+        this.operations[0x58] = new Operation(this.CLI, this.impliedMode, 2, 0);
+        this.operations[0xD8] = new Operation(this.CLD, this.impliedMode, 2, 0);
+        this.operations[0xB8] = new Operation(this.CLV, this.impliedMode, 2, 0);
+
+        //=========================================================
+        // Set flag instructions
+        //=========================================================
+
+        this.operations[0x38] = new Operation(this.SEC, this.impliedMode, 2, 0);
+        this.operations[0x78] = new Operation(this.SEI, this.impliedMode, 2, 0);
+        this.operations[0xF8] = new Operation(this.SED, this.impliedMode, 2, 0);
+
+        //=========================================================
+        // Memory write instructions
+        //=========================================================
+
+        this.operations[0x85] = new Operation(this.STA, this.zeroPageMode,  3, 0);
+        this.operations[0x95] = new Operation(this.STA, this.zeroPageXMode, 4, 0);
+        this.operations[0x8D] = new Operation(this.STA, this.absoluteMode,  4, 0);
+        this.operations[0x9D] = new Operation(this.STA, this.absoluteXMode, 5, 0);
+        this.operations[0x99] = new Operation(this.STA, this.absoluteYMode, 5, 0);
+        this.operations[0x81] = new Operation(this.STA, this.indirectXMode, 6, 0);
+        this.operations[0x91] = new Operation(this.STA, this.indirectYMode, 6, 0);
+
+        this.operations[0x86] = new Operation(this.STX, this.zeroPageMode,  3, 0);
+        this.operations[0x96] = new Operation(this.STX, this.zeroPageYMode, 4, 0);
+        this.operations[0x8E] = new Operation(this.STX, this.absoluteMode,  4, 0);
+
+        this.operations[0x87] = new Operation(this.SAX, this.zeroPageMode,  3, 0);
+        this.operations[0x97] = new Operation(this.SAX, this.zeroPageYMode, 4, 0);
+        this.operations[0x8F] = new Operation(this.SAX, this.absoluteMode,  4, 0);
+        this.operations[0x83] = new Operation(this.SAX, this.indirectXMode, 6, 0);
+
+        this.operations[0x84] = new Operation(this.STY, this.zeroPageMode,  3, 0);
+        this.operations[0x94] = new Operation(this.STY, this.zeroPageXMode, 4, 0);
+        this.operations[0x8C] = new Operation(this.STY, this.absoluteMode,  4, 0);
+
+        this.operations[0x93] = new Operation(this.SHA, this.indirectYMode, 6, 0);
+        this.operations[0x9F] = new Operation(this.SHA, this.absoluteYMode, 5, 0);
+        this.operations[0x9E] = new Operation(this.SHX, this.absoluteYMode, 5, 0);
+        this.operations[0x9C] = new Operation(this.SHY, this.absoluteXMode, 5, 0);
+
+        //=========================================================
+        // Memory read instructions
+        //=========================================================
+
+        this.operations[0xA9] = new Operation(this.LDA, this.immediateMode, 2, 0);
+        this.operations[0xA5] = new Operation(this.LDA, this.zeroPageMode,  3, 0);
+        this.operations[0xB5] = new Operation(this.LDA, this.zeroPageXMode, 4, 0);
+        this.operations[0xAD] = new Operation(this.LDA, this.absoluteMode,  4, 0);
+        this.operations[0xBD] = new Operation(this.LDA, this.absoluteXMode, 4, 1);
+        this.operations[0xB9] = new Operation(this.LDA, this.absoluteYMode, 4, 1);
+        this.operations[0xA1] = new Operation(this.LDA, this.indirectXMode, 6, 0);
+        this.operations[0xB1] = new Operation(this.LDA, this.indirectYMode, 5, 1);
+
+        this.operations[0xA2] = new Operation(this.LDX, this.immediateMode, 2, 0);
+        this.operations[0xA6] = new Operation(this.LDX, this.zeroPageMode,  3, 0);
+        this.operations[0xB6] = new Operation(this.LDX, this.zeroPageYMode, 4, 0);
+        this.operations[0xAE] = new Operation(this.LDX, this.absoluteMode,  4, 0);
+        this.operations[0xBE] = new Operation(this.LDX, this.absoluteYMode, 4, 1);
+
+        this.operations[0xA0] = new Operation(this.LDY, this.immediateMode, 2, 0);
+        this.operations[0xA4] = new Operation(this.LDY, this.zeroPageMode,  3, 0);
+        this.operations[0xB4] = new Operation(this.LDY, this.zeroPageXMode, 4, 0);
+        this.operations[0xAC] = new Operation(this.LDY, this.absoluteMode,  4, 0);
+        this.operations[0xBC] = new Operation(this.LDY, this.absoluteXMode, 4, 1);
+
+        this.operations[0xAB] = new Operation(this.LAX, this.immediateMode, 2, 0);
+        this.operations[0xA7] = new Operation(this.LAX, this.zeroPageMode,  3, 0);
+        this.operations[0xB7] = new Operation(this.LAX, this.zeroPageYMode, 4, 0);
+        this.operations[0xAF] = new Operation(this.LAX, this.absoluteMode,  4, 0);
+        this.operations[0xBF] = new Operation(this.LAX, this.absoluteYMode, 4, 1);
+        this.operations[0xA3] = new Operation(this.LAX, this.indirectXMode, 6, 0);
+        this.operations[0xB3] = new Operation(this.LAX, this.indirectYMode, 5, 1);
+
+        this.operations[0xBB] = new Operation(this.LAS, this.absoluteYMode, 4, 1);
+
+        //=========================================================
+        // Register transfer instructions
+        //=========================================================
+
+        this.operations[0xAA] = new Operation(this.TAX, this.impliedMode, 2, 0);
+        this.operations[0xA8] = new Operation(this.TAY, this.impliedMode, 2, 0);
+        this.operations[0x8A] = new Operation(this.TXA, this.impliedMode, 2, 0);
+        this.operations[0x98] = new Operation(this.TYA, this.impliedMode, 2, 0);
+        this.operations[0x9A] = new Operation(this.TXS, this.impliedMode, 2, 0);
+        this.operations[0xBA] = new Operation(this.TSX, this.impliedMode, 2, 0);
+
+        //=========================================================
+        // Stack push instructions
+        //=========================================================
+
+        this.operations[0x48] = new Operation(this.PHA, this.impliedMode, 3, 0);
+        this.operations[0x08] = new Operation(this.PHP, this.impliedMode, 3, 0);
+
+        //=========================================================
+        // Stack pull instructions
+        //=========================================================
+
+        this.operations[0x68] = new Operation(this.PLA, this.impliedMode, 4, 0);
+        this.operations[0x28] = new Operation(this.PLP, this.impliedMode, 4, 0);
+
+        //=========================================================
+        // Accumulator bitwise instructions
+        //=========================================================
+
+        this.operations[0x29] = new Operation(this.AND, this.immediateMode, 2, 0);
+        this.operations[0x25] = new Operation(this.AND, this.zeroPageMode,  3, 0);
+        this.operations[0x35] = new Operation(this.AND, this.zeroPageXMode, 4, 0);
+        this.operations[0x2D] = new Operation(this.AND, this.absoluteMode,  4, 0);
+        this.operations[0x3D] = new Operation(this.AND, this.absoluteXMode, 4, 1);
+        this.operations[0x39] = new Operation(this.AND, this.absoluteYMode, 4, 1);
+        this.operations[0x21] = new Operation(this.AND, this.indirectXMode, 6, 0);
+        this.operations[0x31] = new Operation(this.AND, this.indirectYMode, 5, 1);
+
+        this.operations[0x09] = new Operation(this.ORA, this.immediateMode, 2, 0);
+        this.operations[0x05] = new Operation(this.ORA, this.zeroPageMode,  3, 0);
+        this.operations[0x15] = new Operation(this.ORA, this.zeroPageXMode, 4, 0);
+        this.operations[0x0D] = new Operation(this.ORA, this.absoluteMode,  4, 0);
+        this.operations[0x1D] = new Operation(this.ORA, this.absoluteXMode, 4, 1);
+        this.operations[0x19] = new Operation(this.ORA, this.absoluteYMode, 4, 1);
+        this.operations[0x01] = new Operation(this.ORA, this.indirectXMode, 6, 0);
+        this.operations[0x11] = new Operation(this.ORA, this.indirectYMode, 5, 1);
+
+        this.operations[0x49] = new Operation(this.EOR, this.immediateMode, 2, 0);
+        this.operations[0x45] = new Operation(this.EOR, this.zeroPageMode,  3, 0);
+        this.operations[0x55] = new Operation(this.EOR, this.zeroPageXMode, 4, 0);
+        this.operations[0x4D] = new Operation(this.EOR, this.absoluteMode,  4, 0);
+        this.operations[0x5D] = new Operation(this.EOR, this.absoluteXMode, 4, 1);
+        this.operations[0x59] = new Operation(this.EOR, this.absoluteYMode, 4, 1);
+        this.operations[0x41] = new Operation(this.EOR, this.indirectXMode, 6, 0);
+        this.operations[0x51] = new Operation(this.EOR, this.indirectYMode, 5, 1);
+
+        this.operations[0x24] = new Operation(this.BIT, this.zeroPageMode, 3, 0);
+        this.operations[0x2C] = new Operation(this.BIT, this.absoluteMode, 4, 0);
+
+        //=========================================================
+        // Increment instructions
+        //=========================================================
+
+        this.operations[0xE6] = new Operation(this.INC, this.zeroPageMode,  5, 0);
+        this.operations[0xF6] = new Operation(this.INC, this.zeroPageXMode, 6, 0);
+        this.operations[0xEE] = new Operation(this.INC, this.absoluteMode,  6, 0);
+        this.operations[0xFE] = new Operation(this.INC, this.absoluteXMode, 7, 0);
+
+        this.operations[0xE8] = new Operation(this.INX, this.impliedMode, 2, 0);
+        this.operations[0xC8] = new Operation(this.INY, this.impliedMode, 2, 0);
+
+        //=========================================================
+        // Decrement instructions
+        //=========================================================
+
+        this.operations[0xC6] = new Operation(this.DEC, this.zeroPageMode,  5, 0);
+        this.operations[0xD6] = new Operation(this.DEC, this.zeroPageXMode, 6, 0);
+        this.operations[0xCE] = new Operation(this.DEC, this.absoluteMode,  6, 0);
+        this.operations[0xDE] = new Operation(this.DEC, this.absoluteXMode, 7, 0);
+
+        this.operations[0xCA] = new Operation(this.DEX, this.impliedMode, 2, 0);
+        this.operations[0x88] = new Operation(this.DEY, this.impliedMode, 2, 0);
+
+        //=========================================================
+        // Comparison instructions
+        //=========================================================
+
+        this.operations[0xC9] = new Operation(this.CMP, this.immediateMode, 2, 0);
+        this.operations[0xC5] = new Operation(this.CMP, this.zeroPageMode,  3, 0);
+        this.operations[0xD5] = new Operation(this.CMP, this.zeroPageXMode, 4, 0);
+        this.operations[0xCD] = new Operation(this.CMP, this.absoluteMode,  4, 0);
+        this.operations[0xDD] = new Operation(this.CMP, this.absoluteXMode, 4, 1);
+        this.operations[0xD9] = new Operation(this.CMP, this.absoluteYMode, 4, 1);
+        this.operations[0xC1] = new Operation(this.CMP, this.indirectXMode, 6, 0);
+        this.operations[0xD1] = new Operation(this.CMP, this.indirectYMode, 5, 1);
+
+        this.operations[0xE0] = new Operation(this.CPX, this.immediateMode, 2, 0);
+        this.operations[0xE4] = new Operation(this.CPX, this.zeroPageMode,  3, 0);
+        this.operations[0xEC] = new Operation(this.CPX, this.absoluteMode,  4, 0);
+
+        this.operations[0xC0] = new Operation(this.CPY, this.immediateMode, 2, 0);
+        this.operations[0xC4] = new Operation(this.CPY, this.zeroPageMode,  3, 0);
+        this.operations[0xCC] = new Operation(this.CPY, this.absoluteMode,  4, 0);
+
+        //=========================================================
+        // Branching instructions
+        //=========================================================
+
+        this.operations[0x90] = new Operation(this.BCC, this.relativeMode, 2, 0);
+        this.operations[0xB0] = new Operation(this.BCS, this.relativeMode, 2, 0);
+
+        this.operations[0xD0] = new Operation(this.BNE, this.relativeMode, 2, 0);
+        this.operations[0xF0] = new Operation(this.BEQ, this.relativeMode, 2, 0);
+
+        this.operations[0x50] = new Operation(this.BVC, this.relativeMode, 2, 0);
+        this.operations[0x70] = new Operation(this.BVS, this.relativeMode, 2, 0);
+
+        this.operations[0x10] = new Operation(this.BPL, this.relativeMode, 2, 0);
+        this.operations[0x30] = new Operation(this.BMI, this.relativeMode, 2, 0);
+
+        //=========================================================
+        // Jump / subroutine instructions
+        //=========================================================
+
+        this.operations[0x4C] = new Operation(this.JMP, this.absoluteMode, 3, 0);
+        this.operations[0x6C] = new Operation(this.JMP, this.indirectMode, 5, 0);
+        this.operations[0x20] = new Operation(this.JSR, this.absoluteMode, 6, 0);
+        this.operations[0x60] = new Operation(this.RTS, this.impliedMode,  6, 0);
+
+        //=========================================================
+        // Interrupt control instructions
+        //=========================================================
+
+        this.operations[0x00] = new Operation(this.BRK, this.impliedMode, 7, 0);
+        this.operations[0x40] = new Operation(this.RTI, this.impliedMode, 6, 0);
+
+        //=========================================================
+        // Addition / subtraction instructions
+        //=========================================================
+
+        this.operations[0x69] = new Operation(this.ADC, this.immediateMode, 2, 0);
+        this.operations[0x65] = new Operation(this.ADC, this.zeroPageMode,  3, 0);
+        this.operations[0x75] = new Operation(this.ADC, this.zeroPageXMode, 4, 0);
+        this.operations[0x6D] = new Operation(this.ADC, this.absoluteMode,  4, 0);
+        this.operations[0x7D] = new Operation(this.ADC, this.absoluteXMode, 4, 1);
+        this.operations[0x79] = new Operation(this.ADC, this.absoluteYMode, 4, 1);
+        this.operations[0x61] = new Operation(this.ADC, this.indirectXMode, 6, 0);
+        this.operations[0x71] = new Operation(this.ADC, this.indirectYMode, 5, 1);
+
+        this.operations[0xE9] = new Operation(this.SBC, this.immediateMode, 2, 0);
+        this.operations[0xEB] = new Operation(this.SBC, this.immediateMode, 2, 0);
+        this.operations[0xE5] = new Operation(this.SBC, this.zeroPageMode,  3, 0);
+        this.operations[0xF5] = new Operation(this.SBC, this.zeroPageXMode, 4, 0);
+        this.operations[0xED] = new Operation(this.SBC, this.absoluteMode,  4, 0);
+        this.operations[0xFD] = new Operation(this.SBC, this.absoluteXMode, 4, 1);
+        this.operations[0xF9] = new Operation(this.SBC, this.absoluteYMode, 4, 1);
+        this.operations[0xE1] = new Operation(this.SBC, this.indirectXMode, 6, 0);
+        this.operations[0xF1] = new Operation(this.SBC, this.indirectYMode, 5, 1);
+
+        //=========================================================
+        // Shifting / rotation instructions
+        //=========================================================
+
+        this.operations[0x0A] = new Operation(this.ASL, this.accumulatorMode, 2, 0);
+        this.operations[0x06] = new Operation(this.ASL, this.zeroPageMode,    5, 0);
+        this.operations[0x16] = new Operation(this.ASL, this.zeroPageXMode,   6, 0);
+        this.operations[0x0E] = new Operation(this.ASL, this.absoluteMode,    6, 0);
+        this.operations[0x1E] = new Operation(this.ASL, this.absoluteXMode,   7, 0);
+
+        this.operations[0x4A] = new Operation(this.LSR, this.accumulatorMode, 2, 0);
+        this.operations[0x46] = new Operation(this.LSR, this.zeroPageMode,    5, 0);
+        this.operations[0x56] = new Operation(this.LSR, this.zeroPageXMode,   6, 0);
+        this.operations[0x4E] = new Operation(this.LSR, this.absoluteMode,    6, 0);
+        this.operations[0x5E] = new Operation(this.LSR, this.absoluteXMode,   7, 0);
+
+        this.operations[0x2A] = new Operation(this.ROL, this.accumulatorMode, 2, 0);
+        this.operations[0x26] = new Operation(this.ROL, this.zeroPageMode,    5, 0);
+        this.operations[0x36] = new Operation(this.ROL, this.zeroPageXMode,   6, 0);
+        this.operations[0x2E] = new Operation(this.ROL, this.absoluteMode,    6, 0);
+        this.operations[0x3E] = new Operation(this.ROL, this.absoluteXMode,   7, 0);
+
+        this.operations[0x6A] = new Operation(this.ROR, this.accumulatorMode, 2, 0);
+        this.operations[0x66] = new Operation(this.ROR, this.zeroPageMode,    5, 0);
+        this.operations[0x76] = new Operation(this.ROR, this.zeroPageXMode,   6, 0);
+        this.operations[0x6E] = new Operation(this.ROR, this.absoluteMode,    6, 0);
+        this.operations[0x7E] = new Operation(this.ROR, this.absoluteXMode,   7, 0);
+
+        //=========================================================
+        // Hybrid instructions
+        //=========================================================
+
+        this.operations[0xC7] = new Operation(this.DCP, this.zeroPageMode,    5, 0);
+        this.operations[0xD7] = new Operation(this.DCP, this.zeroPageXMode,   6, 0);
+        this.operations[0xCF] = new Operation(this.DCP, this.absoluteMode,    6, 0);
+        this.operations[0xDF] = new Operation(this.DCP, this.absoluteXMode,   7, 0);
+        this.operations[0xDB] = new Operation(this.DCP, this.absoluteYMode,   7, 0);
+        this.operations[0xC3] = new Operation(this.DCP, this.indirectXMode,   8, 0);
+        this.operations[0xD3] = new Operation(this.DCP, this.indirectYMode,   8, 0);
+
+        this.operations[0xE7] = new Operation(this.ISB, this.zeroPageMode,  5, 0);
+        this.operations[0xF7] = new Operation(this.ISB, this.zeroPageXMode, 6, 0);
+        this.operations[0xEF] = new Operation(this.ISB, this.absoluteMode,  6, 0);
+        this.operations[0xFF] = new Operation(this.ISB, this.absoluteXMode, 7, 0);
+        this.operations[0xFB] = new Operation(this.ISB, this.absoluteYMode, 7, 0);
+        this.operations[0xE3] = new Operation(this.ISB, this.indirectXMode, 8, 0);
+        this.operations[0xF3] = new Operation(this.ISB, this.indirectYMode, 8, 0);
+
+        this.operations[0x07] = new Operation(this.SLO, this.zeroPageMode,  5, 0);
+        this.operations[0x17] = new Operation(this.SLO, this.zeroPageXMode, 6, 0);
+        this.operations[0x0F] = new Operation(this.SLO, this.absoluteMode,  6, 0);
+        this.operations[0x1F] = new Operation(this.SLO, this.absoluteXMode, 7, 0);
+        this.operations[0x1B] = new Operation(this.SLO, this.absoluteYMode, 7, 0);
+        this.operations[0x03] = new Operation(this.SLO, this.indirectXMode, 8, 0);
+        this.operations[0x13] = new Operation(this.SLO, this.indirectYMode, 8, 0);
+
+        this.operations[0x47] = new Operation(this.SRE, this.zeroPageMode,  5, 0);
+        this.operations[0x57] = new Operation(this.SRE, this.zeroPageXMode, 6, 0);
+        this.operations[0x4F] = new Operation(this.SRE, this.absoluteMode,  6, 0);
+        this.operations[0x5F] = new Operation(this.SRE, this.absoluteXMode, 7, 0);
+        this.operations[0x5B] = new Operation(this.SRE, this.absoluteYMode, 7, 0);
+        this.operations[0x43] = new Operation(this.SRE, this.indirectXMode, 8, 0);
+        this.operations[0x53] = new Operation(this.SRE, this.indirectYMode, 8, 0);
+
+        this.operations[0x27] = new Operation(this.RLA, this.zeroPageMode,  5, 0);
+        this.operations[0x37] = new Operation(this.RLA, this.zeroPageXMode, 6, 0);
+        this.operations[0x2F] = new Operation(this.RLA, this.absoluteMode,  6, 0);
+        this.operations[0x3F] = new Operation(this.RLA, this.absoluteXMode, 7, 0);
+        this.operations[0x3B] = new Operation(this.RLA, this.absoluteYMode, 7, 0);
+        this.operations[0x23] = new Operation(this.RLA, this.indirectXMode, 8, 0);
+        this.operations[0x33] = new Operation(this.RLA, this.indirectYMode, 8, 0);
+
+        this.operations[0x8B] = new Operation(this.XAA, this.immediateMode, 2, 0);
+
+        this.operations[0x67] = new Operation(this.RRA, this.zeroPageMode,  5, 0);
+        this.operations[0x77] = new Operation(this.RRA, this.zeroPageXMode, 6, 0);
+        this.operations[0x6F] = new Operation(this.RRA, this.absoluteMode,  6, 0);
+        this.operations[0x7F] = new Operation(this.RRA, this.absoluteXMode, 7, 0);
+        this.operations[0x7B] = new Operation(this.RRA, this.absoluteYMode, 7, 0);
+        this.operations[0x63] = new Operation(this.RRA, this.indirectXMode, 8, 0);
+        this.operations[0x73] = new Operation(this.RRA, this.indirectYMode, 8, 0);
+
+        this.operations[0xCB] = new Operation(this.AXS, this.immediateMode, 2, 0);
+
+        this.operations[0x0B] = new Operation(this.ANC, this.immediateMode, 2, 0);
+        this.operations[0x2B] = new Operation(this.ANC, this.immediateMode, 2, 0);
+
+        this.operations[0x4B] = new Operation(this.ALR, this.immediateMode, 2, 0);
+        this.operations[0x6B] = new Operation(this.ARR, this.immediateMode, 2, 0);
+
+        this.operations[0x9B] = new Operation(this.TAS, this.absoluteYMode, 5, 0);
     }
 
-    registerOperation(operationCode, instruction, addressingMode, pageCrossEnabled, emptyReadCycles, emptyWriteCycles) {
-        this.operationsTable[operationCode] = {
-            instruction: instruction,
-            addressingMode: addressingMode,
-            pageCrossEnabled: pageCrossEnabled,
-            emptyReadCycles: emptyReadCycles,
-            emptyWriteCycles: emptyWriteCycles
-        }
-    }
+    //=========================================================
+    // Mapper connection
+    //=========================================================
 
     connectMapper(mapper) {
         this.mapper = mapper;
