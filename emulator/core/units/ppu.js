@@ -30,207 +30,113 @@ const F_VB_END    = 1 << 19; // Cycle where VBlank ends
 const F_SKIP      = 1 << 20; // Cycle which is skipped during odd frames
 
 //=========================================================
-// Tables with flags for all cycles/scanlines
+// Cycle flags table
 //=========================================================
 
-var cycleFlagsTable = newUintArray(340);
-var scanlineFlagsTable = newUintArray(261);
+var cycleFlagsTable = newUintArray(341);
 
 for (var i = 0; i < cycleFlagsTable.length; i++) {
     if (i >= 1 && i <= 256) {
         cycleFlagsTable[i] |= F_RENDER;
+        cycleFlagsTable[i] |= F_CLIP_NTSC;
     }
-    if (i >= 1 && i <= 337 && (i & 0x7) === 1 || i === 339) {
+    if ((i & 0x7) === 1 || i === 339) {
         cycleFlagsTable[i] |= F_FETCH_NT;
     }
+    if ((i & 0x7) === 3 && i !== 339) {
+        cycleFlagsTable[i] |= F_FETCH_AT;
+    }
+    if ((i & 0x7) === 5) {
+        cycleFlagsTable[i] |= (i <= 256 || i >= 321) ? F_FETCH_BGL : F_FETCH_SPL;
+    }
+    if ((i & 0x7) === 7) {
+        cycleFlagsTable[i] |= (i <= 256 || i >= 321) ? F_FETCH_BGH : F_FETCH_SPH;
+    }
+    if ((i & 0x7) === 0 && i >= 8 && i <= 256 || i === 328 || i === 336) {
+        cycleFlagsTable[i] |= F_INC_CX;
+    }
+    if ((i & 0x7) === 1 && i >= 9 && i <= 257 || i === 329 || i === 337) {
+        cycleFlagsTable[i] |= F_COPY_BG;
+    }
+    if ((i >= 1 && i <= 256) || (i >= 321 && i <= 336)) {
+        cycleFlagsTable[i] |= F_SHIFT_BG;
+    }
+    if (i >= 280 && i <= 304) {
+        cycleFlagsTable[i] |= F_COPY_VS;
+    }
+    if (i >= 1 && i <= 8) {
+        cycleFlagsTable[i] |= F_CLIP_LEFT;
+    }
+    if (i >= 1 && i <= 3) {
+       cycleFlagsTable[i] |= F_VB_START2;
+    }
 }
+
+cycleFlagsTable[1]   |= F_VB_START;
+cycleFlagsTable[1]   |= F_VB_END;
+cycleFlagsTable[65]  |= F_EVAL_SP;
+cycleFlagsTable[256] |= F_INC_FY;
+cycleFlagsTable[257] |= F_COPY_HS;
+cycleFlagsTable[338] |= F_SKIP;
+
+//=========================================================
+// Scanline flags table
+//=========================================================
+
+var scanlineFlagsTable = newUintArray(262);
 
 for (var i = 0; i < scanlineFlagsTable.length; i++) {
     if (i <= 239) {
         scanlineFlagsTable[i] |= F_RENDER;
+        scanlineFlagsTable[i] |= F_SHIFT_BG;
+        scanlineFlagsTable[i] |= F_CLIP_LEFT;
     }
     if (i <= 239 || i === 261) {
         scanlineFlagsTable[i] |= F_FETCH_NT;
+        scanlineFlagsTable[i] |= F_FETCH_AT;
+        scanlineFlagsTable[i] |= F_FETCH_BGL;
+        scanlineFlagsTable[i] |= F_FETCH_BGH;
+        scanlineFlagsTable[i] |= F_FETCH_SPL;
+        scanlineFlagsTable[i] |= F_FETCH_SPH;
+        scanlineFlagsTable[i] |= F_COPY_BG;
+        scanlineFlagsTable[i] |= F_EVAL_SP;
+        scanlineFlagsTable[i] |= F_INC_CX;
+        scanlineFlagsTable[i] |= F_INC_FY;
+        scanlineFlagsTable[i] |= F_COPY_HS;
+    }
+    if (i <= 7 || (i >= 232 && i <= 239)) {
+        scanlineFlagsTable[i] |= F_CLIP_NTSC;
     }
 }
 
-var i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z;
-var aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao;
-
-for (i = n = 1; n <= 340; i = ++n) {
-  if ((i & 0x7) === 3) {
-    cycleFlagsTable[i] |= F_FETCH_AT;
-  }
-}
-
-for (i = o = 0; o <= 261; i = ++o) {
-  if (!((239 < i && i < 261))) {
-    scanlineFlagsTable[i] |= F_FETCH_AT;
-  }
-}
-
-for (i = p = 1; p <= 340; i = ++p) {
-  if ((i & 0x7) === 5 && !((257 < i && i < 321))) {
-    cycleFlagsTable[i] |= F_FETCH_BGL;
-  }
-}
-
-for (i = q = 0; q <= 261; i = ++q) {
-  if (!((239 < i && i < 261))) {
-    scanlineFlagsTable[i] |= F_FETCH_BGL;
-  }
-}
-
-for (i = s = 1; s <= 340; i = ++s) {
-  if ((i & 0x7) === 7 && !((257 < i && i < 321))) {
-    cycleFlagsTable[i] |= F_FETCH_BGH;
-  }
-}
-
-for (i = t = 0; t <= 261; i = ++t) {
-  if (!((239 < i && i < 261))) {
-    scanlineFlagsTable[i] |= F_FETCH_BGH;
-  }
-}
-
-for (i = u = 257; u <= 320; i = ++u) {
-  if ((i & 0x7) === 5) {
-    cycleFlagsTable[i] |= F_FETCH_SPL;
-  }
-}
-
-for (i = v = 0; v <= 261; i = ++v) {
-  if (!((239 < i && i < 261))) {
-    scanlineFlagsTable[i] |= F_FETCH_SPL;
-  }
-}
-
-for (i = w = 257; w <= 320; i = ++w) {
-  if ((i & 0x7) === 7) {
-    cycleFlagsTable[i] |= F_FETCH_SPH;
-  }
-}
-
-for (i = z = 0; z <= 261; i = ++z) {
-  if (!((239 < i && i < 261))) {
-    scanlineFlagsTable[i] |= F_FETCH_SPH;
-  }
-}
-
-for (i = aa = 9; aa <= 340; i = ++aa) {
-  if ((i & 0x7) === 1 && ((i < 258) || (i === 329 || i === 337))) {
-    cycleFlagsTable[i] |= F_COPY_BG;
-  }
-}
-
-for (i = ab = 0; ab <= 261; i = ++ab) {
-  if (!((239 < i && i < 261))) {
-    scanlineFlagsTable[i] |= F_COPY_BG;
-  }
-}
-
-for (i = ac = 1; ac <= 336; i = ++ac) {
-  if (!((256 < i && i < 321))) {
-    cycleFlagsTable[i] |= F_SHIFT_BG;
-  }
-}
-
-for (i = ad = 0; ad <= 239; i = ++ad) {
-  scanlineFlagsTable[i] |= F_SHIFT_BG;
-}
-
-cycleFlagsTable[65] |= F_EVAL_SP;
-
-for (i = ae = 0; ae <= 261; i = ++ae) {
-  if (!((239 < i && i < 261))) {
-    scanlineFlagsTable[i] |= F_EVAL_SP;
-  }
-}
-
-for (i = af = 1; af <= 8; i = ++af) {
-  cycleFlagsTable[i] |= F_CLIP_LEFT;
-}
-
-for (i = ag = 0; ag <= 239; i = ++ag) {
-  scanlineFlagsTable[i] |= F_CLIP_LEFT;
-}
-
-for (i = ah = 1; ah <= 256; i = ++ah) {
-  cycleFlagsTable[i] |= F_CLIP_NTSC;
-}
-
-for (i = ai = 0; ai <= 239; i = ++ai) {
-  if (!((7 < i && i < 232))) {
-    scanlineFlagsTable[i] |= F_CLIP_NTSC;
-  }
-}
-
-for (i = aj = 8; aj <= 336; i = ++aj) {
-  if (!(i & 0x7) && !((256 < i && i < 328))) {
-    cycleFlagsTable[i] |= F_INC_CX;
-  }
-}
-
-for (i = ak = 0; ak <= 261; i = ++ak) {
-  if (!((239 < i && i < 261))) {
-    scanlineFlagsTable[i] |= F_INC_CX;
-  }
-}
-
-cycleFlagsTable[256] |= F_INC_FY;
-
-for (i = al = 0; al <= 261; i = ++al) {
-  if (!((239 < i && i < 261))) {
-    scanlineFlagsTable[i] |= F_INC_FY;
-  }
-}
-
-cycleFlagsTable[257] |= F_COPY_HS;
-
-for (i = am = 0; am <= 261; i = ++am) {
-  if (!((239 < i && i < 261))) {
-    scanlineFlagsTable[i] |= F_COPY_HS;
-  }
-}
-
-for (i = an = 280; an <= 304; i = ++an) {
-  cycleFlagsTable[i] |= F_COPY_VS;
-}
-
-scanlineFlagsTable[261] |= F_COPY_VS;
-
-cycleFlagsTable[1] |= F_VB_START;
-
 scanlineFlagsTable[241] |= F_VB_START;
-
-for (i = ao = 1; ao <= 3; i = ++ao) {
-  cycleFlagsTable[i] |= F_VB_START2;
-}
-
 scanlineFlagsTable[241] |= F_VB_START2;
-
-cycleFlagsTable[1] |= F_VB_END;
-
+scanlineFlagsTable[261] |= F_COPY_VS;
 scanlineFlagsTable[261] |= F_VB_END;
-
-cycleFlagsTable[338] |= F_SKIP;
-
 scanlineFlagsTable[261] |= F_SKIP;
+
+//=========================================================
+// Sprite data for curently rendered scanline
+//=========================================================
 
 class Sprite {
 
     constructor() {
-        this.x = 0;
-        this.zeroSprite = false;
-        this.horizontalFlip = false;
-        this.paletteNumber = 0;
-        this.inFront = false;
-        this.patternRowAddress = 0;
-        this.patternRow0 = 0;
-        this.patternRow1 = 0;
+        this.x = 0;                  // X position on scanline
+        this.zeroSprite = false;     // Whether this is a first sprite from OAM
+        this.horizontalFlip = false; // Whether is flipped horizontally
+        this.paletteNumber = 0;      // Palette number for rendering
+        this.inFront = false;        // Rendering priority
+        this.patternRowAddress = 0;  // Base address of sprite pattern row
+        this.patternRow0 = 0;        // Pattern row (bit 0)
+        this.patternRow1 = 0;        // Pattern row (bit 1)
     }
 
 }
+
+//=========================================================
+// Picture processing unit
+//=========================================================
 
 export class PPU {
 
