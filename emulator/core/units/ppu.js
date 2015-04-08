@@ -140,115 +140,114 @@ class Sprite {
 
 export class PPU {
 
-    init(ppuMemory, cpu) {
-        this.ppuMemory = ppuMemory;
+    init(cpu, ppuMemory) {
         this.cpu = cpu;
+        this.ppuMemory = ppuMemory;
         this.ntscMode = true;
-        return this.colorEmphasis = 0;
+        this.colorEmphasis = 0; // Color palette BGR emphasis bits
     }
+
+    //=========================================================
+    // Power-up state initialization
+    //=========================================================
 
     powerUp() {
         logger.info("Reseting PPU");
         this.resetOAM();
         this.resetRegisters();
-        return this.resetVariables();
+        this.resetVariables();
     }
 
     resetOAM() {
-        this.primaryOAM = newByteArray(0x100);
-        return this.secondaryOAM = (function() {
-            var ap, results;
-            results = [];
-            for (ap = 0; ap <= 7; ap++) {
-                results.push(new Sprite);
-            }
-            return results;
-        })();
+        this.primaryOAM = newByteArray(0x100); // Sprite data - 256B (64 x 4B sprites)
+        this.secondaryOAM = new Array(8);      // Sprite data for rendered scanline (up to 8 sprites)
+        for (var i = 0; i < this.secondaryOAM.length; i++) {
+            this.secondaryOAM[i] = new Sprite;
+        }
     }
 
     resetRegisters() {
-        this.setControl(0);
-        this.setMask(0);
-        this.setStatus(0);
-        this.oamAddress = 0;
-        this.tempAddress = 0;
-        this.vramAddress = 0;
-        this.vramReadBuffer = 0;
-        this.writeToogle = 0;
-        this.fineXScroll = 0;
-        this.patternBuffer0 = 0;
-        this.patternBuffer1 = 0;
-        this.paletteBuffer0 = 0;
-        this.paletteBuffer1 = 0;
-        this.paletteLatch0 = 0;
-        this.paletteLatch1 = 0;
-        this.patternBufferNext0 = 0;
-        this.patternBufferNext1 = 0;
-        this.paletteLatchNext0 = 0;
-        return this.paletteLatchNext1 = 0;
+        this.setControl(0);          //  8-bit PPUCTRL register
+        this.setMask(0);             //  8-bit PPUMASK register
+        this.setStatus(0);           //  8-bit PPUSTATUS register
+        this.oamAddress = 0;         // 15-bit OAMADDR register
+        this.tempAddress = 0;        // 15-bit 'Loopy T' register
+        this.vramAddress = 0;        // 15-bit 'Loopy V' register
+        this.vramReadBuffer = 0;     //  8-bit VRAM read buffer
+        this.writeToogle = 0;        //  1-bit 'Loopy W' register
+        this.fineXScroll = 0;        //  3-bit 'Loopy X' register
+        this.patternBuffer0 = 0;     // 16-bit pattern (bit 0) shift buffer
+        this.patternBuffer1 = 0;     // 16-bit pattern (bit 1) shift buffer
+        this.paletteBuffer0 = 0;     //  8-bit palette (bit 0) shift buffer
+        this.paletteBuffer1 = 0;     //  8-bit palette (bit 1) shift buffer
+        this.paletteLatch0 = 0;      //  1-bit palette (bit 0) latch register
+        this.paletteLatch1 = 0;      //  1-bit palette (bit 1) latch register
+        this.patternBufferNext0 = 0; // Next value for pattern (bit 0) shift buffer
+        this.patternBufferNext1 = 0; // Next value for pattern (bit 1) shift buffer
+        this.paletteLatchNext0 = 0;  // Next value for palette (bit 0) latch register
+        this.paletteLatchNext1 = 0;  // Next value for palette (bit 1) latch register
     }
 
     resetVariables() {
-        this.scanline = 261;
-        this.cycle = 0;
-        this.cycleFlags = 0;
-        this.suppressVBlank = false;
-        this.supressNMI = false;
-        this.nmiDelay = 0;
-        this.oddFrame = false;
-        this.spriteCount = 0;
-        this.spriteNumber = 0;
-        this.spriteCache = (function() {
-            var ap, results;
-            results = [];
-            for (ap = 0; ap <= 261; ap++) {
-                results.push(null);
-            }
-            return results;
-        })();
-        return this.spritePixelCache = newByteArray(261);
+        this.scanline = 261;         // Current scanline - from total 262 scanlines (0..261)
+        this.cycle = 0;              // Current cycle - from total 341 cycles per scanline (0..340)
+        this.cycleFlags = 0;         // Flags for current cycle/scanline
+        this.suppressVBlank = false; // Whether to suppress VBlank flag setting
+        this.supressNMI = false;     // Whether to supress NMI generation
+        this.nmiDelay = 0;           // Number of cycles after which NMI is generated
+        this.oddFrame = false;       // Whether odd frame is being rendered
+        this.spriteCount = 0;        // Total number of sprites on current scanline
+        this.spriteNumber = 0;       // Number of currently fetched sprite
+        this.spriteCache = new Array(261);         // Preprocesed sprite data for current scanline (cycle -> sprite rendered on that cycle)
+        this.spritePixelCache = newByteArray(261); // Prerendered sprite pixels for current scanline (cycle -> sprite pixel rendered on that cycle)
     }
 
+    //=========================================================
+    // Configuration
+    //=========================================================
+
     setNTSCMode(ntscMode) {
-        return this.ntscMode = ntscMode;
+        this.ntscMode = ntscMode;
     }
 
     setRGBPalette(rgbPalette) {
         this.createRGBAPalettes(rgbPalette);
-        return this.updateRGBAPalette();
+        this.updateRGBAPalette();
     }
 
+    //=========================================================
+    // Palette generation
+    //=========================================================
+
     createRGBAPalettes(rgbPalette) {
-        var bRatio, colorEmphasis, gRatio, rRatio;
-        return this.rgbaPalettes = (function() {
-            var ap, results;
-            results = [];
-            for (colorEmphasis = ap = 0; ap <= 7; colorEmphasis = ++ap) {
-                rRatio = colorEmphasis & 6 ? 0.75 : 1.0;
-                gRatio = colorEmphasis & 5 ? 0.75 : 1.0;
-                bRatio = colorEmphasis & 3 ? 0.75 : 1.0;
-                results.push(this.createRGBAPalette(rgbPalette, rRatio, gRatio, bRatio));
-            }
-            return results;
-        }).call(this);
+        this.rgbaPalettes = new Array(8); // Palettes for each combination of colors emphasis bits: BGR
+        for (var colorEmphasis = 0; colorEmphasis < this.rgbaPalettes.length; colorEmphasis++) {
+            var rRatio = colorEmphasis & 6 ? 0.75 : 1.0; // Dim red when green or blue is emphasized
+            var gRatio = colorEmphasis & 5 ? 0.75 : 1.0; // Dim green when red or blue is emphasized
+            var bRatio = colorEmphasis & 3 ? 0.75 : 1.0; // Dim blue when red or green is emphasized
+            this.rgbaPalettes[colorEmphasis] = this.createRGBAPalette(rgbPalette, rRatio, gRatio, bRatio);
+        }
     }
 
     createRGBAPalette(rgbPalette, rRatio, gRatio, bRatio) {
-        var ap, b, g, len, r, rgb, rgbaPalette;
-        rgbaPalette = new Array(rgbPalette.length);
-        for (i = ap = 0, len = rgbPalette.length; ap < len; i = ++ap) {
-            rgb = rgbPalette[i];
-            r = Math.floor(rRatio * ((rgb >>> 16) & 0xFF));
-            g = Math.floor(gRatio * ((rgb >>> 8) & 0xFF));
-            b = Math.floor(bRatio * (rgb & 0xFF));
+        var rgbaPalette = newUintArray(rgbPalette.length);
+        for (var i = 0; i < rgbPalette.length; i++) {
+            var rgb = rgbPalette[i];
+            var r = Math.floor(rRatio * ((rgb >>> 16) & 0xFF));
+            var g = Math.floor(gRatio * ((rgb >>>  8) & 0xFF));
+            var b = Math.floor(bRatio * ( rgb         & 0xFF));
             rgbaPalette[i] = packColor(r, g, b);
         }
         return rgbaPalette;
     }
 
     updateRGBAPalette() {
-        return this.rgbaPalette = this.rgbaPalettes[this.colorEmphasis];
+        this.rgbaPalette = this.rgbaPalettes[this.colorEmphasis];
     }
+
+    //=========================================================
+    // Control register ($2000 - PPUCTRL)
+    //=========================================================
 
     writeControl(value) {
         var nmiEnabledOld;
@@ -867,6 +866,4 @@ export class PPU {
 
 }
 
-
-
-PPU["dependencies"] = [ "ppuMemory", "cpu" ];
+PPU["dependencies"] = [ "cpu", "ppuMemory" ];
