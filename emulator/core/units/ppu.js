@@ -250,107 +250,116 @@ export class PPU {
     //=========================================================
 
     writeControl(value) {
-        var nmiEnabledOld;
-        nmiEnabledOld = this.nmiEnabled;
+        var nmiEnabledOld = this.nmiEnabled;
         this.setControl(value);
-        this.tempAddress = (this.tempAddress & 0xF3FF) | (value & 0x03) << 10;
+        this.tempAddress = (this.tempAddress & 0xF3FF) | (value & 0x03) << 10; // T[11,10] = C[1,0]
         if (this.vblankFlag && !nmiEnabledOld && this.nmiEnabled && !(this.cycleFlags & F_VB_END)) {
-            this.nmiDelay = 15; // Immediate occurence should be after next instruction.
+            this.nmiDelay = 15; // Generate NMI after next instruction when its enabled (from 0 to 1) during VBlank
         }
-        return value;
     }
 
     setControl(value) {
-        this.bigAddressIncrement = (value >>> 2) & 1;
-        this.spPatternTableAddress = (value << 9) & 0x1000;
-        this.bgPatternTableAddress = (value << 8) & 0x1000;
-        this.bigSprites = (value >>> 5) & 1;
-        return this.nmiEnabled = value >>> 7;
+        this.bigAddressIncrement   = (value >>> 2) & 1;      // C[2] VRAM address increment per CPU read/write of PPUDATA (1 / 32)
+        this.spPatternTableAddress = (value  << 9) & 0x1000; // C[3] Sprite pattern table address for 8x8 sprites ($0000 / $1000)
+        this.bgPatternTableAddress = (value  << 8) & 0x1000; // C[4] Background pattern table address-($0000 / $1000)
+        this.bigSprites            = (value >>> 5) & 1;      // C[5] Sprite size (8x8 / 8x16)
+        this.nmiEnabled            =  value >>> 7;           // C[7] Whether NMI is generated at the start of the VBlank
     }
+
+    //=========================================================
+    // Mask register ($2001 - PPUMASK)
+    //=========================================================
 
     writeMask(value) {
         this.setMask(value);
         this.updateRGBAPalette();
-        return value;
     }
 
     setMask(value) {
-        this.monochromeMode = value & 1;
-        this.backgroundClipping = !((value >>> 1) & 1);
-        this.spriteClipping = !((value >>> 2) & 1);
-        this.backgroundVisible = (value >>> 3) & 1;
-        this.spritesVisible = (value >>> 4) & 1;
-        return this.colorEmphasis = (value >>> 5) & 7;
+        this.monochromeMode     =    value        & 1;  //  M[0]   Color / monochrome mode switch
+        this.backgroundClipping = !((value >>> 1) & 1); // !M[1]   Whether to show background in leftmost 8 pixels of screen
+        this.spriteClipping     = !((value >>> 2) & 1); // !M[2]   Whether to show sprites in leftmost 8 pixels of screen
+        this.backgroundVisible  =   (value >>> 3) & 1;  //  M[3]   Whether background is visible
+        this.spritesVisible     =   (value >>> 4) & 1;  //  M[4]   Whether sprites are visible
+        this.colorEmphasis      =   (value >>> 5) & 7;  //  M[5-7] Color palette BGR emphasis bits
     }
 
+    //=========================================================
+    // Status register ($2002 - PPUSTATUS)
+    //=========================================================
+
     readStatus() {
-        var value;
-        value = this.getStatus();
-        this.vblankFlag = 0;
-        this.writeToogle = 0;
+        var value = this.getStatus();
+        this.vblankFlag = 0;  // Cleared by reading status
+        this.writeToogle = 0; // Cleared by reading status
         if (this.cycleFlags & F_VB_START) {
-            this.suppressVBlank = true;
+            this.suppressVBlank = true; // Reading just before VBlank disables VBlank flag setting
         }
         if (this.cycleFlags & F_VB_START2) {
-            this.supressNMI = true;
+            this.supressNMI = true;     // Reading just before VBlank and 2 cycles after disables NMI generation
         }
         return value;
     }
 
     getStatus() {
-        return this.spriteOverflow << 5 | this.spriteZeroHit << 6 | this.vblankFlag << 7;
+        return this.spriteOverflow << 5  // S[5]
+             | this.spriteZeroHit  << 6  // S[6]
+             | this.vblankFlag     << 7; // S[7]
     }
 
     setStatus(value) {
-        this.spriteOverflow = (value >>> 5) & 1;
-        this.spriteZeroHit = (value >>> 6) & 1;
-        return this.vblankFlag = value >>> 7;
+        this.spriteOverflow = (value >>> 5) & 1; // S[5]
+        this.spriteZeroHit  = (value >>> 6) & 1; // S[6]
+        this.vblankFlag     =  value >>> 7;      // S[7]
     }
 
+    //=========================================================
+    // OAM access ($2003 - OAMADDR / $2004 - OAMDATA)
+    //=========================================================
+
     writeOAMAddress(address) {
-        return this.oamAddress = address;
+        this.oamAddress = address;
     }
 
     readOAMData() {
-        var value;
-        value = this.primaryOAM[this.oamAddress];
+        var value = this.primaryOAM[this.oamAddress]; // Read does not increment the address
         if ((this.oamAddress & 0x03) === 2) {
-            value &= 0xE3;
+            value &= 0xE3; // Clear bits 2-4 when reading byte 2 of a sprite (these bits are not stored in OAM)
         }
         return value;
     }
 
     writeOAMData(value) {
         if (!this.isRenderingActive()) {
-            this.primaryOAM[this.oamAddress] = value;
+            this.primaryOAM[this.oamAddress] = value;   // Disabled during rendering
         }
-        this.oamAddress = (this.oamAddress + 1) & 0xFF;
-        return value;
+        this.oamAddress = (this.oamAddress + 1) & 0xFF; // Write always increments the address
     }
 
+    //=========================================================
+    // VRAM access ($2006 - PPUADDR / $2007 - PPUDATA)
+    //=========================================================
+
     writeAddress(address) {
-        var addressHigh, addressLow;
         this.writeToogle = !this.writeToogle;
         if (this.writeToogle) {
-            addressHigh = (address & 0x3F) << 8;
-            this.tempAddress = (this.tempAddress & 0x00FF) | addressHigh;
+            var addressHigh = (address & 0x3F) << 8;
+            this.tempAddress = (this.tempAddress & 0x00FF) | addressHigh; // High bits [13-8] (bit 14 is cleared)
         } else {
-            addressLow = address;
-            this.tempAddress = (this.tempAddress & 0xFF00) | addressLow;
+            var addressLow = address;
+            this.tempAddress = (this.tempAddress & 0xFF00) | addressLow;  // Low bits  [7-0]
             this.vramAddress = this.tempAddress;
         }
-        return address;
     }
 
     readData() {
-        var value;
-        if (this.isPaletteAddress(this.vramAddress)) {
-            value = this.ppuMemory.read(this.vramAddress);
-            this.vramReadBuffer = this.ppuMemory.read(this.vramAddress & 0x2FFF);
+        if ((this.vramAddress & 0x3F00) === 0x3F00) {
+            var value = this.ppuMemory.read(this.vramAddress); // Immediate read inside the palette memory area
+            this.vramReadBuffer = this.ppuMemory.read(this.vramAddress & 0x2FFF); //  Buffer musn't be reloaded from palette address, but from underlying nametable address
             this.incrementAddress();
             return value;
         } else {
-            value = this.vramReadBuffer;
+            var value = this.vramReadBuffer; // Delayed read outside the palette memory area (values are passed through read buffer first)
             this.vramReadBuffer = this.ppuMemory.read(this.vramAddress);
             this.incrementAddress();
             return value;
@@ -359,41 +368,39 @@ export class PPU {
 
     writeData(value) {
         if (!this.isRenderingActive()) {
-            this.ppuMemory.write(this.vramAddress, value);
+            this.ppuMemory.write(this.vramAddress, value); // Disabled during rendering
         }
         this.incrementAddress();
-        return value;
     }
 
     incrementAddress() {
-        return this.vramAddress = (this.vramAddress + this.getAddressIncrement()) & 0xFFFF;
+        var increment = this.bigAddressIncrement ? 0x20 : 0x01; // Vertical/horizontal move in pattern table
+        this.vramAddress = (this.vramAddress + increment) & 0xFFFF;
     }
 
-    getAddressIncrement() {
-        if (this.bigAddressIncrement) {
-            return 0x20;
-        } else {
-            return 0x01;
-        }
-    }
+    //=========================================================
+    // Scrolling and scrolling register ($2005 - PPUSCROLL)
+    //=========================================================
 
-    isPaletteAddress(address) {
-        return (address & 0x3F00) === 0x3F00;
-    }
+    // The position of currently rendered pattern and its pixel is stored in
+    // VRAM address register with following structure: 0yyy.NNYY.YYYX.XXXX.
+    //     yyy = fine Y scroll (y pixel position within pattern)
+    //      NN = index of active name table (where pattern numbers are stored)
+    //   YYYYY = coarse Y scroll (y position of pattern number in name table)
+    //   XXXXX = coarse X scroll (x position of pattern number in name table)
+    // Fine X scroll (x pixel position within pattern) has its own register.
 
     writeScroll(value) {
-        var coarseXScroll, coarseYScroll, fineYScroll;
         this.writeToogle = !this.writeToogle;
-        if (this.writeToogle) {
+        if (this.writeToogle) { // 1st write (X scroll)
             this.fineXScroll = value & 0x07;
-            coarseXScroll = value >>> 3;
+            var coarseXScroll = value >>> 3;
             this.tempAddress = (this.tempAddress & 0xFFE0) | coarseXScroll;
-        } else {
-            fineYScroll = (value & 0x07) << 12;
-            coarseYScroll = (value & 0xF8) << 2;
+        } else {                // 2nd write (Y scroll)
+            var fineYScroll = (value & 0x07) << 12;
+            var coarseYScroll = (value & 0xF8) << 2;
             this.tempAddress = (this.tempAddress & 0x0C1F) | coarseYScroll | fineYScroll;
         }
-        return value;
     }
 
     updateScrolling() {
@@ -407,51 +414,55 @@ export class PPU {
             this.copyHorizontalScrollBits();
         }
         if (this.cycleFlags & F_COPY_VS) {
-            return this.copyVerticalScrollBits();
+            this.copyVerticalScrollBits();
         }
     }
 
     copyHorizontalScrollBits() {
-        return this.vramAddress = (this.vramAddress & 0x7BE0) | (this.tempAddress & 0x041F);
+        this.vramAddress = (this.vramAddress & 0x7BE0) | (this.tempAddress & 0x041F); // V[10,4-0] = T[10,4-0]
     }
 
     copyVerticalScrollBits() {
-        return this.vramAddress = (this.vramAddress & 0x041F) | (this.tempAddress & 0x7BE0);
+        this.vramAddress = (this.vramAddress & 0x041F) | (this.tempAddress & 0x7BE0); // V[14-11,9-5] = T[14-11,9-5]
     }
 
     incrementCoarseXScroll() {
-        if ((this.vramAddress & 0x001F) === 0x001F) {
-            this.vramAddress &= 0xFFE0;
-            return this.vramAddress ^= 0x0400;
-        } else {
-            return this.vramAddress += 0x0001;
-        }
+        if ((this.vramAddress & 0x001F) === 0x001F) { // if (coarseScrollX === 31) {
+            this.vramAddress &= 0xFFE0;               //     coarseScrollX = 0;
+            this.vramAddress ^= 0x0400;               //     nameTableBit0 = !nameTableBit0;
+        } else {                                      // } else {
+            this.vramAddress += 0x0001;               //     coarseScrollX++;
+        }                                             // }
     }
 
     incrementFineYScroll() {
-        if ((this.vramAddress & 0x7000) === 0x7000) {
-            this.vramAddress &= 0x0FFF;
-            return this.incrementCoarseYScroll();
-        } else {
-            return this.vramAddress += 0x1000;
-        }
+        if ((this.vramAddress & 0x7000) === 0x7000) { // if (fineScrollY === 7) {
+            this.vramAddress &= 0x0FFF;               //     fineScrollY = 0;
+            this.incrementCoarseYScroll();            //     incrementCoarseYScroll();
+        } else {                                      // } else {
+            this.vramAddress += 0x1000;               //     fineScrollY++;
+        }                                             // }
     }
 
     incrementCoarseYScroll() {
-        if ((this.vramAddress & 0x03E0) === 0x03E0) {
-            return this.vramAddress &= 0xFC1F;
-        } else if ((this.vramAddress & 0x03E0) === 0x03A0) {
-            this.vramAddress &= 0xFC1F;
-            return this.vramAddress ^= 0x0800;
-        } else {
-            return this.vramAddress += 0x0020;
-        }
+        if ((this.vramAddress & 0x03E0) === 0x03E0) {        // if (coarseScrollY === 31) {
+            this.vramAddress &= 0xFC1F;                      //     coarseScrollY = 0;
+        } else if ((this.vramAddress & 0x03E0) === 0x03A0) { // } else if (coarseScrollY === 29) {
+            this.vramAddress &= 0xFC1F;                      //     coarseScrollY = 0;
+            this.vramAddress ^= 0x0800;                      //     nameTableBit1 = !nameTableBit1;
+        } else {                                             // } else {
+            this.vramAddress += 0x0020;                      //     coarseScrollY++;
+        }                                                    // }
     }
+
+    //=========================================================
+    // Frame buffer access
+    //=========================================================
 
     startFrame(buffer) {
         this.framePosition = 0;
         this.frameBuffer = buffer;
-        return this.frameAvailable = false;
+        this.frameAvailable = false;
     }
 
     isFrameAvailable() {
@@ -459,25 +470,28 @@ export class PPU {
     }
 
     isBrightFramePixel(x, y) {
-        var b, g, r, ref;
         if (y < this.scanline - 5 || y >= this.scanline) {
-            return false;
+            return false; // Screen luminance decreases in time
         }
-        ref = unpackColor(this.frameBuffer[y * VIDEO_WIDTH + x]), r = ref[0], g = ref[1], b = ref[2];
+        var [ r, g, b ] = unpackColor(this.frameBuffer[y * VIDEO_WIDTH + x]);
         return r > 0x12 || g > 0x12 || b > 0x12;
     }
 
     setFramePixel(color) {
-        return this.frameBuffer[this.framePosition++] = this.rgbaPalette[color & 0x3F]; // Only 64 colors
+        this.frameBuffer[this.framePosition++] = this.rgbaPalette[color & 0x3F]; // Only 64 colors
     }
 
     setFramePixelOnPosition(x, y, color) {
-        return this.frameBuffer[y * VIDEO_WIDTH + x] = this.rgbaPalette[color & 0x3F];
+        this.frameBuffer[y * VIDEO_WIDTH + x] = this.rgbaPalette[color & 0x3F]; // Only 64 colors
     }
 
     clearFramePixel() {
-        return this.frameBuffer[this.framePosition++] = BLACK_COLOR;
+        this.frameBuffer[this.framePosition++] = BLACK_COLOR;
     }
+
+    //=========================================================
+    // VBlank detection / NMI generation
+    //=========================================================
 
     updateVBlank() {
         if (this.nmiDelay) {
