@@ -659,58 +659,92 @@ export class PPU {
     // Background rendering
     //=========================================================
 
+    // Colors are saved at addresses with structure 0111.1111.000S.PPCC.
+    //    S = 0 for background, 1 for sprites
+    //   PP = palette number
+    //   CC = color number
+    //
+    // The position of currently rendered pattern and its pixel is stored in
+    // VRAM address register with following structure: 0yyy.NNYY.YYYX.XXXX.
+    //     yyy = fine Y scroll (y pixel position within pattern)
+    //      NN = index of active name table (where pattern numbers are stored)
+    //   YYYYY = coarse Y scroll (y position of pattern number in name table)
+    //   XXXXX = coarse X scroll (x position of pattern number in name table)
+    // Fine X scroll (x pixel position within pattern) has its own register.
+    // Address of a pattern number can be constructed as 0010.NNYY.YYYX.XXXX.
+    //
+    // Pattern number is used as an offset into one of pattern tables at
+    // 0x0000 and 0x1000, where patterns are stored. We can construct
+    // this address as 00T.0000.PPPP.0000
+    //      T = pattern table selection bit
+    //   PPPP = pattern number
+    //
+    // Each pattern is 16B long and consits from two 8x8 matricies.
+    // Each 8x8 matrix contains 1 bit of CC (color number) for pattern pixels.
+    //
+    // Palette numbers PP are defined for 2x2 tile areas. These numbers
+    // are store as attributes in attribute tables. Each attribute (1B) contains
+    // total 4 palette numbers for bigger 4x4 tile area as value 3322.1100
+    //   00 = palette number for top left 2x2 area
+    //   11 = palette number for top right 2x2 area
+    //   22 = palette number for bottom left 2x2 area
+    //   33 = palette number for bottom right 2x2 area
+    // Address of an attribute can be constructed as 0010.NN11.11YY.YXXX
+    //   YYY = 3 upper bits of YYYYY
+    //   XXX = 3 upper bits of XXXXX
+    // 2x2 area number can be constructed as YX
+    //   Y = bit 1 of YYYYY
+    //   X = bit 1 of XXXXX
+
     fetchNametable() {
-        var fineYScroll, patternAddress, patternNumer;
         this.addressBus = 0x2000 | this.vramAddress & 0x0FFF;
-        patternNumer = this.ppuMemory.readNameAttr(this.addressBus);
-        patternAddress = this.bgPatternTableAddress + (patternNumer << 4);
-        fineYScroll = (this.vramAddress >>> 12) & 0x07;
-        return this.patternRowAddress = patternAddress + fineYScroll;
+        var patternNumer = this.ppuMemory.readNameAttr(this.addressBus); // Nametable byte fetch
+        var patternAddress = this.bgPatternTableAddress + (patternNumer << 4);
+        var fineYScroll = (this.vramAddress >>> 12) & 0x07;
+        this.patternRowAddress = patternAddress + fineYScroll;
     }
 
     fetchAttribute() {
-        var areaNumber, attribute, attributeNumber, attributeTableAddress, paletteNumber;
-        attributeTableAddress = 0x23C0 | this.vramAddress & 0x0C00;
-        attributeNumber = (this.vramAddress >>> 4) & 0x38 | (this.vramAddress >>> 2) & 0x07;
+        var attributeTableAddress = 0x23C0 | this.vramAddress & 0x0C00;
+        var attributeNumber = (this.vramAddress >>> 4) & 0x38 | (this.vramAddress >>> 2) & 0x07;
         this.addressBus = attributeTableAddress + attributeNumber;
-        attribute = this.ppuMemory.readNameAttr(this.addressBus);
-        areaNumber = (this.vramAddress >>> 4) & 0x04 | this.vramAddress & 0x02;
-        paletteNumber = (attribute >>> areaNumber) & 0x03;
+        var attribute = this.ppuMemory.readNameAttr(this.addressBus); // Attribute byte fetch
+        var areaNumber = (this.vramAddress >>> 4) & 0x04 | this.vramAddress & 0x02;
+        var paletteNumber = (attribute >>> areaNumber) & 0x03;
         this.paletteLatchNext0 = paletteNumber & 1;
-        return this.paletteLatchNext1 = (paletteNumber >>> 1) & 1;
+        this.paletteLatchNext1 = (paletteNumber >>> 1) & 1;
     }
 
     fetchBackgroundLow() {
         this.addressBus = this.patternRowAddress;
-        return this.patternBufferNext0 = this.ppuMemory.readPattern(this.addressBus);
+        this.patternBufferNext0 = this.ppuMemory.readPattern(this.addressBus); // Low background byte fetch
     }
 
     fetchBackgroundHigh() {
         this.addressBus = this.patternRowAddress + 8;
-        return this.patternBufferNext1 = this.ppuMemory.readPattern(this.addressBus);
+        this.patternBufferNext1 = this.ppuMemory.readPattern(this.addressBus); // High background byte fetch
     }
 
     copyBackground() {
         this.patternBuffer0 |= this.patternBufferNext0;
         this.patternBuffer1 |= this.patternBufferNext1;
         this.paletteLatch0 = this.paletteLatchNext0;
-        return this.paletteLatch1 = this.paletteLatchNext1;
+        this.paletteLatch1 = this.paletteLatchNext1;
     }
 
     shiftBackground() {
-        this.patternBuffer0 = this.patternBuffer0 << 1;
-        this.patternBuffer1 = this.patternBuffer1 << 1;
+        this.patternBuffer0 =  this.patternBuffer0 << 1;
+        this.patternBuffer1 =  this.patternBuffer1 << 1;
         this.paletteBuffer0 = (this.paletteBuffer0 << 1) | this.paletteLatch0;
-        return this.paletteBuffer1 = (this.paletteBuffer1 << 1) | this.paletteLatch1;
+        this.paletteBuffer1 = (this.paletteBuffer1 << 1) | this.paletteLatch1;
     }
 
     renderBackgroundPixel() {
-        var colorBit0, colorBit1, paletteBit0, paletteBit1;
         if (this.isBackgroundPixelVisible()) {
-            colorBit0 = ((this.patternBuffer0 << this.fineXScroll) >> 15) & 0x1;
-            colorBit1 = ((this.patternBuffer1 << this.fineXScroll) >> 14) & 0x2;
-            paletteBit0 = ((this.paletteBuffer0 << this.fineXScroll) >> 5) & 0x4;
-            paletteBit1 = ((this.paletteBuffer1 << this.fineXScroll) >> 4) & 0x8;
+            var colorBit0   = ((this.patternBuffer0 << this.fineXScroll) >> 15) & 0x1;
+            var colorBit1   = ((this.patternBuffer1 << this.fineXScroll) >> 14) & 0x2;
+            var paletteBit0 = ((this.paletteBuffer0 << this.fineXScroll) >>  5) & 0x4;
+            var paletteBit1 = ((this.paletteBuffer1 << this.fineXScroll) >>  4) & 0x8;
             return paletteBit1 | paletteBit0 | colorBit1 | colorBit0;
         } else {
             return 0;
@@ -720,6 +754,10 @@ export class PPU {
     isBackgroundPixelVisible() {
         return this.backgroundVisible && !(this.backgroundClipping && (this.csFlags & F_CLIP_LEFT));
     }
+    
+    //=========================================================
+    // Sprite rendering
+    //=========================================================
 
     evaluateSprites() {
         var address, ap, attributes, bottomY, height, len, patternAddress, patternNumber, patternTableAddress, ref, rowNumber, sprite, spriteY, topY;
