@@ -7,8 +7,8 @@ import { readableSize, readableBytes } from "../utils/format";
 import { logger }                      from "../utils/logger";
 
 var loaders = [
-    new INESLoader, // Must be processed before iNES
-    new NES2Loader
+    new NES2Loader, // Must be processed before iNES
+    new INESLoader
 ]
 
 //=========================================================
