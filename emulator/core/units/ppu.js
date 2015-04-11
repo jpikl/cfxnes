@@ -526,7 +526,7 @@ export class PPU {
     }
     
     //=========================================================
-    // Scanline / cycle counters
+    // Scanline / cycle update
     //=========================================================
 
     incrementCycle() {
@@ -557,49 +557,57 @@ export class PPU {
     }
     
     //=========================================================
-    // Rendering
+    // Tick
     //=========================================================
 
     tick() {
         if (this.isRenderingEnabled()) {
             this.fetchData();
-            if (this.csFlags & F_EVAL_SP) {
-                this.evaluateSprites();
-            }
-            if (this.csFlags & F_COPY_BG) {
-                this.copyBackground();
-            }
-            if (this.csFlags & F_RENDER) {
-                this.updateFramePixel();
-            }
-            if (this.csFlags & F_SHIFT_BG) {
-                this.shiftBackground();
-            }
+            this.doRendering();
             this.updateScrolling();
         } else {
-            if (this.csFlags & F_RENDER) {
-                this.clearFramePixel();
-            }
+            this.skipRendering();
             this.addressBus = this.vramAddress;
         }
         this.updateVBlank();
         this.incrementCycle();
-        return this.mapper.tick();
+        this.mapper.tick();
     }
 
     fetchData() {
         if (this.csFlags & F_FETCH_NT) {
-            return this.fetchNametable();
+            this.fetchNametable();
         } else if (this.csFlags & F_FETCH_AT) {
-            return this.fetchAttribute();
+            this.fetchAttribute();
         } else if (this.csFlags & F_FETCH_BGL) {
-            return this.fetchBackgroundLow();
+            this.fetchBackgroundLow();
         } else if (this.csFlags & F_FETCH_BGH) {
-            return this.fetchBackgroundHigh();
+            this.fetchBackgroundHigh();
         } else if (this.csFlags & F_FETCH_SPL) {
-            return this.fetchSpriteLow();
+            this.fetchSpriteLow();
         } else if (this.csFlags & F_FETCH_SPH) {
-            return this.fetchSpriteHigh();
+            this.fetchSpriteHigh();
+        }
+    }
+    
+    doRendering() {
+        if (this.csFlags & F_EVAL_SP) {
+            this.evaluateSprites();
+        }
+        if (this.csFlags & F_COPY_BG) {
+            this.copyBackground();
+        }
+        if (this.csFlags & F_RENDER) {
+            this.updateFramePixel();
+        }
+        if (this.csFlags & F_SHIFT_BG) {
+            this.shiftBackground();
+        }
+    }
+
+    skipRendering() {
+        if (this.csFlags & F_RENDER) {
+            this.clearFramePixel();
         }
     }
 
@@ -610,40 +618,46 @@ export class PPU {
     isRenderingEnabled() {
         return this.spritesVisible || this.backgroundVisible;
     }
+    
+    //=========================================================
+    // Rendering
+    //=========================================================
 
     updateFramePixel() {
-        var address, color;
         if (this.ntscMode && this.csFlags & F_CLIP_NTSC) {
-            return this.clearFramePixel();
+            this.clearFramePixel();
         } else {
-            address = this.renderFramePixel();
-            color = this.ppuMemory.readPalette(address);
-            return this.setFramePixel(color);
+            var address = this.renderFramePixel();
+            var color = this.ppuMemory.readPalette(address);
+            this.setFramePixel(color);
         }
     }
 
     renderFramePixel() {
-        var backgroundColor, sprite, spriteColor;
-        backgroundColor = this.renderBackgroundPixel();
-        spriteColor = this.renderSpritePixel();
-        if (backgroundColor & 0x03) {
-            if (spriteColor & 0x03) {
-                sprite = this.getRenderedSprite();
-                this.spriteZeroHit || (this.spriteZeroHit = +sprite.zeroSprite);
+        var backgroundColorAddress = this.renderBackgroundPixel();
+        var spriteColorAddress = this.renderSpritePixel();
+        if (backgroundColorAddress & 0x03) {
+            if (spriteColorAddress & 0x03) {
+                var sprite = this.getRenderedSprite();
+                this.spriteZeroHit |= sprite.zeroSprite;
                 if (sprite.inFront) {
-                    return spriteColor;
+                    return spriteColorAddress;     // The sprite has priority over the background
                 } else {
-                    return backgroundColor;
+                    return backgroundColorAddress; // The background has priority over the sprite
                 }
             } else {
-                return backgroundColor;
+                return backgroundColorAddress;     // Only the background is visible
             }
-        } else if (spriteColor & 0x03) {
-            return spriteColor;
+        } else if (spriteColorAddress & 0x03) {
+            return spriteColorAddress;             // Only the sprite is visible
         } else {
-            return 0;
+            return 0;                              // Use backdrop color
         }
     }
+    
+    //=========================================================
+    // Background rendering
+    //=========================================================
 
     fetchNametable() {
         var fineYScroll, patternAddress, patternNumer;
