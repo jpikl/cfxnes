@@ -189,15 +189,15 @@ export class PPU {
     }
 
     resetVariables() {
-        this.scanline = 261;         // Current scanline - from total 262 scanlines (0..261)
-        this.cycle = 0;              // Current cycle - from total 341 cycles per scanline (0..340)
-        this.cycleFlags = 0;         // Flags for current cycle/scanline
-        this.suppressVBlank = false; // Whether to suppress VBlank flag setting
-        this.supressNMI = false;     // Whether to supress NMI generation
-        this.nmiDelay = 0;           // Number of cycles after which NMI is generated
-        this.oddFrame = false;       // Whether odd frame is being rendered
-        this.spriteCount = 0;        // Total number of sprites on current scanline
-        this.spriteNumber = 0;       // Number of currently fetched sprite
+        this.scanline = 261;           // Current scanline - from total 262 scanlines (0..261)
+        this.cycle = 0;                // Current cycle - from total 341 cycles per scanline (0..340)
+        this.cycleFlags = 0;           // Flags for current cycle/scanline
+        this.vblankSuppressed = false; // Whether to suppress VBlank flag setting
+        this.nmiSuppressed = false;    // Whether to supress NMI generation
+        this.nmiDelay = 0;             // Number of cycles after which NMI is generated
+        this.oddFrame = false;         // Whether odd frame is being rendered
+        this.spriteCount = 0;          // Total number of sprites on current scanline
+        this.spriteNumber = 0;         // Number of currently fetched sprite
         this.spriteCache = new Array(261);         // Preprocesed sprite data for current scanline (cycle -> sprite rendered on that cycle)
         this.spritePixelCache = newByteArray(261); // Prerendered sprite pixels for current scanline (cycle -> sprite pixel rendered on that cycle)
     }
@@ -293,10 +293,10 @@ export class PPU {
         this.vblankFlag = 0;  // Cleared by reading status
         this.writeToogle = 0; // Cleared by reading status
         if (this.cycleFlags & F_VB_START) {
-            this.suppressVBlank = true; // Reading just before VBlank disables VBlank flag setting
+            this.vblankSuppressed = true; // Reading just before VBlank disables VBlank flag setting
         }
         if (this.cycleFlags & F_VB_START2) {
-            this.supressNMI = true;     // Reading just before VBlank and 2 cycles after disables NMI generation
+            this.nmiSuppressed = true;    // Reading just before VBlank and 2 cycles after disables NMI generation
         }
         return value;
     }
@@ -496,9 +496,9 @@ export class PPU {
     updateVBlank() {
         if (this.nmiDelay) {
             if (this.nmiDelay > 12 && !this.nmiEnabled) {
-                this.nmiDelay = 0; // NMI disabled near the time vlbank flag is set
-            } else if (!--this.nmiDelay && !this.supressNMI) {
-                this.cpu.activateInterrupt(Interrupt.NMI);
+                this.nmiDelay = 0; // NMI disabled near the time VBlank flag is set
+            } else if (!--this.nmiDelay && !this.nmiSuppressed) {
+                this.cpu.activateInterrupt(Interrupt.NMI); // Delay decremented to zero
             }
         }
         if (this.cycleFlags & F_VB_START) {
@@ -506,25 +506,28 @@ export class PPU {
         } else if (this.cycleFlags & F_VB_END) {
             this.leaveVBlank();
         }
-
     }
 
     enterVBlank() {
         this.vblankActive = true;
-        if (!this.suppressVBlank) {
+        if (!this.vblankSuppressed) {
             this.vblankFlag = 1;
         }
         this.nmiDelay = 14;
-        return this.frameAvailable = true;
+        this.frameAvailable = true;
     }
 
     leaveVBlank() {
         this.vblankActive = false;
         this.vblankFlag = 0;
-        this.suppressVBlank = false;
-        this.supressNMI = false;
-        return this.spriteZeroHit = 0;
+        this.vblankSuppressed = false;
+        this.nmiSuppressed = false;
+        this.spriteZeroHit = 0;
     }
+    
+    //=========================================================
+    // Scanline / cycle counters
+    //=========================================================
 
     incrementCycle() {
         if ((this.cycleFlags & F_SKIP) && this.oddFrame && this.isRenderingEnabled()) {
@@ -623,7 +626,7 @@ export class PPU {
         if (backgroundColor & 0x03) {
             if (spriteColor & 0x03) {
                 sprite = this.getRenderedSprite();
-                this.spriteZeroHit || (this.spriteZeroHit = sprite.zeroSprite);
+                this.spriteZeroHit || (this.spriteZeroHit = +sprite.zeroSprite);
                 if (sprite.inFront) {
                     return spriteColor;
                 } else {
