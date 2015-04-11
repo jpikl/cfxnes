@@ -759,102 +759,116 @@ export class PPU {
     // Sprite rendering
     //=========================================================
 
+    // Before each scanline, the first 8 visible sprites on that scanline are fetched into
+    // secondary OAM. Each sprite has 4B of data.
+    //
+    // Byte 0 - y screen coordinate (decremented by 1, because rendering of fetched sprites is delayed)
+    // Byte 1 - pattern number PPPP.PPPT (if 8x16 sprites are enabled, bit T selects the pattern table,
+    //          otherwise it is seleted by bit 4 of control register)
+    // Byte 2 - attributes VHP0.00CC
+    //   V = vertical mirroring enabled
+    //   H = horizontal mirroring enabled
+    //   P = sprite priority (0 - in front of background, 1 - behind background)
+    //   C = color palette number
+    // Byte 3 = x screen coordinate
+
     evaluateSprites() {
-        var address, ap, attributes, bottomY, height, len, patternAddress, patternNumber, patternTableAddress, ref, rowNumber, sprite, spriteY, topY;
         this.spriteNumber = 0;
         this.spriteCount = 0;
         this.spriteOverflow = 0;
-        height = this.bigSprites ? 16 : 8;
-        bottomY = this.scanline;
-        topY = Math.max(0, bottomY - height);
-        ref = this.primaryOAM;
-        for (address = ap = 0, len = ref.length; ap < len; address = ap += 4) {
-            spriteY = ref[address];
-            if (!((topY < spriteY && spriteY <= bottomY))) {
+        
+        var height = this.bigSprites ? 16 : 8;
+        var bottomY = this.scanline;
+        var topY = Math.max(0, bottomY - height);
+        
+        for (var address = 0; address < this.primaryOAM.length; address += 4) {
+            var spriteY = this.primaryOAM[address];
+            if (spriteY <= topY || spriteY > bottomY) {
                 continue;
             }
-            patternTableAddress = this.spPatternTableAddress;
-            patternNumber = this.primaryOAM[address + 1];
+            
+            var patternTableAddress = this.spPatternTableAddress;
+            var patternNumber = this.primaryOAM[address + 1];
             if (this.bigSprites) {
                 patternTableAddress = (patternNumber & 1) << 12;
                 patternNumber &= 0xFE;
             }
-            attributes = this.primaryOAM[address + 2];
-            rowNumber = bottomY - spriteY;
+            
+            var attributes = this.primaryOAM[address + 2];
+            var rowNumber = bottomY - spriteY;
             if (attributes & 0x80) {
-                rowNumber = height - rowNumber - 1;
+                rowNumber = height - rowNumber - 1; // Vertical flip
             }
-            if (rowNumber >= 8) {
+            if (rowNumber >= 8) { // Overflow to the next (bottom) pattern
                 rowNumber -= 8;
                 patternNumber++;
             }
-            patternAddress = patternTableAddress + (patternNumber << 4);
-            sprite = this.secondaryOAM[this.spriteCount++];
+            
+            var sprite = this.secondaryOAM[this.spriteCount];
             sprite.x = this.primaryOAM[address + 3];
             sprite.zeroSprite = address === 0;
             sprite.horizontalFlip = attributes & 0x40;
             sprite.paletteNumber = 0x10 | (attributes & 0x03) << 2;
             sprite.inFront = (attributes & 0x20) === 0;
+            
+            var patternAddress = patternTableAddress + (patternNumber << 4);
             sprite.patternRowAddress = patternAddress + rowNumber;
-            if (this.spriteCount === 8) {
+            
+            if (++this.spriteCount >= 8) {
                 this.spriteOverflow = 1;
                 break;
             }
         }
-        return void 0;
     }
 
     fetchSpriteLow() {
-        var sprite;
         if (this.spriteNumber < this.spriteCount) {
-            sprite = this.secondaryOAM[this.spriteNumber];
+            var sprite = this.secondaryOAM[this.spriteNumber];
             this.addressBus = sprite.patternRowAddress;
-            return sprite.patternRow0 = this.ppuMemory.readPattern(this.addressBus);
+            sprite.patternRow0 = this.ppuMemory.readPattern(this.addressBus);
         } else {
-            return this.addressBus = this.spPatternTableAddress | 0x0FF0;
+            this.addressBus = this.spPatternTableAddress | 0x0FF0; // Dummy fetch for tile $FF
         }
     }
 
     fetchSpriteHigh() {
-        var sprite;
         if (this.spriteNumber < this.spriteCount) {
-            sprite = this.secondaryOAM[this.spriteNumber++];
+            var sprite = this.secondaryOAM[this.spriteNumber++];
             this.addressBus = sprite.patternRowAddress + 8;
-            return sprite.patternRow1 = this.ppuMemory.readPattern(this.addressBus);
+            sprite.patternRow1 = this.ppuMemory.readPattern(this.addressBus);
         } else {
-            return this.addressBus = this.spPatternTableAddress | 0x0FF0;
+            this.addressBus = this.spPatternTableAddress | 0x0FF0; // Dummy fetch for tile $FF
         }
     }
 
     prerenderSprites() {
-        var ap, aq, ar, colorBit0, colorBit1, colorNumber, columnNumber, ref, ref1, sprite, x;
-        for (i = ap = 0, ref = this.spriteCache.length; 0 <= ref ? ap < ref : ap > ref; i = 0 <= ref ? ++ap : --ap) {
+        for (var i = 0; i < this.spriteCache.length; i++) {
             this.spriteCache[i] = null;
             this.spritePixelCache[i] = 0;
         }
-        for (i = aq = 0, ref1 = this.spriteCount; 0 <= ref1 ? aq < ref1 : aq > ref1; i = 0 <= ref1 ? ++aq : --aq) {
-            sprite = this.secondaryOAM[i];
-            for (columnNumber = ar = 0; ar <= 7; columnNumber = ++ar) {
-                x = sprite.x + columnNumber + 1;
+        for (var i = 0; i < this.spriteCount; i++) {
+            var sprite = this.secondaryOAM[i];
+            for (var j = 0; j < 8; j++) {
+                var x = sprite.x + j + 1;
                 if (x > VIDEO_WIDTH) {
                     break;
                 }
                 if (x < 1 || this.spriteCache[x]) {
                     continue;
                 }
+                var columnNumber = j;
                 if (!sprite.horizontalFlip) {
                     columnNumber ^= 0x07;
                 }
-                colorBit0 = (sprite.patternRow0 >>> columnNumber) & 1;
-                colorBit1 = ((sprite.patternRow1 >>> columnNumber) & 1) << 1;
-                colorNumber = colorBit1 | colorBit0;
+                var colorBit0 = (sprite.patternRow0 >>> columnNumber) & 1;
+                var colorBit1 = ((sprite.patternRow1 >>> columnNumber) & 1) << 1;
+                var colorNumber = colorBit1 | colorBit0;
                 if (colorNumber) {
                     this.spriteCache[x] = sprite;
                     this.spritePixelCache[x] = sprite.paletteNumber | colorNumber;
                 }
             }
         }
-        return void 0;
     }
 
     renderSpritePixel() {
@@ -872,6 +886,10 @@ export class PPU {
     getRenderedSprite() {
         return this.spriteCache[this.cycle];
     }
+    
+    //=========================================================
+    // Debug rendering
+    //=========================================================
 
     renderDebugFrame() {
         this.renderPatterns();
