@@ -33,87 +33,87 @@ const F_SKIP      = 1 << 20; // Cycle which is skipped during odd frames
 // Cycle flags table
 //=========================================================
 
-var cycleFlagsTable = newUintArray(341);
+var cycleFlags = newUintArray(341);
 
-for (var i = 0; i < cycleFlagsTable.length; i++) {
+for (var i = 0; i < cycleFlags.length; i++) {
     if (i >= 1 && i <= 256) {
-        cycleFlagsTable[i] |= F_RENDER;
-        cycleFlagsTable[i] |= F_CLIP_NTSC;
+        cycleFlags[i] |= F_RENDER;
+        cycleFlags[i] |= F_CLIP_NTSC;
     }
     if ((i & 0x7) === 1 || i === 339) {
-        cycleFlagsTable[i] |= F_FETCH_NT;
+        cycleFlags[i] |= F_FETCH_NT;
     }
     if ((i & 0x7) === 3 && i !== 339) {
-        cycleFlagsTable[i] |= F_FETCH_AT;
+        cycleFlags[i] |= F_FETCH_AT;
     }
     if ((i & 0x7) === 5) {
-        cycleFlagsTable[i] |= (i <= 256 || i >= 321) ? F_FETCH_BGL : F_FETCH_SPL;
+        cycleFlags[i] |= (i <= 256 || i >= 321) ? F_FETCH_BGL : F_FETCH_SPL;
     }
     if ((i & 0x7) === 7) {
-        cycleFlagsTable[i] |= (i <= 256 || i >= 321) ? F_FETCH_BGH : F_FETCH_SPH;
+        cycleFlags[i] |= (i <= 256 || i >= 321) ? F_FETCH_BGH : F_FETCH_SPH;
     }
     if ((i & 0x7) === 0 && i >= 8 && i <= 256 || i === 328 || i === 336) {
-        cycleFlagsTable[i] |= F_INC_CX;
+        cycleFlags[i] |= F_INC_CX;
     }
     if ((i & 0x7) === 1 && i >= 9 && i <= 257 || i === 329 || i === 337) {
-        cycleFlagsTable[i] |= F_COPY_BG;
+        cycleFlags[i] |= F_COPY_BG;
     }
     if ((i >= 1 && i <= 256) || (i >= 321 && i <= 336)) {
-        cycleFlagsTable[i] |= F_SHIFT_BG;
+        cycleFlags[i] |= F_SHIFT_BG;
     }
     if (i >= 280 && i <= 304) {
-        cycleFlagsTable[i] |= F_COPY_VS;
+        cycleFlags[i] |= F_COPY_VS;
     }
     if (i >= 1 && i <= 8) {
-        cycleFlagsTable[i] |= F_CLIP_LEFT;
+        cycleFlags[i] |= F_CLIP_LEFT;
     }
     if (i >= 1 && i <= 3) {
-       cycleFlagsTable[i] |= F_VB_START2;
+       cycleFlags[i] |= F_VB_START2;
     }
 }
 
-cycleFlagsTable[1]   |= F_VB_START;
-cycleFlagsTable[1]   |= F_VB_END;
-cycleFlagsTable[65]  |= F_EVAL_SP;
-cycleFlagsTable[256] |= F_INC_FY;
-cycleFlagsTable[257] |= F_COPY_HS;
-cycleFlagsTable[338] |= F_SKIP;
+cycleFlags[1]   |= F_VB_START;
+cycleFlags[1]   |= F_VB_END;
+cycleFlags[65]  |= F_EVAL_SP;
+cycleFlags[256] |= F_INC_FY;
+cycleFlags[257] |= F_COPY_HS;
+cycleFlags[338] |= F_SKIP;
 
 //=========================================================
 // Scanline flags table
 //=========================================================
 
-var scanlineFlagsTable = newUintArray(262);
+var scanlineFlags = newUintArray(262);
 
-for (var i = 0; i < scanlineFlagsTable.length; i++) {
+for (var i = 0; i < scanlineFlags.length; i++) {
     if (i <= 239) {
-        scanlineFlagsTable[i] |= F_RENDER;
-        scanlineFlagsTable[i] |= F_SHIFT_BG;
-        scanlineFlagsTable[i] |= F_CLIP_LEFT;
+        scanlineFlags[i] |= F_RENDER;
+        scanlineFlags[i] |= F_SHIFT_BG;
+        scanlineFlags[i] |= F_CLIP_LEFT;
     }
     if (i <= 239 || i === 261) {
-        scanlineFlagsTable[i] |= F_FETCH_NT;
-        scanlineFlagsTable[i] |= F_FETCH_AT;
-        scanlineFlagsTable[i] |= F_FETCH_BGL;
-        scanlineFlagsTable[i] |= F_FETCH_BGH;
-        scanlineFlagsTable[i] |= F_FETCH_SPL;
-        scanlineFlagsTable[i] |= F_FETCH_SPH;
-        scanlineFlagsTable[i] |= F_COPY_BG;
-        scanlineFlagsTable[i] |= F_EVAL_SP;
-        scanlineFlagsTable[i] |= F_INC_CX;
-        scanlineFlagsTable[i] |= F_INC_FY;
-        scanlineFlagsTable[i] |= F_COPY_HS;
+        scanlineFlags[i] |= F_FETCH_NT;
+        scanlineFlags[i] |= F_FETCH_AT;
+        scanlineFlags[i] |= F_FETCH_BGL;
+        scanlineFlags[i] |= F_FETCH_BGH;
+        scanlineFlags[i] |= F_FETCH_SPL;
+        scanlineFlags[i] |= F_FETCH_SPH;
+        scanlineFlags[i] |= F_COPY_BG;
+        scanlineFlags[i] |= F_EVAL_SP;
+        scanlineFlags[i] |= F_INC_CX;
+        scanlineFlags[i] |= F_INC_FY;
+        scanlineFlags[i] |= F_COPY_HS;
     }
     if (i <= 7 || (i >= 232 && i <= 239)) {
-        scanlineFlagsTable[i] |= F_CLIP_NTSC;
+        scanlineFlags[i] |= F_CLIP_NTSC;
     }
 }
 
-scanlineFlagsTable[241] |= F_VB_START;
-scanlineFlagsTable[241] |= F_VB_START2;
-scanlineFlagsTable[261] |= F_COPY_VS;
-scanlineFlagsTable[261] |= F_VB_END;
-scanlineFlagsTable[261] |= F_SKIP;
+scanlineFlags[241] |= F_VB_START;
+scanlineFlags[241] |= F_VB_START2;
+scanlineFlags[261] |= F_COPY_VS;
+scanlineFlags[261] |= F_VB_END;
+scanlineFlags[261] |= F_SKIP;
 
 //=========================================================
 // Sprite data for curently rendered scanline
@@ -191,7 +191,7 @@ export class PPU {
     resetVariables() {
         this.scanline = 261;           // Current scanline - from total 262 scanlines (0..261)
         this.cycle = 0;                // Current cycle - from total 341 cycles per scanline (0..340)
-        this.cycleFlags = 0;           // Flags for current cycle/scanline
+        this.csFlags = 0;              // Flags for current cycle/scanline
         this.vblankSuppressed = false; // Whether to suppress VBlank flag setting
         this.nmiSuppressed = false;    // Whether to supress NMI generation
         this.nmiDelay = 0;             // Number of cycles after which NMI is generated
@@ -253,7 +253,7 @@ export class PPU {
         var nmiEnabledOld = this.nmiEnabled;
         this.setControl(value);
         this.tempAddress = (this.tempAddress & 0xF3FF) | (value & 0x03) << 10; // T[11,10] = C[1,0]
-        if (this.vblankFlag && !nmiEnabledOld && this.nmiEnabled && !(this.cycleFlags & F_VB_END)) {
+        if (this.vblankFlag && !nmiEnabledOld && this.nmiEnabled && !(this.csFlags & F_VB_END)) {
             this.nmiDelay = 15; // Generate NMI after next instruction when its enabled (from 0 to 1) during VBlank
         }
     }
@@ -292,10 +292,10 @@ export class PPU {
         var value = this.getStatus();
         this.vblankFlag = 0;  // Cleared by reading status
         this.writeToogle = 0; // Cleared by reading status
-        if (this.cycleFlags & F_VB_START) {
+        if (this.csFlags & F_VB_START) {
             this.vblankSuppressed = true; // Reading just before VBlank disables VBlank flag setting
         }
-        if (this.cycleFlags & F_VB_START2) {
+        if (this.csFlags & F_VB_START2) {
             this.nmiSuppressed = true;    // Reading just before VBlank and 2 cycles after disables NMI generation
         }
         return value;
@@ -404,16 +404,16 @@ export class PPU {
     }
 
     updateScrolling() {
-        if (this.cycleFlags & F_INC_CX) {
+        if (this.csFlags & F_INC_CX) {
             this.incrementCoarseXScroll();
         }
-        if (this.cycleFlags & F_INC_FY) {
+        if (this.csFlags & F_INC_FY) {
             this.incrementFineYScroll();
         }
-        if (this.cycleFlags & F_COPY_HS) {
+        if (this.csFlags & F_COPY_HS) {
             this.copyHorizontalScrollBits();
         }
-        if (this.cycleFlags & F_COPY_VS) {
+        if (this.csFlags & F_COPY_VS) {
             this.copyVerticalScrollBits();
         }
     }
@@ -501,9 +501,9 @@ export class PPU {
                 this.cpu.activateInterrupt(Interrupt.NMI); // Delay decremented to zero
             }
         }
-        if (this.cycleFlags & F_VB_START) {
+        if (this.csFlags & F_VB_START) {
             this.enterVBlank();
-        } else if (this.cycleFlags & F_VB_END) {
+        } else if (this.csFlags & F_VB_END) {
             this.leaveVBlank();
         }
     }
@@ -530,51 +530,54 @@ export class PPU {
     //=========================================================
 
     incrementCycle() {
-        if ((this.cycleFlags & F_SKIP) && this.oddFrame && this.isRenderingEnabled()) {
-            this.cycle++;
+        if ((this.csFlags & F_SKIP) && this.oddFrame && this.isRenderingEnabled()) {
+            this.cycle++; // One cycle skipped on odd frames
         }
         this.cycle++;
         if (this.cycle > 340) {
             this.incrementScanline();
         }
-        return this.cycleFlags = cycleFlagsTable[this.cycle] & scanlineFlagsTable[this.scanline];
+        this.csFlags = cycleFlags[this.cycle] & scanlineFlags[this.scanline]; // Update flags for the new scanline/cycle
     }
 
     incrementScanline() {
-        var ref;
         this.cycle = 0;
         this.scanline++;
         if (this.scanline > 261) {
             this.incrementFrame();
         }
-        if ((0 <= (ref = this.scanline) && ref <= 239)) {
-            return this.prerenderSprites();
+        if (this.scanline <= 239)) {
+            this.prerenderSprites();
         }
     }
 
     incrementFrame() {
         this.scanline = 0;
-        return this.oddFrame = !this.oddFrame;
+        this.oddFrame = !this.oddFrame;
     }
+    
+    //=========================================================
+    // Rendering
+    //=========================================================
 
     tick() {
         if (this.isRenderingEnabled()) {
             this.fetchData();
-            if (this.cycleFlags & F_EVAL_SP) {
+            if (this.csFlags & F_EVAL_SP) {
                 this.evaluateSprites();
             }
-            if (this.cycleFlags & F_COPY_BG) {
+            if (this.csFlags & F_COPY_BG) {
                 this.copyBackground();
             }
-            if (this.cycleFlags & F_RENDER) {
+            if (this.csFlags & F_RENDER) {
                 this.updateFramePixel();
             }
-            if (this.cycleFlags & F_SHIFT_BG) {
+            if (this.csFlags & F_SHIFT_BG) {
                 this.shiftBackground();
             }
             this.updateScrolling();
         } else {
-            if (this.cycleFlags & F_RENDER) {
+            if (this.csFlags & F_RENDER) {
                 this.clearFramePixel();
             }
             this.addressBus = this.vramAddress;
@@ -585,17 +588,17 @@ export class PPU {
     }
 
     fetchData() {
-        if (this.cycleFlags & F_FETCH_NT) {
+        if (this.csFlags & F_FETCH_NT) {
             return this.fetchNametable();
-        } else if (this.cycleFlags & F_FETCH_AT) {
+        } else if (this.csFlags & F_FETCH_AT) {
             return this.fetchAttribute();
-        } else if (this.cycleFlags & F_FETCH_BGL) {
+        } else if (this.csFlags & F_FETCH_BGL) {
             return this.fetchBackgroundLow();
-        } else if (this.cycleFlags & F_FETCH_BGH) {
+        } else if (this.csFlags & F_FETCH_BGH) {
             return this.fetchBackgroundHigh();
-        } else if (this.cycleFlags & F_FETCH_SPL) {
+        } else if (this.csFlags & F_FETCH_SPL) {
             return this.fetchSpriteLow();
-        } else if (this.cycleFlags & F_FETCH_SPH) {
+        } else if (this.csFlags & F_FETCH_SPH) {
             return this.fetchSpriteHigh();
         }
     }
@@ -610,7 +613,7 @@ export class PPU {
 
     updateFramePixel() {
         var address, color;
-        if (this.ntscMode && this.cycleFlags & F_CLIP_NTSC) {
+        if (this.ntscMode && this.csFlags & F_CLIP_NTSC) {
             return this.clearFramePixel();
         } else {
             address = this.renderFramePixel();
@@ -701,7 +704,7 @@ export class PPU {
     }
 
     isBackgroundPixelVisible() {
-        return this.backgroundVisible && !(this.backgroundClipping && (this.cycleFlags & F_CLIP_LEFT));
+        return this.backgroundVisible && !(this.backgroundClipping && (this.csFlags & F_CLIP_LEFT));
     }
 
     evaluateSprites() {
@@ -811,7 +814,7 @@ export class PPU {
     }
 
     isSpritePixelVisible() {
-        return this.spritesVisible && !(this.spriteClipping && (this.cycleFlags & F_CLIP_LEFT));
+        return this.spritesVisible && !(this.spriteClipping && (this.csFlags & F_CLIP_LEFT));
     }
 
     getRenderedSprite() {
