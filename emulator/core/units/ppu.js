@@ -856,10 +856,7 @@ export class PPU {
                 if (x < 1 || this.spriteCache[x]) {
                     continue;
                 }
-                var columnNumber = j;
-                if (!sprite.horizontalFlip) {
-                    columnNumber ^= 0x07;
-                }
+                var columnNumber = sprite.horizontalFlip ? j : j ^ 0x07;
                 var colorBit0 = (sprite.patternRow0 >>> columnNumber) & 1;
                 var colorBit1 = ((sprite.patternRow1 >>> columnNumber) & 1) << 1;
                 var colorNumber = colorBit1 | colorBit0;
@@ -893,65 +890,61 @@ export class PPU {
 
     renderDebugFrame() {
         this.renderPatterns();
-        return this.renderPalettes();
+        this.renderPalettes();
     }
 
     renderPatterns() {
-        var address, ap, aq, baseX, baseY, tileX, tileY;
-        for (tileY = ap = 0; ap < 16; tileY = ++ap) {
-            baseY = tileY << 3;
-            for (tileX = aq = 0; aq < 32; tileX = ++aq) {
-                baseX = tileX << 3;
-                address = ((tileX & 0x10) << 4 | tileY << 4 | tileX & 0x0F) << 4;
+        for (var tileY = 0; tileY < 16; tileY++) {
+            var baseY = tileY << 3;
+            for (var tileX = 0; tileX < 32; tileX++) {
+                var baseX = tileX << 3;
+                var address = ((tileX & 0x10) << 4 | tileY << 4 | tileX & 0x0F) << 4;
                 this.renderPatternTile(baseX, baseY, address);
             }
         }
-        return void 0;
     }
 
     renderPatternTile(baseX, baseY, address) {
-        var ap, aq, bitPosition, color, colorSelect1, colorSelect2, columnNumber, patternBuffer0, patternBuffer1, rowNumber, x, y;
-        for (rowNumber = ap = 0; ap < 8; rowNumber = ++ap) {
-            y = baseY + rowNumber;
-            patternBuffer0 = this.ppuMemory.readPattern(address + rowNumber);
-            patternBuffer1 = this.ppuMemory.readPattern(address + rowNumber + 8);
-            for (columnNumber = aq = 0; aq < 8; columnNumber = ++aq) {
-                x = baseX + columnNumber;
-                bitPosition = columnNumber ^ 0x07;
-                colorSelect1 = (patternBuffer0 >> bitPosition) & 0x01;
-                colorSelect2 = ((patternBuffer1 >> bitPosition) & 0x01) << 1;
-                color = this.ppuMemory.readPalette(colorSelect2 | colorSelect1);
+        for (var rowNumber = 0; rowNumber < 8; rowNumber++) {
+            var y = baseY + rowNumber;
+            var patternBuffer0 = this.ppuMemory.readPattern(address + rowNumber);
+            var patternBuffer1 = this.ppuMemory.readPattern(address + rowNumber + 8);
+            for (var columnNumber = 0; columnNumber < 8; columnNumber++) {
+                var x = baseX + columnNumber;
+                var bitPosition = columnNumber ^ 0x07;
+                var colorBit0 =  (patternBuffer0 >> bitPosition) & 0x01;
+                var colorBit1 = ((patternBuffer1 >> bitPosition) & 0x01) << 1;
+                var color = this.ppuMemory.readPalette(colorBit1 | colorBit0);
                 this.setFramePixelOnPosition(x, y, color);
             }
         }
-        return void 0;
     }
 
     renderPalettes() {
-        var ap, aq, baseX, baseY, color, tileX, tileY;
-        for (tileY = ap = 0; ap < 4; tileY = ++ap) {
-            baseY = 128 + tileY * 28;
-            for (tileX = aq = 0; aq < 8; tileX = ++aq) {
-                baseX = tileX << 5;
-                color = this.ppuMemory.readPalette((tileY << 3) | tileX);
+        for (var tileY = 0; tileY < 4; tileY++) {
+            var baseY = 128 + tileY * 28;
+            for (var tileX = 0; tileX < 8; tileX++) {
+                var baseX = tileX << 5;
+                var color = this.ppuMemory.readPalette((tileY << 3) | tileX);
                 this.renderPaletteTile(baseX, baseY, color);
             }
         }
-        return void 0;
     }
 
     renderPaletteTile(baseX, baseY, color) {
-        var ap, aq, ref, ref1, ref2, ref3, x, y;
-        for (y = ap = ref = baseY, ref1 = baseY + 28; ref <= ref1 ? ap < ref1 : ap > ref1; y = ref <= ref1 ? ++ap : --ap) {
-            for (x = aq = ref2 = baseX, ref3 = baseX + 32; ref2 <= ref3 ? aq < ref3 : aq > ref3; x = ref2 <= ref3 ? ++aq : --aq) {
+        for (var y = baseY; y < baseY + 28; y++) {
+            for (var x = baseX; x < baseX + 32; x++) {
                 this.setFramePixelOnPosition(x, y, color);
             }
         }
-        return void 0;
     }
+    
+    //=========================================================
+    // Mapper connection
+    //=========================================================
 
     connectMapper(mapper) {
-        return this.mapper = mapper;
+        this.mapper = mapper;
     }
 
 }
