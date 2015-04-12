@@ -1,4 +1,4 @@
-const BUTTON_ALIASES = {
+const buttonAliases = {
     1: "left",
     2: "right",
     3: "middle",
@@ -52,7 +52,7 @@ export class Mouse {
     processEvent(event, down) {
         event = event || window.event;
         var button = event.button || event.which;
-        var input = BUTTON_ALIASES[button];
+        var input = buttonAliases[button];
         if (input && this.inputManager.processInput(this.id, input, down)) {
             event.preventDefault();
         }

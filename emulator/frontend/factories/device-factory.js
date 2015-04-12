@@ -7,35 +7,41 @@ import { Zapper }            from "../../core/devices/zapper";
 import { DeviceFactory as
          CoreDeviceFactory } from "../../core/factories/device-factory";
 
-var
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
-
-
-export function DeviceFactory(injector) {
-  this.injector = injector;
-  this.sourceDevices = {
+const sourceDevices = {
     "keyboard": Keyboard,
-    "mouse": Mouse
-  };
-  this.targetDevices = {
-    "joypad": Joypad,
-    "zapper": Zapper
-  };
-  this.targetDevicesAdapters = {
+    "mouse":    Mouse
+};
+
+const targetDevices = {
     "joypad": JoypadAdapter,
     "zapper": ZapperAdapter
-  };
+};
+
+//=========================================================
+// Factory for device creation
+//=========================================================
+
+export class DeviceFactory extends CoreDeviceFactory {
+
+    constructor(injector) {
+        super(injector);
+    }
+
+    createSourceDevice(id) {
+        var clazz = sourceDevices[id];
+        if (!clazz) {
+            throw new Error(`Unsupported source device '${id}'`);
+        }
+        return this.injector.inject(new clazz(id));
+    }
+
+    createTargetDevice(id) {
+        var device = this.createDevice(id);
+        var clazz = targetDevices[id];
+        if (!clazz) {
+            throw new Error(`Unsupported target device '${id}'`);
+        }
+        return this.injector.inject(new clazz(device));
+    }
+
 }
-
-extend(DeviceFactory, CoreDeviceFactory);
-
-DeviceFactory.prototype.createSourceDevice = function(id) {
-  return this.injector.inject(new this.sourceDevices[id](id));
-};
-
-DeviceFactory.prototype.createTargetDevice = function(id) {
-  var device;
-  device = this.injector.inject(new this.targetDevices[id]);
-  return this.injector.inject(new this.targetDevicesAdapters[id](device));
-};

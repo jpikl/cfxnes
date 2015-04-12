@@ -13,7 +13,7 @@ export function WebGLRenderer(canvas) {
 };
 
 WebGLRenderer.isSupported = function() {
-  return window["WebGLRenderingContext"] != null;
+  return window && window["WebGLRenderingContext"] != null;
 };
 
 WebGLRenderer.prototype.initWebGL = function() {
