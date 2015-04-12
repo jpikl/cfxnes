@@ -1,5 +1,3 @@
-#require "babel/register" # ES6 transpiling
-
 del     = require "del"
 gulp    = require "gulp"
 closure = require "gulp-closure-compiler"
@@ -14,6 +12,8 @@ stylus  = require "gulp-stylus"
 gutil   = require "gulp-util"
 coffee  = require "gulp-coffee"
 yargs   = require "yargs"
+
+require "babel/register" # ES6 transpiling
 
 ###########################################################
 # Constants
