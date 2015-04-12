@@ -52,12 +52,13 @@ config["cpu"] = DebugCPU;
 config["ppu"] = DebugPPU;
 
 var injector = new Injector(config);
-
 var cartridgeFactory = injector.get("cartridgeFactory");
 var cartridge = cartridgeFactory.fromLocalFile(argv._[0]);
-
 var nes = injector.get("nes");
+
+logger.attach(Logger.console());
 nes.insertCartridge(cartridge);
+logger.detach(Logger.console());
 
 //=========================================================
 // Commands
