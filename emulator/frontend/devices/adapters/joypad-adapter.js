@@ -1,6 +1,6 @@
 import { Joypad, Button } from "../../../core/devices/joypad";
 
-var buttonAliases = {
+const BUTTON_ALIASES = {
     "a":      Button.A,
     "b":      Button.B,
     "select": Button.SELECT,
@@ -26,7 +26,7 @@ export class JoypadAdapter {
     }
 
     inputChanged(input, down) {
-        var button = buttonAliases[input];
+        var button = BUTTON_ALIASES[input];
         if (button != null) {
             this.joypad.setButtonPressed(button, down);
         }

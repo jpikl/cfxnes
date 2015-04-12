@@ -1,73 +1,88 @@
-var
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
 const BUTTON_ALIASES = {
-  1: "left",
-  2: "right",
-  3: "middle",
-  4: "middle"
+    1: "left",
+    2: "right",
+    3: "middle",
+    4: "middle"
 };
 
-export function Mouse(id) {
-  this.id = id;
-  this.onMouseUp = bind(this.onMouseUp, this);
-  this.onMouseDown = bind(this.onMouseDown, this);
-  this.onMouseMove = bind(this.onMouseMove, this);
+//=========================================================
+// Mouse event handler
+//=========================================================
+
+export class Mouse {
+
+    constructor(id) {
+        this.id = id;
+    }
+
+    init(inputManager, videoManager) {
+        this.inputManager = inputManager;
+        this.videoManager = videoManager;
+        window.addEventListener("mousemove", this.onMouseMove.bind(this));
+        window.addEventListener("mousedown", this.onMouseDown.bind(this));
+        window.addEventListener("mouseup", this.onMouseUp.bind(this));
+    }
+
+    //=========================================================
+    // Event callbacks
+    //=========================================================
+
+    onMouseMove(event) {
+        event = event || window.event;
+        this.x = event.clientX;
+        this.y = event.clientY;
+    }
+
+    onMouseDown(event) {
+        if (this.canProcessEvent()) {
+            this.processEvent(event, true);
+        }
+    }
+
+    onMouseUp(event) {
+        if (this.canProcessEvent()) {
+            this.processEvent(event, false);
+        }
+    }
+
+    //=========================================================
+    // Event processing
+    //=========================================================
+
+    processEvent(event, down) {
+        event = event || window.event;
+        var button = event.button || event.which;
+        var input = BUTTON_ALIASES[button];
+        if (input && this.inputManager.processInput(this.id, input, down)) {
+            event.preventDefault();
+        }
+    }
+
+    canProcessEvent() {
+        return this.inputManager.isRecording() || this.isMouseInCanvasRect();
+    }
+
+    isMouseInCanvasRect() {
+        var rect = this.videoManager.getOutputRect();
+        return this.x >= rect.left
+            && this.x <= rect.right
+            && this.y >= rect.top
+            && this.y <= rect.bottom;
+    }
+
+    //=========================================================
+    // Inputs
+    //=========================================================
+
+    readState(state) {
+        state.cursorX = this.x;
+        state.cursorY = this.y;
+    }
+
+    getInputName(input) {
+        return input[0].toUpperCase() + input.slice(1) + " mouse button";
+    }
+
 }
 
-Mouse["dependencies"] = ["inputManager", "videoManager"];
-
-Mouse.prototype.init = function(inputManager, videoManager) {
-  this.inputManager = inputManager;
-  this.videoManager = videoManager;
-  window.addEventListener("mousemove", this.onMouseMove);
-  window.addEventListener("mousedown", this.onMouseDown);
-  return window.addEventListener("mouseup", this.onMouseUp);
-};
-
-Mouse.prototype.onMouseMove = function(event) {
-  event || (event = window.event);
-  this.x = event.clientX;
-  return this.y = event.clientY;
-};
-
-Mouse.prototype.onMouseDown = function(event) {
-  if (this.canProcessEvent()) {
-    return this.processEvent(event, true);
-  }
-};
-
-Mouse.prototype.onMouseUp = function(event) {
-  if (this.canProcessEvent()) {
-    return this.processEvent(event, false);
-  }
-};
-
-Mouse.prototype.processEvent = function(event, down) {
-  var button, input;
-  event || (event = window.event);
-  button = event.button || event.which;
-  input = BUTTON_ALIASES[button];
-  if (input && this.inputManager.processInput(this.id, input, down)) {
-    return event.preventDefault();
-  }
-};
-
-Mouse.prototype.canProcessEvent = function() {
-  return this.inputManager.isRecording() || this.isMouseInCanvasRect();
-};
-
-Mouse.prototype.isMouseInCanvasRect = function() {
-  var rect;
-  rect = this.videoManager.getOutputRect();
-  return this.x >= rect.left && this.x <= rect.right && this.y >= rect.top && this.y <= rect.bottom;
-};
-
-Mouse.prototype.readState = function(state) {
-  state.cursorX = this.x;
-  return state.cursorY = this.y;
-};
-
-Mouse.prototype.getInputName = function(input) {
-  return input[0].toUpperCase() + input.slice(1) + " mouse button";
-};
+Mouse["dependencies"] = [ "inputManager", "videoManager" ];
