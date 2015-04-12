@@ -524,7 +524,7 @@ export class PPU {
         this.nmiSuppressed = false;
         this.spriteZeroHit = 0;
     }
-    
+
     //=========================================================
     // Scanline / cycle update
     //=========================================================
@@ -546,7 +546,7 @@ export class PPU {
         if (this.scanline > 261) {
             this.incrementFrame();
         }
-        if (this.scanline <= 239)) {
+        if (this.scanline <= 239) {
             this.prerenderSprites();
         }
     }
@@ -555,7 +555,7 @@ export class PPU {
         this.scanline = 0;
         this.oddFrame = !this.oddFrame;
     }
-    
+
     //=========================================================
     // Tick
     //=========================================================
@@ -589,7 +589,7 @@ export class PPU {
             this.fetchSpriteHigh();
         }
     }
-    
+
     doRendering() {
         if (this.csFlags & F_EVAL_SP) {
             this.evaluateSprites();
@@ -618,7 +618,7 @@ export class PPU {
     isRenderingEnabled() {
         return this.spritesVisible || this.backgroundVisible;
     }
-    
+
     //=========================================================
     // Rendering
     //=========================================================
@@ -654,7 +654,7 @@ export class PPU {
             return 0;                              // Use backdrop color
         }
     }
-    
+
     //=========================================================
     // Background rendering
     //=========================================================
@@ -754,7 +754,7 @@ export class PPU {
     isBackgroundPixelVisible() {
         return this.backgroundVisible && !(this.backgroundClipping && (this.csFlags & F_CLIP_LEFT));
     }
-    
+
     //=========================================================
     // Sprite rendering
     //=========================================================
@@ -776,24 +776,24 @@ export class PPU {
         this.spriteNumber = 0;
         this.spriteCount = 0;
         this.spriteOverflow = 0;
-        
+
         var height = this.bigSprites ? 16 : 8;
         var bottomY = this.scanline;
         var topY = Math.max(0, bottomY - height);
-        
+
         for (var address = 0; address < this.primaryOAM.length; address += 4) {
             var spriteY = this.primaryOAM[address];
             if (spriteY <= topY || spriteY > bottomY) {
                 continue;
             }
-            
+
             var patternTableAddress = this.spPatternTableAddress;
             var patternNumber = this.primaryOAM[address + 1];
             if (this.bigSprites) {
                 patternTableAddress = (patternNumber & 1) << 12;
                 patternNumber &= 0xFE;
             }
-            
+
             var attributes = this.primaryOAM[address + 2];
             var rowNumber = bottomY - spriteY;
             if (attributes & 0x80) {
@@ -803,17 +803,17 @@ export class PPU {
                 rowNumber -= 8;
                 patternNumber++;
             }
-            
+
             var sprite = this.secondaryOAM[this.spriteCount];
             sprite.x = this.primaryOAM[address + 3];
             sprite.zeroSprite = address === 0;
             sprite.horizontalFlip = attributes & 0x40;
             sprite.paletteNumber = 0x10 | (attributes & 0x03) << 2;
             sprite.inFront = (attributes & 0x20) === 0;
-            
+
             var patternAddress = patternTableAddress + (patternNumber << 4);
             sprite.patternRowAddress = patternAddress + rowNumber;
-            
+
             if (++this.spriteCount >= 8) {
                 this.spriteOverflow = 1;
                 break;
@@ -883,7 +883,7 @@ export class PPU {
     getRenderedSprite() {
         return this.spriteCache[this.cycle];
     }
-    
+
     //=========================================================
     // Debug rendering
     //=========================================================
@@ -938,7 +938,7 @@ export class PPU {
             }
         }
     }
-    
+
     //=========================================================
     // Mapper connection
     //=========================================================
