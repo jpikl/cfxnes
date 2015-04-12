@@ -185,8 +185,7 @@ gulp.task "server", [ "emulator", "client" ], ->
     gulp.watch "#{CLIENT_DIR}/**/*.jade", [ "client-views" ]
         .on "error", gutil.log
     nodemon
-        script: "#{SERVER_DIR}/app.coffee"
-        ext: "coffee"
+        script: "#{SERVER_DIR}/bootstrap.js"
         env: { NODE_ENV: if PRODUCTION_MODE then "produtction" else "development" }
         ignore: [ "#{EMULATOR_DIR}/*", "#{CLIENT_DIR}/*", "#{PUBLIC_DIR}/*" ]
 
