@@ -1,5 +1,5 @@
 import { BLACK_COLOR } from "../../core/utils/colors";
-import { fillArray }   from "../../core/utils/system"
+import { fillArray }   from "../../core/utils/system";
 
 //=========================================================
 // Renderer using canvas API
@@ -7,7 +7,7 @@ import { fillArray }   from "../../core/utils/system"
 
 export class CanvasRenderer {
 
-    static isSupported() {
+    static ["isSupported"]() { // TODO use regular name when closure compiler properly supports static methods
         return true;
     }
 
@@ -19,7 +19,7 @@ export class CanvasRenderer {
     }
 
     //=========================================================
-    // Frames
+    // Frame
     //=========================================================
 
     createFrame(x, y, width, height) {

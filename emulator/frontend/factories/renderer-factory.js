@@ -17,7 +17,7 @@ export class RendererFactory {
 
     isRendererSupported(id) {
         var renderer = renderers[id];
-        return renderer && renderer.isSupported();
+        return renderer && renderer["isSupported"]();
     }
 
     createRenderer(id, canvas) {

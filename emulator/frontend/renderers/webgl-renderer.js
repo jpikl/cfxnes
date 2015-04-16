@@ -1,185 +1,224 @@
-import { BLACK_COLOR } from "../../core/utils/colors";
-import { logger }      from "../../core/utils/logger";
+import { BLACK_COLOR }       from "../../core/utils/colors";
+import { roundUpToPowerOf2 } from "../../core/utils/convert";
+import { logger }            from "../../core/utils/logger";
+import { fillArray }         from "../../core/utils/system";
 
-const VERTEX_SHADER_SOURCE = "uniform   vec2 uScreenSize;\nattribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\nvarying   vec2 vTextureCoord;\n\nvoid main(void) {\n    float x = aVertexPosition.x / (0.5 * uScreenSize.x) - 1.0; // [-1, 1] -> [0, width]\n    float y = 1.0 - aVertexPosition.y / (0.5 * uScreenSize.y); // [-1, 1] -> [height, 0]\n    gl_Position = vec4(x, y, 0.0, 1.0);\n    vTextureCoord = aTextureCoord;\n}";
+//=========================================================
+// Shaders
+//=========================================================
 
-const FRAGMENT_SHADER_SOURCE = "precision mediump float;\n\nuniform sampler2D uSampler;\nvarying vec2      vTextureCoord;\n\nvoid main(void) {\n    gl_FragColor = texture2D(uSampler, vTextureCoord);\n}";
+const VERTEX_SHADER_SOURCE = `
+    uniform   vec2 uScreenSize;
+    attribute vec2 aVertexPosition;
+    attribute vec2 aTextureCoord;
+    varying   vec2 vTextureCoord;
 
-export function WebGLRenderer(canvas) {
-  this.canvas = canvas;
-  this.initWebGL();
-  this.initParameters();
-  this.initShaders();
-};
-
-WebGLRenderer.isSupported = function() {
-  return window && window["WebGLRenderingContext"] != null;
-};
-
-WebGLRenderer.prototype.initWebGL = function() {
-  var id, j, len, ref;
-  if (!WebGLRenderer.isSupported()) {
-    throw new Error("WebGL is not supported");
-  }
-  ref = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-  for (j = 0, len = ref.length; j < len; j++) {
-    id = ref[j];
-    if (this.gl = this.getContext(id)) {
-      break;
+    void main(void) {
+        float x = aVertexPosition.x / (0.5 * uScreenSize.x) - 1.0; // [-1, 1] -> [0, width]
+        float y = 1.0 - aVertexPosition.y / (0.5 * uScreenSize.y); // [-1, 1] -> [height, 0]
+        gl_Position = vec4(x, y, 0.0, 1.0);
+        vTextureCoord = aTextureCoord;
     }
-  }
-  if (!this.gl) {
-    throw new Error("Unable to get WebGL context");
-  }
-};
+`
 
-WebGLRenderer.prototype.getContext = function(id) {
-  var error;
-  try {
-    logger.info("Trying to get WebGL context '" + id + "'");
-    return this.canvas.getContext(id);
-  } catch (_error) {
-    error = _error;
-    logger.warn("Error when getting WebGL context '" + id + ": " + error + "'");
-    return null;
-  }
-};
+const FRAGMENT_SHADER_SOURCE = `
+    precision mediump float;
 
-WebGLRenderer.prototype.initShaders = function() {
-  var program;
-  program = this.compileAndLinkShaders();
-  this.screenSizeUniform = this.gl.getUniformLocation(program, "uScreenSize");
-  this.samplerUniform = this.gl.getUniformLocation(program, "uSampler");
-  this.vertexPositionAttribute = this.gl.getAttribLocation(program, "aVertexPosition");
-  this.textureCoordAttribute = this.gl.getAttribLocation(program, "aTextureCoord");
-  this.gl.enableVertexAttribArray(this.vertexPositionAttribute);
-  this.gl.enableVertexAttribArray(this.textureCoordAttribute);
-  return this.gl.useProgram(program);
-};
+    uniform sampler2D uSampler;
+    varying vec2      vTextureCoord;
 
-WebGLRenderer.prototype.compileAndLinkShaders = function() {
-  var program;
-  program = this.gl.createProgram();
-  this.gl.attachShader(program, this.compileShadder(this.gl.VERTEX_SHADER, VERTEX_SHADER_SOURCE));
-  this.gl.attachShader(program, this.compileShadder(this.gl.FRAGMENT_SHADER, FRAGMENT_SHADER_SOURCE));
-  this.gl.linkProgram(program);
-  if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
-    throw new Error("Shader linking error");
-  }
-  return program;
-};
+    void main(void) {
+        gl_FragColor = texture2D(uSampler, vTextureCoord);
+    }
+`
 
-WebGLRenderer.prototype.compileShadder = function(type, source) {
-  var shader;
-  shader = this.gl.createShader(type);
-  this.gl.shaderSource(shader, source);
-  this.gl.compileShader(shader);
-  if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
-    throw new Error("Shader compilation error: " + (this.gl.getShaderInfoLog(shader)));
-  }
-  return shader;
-};
+//=========================================================
+// Renderer using WebGL API
+//=========================================================
 
-WebGLRenderer.prototype.createFrame = function(x, y, width, height) {
-  width = this.roundUpToPowerOf2(width);
-  height = this.roundUpToPowerOf2(height);
-  return {
-    width: width,
-    height: height,
-    data: this.createFrameData(width, height),
-    verticies: this.createFrameVerticies(x, y, width, height),
-    coords: this.createFrameCoords(),
-    texture: this.gl.createTexture()
-  };
-};
+export class WebGLRenderer {
 
-WebGLRenderer.prototype.roundUpToPowerOf2 = function(number) {
-  var result;
-  result = 1;
-  while (result < number) {
-    result *= 2;
-  }
-  return result;
-};
+    static ["isSupported"]() { // TODO use regular name when closure compiler properly supports static methods
+        return window && window["WebGLRenderingContext"] != null;
+    }
 
-WebGLRenderer.prototype.createFrameData = function(width, height) {
-  var buffer, data, i, j, ref;
-  buffer = new ArrayBuffer(width * height * 4);
-  data = new Uint32Array(buffer);
-  for (i = j = 0, ref = data.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-    data[i] = BLACK_COLOR;
-  }
-  return data;
-};
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.initWebGL();
+        this.initParameters();
+        this.initShaders();
+    }
 
-WebGLRenderer.prototype.createFrameVerticies = function(x, y, width, height) {
-  var verticiesBuffer, verticiesData;
-  verticiesData = new Float32Array([x, y, x + width, y, x + width, y + height, x, y + height]);
-  verticiesBuffer = this.gl.createBuffer();
-  this.gl.bindBuffer(this.gl.ARRAY_BUFFER, verticiesBuffer);
-  this.gl.bufferData(this.gl.ARRAY_BUFFER, verticiesData, this.gl.STATIC_DRAW);
-  return verticiesBuffer;
-};
+    initWebGL() {
+        if (!WebGLRenderer["isSupported"]()) {
+            throw new Error("WebGL is not supported");
+        }
+        for (var id of [ "webgl", "experimental-webgl", "webkit-3d", "moz-webgl" ]) {
+            if (this.gl = this.getContext(id)) {
+                break;
+            }
+        }
+        if (!this.gl) {
+            throw new Error("Unable to get WebGL context");
+        }
+    }
 
-WebGLRenderer.prototype.createFrameCoords = function() {
-  var coordsBuffer, coordsData;
-  coordsData = new Float32Array([0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0]);
-  coordsBuffer = this.gl.createBuffer();
-  this.gl.bindBuffer(this.gl.ARRAY_BUFFER, coordsBuffer);
-  this.gl.bufferData(this.gl.ARRAY_BUFFER, coordsData, this.gl.STATIC_DRAW);
-  return coordsBuffer;
-};
+    getContext(id) {
+        try {
+            logger.info(`Trying to get WebGL context '${id}'`);
+            return this.canvas.getContext(id);
+        } catch (error) {
+            logger.warn(`Error when getting WebGL context '${id}': ${error}`);
+            return null;
+        }
+    }
 
-WebGLRenderer.prototype.drawFrame = function(frame) {
-  this.updateFrameTexture(frame);
-  this.updateShaderParameters(frame);
-  return this.drawFrameVerticies(frame);
-};
+    //=========================================================
+    // Shaders
+    //=========================================================
 
-WebGLRenderer.prototype.updateFrameTexture = function(frame) {
-  var data, filter;
-  filter = this.smoothing ? this.gl.LINEAR : this.gl.NEAREST;
-  data = new Uint8Array(frame.data.buffer);
-  this.gl.activeTexture(this.gl.TEXTURE0);
-  this.gl.bindTexture(this.gl.TEXTURE_2D, frame.texture);
-  this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, filter);
-  this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, filter);
-  return this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, frame.width, frame.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);
-};
+    initShaders() {
+        var program = this.compileAndLinkShaders();
+        this.screenSizeUniform = this.gl.getUniformLocation(program, "uScreenSize");
+        this.samplerUniform = this.gl.getUniformLocation(program, "uSampler");
+        this.vertexPositionAttribute = this.gl.getAttribLocation(program, "aVertexPosition");
+        this.textureCoordAttribute = this.gl.getAttribLocation(program, "aTextureCoord");
+        this.gl.enableVertexAttribArray(this.vertexPositionAttribute);
+        this.gl.enableVertexAttribArray(this.textureCoordAttribute);
+        this.gl.useProgram(program);
+    }
 
-WebGLRenderer.prototype.updateShaderParameters = function(frame) {
-  this.gl.uniform1i(this.samplerUniform, 0);
-  this.gl.bindBuffer(this.gl.ARRAY_BUFFER, frame.verticies);
-  this.gl.vertexAttribPointer(this.vertexPositionAttribute, 2, this.gl.FLOAT, false, 0, 0);
-  this.gl.bindBuffer(this.gl.ARRAY_BUFFER, frame.coords);
-  return this.gl.vertexAttribPointer(this.textureCoordAttribute, 2, this.gl.FLOAT, false, 0, 0);
-};
+    compileAndLinkShaders() {
+        var program = this.gl.createProgram();
+        this.gl.attachShader(program, this.compileShadder(this.gl.VERTEX_SHADER, VERTEX_SHADER_SOURCE));
+        this.gl.attachShader(program, this.compileShadder(this.gl.FRAGMENT_SHADER, FRAGMENT_SHADER_SOURCE));
+        this.gl.linkProgram(program);
+        if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
+            throw new Error("Shader linking error");
+        }
+        return program;
+    }
 
-WebGLRenderer.prototype.drawFrameVerticies = function(frame) {
-  this.gl.bindBuffer(this.gl.ARRAY_BUFFER, frame.verticies);
-  return this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, 4);
-};
+    compileShadder(type, source) {
+        var shader = this.gl.createShader(type);
+        this.gl.shaderSource(shader, source);
+        this.gl.compileShader(shader);
+        if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+            throw new Error(`Shader compilation error: ${this.gl.getShaderInfoLog(shader)}`);
+        }
+        return shader;
+    }
 
-WebGLRenderer.prototype.begin = function() {
-  this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-  this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-  return this.gl.uniform2f(this.screenSizeUniform, this.canvas.width / this.scale, this.canvas.height / this.scale);
-};
+    //=========================================================
+    // Frame - initialization
+    //=========================================================
 
-WebGLRenderer.prototype.end = function() {
-  return this.gl.flush();
-};
+    createFrame(x, y, width, height) {
+        width = roundUpToPowerOf2(width);
+        height = roundUpToPowerOf2(height);
+        var data = this.createFrameData(width, height);
+        var verticies = this.createFrameVerticies(x, y, width, height)
+        var coords = this.createFrameCoords();
+        var texture = this.gl.createTexture();
+        return { width, height, data, verticies, coords, texture };
+    }
 
-WebGLRenderer.prototype.initParameters = function() {
-  this.smoothing = false;
-  return this.scale = 1;
-};
+    createFrameData(width, height) {
+        var buffer = new ArrayBuffer(width * height * 4);
+        var data = new Uint32Array(buffer);
+        fillArray(data, BLACK_COLOR);
+        return data;
+    }
 
-WebGLRenderer.prototype.setScale = function(scale) {
-  return this.scale = scale;
-};
+    createFrameVerticies(x, y, width, height) {
+        var verticiesData = new Float32Array([
+            x,         y,          // Bottom left
+            x + width, y,          // Bottom right
+            x + width, y + height, // Top right
+            x,         y + height  // Top left
+        ]);
+        var verticiesBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, verticiesBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, verticiesData, this.gl.STATIC_DRAW);
+        return verticiesBuffer;
+    }
 
-WebGLRenderer.prototype.setSmoothing = function(smoothing) {
-  return this.smoothing = smoothing;
-};
+    createFrameCoords() {
+        var coordsData = new Float32Array([
+            0.0, 0.0, // Bottom left
+            1.0, 0.0, // Bottom right
+            1.0, 1.0, // Top right
+            0.0, 1.0  // Top left
+        ]);
+        var coordsBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, coordsBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, coordsData, this.gl.STATIC_DRAW);
+        return coordsBuffer;
+    }
+
+    //=========================================================
+    // Frame - rendering
+    //=========================================================
+
+    drawFrame(frame) {
+        this.updateFrameTexture(frame);
+        this.updateShaderParameters(frame);
+        this.drawFrameVerticies(frame);
+    }
+
+    updateFrameTexture(frame) {
+        var filter = this.smoothing ? this.gl.LINEAR : this.gl.NEAREST;
+        var data = new Uint8Array(frame.data.buffer); // We have to pass byte array to WebGL
+        this.gl.activeTexture(this.gl.TEXTURE0);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, frame.texture);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, filter);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, filter);
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, frame.width, frame.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);
+    }
+
+    updateShaderParameters(frame) {
+        this.gl.uniform1i(this.samplerUniform, 0);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, frame.verticies);
+        this.gl.vertexAttribPointer(this.vertexPositionAttribute, 2, this.gl.FLOAT, false, 0, 0);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, frame.coords);
+        this.gl.vertexAttribPointer(this.textureCoordAttribute, 2, this.gl.FLOAT, false, 0, 0);
+    }
+
+    drawFrameVerticies(frame) {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, frame.verticies);
+        this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, 4);
+    }
+
+    //=========================================================
+    // Begin / End
+    //=========================================================
+
+    begin() {
+        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+        this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        this.gl.uniform2f(this.screenSizeUniform, this.canvas.width / this.scale, this.canvas.height / this.scale); // Unscaled size
+    }
+
+    end() {
+        this.gl.flush();
+    }
+
+    //=========================================================
+    // Parameters
+    //=========================================================
+
+    initParameters() {
+        this.smoothing = false;
+        this.scale = 1;
+    }
+
+    setScale(scale) {
+        this.scale = scale;
+    }
+
+    setSmoothing(smoothing) {
+        this.smoothing = smoothing;
+    }
+
+}

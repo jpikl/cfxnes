@@ -25,3 +25,11 @@ export function objectToString(input) {
 export function stringToObject(input) {
     return JSON.parse(input);
 }
+
+export function roundUpToPowerOf2(number) {
+    var result = 1;
+    while (result < number) {
+        result *= 2;
+    }
+    return result;
+}
