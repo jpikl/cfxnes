@@ -1,4 +1,6 @@
 import config             from "./config/base-config";
+import { channels }       from "./managers/audio-manager";
+import { ports }          from "./managers/input-manager";
 import { Injector }       from "../core/utils/inject";
 import { logger, Logger } from "../core/utils/logger";
 
@@ -12,8 +14,8 @@ export function Emulator() {
 Emulator["dependencies"] = [ "executionManager", "cartridgeManager", "videoManager", "audioManager", "inputManager", "persistenceManager" ];
 
 Emulator.prototype.init = function(executionManager, cartridgeManager, videoManager, audioManager, inputManager, persistenceManager) {
-  this["audioChannels"] = audioManager.channels;
-  this["inputPorts"] = inputManager.ports;
+  this["audioChannels"] = channels;
+  this["inputPorts"] = ports;
   this.executionManager = executionManager;
   this.cartridgeManager = cartridgeManager;
   this.videoManager = videoManager;

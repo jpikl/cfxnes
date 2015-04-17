@@ -1,6 +1,10 @@
-import { logger } from "../../core/utils/logger";
+import { arrayToProperties } from "../../core/utils/arrays";
+import { logger }            from "../../core/utils/logger";
+import { forEeachProperty }  from "../../core/utils/objects";
 
 export function InputManager() {}
+
+export const ports = [1, 2];
 
 InputManager["dependencies"] = [ "nes", "deviceFactory" ];
 
@@ -8,7 +12,6 @@ InputManager.prototype.init = function(nes, deviceFactory) {
   logger.info("Initializing input manager");
   this.nes = nes;
   this.deviceFactory = deviceFactory;
-  this.ports = [1, 2];
   this.initSources();
   this.initTargets();
   return this.setDefaults();
@@ -89,7 +92,7 @@ InputManager.prototype.initTargets = function() {
 InputManager.prototype.registerTarget = function(id) {
   var base, i, len, port, ref, results;
   logger.info("Registering target input device '" + id + "'");
-  ref = this.ports;
+  ref = ports;
   results = [];
   for (i = 0, len = ref.length; i < len; i++) {
     port = ref[i];
@@ -215,48 +218,29 @@ InputManager.prototype.getMappedInputName = function(targetPort, targetId, targe
   }
 };
 
-InputManager.prototype.readConfiguration = function(config) {
-  var devicesConfig, mappingConfig, ref, ref1, results, sourceId, sourceInput, sourceInputs, targetId, targetParams, targetPort;
-  logger.info("Reading input manager configuration");
-  devicesConfig = (ref = config["input"]) != null ? ref["devices"] : void 0;
-  for (targetPort in devicesConfig) {
-    targetId = devicesConfig[targetPort];
-    this.connectTarget(targetPort, targetId);
-  }
-  mappingConfig = (ref1 = config["input"]) != null ? ref1["mapping"] : void 0;
-  if (mappingConfig) {
-    this.clearMapping();
-  }
-  results = [];
-  for (sourceId in mappingConfig) {
-    sourceInputs = mappingConfig[sourceId];
-    results.push((function() {
-      var results1;
-      results1 = [];
-      for (sourceInput in sourceInputs) {
-        targetParams = sourceInputs[sourceInput];
-        if (targetParams) {
-          results1.push(this.mapInput(targetParams[0], targetParams[1], targetParams[2], sourceId, sourceInput));
-        }
-      }
-      return results1;
-    }).call(this));
-  }
-  return results;
+InputManager.prototype.readConfiguration = function() {
+    logger.info("Reading input manager configuration");
+    return {
+        "mapping": this.targetsMapping,
+        "devices": arrayToProperties(ports, this.getConnectedTarget, this)
+    };
 };
 
 InputManager.prototype.writeConfiguration = function(config) {
-  var i, len, port, ref, results;
-  logger.info("Writing input manager configuration");
-  config["input"] = {
-    "devices": {},
-    "mapping": this.targetsMapping
-  };
-  ref = this.ports;
-  results = [];
-  for (i = 0, len = ref.length; i < len; i++) {
-    port = ref[i];
-    results.push(config["input"]["devices"][port] = this.getConnectedTarget(port));
-  }
-  return results;
+    if (config) {
+        logger.info("Writing input manager configuration");
+        if (config["devices"]) {
+            forEeachProperty(config["devices"], this.connectTarget, this);
+        }
+        if(config["mapping"]) {
+            this.clearMapping();
+            forEeachProperty(config["mapping"], (sourceId, sourceInputs) => {
+                forEeachProperty(sourceInputs, (sourceInput, targetParams) => {
+                    if (targetParams) {
+                        this.mapInput(targetParams[0], targetParams[1], targetParams[2], sourceId, sourceInput);
+                    }
+                }, this);
+            }, this);
+        }
+    }
 };

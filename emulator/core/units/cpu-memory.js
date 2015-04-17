@@ -1,6 +1,6 @@
-import { logger }                   from "../utils/logger";
-import { newByteArray,
-         newUintArray, clearArray } from "../utils/system";
+import { clearArray }                 from "../utils/arrays";
+import { logger }                     from "../utils/logger";
+import { newByteArray, newUintArray } from "../utils/system";
 
 //=========================================================
 // CPU memory

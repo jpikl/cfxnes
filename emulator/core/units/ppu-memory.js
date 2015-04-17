@@ -1,7 +1,7 @@
-import { Mirroring }                from "../common/types";
-import { logger }                   from "../utils/logger";
-import { newByteArray, copyArray,
-         newUintArray, clearArray } from "../utils/system";
+import { Mirroring }                  from "../common/types";
+import { clearArray, copyArray }      from "../utils/arrays";
+import { logger }                     from "../utils/logger";
+import { newByteArray, newUintArray } from "../utils/system";
 
 const POWER_UP_PALETTES = [
     0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D,

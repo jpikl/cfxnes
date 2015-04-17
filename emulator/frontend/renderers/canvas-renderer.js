@@ -1,5 +1,5 @@
+import { fillArray }   from "../../core/utils/arrays";
 import { BLACK_COLOR } from "../../core/utils/colors";
-import { fillArray }   from "../../core/utils/system";
 
 //=========================================================
 // Renderer using canvas API

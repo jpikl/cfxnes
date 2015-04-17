@@ -1,4 +1,5 @@
-import { logger } from "./logger";
+import { copyProperties } from "./objects"
+import { logger }         from "./logger";
 
 //=========================================================
 // Dependency injection library
@@ -78,11 +79,7 @@ export class Config {
     }
 
     include(config) {
-        for (var name in config) {
-            if (config.hasOwnProperty(name)) {
-                this[name] = config[name];
-            }
-        }
+        copyProperties(config, this);
         return this;
     }
 

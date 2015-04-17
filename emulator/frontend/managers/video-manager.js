@@ -244,24 +244,24 @@ VideoManager.prototype.isFullScreen = function() {
   return screenfull.isFullscreen;
 };
 
-VideoManager.prototype.readConfiguration = function(config) {
-  logger.info("Reading video manager configuration");
-  if (config["video"]) {
-    this.setDebugging(config["video"]["debugging"]);
-    this.setSmoothing(config["video"]["smoothing"]);
-    this.setScale(config["video"]["scale"]);
-    this.setPalette(config["video"]["palette"]);
-    return this.setRenderer(config["video"]["renderer"]);
-  }
+VideoManager.prototype.readConfiguration = function() {
+    logger.info("Reading video manager configuration");
+    return {
+        "debugging": this.isDebugging(),
+        "smoothing": this.isSmoothing(),
+        "scale":     this.getScale(),
+        "palette":   this.getPalette(),
+        "renderer":  this.getRenderer()
+    };
 };
 
 VideoManager.prototype.writeConfiguration = function(config) {
-  logger.info("Writing video manager configuration");
-  return config["video"] = {
-    "debugging": this.isDebugging(),
-    "smoothing": this.isSmoothing(),
-    "scale": this.getScale(),
-    "palette": this.getPalette(),
-    "renderer": this.getRenderer()
-  };
+    if (config) {
+        logger.info("Writing video manager configuration");
+        this.setDebugging(config["debugging"]);
+        this.setSmoothing(config["smoothing"]);
+        this.setScale(config["scale"]);
+        this.setPalette(config["palette"]);
+        this.setRenderer(config["renderer"]);
+    }
 };

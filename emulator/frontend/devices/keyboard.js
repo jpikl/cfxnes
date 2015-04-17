@@ -80,14 +80,9 @@ export class Keyboard {
     //=========================================================
 
     getInputName(input) {
-        var words = input.split("-");
-        for (var i = 0; i < words.length; i++) {
-            var word = words[i];
-            if (word.length > 0) {
-                words[i] = word[0].toUpperCase() + word.slice(1);
-            }
-        }
-        return words.join(" ");
+        return input.split("-")
+                    .map((w) => (w.length > 0) ? w[0].toUpperCase() + w.slice(1) : w)
+                    .join(" ");
     }
 
 }

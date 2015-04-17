@@ -1,4 +1,6 @@
-import { logger } from "../../core/utils/logger";
+import { arrayToProperties } from "../../core/utils/arrays";
+import { logger }            from "../../core/utils/logger";
+import { forEeachProperty }  from "../../core/utils/objects";
 
 var
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -7,13 +9,15 @@ const BUFFER_SIZE = 4096;
 const DEFAULT_ENABLED = true;
 const DEFAULT_VOLUME = 1.0;
 
-const CHANNEL_ALIASES = {
+const channelAliases = {
   "pulse1": 0,
   "pulse2": 1,
   "triangle": 2,
   "noise": 3,
   "dmc": 4
 };
+
+export const channels = Object.keys(channelAliases);
 
 export function AudioManager() {
   this.updateAudio = bind(this.updateAudio, this);
@@ -25,14 +29,6 @@ AudioManager.prototype.init = function(nes) {
   var channel;
   logger.info("Initializing audio manager");
   this.nes = nes;
-  this.channels = (function() {
-    var results;
-    results = [];
-    for (channel in CHANNEL_ALIASES) {
-      results.push(channel);
-    }
-    return results;
-  })();
   if (this.isSupported()) {
     this.createAudio();
   }
@@ -44,7 +40,7 @@ AudioManager.prototype.setDefaults = function() {
   logger.info("Using default audio configuration");
   this.setEnabled(DEFAULT_ENABLED);
   this.setVolume(DEFAULT_VOLUME);
-  ref = this.channels;
+  ref = channels;
   results = [];
   for (j = 0, len = ref.length; j < len; j++) {
     channel = ref[j];
@@ -118,14 +114,14 @@ AudioManager.prototype.setChannelEnabled = function(channel, enabled) {
   if (enabled == null) {
     enabled = DEFAULT_ENABLED;
   }
-  if (CHANNEL_ALIASES[channel] != null) {
+  if (channelAliases[channel] != null) {
     logger.info("Audio channel '" + channel + "' " + (enabled ? 'on' : 'off'));
-    return this.nes.setChannelEnabled(CHANNEL_ALIASES[channel], enabled);
+    return this.nes.setChannelEnabled(channelAliases[channel], enabled);
   }
 };
 
 AudioManager.prototype.isChannelEnabled = function(channel) {
-  return this.nes.isChannelEnabled(CHANNEL_ALIASES[channel]);
+  return this.nes.isChannelEnabled(channelAliases[channel]);
 };
 
 AudioManager.prototype.setVolume = function(volume) {
@@ -140,35 +136,22 @@ AudioManager.prototype.getVolume = function() {
   return this.volume;
 };
 
-AudioManager.prototype.readConfiguration = function(config) {
-  var channel, enabled, ref, results;
-  logger.info("Reading audio manager configuration");
-  if (config["audio"]) {
-    this.setEnabled(config["audio"]["enabled"]);
-    this.setVolume(config["audio"]["volume"]);
-    ref = config["audio"]["channels"];
-    results = [];
-    for (channel in ref) {
-      enabled = ref[channel];
-      results.push(this.setChannelEnabled(channel, enabled));
-    }
-    return results;
-  }
+AudioManager.prototype.readConfiguration = function() {
+    logger.info("Reading audio manager configuration");
+    return {
+        "enabled":  this.isEnabled(),
+        "volume":   this.getVolume(),
+        "channels": arrayToProperties(channels, this.isChannelEnabled, this)
+    };
 };
 
 AudioManager.prototype.writeConfiguration = function(config) {
-  var channel, j, len, ref, results;
-  logger.info("Writing audio manager configuration");
-  config["audio"] = {
-    "enabled": this.isEnabled(),
-    "volume": this.getVolume(),
-    "channels": {}
-  };
-  ref = this.channels;
-  results = [];
-  for (j = 0, len = ref.length; j < len; j++) {
-    channel = ref[j];
-    results.push(config["audio"]["channels"][channel] = this.isChannelEnabled(channel));
-  }
-  return results;
+    if (config) {
+        logger.info("Writing audio manager configuration");
+        this.setEnabled(config["enabled"]);
+        this.setVolume(config["volume"]);
+        if (config["channels"]) {
+            forEeachProperty(config["channels"], this.setChannelEnabled, this);
+        }
+    }
 };

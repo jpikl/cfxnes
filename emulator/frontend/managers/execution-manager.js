@@ -177,17 +177,17 @@ ExecutionManager.prototype.getTargetFPS = function() {
 };
 
 ExecutionManager.prototype.readConfiguration = function(config) {
-  logger.info("Reading execution manager configuration");
-  if (config["execution"]) {
-    this.setTVSystem(config["execution"]["tvSystem"]);
-    return this.setSpeed(config["execution"]["speed"]);
-  }
+    logger.info("Reading execution manager configuration");
+    return {
+        "tvSystem": this.getTVSystem(),
+        "speed":    this.getSpeed()
+    };
 };
 
 ExecutionManager.prototype.writeConfiguration = function(config) {
-  logger.info("Writing execution manager configuration");
-  return config["execution"] = {
-    "tvSystem": this.getTVSystem(),
-    "speed": this.getSpeed()
-  };
+    if (config) {
+        logger.info("Writing execution manager configuration");
+        this.setTVSystem(config["tvSystem"]);
+        this.setSpeed(config["speed"]);
+    }
 };

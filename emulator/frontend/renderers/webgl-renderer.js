@@ -1,7 +1,7 @@
+import { fillArray }         from "../../core/utils/arrays";
 import { BLACK_COLOR }       from "../../core/utils/colors";
-import { roundUpToPowerOf2 } from "../../core/utils/convert";
+import { roundUpToPowerOf2 } from "../../core/utils/math";
 import { logger }            from "../../core/utils/logger";
-import { fillArray }         from "../../core/utils/system";
 
 //=========================================================
 // Shaders

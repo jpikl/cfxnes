@@ -1,8 +1,9 @@
-import { Mirroring }                from "../common/types";
-import { md5 }                      from "../utils/convert";
-import { wordAsHex, readableSize }  from "../utils/format";
-import { logger }                   from "../utils/logger";
-import { newByteArray, clearArray } from "../utils/system";
+import { Mirroring }               from "../common/types";
+import { clearArray }              from "../utils/arrays";
+import { md5 }                     from "../utils/convert";
+import { wordAsHex, readableSize } from "../utils/format";
+import { logger }                  from "../utils/logger";
+import { newByteArray }            from "../utils/system";
 
 //=========================================================
 // Base class of mappers

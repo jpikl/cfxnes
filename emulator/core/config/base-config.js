@@ -9,6 +9,7 @@ import { CartridgeFactory } from "../factories/cartridge-factory";
 import { DeviceFactory }    from "../factories/device-factory";
 import { MapperFactory }    from "../factories/mapper-factory";
 import { PaletteFactory }   from "../factories/palette-factory";
+import { MemoryStorage }    from "../storages/memory-storage"
 import { Config }           from "../utils/inject";
 
 //=========================================================
@@ -27,6 +28,7 @@ export default new Config({
     "cartridgeFactory": CartridgeFactory,
     "deviceFactory":    DeviceFactory,
     "mapperFactory":    MapperFactory,
-    "paletteFactory":   PaletteFactory
+    "paletteFactory":   PaletteFactory,
+    "storage":          MemoryStorage
 
 });
