@@ -1,92 +1,98 @@
 import { logger } from "../../core/utils/logger";
 
-export function CartridgeManager() {}
+//=========================================================
+// Cartridge manager
+//=========================================================
+
+export class CartridgeManager {
+
+    init(nes, cartridgeFactory, executionManager, persistenceManager) {
+        this.nes = nes;
+        this.cartridgeFactory = cartridgeFactory;
+        this.executionManager = executionManager;
+        this.persistenceManager = persistenceManager;
+    }
+
+    //=========================================================
+    // Cartridge loading
+    //=========================================================
+
+    loadCartridge(file, onLoad, onError) {
+        logger.info("Loding cartridge from file");
+        var self = this;
+        var reader = new FileReader;
+        reader.onload = (event) => {
+            var data = event.target.result;
+            var error = self.tryInsertCartridge(data);
+            if (error) {
+                onError && onError.call(self, error);
+            } else {
+                onLoad && onLoad.call(self);
+            }
+        }
+        reader.onerror = (event) => {
+            onError && onError.call(self, event.target.error);
+        }
+        reader.readAsArrayBuffer(file);
+    }
+
+    downloadCartridge(url, onLoad, onError) {
+        logger.info(`Downloading cartridge from '${url}'`);
+        var self = this;
+        var request = new XMLHttpRequest;
+        request.open("GET", url, true);
+        request.responseType = "arraybuffer";
+        request.onload = () => {
+            var error;
+            if (this.status === 200) {
+                error = self.tryInsertCartridge(this.response);
+            } else {
+                error = `Unable to download '${url}' (server response: ${this.status}).`;
+            }
+            if (error) {
+                onError && onError.call(self, error);
+            } else {
+                onLoad && onLoad.call(self);
+            }
+        }
+        request.onerror = (error) => {
+            onError && onError.call(self, error);
+        }
+        request.send();
+    }
+
+    //=========================================================
+    // Cartridge processing
+    //=========================================================
+
+    tryInsertCartridge(arrayBuffer) {
+        try {
+            this.insertCartridge(arrayBuffer);
+        } catch (error) {
+            logger.error(error);
+            return error.message || "Unknown error";
+        }
+    }
+
+    insertCartridge(arrayBuffer) {
+        logger.info("Inserting cartridge");
+        var cartridge = this.cartridgeFactory.fromArrayBuffer(arrayBuffer);
+        this.persistenceManager.saveCartridgeData();
+        this.nes.insertCartridge(cartridge);
+        this.persistenceManager.loadCartridgeData();
+        if (this.executionManager.isRunning()) {
+            this.executionManager.restart();
+        }
+    }
+
+    isCartridgeInserted() {
+        return this.nes.isCartridgeInserted();
+    }
+
+    removeCartridge() {
+        this.nes.removeCartridge();
+    }
+
+}
 
 CartridgeManager["dependencies"] = [ "nes", "cartridgeFactory", "executionManager", "persistenceManager" ];
-
-CartridgeManager.prototype.init = function(nes, cartridgeFactory, executionManager, persistenceManager) {
-  this.nes = nes;
-  this.cartridgeFactory = cartridgeFactory;
-  this.executionManager = executionManager;
-  return this.persistenceManager = persistenceManager;
-};
-
-CartridgeManager.prototype.loadCartridge = function(file, onLoad, onError) {
-  var reader, self;
-  logger.info("Loding cartridge from file");
-  self = this;
-  reader = new FileReader;
-  reader.onload = function(event) {
-    var data, error;
-    data = event.target.result;
-    error = self.tryInsertCartridge(data);
-    if (error) {
-      return onError != null ? onError.call(self, error) : void 0;
-    } else {
-      return onLoad != null ? onLoad.call(self) : void 0;
-    }
-  };
-  reader.onerror = function(event) {
-    return onError != null ? onError.call(self, event.target.error) : void 0;
-  };
-  return reader.readAsArrayBuffer(file);
-};
-
-CartridgeManager.prototype.downloadCartridge = function(url, onLoad, onError) {
-  var request, self;
-  logger.info("Downloading cartridge from '" + url + "'");
-  self = this;
-  request = new XMLHttpRequest;
-  request.open("GET", url, true);
-  request.responseType = "arraybuffer";
-  request.onload = function() {
-    var error;
-    if (this.status === 200) {
-      error = self.tryInsertCartridge(this.response);
-    } else {
-      error = "Unable to download file '" + url + "' (status code: " + this.status + ").";
-    }
-    if (error) {
-      return onError != null ? onError.call(self, error) : void 0;
-    } else {
-      return onLoad != null ? onLoad.call(self) : void 0;
-    }
-  };
-  request.onerror = function(error) {
-    return onError != null ? onError.call(self, error) : void 0;
-  };
-  return request.send();
-};
-
-CartridgeManager.prototype.tryInsertCartridge = function(arrayBuffer) {
-  var error;
-  try {
-    this.insertCartridge(arrayBuffer);
-    return void 0;
-  } catch (_error) {
-    error = _error;
-    logger.error(error);
-    return error.message || "Internal error";
-  }
-};
-
-CartridgeManager.prototype.insertCartridge = function(arrayBuffer) {
-  var cartridge;
-  logger.info("Inserting cartridge");
-  cartridge = this.cartridgeFactory.fromArrayBuffer(arrayBuffer);
-  this.persistenceManager.saveCartridgeData();
-  this.nes.insertCartridge(cartridge);
-  this.nes.pressPower();
-  this.persistenceManager.loadCartridgeData();
-  if (this.executionManager.isRunning()) {
-    return this.executionManager.restart();
-  }
-};
-
-CartridgeManager.prototype.isCartridgeInserted = function() {
-  return this.nes.isCartridgeInserted();
-};
-
-CartridgeManager.prototype.removeCartridge = function() {
-  return this.nes.removeCartridge();
-};
