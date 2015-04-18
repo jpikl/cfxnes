@@ -1,6 +1,6 @@
-import { arrayToProperties } from "../../core/utils/arrays";
-import { logger }            from "../../core/utils/logger";
-import { forEeachProperty }  from "../../core/utils/objects";
+import { arrayToProperties, copyArray } from "../../core/utils/arrays";
+import { logger }                       from "../../core/utils/logger";
+import { forEeachProperty }             from "../../core/utils/objects";
 
 const channelAliases = {
     "pulse1":   0,
@@ -49,15 +49,18 @@ export class AudioManager {
         this.context = new AudioContext;
         this.processor = this.context.createScriptProcessor(4096, 0, 1); // 4K buffer, 0 input channels, 1 output channel
         this.processor.onaudioprocess = this.updateAudio.bind(this);
+        this.gain = this.context.createGain();
+        this.gain.connect(this.context.destination);
         this.nes.initAudioRecording(this.processor.bufferSize, this.context.sampleRate);
     }
 
     updateAudio(event) {
         var outputBuffer = event.outputBuffer;
         var sourceBuffer = this.nes.readAudioBuffer();
-        var outputChannel = outputBuffer.getChannelData(0);
-        for (var i = 0; i < outputChannel.length; i++) {
-            outputChannel[i] = this.volume * sourceBuffer[i];
+        if (outputBuffer.copyToChannel) {
+            outputBuffer.copyToChannel(sourceBuffer, 0); // Missing in chrome (issue: 361859)
+        } else {
+            copyArray(sourceBuffer, outputBuffer.getChannelData(0));
         }
     }
 
@@ -97,7 +100,7 @@ export class AudioManager {
         if (this.isSupported()) {
             if (this.enabled && this.playing) {
                 this.nes.startAudioRecording(this.context.sampleRate / this.speed);
-                this.processor.connect(this.context.destination);
+                this.processor.connect(this.gain);
             } else {
                 this.nes.stopAudioRecording();
                 this.processor.disconnect();
@@ -126,14 +129,15 @@ export class AudioManager {
     //=========================================================
 
     setVolume(volume = 1.0) {
-        if (this.volume != volume) {
-            this.volume = Math.max(0.0, Math.min(volume, 1.0));
-            logger.info(`Setting audio volume to ${~~(100 * this.volume)}%`);
+        volume = Math.max(0.0, Math.min(volume, 1.0));
+        if (this.getVolume() != volume) {
+            logger.info(`Setting audio volume to ${~~(100 * volume)}%`);
+            this.gain.gain.value = volume;
         }
     }
 
     getVolume() {
-        return this.volume;
+        return this.gain.gain.value;
     }
 
     //=========================================================

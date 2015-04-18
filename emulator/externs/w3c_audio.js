@@ -397,6 +397,13 @@ AudioBuffer.prototype.numberOfChannels;
 AudioBuffer.prototype.getChannelData = function(channel) {};
 
 /**
+ * @param {Float32Array} source
+ * @param {number} channelNumber
+ * @param {number=} opt_startInChannel
+ */
+AudioBuffer.prototype.copyToChannel = function(source, channelNumber, opt_startInChannel) {};
+
+/**
  * @constructor
  * @extends {AudioSourceNode}
  */
