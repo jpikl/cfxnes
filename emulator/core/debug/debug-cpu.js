@@ -259,21 +259,15 @@ export class DebugCPU extends CPU {
     }
 
     formatRegisters() {
-        var names = [ "A", "X", "Y", "P", "SP" ];
-        var results = [];
-        for (var i = 0; i < names.length; i++) {
-            results.push(names[i] + ":" + (byteAsHex(this.registers[i])));
-        }
-        return results.join(" ");
+        return [ "A", "X", "Y", "P", "SP" ]
+            .map((name, i) => name + ":" + byteAsHex(this.registers[i]), this)
+            .join(" ");
     }
 
     formatFlags() {
-        var names = [ "N", "V", "?", "?", "D", "I", "Z", "C" ];
-        var results = [];
-        for (var i = 0; i < names.length; i++) {
-            results.push(this.flags[i] ? names[i] : ".");
-        }
-        return results.join(" ");
+        return [ "N", "V", "?", "?", "D", "I", "Z", "C" ]
+            .map((name, i) => this.flags[i] ? name : ".", this)
+            .join(" ");
     }
 
 }

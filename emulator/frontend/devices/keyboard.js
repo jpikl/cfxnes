@@ -87,4 +87,4 @@ export class Keyboard {
 
 }
 
-Keyboard["dependencies"] = ["inputManager", "videoManager"];
+Keyboard["dependencies"] = [ "inputManager", "videoManager" ];
