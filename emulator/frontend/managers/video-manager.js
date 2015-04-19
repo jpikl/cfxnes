@@ -1,267 +1,277 @@
-import { VIDEO_WIDTH,
-         VIDEO_HEIGHT } from "../../core/common/constants";
-import { logger }       from "../../core/utils/logger";
+import { VIDEO_WIDTH, VIDEO_HEIGHT } from "../../core/common/constants";
+import { logger }                    from "../../core/utils/logger";
+import { bindMethod }                from "../../core/utils/objects";
 
-var
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+//=========================================================
+// Video manager
+//=========================================================
 
-const DEFAULT_DEBUGGING = false;
-const DEFAULT_SMOOTHING = false;
-const DEFAULT_SCALE = 1;
-const DEFAULT_PALETTE = "default";
-const DEFAULT_RENDERER = "webgl";
+export class VideoManager {
 
-export function VideoManager() {
-  this.onFullscreenChange = bind(this.onFullscreenChange, this);
+    init(nes, rendererFactory, paletteFactory) {
+        logger.info("Initializing video manager");
+        this.nes = nes;
+        this.rendererFactory = rendererFactory;
+        this.paletteFactory = paletteFactory;
+        this.initListeners();
+        this.setDefaults();
+    }
+
+    initListeners() {
+        document.addEventListener(screenfull.raw.fullscreenchange, bindMethod(this, this.onFullscreenChange));
+    }
+
+    setDefaults() {
+        logger.info("Using default video configuration");
+        this.setDebugging();
+        this.setSmoothing();
+        this.setScale();
+        this.setPalette();
+        this.setRenderer();
+    }
+
+    //=========================================================
+    // Canvas
+    //=========================================================
+
+    setCanvas(canvas) {
+        logger.info(`Setting video output to ${canvas}`);
+        this.canvas = canvas;
+        if (this.canvas) {
+            this.updateCanvasSize();
+            this.createRenderer();
+            this.drawFrame();
+        }
+    }
+
+    isCanvasVisible() {
+        return this.canvas && this.canvas.offsetParent != null;
+    }
+
+    updateCanvasSize() {
+        var widthMultiplier = this.debugging ? 2 : 1;
+        this.canvas.width = this.scale * VIDEO_WIDTH * widthMultiplier;
+        this.canvas.height = this.scale * VIDEO_HEIGHT;
+    }
+
+    getOutputRect() {
+        if (this.isCanvasVisible()) {
+            var rect = this.isFullScreen() ? this.getFullScreenRect() : this.getCanvasRect();
+            if (this.debugging) {
+                rect.right -= (rect.right - rect.left) / 2; // Without debugging output
+            }
+            return rect;
+        } else {
+            return this.getEmptyRect();
+        }
+    }
+
+    getCanvasRect() {
+        return this.canvas.getBoundingClientRect();
+    }
+
+    getFullScreenRect() {
+        return { top: 0, right: screen.width, bottom: screen.height, left: 0 };
+    }
+
+    getEmptyRect() {
+        return { top: -1, right: -1, bottom: -1, left: -1 };
+    }
+
+    //=========================================================
+    // Renderering
+    //=========================================================
+
+    isRendererSupported(id) {
+        return this.rendererFactory.isRendererSupported(id);
+    }
+
+    setRenderer(id = "webgl") {
+        if (this.rendererId !== id) {
+            logger.info(`Using '${id}' video renderer`);
+            this.rendererId = id;
+            if (this.canvas) {
+                this.createRenderer();
+            }
+        }
+    }
+
+    getRenderer() {
+        return this.rendererId;
+    }
+
+    createRenderer() {
+        this.renderer = this.rendererFactory.createRenderer(this.rendererId, this.canvas);
+        this.renderer.setSmoothing(this.smoothing);
+        this.renderer.setScale(this.scale);
+        this.frame = this.renderer.createFrame(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+        this.debugFrame = this.renderer.createFrame(VIDEO_WIDTH, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+    }
+
+    renderFrame() {
+        this.nes.renderFrame(this.frame.data);
+        if (this.debugging) {
+            this.nes.renderDebugFrame(this.debugFrame.data);
+        }
+    }
+
+    drawFrame() {
+        this.renderer.begin();
+        this.renderer.drawFrame(this.frame);
+        if (this.debugging) {
+            this.renderer.drawFrame(this.debugFrame);
+        }
+        this.renderer.end();
+    }
+
+    //=========================================================
+    // Debugging
+    //=========================================================
+
+    setPalette(id = "default") {
+        if (this.paletteId !== id) {
+            logger.info("Setting video palette to '" + id + "'");
+            this.paletteId = id;
+            this.nes.setRGBPalette(this.paletteFactory.createPalette(id));
+        }
+    }
+
+    getPalette() {
+        return this.paletteId;
+    }
+
+    //=========================================================
+    // Palette
+    //=========================================================
+
+    setDebugging(enabled = false) {
+        if (this.debugging !== enabled) {
+            logger.info(`Setting video debugging to ${enabled ? "on" : "off"}`);
+            this.debugging = enabled;
+            if (this.canvas) {
+                this.updateCanvasSize();
+                this.drawFrame();
+            }
+        }
+    }
+
+    isDebugging() {
+        return this.debugging;
+    }
+
+    //=========================================================
+    // Smoothing
+    //=========================================================
+
+    setSmoothing(enabled = false) {
+        if (this.smoothing !== enabled) {
+            logger.info(`Setting video smoothing to ${enabled ? "on" : "off"}`);
+            this.smoothing = enabled;
+            if (this.canvas) {
+                if (this.renderer) {
+                    this.renderer.setSmoothing(enabled);
+                }
+                this.drawFrame();
+            }
+        }
+    }
+
+    isSmoothing() {
+        return this.smoothing;
+    }
+
+    //=========================================================
+    // Scalling
+    //=========================================================
+
+    setScale(scale = 1) {
+        if (this.scale !== scale) {
+            logger.info(`Setting video scale to ${scale}`);
+            this.scale = scale;
+            if (this.canvas) {
+                this.updateCanvasSize();
+                this.renderer.setScale(scale);
+                this.drawFrame();
+            }
+        }
+    }
+
+    getScale() {
+        return this.scale;
+    }
+
+    getMaxScale() {
+        return ~~Math.min(screen.width / VIDEO_WIDTH, screen.height / VIDEO_HEIGHT);
+    }
+
+    //=========================================================
+    // Fullscreen
+    //=========================================================
+
+    setFullScreen(fullscreen) {
+        if (fullscreen) {
+            this.enterFullScreen();
+        } else {
+            this.leaveFullScreen();
+        }
+    }
+
+    enterFullScreen() {
+        if (screenfull.enabled && !this.isFullScreen()) {
+            logger.info("Entering fullscreen");
+            screenfull.request(this.canvas);
+        }
+    }
+
+    leaveFullScreen() {
+        if (screenfull.enabled && this.isFullScreen()) {
+            logger.info("Leaving fullscreen");
+            screenfull.exit();
+        }
+    }
+
+    onFullscreenChange() {
+        logger.info(`Fullscreen ${this.isFullScreen() ? "enabled" : "disabled"}`);
+        if (this.isFullScreen()) {
+            this.prevScale = this.scale;
+            this.setScale(this.getMaxScale());
+        } else {
+            this.setScale(this.prevScale);
+            this.prevScale = null;
+        }
+    }
+
+    isFullScreen() {
+        return screenfull.isFullscreen;
+    }
+
+    //=========================================================
+    // Configuration reading / writing
+    //=========================================================
+
+    readConfiguration() {
+        logger.info("Reading video manager configuration");
+        return {
+            "debugging": this.isDebugging(),
+            "smoothing": this.isSmoothing(),
+            "scale":     this.getScale(),
+            "palette":   this.getPalette(),
+            "renderer":  this.getRenderer()
+        }
+    }
+
+    writeConfiguration(config) {
+        if (config) {
+            logger.info("Writing video manager configuration");
+            this.setDebugging(config["debugging"]);
+            this.setSmoothing(config["smoothing"]);
+            this.setScale(config["scale"]);
+            this.setPalette(config["palette"]);
+            this.setRenderer(config["renderer"]);
+        }
+    }
+
+
 }
 
-VideoManager["dependencies"] = [ "nes", "rendererFactory", "paletteFactory" ];
-
-VideoManager.prototype.init = function(nes, rendererFactory, paletteFactory) {
-  logger.info("Initializing video manager");
-  this.nes = nes;
-  this.rendererFactory = rendererFactory;
-  this.paletteFactory = paletteFactory;
-  this.initListeners();
-  return this.setDefaults();
-};
-
-VideoManager.prototype.initListeners = function() {
-  return document.addEventListener(screenfull.raw.fullscreenchange, this.onFullscreenChange);
-};
-
-VideoManager.prototype.setDefaults = function() {
-  logger.info("Using default video configuration");
-  this.setDebugging(DEFAULT_DEBUGGING);
-  this.setSmoothing(DEFAULT_SMOOTHING);
-  this.setScale(DEFAULT_SCALE);
-  this.setPalette(DEFAULT_PALETTE);
-  return this.setRenderer(DEFAULT_RENDERER);
-};
-
-VideoManager.prototype.setCanvas = function(canvas) {
-  logger.info("Setting video output to " + canvas);
-  this.canvas = canvas;
-  if (this.canvas) {
-    this.updateCanvasSize();
-    this.createRenderer();
-    return this.drawFrame();
-  }
-};
-
-VideoManager.prototype.isCanvasVisible = function() {
-  var ref;
-  return this.canvas && ((ref = this.canvas) != null ? ref.offsetParent : void 0) !== null;
-};
-
-VideoManager.prototype.updateCanvasSize = function() {
-  var widthMultiplier;
-  widthMultiplier = this.debugging ? 2 : 1;
-  this.canvas.width = this.scale * VIDEO_WIDTH * widthMultiplier;
-  return this.canvas.height = this.scale * VIDEO_HEIGHT;
-};
-
-VideoManager.prototype.getOutputRect = function() {
-  var rect;
-  if (this.isCanvasVisible()) {
-    rect = this.isFullScreen() ? this.getFullScreenRect() : this.getCanvasRect();
-    if (this.debugging) {
-      rect.right -= (rect.right - rect.left) / 2;
-    }
-    return rect;
-  } else {
-    return this.getEmptyRect();
-  }
-};
-
-VideoManager.prototype.getCanvasRect = function() {
-  return this.canvas.getBoundingClientRect();
-};
-
-VideoManager.prototype.getFullScreenRect = function() {
-  return {
-    left: 0,
-    right: screen.width,
-    top: 0,
-    bottom: screen.height
-  };
-};
-
-VideoManager.prototype.getEmptyRect = function() {
-  return {
-    left: -1,
-    right: -1,
-    top: -1,
-    bottom: -1
-  };
-};
-
-VideoManager.prototype.isRendererSupported = function(id) {
-  return this.rendererFactory.isRendererSupported(id);
-};
-
-VideoManager.prototype.setRenderer = function(id) {
-  if (id == null) {
-    id = DEFAULT_RENDERER;
-  }
-  logger.info("Using '" + id + "' video renderer");
-  this.rendererId = id;
-  if (this.canvas) {
-    return this.createRenderer();
-  }
-};
-
-VideoManager.prototype.getRenderer = function() {
-  return this.rendererId;
-};
-
-VideoManager.prototype.createRenderer = function() {
-  this.renderer = this.rendererFactory.createRenderer(this.rendererId, this.canvas);
-  this.renderer.setSmoothing(this.smoothing);
-  this.renderer.setScale(this.scale);
-  this.frame = this.renderer.createFrame(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
-  return this.debugFrame = this.renderer.createFrame(VIDEO_WIDTH, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
-};
-
-VideoManager.prototype.renderFrame = function() {
-  this.nes.renderFrame(this.frame.data);
-  if (this.debugging) {
-    return this.nes.renderDebugFrame(this.debugFrame.data);
-  }
-};
-
-VideoManager.prototype.drawFrame = function() {
-  this.renderer.begin();
-  this.renderer.drawFrame(this.frame);
-  if (this.debugging) {
-    this.renderer.drawFrame(this.debugFrame);
-  }
-  return this.renderer.end();
-};
-
-VideoManager.prototype.setPalette = function(id) {
-  if (id == null) {
-    id = DEFAULT_PALETTE;
-  }
-  logger.info("Setting video palette to '" + id + "'");
-  this.paletteId = id;
-  return this.nes.setRGBPalette(this.paletteFactory.createPalette(id));
-};
-
-VideoManager.prototype.getPalette = function() {
-  return this.paletteId;
-};
-
-VideoManager.prototype.setDebugging = function(enabled) {
-  if (enabled == null) {
-    enabled = DEFAULT_DEBUGGING;
-  }
-  logger.info("Setting video debugging to " + (enabled ? 'on' : 'off'));
-  this.debugging = enabled;
-  if (this.canvas) {
-    this.updateCanvasSize();
-    return this.drawFrame();
-  }
-};
-
-VideoManager.prototype.isDebugging = function() {
-  return this.debugging;
-};
-
-VideoManager.prototype.setSmoothing = function(enabled) {
-  if (enabled == null) {
-    enabled = DEFAULT_SMOOTHING;
-  }
-  logger.info("Setting video smoothing to " + (enabled ? 'on' : 'off'));
-  this.smoothing = enabled;
-  if (this.canvas) {
-    if (this.renderer) {
-      this.renderer.setSmoothing(enabled);
-    }
-    return this.drawFrame();
-  }
-};
-
-VideoManager.prototype.isSmoothing = function() {
-  return this.smoothing;
-};
-
-VideoManager.prototype.setScale = function(scale) {
-  if (scale == null) {
-    scale = DEFAULT_SCALE;
-  }
-  logger.info("Setting video scale to " + scale);
-  this.scale = scale;
-  if (this.canvas) {
-    this.updateCanvasSize();
-    this.renderer.setScale(scale);
-    return this.drawFrame();
-  }
-};
-
-VideoManager.prototype.getScale = function() {
-  return this.scale;
-};
-
-VideoManager.prototype.getMaxScale = function() {
-  return ~~Math.min(screen.width / VIDEO_WIDTH, screen.height / VIDEO_HEIGHT);
-};
-
-VideoManager.prototype.setFullScreen = function(fullscreen) {
-  if (fullscreen) {
-    return this.enterFullScreen();
-  } else {
-    return this.leaveFullScreen();
-  }
-};
-
-VideoManager.prototype.enterFullScreen = function() {
-  if (screenfull.enabled && !this.isFullScreen()) {
-    logger.info("Entering fullscreen");
-    return screenfull.request(this.canvas);
-  }
-};
-
-VideoManager.prototype.leaveFullScreen = function() {
-  if (screenfull.enabled && this.isFullScreen()) {
-    logger.info("Leaving fullscreen");
-    return screenfull.exit();
-  }
-};
-
-VideoManager.prototype.onFullscreenChange = function() {
-  logger.info("Fullscreen " + (this.isFullScreen() ? 'enabled' : 'disabled'));
-  if (this.isFullScreen()) {
-    this.prevScale = this.scale;
-    return this.setScale(this.getMaxScale());
-  } else {
-    this.setScale(this.prevScale);
-    return this.prevScale = null;
-  }
-};
-
-VideoManager.prototype.isFullScreen = function() {
-  return screenfull.isFullscreen;
-};
-
-VideoManager.prototype.readConfiguration = function() {
-    logger.info("Reading video manager configuration");
-    return {
-        "debugging": this.isDebugging(),
-        "smoothing": this.isSmoothing(),
-        "scale":     this.getScale(),
-        "palette":   this.getPalette(),
-        "renderer":  this.getRenderer()
-    };
-};
-
-VideoManager.prototype.writeConfiguration = function(config) {
-    if (config) {
-        logger.info("Writing video manager configuration");
-        this.setDebugging(config["debugging"]);
-        this.setSmoothing(config["smoothing"]);
-        this.setScale(config["scale"]);
-        this.setPalette(config["palette"]);
-        this.setRenderer(config["renderer"]);
-    }
-};
+VideoManager["dependencies"] = ["nes", "rendererFactory", "paletteFactory"];
