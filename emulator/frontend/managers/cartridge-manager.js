@@ -1,5 +1,7 @@
 import { logger } from "../../core/utils/logger";
 
+const UNKNOWN_ERROR = "Unknown error";
+
 //=========================================================
 // Cartridge manager
 //=========================================================
@@ -19,44 +21,42 @@ export class CartridgeManager {
 
     loadCartridge(file, onLoad, onError) {
         logger.info("Loding cartridge from file");
-        var self = this;
         var reader = new FileReader;
         reader.onload = (event) => {
             var data = event.target.result;
-            var error = self.tryInsertCartridge(data);
+            var error = this.tryInsertCartridge(data);
             if (error) {
-                onError && onError.call(self, error);
+                onError && onError(error);
             } else {
-                onLoad && onLoad.call(self);
+                onLoad && onLoad();
             }
         }
         reader.onerror = (event) => {
-            onError && onError.call(self, event.target.error);
+            onError && onError(event.target.error || UNKNOWN_ERROR);
         }
         reader.readAsArrayBuffer(file);
     }
 
     downloadCartridge(url, onLoad, onError) {
         logger.info(`Downloading cartridge from '${url}'`);
-        var self = this;
         var request = new XMLHttpRequest;
         request.open("GET", url, true);
         request.responseType = "arraybuffer";
         request.onload = () => {
             var error;
-            if (this.status === 200) {
-                error = self.tryInsertCartridge(this.response);
+            if (request.status === 200) {
+                error = this.tryInsertCartridge(request.response);
             } else {
-                error = `Unable to download '${url}' (server response: ${this.status}).`;
+                error = `Unable to download '${url}' (server response: ${request.status}).`;
             }
             if (error) {
-                onError && onError.call(self, error);
+                onError && onError(error);
             } else {
-                onLoad && onLoad.call(self);
+                onLoad && onLoad();
             }
         }
-        request.onerror = (error) => {
-            onError && onError.call(self, error);
+        request.onerror = () => {
+            onError && onError(`Unable to download '${url}'.`);
         }
         request.send();
     }
@@ -71,7 +71,7 @@ export class CartridgeManager {
             return null;
         } catch (error) {
             logger.error(error);
-            return error.message || "Unknown error";
+            return error.message || UNKNOWN_ERROR;
         }
     }
 
