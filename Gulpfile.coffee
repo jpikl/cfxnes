@@ -1,5 +1,6 @@
 del     = require "del"
 gulp    = require "gulp"
+babel   = require "gulp-babel"
 closure = require "gulp-closure-compiler"
 concat  = require "gulp-concat"
 gulpif  = require "gulp-if"
@@ -115,8 +116,8 @@ gulp.task "emulator-test", ->
 gulp.task "client", [ "client-scripts", "client-styles", "client-views", "client-images", "client-deps" ]
 
 gulp.task "client-scripts", ->
-    gulp.src "#{CLIENT_DIR}/**/*.coffee"
-        .pipe coffee()
+    gulp.src ["#{CLIENT_DIR}/**/*.js"]
+        .pipe babel()
         .pipe concat minifySrcName "app.js"
         .pipe gulp.dest PUBLIC_SCRIPTS_DIR
         .on "error", gutil.log
