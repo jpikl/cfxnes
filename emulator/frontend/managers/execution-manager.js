@@ -1,7 +1,6 @@
 import { TVSystem }   from "../../core/common/types";
 import { clearArray } from "../../core/utils/arrays";
 import { logger }     from "../../core/utils/logger";
-import { bindMethod } from "../../core/utils/objects";
 
 const tvSystemAliases = {
     "ntsc": TVSystem.NTSC,
@@ -26,12 +25,12 @@ export class ExecutionManager {
     }
 
     initCallbacks() {
-        this.stepCallback = bindMethod(this, this.step);
-        this.drawCallback = bindMethod(this, this.draw);
+        this.stepCallback = () => this.step();
+        this.drawCallback = () => this.videoManager.drawFrame();
     }
 
     initListeners() {
-        document.addEventListener("visibilitychange", bindMethod(this, this.onVisibilityChange));
+        document.addEventListener("visibilitychange", () => this.onVisibilityChange());
     }
 
     setDefaults() {
@@ -77,10 +76,6 @@ export class ExecutionManager {
         this.updateFPS();
         cancelAnimationFrame(this.drawId); // In case we are running faster then browser refresh rate
         this.drawId = requestAnimationFrame(this.drawCallback);
-    }
-
-    draw() {
-        this.videoManager.drawFrame();
     }
 
     //=========================================================

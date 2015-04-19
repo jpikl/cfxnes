@@ -1,5 +1,6 @@
 angular.module("cfxnes").factory("globalParams", () => {
     return {
-        controlsInfoVisible: localStorage["controlsInfoDisabled"] !== "true"
+        controlsInfoVisible: localStorage["controlsInfoDisabled"] !== "true",
+        gameFilter: { name: "" }
     };
 });

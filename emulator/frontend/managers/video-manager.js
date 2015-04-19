@@ -1,6 +1,5 @@
 import { VIDEO_WIDTH, VIDEO_HEIGHT } from "../../core/common/constants";
 import { logger }                    from "../../core/utils/logger";
-import { bindMethod }                from "../../core/utils/objects";
 
 //=========================================================
 // Video manager
@@ -18,7 +17,7 @@ export class VideoManager {
     }
 
     initListeners() {
-        document.addEventListener(screenfull.raw.fullscreenchange, bindMethod(this, this.onFullscreenChange));
+        document.addEventListener(screenfull.raw.fullscreenchange, () => this.onFullscreenChange());
     }
 
     setDefaults() {

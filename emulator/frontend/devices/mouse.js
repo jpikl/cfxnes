@@ -1,5 +1,3 @@
-import { bindMethod } from "../../core/utils/objects";
-
 const buttonAliases = {
     1: "left",
     2: "right",
@@ -20,9 +18,9 @@ export class Mouse {
     init(inputManager, videoManager) {
         this.inputManager = inputManager;
         this.videoManager = videoManager;
-        window.addEventListener("mousemove", bindMethod(this, this.onMouseMove));
-        window.addEventListener("mousedown", bindMethod(this, this.onMouseDown));
-        window.addEventListener("mouseup", bindMethod(this, this.onMouseUp));
+        window.addEventListener("mousemove", (event) => this.onMouseMove(event));
+        window.addEventListener("mousedown", (event) => this.onMouseDown(event));
+        window.addEventListener("mouseup", (event) => this.onMouseUp(event));
     }
 
     //=========================================================

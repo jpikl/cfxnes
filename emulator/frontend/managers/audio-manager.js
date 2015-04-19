@@ -1,6 +1,6 @@
 import { arrayToProperties, copyArray } from "../../core/utils/arrays";
 import { logger }                       from "../../core/utils/logger";
-import { forEeachProperty, bindMethod } from "../../core/utils/objects";
+import { forEeachProperty }             from "../../core/utils/objects";
 
 const channelAliases = {
     "pulse1":   0,
@@ -48,7 +48,7 @@ export class AudioManager {
         logger.info("Creating audio context");
         this.context = new AudioContext;
         this.processor = this.context.createScriptProcessor(4096, 0, 1); // 4K buffer, 0 input channels, 1 output channel
-        this.processor.onaudioprocess = bindMethod(this, this.updateAudio);
+        this.processor.onaudioprocess = (event) => this.updateAudio(event);
         this.gain = this.context.createGain();
         this.gain.connect(this.context.destination);
         this.nes.initAudioRecording(this.processor.bufferSize, this.context.sampleRate);
