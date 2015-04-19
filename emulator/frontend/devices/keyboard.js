@@ -1,3 +1,5 @@
+import { bindMethod } from "../../core/utils/objects";
+
 const keyCodeAliases = {
     48: "0", 49: "1", 50: "2", 51: "3", 52: "4", 53: "5", 54: "6", 55: "7", 56: "8", 57: "9",
     65: "a", 66: "b", 67: "c", 68: "d", 69: "e", 70: "f", 71: "g", 72: "h", 73: "i", 74: "j",
@@ -28,8 +30,8 @@ export class Keyboard {
     init(inputManager, videoManager) {
         this.inputManager = inputManager;
         this.videoManager = videoManager;
-        window.addEventListener("keydown", this.onKeyDown.bind(this));
-        window.addEventListener("keyup", this.onKeyUp.bind(this));
+        window.addEventListener("keydown", bindMethod(this, this.onKeyDown));
+        window.addEventListener("keyup", bindMethod(this, this.onKeyUp));
     }
 
     //=========================================================

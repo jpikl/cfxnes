@@ -238,7 +238,7 @@ export class CPUMemory {
     }
 
     remapPRGROM(mapper) {
-        this.writeMapper = mapper.write.bind(mapper);
+        this.mapper = mapper;
         this.prgROM = mapper.prgROM;
     }
 
@@ -251,7 +251,7 @@ export class CPUMemory {
     }
 
     writePRGROM(address, value) {
-        this.writeMapper(address, value); // Writing to mapper registers
+        this.mapper.write(address, value); // Writing to mapper registers
     }
 
     mapPRGROMAddress(address) {

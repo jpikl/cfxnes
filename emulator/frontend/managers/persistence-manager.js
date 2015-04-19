@@ -1,4 +1,5 @@
-import { logger } from "../../core/utils/logger";
+import { logger }     from "../../core/utils/logger";
+import { bindMethod } from "../../core/utils/objects";
 
 //=========================================================
 // Persistence manager
@@ -18,7 +19,7 @@ export class PersistenceManager {
     }
 
     initListeners() {
-        window.addEventListener("beforeunload", this.saveAll.bind(this));
+        window.addEventListener("beforeunload", bindMethod(this, this.saveAll));
     }
 
     setDefaults() {
@@ -33,7 +34,7 @@ export class PersistenceManager {
     enablePeriodicSave(period = 60) {
         this.disablePeriodicSave();
         logger.info("Enabling periodic save with period " + period + " s");
-        this.periodicSaveId = setInterval(this.saveAll.bind(this), 1000 * period);
+        this.periodicSaveId = setInterval(bindMethod(this, this.saveAll), 1000 * period);
     }
 
     disablePeriodicSave() {

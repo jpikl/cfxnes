@@ -68,6 +68,7 @@ export class CartridgeManager {
     tryInsertCartridge(arrayBuffer) {
         try {
             this.insertCartridge(arrayBuffer);
+            return null;
         } catch (error) {
             logger.error(error);
             return error.message || "Unknown error";
