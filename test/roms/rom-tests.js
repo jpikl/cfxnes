@@ -10,25 +10,22 @@ import * as nestest      from "./nestest/nestest"
 import * as instr_test   from "./instr_test/instr_test-v4"
 import * as instr_timing from "./instr_timing/instr_timing"
 import * as ppu_vbl_nmi  from "./ppu_vbl_nmi/ppu_vbl_nmi"
-import baseConfig        from "../config/base-config"
-import { dataToString }  from "../utils/convert"
-import { Injector }      from "../utils/inject"
-import { Logger }        from "../utils/logger"
+import baseConfig        from "../../src/lib/core/config/base-config"
+import { dataToString }  from "../../src/lib/core/utils/convert"
+import { Injector }      from "../../src/lib/core/utils/inject"
+import { Logger }        from "../../src/lib/core/utils/logger"
 
 chai.use(chaiFs);
 
-describe("CPU", () => {
-    itShouldPass(nestest);
-    itShouldPass(instr_test);
-    itShouldPass(instr_timing);
+describe("Validation ROMs", () => {
+    validate(nestest);
+    validate(instr_test);
+    validate(instr_timing);
+    validate(ppu_vbl_nmi);
 });
 
-describe("PPU", () => {
-    itShouldPass(ppu_vbl_nmi);
-});
-
-function itShouldPass(test) {
-    it(`should pass '${test.name}'`, () => execute(test));
+function validate(test) {
+    it(test.name, () => execute(test));
 }
 
 function execute(test) {

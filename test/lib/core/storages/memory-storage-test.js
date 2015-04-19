@@ -1,9 +1,9 @@
 //=============================================================================
-// Storage test
+// Memory storage test
 //=============================================================================
 
 import chai              from "chai"
-import { MemoryStorage } from "../storages/memory-storage"
+import { MemoryStorage } from "../../../../src/lib/core/storages/memory-storage"
 
 var expect = chai.expect;
 

@@ -24,17 +24,16 @@ PRODUCTION_MODE    = yargs.argv.production?
 SERVER_PORT        = 5000
 EMULATOR_INLINING  = true
 DEPS_DIR           = "./bower_components"
-BUILD_DIR          = "./build"
-EMULATOR_DIR       = "./emulator"
-CLIENT_DIR         = "./client"
-SERVER_DIR         = "./server"
+EMULATOR_DIR       = "./src/lib"
+CLIENT_DIR         = "./src/app/client"
+SERVER_DIR         = "./src/app/server"
 PUBLIC_DIR         = "#{SERVER_DIR}/public"
 PUBLIC_IMAGES_DIR  = "#{PUBLIC_DIR}/images"
 PUBLIC_SCRIPTS_DIR = "#{PUBLIC_DIR}/scripts"
 PUBLIC_STYLES_DIR  = "#{PUBLIC_DIR}/styles"
 PUBLIC_FONTS_DIR   = "#{PUBLIC_DIR}/fonts"
 CLOSURE_JAR        = "./node_modules/closure-compiler/lib/vendor/compiler.jar"
-EXTERNS_DIR        = "#{EMULATOR_DIR}/externs"
+EXTERNS_DIR        = "./externs"
 
 ###########################################################
 # Utilities
@@ -94,7 +93,7 @@ gulp.task "emulator", ->
     #     .on "error", gutil.log
 
 gulp.task "emulator-test", ->
-    gulp.src "#{EMULATOR_DIR}/core/tests/*-test{,s}.js", read: false
+    gulp.src "test/**/*-test{,s}.js", read: false
         .pipe mocha
             timeout: 60000 # 60 s
 

@@ -1,4 +1,4 @@
-import { DebugCPU } from "../../debug/debug-cpu";
+import { DebugCPU } from "../../../src/lib/core/debug/debug-cpu";
 
 //=========================================================
 // CPU mofified to execute all tests on nestest ROM

@@ -4,21 +4,21 @@
 closure --compilation_level=ADVANCED_OPTIMIZATIONS\
         --language_in=ECMASCRIPT6\
         --language_out=ES5\
-        --externs "emulator/externs/md5.js"\
-        --externs "emulator/externs/screenfull.js"\
-        --externs "emulator/externs/w3c_audio.js"\
-         ./emulator/core/nes.js\
-         ./emulator/core/channels/*.js\
-         ./emulator/core/common/*.js\
-         ./emulator/core/config/*.js\
-         ./emulator/core/devices/*.js\
-         ./emulator/core/factories/*.js\
-         ./emulator/core/loaders/*.js\
-         ./emulator/core/mappers/*.js\
-         ./emulator/core/palettes/*.js\
-         ./emulator/core/readers/*.js\
-         ./emulator/core/storages/*.js\
-         ./emulator/core/units/*.js\
-         ./emulator/core/utils/*.js\
-         ./emulator/frontend/*{,/*{,/*}}.js\
-         > ./server/public/scripts/cfxnes.js\
+        --externs "externs/md5.js"\
+        --externs "externs/screenfull.js"\
+        --externs "externs/w3c_audio.js"\
+         ./src/lib/core/nes.js\
+         ./src/lib/core/channels/*.js\
+         ./src/lib/core/common/*.js\
+         ./src/lib/core/config/*.js\
+         ./src/lib/core/devices/*.js\
+         ./src/lib/core/factories/*.js\
+         ./src/lib/core/loaders/*.js\
+         ./src/lib/core/mappers/*.js\
+         ./src/lib/core/palettes/*.js\
+         ./src/lib/core/readers/*.js\
+         ./src/lib/core/storages/*.js\
+         ./src/lib/core/units/*.js\
+         ./src/lib/core/utils/*.js\
+         ./src/lib/browser/*{,/*{,/*}}.js\
+         > ./src/app/server/public/scripts/cfxnes.js\

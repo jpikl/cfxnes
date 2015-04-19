@@ -5,12 +5,12 @@
 import readline        from "readline";
 import util            from "util";
 import yargs           from "yargs";
-import baseConfig      from "../emulator/core/config/base-config";
-import { DebugCPU }    from "../emulator/core/debug/debug-cpu";
-import { DebugPPU }    from "../emulator/core/debug/debug-ppu";
-import { numberAsHex } from "../emulator/core/utils/format";
-import { Injector }    from "../emulator/core/utils/inject";
-import { Logger }      from "../emulator/core/utils/logger";
+import baseConfig      from "../lib/core/config/base-config";
+import { DebugCPU }    from "../lib/core/debug/debug-cpu";
+import { DebugPPU }    from "../lib/core/debug/debug-ppu";
+import { numberAsHex } from "../lib/core/utils/format";
+import { Injector }    from "../lib/core/utils/inject";
+import { Logger }      from "../lib/core/utils/logger";
 
 //=========================================================
 // Command line parser
