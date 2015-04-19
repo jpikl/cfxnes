@@ -7,7 +7,7 @@ angular.module("cfxnes").directive("volumeIcon", () => {
             var getIconClass = (volume) => {
                 if (!scope.audioSupported || !scope.audioEnabled || scope.audioVolume === 0) {
                     return "glyphicon-volume-off";
-                } else if (scope.audioVolume < 50) {
+                } else if (scope.audioVolume < 0.5) {
                     return "glyphicon-volume-down";
                 } else {
                     return "glyphicon-volume-up";
