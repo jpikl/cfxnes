@@ -72,7 +72,7 @@ export class ExecutionManager {
     }
 
     step() {
-        this.inputManager.processSources();
+        this.inputManager.updateState();
         this.videoManager.renderFrame();
         this.updateFPS();
         cancelAnimationFrame(this.drawId); // In case we are running faster then browser refresh rate
