@@ -51,6 +51,10 @@ function execute(test) {
             this.assert(false, message);
         },
 
+        power() {
+            nes.pressPower();
+        },
+
         step(count = 1) {
             for (var i = 0; i < count; i++) {
                 nes.step();

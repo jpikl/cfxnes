@@ -7,7 +7,7 @@ import { NestestCPU } from "./nestest-cpu"
 import { FakeUnit }   from "../../../src/lib/core/debug/fake-unit"
 
 export const name = "nestest";
-export const rom = "./test/roms/nestest/nestest.nes"
+export const rom = "./test/roms/nestest/nestest.nes";
 
 export function configure(config) {
     config["cpu"] = NestestCPU;
@@ -16,12 +16,13 @@ export function configure(config) {
 }
 
 export function execute(test) {
-    const BASIC_LOG_FILE = "./temp/nestest.log";                                 // This is what we will compare with the verified log
-    const VERBOSE_LOG_FILE = "./temp/nestest-full.log";                          // Contains more information for better debugging
+    const BASIC_LOG_FILE    = "./test/roms/nestest/nestest.log";       // This is what we will compare with the verified log
+    const VERBOSE_LOG_FILE  = "./test/roms/nestest/nestest-full.log";  // Contains more information for better debugging
     const VERIFIED_LOG_FILE = "./test/roms/nestest/nintendulator.log"; // Verified log from Nintendulator (modified to match structure of CFxNES log)
 
     test.openLog("debug-basic", BASIC_LOG_FILE);
     test.openLog("debug-verbose", VERBOSE_LOG_FILE);
+    test.power(); // Just to force printing of the verbose log header
     test.step(8991);
 
     var verifiedLog = test.readFile(VERIFIED_LOG_FILE);
