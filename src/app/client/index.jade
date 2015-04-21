@@ -1,12 +1,12 @@
 mixin stylesheets(files)
     each file in files
-        if productionMode
+        if proMode
             -file = file + ".min"
         link(rel="stylesheet", type="text/css", href="styles/#{file}.css")
 
 mixin scripts(files)
     each file in files
-        if productionMode
+        if proMode
             -file = file + ".min"
         script(type="text/javascript", src="scripts/#{file}.js")
 

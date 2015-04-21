@@ -25,14 +25,15 @@ export function execute(test) {
     test.power(); // Just to force printing of the verbose log header
     test.step(8991);
 
+    var basicLog = test.readFile(BASIC_LOG_FILE);
     var verifiedLog = test.readFile(VERIFIED_LOG_FILE);
 
     try {
-        test.expect(BASIC_LOG_FILE).to.have.content(verifiedLog);
+        test.expect(basicLog).to.be.equal(verifiedLog);
     } catch (error) {
         // The default error message contains whole log which is completely unreadable and useless
         test.fail(`CFxNES log differs from Nintendulator log.
-                   - Run 'vimdiff ${BASIC_LOG_FILE} ${VERIFIED_LOG_FILE}' to see differences.
-                   - See contents of '${VERBOSE_LOG_FILE}' for more detailed output.`);
+        - Run 'vimdiff ${BASIC_LOG_FILE} ${VERIFIED_LOG_FILE}' to see differences.
+        - See contents of '${VERBOSE_LOG_FILE}' for more detailed output.`);
     }
 }

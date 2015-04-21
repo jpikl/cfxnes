@@ -4,7 +4,6 @@
 //=============================================================================
 
 import chai              from "chai"
-import chaiFs            from "chai-fs"
 import fs                from "fs"
 import * as nestest      from "./nestest/nestest"
 import * as instr_test   from "./instr_test/instr_test-v4"
@@ -14,8 +13,6 @@ import baseConfig        from "../../src/lib/core/config/base-config"
 import { dataToString }  from "../../src/lib/core/utils/convert"
 import { Injector }      from "../../src/lib/core/utils/inject"
 import { Logger }        from "../../src/lib/core/utils/logger"
-
-chai.use(chaiFs);
 
 describe("Validation ROMs", () => {
     validate(nestest);

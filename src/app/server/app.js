@@ -10,7 +10,7 @@ if (debug) {
     app.use(morgan("dev"));
 }
 
-app.use("/", express.static(path.join(__dirname, "public")));
+app.use("/", express.static(path.join(__dirname, "static")));
 
 app.get("/roms",        romService.getROMs);
 app.get("/roms/:id",    romService.getROM);
