@@ -2,7 +2,8 @@
 // Conversion utilities
 //=========================================================
 
-export var md5 = typeof window !== "undefined" && window.md5 || require("js-md5");
+export var md5 = typeof window  !== "undefined" && window.md5         // Running in browser
+              || typeof require !== "undefined" && require("js-md5"); // Running in Node.js
 
 export function dataToString(input) {
     return String.fromCharCode.apply(null, input);
