@@ -199,7 +199,12 @@ gulp.task("watch",  function() {
     gulp.watch("./src/app/server/**/*.js", gulp.series("server"));
 });
 
-gulp.task("dev", gulp.series("set-development", "app", "watch"))
+gulp.task("dev", gulp.series(
+    "set-development",
+    "init",
+    "build",
+    gulp.parallel("watch", "run")
+));
 
 //=========================================================
 // Other

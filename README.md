@@ -25,13 +25,11 @@ or alternatively
     ./node_modules/bower/bin/bower install
     ./node_modules/gulp/bin/gulp.js
 
-You can also try `gulp --production` to enable optimizations.
-
 Application is running at <http://localhost:5000>.
 
 ## Game Library
 
-Put your *.nes* ROM files inside the `server/roms` directory to see them in game library.
+Put your *.nes* ROM files inside the `roms` directory to see them in game library.
 
 To have custom thumbnails you have to add image with the same as the ROM file.
 E.g., thumbnail for `Super Mario Bros.nes` should be named `Super Mario Bros.jpg`.

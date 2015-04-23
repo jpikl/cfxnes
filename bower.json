@@ -1,31 +1,32 @@
 {
   "name": "cfxnes",
-  "version": "0.0.0",
-  "description": "NES emulator written in CoffeeScript.",
-  "private": true,
+  "version": "0.1.0",
+  "description": "A Nintendo Entertainment System emulator written in ECMAScript 6.",
   "license": "MIT",
-  "homepage": "https://github.com/jpikl/cfxnes",
+  "private": true,
+  "keywords": [
+    "emulator",
+    "NES",
+    "es6"
+  ],
   "authors": [
     "Jan Pikl <pikl.jan@gmail.com>"
   ],
-  "keywords": [
-    "emulator",
-    "NES"
-  ],
+  "homepage": "https://github.com/jpikl/cfxnes",
   "ignore": [
     "**/*"
   ],
   "dependencies": {
-    "angular-bootstrap": "~0.12.0",
-    "angular-route": "~1.3.8",
-    "angular-ui-router": "~0.2.13",
-    "angular": "~1.3.8",
-    "bootstrap": "~3.3.1",
-    "js-md5": "~1.1.0",
-    "screenfull": "~2.0.0",
-    "angular-bootstrap-slider": "~0.0.8"
+    "angular": "^1.3.15",
+    "angular-bootstrap": "^0.12.1",
+    "angular-bootstrap-slider": "^0.1.1",
+    "angular-route": "^1.3.15",
+    "angular-ui-router": "^0.2.13",
+    "bootstrap": "^3.3.4",
+    "js-md5": "^1.1.0",
+    "screenfull": "^2.0.0"
   },
   "resolutions": {
-    "angular": "~1.3.8"
+    "angular": "^1.3.15"
   }
 }
