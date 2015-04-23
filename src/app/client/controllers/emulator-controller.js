@@ -1,4 +1,6 @@
-angular.module("cfxnes").controller("EmulatorController", ($scope, $state, $stateParams, emulator, library, globalParams) => {
+angular.module("cfxnes").controller("EmulatorController",
+    ["$scope", "$state", "$stateParams", "emulator", "library", "globalParams",
+    ($scope, $state, $stateParams, emulator, library, globalParams) => {
 
     $scope.emulator = emulator;
 
@@ -72,4 +74,4 @@ angular.module("cfxnes").controller("EmulatorController", ($scope, $state, $stat
         return emulator.start();
     }
 
-});
+}]);

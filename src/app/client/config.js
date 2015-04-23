@@ -1,4 +1,6 @@
-angular.module("cfxnes").config(($stateProvider, $urlRouterProvider, $tooltipProvider) => {
+angular.module("cfxnes").config(
+    ["$stateProvider", "$urlRouterProvider", "$tooltipProvider",
+    ($stateProvider, $urlRouterProvider, $tooltipProvider) => {
 
     $stateProvider.state("emulator", {
         url: "/emulator/{gameId}",
@@ -45,4 +47,4 @@ angular.module("cfxnes").config(($stateProvider, $urlRouterProvider, $tooltipPro
         appendToBody: true
     });
 
-});
+}]);

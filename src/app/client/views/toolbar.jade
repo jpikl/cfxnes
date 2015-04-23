@@ -1,6 +1,7 @@
 #toolbar.nav.navbar-nav.navbar-left
     .btn-group
         open-file-button.btn.btn-default.navbar-btn(tooltip="Load ROM" on-file-load="loadCartridge(file)"): .glyphicon.glyphicon-open
+    = ' '
     .btn-group(ng-hide="isRunning()")
         button.btn.btn-default.navbar-btn(tooltip="Hard reset" ng-click="hardReset()"): .glyphicon.glyphicon-off
         button.btn.btn-default.navbar-btn(tooltip="Soft reset" ng-click="softReset()"): .glyphicon.glyphicon-repeat
@@ -9,10 +10,12 @@
         button.btn.btn-default.navbar-btn(tooltip="Hard reset" ng-click="hardReset()"): .glyphicon.glyphicon-off
         button.btn.btn-default.navbar-btn(tooltip="Soft reset" ng-click="softReset()"): .glyphicon.glyphicon-repeat
         button.btn.btn-default.navbar-btn(tooltip="Pause" ng-click="stop()"): .glyphicon.glyphicon-pause
+    = ' '
     .btn-group
         button.btn.btn-default.navbar-btn(tooltip="Decrease scale" ng-click="decreaseSize()" ng-class="{ disabled: isMinSize() }"): .glyphicon.glyphicon-zoom-out
         button.btn.btn-default.navbar-btn(tooltip="Increase scale" ng-click="increaseSize()" ng-class="{ disabled: isMaxSize() }"): .glyphicon.glyphicon-zoom-in
         button.btn.btn-default.navbar-btn(tooltip="Fullscreen" ng-click="enterFullScreen()"): .glyphicon.glyphicon-fullscreen
+    = ' '
     .btn-group.dropdown(dropdown ng-show="audioSupported")
         button.dropdown-toggle.btn.btn-default.navbar-btn(dropdown-toggle tooltip="Volume"): volume-icon(ng-model="audioVolume")
         .dropdown-menu.volume-control(ng-click="preventClose($event)")

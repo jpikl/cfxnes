@@ -1,4 +1,6 @@
-angular.module("cfxnes").controller("ConfigController", ($scope, $stateParams, $modal, emulator, globalParams) => {
+angular.module("cfxnes").controller("ConfigController",
+    ["$scope", "$stateParams", "$modal", "emulator", "globalParams",
+    ($scope, $stateParams, $modal, emulator, globalParams) => {
 
     var arrayToProperties = function(array, callback, thisArg) {
         var object = {};
@@ -85,4 +87,4 @@ angular.module("cfxnes").controller("ConfigController", ($scope, $stateParams, $
         }
     });
 
-});
+}]);

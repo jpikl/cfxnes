@@ -1,4 +1,5 @@
-angular.module("cfxnes").controller("ToolbarController", ($scope, emulator) => {
+angular.module("cfxnes").controller("ToolbarController",
+    ["$scope", "emulator", ($scope, emulator) => {
 
     $scope.loadCartridge = (file) => {
         var onLoad = () => $scope.$parent.$broadcast("cartridgeLoadSuccess");
@@ -32,4 +33,4 @@ angular.module("cfxnes").controller("ToolbarController", ($scope, emulator) => {
 
     setInterval(() => $scope.$apply(), 1000); // To periodically refresh FPS counter
 
-});
+}]);

@@ -1,4 +1,4 @@
-angular.module("cfxnes").directive("focusWhen", ($timeout) => {
+angular.module("cfxnes").directive("focusWhen", ["$timeout", ($timeout) => {
     return {
         restriction: "A",
         scope: {
@@ -17,4 +17,4 @@ angular.module("cfxnes").directive("focusWhen", ($timeout) => {
             });
         }
     };
-});
+}]);

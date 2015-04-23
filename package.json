@@ -18,7 +18,10 @@
     "type": "git",
     "url": "https://github.com/jpikl/cfxnes"
   },
-  "dependencies": {},
+  "dependencies": {
+    "express": "^4.12.3",
+    "morgan": "^1.5.2"
+  },
   "devDependencies": {
     "babel": "^5.1.11",
     "chai": "^2.2.0",
@@ -30,6 +33,7 @@
     "gulp-if": "^1.2.5",
     "gulp-jade": "^1.0.0",
     "gulp-mocha": "^2.0.1",
+    "gulp-nodemon": "^2.0.2",
     "gulp-rename": "^1.2.2",
     "gulp-stylus": "^2.0.1",
     "gulp-uglify": "^1.2.0",

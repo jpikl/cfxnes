@@ -1,22 +1,29 @@
-mixin stylesheets(files)
-    each file in files
-        if proMode
-            -file = file + ".min"
-        link(rel="stylesheet", type="text/css", href="styles/#{file}.css")
+mixin stylesheet(name, hasMinVersion)
+    -file = name + ((environment == "production" && hasMinVersion) ? ".min.css" : ".css")
+    link(rel="stylesheet", type="text/css", href="styles/#{file}")
 
-mixin scripts(files)
-    each file in files
-        if proMode
-            -file = file + ".min"
-        script(type="text/javascript", src="scripts/#{file}.js")
+mixin script(name, hasMinVersion)
+    -file = name + ((environment == "production" && hasMinVersion) ? ".min.js" : ".js")
+    script(type="text/javascript", src="scripts/#{file}")
 
 doctype html
 html(ng-app="cfxnes")
     head
         meta(charset="utf-8")
         title CFxNES - NES emulator
-        +stylesheets([ "bootstrap", "bootstrap-slider", "app" ])
-        +scripts([ "jquery", "bootstrap-slider", "angular", "angular-ui-router", "ui-bootstrap-tpls", "slider", "screenfull", "md5", "cfxnes", "app" ])
+        +stylesheet("bootstrap", true)
+        +stylesheet("bootstrap-slider", true)
+        +stylesheet("app", true)
+        +script("jquery", true)
+        +script("bootstrap-slider", true)
+        +script("angular", true)
+        +script("angular-ui-router", true)
+        +script("ui-bootstrap-tpls", true)
+        +script("slider", false)
+        +script("screenfull", false)
+        +script("md5", true)
+        +script("cfxnes", true)
+        +script("app", true)
     body
         nav.navbar.navbar-default
             .container-fluid

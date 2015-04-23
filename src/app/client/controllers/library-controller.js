@@ -1,4 +1,6 @@
-angular.module("cfxnes").controller("LibraryController", ($scope, $state, library, emulator, globalParams) => {
+angular.module("cfxnes").controller("LibraryController",
+    ["$scope", "$state", "library", "emulator", "globalParams",
+    ($scope, $state, library, emulator, globalParams) => {
 
     $scope.gameFilter = globalParams.gameFilter;
     $scope.loading = true;
@@ -15,4 +17,4 @@ angular.module("cfxnes").controller("LibraryController", ($scope, $state, librar
         $scope.loading = false;
     });
 
-});
+}]);

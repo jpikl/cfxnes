@@ -1,4 +1,4 @@
-angular.module("cfxnes").service("library", function($http, $q) {
+angular.module("cfxnes").service("library", ["$http", "$q", function($http, $q) {
 
     this.getROMs = function() {
         return $http({
@@ -24,4 +24,4 @@ angular.module("cfxnes").service("library", function($http, $q) {
         });
     };
 
-});
+}]);
