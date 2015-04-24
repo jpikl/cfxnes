@@ -19,7 +19,7 @@
   "dependencies": {
     "angular": "^1.3.15",
     "angular-bootstrap": "^0.12.1",
-    "angular-bootstrap-slider": "^0.1.1",
+    "angular-bootstrap-slider": "^0.0.8",
     "angular-route": "^1.3.15",
     "angular-ui-router": "^0.2.13",
     "bootstrap": "^3.3.4",
