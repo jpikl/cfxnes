@@ -2,21 +2,13 @@ angular.module("cfxnes").controller("ConfigController",
     ["$scope", "$stateParams", "$modal", "emulator", "globalParams",
     ($scope, $stateParams, $modal, emulator, globalParams) => {
 
-    var arrayToProperties = function(array, callback, thisArg) {
-        var object = {};
-        for (var value of array) {
-            object[value] = callback.call(thisArg, value);
-        }
-        return object;
-    }
-
     $scope.emulation = globalParams.emulationConfig;
-    $scope.emulation.visible = $stateParams.section == "" || $stateParams.section === "emulation";
+    $scope.emulation.visible = $stateParams.section === "emulation" || $stateParams.section === "" && $scope.emulation.visible !== false;
     $scope.emulation.tvSystem = emulator.getTVSystem() || "auto";
     $scope.emulation.speed = emulator.getSpeed();
 
     $scope.video = globalParams.videoConfig;
-    $scope.video.visible = $stateParams.section === "video";
+    $scope.video.visible = $stateParams.section === "video" || $stateParams.section === "" && $scope.video.visible;
     $scope.video.scale = emulator.getVideoScale();
     $scope.video.maxScale = emulator.getMaxVideoScale();
     $scope.video.palette = emulator.getVideoPalette();
@@ -26,14 +18,14 @@ angular.module("cfxnes").controller("ConfigController",
     $scope.video.smoothing = emulator.isVideoSmoothing();
 
     $scope.audio = globalParams.audioConfig;
-    $scope.audio.visible = $stateParams.section === "audio";
+    $scope.audio.visible = $stateParams.section === "audio" || $stateParams.section === "" && $scope.audio.visible;
     $scope.audio.supported = emulator.isAudioSupported();
     $scope.audio.enabled = emulator.isAudioEnabled();
     $scope.audio.volume = emulator.getAudioVolume();
     $scope.audio.channels = arrayToProperties(emulator.audioChannels, (channel) => emulator.isAudioChannelEnabled(channel));
 
     $scope.controls = globalParams.controlsConfig;
-    $scope.controls.visible = $stateParams.section === "controls";
+    $scope.controls.visible = $stateParams.section === "controls" || $stateParams.section === "" && $scope.controls.visible;
     $scope.controls.infoDisabled = localStorage["controlsInfoDisabled"] === "true";
     $scope.controls.devices = arrayToProperties(emulator.inputPorts, (port) => emulator.getInputDevice(port) || "none");
 
@@ -86,5 +78,13 @@ angular.module("cfxnes").controller("ConfigController",
             globalParams.controlsInfoVisible = false;
         }
     });
+
+    function arrayToProperties(array, callback, thisArg) {
+        var object = {};
+        for (var value of array) {
+            object[value] = callback.call(thisArg, value);
+        }
+        return object;
+    }
 
 }]);
