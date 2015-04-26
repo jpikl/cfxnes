@@ -2,7 +2,7 @@
 
 A Nintendo Entertainment System emulator written in ECMAScript 6.
 
-![CFxNES logo](https://raw.githubusercontent.com/jpikl/cfxnes/master/client/images/logo-md.png)
+![CFxNES logo](https://raw.githubusercontent.com/jpikl/cfxnes/master/src/app/client/images/logo-md.png)
 
 Try CFxNES out at [cfxnes.heroku.com](http://cfxnes.herokuapp.com)
 
