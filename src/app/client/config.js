@@ -34,7 +34,8 @@ angular.module("cfxnes").config(
         url: "/about/",
         views: {
             "content": {
-                templateUrl: "views/about.html"
+                templateUrl: "views/about.html",
+                controller: "AboutController"
             }
         }
     });
