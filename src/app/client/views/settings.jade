@@ -31,7 +31,7 @@ mixin device(port)
     h1 Settings
 
     accordion.form-horizontal
-        accordion-group(heading="Emulation" is-open="emulation.visible")
+        accordion-group.emulation-group(heading="Emulation" is-open="emulation.visible")
             .form-group
                 label.control-label.col-xs-2(for="tv-system") TV system
                 .col-xs-4
@@ -44,7 +44,7 @@ mixin device(port)
                 .col-xs-3
                     slider(id="speed" ng-model="emulation.speed" min="0.25" step="0.25" max="2" formater="multiplierFormater")
 
-        accordion-group(heading="Video" is-open="video.visible")
+        accordion-group.video-group(heading="Video" is-open="video.visible")
             .form-group
                 label.control-label.col-xs-2(for="video-debugging") Output scale
                 .col-xs-3
@@ -67,7 +67,7 @@ mixin device(port)
                     input(id="video-webgl" type="checkbox" ng-model="video.webGL")
                     label(for="video-webgl") Use WebGL for rendering
 
-        accordion-group(heading="Audio" is-open="audio.visible" ng-show="audio.supported")
+        accordion-group.audio-group(heading="Audio" is-open="audio.visible" ng-show="audio.supported")
             .form-group
                 label.control-label.col-xs-2(for="audio-volume") Volume
                 .col-xs-3
@@ -95,7 +95,7 @@ mixin device(port)
                     input(id="audio-dmc-enabled" type="checkbox" ng-model="audio.channels.dmc" ng-disabled="!audio.enabled")
                     label(for="audio-dmc-enabled") Enable DMC channel
 
-        accordion-group(heading="Controls" is-open="controls.visible")
+        accordion-group.controls-group(heading="Controls" is-open="controls.visible")
             .row
                 +device(1)
                 +device(2)
