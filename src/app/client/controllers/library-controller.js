@@ -11,6 +11,7 @@ angular.module("cfxnes").controller("LibraryController",
 
     library.getROMs().success((data) => {
         $scope.games = data;
+        $scope.empty = data.length === 0
         $scope.loading = false;
     }).error((data, status) => {
         $scope.error = `Unable to download game list (server response: ${status})`;

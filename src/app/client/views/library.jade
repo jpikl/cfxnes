@@ -8,10 +8,13 @@
     .row(ng-show="error")
         .col-xs-12
             alert(type="danger") {{ error }}
-    .row(ng-hide="loading || error")
+    .row(ng-show="empty")
+        .col-xs-12
+            alert(type="info") There are no games available.
+    .row(ng-hide="loading || error || empty")
         .col-xs-12
             input.form-control(type="search" placeholder="Search games" ng-model="gameFilter.name" focus-when="!loading")
-    .row(ng-hide="loading || error")
+    .row(ng-hide="loading || error || empty")
         #library.col-xs-12(tabindex="0")
             a.library-item(ng-repeat="game in games | filter:gameFilter" ng-click="playGame(game)")
                 .glyphicon.glyphicon-play
