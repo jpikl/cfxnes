@@ -19,7 +19,7 @@ angular.module("cfxnes").controller("EmulatorController",
         $scope.controlsInfoVisible = false;
     }
 
-    $scope.changeControlsUrl = $state.href("config", { section: "controls" });
+    $scope.changeControlsUrl = $state.href("settings", { section: "controls" });
     $scope.controlsInfoVisible = globalParams.controlsInfoVisible;
 
     $scope.getMappedInputName = (device, input) => {

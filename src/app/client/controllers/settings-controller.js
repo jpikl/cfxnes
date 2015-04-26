@@ -1,13 +1,13 @@
-angular.module("cfxnes").controller("ConfigController",
+angular.module("cfxnes").controller("SettingsController",
     ["$scope", "$stateParams", "$modal", "emulator", "globalParams",
     ($scope, $stateParams, $modal, emulator, globalParams) => {
 
-    $scope.emulation = globalParams.emulationConfig;
+    $scope.emulation = globalParams.emulationSettings;
     $scope.emulation.visible = $stateParams.section === "emulation" || $stateParams.section === "" && $scope.emulation.visible !== false;
     $scope.emulation.tvSystem = emulator.getTVSystem() || "auto";
     $scope.emulation.speed = emulator.getSpeed();
 
-    $scope.video = globalParams.videoConfig;
+    $scope.video = globalParams.videoSettings;
     $scope.video.visible = $stateParams.section === "video" || $stateParams.section === "" && $scope.video.visible;
     $scope.video.scale = emulator.getVideoScale();
     $scope.video.maxScale = emulator.getMaxVideoScale();
@@ -17,14 +17,14 @@ angular.module("cfxnes").controller("ConfigController",
     $scope.video.debugging = emulator.isVideoDebugging();
     $scope.video.smoothing = emulator.isVideoSmoothing();
 
-    $scope.audio = globalParams.audioConfig;
+    $scope.audio = globalParams.audioSettings;
     $scope.audio.visible = $stateParams.section === "audio" || $stateParams.section === "" && $scope.audio.visible;
     $scope.audio.supported = emulator.isAudioSupported();
     $scope.audio.enabled = emulator.isAudioEnabled();
     $scope.audio.volume = emulator.getAudioVolume();
     $scope.audio.channels = arrayToProperties(emulator.audioChannels, (channel) => emulator.isAudioChannelEnabled(channel));
 
-    $scope.controls = globalParams.controlsConfig;
+    $scope.controls = globalParams.controlsSettings;
     $scope.controls.visible = $stateParams.section === "controls" || $stateParams.section === "" && $scope.controls.visible;
     $scope.controls.infoDisabled = localStorage["controlsInfoDisabled"] === "true";
     $scope.controls.devices = arrayToProperties(emulator.inputPorts, (port) => emulator.getInputDevice(port) || "none");

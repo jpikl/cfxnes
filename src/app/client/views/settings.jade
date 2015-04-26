@@ -27,8 +27,8 @@ mixin device(port)
         div(ng-show="controls.devices[#{port}] == 'zapper'")
             +device-input(port, "zapper", "trigger", "Trigger")
 
-.container.configuration
-    h1 Configuration
+.container.settings
+    h1 Settings
 
     accordion.form-horizontal
         accordion-group(heading="Emulation" is-open="emulation.visible")

@@ -22,12 +22,12 @@ angular.module("cfxnes").config(
                 controller: "LibraryController"
             }
         }
-    }).state("config", {
-        url: "/config/{section}",
+    }).state("settings", {
+        url: "/settings/{section}",
         views: {
             "content": {
-                templateUrl: "views/config.html",
-                controller: "ConfigController"
+                templateUrl: "views/settings.html",
+                controller: "SettingsController"
             }
         }
     }).state("about", {

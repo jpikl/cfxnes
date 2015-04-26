@@ -119,13 +119,14 @@ gulp.task("vendor-styles", function() {
     return gulp.src([
                 envfile("./bower_components/bootstrap/dist/css/bootstrap.css"),
                 envfile("./bower_components/bootstrap/dist/css/bootstrap-theme.css"),
-                envfile("./bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css")
+                envfile("./bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css"),
+                envfile("./bower_components/font-awesome/css/font-awesome.css")
             ])
         .pipe(gulp.dest("./dist/app/static/styles/"));
 });
 
 gulp.task("vendor-fonts", function() {
-    return gulp.src("./bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.*")
+    return gulp.src("./bower_components/font-awesome/fonts/fontawesome-webfont.*")
         .pipe(gulp.dest("./dist/app/static/fonts/"));
 });
 

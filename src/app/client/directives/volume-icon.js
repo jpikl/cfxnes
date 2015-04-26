@@ -4,20 +4,26 @@ angular.module("cfxnes").directive("volumeIcon", () => {
         templateUrl: "directives/volume-icon.html",
         replace: true,
         link: (scope, element, attrs) => {
-            var getIconClass = (volume) => {
-                if (!scope.audioSupported || !scope.audioEnabled || scope.audioVolume === 0) {
-                    return "glyphicon-volume-off";
+            function isAudioEnabled() {
+                return scope.audioSupported && scope.audioEnabled
+            }
+            function getIconClass() {
+                if (!scope.audioSupported || scope.audioVolume === 0) {
+                    return "fa-volume-off";
                 } else if (scope.audioVolume < 0.5) {
-                    return "glyphicon-volume-down";
+                    return "fa-volume-down";
                 } else {
-                    return "glyphicon-volume-up";
+                    return "fa-volume-up";
                 }
             };
-            var updateIcon = (volume) => {
-                element.removeClass("glyphicon-volume-up");
-                element.removeClass("glyphicon-volume-down");
-                element.removeClass("glyphicon-volume-off");
-                element.addClass(getIconClass(volume));
+            function updateIcon() {
+                var volumeIcon = element.find(".volume-icon-value");
+                var disableIcon = element.find(".volume-icon-disable");
+                volumeIcon.removeClass("fa-volume-up");
+                volumeIcon.removeClass("fa-volume-down");
+                volumeIcon.removeClass("fa-volume-off");
+                volumeIcon.addClass(getIconClass());
+                disableIcon.css("display", isAudioEnabled() ? "none" : "inline-block");
             };
             scope.$watch("audioEnabled", updateIcon);
             scope.$watch("audioVolume", updateIcon);

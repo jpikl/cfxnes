@@ -17,6 +17,6 @@
     .row(ng-hide="loading || error || empty")
         #library.col-xs-12(tabindex="0")
             a.library-item(ng-repeat="game in games | filter:gameFilter" ng-click="playGame(game)")
-                .glyphicon.glyphicon-play
+                .fa.fa-play.fa-3x
                 img(src="images/cartridge.png" lazy-src="{{game.thumbnailURL}}")
                 | {{ game.name }}
