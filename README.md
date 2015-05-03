@@ -29,8 +29,9 @@ Application is running at <http://localhost:5000>.
 
 ## Game Library
 
-Put your *.nes* ROM files inside the `roms` directory to see them in game library.
+Put your *.nes* ROM files inside the `dist/app/roms` directory to make them available in game library.
+On non-Widows platforms, symbolic link `roms` to this directory is automatically created.
 
-To have custom thumbnails you have to add image with the same as the ROM file.
+To have custom thumbnails you have to add image with the same name as the ROM file.
 E.g., thumbnail for `Super Mario Bros.nes` should be named `Super Mario Bros.jpg`.
 Supported image formats are *JPG*, *PNG* and *GIF*.

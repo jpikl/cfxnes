@@ -147,9 +147,13 @@ gulp.task("server", function() {
 
 gulp.task("init", function(done) {
     mkdirp.sync("./dist/");
-    mkdirp.sync("./roms/");
-    return gulp.src("./roms/")
-        .pipe(gulp.symlink("./dist/app/"));
+    if (process.platform === "win32") {
+        done(); // Common Windows user doesn't have right to create symbolic links 
+    } else {
+        mkdirp.sync("./roms/");
+        return gulp.src("./roms/")
+            .pipe(gulp.symlink("./dist/app/"));
+    }
 });
 
 gulp.task("build", gulp.parallel(

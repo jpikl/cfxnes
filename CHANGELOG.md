@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased][unreleased]
 ### Fixed
 - Fix emulator initialization in Internet Explorer.
+- Fix build process initialization on Windows.
 
 ## 0.0.1 - 2015-04-26
 - Complete rewrite from CoffeeScript to ECMAScript 6.
