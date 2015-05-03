@@ -110,7 +110,8 @@ gulp.task("vendor-scripts", function() {
                 envfile("./bower_components/angular-bootstrap/ui-bootstrap-tpls.js"),
                 envfile("./bower_components/js-md5/js/md5.js"),
                 "./bower_components/angular-bootstrap-slider/slider.js", // Missing .min file
-                "./bower_components/screenfull/dist/screenfull.js" // Missing .min file
+                "./bower_components/screenfull/dist/screenfull.js", // Missing .min file
+                "./node_modules/babel/node_modules/babel-core/browser-polyfill.js" // Already minified
             ])
         .pipe(gulp.dest("./dist/app/static/scripts/"));
 });

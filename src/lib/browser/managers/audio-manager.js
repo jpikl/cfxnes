@@ -132,12 +132,15 @@ export class AudioManager {
         volume = Math.max(0.0, Math.min(volume, 1.0));
         if (this.getVolume() != volume) {
             logger.info(`Setting audio volume to ${~~(100 * volume)}%`);
-            this.gain.gain.value = volume;
+            if (this.isSupported()) {
+                this.gain.gain.value = volume;
+            }
+            this.volume = volume;
         }
     }
 
     getVolume() {
-        return this.gain.gain.value;
+        return this.volume;
     }
 
     //=========================================================
