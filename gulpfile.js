@@ -108,6 +108,7 @@ gulp.task("vendor-scripts", function() {
                 envfile("./bower_components/angular/angular.js"),
                 envfile("./bower_components/angular-ui-router/release/angular-ui-router.js"),
                 envfile("./bower_components/angular-bootstrap/ui-bootstrap-tpls.js"),
+                envfile("./bower_components/bootstrap/dist/js/bootstrap.js"),
                 envfile("./bower_components/js-md5/js/md5.js"),
                 "./bower_components/angular-bootstrap-slider/slider.js", // Missing .min file
                 "./bower_components/screenfull/dist/screenfull.js", // Missing .min file
@@ -148,7 +149,7 @@ gulp.task("server", function() {
 gulp.task("init", function(done) {
     mkdirp.sync("./dist/");
     if (process.platform === "win32") {
-        done(); // Common Windows user doesn't have right to create symbolic links 
+        done(); // Common Windows user doesn't have right to create symbolic links
     } else {
         mkdirp.sync("./roms/");
         return gulp.src("./roms/")
