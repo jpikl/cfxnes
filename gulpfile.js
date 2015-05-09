@@ -74,10 +74,16 @@ gulp.task("scripts", function() {
 });
 
 gulp.task("styles", function() {
-    return gulp.src("./src/app/client/**/*.styl")
-        .pipe(stylus({compress: production()}))
+    return gulp.src("./src/app/client/app.styl")
+        .pipe(stylus({
+            include: [
+                "./bower_components/bootstrap-stylus/",
+                "./bower_components/font-awesome-stylus/stylus/"
+            ],
+            compress: production()
+        }))
         .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
-        .pipe(concat(envfile("app.css")))
+        .pipe(rename(envfile("app.css")))
         .pipe(gulp.dest("./dist/app/static/styles/"));
 });
 
@@ -119,16 +125,13 @@ gulp.task("vendor-scripts", function() {
 
 gulp.task("vendor-styles", function() {
     return gulp.src([
-                envfile("./bower_components/bootstrap/dist/css/bootstrap.css"),
-                envfile("./bower_components/bootstrap/dist/css/bootstrap-theme.css"),
-                envfile("./bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css"),
-                envfile("./bower_components/font-awesome/css/font-awesome.css")
+                envfile("./bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css")
             ])
         .pipe(gulp.dest("./dist/app/static/styles/"));
 });
 
 gulp.task("vendor-fonts", function() {
-    return gulp.src("./bower_components/font-awesome/fonts/fontawesome-webfont.*")
+    return gulp.src("./bower_components/font-awesome-stylus/fonts/fontawesome-webfont.*")
         .pipe(gulp.dest("./dist/app/static/fonts/"));
 });
 

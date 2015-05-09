@@ -1,20 +1,20 @@
-#toolbar.nav.navbar-nav.navbar-left
+.toolbar.nav.navbar-nav.navbar-left
     .btn-group
-        open-file-button.btn.btn-default.navbar-btn(tooltip="Open ROM" on-file-load="loadCartridge(file)"): .fa.fa-folder-open
+        open-file-button.btn.btn-default.navbar-btn(tooltip="Open ROM" on-file-load="loadCartridge(file)"): .icon.icon-folder-open
     = ' '
     .btn-group(ng-hide="isRunning()")
-        button.btn.btn-default.navbar-btn(tooltip="Hard reset" ng-click="hardReset()"): .fa.fa-power-off
-        button.btn.btn-default.navbar-btn(tooltip="Soft reset" ng-click="softReset()"): .fa.fa-repeat
-        button.btn.btn-default.navbar-btn(tooltip="Run" ng-click="start()"): .fa.fa-play
+        button.btn.btn-default.navbar-btn(tooltip="Hard reset" ng-click="hardReset()"): .icon.icon-power-off
+        button.btn.btn-default.navbar-btn(tooltip="Soft reset" ng-click="softReset()"): .icon.icon-repeat
+        button.btn.btn-default.navbar-btn(tooltip="Run" ng-click="start()"): .icon.icon-play
     .btn-group(ng-show="isRunning()")
-        button.btn.btn-default.navbar-btn(tooltip="Hard reset" ng-click="hardReset()"): .fa.fa-power-off
-        button.btn.btn-default.navbar-btn(tooltip="Soft reset" ng-click="softReset()"): .fa.fa-repeat
-        button.btn.btn-default.navbar-btn(tooltip="Pause" ng-click="stop()"): .fa.fa-pause
+        button.btn.btn-default.navbar-btn(tooltip="Hard reset" ng-click="hardReset()"): .icon.icon-power-off
+        button.btn.btn-default.navbar-btn(tooltip="Soft reset" ng-click="softReset()"): .icon.icon-repeat
+        button.btn.btn-default.navbar-btn(tooltip="Pause" ng-click="stop()"): .icon.icon-pause
     = ' '
     .btn-group
-        button.btn.btn-default.navbar-btn(tooltip="Decrease scale" ng-click="decreaseSize()" ng-class="{ disabled: isMinSize() }"): .fa.fa-search-minus
-        button.btn.btn-default.navbar-btn(tooltip="Increase scale" ng-click="increaseSize()" ng-class="{ disabled: isMaxSize() }"): .fa.fa-search-plus
-        button.btn.btn-default.navbar-btn(tooltip="Fullscreen" ng-click="enterFullScreen()"): .fa.fa-arrows-alt
+        button.btn.btn-default.navbar-btn(tooltip="Decrease scale" ng-click="decreaseSize()" ng-class="{ disabled: isMinSize() }"): .icon.icon-search-minus
+        button.btn.btn-default.navbar-btn(tooltip="Increase scale" ng-click="increaseSize()" ng-class="{ disabled: isMaxSize() }"): .icon.icon-search-plus
+        button.btn.btn-default.navbar-btn(tooltip="Fullscreen" ng-click="enterFullScreen()"): .icon.icon-arrows-alt
     = ' '
     .btn-group.dropdown(dropdown ng-show="audioSupported")
         button.dropdown-toggle.btn.btn-default.navbar-btn(dropdown-toggle tooltip="Volume"): volume-icon(ng-model="audioVolume")

@@ -13,10 +13,8 @@ html(ng-app="cfxnes")
         meta(http-equiv="X-UA-Compatible" content="IE=edge")
         meta(name="viewport" content="width=device-width, initial-scale=1")
         title CFxNES - NES emulator
-        +stylesheet("bootstrap", true)
         +stylesheet("bootstrap-slider", true)
         +stylesheet("app", true)
-        +stylesheet("font-awesome", true)
         +script("browser-polyfill", false)
         +script("jquery", true)
         +script("bootstrap", true)
@@ -34,32 +32,32 @@ html(ng-app="cfxnes")
             .container-fluid
                 .navbar-header
                     button.navbar-toggle.collapsed(type="button" data-toggle="collapse" data-target=".navbar-collapse")
-                        .span.sr-only Toggle navigation
-                        .icon-bar
-                        .icon-bar
-                        .icon-bar
+                        span.sr-only Toggle navigation
+                        span.icon-bar
+                        span.icon-bar
+                        span.icon-bar
                     a.navbar-brand(ui-sref="emulator")
-                        img.logo(src="images/logo-sm.png")
+                        img(src="images/logo-sm.png")
                         | CFxNES
                 .navbar-collapse.collapse
                     ul.nav.navbar-nav.navbar-left
                         li(ui-sref-active="active")
                             a(ui-sref="emulator")
-                                span.fa.fa-lg.fa-gamepad
+                                span.icon.icon-gamepad
                                 | Emulator
                         li(ui-sref-active="active")
                             a(ui-sref="library")
-                                span.fa.fa-lg.fa-book
+                                span.icon.icon-book
                                 | Game Library
                         li(ui-sref-active="active")
                             a(ui-sref="settings")
-                                span.fa.fa-lg.fa-cog
+                                span.icon.icon-cog
                                 | Settings
                     div(ui-view="header")
                     ul.nav.navbar-nav.navbar-right
                         li(ui-sref-active="active")
                             a(ui-sref="about")
-                                span.fa.fa-lg.fa-question-circle
+                                span.icon.icon-question-circle
                                 | About
         div(ui-view="content")
     script(type="text/javascript").

@@ -1,22 +1,22 @@
-.container
-    .row
-        h1.col-xs-12 Game Library
-    .row(ng-show="loading")
-        p.loader.col-xs-12
-            img(src="images/loading-light.gif")
-            | Loading...
-    .row(ng-show="error")
-        .col-xs-12
+.library
+    .library-section
+        div
+            h1 Game Library
+    .library-section(ng-show="loading")
+        div
+            .loader Loading...
+    .library-section(ng-show="error")
+        div
             alert(type="danger") {{ error }}
-    .row(ng-show="empty")
-        .col-xs-12
+    .library-section(ng-show="empty")
+        div
             alert(type="info") There are no games available.
-    .row(ng-hide="loading || error || empty")
-        .col-xs-12
+    .library-section(ng-hide="loading || error || empty")
+        div
             input.form-control(type="search" placeholder="Search games" ng-model="gameFilter.name" focus-when="!loading")
-    .row(ng-hide="loading || error || empty")
-        #library.col-xs-12(tabindex="0")
-            a.library-item(ng-repeat="game in games | filter:gameFilter" ng-click="playGame(game)")
-                .fa.fa-play.fa-3x
+    .library-section(ng-hide="loading || error || empty")
+        .game-list
+            a.game(ng-repeat="game in games | filter:gameFilter" ng-click="playGame(game)")
+                .icon.icon-play
                 img(src="images/cartridge.png" lazy-src="{{game.thumbnailURL}}")
                 | {{ game.name }}

@@ -9,19 +9,19 @@ angular.module("cfxnes").directive("volumeIcon", () => {
             }
             function getIconClass() {
                 if (!scope.audioSupported || scope.audioVolume === 0) {
-                    return "fa-volume-off";
+                    return "icon-volume-off";
                 } else if (scope.audioVolume < 0.5) {
-                    return "fa-volume-down";
+                    return "icon-volume-down";
                 } else {
-                    return "fa-volume-up";
+                    return "icon-volume-up";
                 }
             };
             function updateIcon() {
                 var volumeIcon = element.find(".volume-icon-value");
                 var disableIcon = element.find(".volume-icon-disable");
-                volumeIcon.removeClass("fa-volume-up");
-                volumeIcon.removeClass("fa-volume-down");
-                volumeIcon.removeClass("fa-volume-off");
+                volumeIcon.removeClass("icon-volume-up");
+                volumeIcon.removeClass("icon-volume-down");
+                volumeIcon.removeClass("icon-volume-off");
                 volumeIcon.addClass(getIconClass());
                 disableIcon.css("display", isAudioEnabled() ? "none" : "inline-block");
             };

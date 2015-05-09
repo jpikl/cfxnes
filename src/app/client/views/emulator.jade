@@ -24,8 +24,7 @@ alert#controls-info(ng-show="controlsInfoVisible" type="info" close="hideControl
         +input-mapping("joypad", "down",   "Down")
         +input-mapping("zapper", "trigger", "Zapper")
 
-#emulator-loader.loader(ng-show="loading")
-    img(src="images/loading-dark.gif")
+#emulator-loader.loader.inverse(ng-show="loading")
     | Loading...
 canvas#video-output(video-output="emulator" on-file-drop="loadCartridge(file)")
     | Your browser does not support canvas element.

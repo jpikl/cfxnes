@@ -1,14 +1,14 @@
 mixin device-input(port, device, input, inputName)
-    .device-input.row
-        .col-xs-3.col-xs-offset-1.text-right
+    .device-input
+        div
             label #{inputName}
-        .col-xs-3
+        div
             span {{ getMappedInputName(#{port}, '#{device}', '#{input}') }}
-        .col-xs-3
+        div
             button.btn.btn-default(ng-click="recordInput(#{port}, '#{device}', '#{input}')") Change
 
 mixin device(port)
-    .device.col-xs-12.col-md-6
+    .device
         .device-select
             label Controller&nbsp;#{port}
             .btn-group
@@ -27,12 +27,12 @@ mixin device(port)
         div(ng-show="controls.devices[#{port}] == 'zapper'")
             +device-input(port, "zapper", "trigger", "Trigger")
 
-.container.settings
+.settings
     h1 Settings
 
     accordion
         accordion-group.emulation-group(heading="Emulation" is-open="emulation.visible")
-            .col-xs-12.col-md-6
+            .emulation-options
                 .form-group
                     label(for="tv-system") TV system
                     select.form-control(id="tv-system" ng-model="emulation.tvSystem")
@@ -44,7 +44,7 @@ mixin device(port)
                     slider(id="speed" ng-model="emulation.speed" min="0.25" step="0.25" max="2" formater="multiplierFormater")
 
         accordion-group.video-group(heading="Video" is-open="video.visible")
-            .col-xs-12.col-md-6
+            .video-options
                 .form-group
                     label.control-label(for="video-debugging") Output scale
                     div
@@ -56,7 +56,7 @@ mixin device(port)
                             option(value="default")   Default
                             option(value="bright")    Bright
                             option(value="realistic") Realistic
-            .form-group.col-xs-12.col-md-6
+            .video-options.form-group
                 div.checkbox
                     label(for="video-smoothing")
                         input(id="video-smoothing" type="checkbox" ng-model="video.smoothing")
@@ -71,16 +71,16 @@ mixin device(port)
                         | Use WebGL for rendering
 
         accordion-group.audio-group(heading="Audio" is-open="audio.visible" ng-show="audio.supported")
-            .col-xs-12.col-md-6
+            .audio-options
                 .form-group
                     label.control-label(for="audio-volume") Volume
                     slider(id="audio-volume" ng-model="audio.volume" ng-disabled="!audio.enabled" min="0" max="1" step="0.01" formater="percentageFormater")
-            .col-xs-12
+            .audio-options
                 .form-group.checkbox
                     label(for="audio-enabled")
                         input(id="audio-enabled" type="checkbox" ng-model="audio.enabled")
                         | Enable audio
-            .col-xs-12.col-md-6
+            .audio-options
                 .form-group.checkbox
                     label(for="audio-pulse-1-enabled")
                         input(id="audio-pulse-1-enabled" type="checkbox" ng-model="audio.channels.pulse1" ng-disabled="!audio.enabled")
@@ -93,7 +93,7 @@ mixin device(port)
                     label(for="audio-triangle-enabled")
                         input(id="audio-triangle-enabled" type="checkbox" ng-model="audio.channels.triangle" ng-disabled="!audio.enabled")
                         | Enable triangle channel
-            .col-xs-12.col-md-6
+            .audio-options
                 .form-group.checkbox
                     label(for="audio-noise-enabled")
                         input(id="audio-noise-enabled" type="checkbox" ng-model="audio.channels.noise" ng-disabled="!audio.enabled")
@@ -104,13 +104,13 @@ mixin device(port)
                         | Enable DMC channel
 
         accordion-group.controls-group(heading="Controls" is-open="controls.visible")
-            .row
+            .device-list
                 +device(1)
                 +device(2)
-            .row
-                .col-xs-4.col-xs-offset-1
+            .controls-options
+                div
                     button.btn.btn-default(ng-click="restoreDefaults()") Restore to defaults
-                .col-xs-11.col-xs-offset-1.col-sm-5.col-sm-offset-0.col-md-offset-2.checkbox
+                div.checkbox
                     label(for="controls-info-disabled")
                         input(id="controls-info-disabled" type="checkbox" ng-model="controls.infoDisabled")
                         | Never show controls on emulator page

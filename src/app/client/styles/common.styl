@@ -13,5 +13,14 @@ h1
     .slider-selection
         background gray
 
-.loader img
-    margin-right 12px
+.loader
+    &:before
+        content url("../images/loading-light.gif")
+        padding-right 12px
+        vertical-align -50%
+
+.loader.inverse:before
+    content url("../images/loading-dark.gif")
+
+.icon-stack-item
+    @extends .icon-stack-1x
