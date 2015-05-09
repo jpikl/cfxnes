@@ -13,6 +13,18 @@ var stylus       = require("gulp-stylus");
 var uglify       = require("gulp-uglify");
 var util         = require("gulp-util");
 var mkdirp       = require("mkdirp");
+var yargs        = require("yargs");
+
+//=========================================================
+// Arguments
+//=========================================================
+
+var argv = yargs.argv;
+var enableAnalytics = argv.enableAnalytics === true;
+
+if (enableAnalytics) {
+    util.log("Google Analytics enabled");
+}
 
 //=========================================================
 // Environments
@@ -92,7 +104,10 @@ gulp.task("views", function() {
         .pipe(jade({
             pretty: development(),
             compileDebug: development(),
-            data: {environment: environment}
+            data: {
+                environment: environment,
+                enableAnalytics: enableAnalytics
+            }
         }))
         .pipe(gulp.dest("./dist/app/static/"));
 });
