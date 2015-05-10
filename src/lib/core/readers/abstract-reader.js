@@ -1,3 +1,9 @@
+import { loadModule } from "../utils/system"
+
+var JSZip = loadModule({global: "JSZip", commonjs: "jszip"});
+
+const ZIP_SIGNATURE = [0x50, 0x4B, 0x03, 0x04];
+
 //=========================================================
 // Base class of readers
 //=========================================================
@@ -51,6 +57,18 @@ export class AbstractReader {
             throw new Error("Invalid input signature.");
         }
         this.skip(signature.length);
+    }
+
+    tryUnzip(data, onSuccess) {
+        if (this.contains(ZIP_SIGNATURE)) {
+            if (!JSZip) {
+                throw new Error("Unable to unzip data: JSZip library is not available.");
+            }
+            var files = JSZip(data).file(/^.*\.nes$/);
+            if (files.length > 0) {
+                onSuccess(files[0]);
+            }
+        }
     }
 
 }

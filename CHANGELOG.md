@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix emulator initialization in Internet Explorer.
 - Fix build process initialization on Windows.
 
+## Added
+- Add support for loading zipped `.nes` files.
+
 ### Changed
 - UI optimization for small screens.
 

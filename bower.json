@@ -26,6 +26,7 @@
     "bootstrap-stylus": "^4.0.4",
     "font-awesome-stylus": "^4.3.0",
     "js-md5": "^1.1.0",
+    "jszip": "Stuk/jszip#^2.5.0",
     "screenfull": "^2.0.0"
   },
   "resolutions": {

@@ -1,9 +1,10 @@
+import { loadModule } from "./system"
+
 //=========================================================
 // Conversion utilities
 //=========================================================
 
-export var md5 = typeof window  !== "undefined" && window.md5         // Running in browser
-              || typeof require !== "undefined" && require("js-md5"); // Running in Node.js
+export var md5 = loadModule({global: "md5", commonjs: "js-md5"});
 
 export function dataToString(input) {
     return String.fromCharCode.apply(null, input);

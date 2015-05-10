@@ -64,6 +64,7 @@ gulp.task("lib", function() {
                 language_in: "ECMASCRIPT6",
                 language_out: "ES5",
                 externs: [
+                    "./externs/JSZip.js",
                     "./externs/md5.js",
                     "./externs/screenfull.js",
                     "./externs/w3c_audio.js"
@@ -131,6 +132,7 @@ gulp.task("vendor-scripts", function() {
                 envfile("./bower_components/angular-bootstrap/ui-bootstrap-tpls.js"),
                 envfile("./bower_components/bootstrap/dist/js/bootstrap.js"),
                 envfile("./bower_components/js-md5/js/md5.js"),
+                envfile("./bower_components/jszip/dist/jszip.js"),
                 "./bower_components/angular-bootstrap-slider/slider.js", // Missing .min file
                 "./bower_components/screenfull/dist/screenfull.js", // Missing .min file
                 "./node_modules/babel/node_modules/babel-core/browser-polyfill.js" // Already minified
