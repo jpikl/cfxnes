@@ -1,6 +1,16 @@
 import { VIDEO_WIDTH, VIDEO_HEIGHT } from "../../core/common/constants";
 import { logger }                    from "../../core/utils/logger";
 
+function isScreenfullAvailable() {
+    return typeof screenfull !== "undefined";
+}
+
+function checkScreenfull(message) {
+    if (!isScreenfullAvailable()) {
+        throw new Error(`${message}: screenfull library is not available.`);
+    }
+}
+
 //=========================================================
 // Video manager
 //=========================================================
@@ -17,7 +27,9 @@ export class VideoManager {
     }
 
     initListeners() {
-        document.addEventListener(screenfull.raw.fullscreenchange, () => this.onFullscreenChange());
+        if (isScreenfullAvailable()) {
+            document.addEventListener(screenfull.raw.fullscreenchange, () => this.onFullscreenChange());
+        }
     }
 
     setDefaults() {
@@ -216,6 +228,7 @@ export class VideoManager {
     }
 
     enterFullScreen() {
+        checkScreenfull("Unable to enter fullscreen");
         if (screenfull.enabled && !this.isFullScreen()) {
             logger.info("Entering fullscreen");
             screenfull.request(this.canvas);
@@ -223,6 +236,7 @@ export class VideoManager {
     }
 
     leaveFullScreen() {
+        checkScreenfull("Unable to leave fullscreen");
         if (screenfull.enabled && this.isFullScreen()) {
             logger.info("Leaving fullscreen");
             screenfull.exit();
@@ -241,7 +255,7 @@ export class VideoManager {
     }
 
     isFullScreen() {
-        return screenfull.isFullscreen;
+        return isScreenfullAvailable() && screenfull.isFullscreen;
     }
 
     //=========================================================

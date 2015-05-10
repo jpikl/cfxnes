@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - UI optimization for small screens.
+- Make js-md5 and screenfull library optional dependencies.
 
 ## 0.1.0 - 2015-04-26
 - Complete rewrite from CoffeeScript to ECMAScript 6.
