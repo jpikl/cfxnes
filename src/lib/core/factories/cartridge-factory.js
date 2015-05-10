@@ -40,7 +40,6 @@ export class CartridgeFactory {
     }
 
     printCartridgeInfo(cartridge) {
-        var ref, ref1;
         logger.info("==========[Cartridge Info - Start]==========");
         logger.info("Mapper ID             : " + cartridge.mapperId);
         logger.info("Sub-mapper ID         : " + cartridge.subMapperId);
