@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Added
 - Add support for loading zipped `.nes` files.
+- Add favicon.
 
 ### Changed
 - UI optimization for small screens.
