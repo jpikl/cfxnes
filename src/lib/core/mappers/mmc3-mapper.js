@@ -38,7 +38,8 @@ export class MMC3Mapper extends AbstractMapper {
     }
 
     resetMapping() {
-        this.mapPRGROMBank32K(0, -1);   // Last 32K PRG ROM bank
+        this.mapPRGROMBank16K(0, 0);    // First 16K PRG RAM bank
+        this.mapPRGROMBank16K(1, -1);   // Last 16K PRG RAM bank
         this.mapPRGRAMBank8K(0, 0);     // 8K PRG RAM
         if (this.hasCHRRAM) {
             this.mapCHRRAMBank8K(0, 0); // 8K CHR RAM (if CHR RAM is present)
@@ -48,7 +49,7 @@ export class MMC3Mapper extends AbstractMapper {
     }
 
     resetRegisters() {
-        this.command = 0;    // Bank command
+        this.bankSelect = 0; // Bank selection
         this.irqCounter = 0; // IRQ counter value
         this.irqLatch = 0;   // IRQ counter reload value
         this.irqReload = 0;  // IRQ counter reload flag
@@ -62,8 +63,8 @@ export class MMC3Mapper extends AbstractMapper {
 
     write(address, value) {
         switch (address & 0xE001) {
-            case 0x8000: this.command = value;          break; // $8000-$9FFE (100X), even address
-            case 0x8001: this.writeBankSelect(value);   break; // $8001-$9FFF (100X), odd  address
+            case 0x8000: this.bankSelect = value;       break; // $8000-$9FFE (100X), even address
+            case 0x8001: this.writeBankData(value);     break; // $8001-$9FFF (100X), odd  address
             case 0xA000: this.writeMirroring(value);    break; // $A000-$BFFE (101X), even address
             case 0xA001: this.writePRGRAMEnable(value); break; // $A001-$BFFF (101X), odd  address
             case 0xC000: this.irqLatch = value;         break; // $C000-$DFFE (110X), even address
@@ -73,22 +74,26 @@ export class MMC3Mapper extends AbstractMapper {
         }
     }
 
-    writeBankSelect(value) {
-        switch (this.command & 7) {
-            case 0: case 1:
+    writeBankData(value) {
+        switch (this.bankSelect & 7) {
+            case 0: // Select 2 KB CHR bank at PPU $0000-$07FF (or $1000-$17FF)
+            case 1: // Select 2 KB CHR bank at PPU $0800-$0FFF (or $1800-$1FFF)
                 if (!this.hasCHRRAM) {
                     this.switchDoubleCHRROMBanks(value);
                 }
                 break;
-            case 2: case 3: case 4: case 5:
+            case 2: // Select 1 KB CHR bank at PPU $1000-$13FF (or $0000-$03FF)
+            case 3: // Select 1 KB CHR bank at PPU $1400-$17FF (or $0400-$07FF)
+            case 4: // Select 1 KB CHR bank at PPU $1800-$1BFF (or $0800-$0BFF)
+            case 5: // Select 1 KB CHR bank at PPU $1C00-$1FFF (or $0C00-$0FFF)
                 if (!this.hasCHRRAM) {
                     this.switchSingleCHRROMBanks(value);
                 }
                 break;
-            case 6:
+            case 6: // Select 8 KB PRG ROM bank at $8000-$9FFF (or $C000-$DFFF)
                 this.switchPRGROMBanks0And2(value);
                 break;
-            case 7:
+            case 7: // Select 8 KB PRG ROM bank at $A000-$BFFF
                 this.switchPRGROMBank1(value);
                 break;
         }
@@ -123,18 +128,18 @@ export class MMC3Mapper extends AbstractMapper {
     //=========================================================
 
     switchDoubleCHRROMBanks(target) {
-        var source = (this.command & 0x80) >>> 6 | this.command & 0x01; // S[1,0] = C[7,0]
+        var source = (this.bankSelect & 0x80) >>> 6 | this.bankSelect & 0x01; // S[1,0] = C[7,0]
         this.mapCHRROMBank2K(source, target >>> 1);
     }
 
     switchSingleCHRROMBanks(target) {
-        var source = (~this.command & 0x80) >>> 5 | (this.command - 2) & 0x03; // S[2,1,0] = (C-2)[!7,1,0]
+        var source = (~this.bankSelect & 0x80) >>> 5 | (this.bankSelect - 2) & 0x03; // S[2,1,0] = (C-2)[!7,1,0]
         this.mapCHRROMBank1K(source, target);
     }
 
     switchPRGROMBanks0And2(target) {
-        var sourceA = (this.command & 0x40) >>> 5;  // SA[1] = C[6]
-        var sourceB = (~this.command & 0x40) >>> 5; // SB[1] = C[!6]
+        var sourceA = (this.bankSelect & 0x40) >>> 5;  // SA[1] = C[6]
+        var sourceB = (~this.bankSelect & 0x40) >>> 5; // SB[1] = C[!6]
         this.mapPRGROMBank8K(sourceA, target);      // Selected bank
         this.mapPRGROMBank8K(sourceB, -2);          // Second last bank
     }

@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Fix emulator initialization in Internet Explorer.
 - Fix build process initialization on Windows.
+- Fix MMC3 mapper initial state (SMB3 and Shadow of the Ninja games are now playable).
 
 ## Added
 - Add support for loading zipped `.nes` files.
