@@ -2,6 +2,7 @@ angular.module("cfxnes").controller("LibraryController",
     ["$scope", "$state", "library", "emulator", "globalParams",
     ($scope, $state, library, emulator, globalParams) => {
 
+    $scope.desktop = $.browser.desktop;
     $scope.gameFilter = globalParams.gameFilter;
     $scope.loading = true;
 

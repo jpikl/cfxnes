@@ -131,6 +131,7 @@ gulp.task("vendor-scripts", function() {
                 envfile("./bower_components/angular-ui-router/release/angular-ui-router.js"),
                 envfile("./bower_components/angular-bootstrap/ui-bootstrap-tpls.js"),
                 envfile("./bower_components/bootstrap/dist/js/bootstrap.js"),
+                envfile("./bower_components/jquery.browser/dist/jquery.browser.js"),
                 envfile("./bower_components/js-md5/js/md5.js"),
                 envfile("./bower_components/jszip/dist/jszip.js"),
                 "./bower_components/angular-bootstrap-slider/slider.js", // Missing .min file

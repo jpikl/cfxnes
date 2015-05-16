@@ -13,7 +13,7 @@
             alert(type="info") There are no games available.
     .library-section(ng-hide="loading || error || empty")
         div
-            input.form-control(type="search" placeholder="Search games" ng-model="gameFilter.name" focus-when="!loading")
+            input.form-control(type="search" placeholder="Search games" ng-model="gameFilter.name" focus-when="!loading && desktop")
     .library-section(ng-hide="loading || error || empty")
         .game-list
             a.game(ng-repeat="game in games | filter:gameFilter" ng-click="playGame(game)")
