@@ -1,6 +1,3 @@
-h1
-    margin-bottom 32px
-
 .slider
     .slider-selection
         background #3a94a5
@@ -19,8 +16,17 @@ h1
         padding-right 12px
         vertical-align -50%
 
-.loader.inverse:before
-    content url("../images/loading-dark.gif")
+.loader.inverse
+    color white
+    &:before
+        content url("../images/loading-dark.gif")
 
 .icon-stack-item
     @extends .icon-stack-1x
+
+:fullscreen
+    width 100%
+    height 100%
+    position fixed
+    top 0
+    left 0

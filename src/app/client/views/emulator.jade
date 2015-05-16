@@ -1,30 +1,33 @@
-alert#emulator-error(ng-show="error" type="danger" close="clearError()") {{ error }}
-
 mixin input-mapping(device, input, inputName)
     tr
         td #{inputName}
         td {{ getMappedInputName('#{device}', '#{input}')  }}
 
-alert#controls-info(ng-show="controlsInfoVisible" type="info" close="hideControlsInfo()")
-    h3 Controls
-        small
-            |  (
-            a.alert-link(ng-href="{{ changeControlsUrl }}")
-                span.fa.fa-wrench
-                |  configure
-            | )
-    table
-        +input-mapping("joypad", "a",      "A")
-        +input-mapping("joypad", "b",      "B")
-        +input-mapping("joypad", "start",  "Start")
-        +input-mapping("joypad", "select", "Select")
-        +input-mapping("joypad", "left",   "Left")
-        +input-mapping("joypad", "right",  "Right")
-        +input-mapping("joypad", "up",     "Up")
-        +input-mapping("joypad", "down",   "Down")
-        +input-mapping("zapper", "trigger", "Zapper")
-
-#emulator-loader.loader.inverse(ng-show="loading")
-    | Loading...
-canvas#video-output(video-output="emulator" on-file-drop="loadCartridge(file)")
-    | Your browser does not support canvas element.
+.emulator
+    .emulator-section.emulator-error
+        alert(ng-show="error" type="danger" close="clearError()") {{ error }}
+    .emulator-section.emulator-controls(ng-show="controlsInfoVisible")
+        alert(type="info" close="hideControlsInfo()")
+            h3 Controls
+                small
+                    |  (
+                    a.alert-link(ng-href="{{ changeControlsUrl }}")
+                        span.icon.icon-wrench
+                        |  configure
+                    | )
+            table
+                +input-mapping("joypad", "a",      "A")
+                +input-mapping("joypad", "b",      "B")
+                +input-mapping("joypad", "start",  "Start")
+                +input-mapping("joypad", "select", "Select")
+                +input-mapping("joypad", "left",   "Left")
+                +input-mapping("joypad", "right",  "Right")
+                +input-mapping("joypad", "up",     "Up")
+                +input-mapping("joypad", "down",   "Down")
+                +input-mapping("zapper", "trigger", "Zapper")
+    .emulator-section.emulator-main
+        .canvas-wrapper
+            canvas(video-output="emulator" on-file-drop="loadCartridge(file)")
+                | Your browser does not support canvas element.
+            .loader.inverse(ng-show="loading")
+                | Loading...

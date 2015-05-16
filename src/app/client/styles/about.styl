@@ -1,6 +1,5 @@
 .about
     @extend .container
-    margin-bottom 20px
     .about-section
         make-row()
         .about-logo
@@ -9,6 +8,8 @@
             img
                 img-responsive()
                 center-block()
+                @media (max-width 512px)
+                    width 100% // Firexox max-width bug (512px = image width)
         .about-text
             make-xs-column(12)
             make-md-column(6)
