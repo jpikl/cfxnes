@@ -81,7 +81,7 @@ function execute(test) {
         openLog(id, file) {
             loggerIds.push(id);
             var logger = Logger.get(id);
-            logger.attach(Logger.file(file));
+            logger.attach(Logger.toFile(file));
             return logger;
         },
 

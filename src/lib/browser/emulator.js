@@ -4,7 +4,7 @@ import { ports }          from "./managers/input-manager";
 import { Injector }       from "../core/utils/inject";
 import { logger, Logger } from "../core/utils/logger";
 
-logger.attach(Logger.console());
+logger.attach(Logger.toConsole());
 
 //=========================================================
 // Emulator API

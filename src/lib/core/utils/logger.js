@@ -77,11 +77,11 @@ export class Logger {
         return loggers[id];
     }
 
-    static console() {
+    static toConsole() {
         return console;
     }
 
-    static file(filename) {
+    static toFile(filename) {
         return new FileWriter(filename);
     }
 

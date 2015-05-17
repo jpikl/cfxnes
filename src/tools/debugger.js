@@ -56,9 +56,9 @@ var cartridgeFactory = injector.get("cartridgeFactory");
 var cartridge = cartridgeFactory.fromLocalFile(argv._[0]);
 var nes = injector.get("nes");
 
-logger.attach(Logger.console());
+logger.attach(Logger.toConsole());
 nes.insertCartridge(cartridge);
-logger.detach(Logger.console());
+logger.detach(Logger.toConsole());
 
 //=========================================================
 // Commands
@@ -96,9 +96,9 @@ function jumpCommand(param) {
 }
 
 function stepCommand(param) {
-    logger.attach(Logger.console());
+    logger.attach(Logger.toConsole());
     jumpCommand(param);
-    logger.detach(Logger.console());
+    logger.detach(Logger.toConsole());
 }
 
 function breakCommand(param) {
