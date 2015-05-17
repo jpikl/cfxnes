@@ -75,6 +75,10 @@ mixin device(port)
                     label(for="video-webgl")
                         input(id="video-webgl" type="checkbox" ng-model="video.webGL")
                         | Use WebGL for rendering
+                div.checkbox
+                    label(for="fps-visible")
+                        input(id="fps-visible" type="checkbox" ng-model="video.fpsVisible")
+                        | Show FPS
 
         accordion-group(is-open="audio.visible" ng-show="audio.supported")
             accordion-heading

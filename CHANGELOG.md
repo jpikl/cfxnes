@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Support for loading zipped `.nes` files.
 - Favicon.
 - Visual effect when dropping files into browser window.
+- Option to hide FPS counter.
 
 ### Changed
 - UI optimization for small screens.

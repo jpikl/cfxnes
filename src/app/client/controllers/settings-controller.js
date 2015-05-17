@@ -16,6 +16,7 @@ angular.module("cfxnes").controller("SettingsController",
     $scope.video.webGLSupported = emulator.isVideoRendererSupported("webgl");
     $scope.video.debugging = emulator.isVideoDebugging();
     $scope.video.smoothing = emulator.isVideoSmoothing();
+    $scope.video.fpsVisible = localStorage["fpsVisible"] !== "false";
 
     $scope.audio = globalParams.audioSettings;
     $scope.audio.visible = $stateParams.section === "audio" || $stateParams.section === "" && $scope.audio.visible;
@@ -37,6 +38,7 @@ angular.module("cfxnes").controller("SettingsController",
     $scope.$watch("video.webGL", (webGL) => emulator.setVideoRenderer(webGL ? "webgl" : "canvas"));
     $scope.$watch("video.debugging", (debugging) => emulator.setVideoDebugging(debugging));
     $scope.$watch("video.smoothing", (smoothing) => emulator.setVideoSmoothing(smoothing));
+    $scope.$watch("video.fpsVisible", (fpsVisible) => localStorage["fpsVisible"] = fpsVisible ? "true" : "false");
 
     $scope.$watch("audio.enabled", (enabled) => emulator.setAudioEnabled(enabled));
     $scope.$watch("audio.volume", (volume) => emulator.setAudioVolume(volume));

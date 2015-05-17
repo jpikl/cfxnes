@@ -29,6 +29,7 @@ angular.module("cfxnes").controller("ToolbarController",
 
     $scope.percentageFormater = (value) => `${~~(100 * value)}%`;
     $scope.preventClose = (event) => event.stopPropagation();
+    $scope.fpsVisible = localStorage["fpsVisible"] !== "false";
     $scope.getFPS = () => ~~emulator.getFPS();
 
     setInterval(() => $scope.$apply(), 1000); // To periodically refresh FPS counter

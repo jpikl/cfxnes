@@ -21,4 +21,4 @@
         .dropdown-menu.volume-control(ng-click="preventClose($event)")
             input(type="checkbox" ng-model="audioEnabled" tooltip="Enable audio" tooltip-placement="right")
             slider(id="audio-volume" ng-model="audioVolume" ng-disabled="!audioEnabled" min="0" max="1" step="0.01" orientation="vertical" reversed="true" selection="after" formater="percentageFormater")
-span.navbar-text(ng-show="isRunning()") FPS: {{ getFPS() }}
+span.navbar-text(ng-show="fpsVisible && isRunning()") FPS: {{ getFPS() }}
