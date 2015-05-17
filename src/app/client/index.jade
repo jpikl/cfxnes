@@ -45,23 +45,23 @@ html(ng-app="cfxnes")
                 .navbar-collapse.collapse
                     ul.nav.navbar-nav.navbar-left
                         li(ui-sref-active="active")
-                            a(ui-sref="emulator")
+                            a(ui-sref="emulator" tooltip="Emulator" tooltip-class="navbar-tooltip")
                                 span.icon.icon-gamepad
-                                | Emulator
-                        li(ui-sref-active="active")
+                                span Emulator
+                        li(ui-sref-active="active" tooltip="Game Library" tooltip-class="navbar-tooltip")
                             a(ui-sref="library")
                                 span.icon.icon-book
-                                | Game Library
-                        li(ui-sref-active="active")
+                                span Game Library
+                        li(ui-sref-active="active" tooltip="Settings" tooltip-class="navbar-tooltip")
                             a(ui-sref="settings")
                                 span.icon.icon-cog
-                                | Settings
+                                span Settings
                     div(ui-view="header")
                     ul.nav.navbar-nav.navbar-right
-                        li(ui-sref-active="active")
+                        li(ui-sref-active="active" tooltip="About" tooltip-class="navbar-tooltip")
                             a(ui-sref="about")
                                 span.icon.icon-question-circle
-                                | About
+                                span About
         main
             .content-wrapper(ui-view="content")
     if enableAnalytics

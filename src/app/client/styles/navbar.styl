@@ -10,3 +10,14 @@
 .nav.navbar-nav a .icon
     @extends .icon-lg
     margin-right 8px
+
+.tooltip.navbar-tooltip
+    display none !important
+
+@media (min-width $screen-sm-min) and (max-width $screen-md-min)
+    .nav.navbar-nav a .icon
+        margin-right 0
+        & + span
+            display none
+    .tooltip.navbar-tooltip
+        display initial !important
