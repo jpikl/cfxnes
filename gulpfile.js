@@ -191,10 +191,32 @@ gulp.task("build", gulp.parallel(
 ));
 
 gulp.task("run", function(done) {
+    // We can't change nodemon working directory, because that would break
+    // closure compiler paths in 'lib' task.
     nodemon({
-        script: "./dist/app/app.js",
         env: {NODE_ENV: environment},
-        ignore: ["./dist/app/static/", "./dist/app/roms/"]
+        script: "./dist/app/app.js",
+        watch: [ "dist/app/app.js", "dist/app/services/" ],
+        ignore: [
+            ".git/",
+            "bin/",
+            "bower_components/",
+            "dist/lib/",
+            "dist/app/roms/",
+            "dist/app/static/",
+            "externs/",
+            "roms/",
+            "node_modules/",
+            "src/",
+            "test/",
+            ".gitignore",
+            "bower.json",
+            "CHANGELOG.md",
+            "gulpfile.js",
+            "LICENSE.txt",
+            "package.json",
+            "README.md"
+        ]
     });
 });
 
