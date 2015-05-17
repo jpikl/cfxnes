@@ -31,8 +31,11 @@ mixin device(port)
     h1 Settings
 
     accordion
-        accordion-group.emulation-group(heading="Emulation" is-open="emulation.visible")
-            .emulation-options
+        accordion-group(is-open="emulation.visible")
+            accordion-heading
+                span.icon.icon-server
+                | Emulation
+            .emulation-settings
                 .form-group
                     label(for="tv-system") TV system
                     select.form-control(id="tv-system" ng-model="emulation.tvSystem")
@@ -43,8 +46,11 @@ mixin device(port)
                     label(for="speed") Emulation speed
                     slider(id="speed" ng-model="emulation.speed" min="0.25" step="0.25" max="2" formater="multiplierFormater")
 
-        accordion-group.video-group(heading="Video" is-open="video.visible")
-            .video-options
+        accordion-group(is-open="video.visible")
+            accordion-heading
+                span.icon.icon-desktop
+                | Video
+            .video-settings
                 .form-group
                     label.control-label(for="video-debugging") Output scale
                     div
@@ -56,7 +62,7 @@ mixin device(port)
                             option(value="default")   Default
                             option(value="bright")    Bright
                             option(value="realistic") Realistic
-            .video-options.form-group
+            .video-settings.form-group
                 div.checkbox
                     label(for="video-smoothing")
                         input(id="video-smoothing" type="checkbox" ng-model="video.smoothing")
@@ -70,17 +76,20 @@ mixin device(port)
                         input(id="video-webgl" type="checkbox" ng-model="video.webGL")
                         | Use WebGL for rendering
 
-        accordion-group.audio-group(heading="Audio" is-open="audio.visible" ng-show="audio.supported")
-            .audio-options
+        accordion-group(is-open="audio.visible" ng-show="audio.supported")
+            accordion-heading
+                span.icon.icon-music
+                | Audio
+            .audio-settings
                 .form-group
                     label.control-label(for="audio-volume") Volume
                     slider(id="audio-volume" ng-model="audio.volume" ng-disabled="!audio.enabled" min="0" max="1" step="0.01" formater="percentageFormater")
-            .audio-options
+            .audio-settings
                 .form-group.checkbox
                     label(for="audio-enabled")
                         input(id="audio-enabled" type="checkbox" ng-model="audio.enabled")
                         | Enable audio
-            .audio-options
+            .audio-settings
                 .form-group.checkbox
                     label(for="audio-pulse-1-enabled")
                         input(id="audio-pulse-1-enabled" type="checkbox" ng-model="audio.channels.pulse1" ng-disabled="!audio.enabled")
@@ -93,7 +102,7 @@ mixin device(port)
                     label(for="audio-triangle-enabled")
                         input(id="audio-triangle-enabled" type="checkbox" ng-model="audio.channels.triangle" ng-disabled="!audio.enabled")
                         | Enable triangle channel
-            .audio-options
+            .audio-settings
                 .form-group.checkbox
                     label(for="audio-noise-enabled")
                         input(id="audio-noise-enabled" type="checkbox" ng-model="audio.channels.noise" ng-disabled="!audio.enabled")
@@ -103,11 +112,14 @@ mixin device(port)
                         input(id="audio-dmc-enabled" type="checkbox" ng-model="audio.channels.dmc" ng-disabled="!audio.enabled")
                         | Enable DMC channel
 
-        accordion-group.controls-group(heading="Controls" is-open="controls.visible")
+        accordion-group(is-open="controls.visible")
+            accordion-heading
+                span.icon.icon-gamepad
+                | Audio
             .device-list
                 +device(1)
                 +device(2)
-            .controls-options
+            .controls-settings
                 div
                     button.btn.btn-default(ng-click="restoreDefaults()") Restore to defaults
                 div.checkbox

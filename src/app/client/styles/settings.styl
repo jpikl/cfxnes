@@ -2,61 +2,50 @@
     @extend .container
     .slider
         width: 100%
-    .panel-title:before
-        font-family FontAwesome
-        margin-right: 3px
-    .emulation-group
-        .panel-title:before
-            @extend .icon-server:before
-        .emulation-options
+    .panel-title a
+        outline none
+        .icon
+            margin-right: 8px
+    .emulation-settings
+        make-xs-column(12)
+        make-md-column(6)
+    .video-settings
+        make-xs-column(12)
+        make-md-column(6)
+    .audio-settings
+        make-xs-column(12)
+        &:not(:nth-child(3))
+            make-md-column(6)
+    .device-list
+        make-row()
+        .device
             make-xs-column(12)
             make-md-column(6)
-    .video-group
-        .panel-title:before
-            @extend .icon-desktop:before
-        .video-options
-            make-xs-column(12)
-            make-md-column(6)
-    .audio-group
-        .panel-title:before
-            @extend .icon-music:before
-        .audio-options
-            make-xs-column(12)
-            &:not(:nth-child(2))
-                make-md-column(6)
-    .controls-group
-        .panel-title:before
-            @extend .icon-gamepad:before
-        .device-list
-            make-row()
-            .device
-                make-xs-column(12)
-                make-md-column(6)
+            margin-bottom 24px
+            .device-select
+                text-align center
                 margin-bottom 24px
-                .device-select
-                    text-align center
-                    margin-bottom 24px
-                    label
-                        margin-right 16px
-                .device-input
-                    make-row()
-                    &:not(:last-child)
-                        margin-bottom 8px
-                    > *
-                        make-xs-column(3)
-                        &:first-child
-                            make-xs-column-offset(1)
-                            text-align right
-        .controls-options
-            > div:first-child
-                make-xs-column(4)
-                make-xs-column-offset(1)
-            > div:last-child
-                make-xs-column(11)
-                make-xs-column-offset(1)
-                make-sm-column(5)
-                make-sm-column-offset(0)
-                make-md-column-offset(2)
+                label
+                    margin-right 16px
+            .device-input
+                make-row()
+                &:not(:last-child)
+                    margin-bottom 8px
+                > *
+                    make-xs-column(3)
+                    &:first-child
+                        make-xs-column-offset(1)
+                        text-align right
+    .controls-settings
+        > div:first-child
+            make-xs-column(4)
+            make-xs-column-offset(1)
+        > div:last-child
+            make-xs-column(11)
+            make-xs-column-offset(1)
+            make-sm-column(5)
+            make-sm-column-offset(0)
+            make-md-column-offset(2)
 
 .modal-record-input .modal-dialog
     position absolute
