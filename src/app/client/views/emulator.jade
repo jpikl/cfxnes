@@ -25,9 +25,10 @@ mixin input-mapping(device, input, inputName)
                 +input-mapping("joypad", "up",     "Up")
                 +input-mapping("joypad", "down",   "Down")
                 +input-mapping("zapper", "trigger", "Zapper")
-    .emulator-section.emulator-main
+    .emulator-section.emulator-main(on-file-drop="loadCartridge(file)")
         .canvas-wrapper
-            canvas(video-output="emulator" on-file-drop="loadCartridge(file)")
+            canvas(video-output="emulator")
                 | Your browser does not support canvas element.
+            img.drag-effect(src="images/cartridge-insert.png")
             .loader.inverse(ng-show="loading")
                 | Loading...

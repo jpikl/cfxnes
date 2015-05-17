@@ -35,10 +35,19 @@
             position relative
             vertical-align middle
             text-align center
-            .loader
+            canvas
+                border 1px solid black
+            .loader, .drag-effect
                 position absolute
                 top 50%
                 left 0
                 right 0
                 transform translateY(-50%)
                 margin auto
+            .drag-effect
+                opacity 0
+                transition opacity 0.25s ease-in-out
+
+.emulator-main.drag-over
+    .canvas-wrapper .drag-effect
+            opacity 1

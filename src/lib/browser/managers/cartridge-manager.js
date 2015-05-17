@@ -34,7 +34,11 @@ export class CartridgeManager {
         reader.onerror = (event) => {
             onError && onError(event.target.error || UNKNOWN_ERROR);
         }
-        reader.readAsArrayBuffer(file);
+        try {
+            reader.readAsArrayBuffer(file);
+        } catch (error) {
+            onError && onError(error && error.message || UNKNOWN_ERROR);
+        }
     }
 
     downloadCartridge(url, onLoad, onError) {
