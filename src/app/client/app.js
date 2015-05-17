@@ -54,4 +54,15 @@ angular.module("cfxnes").config(
         appendToBody: true
     });
 
+    // Fix initial position of slider tooltip (temporary workaround)
+    var sliderPrototype = $.fn.slider.Constructor.prototype;
+    var sliderShowTooltip = sliderPrototype.showTooltip;
+    sliderPrototype.showTooltip = function() {
+        if (!this.tooltipPositionRefreshed) {
+            this.size = this.picker[0][this.sizePos];
+            this.layout();
+            this.tooltipPositionRefreshed = true;
+        }
+        sliderShowTooltip.call(this);
+    }
 }]);

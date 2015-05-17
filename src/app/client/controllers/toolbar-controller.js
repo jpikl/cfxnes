@@ -32,6 +32,7 @@ angular.module("cfxnes").controller("ToolbarController",
     $scope.fpsVisible = localStorage["fpsVisible"] !== "false";
     $scope.getFPS = () => ~~emulator.getFPS();
 
-    setInterval(() => $scope.$apply(), 1000); // To periodically refresh FPS counter
+    var refreshId = setInterval(() => $scope.$apply(), 1000); // To periodically refresh toolbar state
+    $scope.$on("$stateChangeStart", () => clearInterval(refreshId));
 
 }]);
