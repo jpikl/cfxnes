@@ -51,7 +51,7 @@ export class Injector {
     }
 
     inject(instance) {
-        var dependencies = instance.constructor["dependencies"];
+        var dependencies = instance.dependencies;
         var injectMethod = instance.inject || instance.init;
         if (dependencies && injectMethod) {
             logger.info(`Injecting dependencies: ${dependencies.join(", ")}`);

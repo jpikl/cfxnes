@@ -13,6 +13,7 @@ export class MMC3Mapper extends AbstractMapper {
 
     constructor(cartridge) {
         super("MMC3", cartridge);
+        this.dependencies = ["cpu", "ppu", "cpuMemory", "ppuMemory"];
     }
 
     init(cartridge) {
@@ -206,5 +207,3 @@ export class MMC3Mapper extends AbstractMapper {
     }
 
 }
-
-MMC3Mapper["dependencies"] = [ "cpu", "ppu", "cpuMemory", "ppuMemory" ];

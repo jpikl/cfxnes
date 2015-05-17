@@ -22,6 +22,7 @@ const keyCodeAliases = {
 export class Keyboard {
 
     constructor(id) {
+        this.dependencies = ["inputManager", "videoManager"];
         this.id = id;
     }
 
@@ -86,5 +87,3 @@ export class Keyboard {
     }
 
 }
-
-Keyboard["dependencies"] = [ "inputManager", "videoManager" ];

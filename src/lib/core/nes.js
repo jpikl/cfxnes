@@ -7,6 +7,10 @@ import { BLACK_COLOR, packColor } from "./utils/colors";
 
 export class NES {
 
+    constructor() {
+        this.dependencies = ["cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory"];
+    }
+
     init(cpu, cpuMemory, ppu, ppuMemory, apu, dma, mapperFactory) {
         this.cpu = cpu;
         this.ppu = ppu;
@@ -197,5 +201,3 @@ export class NES {
     }
 
 }
-
-NES["dependencies"] = [ "cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory" ];

@@ -6,6 +6,10 @@ import { logger }     from "../../core/utils/logger";
 
 export class PersistenceManager {
 
+    constructor() {
+        this.dependencies = ["nes", "storage", "videoManager", "audioManager", "inputManager", "executionManager"];
+    }
+
     init(nes, storage, videoManager, audioManager, inputManager, executionManager) {
         this.nes = nes;
         this.storage = storage;
@@ -97,5 +101,3 @@ export class PersistenceManager {
     }
 
 }
-
-PersistenceManager["dependencies"] = [ "nes", "storage", "videoManager", "audioManager", "inputManager", "executionManager" ];

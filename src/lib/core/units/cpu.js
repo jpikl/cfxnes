@@ -23,6 +23,7 @@ class Operation {
 export class CPU {
 
     constructor() {
+        this.dependencies = ["cpuMemory", "ppu", "apu", "dma"];
         this.initOperations();
     }
 
@@ -1242,5 +1243,3 @@ export class CPU {
     }
 
 }
-
-CPU["dependencies"] = [ "cpuMemory", "ppu", "apu", "dma" ];

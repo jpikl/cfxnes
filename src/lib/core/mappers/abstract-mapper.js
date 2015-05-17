@@ -17,6 +17,7 @@ export class AbstractMapper {
 
     constructor(name, cartridge) {
         logger.info(`Constructing '${name}' mapper`);
+        this.dependencies = ["cpuMemory", "ppuMemory"];
         this.init(cartridge);
         this.initPRGRAM();
         this.initCHRRAM();
@@ -275,5 +276,3 @@ export class AbstractMapper {
     }
 
 }
-
-AbstractMapper["dependencies"] = [ "cpuMemory", "ppuMemory" ];

@@ -13,6 +13,10 @@ export const targetIds = [ "joypad", "zapper" ];
 
 export class InputManager {
 
+    constructor() {
+        this.dependencies = ["nes", "deviceFactory"];
+    }
+
     init(nes, deviceFactory) {
         logger.info("Initializing input manager");
         this.nes = nes;
@@ -228,5 +232,3 @@ export class InputManager {
     }
 
 }
-
-InputManager["dependencies"] = [ "nes", "deviceFactory" ];

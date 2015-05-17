@@ -140,6 +140,10 @@ class Sprite {
 
 export class PPU {
 
+    constructor() {
+        this.dependencies = ["cpu", "ppuMemory"];
+    }
+
     init(cpu, ppuMemory) {
         this.cpu = cpu;
         this.ppuMemory = ppuMemory;
@@ -948,5 +952,3 @@ export class PPU {
     }
 
 }
-
-PPU["dependencies"] = [ "cpu", "ppuMemory" ];

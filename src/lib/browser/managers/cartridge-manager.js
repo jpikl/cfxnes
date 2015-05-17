@@ -8,6 +8,10 @@ const UNKNOWN_ERROR = "Unknown error";
 
 export class CartridgeManager {
 
+    constructor() {
+        this.dependencies = ["nes", "cartridgeFactory", "executionManager", "persistenceManager"];
+    }
+
     init(nes, cartridgeFactory, executionManager, persistenceManager) {
         this.nes = nes;
         this.cartridgeFactory = cartridgeFactory;
@@ -99,5 +103,3 @@ export class CartridgeManager {
     }
 
 }
-
-CartridgeManager["dependencies"] = [ "nes", "cartridgeFactory", "executionManager", "persistenceManager" ];

@@ -8,6 +8,10 @@ const TOTAL_DMA_CYCLES = 0x200; // Total 512 CPU cycles for DMA transfer
 
 export class DMA {
 
+    constructor() {
+        this.dependencies = ["cpuMemory"];
+    }
+
     init(cpuMemory) {
         this.cpuMemory = cpuMemory;
     }
@@ -42,5 +46,3 @@ export class DMA {
     }
 
 }
-
-DMA["dependencies"] = [ "cpuMemory" ];

@@ -18,6 +18,10 @@ export const channels = Object.keys(channelAliases);
 
 export class AudioManager {
 
+    constructor() {
+        this.dependencies = ["nes"];
+    }
+
     init(nes) {
         logger.info("Initializing audio manager");
         this.nes = nes;
@@ -168,5 +172,3 @@ export class AudioManager {
     }
 
 }
-
-AudioManager["dependencies"] = [ "nes" ];

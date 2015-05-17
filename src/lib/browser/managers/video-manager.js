@@ -17,6 +17,10 @@ function checkScreenfull(message) {
 
 export class VideoManager {
 
+    constructor() {
+        this.dependencies = ["nes", "rendererFactory", "paletteFactory"];
+    }
+
     init(nes, rendererFactory, paletteFactory) {
         logger.info("Initializing video manager");
         this.nes = nes;
@@ -286,5 +290,3 @@ export class VideoManager {
 
 
 }
-
-VideoManager["dependencies"] = ["nes", "rendererFactory", "paletteFactory"];

@@ -14,6 +14,10 @@ const CPU_FREQUENCY_PAL = CPU_FREQUENCY_NTSC * 5 / 6; // Actually 1662607 Hz, bu
 
 export class APU {
 
+    constructor() {
+        this.dependencies = ["cpu", "cpuMemory"];
+    }
+
     init(cpu, cpuMemory) {
         this.cpu = cpu;
         this.pulseChannel1 = new PulseChannel(1);
@@ -390,5 +394,3 @@ export class APU {
     }
 
 }
-
-APU["dependencies"] = [ "cpu", "cpuMemory" ];

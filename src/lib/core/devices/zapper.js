@@ -4,6 +4,10 @@
 
 export class Zapper {
 
+    constructor() {
+        this.dependencies = ["ppu"];
+    }
+
     init(ppu) {
         this.ppu = ppu;
         this.triggerPressed = false;
@@ -33,5 +37,3 @@ export class Zapper {
     }
 
 }
-
-Zapper["dependencies"] = [ "ppu" ];

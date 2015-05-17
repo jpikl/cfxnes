@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Emulator initialization in Internet Explorer.
 - Build process initialization on Windows.
 - MMC3 mapper initial state (SMB3 and Shadow of the Ninja games are now playable).
+- Compatibility with newest Closure Compiler (v20150505).
 
 ## Added
 - Support for loading zipped `.nes` files.

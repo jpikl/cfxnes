@@ -7,6 +7,7 @@ import { VIDEO_WIDTH, VIDEO_HEIGHT } from "../../../core/common/constants";
 export class ZapperAdapter {
 
     constructor(zapper) {
+        this.dependencies = ["videoManager"];
         this.zapper = zapper;
     }
 
@@ -34,5 +35,3 @@ export class ZapperAdapter {
     }
 
 }
-
-ZapperAdapter["dependencies"] = [ "videoManager" ];

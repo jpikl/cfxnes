@@ -13,6 +13,10 @@ const tvSystemAliases = {
 
 export class ExecutionManager {
 
+    constructor() {
+        this.dependencies = ["nes", "videoManager", "audioManager", "inputManager"];
+    }
+
     init(nes, videoManager, audioManager, inputManager) {
         this.nes = nes;
         this.videoManager = videoManager;
@@ -204,5 +208,3 @@ export class ExecutionManager {
 
 
 }
-
-ExecutionManager["dependencies"] = [ "nes", "videoManager", "audioManager", "inputManager" ];

@@ -12,6 +12,7 @@ const buttonAliases = {
 export class Mouse {
 
     constructor(id) {
+        this.dependencies = ["inputManager", "videoManager"];
         this.id = id;
     }
 
@@ -84,5 +85,3 @@ export class Mouse {
     }
 
 }
-
-Mouse["dependencies"] = [ "inputManager", "videoManager" ];

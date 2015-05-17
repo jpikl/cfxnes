@@ -9,6 +9,7 @@ import { newByteArray, newUintArray } from "../utils/system";
 export class CPUMemory {
 
     constructor() {
+        this.dependencies = ["ppu", "apu", "dma"];
         this.initRAM();
         this.initIO();
         this.initPRGRAM();
@@ -272,5 +273,3 @@ export class CPUMemory {
     }
 
 }
-
-CPUMemory["dependencies"] = [ "ppu", "apu", "dma" ];

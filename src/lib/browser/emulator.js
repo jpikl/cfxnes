@@ -13,6 +13,14 @@ logger.attach(Logger.console());
 export class Emulator {
 
     constructor() {
+        this.dependencies = [
+            "executionManager",
+            "cartridgeManager",
+            "videoManager",
+            "audioManager",
+            "inputManager",
+            "persistenceManager"
+        ];
         new Injector(config).inject(this); // Bootstrap
     }
 
@@ -273,7 +281,5 @@ export class Emulator {
     }
 
 }
-
-Emulator["dependencies"] = [ "executionManager", "cartridgeManager", "videoManager", "audioManager", "inputManager", "persistenceManager" ];
 
 window["CFxNES"] = Emulator;
