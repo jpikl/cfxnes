@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
+
+## [0.2.0] - 2015-05-18
 ### Fixed
 - Emulator initialization in Internet Explorer.
 - Build process initialization on Windows.
@@ -12,9 +14,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Added
 - Support for loading zipped `.nes` files.
-- Favicon.
 - Visual effect when dropping files into browser window.
 - Option to hide FPS counter.
+- Favicon.
 
 ### Changed
 - UI optimization for small screens.
@@ -23,4 +25,5 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.1.0 - 2015-04-26
 - Complete rewrite from CoffeeScript to ECMAScript 6.
 
-[unreleased]: https://github.com/jpikl/cfxnes/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/jpikl/cfxnes/compare/v0.2.0...HEAD
+[0.2.0]:      https://github.com/jpikl/cfxnes/compare/v0.1.0...v0.2.0

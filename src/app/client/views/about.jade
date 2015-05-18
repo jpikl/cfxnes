@@ -4,7 +4,7 @@
             img(class="logo" src="images/logo-lg.png" alt="CFxNES logo")
         .about-text
             h1
-                | CFxNES (0.1.0)
+                | CFxNES (0.2.0)
             p
                 | A Nintendo Entertainment System emulator written in ECMAScript 6.
             p
@@ -19,6 +19,24 @@
             a(ng-hide="changelogVisible" href="" ng-click="showChangelog()") Show change log
             div(ng-show="changelogVisible")
                 h2 Change log
+                h3 0.2.0 - 2015-05-18
+                h4 Fixed
+                ul
+                    li Emulator initialization in Internet Explorer.
+                    li Build process initialization on Windows.
+                    li MMC3 mapper initial state (SMB3 and Shadow of the Ninja games are now playable).
+                    li Compatibility with Closure Compiler (v20150505).
+                    li Compatibility with Babel compiler (v5.4.3).
+                h4 Added
+                ul
+                    li Support for loading zipped #[code .nes] files.
+                    li Visual effect when dropping files into browser window.
+                    li Option to hide FPS counter.
+                    li Favicon.
+                h4 Changed
+                ul
+                    li UI optimization for small screens.
+                    li js-md5 and screenfull library are optional dependencies.
                 h3 0.1.0 - 2015-04-26
                 ul
                     li Complete rewrite from CoffeeScript to ECMAScript 6.
