@@ -43,27 +43,29 @@ Supported image formats are *JPG*, *PNG* and *GIF*.
 CFxNES can be used as a JS library to run NES games on your website.
 The source code below provides a minimal example how to setup and run emulator.
 
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>CFxNES</title>
-        <script type="text/javascript" src="cfxnes.min.js"></script>
-        <script type="text/javascript">
-            window.onload = function() {
-                var cfxnes = new CFxNES;
-                cfxnes.setVideoOutput(document.getElementById("canvas"));
-                cfxnes.downloadCartridge("game.nes", function() {
-                    cfxnes.start(); // Success, run the game.
-                }, function(error) {
-                    alert("Error: " + error);
-                });
-            };
-        </script>
-    </head>
-    <body>
-        <canvas id="canvas"></canvas>
-    </body>
-    </html>
+``` html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CFxNES</title>
+    <script type="text/javascript" src="cfxnes.min.js"></script>
+    <script type="text/javascript">
+        window.onload = function() {
+            var cfxnes = new CFxNES;
+            cfxnes.setVideoOutput(document.getElementById("canvas"));
+            cfxnes.downloadCartridge("game.nes", function() {
+                cfxnes.start(); // Success, run the game.
+            }, function(error) {
+                alert("Error: " + error);
+            });
+        };
+    </script>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+</body>
+</html>
+```
 
 The `cfxnes.min.js` file can be obtained from http://cfxnes.herokuapp.com/scripts/cfxnes.min.js
 or it can be build using `gulp lib` command. The output is generated to the `dist/lib` directory.
