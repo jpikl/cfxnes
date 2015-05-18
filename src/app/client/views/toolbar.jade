@@ -2,14 +2,15 @@
     .btn-group
         open-file-button.btn.btn-default.navbar-btn(tooltip="Open ROM" on-file-load="loadCartridge(file)"): .icon.icon-folder-open
     = ' '
+    //- default tooltip-append-to-body causes strange tooltip behaviour in chrome when toogling btn-group visibility.
     .btn-group(ng-hide="isRunning()")
         button.btn.btn-default.navbar-btn(tooltip="Hard reset" ng-click="hardReset()"): .icon.icon-power-off
         button.btn.btn-default.navbar-btn(tooltip="Soft reset" ng-click="softReset()"): .icon.icon-repeat
-        button.btn.btn-default.navbar-btn(tooltip="Run" ng-click="start()"): .icon.icon-play
+        button.btn.btn-default.navbar-btn(tooltip="Run" tooltip-append-to-body="false" ng-click="start()"): .icon.icon-play
     .btn-group(ng-show="isRunning()")
         button.btn.btn-default.navbar-btn(tooltip="Hard reset" ng-click="hardReset()"): .icon.icon-power-off
         button.btn.btn-default.navbar-btn(tooltip="Soft reset" ng-click="softReset()"): .icon.icon-repeat
-        button.btn.btn-default.navbar-btn(tooltip="Pause" ng-click="stop()"): .icon.icon-pause
+        button.btn.btn-default.navbar-btn(tooltip="Pause" tooltip-append-to-body="false" ng-click="stop()"): .icon.icon-pause
     = ' '
     .btn-group
         button.btn.btn-default.navbar-btn(tooltip="Decrease scale" ng-click="decreaseSize()" ng-class="{ disabled: isMinSize() }"): .icon.icon-search-minus
