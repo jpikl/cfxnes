@@ -3,27 +3,27 @@
 //=========================================================
 
 // Recursive property getter
-export function getProperty(object /* , name1, name2, ... */) {
-    for (var i = 1; object != null && i < arguments.length; i++) {
-        object = object[arguments[i]];
+export function getProperty(object, ...names) {
+    for (var i = 0; object != null && i < names.length; i++) {
+        object = object[names[i]];
     }
     return object;
 }
 
 // Recursive property setter
-export function setProperty(object /* , name1, name2, ..., value */) {
-    if (arguments.length < 3) {
+export function setProperty(object, ...namesAndValue) {
+    if (namesAndValue.length < 2) {
         throw new Error("setProperty: function requires at least 3 arguments");
     }
-    var lastNameIndex = arguments.length - 2;
-    for (var i = 1; i < lastNameIndex; i++) {
-        var name = arguments[i];
+    var lastNameIndex = namesAndValue.length - 2;
+    for (var i = 0; i < lastNameIndex; i++) {
+        var name = namesAndValue[i];
         if (object[name] == null) {
             object[name] = {};
         }
         object = object[name];
     }
-    object[arguments[lastNameIndex]] = arguments[lastNameIndex + 1];
+    object[namesAndValue[lastNameIndex]] = namesAndValue[lastNameIndex + 1];
 }
 
 export function forEeachProperty(object, callback, thisArg) {
