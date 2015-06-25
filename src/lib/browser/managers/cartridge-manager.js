@@ -12,7 +12,7 @@ export class CartridgeManager {
         this.dependencies = ["nes", "cartridgeFactory", "executionManager", "persistenceManager"];
     }
 
-    init(nes, cartridgeFactory, executionManager, persistenceManager) {
+    inject(nes, cartridgeFactory, executionManager, persistenceManager) {
         this.nes = nes;
         this.cartridgeFactory = cartridgeFactory;
         this.executionManager = executionManager;

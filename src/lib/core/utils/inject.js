@@ -52,7 +52,7 @@ export class Injector {
 
     inject(instance) {
         var dependencies = instance.dependencies;
-        var injectMethod = instance.inject || instance.init;
+        var injectMethod = instance.inject;
         if (dependencies && injectMethod) {
             logger.info(`Injecting dependencies: ${dependencies.join(", ")}`);
             var resolvedDependencies = []

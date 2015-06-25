@@ -142,13 +142,13 @@ export class PPU {
 
     constructor() {
         this.dependencies = ["cpu", "ppuMemory"];
-    }
-
-    init(cpu, ppuMemory) {
-        this.cpu = cpu;
-        this.ppuMemory = ppuMemory;
         this.ntscMode = true;
         this.colorEmphasis = 0; // Color palette BGR emphasis bits
+    }
+
+    inject(cpu, ppuMemory) {
+        this.cpu = cpu;
+        this.ppuMemory = ppuMemory;
     }
 
     //=========================================================

@@ -21,7 +21,7 @@ export class VideoManager {
         this.dependencies = ["nes", "rendererFactory", "paletteFactory"];
     }
 
-    init(nes, rendererFactory, paletteFactory) {
+    inject(nes, rendererFactory, paletteFactory) {
         logger.info("Initializing video manager");
         this.nes = nes;
         this.rendererFactory = rendererFactory;

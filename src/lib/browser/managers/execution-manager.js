@@ -17,7 +17,7 @@ export class ExecutionManager {
         this.dependencies = ["nes", "videoManager", "audioManager", "inputManager"];
     }
 
-    init(nes, videoManager, audioManager, inputManager) {
+    inject(nes, videoManager, audioManager, inputManager) {
         this.nes = nes;
         this.videoManager = videoManager;
         this.audioManager = audioManager;

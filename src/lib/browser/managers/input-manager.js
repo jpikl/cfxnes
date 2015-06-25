@@ -17,7 +17,7 @@ export class InputManager {
         this.dependencies = ["nes", "deviceFactory"];
     }
 
-    init(nes, deviceFactory) {
+    inject(nes, deviceFactory) {
         logger.info("Initializing input manager");
         this.nes = nes;
         this.deviceFactory = deviceFactory;

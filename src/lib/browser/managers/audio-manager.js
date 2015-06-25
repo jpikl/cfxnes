@@ -22,7 +22,7 @@ export class AudioManager {
         this.dependencies = ["nes"];
     }
 
-    init(nes) {
+    inject(nes) {
         logger.info("Initializing audio manager");
         this.nes = nes;
         if (this.isSupported()) {

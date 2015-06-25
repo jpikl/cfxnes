@@ -26,7 +26,7 @@ export class Keyboard {
         this.id = id;
     }
 
-    init(inputManager, videoManager) {
+    inject(inputManager, videoManager) {
         this.inputManager = inputManager;
         this.videoManager = videoManager;
         window.addEventListener("keydown", (event) => this.onKeyDown(event));

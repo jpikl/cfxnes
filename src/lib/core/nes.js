@@ -11,7 +11,7 @@ export class NES {
         this.dependencies = ["cpu", "cpuMemory", "ppu", "ppuMemory", "apu", "dma", "mapperFactory"];
     }
 
-    init(cpu, cpuMemory, ppu, ppuMemory, apu, dma, mapperFactory) {
+    inject(cpu, cpuMemory, ppu, ppuMemory, apu, dma, mapperFactory) {
         this.cpu = cpu;
         this.ppu = ppu;
         this.apu = apu;

@@ -12,7 +12,7 @@ export class DMA {
         this.dependencies = ["cpuMemory"];
     }
 
-    init(cpuMemory) {
+    inject(cpuMemory) {
         this.cpuMemory = cpuMemory;
     }
 

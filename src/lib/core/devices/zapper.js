@@ -6,13 +6,13 @@ export class Zapper {
 
     constructor() {
         this.dependencies = ["ppu"];
-    }
-
-    init(ppu) {
-        this.ppu = ppu;
         this.triggerPressed = false;
         this.beamX = 0;
         this.beamY = 0;
+    }
+
+    inject(ppu) {
+        this.ppu = ppu;
     }
 
     strobe() {

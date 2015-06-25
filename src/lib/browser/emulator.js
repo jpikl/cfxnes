@@ -24,7 +24,7 @@ export class Emulator {
         new Injector(config).inject(this); // Bootstrap
     }
 
-    init(executionManager, cartridgeManager, videoManager, audioManager, inputManager, persistenceManager) {
+    inject(executionManager, cartridgeManager, videoManager, audioManager, inputManager, persistenceManager) {
         this["audioChannels"] = channels;
         this["inputPorts"] = ports;
         this.executionManager = executionManager;

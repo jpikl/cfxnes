@@ -18,14 +18,14 @@ export class APU {
         this.dependencies = ["cpu", "cpuMemory"];
     }
 
-    init(cpu, cpuMemory) {
+    inject(cpu, cpuMemory) {
         this.cpu = cpu;
         this.pulseChannel1 = new PulseChannel(1);
         this.pulseChannel2 = new PulseChannel(2);
         this.triangleChannel = new TriangleChannel;
         this.noiseChannel = new NoiseChannel;
         this.dmcChannel = new DMCChannel(cpu, cpuMemory);
-        this.channelEnabled = [ true, true, true, true, true ]; // Enable flag for each channel
+        this.channelEnabled = [true, true, true, true, true]; // Enable flag for each channel
         this.setNTSCMode(true);
         this.stopRecording();
     }

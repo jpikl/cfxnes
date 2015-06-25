@@ -11,7 +11,7 @@ export class ZapperAdapter {
         this.zapper = zapper;
     }
 
-    init(videoManager) {
+    inject(videoManager) {
         this.videoManager = videoManager;
     }
 

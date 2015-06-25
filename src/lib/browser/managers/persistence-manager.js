@@ -10,7 +10,7 @@ export class PersistenceManager {
         this.dependencies = ["nes", "storage", "videoManager", "audioManager", "inputManager", "executionManager"];
     }
 
-    init(nes, storage, videoManager, audioManager, inputManager, executionManager) {
+    inject(nes, storage, videoManager, audioManager, inputManager, executionManager) {
         this.nes = nes;
         this.storage = storage;
         this.videoManager = videoManager;
