@@ -10,10 +10,6 @@ export class CNROMMapper extends AbstractMapper {
     // Mapper initialization
     //=========================================================
 
-    constructor(cartridge) {
-        super("CNROM", cartridge);
-    }
-
     init(cartridge) {
         super.init(cartridge);
         this.hasPRGRAM = false;

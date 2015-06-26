@@ -7,12 +7,12 @@ import { UNROMMapper } from "../mappers/unrom-mapper";
 import { logger }      from "../utils/logger";
 
 var mappers = {
-    0x00: NROMMapper,
-    0x01: MMC1Mapper,
-    0x02: UNROMMapper,
-    0x03: CNROMMapper,
-    0x04: MMC3Mapper,
-    0x07: AOROMMapper
+    "NROM":  NROMMapper,
+    "MMC1":  MMC1Mapper,
+    "UNROM": UNROMMapper,
+    "CNROM": CNROMMapper,
+    "MMC3":  MMC3Mapper,
+    "AOROM": AOROMMapper
 }
 
 //=========================================================
@@ -26,11 +26,12 @@ export class MapperFactory {
     }
 
     createMapper(cartridge) {
-        var id = cartridge.mapperId;
-        var clazz = mappers[id];
+        var name = cartridge.mapper;
+        var clazz = mappers[name];
         if (!clazz) {
-            throw new Error(`Unsupported mapper (ID: ${id}).`);
+            throw new Error(`Unsupported mapper '${name}'`);
         }
+        logger.info(`Creating mapper '${name}'`);
         var mapper = new clazz(cartridge);
         return this.injector.inject(mapper);
     }

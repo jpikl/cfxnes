@@ -41,8 +41,8 @@ export class CartridgeFactory {
 
     printCartridgeInfo(cartridge) {
         logger.info("==========[Cartridge Info - Start]==========");
-        logger.info("Mapper ID             : " + cartridge.mapperId);
-        logger.info("Sub-mapper ID         : " + cartridge.subMapperId);
+        logger.info("Mapper                : " + cartridge.mapper);
+        logger.info("Submapper             : " + cartridge.submapper);
         logger.info("has PRG RAM           : " + cartridge.hasPRGRAM);
         logger.info("has PRG RAM battery   : " + cartridge.hasPRGRAMBattery);
         logger.info("has CHR RAM           : " + cartridge.hasCHRRAM);

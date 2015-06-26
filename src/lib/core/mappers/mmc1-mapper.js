@@ -10,10 +10,6 @@ export class MMC1Mapper extends AbstractMapper {
     // Mapper initialization
     //=========================================================
 
-    constructor(cartridge) {
-        super("MMC1", cartridge);
-    }
-
     init(cartridge) {
         super.init(cartridge);
         this.hasPRGRAM = true;    // Depends on board, so we presume PRG RAM is present

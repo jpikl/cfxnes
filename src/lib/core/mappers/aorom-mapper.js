@@ -10,10 +10,6 @@ export class AOROMMapper extends AbstractMapper {
     // Mapper initialization
     //=========================================================
 
-    constructor(cartridge) {
-        super("AOROM", cartridge);
-    }
-
     init(cartridge) {
         super.init(cartridge);
         this.hasPRGRAM = false;

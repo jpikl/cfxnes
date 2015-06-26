@@ -4,6 +4,15 @@ import { TVSystem }       from "../common/types";
 
 const INES_SIGNATURE = [ 0x4E, 0x45, 0x53, 0x1A ]; // "NES^Z"
 
+var mappers = {
+    0x00: "NROM",
+    0x01: "MMC1",
+    0x02: "UNROM",
+    0x03: "CNROM",
+    0x04: "MMC3",
+    0x07: "AOROM"
+};
+
 //=========================================================
 // Loader for the iNES ROM format
 //=========================================================
@@ -23,6 +32,8 @@ export class INESLoader extends AbstractLoader {
         this.readTrainer(reader, cartridge); // 512 B (optional)
         this.readPRGROM(reader, cartridge);  //  16KB x number of units
         this.readCHRROM(reader, cartridge);  //   8KB x number of units
+        this.setMapper(cartridge);
+        this.setSubmapper(cartridge);
     }
 
     //=========================================================
@@ -118,6 +129,17 @@ export class INESLoader extends AbstractLoader {
 
     readCHRROM(reader, cartridge) {
         cartridge.chrROM = reader.read(cartridge.chrROMSize);
+    }
+
+    //=========================================================
+    // Mapper setup
+    //=========================================================
+
+    setMapper(cartridge) {
+        cartridge.mapper = mappers[cartridge.mapperId] || cartridge.mapperId.toString();
+    }
+
+    setSubmapper(cartridge) {
     }
 
 }

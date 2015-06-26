@@ -15,8 +15,7 @@ export class AbstractMapper {
     // Mapper initialization
     //=========================================================
 
-    constructor(name, cartridge) {
-        logger.info(`Constructing '${name}' mapper`);
+    constructor(cartridge) {
         this.dependencies = ["cpuMemory", "ppuMemory"];
         this.init(cartridge);
         this.initPRGRAM();

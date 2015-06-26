@@ -10,10 +10,6 @@ export class NROMMapper extends AbstractMapper {
     // Mapper initialization
     //=========================================================
 
-    constructor(cartridge) {
-        super("NROM", cartridge);
-    }
-
     init(cartridge) {
         super.init(cartridge);
         this.hasPRGRAM = false;

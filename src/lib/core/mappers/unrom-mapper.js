@@ -10,10 +10,6 @@ export class UNROMMapper extends AbstractMapper {
     // Mapper initialization
     //=========================================================
 
-    constructor(cartridge) {
-        super("UNROM", cartridge);
-    }
-
     init(cartridge) {
         super.init(cartridge);
         this.hasPRGRAM = true;

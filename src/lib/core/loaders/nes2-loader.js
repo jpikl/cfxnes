@@ -26,7 +26,7 @@ export class NES2Loader extends INESLoader {
     readByte8(reader, cartridge) {
         var flags = reader.readByte();
         cartridge.mapperId |= (flags & 0x0F) << 8;    // Bits 8-11 of mapper number
-        cartridge.subMapperId = (flags & 0xF0) >>> 4; // Zero when not used
+        cartridge.submapperId = (flags & 0xF0) >>> 4; // Zero when not used
     }
 
     readByte9(reader, cartridge) {
@@ -61,6 +61,14 @@ export class NES2Loader extends INESLoader {
             return Math.pow(2, value - 1) * 0x80; // grows exponentially: 128B, 256B, 512B, ...
         }
         return 0;
+    }
+
+    //=========================================================
+    // Mapper setup
+    //=========================================================
+
+    setSubmapper(cartridge) {
+        cartridge.submapper = cartridge.submapperId.toString();
     }
 
 }
