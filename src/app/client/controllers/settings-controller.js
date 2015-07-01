@@ -4,7 +4,7 @@ angular.module("cfxnes").controller("SettingsController",
 
     $scope.emulation = globalParams.emulationSettings;
     $scope.emulation.visible = $stateParams.section === "emulation" || $stateParams.section === "" && $scope.emulation.visible !== false;
-    $scope.emulation.tvSystem = emulator.getTVSystem() || "auto";
+    $scope.emulation.region = emulator.getRegion() || "auto";
     $scope.emulation.speed = emulator.getSpeed();
 
     $scope.video = globalParams.videoSettings;
@@ -30,7 +30,7 @@ angular.module("cfxnes").controller("SettingsController",
     $scope.controls.infoDisabled = localStorage["controlsInfoDisabled"] === "true";
     $scope.controls.devices = arrayToProperties(emulator.inputPorts, (port) => emulator.getInputDevice(port) || "none");
 
-    $scope.$watch("emulation.tvSystem", (tvSystem) => emulator.setTVSystem(tvSystem));
+    $scope.$watch("emulation.region", (region) => emulator.setRegion(region));
     $scope.$watch("emulation.speed", (speed) => emulator.setSpeed(speed));
 
     $scope.$watch("video.scale", (scale) => emulator.setVideoScale(scale));

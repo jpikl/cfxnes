@@ -147,7 +147,7 @@ export class VideoManager {
         if (this.paletteId !== id) {
             logger.info("Setting video palette to '" + id + "'");
             this.paletteId = id;
-            this.nes.setRGBPalette(this.paletteFactory.createPalette(id));
+            this.nes.setPalette(this.paletteFactory.createPalette(id));
         }
     }
 

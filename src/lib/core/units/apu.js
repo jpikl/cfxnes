@@ -1,12 +1,9 @@
-import { Interrupt }       from "../common/types";
+import { IRQ_APU }         from "../common/constants";
 import { PulseChannel }    from "../channels/pulse-channel";
 import { TriangleChannel } from "../channels/triangle-channel";
 import { NoiseChannel }    from "../channels/noise-channel";
 import { DMCChannel }      from "../channels/dmc-channel";
 import { logger }          from "../utils/logger";
-
-const CPU_FREQUENCY_NTSC = 1789773;
-const CPU_FREQUENCY_PAL = CPU_FREQUENCY_NTSC * 5 / 6; // Actually 1662607 Hz, but we need to adjust it according to screen refresh rate (50 Hz vs 60 Hz)
 
 //=========================================================
 // Audio processing unit
@@ -26,7 +23,6 @@ export class APU {
         this.noiseChannel = new NoiseChannel;
         this.dmcChannel = new DMCChannel(cpu, cpuMemory);
         this.channelEnabled = [true, true, true, true, true]; // Enable flag for each channel
-        this.setNTSCMode(true);
         this.stopRecording();
     }
 
@@ -45,22 +41,22 @@ export class APU {
         this.writeFrameCounter(0);
     }
 
-    setNTSCMode(ntscMode) {
-        this.frameCounterMax4 = ntscMode ? [ 7457, 7456, 7458, 7457,    1, 1 ] : [ 8313, 8314, 8312, 8313,    1, 1 ]; // 4-step frame counter
-        this.frameCounterMax5 = ntscMode ? [ 7457, 7456, 7458, 7458, 7452, 1 ] : [ 8313, 8314, 8312, 8314, 8312, 1 ]; // 5-step frame counter
-        this.cpuFrequency = ntscMode ? CPU_FREQUENCY_NTSC : CPU_FREQUENCY_PAL;
-        this.noiseChannel.setNTSCMode(ntscMode);
-        this.dmcChannel.setNTSCMode(ntscMode);
+    setRegionParams(params) {
+        this.frameCounterMax4 = params.frameCounterMax4; // 4-step frame counter
+        this.frameCounterMax5 = params.frameCounterMax5; // 5-step frame counter
+        this.cpuFrequency = params.cpuFrequency;
+        this.noiseChannel.setRegionParams(params);
+        this.dmcChannel.setRegionParams(params);
     }
 
     activateFrameIRQ() {
         this.frameIrqActive = true;
-        this.cpu.activateInterrupt(Interrupt.IRQ_APU);
+        this.cpu.activateInterrupt(IRQ_APU);
     }
 
     clearFrameIRQ() {
         this.frameIrqActive = false;
-        this.cpu.clearInterrupt(Interrupt.IRQ_APU);
+        this.cpu.clearInterrupt(IRQ_APU);
     }
 
     //=========================================================

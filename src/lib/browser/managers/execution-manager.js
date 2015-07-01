@@ -1,10 +1,10 @@
-import { TVSystem }   from "../../core/common/types";
+import { Region }     from "../../core/common/region";
 import { clearArray } from "../../core/utils/arrays";
 import { logger }     from "../../core/utils/logger";
 
-const tvSystemAliases = {
-    "ntsc": TVSystem.NTSC,
-    "pal":  TVSystem.PAL
+const regionAliases = {
+    "ntsc": Region.NTSC,
+    "pal":  Region.PAL
 };
 
 //=========================================================
@@ -39,7 +39,7 @@ export class ExecutionManager {
 
     setDefaults() {
         logger.info("Using default execution configuration");
-        this.setTVSystem();
+        this.setRegion();
         this.setSpeed();
     }
 
@@ -114,22 +114,22 @@ export class ExecutionManager {
     }
 
     //=========================================================
-    // TV system
+    // Region
     //=========================================================
 
-    setTVSystem(tvSystem = null) {
-        if (this.tvSystem !== tvSystem) {
-            logger.info(`Setting TV system to '${tvSystem || "autodetection mode"}'`);
-            this.tvSystem = tvSystem;
-            this.nes.setTVSystem(tvSystemAliases[tvSystem]);
+    setRegion(region = null) {
+        if (this.region !== region) {
+            logger.info(`Setting region to '${region || "autodetection mode"}'`);
+            this.region = region;
+            this.nes.setRegion(regionAliases[region]);
             if (this.isRunning()) {
                 this.restart(); // To refresh step period
             }
         }
     }
 
-    getTVSystem() {
-        return this.tvSystem;
+    getRegion() {
+        return this.region;
     }
 
     //=========================================================
@@ -175,15 +175,7 @@ export class ExecutionManager {
     }
 
     getTargetFPS() {
-        var tvSystem = this.nes.getTVSystem();
-        switch (tvSystem) {
-            case TVSystem.NTSC:
-                return 60;
-            case TVSystem.PAL:
-                return 50;
-            default:
-                throw new Error(`Unknown TV system '${tvSystem}'`);
-        }
+        return Region.getValue(this.nes.getRegion()).framesPerSecond;
     }
 
     //=========================================================
@@ -193,15 +185,15 @@ export class ExecutionManager {
     readConfiguration(config) {
         logger.info("Reading execution manager configuration");
         return {
-            "tvSystem": this.getTVSystem(),
-            "speed":    this.getSpeed()
+            "region": this.getRegion(),
+            "speed":  this.getSpeed()
         }
     }
 
     writeConfiguration(config) {
         if (config) {
             logger.info("Writing execution manager configuration");
-            this.setTVSystem(config["tvSystem"]);
+            this.setRegion(config["region"]);
             this.setSpeed(config["speed"]);
         }
     }

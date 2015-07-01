@@ -88,12 +88,12 @@ export class Emulator {
         return this.executionManager.getFPS();
     }
 
-    ["setTVSystem"](tvSystem) {
-        this.executionManager.setTVSystem(tvSystem);
+    ["setRegion"](region) {
+        this.executionManager.setRegion(region);
     }
 
-    ["getTVSystem"]() {
-        return this.executionManager.getTVSystem();
+    ["getRegion"]() {
+        return this.executionManager.getRegion();
     }
 
     ["setSpeed"](speed) {

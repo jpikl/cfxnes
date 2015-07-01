@@ -1,4 +1,4 @@
-import { Mirroring }               from "../common/types";
+import { Mirroring }               from "../common/mirroring";
 import { clearArray }              from "../utils/arrays";
 import { md5 }                     from "../utils/convert";
 import { wordAsHex, readableSize } from "../utils/format";
@@ -271,7 +271,7 @@ export class AbstractMapper {
     }
 
     setMirroring(area0, area1, area2, area3) {
-        this.ppuMemory.mapNamesAttrsAreas(area0, area1, area2, area3);
+        this.ppuMemory.mapNamesAttrsAreas([area0, area1, area2, area3]);
     }
 
 }

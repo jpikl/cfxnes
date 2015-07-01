@@ -1,8 +1,8 @@
 import { AbstractLoader } from "./abstract-loader";
-import { Mirroring }      from "../common/types";
-import { TVSystem }       from "../common/types";
+import { Mirroring }      from "../common/mirroring";
+import { Region }         from "../common/region";
 
-const INES_SIGNATURE = [ 0x4E, 0x45, 0x53, 0x1A ]; // "NES^Z"
+const INES_SIGNATURE = [0x4E, 0x45, 0x53, 0x1A ]; // "NES^Z"
 
 var mappers = {
     0x00: "NROM",
@@ -89,13 +89,13 @@ export class INESLoader extends AbstractLoader {
 
     readByte9(reader, cartridge) {
         var flags = reader.readByte();
-        cartridge.tvSystem = flags & 0x01 ? TVSystem.PAL : TVSystem.NTSC;
+        cartridge.region = flags & 0x01 ? Region.PAL : Region.NTSC;
     }
 
     readByte10(reader, cartridge) {
         var flags = reader.readByte();
         if (flags & 0x02) {
-            cartridge.tvSystem = TVSystem.PAL; // Overrides previous value
+            cartridge.region = Region.PAL; // Overrides previous value
         }
         cartridge.hasPRGRAM = (flags & 0x10) === 0;
         cartridge.hasBUSConflicts = (flags & 0x20) !== 0;

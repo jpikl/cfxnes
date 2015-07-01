@@ -39,3 +39,21 @@ export function copyProperties(source, target) {
         target[name] = value;
     });
 }
+
+export function makeEnumeration(object) {
+    var values = {};
+    for (var id in object) {
+        var value = object[id];
+        if (typeof value !== "function") {
+            values[id] = value
+            object[id] = value.id || id;
+        }
+    }
+    object.getValue = function(id) {
+        return values[id];
+    };
+    object.toString = function(id) {
+        var value = this.getValue(id);
+        return value && value.name || id;
+    };
+}

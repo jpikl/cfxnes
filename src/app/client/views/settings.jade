@@ -37,8 +37,8 @@ mixin device(port)
                 | Emulation
             .emulation-settings
                 .form-group
-                    label(for="tv-system") TV system
-                    select.form-control(id="tv-system" ng-model="emulation.tvSystem")
+                    label(for="region") Region
+                    select.form-control(id="region" ng-model="emulation.region")
                         option(value="auto") Autodetect
                         option(value="ntsc") NTSC
                         option(value="pal")  PAL

@@ -1,5 +1,4 @@
-import { VIDEO_WIDTH, VIDEO_HEIGHT }           from "../common/constants";
-import { Interrupt }                           from "../common/types";
+import { VIDEO_WIDTH, VIDEO_HEIGHT, NMI }      from "../common/constants";
 import { BLACK_COLOR, packColor, unpackColor } from "../utils/colors";
 import { logger }                              from "../utils/logger";
 import { newByteArray, newUintArray }          from "../utils/system";
@@ -19,7 +18,7 @@ const F_COPY_BG   = 1 <<  8; // Cycle where background buffers are copied
 const F_SHIFT_BG  = 1 <<  9; // Cycle where background buffers are shifted
 const F_EVAL_SP   = 1 << 10; // Cycle where sprites for next line are being evaluated
 const F_CLIP_LEFT = 1 << 11; // Cycle where 8 left pixels are clipped
-const F_CLIP_NTSC = 1 << 12; // Cycle where 8 top/bottom pixels are clipped
+const F_CLIP_TB   = 1 << 12; // Cycle where 8 top/bottom pixels are clipped
 const F_INC_CX    = 1 << 13; // Cycle where coarse X scroll is incremented
 const F_INC_FY    = 1 << 14; // Cycle where fine Y scroll is incremented
 const F_COPY_HS   = 1 << 15; // Cycle where horizontal scroll bits are copied
@@ -38,7 +37,7 @@ var cycleFlags = newUintArray(341);
 for (var i = 0; i < cycleFlags.length; i++) {
     if (i >= 1 && i <= 256) {
         cycleFlags[i] |= F_RENDER;
-        cycleFlags[i] |= F_CLIP_NTSC;
+        cycleFlags[i] |= F_CLIP_TB;
     }
     if ((i & 0x7) === 1 || i === 339) {
         cycleFlags[i] |= F_FETCH_NT;
@@ -105,7 +104,7 @@ for (var i = 0; i < scanlineFlags.length; i++) {
         scanlineFlags[i] |= F_COPY_HS;
     }
     if (i <= 7 || (i >= 232 && i <= 239)) {
-        scanlineFlags[i] |= F_CLIP_NTSC;
+        scanlineFlags[i] |= F_CLIP_TB;
     }
 }
 
@@ -142,7 +141,6 @@ export class PPU {
 
     constructor() {
         this.dependencies = ["cpu", "ppuMemory"];
-        this.ntscMode = true;
         this.colorEmphasis = 0; // Color palette BGR emphasis bits
     }
 
@@ -202,51 +200,51 @@ export class PPU {
         this.oddFrame = false;         // Whether odd frame is being rendered
         this.spriteCount = 0;          // Total number of sprites on current scanline
         this.spriteNumber = 0;         // Number of currently fetched sprite
-        this.spriteCache = new Array(261);         // Preprocesed sprite data for current scanline (cycle -> sprite rendered on that cycle)
-        this.spritePixelCache = newByteArray(261); // Prerendered sprite pixels for current scanline (cycle -> sprite pixel rendered on that cycle)
+        this.spriteCache = new Array(261);         // Preprocessed sprite data for current scanline (cycle -> sprite rendered on this cycle)
+        this.spritePixelCache = newByteArray(261); // Prerendered sprite pixels for current scanline (cycle -> sprite pixel rendered on this cycle)
     }
 
     //=========================================================
     // Configuration
     //=========================================================
 
-    setNTSCMode(ntscMode) {
-        this.ntscMode = ntscMode;
+    setRegionParams(params) {
+        this.clipTopBottom = params.ppuClipTopBottom;
     }
 
-    setRGBPalette(rgbPalette) {
-        this.createRGBAPalettes(rgbPalette);
-        this.updateRGBAPalette();
+    setPalette(palette) {
+        this.createPaletteVariants(palette);
+        this.updatePalette();
     }
 
     //=========================================================
-    // Palette generation
+    // Color palette generation
     //=========================================================
 
-    createRGBAPalettes(rgbPalette) {
-        this.rgbaPalettes = new Array(8); // Palettes for each combination of colors emphasis bits: BGR
-        for (var colorEmphasis = 0; colorEmphasis < this.rgbaPalettes.length; colorEmphasis++) {
+    createPaletteVariants(basePalette) {
+        this.paletteVariants = new Array(8); // Palette for each combination of colors emphasis bits: BGR
+        for (var colorEmphasis = 0; colorEmphasis < this.paletteVariants.length; colorEmphasis++) {
             var rRatio = colorEmphasis & 6 ? 0.75 : 1.0; // Dim red when green or blue is emphasized
             var gRatio = colorEmphasis & 5 ? 0.75 : 1.0; // Dim green when red or blue is emphasized
             var bRatio = colorEmphasis & 3 ? 0.75 : 1.0; // Dim blue when red or green is emphasized
-            this.rgbaPalettes[colorEmphasis] = this.createRGBAPalette(rgbPalette, rRatio, gRatio, bRatio);
+            this.paletteVariants[colorEmphasis] = this.createPaletteVariant(basePalette, rRatio, gRatio, bRatio);
         }
     }
 
-    createRGBAPalette(rgbPalette, rRatio, gRatio, bRatio) {
-        var rgbaPalette = newUintArray(rgbPalette.length);
-        for (var i = 0; i < rgbPalette.length; i++) {
-            var rgb = rgbPalette[i];
+    createPaletteVariant(basePalette, rRatio, gRatio, bRatio) {
+        var paletteVariant = newUintArray(basePalette.length);
+        for (var i = 0; i < basePalette.length; i++) {
+            var rgb = basePalette[i];
             var r = Math.floor(rRatio * ((rgb >>> 16) & 0xFF));
             var g = Math.floor(gRatio * ((rgb >>>  8) & 0xFF));
             var b = Math.floor(bRatio * ( rgb         & 0xFF));
-            rgbaPalette[i] = packColor(r, g, b);
+            paletteVariant[i] = packColor(r, g, b);
         }
-        return rgbaPalette;
+        return paletteVariant;
     }
 
-    updateRGBAPalette() {
-        this.rgbaPalette = this.rgbaPalettes[this.colorEmphasis];
+    updatePalette() {
+        this.palette = this.paletteVariants[this.colorEmphasis];
     }
 
     //=========================================================
@@ -276,7 +274,7 @@ export class PPU {
 
     writeMask(value) {
         this.setMask(value);
-        this.updateRGBAPalette();
+        this.updatePalette();
     }
 
     setMask(value) {
@@ -482,11 +480,11 @@ export class PPU {
     }
 
     setFramePixel(color) {
-        this.frameBuffer[this.framePosition++] = this.rgbaPalette[color & 0x3F]; // Only 64 colors
+        this.frameBuffer[this.framePosition++] = this.palette[color & 0x3F]; // Only 64 colors
     }
 
     setFramePixelOnPosition(x, y, color) {
-        this.frameBuffer[y * VIDEO_WIDTH + x] = this.rgbaPalette[color & 0x3F]; // Only 64 colors
+        this.frameBuffer[y * VIDEO_WIDTH + x] = this.palette[color & 0x3F]; // Only 64 colors
     }
 
     clearFramePixel() {
@@ -502,7 +500,7 @@ export class PPU {
             if (this.nmiDelay > 12 && !this.nmiEnabled) {
                 this.nmiDelay = 0; // NMI disabled near the time VBlank flag is set
             } else if (!--this.nmiDelay && !this.nmiSuppressed) {
-                this.cpu.activateInterrupt(Interrupt.NMI); // Delay decremented to zero
+                this.cpu.activateInterrupt(NMI); // Delay decremented to zero
             }
         }
         if (this.csFlags & F_VB_START) {
@@ -628,7 +626,7 @@ export class PPU {
     //=========================================================
 
     updateFramePixel() {
-        if (this.ntscMode && this.csFlags & F_CLIP_NTSC) {
+        if (this.clipTopBottom && (this.csFlags & F_CLIP_TB)) {
             this.clearFramePixel();
         } else {
             var address = this.renderFramePixel();

@@ -1,5 +1,5 @@
-import { Interrupt } from "../common/types";
-import { logger }    from "../utils/logger";
+import { RESET, NMI } from "../common/constants";
+import { logger }     from "../utils/logger";
 
 //=========================================================
 // CPU operation
@@ -97,9 +97,9 @@ export class CPU {
     //=========================================================
 
     resolveInterrupt() {
-        if (this.activeInterrupts & Interrupt.RESET) {
+        if (this.activeInterrupts & RESET) {
             this.handleReset();
-        } else if (this.activeInterrupts & Interrupt.NMI) {
+        } else if (this.activeInterrupts & NMI) {
             this.handleNMI();
         } else if (this.interruptDisable) {
             return; // IRQ requested, but disabled
@@ -115,14 +115,14 @@ export class CPU {
         this.writeByte(0x4017, this.apu.frameCounterLast);  // Zero on power up, last written frame counter value otherwise
         this.stackPointer = (this.stackPointer - 3) & 0xFF; // Unlike IRQ/NMI, writing on stack does not modify CPU memory, so we just decrement the stack pointer 3 times
         this.enterInterruptHandler(0xFFFC);
-        this.clearInterrupt(Interrupt.RESET);
+        this.clearInterrupt(RESET);
         this.halted = false;
     }
 
     handleNMI() {
         this.saveStateBeforeInterrupt();
         this.enterInterruptHandler(0xFFFA);
-        this.clearInterrupt(Interrupt.NMI);
+        this.clearInterrupt(NMI);
     }
 
     handleIRQ() {

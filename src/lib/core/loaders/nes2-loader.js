@@ -1,5 +1,5 @@
 import { INESLoader } from "./ines-loader";
-import { TVSystem }   from "../common/types";
+import { Region }     from "../common/region";
 
 //=========================================================
 // Loader for the NES 2.0 ROM format
@@ -53,7 +53,7 @@ export class NES2Loader extends INESLoader {
 
     readByte12(reader, cartridge) {
         var flags = reader.readByte();
-        cartridge.tvSystem = flags & 0x01 ? TVSystem.PAL : TVSystem.NTSC;
+        cartridge.region = flags & 0x01 ? Region.PAL : Region.NTSC;
     }
 
     computeRAMSize(value) {

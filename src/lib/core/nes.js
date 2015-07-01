@@ -1,4 +1,5 @@
-import { Interrupt, TVSystem }    from "./common/types";
+import { RESET }                  from "./common/constants"
+import { Region }                 from "./common/region";
 import { BLACK_COLOR, packColor } from "./utils/colors";
 
 //=========================================================
@@ -26,6 +27,7 @@ export class NES {
     //=========================================================
 
     pressPower() {
+        this.updateRegionParams();
         if (this.isCartridgeInserted()) {
             this.cpuMemory.powerUp();
             this.ppuMemory.powerUp();
@@ -38,7 +40,7 @@ export class NES {
     }
 
     pressReset() {
-        this.cpu.activateInterrupt(Interrupt.RESET);
+        this.cpu.activateInterrupt(RESET);
     }
 
     //=========================================================
@@ -64,7 +66,6 @@ export class NES {
         this.ppu.connectMapper(this.mapper);
         this.cpuMemory.connectMapper(this.mapper);
         this.ppuMemory.connectMapper(this.mapper);
-        this.updateTVSystem();
         this.pressPower();
     }
 
@@ -179,25 +180,25 @@ export class NES {
     // Configuration
     //=========================================================
 
-    setRGBPalette(rgbPalette) {
-        this.ppu.setRGBPalette(rgbPalette);
+    setPalette(palette) {
+        this.ppu.setPalette(palette);
     }
 
-    setTVSystem(tvSystem) {
-        this.tvSystem = tvSystem;
-        this.updateTVSystem();
+    setRegion(region) {
+        this.region = region;
+        this.updateRegionParams();
     }
 
-    getTVSystem() {
-        return this.tvSystem
-            || this.cartridge && this.cartridge.tvSystem
-            || TVSystem.NTSC;
+    getRegion() {
+        return this.region
+            || this.cartridge && this.cartridge.region
+            || Region.NTSC;
     }
 
-    updateTVSystem() {
-        var ntscMode = this.getTVSystem() === TVSystem.NTSC;
-        this.ppu.setNTSCMode(ntscMode);
-        this.apu.setNTSCMode(ntscMode);
+    updateRegionParams() {
+        var params = Region.getValue(this.getRegion());
+        this.ppu.setRegionParams(params);
+        this.apu.setRegionParams(params);
     }
 
 }

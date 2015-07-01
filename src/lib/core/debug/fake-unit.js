@@ -9,7 +9,7 @@ export class FakeUnit {
     isBlockingDMA() { return false; }
     powerUp() {}
     readStatus() { return 0; }
-    setNTSCMode() {}
+    setRegionParams() {}
     tick() {}
     writeAddress() {}
     writeControl() {}

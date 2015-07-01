@@ -1,4 +1,4 @@
-import { Mirroring }                  from "../common/types";
+import { Mirroring }                  from "../common/mirroring";
 import { clearArray, copyArray }      from "../utils/arrays";
 import { logger }                     from "../utils/logger";
 import { newByteArray, newUintArray } from "../utils/system";
@@ -125,24 +125,14 @@ export class PPUMemory {
         return this.namesAttrsMapping[(address & 0x0C00) >>> 10] | address & 0x03FF;
     }
 
-    mapNamesAttrsAreas(area0, area1, area2, area3) {
-        this.namesAttrsMapping[0] = area0 * 0x0400;
-        this.namesAttrsMapping[1] = area1 * 0x0400;
-        this.namesAttrsMapping[2] = area2 * 0x0400;
-        this.namesAttrsMapping[3] = area3 * 0x0400;
+    mapNamesAttrsAreas(areas) {
+        for (var i = 0; i < 4; i++) {
+            this.namesAttrsMapping[i] = areas[i] * 0x0400;
+        }
     }
 
     setNamesAttrsMirroring(mirroring) {
-        switch (mirroring) {                // Mirroring of areas [A|B|C|D] in [$2000-$2FFF]
-            case Mirroring.SINGLE_SCREEN_0: this.mapNamesAttrsAreas(0, 0, 0, 0); break;
-            case Mirroring.SINGLE_SCREEN_1: this.mapNamesAttrsAreas(1, 1, 1, 1); break;
-            case Mirroring.SINGLE_SCREEN_2: this.mapNamesAttrsAreas(2, 2, 2, 2); break;
-            case Mirroring.SINGLE_SCREEN_3: this.mapNamesAttrsAreas(3, 3, 3, 3); break;
-            case Mirroring.HORIZONTAL:      this.mapNamesAttrsAreas(0, 0, 1, 1); break;
-            case Mirroring.VERTICAL:        this.mapNamesAttrsAreas(0, 1, 0, 1); break;
-            case Mirroring.FOUR_SCREEN:     this.mapNamesAttrsAreas(0, 1, 2, 3); break;
-            default: throw new Error(`Undefined mirroring (${mirroring})`);
-        }
+        this.mapNamesAttrsAreas(Mirroring.getValue(mirroring).areas);
     }
 
     //=========================================================

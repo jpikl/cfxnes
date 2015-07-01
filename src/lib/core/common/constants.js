@@ -3,8 +3,16 @@
 //=========================================================
 
 // Size of video output
-export const VIDEO_WIDTH = 256;
+export const VIDEO_WIDTH  = 256;
 export const VIDEO_HEIGHT = 240;
+
+// Interupt flags
+export const RESET   = 0x01; // CPU reset
+export const NMI     = 0x02; // Non-maskable interrupt
+export const IRQ_APU = 0x04; // Interrupt caused by APU
+export const IRQ_DCM = 0x08; // Interrupt caused by DCM channel
+export const IRQ_EXT = 0x10; // Interrupt caused by mapper
+export const IRQ     = IRQ_APU | IRQ_DCM | IRQ_EXT; // Mask for all IRQ types
 
 // Length counter values for APU channels
 export const LENGTH_COUNTER_VALUES = [

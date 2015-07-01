@@ -1,8 +1,5 @@
-import { Interrupt } from "../common/types";
-import { logger }    from "../utils/logger";
-
-const TIMER_PERIODS_NTSC = [ 428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106, 84, 72, 54 ];
-const TIMER_PERIODS_PAL  = [ 398, 354, 316, 298, 276, 236, 210, 198, 176, 148, 132, 118,  98, 78, 66, 50 ];
+import { IRQ_DCM } from "../common/constants";
+import { logger }  from "../utils/logger";
 
 //=========================================================
 // DMC Channel
@@ -37,11 +34,11 @@ export class DMCChannel {
             this.sampleCurrentAddress = this.sampleAddress; // Enabling channel starts sample data reading unless is already in progress
             this.sampleRemainingLength = this.sampleLength;
         }
-        this.cpu.clearInterrupt(Interrupt.IRQ_DCM);         // Changing enablement ($4015 write) clears IRQ flag
+        this.cpu.clearInterrupt(IRQ_DCM);         // Changing enablement ($4015 write) clears IRQ flag
     }
 
-    setNTSCMode(ntscMode) {
-        this.timerPeriods = ntscMode ? TIMER_PERIODS_NTSC : TIMER_PERIODS_PAL;
+    setRegionParams(params) {
+        this.timerPeriods = params.dmcChannelTimerPeriods;
     }
 
     //=========================================================
@@ -53,7 +50,7 @@ export class DMCChannel {
         this.sampleLoop = (value & 0x40) !== 0;             // Sample looping flag
         this.timerPeriod = this.timerPeriods[value & 0x0F]; // Timer counter reset value
         if (!this.irqEnabled) {
-            this.cpu.clearInterrupt(Interrupt.IRQ_DCM);     // Disabling IRQ clears IRQ flag
+            this.cpu.clearInterrupt(IRQ_DCM);     // Disabling IRQ clears IRQ flag
         }
     }
 
@@ -108,7 +105,7 @@ export class DMCChannel {
                     this.sampleCurrentAddress = this.sampleAddress; // Re-read the same sample again
                     this.sampleRemainingLength = this.sampleLength;
                 } else if (this.irqEnabled) {
-                    this.cpu.activateInterrupt(Interrupt.IRQ_DCM); // Reading of sample was finished
+                    this.cpu.activateInterrupt(IRQ_DCM); // Reading of sample was finished
                 }
             }
         }

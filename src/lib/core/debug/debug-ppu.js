@@ -6,7 +6,7 @@ import { PPU } from "../units/ppu";
 
 export class DebugPPU extends PPU {
 
-    updateRGBAPalette() {
+    updatePalette() {
     }
 
     setFramePixel() {

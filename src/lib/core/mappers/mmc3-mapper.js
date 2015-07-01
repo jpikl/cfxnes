@@ -1,5 +1,6 @@
-import { AbstractMapper }       from "./abstract-mapper";
-import { Interrupt, Mirroring } from "../common/types";
+import { AbstractMapper } from "./abstract-mapper";
+import { IRQ_EXT }        from "../common/constants";
+import { Mirroring }      from "../common/mirroring";
 
 //=========================================================
 // MMC3 mapper
@@ -120,7 +121,7 @@ export class MMC3Mapper extends AbstractMapper {
     writeIRQEnable(enabled) {
         this.irqEnabled = enabled;
         if (!enabled) {
-            this.cpu.clearInterrupt(Interrupt.IRQ_EXT); // Disabling IRQ clears IRQ flag
+            this.cpu.clearInterrupt(IRQ_EXT); // Disabling IRQ clears IRQ flag
         }
     }
 
@@ -201,7 +202,7 @@ export class MMC3Mapper extends AbstractMapper {
             this.irqCounter--;
         }
         if (this.irqEnabled && !this.irqCounter && (!this.alternateMode || !irqCounterOld || this.irqReload)) {
-            this.cpu.activateInterrupt(Interrupt.IRQ_EXT);
+            this.cpu.activateInterrupt(IRQ_EXT);
         }
         this.irqReload = false;
     }

@@ -1,4 +1,5 @@
-import { Mirroring, TVSystem }         from "../common/types";
+import { Mirroring }                   from "../common/mirroring";
+import { Region }                      from "../common/region";
 import { INESLoader }                  from "../loaders/ines-loader";
 import { NES2Loader }                  from "../loaders/nes2-loader";
 import { ArrayBufferReader }           from "../readers/array-buffer-reader";
@@ -56,7 +57,7 @@ export class CartridgeFactory {
         logger.info("CHR RAM size          : " + readableSize(cartridge.chrRAMSize));
         logger.info("CHR RAM size (battery): " + readableSize(cartridge.chrRAMSizeBattery));
         logger.info("Mirroring             : " + Mirroring.toString(cartridge.mirroring));
-        logger.info("TV system             : " + TVSystem.toString(cartridge.tvSystem));
+        logger.info("Region                : " + Region.toString(cartridge.region));
         logger.info("is Vs Unisistem       : " + cartridge.isVsUnisistem);
         logger.info("is PlayChoice         : " + cartridge.isPlayChoice);
         logger.info("Trainer               : " + readableBytes(cartridge.trainer));
