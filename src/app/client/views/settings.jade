@@ -124,9 +124,15 @@ mixin device(port)
                 +device(1)
                 +device(2)
             .controls-settings
-                div
-                    button.btn.btn-default(ng-click="restoreDefaults()") Restore to defaults
-                div.checkbox
+                p
+                    | #[span.icon.icon-keyboard-o] Restore #[a(href="#" ng-click="restoreDefaults()") default keyboard mapping]
+                p(ng-hide="gamepads")
+                    | #[span.icon.icon-gamepad] Your browser does not seem to support gamepads.
+                p(ng-show="gamepads && gamepads.length == 0")
+                    | #[span.icon.icon-gamepad] No gamepads seem to be connected. Plug in a gamepad and then press any of its buttons to activate it.
+                p(ng-repeat="gamepad in gamepads")
+                    | #[span.icon.icon-gamepad] Gamepad {{$index}}: {{gamepad.id}}
+                .checkbox
                     label(for="controls-info-disabled")
                         input(id="controls-info-disabled" type="checkbox" ng-model="controls.infoDisabled")
                         | Never show controls on emulator page

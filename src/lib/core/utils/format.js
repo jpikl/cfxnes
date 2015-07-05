@@ -27,12 +27,10 @@ export function fillRight(value, width, character = " ") {
     return result.slice(0, width);
 }
 
-export function capitalize(value) {
-    var words = value.split(" ");
-    for (var i = 0; i < words.length; i++) {
-        words[i] = words[i].slice(0, 1).toUpperCase() + words[i].slice(1).toLowerCase();
-    }
-    return words.join(" ");
+export function capitalize(sentence) {
+    return sentence.split(" ")
+                .map(word => word.length ? word[0].toUpperCase() + word.slice(1) : word)
+                .join(" ");
 }
 
 export function readableSize(size) {

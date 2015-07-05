@@ -4,7 +4,7 @@ import { forEeachProperty,
          getProperty, setProperty }  from "../../core/utils/objects";
 
 export const ports = [ 1, 2 ];
-export const sourceIds = [ "keyboard", "mouse" ];
+export const sourceIds = [ "keyboard", "mouse", "gamepad" ];
 export const targetIds = [ "joypad", "zapper" ];
 
 //=========================================================

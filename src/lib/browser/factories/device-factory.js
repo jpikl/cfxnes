@@ -1,3 +1,4 @@
+import { Gamepad }           from "../devices/gamepad";
 import { Keyboard }          from "../devices/keyboard";
 import { Mouse }             from "../devices/mouse";
 import { JoypadAdapter }     from "../devices/adapters/joypad-adapter";
@@ -8,6 +9,7 @@ import { DeviceFactory as
          CoreDeviceFactory } from "../../core/factories/device-factory";
 
 const sourceDevices = {
+    "gamepad":  Gamepad,
     "keyboard": Keyboard,
     "mouse":    Mouse
 };

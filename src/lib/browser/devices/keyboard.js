@@ -1,3 +1,5 @@
+import { capitalize } from "../../core/utils/format"
+
 const keyCodeAliases = {
     48: "0", 49: "1", 50: "2", 51: "3", 52: "4", 53: "5", 54: "6", 55: "7", 56: "8", 57: "9",
     65: "a", 66: "b", 67: "c", 68: "d", 69: "e", 70: "f", 71: "g", 72: "h", 73: "i", 74: "j",
@@ -77,13 +79,11 @@ export class Keyboard {
     }
 
     //=========================================================
-    // Inputs
+    // Input names
     //=========================================================
 
     getInputName(input) {
-        return input.split("-")
-                    .map(w => (w.length > 0) ? w[0].toUpperCase() + w.slice(1) : w)
-                    .join(" ");
+        return capitalize(input.replace("-", " "));
     }
 
 }

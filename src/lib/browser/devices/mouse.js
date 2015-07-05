@@ -1,3 +1,5 @@
+import { capitalize } from "../../core/utils/format"
+
 const buttonAliases = {
     1: "left",
     2: "right",
@@ -72,7 +74,7 @@ export class Mouse {
     }
 
     //=========================================================
-    // Inputs
+    // State reading
     //=========================================================
 
     readState(state) {
@@ -80,8 +82,12 @@ export class Mouse {
         state.cursorY = this.y;
     }
 
+    //=========================================================
+    // Input names
+    //=========================================================
+
     getInputName(input) {
-        return input[0].toUpperCase() + input.slice(1) + " mouse button";
+        return capitalize(input) + " mouse button";
     }
 
 }

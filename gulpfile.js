@@ -67,7 +67,8 @@ gulp.task("lib", function() {
                     "./externs/JSZip.js",
                     "./externs/md5.js",
                     "./externs/screenfull.js",
-                    "./externs/w3c_audio.js"
+                    "./externs/w3c_audio.js",
+                    "./externs/w3c_gamepad.js"
                 ]
             }))
         .pipe(gulp.dest("./dist/lib/"))

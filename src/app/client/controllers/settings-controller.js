@@ -1,6 +1,6 @@
 angular.module("cfxnes").controller("SettingsController",
-    ["$scope", "$stateParams", "$modal", "emulator", "globalParams",
-    ($scope, $stateParams, $modal, emulator, globalParams) => {
+    ["$scope", "$stateParams", "$interval", "$modal", "emulator", "globalParams",
+    ($scope, $stateParams, $interval, $modal, emulator, globalParams) => {
 
     $scope.emulation = globalParams.emulationSettings;
     $scope.emulation.visible = $stateParams.section === "emulation" || $stateParams.section === "" && $scope.emulation.visible !== false;
@@ -57,7 +57,7 @@ angular.module("cfxnes").controller("SettingsController",
 
     $scope.recordInput = (targetPort, targetId, targetInput) => {
         var modal = $modal.open({
-            template: "Press key or mouse button...",
+            template: "Press key or button (ESC to cancel)",
             windowClass: "modal-record-input",
             keyboard: false
         });
@@ -74,6 +74,20 @@ angular.module("cfxnes").controller("SettingsController",
         emulator.setInputDefaults();
         $scope.controls.devices = arrayToProperties(emulator.inputPorts, port => emulator.getInputDevice(port) || "none");
     };
+
+    if (navigator.getGamepads) {
+        $scope.gamepads = [];
+        var promise = $interval(() => {
+            $scope.gamepads = [];
+            var gamepads = navigator.getGamepads();
+            for (var i = 0; i < gamepads.length; i++) {
+                if (gamepads[i]) {
+                    $scope.gamepads.push(gamepads[i]);
+                }
+            }
+        }, 500);
+        $scope.$on("$stateChangeStart", () => $interval.cancel(promise));
+    }
 
     $scope.$on("$stateChangeStart", () => {
         if (localStorage["controlsInfoDisabled"] === "true") {
