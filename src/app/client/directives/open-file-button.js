@@ -7,7 +7,7 @@ angular.module("cfxnes").directive("openFileButton", () => {
         link: (scope, element, attrs) => {
             var fileInput = element.find("input[type='file']");
             fileInput.hide();
-            fileInput.on("change", (event) => {
+            fileInput.on("change", event => {
                 element.blur();
                 event.preventDefault();
                 event.stopPropagation();
@@ -15,7 +15,7 @@ angular.module("cfxnes").directive("openFileButton", () => {
                     "file": event.originalEvent.target.files[0]
                 });
             });
-            element.on("click", (event) => {
+            element.on("click", event => {
                 fileInput[0].click(); // Do not use jquery click method (causes recursion)
             });
         }

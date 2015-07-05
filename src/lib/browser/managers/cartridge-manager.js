@@ -32,7 +32,7 @@ export class CartridgeManager {
             return;
         }
         var reader = new FileReader;
-        reader.onload = (event) => {
+        reader.onload = event => {
             var data = event.target.result;
             var error = this.tryInsertCartridge(data);
             if (error) {
@@ -41,7 +41,7 @@ export class CartridgeManager {
                 onLoad && onLoad();
             }
         }
-        reader.onerror = (event) => {
+        reader.onerror = event => {
             onError && onError(event.target.error || UNKNOWN_ERROR);
         }
         try {

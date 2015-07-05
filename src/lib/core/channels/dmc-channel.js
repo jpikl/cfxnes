@@ -34,7 +34,7 @@ export class DMCChannel {
             this.sampleCurrentAddress = this.sampleAddress; // Enabling channel starts sample data reading unless is already in progress
             this.sampleRemainingLength = this.sampleLength;
         }
-        this.cpu.clearInterrupt(IRQ_DCM);         // Changing enablement ($4015 write) clears IRQ flag
+        this.cpu.clearInterrupt(IRQ_DCM);                   // Changing enablement ($4015 write) clears IRQ flag
     }
 
     setRegionParams(params) {
@@ -50,7 +50,7 @@ export class DMCChannel {
         this.sampleLoop = (value & 0x40) !== 0;             // Sample looping flag
         this.timerPeriod = this.timerPeriods[value & 0x0F]; // Timer counter reset value
         if (!this.irqEnabled) {
-            this.cpu.clearInterrupt(IRQ_DCM);     // Disabling IRQ clears IRQ flag
+            this.cpu.clearInterrupt(IRQ_DCM);               // Disabling IRQ clears IRQ flag
         }
     }
 

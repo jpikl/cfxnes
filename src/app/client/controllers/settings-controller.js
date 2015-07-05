@@ -23,36 +23,36 @@ angular.module("cfxnes").controller("SettingsController",
     $scope.audio.supported = emulator.isAudioSupported();
     $scope.audio.enabled = emulator.isAudioEnabled();
     $scope.audio.volume = emulator.getAudioVolume();
-    $scope.audio.channels = arrayToProperties(emulator.audioChannels, (channel) => emulator.isAudioChannelEnabled(channel));
+    $scope.audio.channels = arrayToProperties(emulator.audioChannels, channel => emulator.isAudioChannelEnabled(channel));
 
     $scope.controls = globalParams.controlsSettings;
     $scope.controls.visible = $stateParams.section === "controls" || $stateParams.section === "" && $scope.controls.visible;
     $scope.controls.infoDisabled = localStorage["controlsInfoDisabled"] === "true";
-    $scope.controls.devices = arrayToProperties(emulator.inputPorts, (port) => emulator.getInputDevice(port) || "none");
+    $scope.controls.devices = arrayToProperties(emulator.inputPorts, port => emulator.getInputDevice(port) || "none");
 
-    $scope.$watch("emulation.region", (region) => emulator.setRegion(region));
-    $scope.$watch("emulation.speed", (speed) => emulator.setSpeed(speed));
+    $scope.$watch("emulation.region", region => emulator.setRegion(region));
+    $scope.$watch("emulation.speed", speed => emulator.setSpeed(speed));
 
-    $scope.$watch("video.scale", (scale) => emulator.setVideoScale(scale));
-    $scope.$watch("video.palette", (palette) => emulator.setVideoPalette(palette));
-    $scope.$watch("video.webGL", (webGL) => emulator.setVideoRenderer(webGL ? "webgl" : "canvas"));
-    $scope.$watch("video.debugging", (debugging) => emulator.setVideoDebugging(debugging));
-    $scope.$watch("video.smoothing", (smoothing) => emulator.setVideoSmoothing(smoothing));
-    $scope.$watch("video.fpsVisible", (fpsVisible) => localStorage["fpsVisible"] = fpsVisible ? "true" : "false");
+    $scope.$watch("video.scale", scale => emulator.setVideoScale(scale));
+    $scope.$watch("video.palette", palette => emulator.setVideoPalette(palette));
+    $scope.$watch("video.webGL", webGL => emulator.setVideoRenderer(webGL ? "webgl" : "canvas"));
+    $scope.$watch("video.debugging", debugging => emulator.setVideoDebugging(debugging));
+    $scope.$watch("video.smoothing", smoothing => emulator.setVideoSmoothing(smoothing));
+    $scope.$watch("video.fpsVisible", fpsVisible => localStorage["fpsVisible"] = fpsVisible ? "true" : "false");
 
-    $scope.$watch("audio.enabled", (enabled) => emulator.setAudioEnabled(enabled));
-    $scope.$watch("audio.volume", (volume) => emulator.setAudioVolume(volume));
+    $scope.$watch("audio.enabled", enabled => emulator.setAudioEnabled(enabled));
+    $scope.$watch("audio.volume", volume => emulator.setAudioVolume(volume));
     for (let channel of emulator.audioChannels) {
-        $scope.$watch(`audio.channels.${channel}`, (enabled) => emulator.setAudioChannelEnabled(channel, enabled));
+        $scope.$watch(`audio.channels.${channel}`, enabled => emulator.setAudioChannelEnabled(channel, enabled));
     }
 
-    $scope.$watch("controls.infoDisabled", (disabled) => localStorage["controlsInfoDisabled"] = disabled ? "true" : "false");
+    $scope.$watch("controls.infoDisabled", disabled => localStorage["controlsInfoDisabled"] = disabled ? "true" : "false");
     for (let port of emulator.inputPorts) {
-        $scope.$watch(`controls.devices[${port}]`, (device) => emulator.setInputDevice(port, device === "none" ? null : device));
+        $scope.$watch(`controls.devices[${port}]`, device => emulator.setInputDevice(port, device === "none" ? null : device));
     }
 
-    $scope.percentageFormater = (value) => `${~~(100 * value)}%`;
-    $scope.multiplierFormater = (value) => `${value}x`;
+    $scope.percentageFormater = value => `${~~(100 * value)}%`;
+    $scope.multiplierFormater = value => `${value}x`;
     $scope.getMappedInputName = (targetPort, targetId, targetInput) => emulator.getMappedInputName(targetPort, targetId, targetInput) || "--";
 
     $scope.recordInput = (targetPort, targetId, targetInput) => {
@@ -72,7 +72,7 @@ angular.module("cfxnes").controller("SettingsController",
 
     $scope.restoreDefaults = () => {
         emulator.setInputDefaults();
-        $scope.controls.devices = arrayToProperties(emulator.inputPorts, (port) => emulator.getInputDevice(port) || "none");
+        $scope.controls.devices = arrayToProperties(emulator.inputPorts, port => emulator.getInputDevice(port) || "none");
     };
 
     $scope.$on("$stateChangeStart", () => {

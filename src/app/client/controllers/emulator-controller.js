@@ -4,9 +4,9 @@ angular.module("cfxnes").controller("EmulatorController",
 
     $scope.emulator = emulator;
 
-    $scope.loadCartridge = (file) => {
+    $scope.loadCartridge = file => {
         var onLoad = () => $scope.$broadcast("cartridgeLoadSuccess");
-        var onError = (error) => $scope.$broadcast("cartridgeLoadError", error);
+        var onError = error => $scope.$broadcast("cartridgeLoadError", error);
         emulator.loadCartridge(file, onLoad, onError);
     };
 
@@ -39,7 +39,7 @@ angular.module("cfxnes").controller("EmulatorController",
         $scope.error = null;
     });
 
-    $scope.$on("cartridgeLoadSuccess", (gameId) => {
+    $scope.$on("cartridgeLoadSuccess", gameId => {
         globalParams.gameId = gameId;
         $scope.loading = false;
         $scope.error = null;
@@ -59,7 +59,7 @@ angular.module("cfxnes").controller("EmulatorController",
 
     if ($stateParams.gameId && $stateParams.gameId !== globalParams.gameId) {
         $scope.$broadcast("cartridgeLoadStart");
-        library.getROMFile($stateParams.gameId).then((response) => {
+        library.getROMFile($stateParams.gameId).then(response => {
             try {
                 emulator.insertCartridge(response.data);
                 $scope.$broadcast("cartridgeLoadSuccess", $stateParams.gameId);
@@ -67,7 +67,7 @@ angular.module("cfxnes").controller("EmulatorController",
                 console.error(error.stack || error);
                 $scope.$broadcast("cartridgeLoadError", error.message || "Unknown error");
             }
-        }).catch((response) => {
+        }).catch(response => {
             $scope.$broadcast("cartridgeLoadError", `Unable to download file (server response: ${response.status})`);
         });
     } else if (globalParams.autoPaused) {

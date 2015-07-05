@@ -6,11 +6,11 @@ angular.module("cfxnes").controller("LibraryController",
     $scope.gameFilter = globalParams.gameFilter;
     $scope.loading = true;
 
-    $scope.playGame = (game) => {
+    $scope.playGame = game => {
         $state.go("emulator", { gameId: game.id });
     };
 
-    library.getROMs().success((data) => {
+    library.getROMs().success(data => {
         $scope.games = data;
         $scope.empty = data.length === 0
         $scope.loading = false;

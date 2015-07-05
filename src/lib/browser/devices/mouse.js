@@ -19,9 +19,9 @@ export class Mouse {
     inject(inputManager, videoManager) {
         this.inputManager = inputManager;
         this.videoManager = videoManager;
-        window.addEventListener("mousemove", (event) => this.onMouseMove(event));
-        window.addEventListener("mousedown", (event) => this.onMouseDown(event));
-        window.addEventListener("mouseup", (event) => this.onMouseUp(event));
+        window.addEventListener("mousemove", event => this.onMouseMove(event));
+        window.addEventListener("mousedown", event => this.onMouseDown(event));
+        window.addEventListener("mouseup", event => this.onMouseUp(event));
     }
 
     //=========================================================

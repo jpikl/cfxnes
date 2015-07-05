@@ -9,7 +9,7 @@ export class LocalFileReader extends AbstractReader {
     constructor(path) {
         super();
         this.buffer = require("fs").readFileSync(path);
-        this.tryUnzip(this.buffer, (result) => {
+        this.tryUnzip(this.buffer, result => {
             this.buffer = result.asNodeBuffer();
         });
     }

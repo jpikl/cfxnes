@@ -4,6 +4,12 @@ import { makeEnumeration } from "../utils/objects"
 // Nametable mirroring
 //=========================================================
 
+// Defines how are nametables aligned on the screen.
+//
+// areas: [A, B, C, D] means A | B
+//                           --+--
+//                           C | D
+
 export var Mirroring = {
     SINGLE_SCREEN_0: {
         name: "single screen (0)",

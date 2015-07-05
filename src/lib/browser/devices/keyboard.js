@@ -29,8 +29,8 @@ export class Keyboard {
     inject(inputManager, videoManager) {
         this.inputManager = inputManager;
         this.videoManager = videoManager;
-        window.addEventListener("keydown", (event) => this.onKeyDown(event));
-        window.addEventListener("keyup", (event) => this.onKeyUp(event));
+        window.addEventListener("keydown", event => this.onKeyDown(event));
+        window.addEventListener("keyup", event => this.onKeyUp(event));
     }
 
     //=========================================================
@@ -82,7 +82,7 @@ export class Keyboard {
 
     getInputName(input) {
         return input.split("-")
-                    .map((w) => (w.length > 0) ? w[0].toUpperCase() + w.slice(1) : w)
+                    .map(w => (w.length > 0) ? w[0].toUpperCase() + w.slice(1) : w)
                     .join(" ");
     }
 

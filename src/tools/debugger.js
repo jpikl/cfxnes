@@ -30,7 +30,7 @@ var argv = yargs
     .nargs("b", 1)
     .help("h")
     .alias("h", "help")
-    .check((argv) => {
+    .check(argv => {
         var steps = argv.steps;
         if ((steps != null) && (typeof steps !== "number" || steps <= 0)) {
             return "invalid number of steps";
@@ -162,7 +162,7 @@ var rl = readline.createInterface(process.stdin, process.stdout);
 rl.setPrompt("command>");
 rl.prompt();
 
-rl.on("line", (line) => {
+rl.on("line", line => {
     var input = line.trim().split(/\s+/);
     var command = input[0];
     var param = input.slice(1).join(" ");

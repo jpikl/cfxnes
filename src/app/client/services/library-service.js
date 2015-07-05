@@ -15,7 +15,7 @@ angular.module("cfxnes").service("library", ["$http", "$q", function($http, $q) 
     };
 
     this.getROMFile = function(id) {
-        return this.getROM(id).then((response) => {
+        return this.getROM(id).then(response => {
             return $http({
                 method: "GET",
                 url: response.data.fileURL,
