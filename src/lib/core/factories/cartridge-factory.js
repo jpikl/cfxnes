@@ -18,6 +18,14 @@ var loaders = [
 
 export class CartridgeFactory {
 
+    constructor() {
+        this.dependencies = ["JSZip"];
+    }
+
+    inject(JSZip) {
+        this.JSZip = JSZip;
+    }
+
     fromArrayBuffer(buffer) {
         logger.info("Loading cartridge from array buffer");
         return this.fromReader(new ArrayBufferReader(buffer));
@@ -29,6 +37,7 @@ export class CartridgeFactory {
     }
 
     fromReader(reader) {
+        reader.tryUnzip(this.JSZip);
         for (var loader of loaders) {
             if (loader.supports(reader)) {
                 logger.info(`Using '${loader.name}' loader`);

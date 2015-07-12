@@ -9,9 +9,10 @@ export class LocalFileReader extends AbstractReader {
     constructor(path) {
         super();
         this.buffer = require("fs").readFileSync(path);
-        this.tryUnzip(this.buffer, result => {
-            this.buffer = result.asNodeBuffer();
-        });
+    }
+
+    getData() {
+        return this.buffer;
     }
 
     getLength() {
@@ -21,5 +22,10 @@ export class LocalFileReader extends AbstractReader {
     peekOffset(offset, length) {
         return this.buffer.slice(offset, offset + length);
     }
+
+    onUnzip(result) {
+        this.buffer = result.asNodeBuffer();
+    }
+
 
 }

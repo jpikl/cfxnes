@@ -2,15 +2,16 @@
 // CFxNES debugger
 //=========================================================
 
-import readline        from "readline";
-import util            from "util";
-import yargs           from "yargs";
-import baseConfig      from "../lib/core/config/base-config";
-import { DebugCPU }    from "../lib/core/debug/debug-cpu";
-import { DebugPPU }    from "../lib/core/debug/debug-ppu";
-import { numberAsHex } from "../lib/core/utils/format";
-import { Injector }    from "../lib/core/utils/inject";
-import { Logger }      from "../lib/core/utils/logger";
+import readline           from "readline";
+import util               from "util";
+import yargs              from "yargs";
+import baseConfig         from "../lib/core/config/base-config";
+import { DebugCPU }       from "../lib/core/debug/debug-cpu";
+import { DebugPPU }       from "../lib/core/debug/debug-ppu";
+import { numberAsHex }    from "../lib/core/utils/format";
+import { Injector }       from "../lib/core/utils/inject";
+import { Logger }         from "../lib/core/utils/logger";
+import { copyProperties } from "../lib/core/utils/objects";
 
 //=========================================================
 // Command line parser
@@ -47,9 +48,9 @@ var loggerId = argv.verbose ? "debug-verbose" : "debug-basic";
 var logger = Logger.get(loggerId);
 var print = console.log;
 
-var config = baseConfig.clone();
-config["cpu"] = DebugCPU;
-config["ppu"] = DebugPPU;
+var config = copyProperties(baseConfig);
+config["cpu"] = {type: "class", value: DebugCPU};
+config["ppu"] = {type: "class", value: DebugPPU};
 
 var injector = new Injector(config);
 var cartridgeFactory = injector.get("cartridgeFactory");

@@ -1,10 +1,6 @@
-import { loadModule } from "./system"
-
 //=========================================================
 // Conversion utilities
 //=========================================================
-
-export var md5 = loadModule({global: "md5", commonjs: "js-md5"});
 
 export function dataToString(input) {
     return String.fromCharCode.apply(null, input);

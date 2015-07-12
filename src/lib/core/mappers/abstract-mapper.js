@@ -1,6 +1,5 @@
 import { Mirroring }               from "../common/mirroring";
 import { clearArray }              from "../utils/arrays";
-import { md5 }                     from "../utils/convert";
 import { wordAsHex, readableSize } from "../utils/format";
 import { logger }                  from "../utils/logger";
 import { newByteArray }            from "../utils/system";
@@ -16,7 +15,7 @@ export class AbstractMapper {
     //=========================================================
 
     constructor(cartridge) {
-        this.dependencies = ["cpuMemory", "ppuMemory"];
+        this.dependencies = ["cpuMemory", "ppuMemory", "md5"];
         this.init(cartridge);
         this.initPRGRAM();
         this.initCHRRAM();
@@ -40,9 +39,10 @@ export class AbstractMapper {
         this.chrROM = cartridge.chrROM;
     }
 
-    inject(cpuMemory, ppuMemory) {
+    inject(cpuMemory, ppuMemory, md5) {
         this.cpuMemory = cpuMemory;
         this.ppuMemory = ppuMemory;
+        this.md5 = md5;
     }
 
     //=========================================================
@@ -114,28 +114,28 @@ export class AbstractMapper {
 
     loadPRGRAM(storage) {
         if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-            if (md5) {
+            if (this.md5.available()) {
                 storage.readData(this.getPRGRAMKey(), this.prgRAM);
             } else {
-                logger.warn("Unable to load PRGRAM: js-md5 library is not available.");
+                logger.warn("Unable to load PRGRAM: md5 is not available.");
             }
         }
     }
 
     savePRGRAM(storage) {
         if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-            if (md5) {
+            if (this.md5.available()) {
                 var data = this.prgRAM.subarray(0, this.prgRAMSizeBattery);
                 storage.writeData(this.getPRGRAMKey(), data);
             } else {
-                logger.warn("Unable to save PRGRAM: js-md5 library is not available.");
+                logger.warn("Unable to save PRGRAM: md5 is not available.");
             }
         }
     }
 
     getPRGRAMKey() {
         if (this.prgRAMKey == null) {
-            this.prgRAMKey = md5(this.prgROM) + "/PRGRAM";
+            this.prgRAMKey = this.md5(this.prgROM) + "/PRGRAM";
         }
         return this.prgRAMKey;
     }
@@ -202,28 +202,28 @@ export class AbstractMapper {
 
     loadCHRRAM(storage) {
         if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-            if (md5) {
+            if (this.md5.available()) {
                 storage.readData(this.getCHRRAMKey(), this.chrRAM);
             } else {
-                logger.warn("Unable to load CHRRAM: js-md5 library is not available.");
+                logger.warn("Unable to load CHRRAM: md5 is not available.");
             }
         }
     }
 
     saveCHRRAM(storage) {
         if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-            if (md5) {
+            if (this.md5.available()) {
                 var data = this.chrRAM.subarray(0, this.chrRAMSizeBattery);
                 storage.writeData(this.getCHRRAMKey(), data);
             } else {
-                logger.warn("Unable to save CHRRAM: js-md5 library is not available.");
+                logger.warn("Unable to save CHRRAM: md5 is not available.");
             }
         }
     }
 
     getCHRRAMKey() {
         if (this.chrRAMKey == null) {
-            this.chrRAMKey = md5(this.prgROM) + "/CHRRAM";
+            this.chrRAMKey = this.md5(this.prgROM) + "/CHRRAM";
         }
         return this.chrRAMKey;
     }

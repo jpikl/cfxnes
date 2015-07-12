@@ -1,8 +1,8 @@
-import { copyProperties } from "./objects"
-import { logger }         from "./logger";
+import { forEachProperty, createProxy } from "./objects"
+import { logger }                       from "./logger";
 
 //=========================================================
-// Dependency injection library
+// Dependency injector
 //=========================================================
 
 export class Injector {
@@ -10,85 +10,63 @@ export class Injector {
     constructor(config) {
         logger.info("Creating injector");
         this.dependencies = {};
-        this.processConfig(config);
-
-    }
-
-    processConfig(config) {
-        logger.info("Processing injector configuration");
         for (var name in config) {
-            var clazz = config[name];
-            this.dependencies[name] = {
-                clazz: clazz
-            };
+            this.put(name, config[name]);
         }
+
     }
 
-    getDependency(name) {
-        var dependency = this.dependencies[name];
-        if (!dependency) {
-            throw new Error(`Dependency '${name}' not found.`);
-        }
-        return dependency;
-    }
-
-    getClass(name) {
-        return this.getDependency(name).clazz;
+    put(name, dependency) {
+        this.dependencies[name] = {
+            type: dependency.type,
+            value: dependency.value,
+            resolved: false
+        };
     }
 
     get(name) {
-        var dependency = this.getDependency(name);
-        if (!dependency.instance) {
-            dependency.instance = this.create(name);
-            this.inject(dependency.instance);
+        var dependency = this.dependencies[name];
+        if (!dependency) {
+            throw new Error(`Dependency '${name}' is not defined.`);
         }
-        return dependency.instance;
+        if (!dependency.resolved) {
+            logger.info(`Resolving dependency '${name}'`);
+            dependency.value = this.resolve(name, dependency);
+            dependency.resolved = true;
+            this.inject(dependency.value);
+        }
+        return dependency.value;
+
     }
 
-    create(name) {
-        logger.info(`Creating instance of '${name}'`);
-        return new(this.getClass(name))(this);
+    resolve(name, dependency) {
+        var type = dependency.type;
+        if (type == null) {
+            throw new Error(`'${name}' dependency has undefined type`);
+        }
+        var value = dependency.value;
+        if (type !== "proxy" && value == null) {
+            throw new Error(`'${name}' dependency has undefined value`);
+        }
+        if (type === "class") {
+            return new value(this);
+        } else if (type === "factory") {
+            return value(this);
+        } else if (type === "proxy") {
+            return createProxy(name, value);
+        } else {
+            return value;
+        }
     }
 
-    inject(instance) {
-        var dependencies = instance.dependencies;
-        var injectMethod = instance.inject;
+    inject(object) {
+        var dependencies = object.dependencies;
+        var injectMethod = object.inject;
         if (dependencies && injectMethod) {
             logger.info(`Injecting dependencies: ${dependencies.join(", ")}`);
-            var resolvedDependencies = []
-            for (var name of dependencies) {
-                resolvedDependencies.push(this.get(name));
-            }
-            injectMethod.apply(instance, resolvedDependencies);
+            injectMethod.apply(object, dependencies.map(name => this.get(name)));
         }
-        return instance;
-    }
-
-}
-
-//=========================================================
-// Dependency injection configuration
-//=========================================================
-
-export class Config {
-
-    constructor(config) {
-        if (config) {
-            this.include(config)
-        }
-    }
-
-    include(config) {
-        copyProperties(config, this);
-        return this;
-    }
-
-    clone() {
-        return new Config(this);
-    }
-
-    merge(config) {
-        return this.clone().include(config);
+        return object;
     }
 
 }

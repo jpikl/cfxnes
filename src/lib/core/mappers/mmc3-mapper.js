@@ -14,7 +14,7 @@ export class MMC3Mapper extends AbstractMapper {
 
     constructor(cartridge) {
         super(cartridge);
-        this.dependencies = ["cpu", "ppu", "cpuMemory", "ppuMemory"];
+        this.dependencies = ["cpu", "ppu", "cpuMemory", "ppuMemory", "md5"];
     }
 
     init(cartridge) {
@@ -24,8 +24,8 @@ export class MMC3Mapper extends AbstractMapper {
         this.alternateMode = false;
     }
 
-    inject(cpu, ppu, cpuMemory, ppuMemory) {
-        super.inject(cpuMemory, ppuMemory);
+    inject(cpu, ppu, cpuMemory, ppuMemory, md5) {
+        super.inject(cpuMemory, ppuMemory, md5);
         this.cpu = cpu;
         this.ppu = ppu;
     }

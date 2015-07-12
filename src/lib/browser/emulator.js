@@ -21,7 +21,8 @@ export class Emulator {
             "inputManager",
             "persistenceManager"
         ];
-        new Injector(config).inject(this); // Bootstrap
+        this.injector = new Injector(config);
+        this.injector.inject(this);
     }
 
     inject(executionManager, cartridgeManager, videoManager, audioManager, inputManager, persistenceManager) {
@@ -46,6 +47,12 @@ export class Emulator {
         this.audioManager.setDefaults();
         this.inputManager.setDefaults();
         this.persistenceManager.setDefaults();
+    }
+
+    ["putDependency"](name, dependency) {
+        logger.info(`Putting dependency '${name}'.`);
+        var proxy = this.injector.get(name);
+        proxy.set && proxy.set(dependency);
     }
 
     //=========================================================

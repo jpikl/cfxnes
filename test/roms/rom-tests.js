@@ -3,16 +3,17 @@
 // Source: http://wiki.nesdev.com/w/index.php/Emulator_tests
 //=============================================================================
 
-import chai              from "chai"
-import fs                from "fs"
-import * as nestest      from "./nestest/nestest"
-import * as instr_test   from "./instr_test/instr_test-v4"
-import * as instr_timing from "./instr_timing/instr_timing"
-import * as ppu_vbl_nmi  from "./ppu_vbl_nmi/ppu_vbl_nmi"
-import baseConfig        from "../../src/lib/core/config/base-config"
-import { dataToString }  from "../../src/lib/core/utils/convert"
-import { Injector }      from "../../src/lib/core/utils/inject"
-import { Logger }        from "../../src/lib/core/utils/logger"
+import chai               from "chai"
+import fs                 from "fs"
+import * as nestest       from "./nestest/nestest"
+import * as instr_test    from "./instr_test/instr_test-v4"
+import * as instr_timing  from "./instr_timing/instr_timing"
+import * as ppu_vbl_nmi   from "./ppu_vbl_nmi/ppu_vbl_nmi"
+import baseConfig         from "../../src/lib/core/config/base-config"
+import { dataToString }   from "../../src/lib/core/utils/convert"
+import { Injector }       from "../../src/lib/core/utils/inject"
+import { Logger }         from "../../src/lib/core/utils/logger"
+import { copyProperties } from "../../src/lib/core/utils/objects"
 
 describe("Validation ROMs", () => {
     validate(nestest);
@@ -26,9 +27,8 @@ function validate(test) {
 }
 
 function execute(test) {
-    var config = baseConfig.clone();
+    var config = copyProperties(baseConfig);
     test.configure(config);
-
     var injector = new Injector(config);
     var cartridgeFactory = injector.get("cartridgeFactory");
     var cartridge = cartridgeFactory.fromLocalFile(test.rom);

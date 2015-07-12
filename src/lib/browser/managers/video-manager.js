@@ -1,16 +1,6 @@
 import { VIDEO_WIDTH, VIDEO_HEIGHT } from "../../core/common/constants";
 import { logger }                    from "../../core/utils/logger";
 
-function isScreenfullAvailable() {
-    return typeof screenfull !== "undefined";
-}
-
-function checkScreenfull(message) {
-    if (!isScreenfullAvailable()) {
-        throw new Error(`${message}: screenfull library is not available.`);
-    }
-}
-
 //=========================================================
 // Video manager
 //=========================================================
@@ -18,21 +8,22 @@ function checkScreenfull(message) {
 export class VideoManager {
 
     constructor() {
-        this.dependencies = ["nes", "rendererFactory", "paletteFactory"];
+        this.dependencies = ["nes", "rendererFactory", "paletteFactory", "screenfull"];
     }
 
-    inject(nes, rendererFactory, paletteFactory) {
+    inject(nes, rendererFactory, paletteFactory, screenfull) {
         logger.info("Initializing video manager");
         this.nes = nes;
         this.rendererFactory = rendererFactory;
         this.paletteFactory = paletteFactory;
+        this.screenfull = screenfull;
         this.initListeners();
         this.setDefaults();
     }
 
     initListeners() {
-        if (isScreenfullAvailable()) {
-            document.addEventListener(screenfull.raw.fullscreenchange, () => this.onFullscreenChange());
+        if (this.screenfull.available()) {
+            document.addEventListener(this.screenfull().raw.fullscreenchange, () => this.onFullscreenChange());
         }
     }
 
@@ -232,18 +223,16 @@ export class VideoManager {
     }
 
     enterFullScreen() {
-        checkScreenfull("Unable to enter fullscreen");
-        if (screenfull.enabled && !this.isFullScreen()) {
+        if (this.screenfull().enabled && !this.isFullScreen()) {
             logger.info("Entering fullscreen");
-            screenfull.request(this.canvas);
+            this.screenfull().request(this.canvas);
         }
     }
 
     leaveFullScreen() {
-        checkScreenfull("Unable to leave fullscreen");
-        if (screenfull.enabled && this.isFullScreen()) {
+        if (this.screenfull().enabled && this.isFullScreen()) {
             logger.info("Leaving fullscreen");
-            screenfull.exit();
+            this.screenfull().exit();
         }
     }
 
@@ -259,7 +248,7 @@ export class VideoManager {
     }
 
     isFullScreen() {
-        return isScreenfullAvailable() && screenfull.isFullscreen;
+        return this.screenfull.available() && this.screenfull().isFullscreen;
     }
 
     //=========================================================

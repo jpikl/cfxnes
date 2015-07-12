@@ -9,7 +9,7 @@ export const name = "instr_timing";
 export const rom = "./test/roms/instr_timing/instr_timing.nes"
 
 export function configure(config) {
-    config["ppu"] = FakeUnit;
+    config["ppu"] = {type: "class", value: FakeUnit};
 }
 
 export function execute(test) {

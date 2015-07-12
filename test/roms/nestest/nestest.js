@@ -10,9 +10,9 @@ export const name = "nestest";
 export const rom = "./test/roms/nestest/nestest.nes";
 
 export function configure(config) {
-    config["cpu"] = NestestCPU;
-    config["ppu"] = FakeUnit;
-    config["apu"] = FakeUnit;
+    config["cpu"] = {type: "class", value: NestestCPU};
+    config["ppu"] = {type: "class", value: FakeUnit};
+    config["apu"] = {type: "class", value: FakeUnit};
 }
 
 export function execute(test) {

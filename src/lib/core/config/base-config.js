@@ -10,25 +10,24 @@ import { DeviceFactory }    from "../factories/device-factory";
 import { MapperFactory }    from "../factories/mapper-factory";
 import { PaletteFactory }   from "../factories/palette-factory";
 import { MemoryStorage }    from "../storages/memory-storage"
-import { Config }           from "../utils/inject";
 
 //=========================================================
 // Base configuration of emulator core
 //=========================================================
 
-export default new Config({
-
-    "nes":              NES,
-    "cpu":              CPU,
-    "ppu":              PPU,
-    "apu":              APU,
-    "dma":              DMA,
-    "cpuMemory":        CPUMemory,
-    "ppuMemory":        PPUMemory,
-    "cartridgeFactory": CartridgeFactory,
-    "deviceFactory":    DeviceFactory,
-    "mapperFactory":    MapperFactory,
-    "paletteFactory":   PaletteFactory,
-    "storage":          MemoryStorage
-
-});
+export default {
+    "nes":              {type: "class", value: NES},
+    "cpu":              {type: "class", value: CPU},
+    "ppu":              {type: "class", value: PPU},
+    "apu":              {type: "class", value: APU},
+    "dma":              {type: "class", value: DMA},
+    "cpuMemory":        {type: "class", value: CPUMemory},
+    "ppuMemory":        {type: "class", value: PPUMemory},
+    "cartridgeFactory": {type: "class", value: CartridgeFactory},
+    "deviceFactory":    {type: "class", value: DeviceFactory},
+    "mapperFactory":    {type: "class", value: MapperFactory},
+    "paletteFactory":   {type: "class", value: PaletteFactory},
+    "storage":          {type: "class", value: MemoryStorage},
+    "md5":              {type: "proxy"},
+    "JSZip":            {type: "proxy"}
+};

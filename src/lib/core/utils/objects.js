@@ -34,21 +34,25 @@ export function forEeachProperty(object, callback, thisArg) {
     }
 }
 
-export function copyProperties(source, target) {
+export function copyProperties(source, target = {}) {
     forEeachProperty(source, (name, value) => {
         target[name] = value;
     });
+    return target;
+}
+
+export function mergeProperties(source1, source2) {
+    return copyProperties(source2, copyProperties(source1));
 }
 
 export function makeEnumeration(object) {
     var values = {};
-    for (var id in object) {
-        var value = object[id];
+    forEeachProperty(object, (id, value) => {
         if (typeof value !== "function") {
             values[id] = value
             object[id] = value.id || id;
         }
-    }
+    });
     object.getValue = function(id) {
         return values[id];
     };
@@ -56,4 +60,31 @@ export function makeEnumeration(object) {
         var value = this.getValue(id);
         return value && value.name || id;
     };
+}
+
+export function createProxy(name, target) {
+    var proxy = function(...args) {
+        var target = proxy.get();
+        if (typeof target === "function") {
+            return target.apply(target, args);
+        }
+        return target;
+    };
+    proxy.get = function() {
+        if (this.missing()) {
+            throw new Error((name ? name : "Proxy target") + " is not available");
+        }
+        return this.target;
+    };
+    proxy.set = function(target) {
+        this.target = target;
+    };
+    proxy.available = function() {
+        return this.target != null;
+    };
+    proxy.missing = function() {
+        return !this.available();
+    };
+    proxy.set(target);
+    return proxy;
 }

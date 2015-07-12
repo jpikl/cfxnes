@@ -9,7 +9,7 @@ export const name = "ppu_vbl_nmi";
 export const rom = "./test/roms/ppu_vbl_nmi/ppu_vbl_nmi.nes"
 
 export function configure(config) {
-    config["ppu"] = DebugPPU;
+    config["ppu"] = {type: "class", value: DebugPPU};
 }
 
 export function execute(test) {

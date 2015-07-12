@@ -27,12 +27,3 @@ export function newUintArray(size) {
     return data;
 }
 
-export function loadModule(paths) {
-    if (paths.global && typeof window === "object") {
-        return window[paths.global];
-    }
-    if (paths.commonjs && typeof require === "function") {
-        return require(paths.commonjs);
-    }
-    return null;
-}

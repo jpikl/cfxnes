@@ -9,9 +9,10 @@ export class ArrayBufferReader extends AbstractReader {
     constructor(buffer) {
         super();
         this.array = new Uint8Array(buffer);
-        this.tryUnzip(this.array, result => {
-            this.array = result.asUint8Array();
-        });
+    }
+
+    getData() {
+        return this.array;
     }
 
     getLength() {
@@ -20,6 +21,10 @@ export class ArrayBufferReader extends AbstractReader {
 
     peekOffset(offset, length) {
         return this.array.subarray(offset, offset + length);
+    }
+
+    onUnzip(result) {
+        this.array = result.asUint8Array();
     }
 
 }
