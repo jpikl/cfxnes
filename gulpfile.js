@@ -40,8 +40,8 @@ function development() {
     return environment === "development";
 }
 
-function envcase(productionValue, developmentValue) {
-    return production() ? productionValue : developmentValue;
+function envcase(productionOption, developmentOption) {
+    return production() ? productionOption : developmentOption;
 }
 
 function envfile(developmentFile) {
@@ -169,6 +169,10 @@ gulp.task("server", function() {
 // Application
 //=========================================================
 
+gulp.task("clean", function(done) {
+    del(["./dist/"], done);
+});
+
 gulp.task("init", function(done) {
     mkdirp.sync("./dist/");
     if (process.platform === "win32") {
@@ -222,7 +226,7 @@ gulp.task("run", function(done) {
     });
 });
 
-gulp.task("app", gulp.series("init", "build", "run"));
+gulp.task("app", gulp.series("clean", "init", "build", "run"));
 
 //=========================================================
 // Tests
@@ -238,7 +242,7 @@ gulp.task("test", function() {
 // Development
 //=========================================================
 
-gulp.task("set-development", function(done) {
+gulp.task("init-dev", function(done) {
     environment = "development";
     done();
 })
@@ -252,18 +256,15 @@ gulp.task("watch",  function() {
 });
 
 gulp.task("dev", gulp.series(
-    "set-development",
+    "clean",
+    "init-dev",
     "init",
     "build",
     gulp.parallel("watch", "run")
 ));
 
 //=========================================================
-// Other
+// Default
 //=========================================================
-
-gulp.task("clean", function(done) {
-    del(["./dist/"], done);
-});
 
 gulp.task("default", gulp.series("init", "app"));
