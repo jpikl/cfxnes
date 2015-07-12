@@ -63,6 +63,7 @@ gulp.task("lib", function() {
                 compilation_level: envcase("ADVANCED", "SIMPLE"),
                 language_in: "ECMASCRIPT6",
                 language_out: "ES5",
+                output_wrapper: "(function(){%output%}.call(this));",
                 externs: [
                     "./externs/JSZip.js",
                     "./externs/md5.js",

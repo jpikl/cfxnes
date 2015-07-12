@@ -4,8 +4,6 @@ import { ports }          from "./managers/input-manager";
 import { Injector }       from "../core/utils/inject";
 import { logger, Logger } from "../core/utils/logger";
 
-logger.attach(Logger.toConsole());
-
 //=========================================================
 // Emulator API
 //=========================================================
@@ -289,4 +287,17 @@ export class Emulator {
 
 }
 
-window["CFxNES"] = Emulator;
+//=========================================================
+// AMD / CommonJS / global export
+//=========================================================
+
+if (typeof define === "function" && define["amd"]) {
+    define("CFxNES", () => Emulator);
+}
+else if (typeof module !== "undefined" && module["exports"]) {
+    module["exports"] = Emulator;
+}
+else {
+    logger.attach(Logger.toConsole());
+    this["CFxNES"] = Emulator;
+}

@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - *TV system* configuration option renamed to *Region*.
+- Emulator library can be loaded as AMD or CommonJS module.
 
 ## [0.2.0] - 2015-05-18
 ### Fixed
