@@ -59,7 +59,6 @@ gulp.task("lib", function() {
         .pipe(closure({
                 fileName: envfile("cfxnes.js")
             }, {
-                create_source_map: "./dist/lib/" + envfile("cfxnes.js.map"),
                 compilation_level: envcase("ADVANCED", "SIMPLE"),
                 language_in: "ECMASCRIPT6",
                 language_out: "ES5",
