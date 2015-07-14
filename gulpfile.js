@@ -1,19 +1,20 @@
-var del          = require("del");
-var gulp         = require("gulp");
-var autoprefixer = require("gulp-autoprefixer");
-var babel        = require("gulp-babel");
-var closure      = require("gulp-closurecompiler");
-var concat       = require("gulp-concat");
-var gulpif       = require("gulp-if");
-var jade         = require("gulp-jade");
-var mocha        = require("gulp-mocha");
-var nodemon      = require("gulp-nodemon")
-var rename       = require("gulp-rename");
-var stylus       = require("gulp-stylus");
-var uglify       = require("gulp-uglify");
-var util         = require("gulp-util");
-var mkdirp       = require("mkdirp");
-var yargs        = require("yargs");
+var del        = require("del");
+var gulp       = require("gulp");
+var babel      = require("gulp-babel");
+var closure    = require("gulp-closurecompiler");
+var concat     = require("gulp-concat");
+var gulpif     = require("gulp-if");
+var jade       = require("gulp-jade");
+var less       = require("gulp-less");
+var mocha      = require("gulp-mocha");
+var nodemon    = require("gulp-nodemon")
+var rename     = require("gulp-rename");
+var uglify     = require("gulp-uglify");
+var util       = require("gulp-util");
+var Autoprefix = require("less-plugin-autoprefix");
+var CleanCSS   = require("less-plugin-clean-css");
+var mkdirp     = require("mkdirp");
+var yargs      = require("yargs");
 
 //=========================================================
 // Arguments
@@ -88,16 +89,17 @@ gulp.task("scripts", function() {
 });
 
 gulp.task("styles", function() {
-    return gulp.src("./src/app/client/app.styl")
-        .pipe(stylus({
-            include: [
-                "./bower_components/bootstrap-stylus/",
-                "./bower_components/font-awesome-stylus/stylus/"
+    var autoprefix = new Autoprefix({browsers: ["last 2 versions"]});
+    var cleancss = new CleanCSS({advanced: true, keepSpecialComments: false});
+    return gulp.src("./src/app/client/app.less")
+        .pipe(less({
+            paths: [
+                "./node_modules/bootstrap/less/",
+                "./node_modules/font-awesome/less/",
+                "./bower_components/seiyria-bootstrap-slider/less/"
             ],
-            compress: production()
+            plugins: envcase([autoprefix, cleancss], [autoprefix])
         }))
-        .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
-        .pipe(rename(envfile("app.css")))
         .pipe(gulp.dest("./dist/app/static/styles/"));
 });
 
@@ -142,15 +144,8 @@ gulp.task("vendor-scripts", function() {
         .pipe(gulp.dest("./dist/app/static/scripts/"));
 });
 
-gulp.task("vendor-styles", function() {
-    return gulp.src([
-                envfile("./bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css")
-            ])
-        .pipe(gulp.dest("./dist/app/static/styles/"));
-});
-
 gulp.task("vendor-fonts", function() {
-    return gulp.src("./bower_components/font-awesome-stylus/fonts/fontawesome-webfont.*")
+    return gulp.src("./node_modules/font-awesome/fonts/fontawesome-webfont.*")
         .pipe(gulp.dest("./dist/app/static/fonts/"));
 });
 
@@ -190,7 +185,6 @@ gulp.task("build", gulp.parallel(
     "views",
     "images",
     "vendor-scripts",
-    "vendor-styles",
     "vendor-fonts",
     "server"
 ));
@@ -266,4 +260,4 @@ gulp.task("dev", gulp.series(
 // Default
 //=========================================================
 
-gulp.task("default", gulp.series("init", "app"));
+gulp.task("default", gulp.series("app"));

@@ -1,0 +1,48 @@
+.icon-stack-item:extend {
+    .icon-stack-1x;
+}
+
+.slider {
+    .slider-selection {
+        background: #3a94a5;
+        opacity: 0.8;
+    }
+    .slider-handle {
+        background: #3a94a5;
+        opacity: 1;
+    }
+}
+
+.slider-disabled {
+    .slider-selection {
+        background: gray;
+    }
+}
+
+.slider-horizontal {
+    .tooltip {
+        top: -30px !important; // bootstrap-slider seems somewhat broken
+    }
+}
+
+.loader {
+    &:before {
+        content: url("../images/loading-light.gif");
+        padding-right: 12px;
+        vertical-align: -50%;
+    }
+    &.inverse {
+        color: white;
+        &:before {
+            content: url("../images/loading-dark.gif");
+        }
+    }
+}
+
+:fullscreen {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+}

@@ -1,0 +1,46 @@
+.library:extend(.container) {
+    @thumbnail-width: 128px;
+    @thumbnail-height: 114px;
+    .library-section {
+        .make-row;
+        & > * {
+            .make-xs-column(12);
+        }
+        .game-list {
+            margin-top: 24px;
+            .game {
+                display: inline-block;
+                width: @thumbnail-width;
+                margin: 7px;
+                vertical-align: top;
+                text-align: center;
+                text-decoration: none;
+                cursor: pointer;
+                .icon-play {
+                    .icon-3x;
+                    display: none;
+                    width: @thumbnail-width;
+                    line-height: @thumbnail-height;
+                    position: absolute;
+                    z-index: 1;
+                }
+                img {
+                    display: block;
+                    height: @thumbnail-height;
+                    margin: 0 auto 6px;
+                }
+                &:not(:hover) {
+                    color: inherit;
+                }
+                &:hover {
+                    img {
+                        opacity: 0.6;
+                    }
+                    .icon-play {
+                        display: block;
+                    }
+                }
+            }
+        }
+    }
+}

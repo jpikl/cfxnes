@@ -1,0 +1,74 @@
+.settings:extend(.container) {
+    .slider {
+        width: 100%;
+    }
+    .panel-title a {
+        outline: none;
+        .icon {
+            margin-right: 8px;
+        }
+    }
+    .emulation-settings {
+        .make-xs-column(12);
+        .make-md-column(6);
+    }
+    .video-settings {
+        .make-xs-column(12);
+        .make-md-column(6);
+    }
+    .audio-settings {
+        .make-xs-column(12);
+        &:not(:nth-child(3)) {
+            .make-md-column(6);
+        }
+    }
+    .device-list {
+        .make-row;
+        .device {
+            .make-xs-column(12);
+            .make-md-column(6);
+            margin-bottom: 24px;
+            .device-select {
+                text-align: center;
+                margin-bottom: 24px;
+                label {
+                    margin-right: 16px;
+                }
+            }
+            .device-input {
+                .make-row;
+                &:not(:last-child) {
+                    margin-bottom: 8px;
+                }
+                > * {
+                    .make-xs-column(3);
+                    &:first-child {
+                        .make-xs-column-offset(1);
+                        text-align: right;
+                    }
+                }
+            }
+        }
+    }
+    .controls-settings {
+        padding: 0 16px;
+        .checkbox {
+            margin-top: 2em;
+        }
+    }
+}
+
+.modal-record-input .modal-dialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 320px;
+    height: 80px;
+    margin-top: -40px;
+    margin-left: -160px;
+    .modal-content {
+        text-align: center;
+        font-weight: bold;
+        padding: 24px;
+    }
+}

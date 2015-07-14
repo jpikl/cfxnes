@@ -1,7 +1,3 @@
-mixin stylesheet(name, hasMinVersion)
-    -file = name + ((environment == "production" && hasMinVersion) ? ".min.css" : ".css")
-    link(rel="stylesheet", type="text/css", href="styles/#{file}")
-
 mixin script(name, hasMinVersion)
     -file = name + ((environment == "production" && hasMinVersion) ? ".min.js" : ".js")
     script(type="text/javascript", src="scripts/#{file}")
@@ -11,11 +7,10 @@ html(ng-app="cfxnes")
     head
         meta(charset="utf-8")
         meta(http-equiv="X-UA-Compatible" content="IE=edge")
-        meta(name="viewport" content="width=device-width, initial-scale=1")
+        meta(name="viewport" content="width=device-width, initial-sc ale=1")
         title CFxNES - NES emulator
         link(rel="icon" type="image/png" href="images/favicon.png")
-        +stylesheet("bootstrap-slider", true)
-        +stylesheet("app", true)
+        link(rel="stylesheet", type="text/css", href="styles/app.css")
         +script("browser-polyfill", false)
         +script("jquery", true)
         +script("bootstrap", true)
