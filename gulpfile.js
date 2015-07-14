@@ -1,4 +1,5 @@
 var del        = require("del");
+var fs         = require("fs");
 var gulp       = require("gulp");
 var babel      = require("gulp-babel");
 var closure    = require("gulp-closurecompiler");
@@ -9,6 +10,7 @@ var less       = require("gulp-less");
 var mocha      = require("gulp-mocha");
 var nodemon    = require("gulp-nodemon")
 var rename     = require("gulp-rename");
+var replace    = require("gulp-replace");
 var uglify     = require("gulp-uglify");
 var util       = require("gulp-util");
 var Autoprefix = require("less-plugin-autoprefix");
@@ -20,10 +22,8 @@ var yargs      = require("yargs");
 // Arguments
 //=========================================================
 
-var argv = yargs.argv;
-var enableAnalytics = argv.enableAnalytics === true;
-
-if (enableAnalytics) {
+var analytics = yargs.argv.analytics === true;
+if (analytics) {
     util.log("Google Analytics enabled");
 }
 
@@ -108,11 +108,10 @@ gulp.task("views", function() {
         .pipe(jade({
             pretty: development(),
             compileDebug: development(),
-            data: {
-                environment: environment,
-                enableAnalytics: enableAnalytics
-            }
+            data: {environment: environment}
         }))
+        .pipe(replace("<!--Google Analytics-->", analytics
+            ? fs.readFileSync("./src/app/client/ga.html", "utf8") : ""))
         .pipe(gulp.dest("./dist/app/static/"));
 });
 
