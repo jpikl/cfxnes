@@ -7,6 +7,7 @@ import { Joypad }            from "../../core/devices/joypad";
 import { Zapper }            from "../../core/devices/zapper";
 import { DeviceFactory as
          CoreDeviceFactory } from "../../core/factories/device-factory";
+import { logger }            from "../../core/utils/logger";
 
 const sourceDevices = {
     "gamepad":  Gamepad,
@@ -34,6 +35,7 @@ export class DeviceFactory extends CoreDeviceFactory {
         if (!clazz) {
             throw new Error(`Unsupported source device '${id}'`);
         }
+        logger.info(`Creating '${id}' device`);
         return this.injector.inject(new clazz(id));
     }
 
@@ -41,8 +43,9 @@ export class DeviceFactory extends CoreDeviceFactory {
         var device = this.createDevice(id);
         var clazz = targetDevices[id];
         if (!clazz) {
-            throw new Error(`Unsupported target device '${id}'`);
+            throw new Error(`Unsupported target device '${id}' adapter`);
         }
+        logger.info(`Creating adapter of '${id}' device`);
         return this.injector.inject(new clazz(device));
     }
 

@@ -151,8 +151,8 @@ export class AudioManager {
     // Configuration reading / writing
     //=========================================================
 
-    readConfiguration() {
-        logger.info("Reading audio manager configuration");
+    getConfiguration() {
+        logger.info("Getting audio manager configuration");
         return {
             "enabled":  this.isEnabled(),
             "volume":   this.getVolume(),
@@ -160,9 +160,9 @@ export class AudioManager {
         }
     }
 
-    writeConfiguration(config) {
+    setConfiguration(config) {
         if (config) {
-            logger.info("Writing audio manager configuration");
+            logger.info("Setting audio manager configuration");
             this.setEnabled(config["enabled"]);
             this.setVolume(config["volume"]);
             if (config["channels"]) {

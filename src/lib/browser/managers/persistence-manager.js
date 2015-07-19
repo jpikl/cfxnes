@@ -1,4 +1,4 @@
-import { logger }     from "../../core/utils/logger";
+import { logger } from "../../core/utils/logger";
 
 //=========================================================
 // Persistence manager
@@ -7,49 +7,65 @@ import { logger }     from "../../core/utils/logger";
 export class PersistenceManager {
 
     constructor() {
-        this.dependencies = ["nes", "storage", "videoManager", "audioManager", "inputManager", "executionManager"];
+        this.dependencies = ["nes", "storageFactory", "videoManager", "audioManager", "inputManager", "executionManager"];
     }
 
-    inject(nes, storage, videoManager, audioManager, inputManager, executionManager) {
+    inject(nes,  storageFactory, videoManager, audioManager, inputManager, executionManager) {
         this.nes = nes;
-        this.storage = storage;
+        this.storageFactory = storageFactory;
         this.videoManager = videoManager;
         this.audioManager = audioManager;
         this.inputManager = inputManager;
         this.executionManager = executionManager;
-        this.initListeners();
+        this.setStorage();
         this.setDefaults();
+        this.initListeners();
+    }
+
+    setDefaults() {
+        logger.info("Using default persistence configuration");
+        this.setSavePeriod();
     }
 
     initListeners() {
         window.addEventListener("beforeunload", () => this.saveAll());
     }
 
-    setDefaults() {
-        logger.info("Using default persistence configuration");
-        this.enablePeriodicSave();
+    //=========================================================
+    // Storage
+    //=========================================================
+
+    setStorage(implementor = "local") {
+        var id = this.storageFactory.getStorageId(implementor);
+        logger.info(`Using '${id}' storage`);
+        this.storage = this.storageFactory.createStorage(id, implementor);
+        this.storageImplementor = implementor;
+    }
+
+    getStorage() {
+        return this.storageImplementor;
     }
 
     //=========================================================
     // Periodical save
     //=========================================================
 
-    enablePeriodicSave(period = 60) {
-        this.disablePeriodicSave();
-        logger.info("Enabling periodic save with period " + period + " s");
-        this.periodicSaveId = setInterval(() => this.saveAll(), 1000 * period);
-    }
-
-    disablePeriodicSave() {
-        if (this.isPeriodicSave()) {
-            logger.info("Disabling periodic save");
-            clearInterval(this.periodicSaveId);
-            this.periodicSaveId = null;
+    setSavePeriod(period = 60) {
+        if (this.savePeriod !== period) {
+            if (this.saveId) {
+                logger.info("Disabling periodic save");
+                clearInterval(this.saveId);
+                this.saveId = null;
+            }
+            if (period) {
+                logger.info("Enabling periodic save with period " + period + " s");
+                this.saveId = setInterval(() => this.saveAll(), 1000 * period);
+            }
         }
     }
 
-    isPeriodicSave() {
-        return this.periodicSaveId != null;
+    getSavePeriod() {
+        return this.savePeriod;
     }
 
     saveAll() {
@@ -60,6 +76,7 @@ export class PersistenceManager {
     //=========================================================
     // Cartridge data
     //=========================================================
+
 
     loadCartridgeData() {
         if (this.nes.isCartridgeInserted()) {
@@ -83,21 +100,49 @@ export class PersistenceManager {
         var config = this.storage.readObject("config");
         if (config) {
             logger.info("Loading configuration");
-            this.videoManager.writeConfiguration(config["video"]);
-            this.audioManager.writeConfiguration(config["audio"]);
-            this.inputManager.writeConfiguration(config["input"]);
-            this.executionManager.writeConfiguration(config["execution"]);
+            this.setConfiguration(config);
         }
     }
 
     saveConfiguration() {
         logger.info("Saving configuration");
-        this.storage.writeObject("config", {
-            "video":     this.videoManager.readConfiguration(),
-            "audio":     this.audioManager.readConfiguration(),
-            "input":     this.inputManager.readConfiguration(),
-            "execution": this.executionManager.readConfiguration()
-        });
+        this.storage.writeObject("config", this.getConfiguration());
+    }
+
+    //=========================================================
+    // Configuration reading / writing
+    //=========================================================
+
+    setConfiguration(config) {
+        this.videoManager.setConfiguration(config["video"]);
+        this.audioManager.setConfiguration(config["audio"]);
+        this.inputManager.setConfiguration(config["input"]);
+        this.executionManager.setConfiguration(config["execution"]);
+        this.setPersistenceConfiguration(config["persistence"]);
+    }
+
+    setPersistenceConfiguration(config) {
+        if (config) {
+            logger.info("Setting persistence manager configuration");
+            this.setSavePeriod(config["savePeriod"]);
+        }
+    }
+
+    getConfiguration() {
+        return {
+            "video":       this.videoManager.getConfiguration(),
+            "audio":       this.audioManager.getConfiguration(),
+            "input":       this.inputManager.getConfiguration(),
+            "execution":   this.executionManager.getConfiguration(),
+            "persistence": this.getPersistenceConfiguration()
+        };
+    }
+
+    getPersistenceConfiguration() {
+        logger.info("Getting persistence manager configuration");
+        return {
+            "savePeriod": this.getSavePeriod()
+        };
     }
 
 }

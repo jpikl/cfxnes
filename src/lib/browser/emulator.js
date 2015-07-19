@@ -4,6 +4,8 @@ import { ports }          from "./managers/input-manager";
 import { Injector }       from "../core/utils/inject";
 import { logger, Logger } from "../core/utils/logger";
 
+logger.attach(Logger.toConsole());
+
 //=========================================================
 // Emulator API
 //=========================================================
@@ -273,16 +275,44 @@ export class Emulator {
         this.persistenceManager.setDefaults();
     }
 
-    ["enablePeriodicSave"](period) {
-        this.persistenceManager.enablePeriodicSave(period);
+    ["setStorage"](storage) {
+        this.persistenceManager.setStorage(storage);
     }
 
-    ["disablePeriodicSave"]() {
-        this.persistenceManager.disablePeriodicSave();
+    ["getStorage"]() {
+        this.persistenceManager.getStorage();
     }
 
-    ["isPeriodicSave"]() {
-        return this.persistenceManager.isPeriodicSave();
+    ["setSavePeriod"](period) {
+        this.persistenceManager.setSavePeriod(period);
+    }
+
+    ["getSavePeriod"]() {
+        return this.persistenceManager.getSavePeriod();
+    }
+
+    ["loadCartridgeData"]() {
+        this.persistenceManager.loadCartridgeData();
+    }
+
+    ["saveCartridgeData"]() {
+        this.persistenceManager.saveCartridgeData();
+    }
+
+    ["loadConfiguration"]() {
+        this.persistenceManager.loadConfiguration();
+    }
+
+    ["saveConfiguration"]() {
+        this.persistenceManager.saveConfiguration();
+    }
+
+    ["setConfiguration"](config) {
+        this.persistenceManager.setConfiguration(config);
+    }
+
+    ["getConfiguration"]() {
+        return this.persistenceManager.getConfiguration();
     }
 
 }
@@ -298,6 +328,5 @@ else if (typeof module !== "undefined" && module["exports"]) {
     module["exports"] = Emulator;
 }
 else {
-    logger.attach(Logger.toConsole());
     this["CFxNES"] = Emulator;
 }

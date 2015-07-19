@@ -182,17 +182,17 @@ export class ExecutionManager {
     // Configuration reading / writing
     //=========================================================
 
-    readConfiguration(config) {
-        logger.info("Reading execution manager configuration");
+    getConfiguration(config) {
+        logger.info("Getting execution manager configuration");
         return {
             "region": this.getRegion(),
             "speed":  this.getSpeed()
         }
     }
 
-    writeConfiguration(config) {
+    setConfiguration(config) {
         if (config) {
-            logger.info("Writing execution manager configuration");
+            logger.info("Setting execution manager configuration");
             this.setRegion(config["region"]);
             this.setSpeed(config["speed"]);
         }

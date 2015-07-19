@@ -20,6 +20,7 @@ export class PaletteFactory {
         if (!palette) {
             throw new Error(`Unsupported palette '${id}'`);
         }
+        logger.info(`Creating '${id}' palette`);
         return palette;
     }
 

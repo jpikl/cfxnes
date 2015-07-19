@@ -22,14 +22,14 @@ export class RendererFactory {
 
     createRenderer(id, canvas) {
         try {
-            logger.info(`Creating renderer '${id}'`);
+            logger.info(`Creating '${id}' renderer`);
             return this.createRendererUnsafe(id, canvas);
         } catch (error) {
             logger.error(`Error when creating renderer '${id}': ${error}`);
             if (id === FALLBACK_RENDERER) {
                 throw error;
             }
-            logger.info("Creating fallback renderer '${FALLBACK_RENDERER}'");
+            logger.info("Creating fallback '${FALLBACK_RENDERER}' renderer");
             return this.createRendererUnsafe(FALLBACK_RENDERER, canvas);
         }
     }

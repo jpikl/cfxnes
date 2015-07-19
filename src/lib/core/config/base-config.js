@@ -9,7 +9,6 @@ import { CartridgeFactory } from "../factories/cartridge-factory";
 import { DeviceFactory }    from "../factories/device-factory";
 import { MapperFactory }    from "../factories/mapper-factory";
 import { PaletteFactory }   from "../factories/palette-factory";
-import { MemoryStorage }    from "../storages/memory-storage"
 
 //=========================================================
 // Base configuration of emulator core
@@ -27,7 +26,6 @@ export default {
     "deviceFactory":    {type: "class", value: DeviceFactory},
     "mapperFactory":    {type: "class", value: MapperFactory},
     "paletteFactory":   {type: "class", value: PaletteFactory},
-    "storage":          {type: "class", value: MemoryStorage},
     "md5":              {type: "proxy"},
-    "JSZip":            {type: "proxy"}
+    "jszip":            {type: "proxy"}
 };

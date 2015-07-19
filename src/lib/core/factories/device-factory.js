@@ -22,7 +22,7 @@ export class DeviceFactory {
         if (!clazz) {
             throw new Error(`Unsupported device '${id}'`);
         }
-        logger.info(`Creating device '${id}'`);
+        logger.info(`Creating '${id}' device`);
         return this.injector.inject(new clazz);
     }
 

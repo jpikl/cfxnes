@@ -31,7 +31,7 @@ export class MapperFactory {
         if (!clazz) {
             throw new Error(`Unsupported mapper '${name}'`);
         }
-        logger.info(`Creating mapper '${name}'`);
+        logger.info(`Creating '${name}' mapper`);
         var mapper = new clazz(cartridge);
         return this.injector.inject(mapper);
     }

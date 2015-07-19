@@ -255,8 +255,8 @@ export class VideoManager {
     // Configuration reading / writing
     //=========================================================
 
-    readConfiguration() {
-        logger.info("Reading video manager configuration");
+    getConfiguration() {
+        logger.info("Getting video manager configuration");
         return {
             "debugging": this.isDebugging(),
             "smoothing": this.isSmoothing(),
@@ -266,9 +266,9 @@ export class VideoManager {
         }
     }
 
-    writeConfiguration(config) {
+    setConfiguration(config) {
         if (config) {
-            logger.info("Writing video manager configuration");
+            logger.info("Setting video manager configuration");
             this.setDebugging(config["debugging"]);
             this.setSmoothing(config["smoothing"]);
             this.setScale(config["scale"]);

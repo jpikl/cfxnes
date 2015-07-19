@@ -203,17 +203,17 @@ export class InputManager {
     // Configuration reading / writing
     //=========================================================
 
-    readConfiguration() {
-        logger.info("Reading input manager configuration");
+    getConfiguration() {
+        logger.info("Getting input manager configuration");
         return {
             "mapping": this.targetsMapping,
             "devices": arrayToProperties(ports, this.getConnectedTarget, this)
         }
     }
 
-    writeConfiguration(config) {
+    setConfiguration(config) {
         if (config) {
-            logger.info("Writing input manager configuration");
+            logger.info("Setting input manager configuration");
             if (config["devices"]) {
                 forEeachProperty(config["devices"], this.connectTarget, this);
             }

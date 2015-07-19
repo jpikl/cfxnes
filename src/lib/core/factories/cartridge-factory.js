@@ -19,7 +19,7 @@ var loaders = [
 export class CartridgeFactory {
 
     constructor() {
-        this.dependencies = ["JSZip"];
+        this.dependencies = ["jszip"];
     }
 
     inject(JSZip) {
