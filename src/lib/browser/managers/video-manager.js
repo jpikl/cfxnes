@@ -50,10 +50,6 @@ export class VideoManager {
         }
     }
 
-    isCanvasVisible() {
-        return this.canvas && this.canvas.offsetParent != null;
-    }
-
     updateCanvasSize() {
         var widthMultiplier = this.debugging ? 2 : 1;
         this.canvas.width = this.scale * VIDEO_WIDTH * widthMultiplier;
@@ -61,8 +57,8 @@ export class VideoManager {
     }
 
     getOutputRect() {
-        if (this.isCanvasVisible()) {
-            var rect = this.isFullScreen() ? this.getFullScreenRect() : this.getCanvasRect();
+        if (this.canvas) {
+            var rect = this.getCanvasRect();
             if (this.debugging) {
                 rect.right -= (rect.right - rect.left) / 2; // Without debugging output
             }
@@ -73,11 +69,8 @@ export class VideoManager {
     }
 
     getCanvasRect() {
-        return this.canvas.getBoundingClientRect();
-    }
-
-    getFullScreenRect() {
-        return { top: 0, right: screen.width, bottom: screen.height, left: 0 };
+        var rect = this.canvas.getBoundingClientRect(); // Read-only, we need a writable copy
+        return { top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left };
     }
 
     getEmptyRect() {
