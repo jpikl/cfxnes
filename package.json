@@ -64,7 +64,7 @@
     "lib": "gulp lib",
     "pro": "gulp",
     "dev": "gulp -d",
-    "release": "gulp -a build",
+    "release": "gulp build -a",
     "test": "gulp test",
     "clean": "gulp clean"
   }
