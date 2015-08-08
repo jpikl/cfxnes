@@ -3,12 +3,16 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
-## Added
+### Fixed
+- Mouse cursor detection for zapper.
+
+### Added
 - Gamepad support.
 
 ### Changed
-- *TV system* configuration option renamed to *Region*.
+- Complete UI rewrite (switched from AngularJS to RiotJS).
 - Emulator library can be loaded as AMD or CommonJS module.
+- *TV system* configuration option renamed to *Region*.
 
 ## [0.2.0] - 2015-05-18
 ### Fixed
