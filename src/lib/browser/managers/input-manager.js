@@ -82,7 +82,7 @@ export class InputManager {
 
     connectTarget(port, id) {
         if (this.getConnectedTarget(port) !== id) {
-            logger.info(`Setting target input device on port ${port} to '${id}'`);
+            logger.info(`Setting target input device on port ${port} to '${id || "none"}'`);
             var device = id != null ? this.targets[port][id].getDevice() : null;
             this.nes.connectInputDevice(port, device);
         }

@@ -15,7 +15,7 @@ export class AbstractMapper {
     //=========================================================
 
     constructor(cartridge) {
-        this.dependencies = ["cpuMemory", "ppuMemory", "md5"];
+        this.dependencies = ["cpuMemory", "ppuMemory", "hash"];
         this.init(cartridge);
         this.initPRGRAM();
         this.initCHRRAM();
@@ -39,10 +39,10 @@ export class AbstractMapper {
         this.chrROM = cartridge.chrROM;
     }
 
-    inject(cpuMemory, ppuMemory, md5) {
+    inject(cpuMemory, ppuMemory, hash) {
         this.cpuMemory = cpuMemory;
         this.ppuMemory = ppuMemory;
-        this.md5 = md5;
+        this.hash = hash;
     }
 
     //=========================================================
@@ -114,28 +114,28 @@ export class AbstractMapper {
 
     loadPRGRAM(storage) {
         if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-            if (this.md5.available()) {
+            if (this.hash.available()) {
                 storage.readData(this.getPRGRAMKey(), this.prgRAM);
             } else {
-                logger.warn("Unable to load PRGRAM: md5 is not available.");
+                logger.warn("Unable to load PRGRAM: hash function is not available.");
             }
         }
     }
 
     savePRGRAM(storage) {
         if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-            if (this.md5.available()) {
+            if (this.hash.available()) {
                 var data = this.prgRAM.subarray(0, this.prgRAMSizeBattery);
                 storage.writeData(this.getPRGRAMKey(), data);
             } else {
-                logger.warn("Unable to save PRGRAM: md5 is not available.");
+                logger.warn("Unable to save PRGRAM: hash function is not available.");
             }
         }
     }
 
     getPRGRAMKey() {
         if (this.prgRAMKey == null) {
-            this.prgRAMKey = this.md5(this.prgROM) + "/PRGRAM";
+            this.prgRAMKey = this.hash(this.prgROM) + "/PRGRAM";
         }
         return this.prgRAMKey;
     }
@@ -202,28 +202,28 @@ export class AbstractMapper {
 
     loadCHRRAM(storage) {
         if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-            if (this.md5.available()) {
+            if (this.hash.available()) {
                 storage.readData(this.getCHRRAMKey(), this.chrRAM);
             } else {
-                logger.warn("Unable to load CHRRAM: md5 is not available.");
+                logger.warn("Unable to load CHRRAM: hash function is not available.");
             }
         }
     }
 
     saveCHRRAM(storage) {
         if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-            if (this.md5.available()) {
+            if (this.hash.available()) {
                 var data = this.chrRAM.subarray(0, this.chrRAMSizeBattery);
                 storage.writeData(this.getCHRRAMKey(), data);
             } else {
-                logger.warn("Unable to save CHRRAM: md5 is not available.");
+                logger.warn("Unable to save CHRRAM: hash function is not available.");
             }
         }
     }
 
     getCHRRAMKey() {
         if (this.chrRAMKey == null) {
-            this.chrRAMKey = this.md5(this.prgROM) + "/CHRRAM";
+            this.chrRAMKey = this.hash(this.prgROM) + "/CHRRAM";
         }
         return this.chrRAMKey;
     }

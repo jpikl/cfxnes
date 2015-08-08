@@ -26,6 +26,6 @@ export default {
     "deviceFactory":    {type: "class", value: DeviceFactory},
     "mapperFactory":    {type: "class", value: MapperFactory},
     "paletteFactory":   {type: "class", value: PaletteFactory},
-    "md5":              {type: "proxy"},
+    "hash":             {type: "proxy"},
     "jszip":            {type: "proxy"}
 };

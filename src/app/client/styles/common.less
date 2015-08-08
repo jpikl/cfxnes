@@ -1,5 +1,5 @@
-.icon-stack-item:extend {
-    .icon-stack-1x;
+.alert {
+    display: block;
 }
 
 .slider {
@@ -19,12 +19,6 @@
     }
 }
 
-.slider-horizontal {
-    .tooltip {
-        top: -30px !important; // bootstrap-slider seems somewhat broken
-    }
-}
-
 .loader {
     &:before {
         content: url("../images/loading-light.gif");
@@ -37,6 +31,13 @@
             content: url("../images/loading-dark.gif");
         }
     }
+}
+
+.disabled,
+.disabled label,
+.slider-disabled .slider-track {
+    cursor: default !important;
+    color: gray;
 }
 
 :fullscreen {

@@ -137,8 +137,8 @@ export class ExecutionManager {
     //=========================================================
 
     setSpeed(speed = 1) {
-        logger.info(`Setting emulation speed to ${speed}x`);
         if (this.speed !== speed) {
+            logger.info(`Setting emulation speed to ${speed}x`);
             this.speed = speed;
             this.audioManager.setSpeed(speed);
             if (this.isRunning()) {

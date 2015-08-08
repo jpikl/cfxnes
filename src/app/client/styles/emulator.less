@@ -2,7 +2,7 @@
     display: table;
     height: 100%;
     width: 100%;
-    .emulator-section {
+    > * {
         display: table-row;
     }
     .emulator-error {
@@ -41,7 +41,7 @@
     }
     .emulator-main {
         height: 100%;
-        .canvas-wrapper {
+        .emulator-output {
             display: table-cell;
             position: relative;
             vertical-align: middle;
@@ -62,8 +62,11 @@
                 transition: opacity 0.25s ease-in-out;
             }
         }
-        &.drag-over .canvas-wrapper .drag-effect {
+        &.drag-over .emulator-output .drag-effect {
             opacity: 1;
         }
+    }
+    #input-file {
+        display: none;
     }
 }

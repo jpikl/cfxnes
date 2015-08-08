@@ -191,7 +191,7 @@ export class VideoManager {
     //=========================================================
 
     setScale(scale = 1) {
-        if (this.scale !== scale) {
+        if (this.scale !== scale && scale >= 1 && scale <= this.getMaxScale()) {
             logger.info(`Setting video scale to ${scale}`);
             this.scale = scale;
             if (this.canvas) {
