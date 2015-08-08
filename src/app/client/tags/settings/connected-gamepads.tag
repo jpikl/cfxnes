@@ -6,8 +6,8 @@
         <i class="icon icon-gamepad"></i> Gamepad { index }: { id }
         <span if={ mapping == 'standard' }>
             <i class="icon icon-wrench"></i> use it as
-            <a href="#" data-gamepad-index={ index } data-port={ 1 } onclick={ mapGamepad }>controller 1</a> /
-            <a href="#" data-gamepad-index={ index } data-port={ 2 } onclick={ mapGamepad }>controller 2</a>
+            <a href="#" data-gamepad-index={ index } data-port="1" onclick={ mapGamepad }>controller 1</a> /
+            <a href="#" data-gamepad-index={ index } data-port="2" onclick={ mapGamepad }>controller 2</a>
         </span>
         <span if={ mapping != 'standard' } title="Auto-mapping functionality is not available, because your browser could not recognise layout of the gamepad.">
             <i class="icon icon-question"></i> unrecognised layout
@@ -40,7 +40,7 @@
 
         mapGamepad(event) {
             var target = $(event.target);
-            var port = target.attr("data-port");
+            var port = parseInt(target.attr("data-port"));
             var gamepadIndex = target.attr("data-gamepad-index");
 
             cfxnes.setInputDevice(port, "joypad");
