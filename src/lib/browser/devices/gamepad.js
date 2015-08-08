@@ -157,7 +157,8 @@ export class Gamepad {
         return `GP${gamepadIndex} / `
              + capitalize(baseInput.replace("-", " "))
                 .replace("Dpad", "D-pad")
-                .replace("X ", "X-");
+                .replace("X ", "X-")
+                .replace("Y ", "Y-");
     }
 
 }

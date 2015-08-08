@@ -25,6 +25,7 @@
                 deviceSetup.on("change", deviceSetup.parent.refresh);
             });
             this.tags["restore-defaults"].on("change", this.refresh);
+            this.tags["connected-gamepads"].on("change", this.refresh);
             this.tags["controls-info-enabled"].on("change", function(value) {
                 app.controlsInfoEnabled = value;
                 app.save();
