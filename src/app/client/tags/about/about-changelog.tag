@@ -1,5 +1,20 @@
 <about-changelog>
     <h2>Change log</h2>
+    <h3>0.3.0 - 2015-08-09</h3>
+    <h4>Fixed</h4>
+    <ul>
+        <li>Mouse cursor detection for zapper.</li>
+    </ul>
+    <h4>Added</h4>
+    <ul>
+        <li>Gamepad support.</li>
+    </ul>
+    <h4>Changed</h4>
+    <ul>
+        <li>Complete UI rewrite (switched from AngularJS to RiotJS).</li>
+        <li>Emulator library can be loaded as AMD or CommonJS module.</li>
+        <li><i>TV system</i> configuration option renamed to <i>Region</i>.</li>
+    </ul>
     <h3>0.2.0 - 2015-05-18</h3>
     <h4>Fixed</h4>
     <ul>

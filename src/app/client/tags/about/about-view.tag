@@ -4,7 +4,7 @@
             <img src="images/logo.svg" alt="CFxNES logo">
         </div>
         <div class="about-text">
-            <h1>CFxNES (0.2.0)</h1>
+            <h1>CFxNES (0.3.0)</h1>
             <p>A Nintendo Entertainment System emulator written in ECMAScript 6.</p>
             <p>CFxNES is in early development, so many of the NES games are not playable yet. For best berformance,
                at least 2 GHz CPU and the <strong>latest Google Chrome</strong> or <strong>Firefox</strong> are recommended.</p>
