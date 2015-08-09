@@ -5,11 +5,10 @@
             .make-xs-column(12);
             .make-md-column(6);
             img {
-                .img-responsive;
                 .center-block;
-                @media (max-width: 512px) {
-                    width: 100%; // Firexox max-width bug (512px = image width)
-                }
+                max-width: 512px;
+                width: 100%;
+                height: auto;
             }
         }
         .about-text {
