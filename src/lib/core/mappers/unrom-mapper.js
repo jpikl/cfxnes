@@ -12,8 +12,7 @@ export class UNROMMapper extends AbstractMapper {
 
     init(cartridge) {
         super.init(cartridge);
-        this.hasPRGRAM = true;
-        this.prgRAMSize = 0x2000; // 8K PRG RAM
+        this.hasPRGRAM = false;
     }
 
     //=========================================================
@@ -23,7 +22,6 @@ export class UNROMMapper extends AbstractMapper {
     reset() {
         this.mapPRGROMBank16K(0,  0); // First 16K PRG ROM bank
         this.mapPRGROMBank16K(1, -1); // Last 16K PRG ROM bank
-        this.mapPRGRAMBank8K (0,  0); // 8K PRG RAM
         this.mapCHRRAMBank8K (0,  0); // 8K CHR RAM
     }
 

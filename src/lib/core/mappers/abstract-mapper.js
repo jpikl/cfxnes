@@ -24,14 +24,16 @@ export class AbstractMapper {
     }
 
     init(cartridge) {
+        this.submapper = cartridge.submapper; // Not present on iNES ROMs
         this.mirroring = cartridge.mirroring;
         this.hasPRGRAM = cartridge.hasPRGRAM; // Not reliable information on iNES ROMs (should provide mapper itself)
         this.hasPRGRAMBattery = cartridge.hasPRGRAMBattery;
         this.hasCHRRAM = cartridge.hasCHRRAM;
-        this.hasCHRRAMBattery = cartridge.hasCHRRAMBattery;   // Not present on iNES ROMs
+        this.hasCHRRAMBattery = cartridge.hasCHRRAMBattery; // Not present on iNES ROMs
         this.prgROMSize = cartridge.prgROMSize || cartridge.prgROM.length;
-        this.prgRAMSize = cartridge.prgRAMSize;               // Not present on iNES ROMs (should provide mapper itself)
+        this.prgRAMSize = cartridge.prgRAMSize; // Not reliable information on iNES ROMs (should provide mapper itself)
         this.prgRAMSizeBattery = cartridge.prgRAMSizeBattery; // Not present on iNES ROMs
+        this.prgRAMEnabled = true; // PRG RAM read/write protection
         this.chrROMSize = cartridge.chrROMSize || cartridge.chrROM.length;
         this.chrRAMSize = cartridge.chrRAMSize;
         this.chrRAMSizeBattery = cartridge.chrRAMSizeBattery; // Not present on iNES ROMs

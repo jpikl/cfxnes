@@ -20,7 +20,7 @@ export class MMC3Mapper extends AbstractMapper {
     init(cartridge) {
         super.init(cartridge);
         this.hasPRGRAM = true;
-        this.prgRAMSize = 0x2000;
+        this.prgRAMSize = 0x2000; // 8K PRG RAM
         this.alternateMode = false;
     }
 

@@ -12,8 +12,16 @@ export class MMC1Mapper extends AbstractMapper {
 
     init(cartridge) {
         super.init(cartridge);
-        this.hasPRGRAM = true;    // Depends on board, so we presume PRG RAM is present
-        this.prgRAMSize = 0x8000; // Depends on board, the largest value is 32K on SXROM
+        // PRG RAM detection, in case we are loading from iNES instead of NES 2.0 image
+        // - existence of PRG RAM depends on board, so we presume PRG RAM exists
+        // - size of PRG RAM is 32K on SXROM, 16K on SOROM, 8K elsewhere;
+        //   we will use the most common value 8K, when is not defined
+        this.hasPRGRAM = true;
+        this.prgRAMSize = this.prgRAMSize || 0x2000;
+        // SNROM board detection (128 / 256 KB PRG ROM; 8 KB PRG RAM; 8 KB CHR RAM/ROM)
+        this.snrom = (this.prgROMSize === 0x20000 || this.prgROMSize === 0x40000)
+                  && this.prgRAMSize === 0x2000
+                  && (this.chrROMSize === 0x2000 || this.chrRAMSize === 0x2000)
     }
 
     //=========================================================
@@ -72,9 +80,7 @@ export class MMC1Mapper extends AbstractMapper {
     synchronizeMapping() {
         this.switchMirroring();
         this.switchPRGROMBanks();
-        if (this.hasPRGRAM) {
-            this.switchPRGRAMBank();
-        }
+        this.switchPRGRAMBank();
         if (this.hasCHRRAM) {
             this.switchCHRRAMBanks();
         } else {
@@ -92,8 +98,9 @@ export class MMC1Mapper extends AbstractMapper {
     }
 
     switchPRGROMBanks() {
-        var base = this.chrBankRegister1 & 0x10;  // Selection of 256K page on 512K PRG ROM
-        var offset = this.prgBankRegister & 0x0F; // 16K bank selection within 256K page
+        // Bit 4 of CHR bank register has different usage when 8KB CHR RAM is present (SUROM and SXROM boards)
+        var base = this.hasCHRRAM ? this.chrBankRegister1 & 0x10 : 0; // Selection of 256K area on 512K PRG ROM
+        var offset = this.prgBankRegister & 0x0F; // 16K bank selection within 256K area
         switch (this.controllRegister & 0x0C) {
             case 0x0C:
                 this.mapPRGROMBank16K(0, base | offset); // Selected 16K PRG ROM bank
@@ -104,13 +111,16 @@ export class MMC1Mapper extends AbstractMapper {
                 this.mapPRGROMBank16K(1, base | offset); // Selected 16K PRG ROM bank
                 break;
             default:
-                this.mapPRGROMBank32K(0, base | offset >>> 1); // Selected 32K PRG ROM
+                this.mapPRGROMBank32K(0, (base | offset) >>> 1); // Selected 32K PRG ROM
                 break;
         }
     }
 
     switchPRGRAMBank() {
-        this.mapPRGRAMBank8K(0, this.chrBankRegister1 >>> 2); // Selected 8K PRG RAM bank
+        // Bits 2 and 3 of CHR bank register have different usage when 8KB CHR RAM is present (SOROM, and SXROM boards)
+        this.mapPRGRAMBank8K(0, this.hasCHRRAM ? this.chrBankRegister1 >>> 2 : 0); // Selected 8K PRG RAM bank
+        this.prgRAMEnabled = (this.prgBankRegister & 0x10) === 0 // Ignored on MMC1A (iNES mapper 155)
+                          && (!this.snrom || (this.chrBankRegister1 & 0x10) === 0) // SNROM board also disables PRG RAM when bit 4 of CHR bank register is 1
     }
 
     switchCHRROMBanks() {
@@ -123,11 +133,12 @@ export class MMC1Mapper extends AbstractMapper {
     }
 
     switchCHRRAMBanks() {
+        // SNROM, SOROM, SUROM and SXROM boards
         if (this.controllRegister & 0x10) {
             this.mapCHRRAMBank4K(0, this.chrBankRegister1); // Selected lower 4K CHR RAM bank
             this.mapCHRRAMBank4K(1, this.chrBankRegister2); // Selected upper 4K CHR RAM bank
         } else {
-            this.mapCHRRAMBank8K(0, 0); // Whole 8K CHR RAM
+            this.mapCHRRAMBank8K(0, 0); // The whole 8K CHR RAM
         }
     }
 

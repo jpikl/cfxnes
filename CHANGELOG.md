@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Detection of NES 2.0 ROM image format.
 - Correct size of PRG/CHR RAM that is read from ROM images (iNES / NES 2.0).
+- MMC1 mapper imlementation (PRG RAM protection, PRG ROM mapping).
 
 ## [0.3.0] - 2015-08-09
 ### Fixed
