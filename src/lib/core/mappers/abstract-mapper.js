@@ -33,12 +33,13 @@ export class AbstractMapper {
         this.prgROMSize = cartridge.prgROMSize || cartridge.prgROM.length;
         this.prgRAMSize = cartridge.prgRAMSize; // Not reliable information on iNES ROMs (should provide mapper itself)
         this.prgRAMSizeBattery = cartridge.prgRAMSizeBattery; // Not present on iNES ROMs
-        this.prgRAMEnabled = true; // PRG RAM read/write protection
         this.chrROMSize = cartridge.chrROMSize || cartridge.chrROM.length;
         this.chrRAMSize = cartridge.chrRAMSize;
         this.chrRAMSizeBattery = cartridge.chrRAMSizeBattery; // Not present on iNES ROMs
         this.prgROM = cartridge.prgROM;
         this.chrROM = cartridge.chrROM;
+        this.canReadPRGRAM = true; // PRG RAM read protection
+        this.canWritePRGRAM = true; // PRG RAM write protection
     }
 
     inject(cpuMemory, ppuMemory, hash) {

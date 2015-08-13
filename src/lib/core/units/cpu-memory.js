@@ -210,14 +210,14 @@ export class CPUMemory {
     }
 
     readPRGRAM(address) {
-        if (this.prgRAM && this.mapper.prgRAMEnabled) {
+        if (this.prgRAM && this.mapper.canReadPRGRAM) {
             return this.prgRAM[this.mapPRGRAMAddress(address)];
         }
         return 0;
     }
 
     writePRGRAM(address, value) {
-        if (this.prgRAM && this.mapper.prgRAMEnabled) {
+        if (this.prgRAM && this.mapper.canWritePRGRAM) {
             this.prgRAM[this.mapPRGRAMAddress(address)] = value;
         }
     }

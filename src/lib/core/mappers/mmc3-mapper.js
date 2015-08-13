@@ -108,7 +108,8 @@ export class MMC3Mapper extends AbstractMapper {
     }
 
     writePRGRAMEnable(value) {
-        // TODO
+        this.canReadPRGRAM = (value & 0x80) === 0x80; // Chip must be enabled (bit 7 on)
+        this.canWritePRGRAM = (value & 0xC0) === 0x80; // Chip must be enabled (bit 7 on) and writes allowed (bit 6 off)
     }
 
     writeIRQReload() {

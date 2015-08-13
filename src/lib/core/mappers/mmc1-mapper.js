@@ -119,8 +119,9 @@ export class MMC1Mapper extends AbstractMapper {
     switchPRGRAMBank() {
         // Bits 2 and 3 of CHR bank register have different usage when 8KB CHR RAM is present (SOROM, and SXROM boards)
         this.mapPRGRAMBank8K(0, this.hasCHRRAM ? this.chrBankRegister1 >>> 2 : 0); // Selected 8K PRG RAM bank
-        this.prgRAMEnabled = (this.prgBankRegister & 0x10) === 0 // Ignored on MMC1A (iNES mapper 155)
-                          && (!this.snrom || (this.chrBankRegister1 & 0x10) === 0) // SNROM board also disables PRG RAM when bit 4 of CHR bank register is 1
+        var enabled = (this.prgBankRegister & 0x10) === 0 // Ignored on MMC1A (iNES mapper 155)
+        var enabledOnSNROM = (this.chrBankRegister1 & 0x10) === 0 // SNROM board also disables PRG RAM when bit 4 of CHR bank register is 1
+        this.canReadPRGRAM = this.canWritePRGRAM = enabled && (!this.snrom || enabledOnSNROM);
     }
 
     switchCHRROMBanks() {
