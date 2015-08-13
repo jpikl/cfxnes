@@ -40,13 +40,12 @@ export class MMC3Mapper extends AbstractMapper {
     }
 
     resetMapping() {
-        this.mapPRGROMBank16K(0, 0);    // First 16K PRG RAM bank
-        this.mapPRGROMBank16K(1, -1);   // Last 16K PRG RAM bank
-        this.mapPRGRAMBank8K(0, 0);     // 8K PRG RAM
+        this.mapPRGROMBank16K(0, 0);  // First 16K PRG RAM bank
+        this.mapPRGROMBank16K(1, -1); // Last 16K PRG RAM bank
+        this.mapPRGRAMBank8K(0, 0);   // 8K PRG RAM
+        this.mapCHRROMBank8K(0, 0);   // First 8K CHR ROM bank (if CHR RAM is not present)
         if (this.hasCHRRAM) {
             this.mapCHRRAMBank8K(0, 0); // 8K CHR RAM (if CHR RAM is present)
-        } else {
-            this.mapCHRROMBank8K(0, 0); // First 8K CHR ROM bank (if CHR RAM is not present)
         }
     }
 
@@ -80,17 +79,13 @@ export class MMC3Mapper extends AbstractMapper {
         switch (this.bankSelect & 7) {
             case 0: // Select 2 KB CHR bank at PPU $0000-$07FF (or $1000-$17FF)
             case 1: // Select 2 KB CHR bank at PPU $0800-$0FFF (or $1800-$1FFF)
-                if (!this.hasCHRRAM) {
-                    this.switchDoubleCHRROMBanks(value);
-                }
+                this.switchDoubleCHRROMBanks(value);
                 break;
             case 2: // Select 1 KB CHR bank at PPU $1000-$13FF (or $0000-$03FF)
             case 3: // Select 1 KB CHR bank at PPU $1400-$17FF (or $0400-$07FF)
             case 4: // Select 1 KB CHR bank at PPU $1800-$1BFF (or $0800-$0BFF)
             case 5: // Select 1 KB CHR bank at PPU $1C00-$1FFF (or $0C00-$0FFF)
-                if (!this.hasCHRRAM) {
-                    this.switchSingleCHRROMBanks(value);
-                }
+                this.switchSingleCHRROMBanks(value);
                 break;
             case 6: // Select 8 KB PRG ROM bank at $8000-$9FFF (or $C000-$DFFF)
                 this.switchPRGROMBanks0And2(value);
