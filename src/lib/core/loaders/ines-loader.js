@@ -19,8 +19,8 @@ var mappers = {
 
 export class INESLoader extends AbstractLoader {
 
-    constructor() {
-        super("iNES");
+    constructor(name) {
+        super(name || "iNES");
     }
 
     supports(reader) {
@@ -32,6 +32,7 @@ export class INESLoader extends AbstractLoader {
         this.readTrainer(reader, cartridge); // 512 B (optional)
         this.readPRGROM(reader, cartridge);  //  16KB x number of units
         this.readCHRROM(reader, cartridge);  //   8KB x number of units
+        this.detectPRGRAM(cartridge);
         this.setMapper(cartridge);
         this.setSubmapper(cartridge);
     }
@@ -61,6 +62,7 @@ export class INESLoader extends AbstractLoader {
     readCHRROMSize(reader, cartridge) {
         cartridge.chrROMSize = reader.readByte() * 0x2000; // N x 8KB
         cartridge.hasCHRRAM = cartridge.chrROMSize === 0;
+        cartridge.chrRAMSize = cartridge.hasCHRRAM ? 0x2000 : undefined; // 8K if present
     }
 
     readControlBytes(reader, cartridge) {
@@ -81,21 +83,20 @@ export class INESLoader extends AbstractLoader {
     }
 
     readByte8(reader, cartridge) {
-        var units = reader.readByte() || 1; // At least 1 unit (compatibility purposes)
-        if (cartridge.hasCHRRAM) {
-            return cartridge.chrRAMSize = units * 0x2000; // N x 8KB
-        }
+        cartridge.prgRAMUnits = reader.readByte(); // Recent addition to iNES specification (virtually no ROM images use it)
     }
 
     readByte9(reader, cartridge) {
+        // Virtually no ROM images use this byte, but it is part of the iNES specification.
         var flags = reader.readByte();
         cartridge.region = flags & 0x01 ? Region.PAL : Region.NTSC;
     }
 
     readByte10(reader, cartridge) {
+        // This byte is not part of the official iNES specification.
         var flags = reader.readByte();
-        if (flags & 0x02) {
-            cartridge.region = Region.PAL; // Overrides previous value
+        if (flags & 0x02) { // First two bits => 0: NTSC; 2: PAL; 1/3: dual compatible
+            cartridge.region = Region.PAL; // Override previous value (byte 9) in case the bit is set
         }
         cartridge.hasPRGRAM = (flags & 0x10) === 0;
         cartridge.hasBUSConflicts = (flags & 0x20) !== 0;
@@ -134,6 +135,12 @@ export class INESLoader extends AbstractLoader {
     //=========================================================
     // Mapper setup
     //=========================================================
+
+    detectPRGRAM(cartridge) {
+        // Now, we can finally deduce whether there is a PRG RAM and its size
+        cartridge.hasPRGRAM = cartridge.hasPRGRAM || cartridge.hasPRGRAMBattery || cartridge.prgRAMUnits > 0;
+        cartridge.prgRAMSize = cartridge.hasPRGRAM ? (cartridge.prgRAMUnits || 1) * 0x2000 : undefined; // N x 8KB (at least 1 unit) if present
+    }
 
     setMapper(cartridge) {
         cartridge.mapper = mappers[cartridge.mapperId] || cartridge.mapperId.toString();

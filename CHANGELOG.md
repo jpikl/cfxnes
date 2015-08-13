@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
+### Fixed
+- Detection of NES 2.0 ROM image format.
+- Correct size of PRG/CHR RAM that is read from ROM images (iNES / NES 2.0).
 
 ## [0.3.0] - 2015-08-09
 ### Fixed
