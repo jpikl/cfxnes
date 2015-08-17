@@ -12,31 +12,38 @@ import { makeEnumeration } from "../utils/objects"
 
 export var Mirroring = {
     SINGLE_SCREEN_0: {
-        name: "single screen (0)",
+        id: "single-screen-0",
+        name: "Single screen (0)",
         areas: [0, 0, 0, 0]
     },
     SINGLE_SCREEN_1: {
-        name: "single screen (1)",
+        id: "single-screen-1",
+        name: "Single screen (1)",
         areas: [1, 1, 1, 1]
     },
     SINGLE_SCREEN_2: {
-        name: "single screen (2)",
+        id: "single-screen-2",
+        name: "Single screen (2)",
         areas: [2, 2, 2, 2]
     },
     SINGLE_SCREEN_3: {
-        name: "single screen (3)",
+        id: "single-screen-3",
+        name: "Single screen (3)",
         areas: [3, 3, 3, 3]
     },
     HORIZONTAL: {
-        name: "horizontal",
+        id: "horizontal",
+        name: "Horizontal",
         areas: [0, 0, 1, 1]
     },
     VERTICAL: {
-        name: "vertical",
+        id: "vertical",
+        name: "Vertical",
         areas: [0, 1, 0, 1]
     },
     FOUR_SCREEN: {
-        name: "four screen",
+        id: "four-screen",
+        name: "Four screen",
         areas: [0, 1, 2, 3]
     },
     getSingleScreen(area) {

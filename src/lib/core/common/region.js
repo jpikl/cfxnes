@@ -6,6 +6,8 @@ import { makeEnumeration } from "../utils/objects"
 
 export var Region = {
     NTSC: {
+        id: "ntsc",
+        name: "NTSC",
         framesPerSecond: 60,
         cpuFrequency: 1789773,
         ppuClipTopBottom: true,
@@ -15,6 +17,8 @@ export var Region = {
         dmcChannelTimerPeriods: [428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106, 84, 72, 54]
     },
     PAL: {
+        id: "pan",
+        name: "PAL",
         framesPerSecond: 50,
         cpuFrequency: 1789773 * 5 / 6, // NTSC frequency adjusted to the 50 Hz screen refresh rate (the real CPU frequency for PAL is 1662607 Hz)
         ppuClipTopBottom: false,

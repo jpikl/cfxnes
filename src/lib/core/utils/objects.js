@@ -47,18 +47,20 @@ export function mergeProperties(source1, source2) {
 
 export function makeEnumeration(object) {
     var values = {};
+    var defaultValue;
     forEeachProperty(object, (id, value) => {
         if (typeof value !== "function") {
-            values[id] = value
+            defaultValue = defaultValue || value;
+            values[value.id || id] = value
             object[id] = value.id || id;
         }
     });
     object.getValue = function(id) {
-        return values[id];
+        return values[id] || defaultValue;
     };
     object.toString = function(id) {
         var value = this.getValue(id);
-        return value && value.name || id;
+        return value && (value.name || value.id) || id;
     };
 }
 
