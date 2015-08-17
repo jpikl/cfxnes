@@ -23,15 +23,19 @@ describe("Validation ROMs", () => {
 });
 
 function validate(test) {
-    it(test.name, () => execute(test));
+    var names = test.names || [ test.name ];
+    var files = test.files || [ test.file ];
+    for (let i = 0; i < files.length; i++) {
+        it(names[i], () => execute(test, files[i]));
+    }
 }
 
-function execute(test) {
+function execute(test, file) {
     var config = copyProperties(baseConfig);
     test.configure(config);
     var injector = new Injector(config);
     var cartridgeFactory = injector.get("cartridgeFactory");
-    var cartridge = cartridgeFactory.fromLocalFile(test.rom);
+    var cartridge = cartridgeFactory.fromLocalFile(file);
     var cpuMemory = injector.get("cpuMemory");
     var nes = injector.get("nes");
 

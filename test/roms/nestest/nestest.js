@@ -7,7 +7,7 @@ import { NestestCPU } from "./nestest-cpu"
 import { FakeUnit }   from "../../../src/lib/core/debug/fake-unit"
 
 export const name = "nestest";
-export const rom = "./test/roms/nestest/nestest.nes";
+export const file = "./test/roms/nestest/nestest.nes";
 
 export function configure(config) {
     config["cpu"] = {type: "class", value: NestestCPU};
