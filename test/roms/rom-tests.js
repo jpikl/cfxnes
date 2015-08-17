@@ -8,6 +8,7 @@ import fs                 from "fs"
 import * as nestest       from "./nestest/nestest"
 import * as instr_test    from "./instr_test/instr_test-v4"
 import * as instr_timing  from "./instr_timing/instr_timing"
+import * as instr_misc    from "./instr_misc/instr_misc"
 import * as ppu_vbl_nmi   from "./ppu_vbl_nmi/ppu_vbl_nmi"
 import baseConfig         from "../../src/lib/core/config/base-config"
 import { dataToString }   from "../../src/lib/core/utils/convert"
@@ -19,6 +20,7 @@ describe("Validation ROMs", () => {
     validate(nestest);
     validate(instr_test);
     validate(instr_timing);
+    validate(instr_misc);
     validate(ppu_vbl_nmi);
 });
 
