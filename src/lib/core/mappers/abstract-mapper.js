@@ -1,8 +1,9 @@
-import { Mirroring }               from "../common/mirroring";
-import { clearArray }              from "../utils/arrays";
-import { wordAsHex, readableSize } from "../utils/format";
-import { logger }                  from "../utils/logger";
-import { newByteArray }            from "../utils/system";
+import { Mirroring }             from "../common/mirroring";
+import { clearArray }            from "../utils/arrays";
+import { formatOptional,
+         formatSize, wordAsHex } from "../utils/format";
+import { logger }                from "../utils/logger";
+import { newByteArray }          from "../utils/system";
 
 //=========================================================
 // Base class of mappers
@@ -30,10 +31,10 @@ export class AbstractMapper {
         this.hasPRGRAMBattery = cartridge.hasPRGRAMBattery;
         this.hasCHRRAM = cartridge.hasCHRRAM;
         this.hasCHRRAMBattery = cartridge.hasCHRRAMBattery; // Not present on iNES ROMs
-        this.prgROMSize = cartridge.prgROMSize || cartridge.prgROM.length;
+        this.prgROMSize = cartridge.prgROMSize;
         this.prgRAMSize = cartridge.prgRAMSize; // Not reliable information on iNES ROMs (should provide mapper itself)
         this.prgRAMSizeBattery = cartridge.prgRAMSizeBattery; // Not present on iNES ROMs
-        this.chrROMSize = cartridge.chrROMSize || cartridge.chrROM.length;
+        this.chrROMSize = cartridge.chrROMSize;
         this.chrRAMSize = cartridge.chrRAMSize;
         this.chrRAMSizeBattery = cartridge.chrRAMSizeBattery; // Not present on iNES ROMs
         this.prgROM = cartridge.prgROM;
@@ -150,10 +151,10 @@ export class AbstractMapper {
 
     printPRGRAMInfo() {
         logger.info("==========[Mapper PRG RAM Info - Start]==========");
-        logger.info("has PRG RAM           : " + this.hasPRGRAM);
-        logger.info("has PRG RAM battery   : " + this.hasPRGRAMBattery);
-        logger.info("PRG RAM size          : " + readableSize(this.prgRAMSize));
-        logger.info("PRG RAM size (battery): " + readableSize(this.prgRAMSizeBattery));
+        logger.info("has PRG RAM           : " + formatOptional(this.hasPRGRAM));
+        logger.info("has PRG RAM battery   : " + formatOptional(this.hasPRGRAMBattery));
+        logger.info("PRG RAM size          : " + formatOptional(formatSize(this.prgRAMSize)));
+        logger.info("PRG RAM size (battery): " + formatOptional(formatSize(this.prgRAMSizeBattery)));
         logger.info("==========[Mapper PRG RAM Info - End]==========");
     }
 
@@ -246,10 +247,10 @@ export class AbstractMapper {
 
     printCHRRAMInfo() {
         logger.info("==========[Mapper CHR RAM Info - Start]==========");
-        logger.info("has CHR RAM           : " + this.hasCHRRAM);
-        logger.info("has CHR RAM battery   : " + this.hasCHRRAMBattery);
-        logger.info("CHR RAM size          : " + readableSize(this.chrRAMSize));
-        logger.info("CHR RAM size (battery): " + readableSize(this.chrRAMSizeBattery));
+        logger.info("has CHR RAM           : " + formatOptional(this.hasCHRRAM));
+        logger.info("has CHR RAM battery   : " + formatOptional(this.hasCHRRAMBattery));
+        logger.info("CHR RAM size          : " + formatOptional(formatSize(this.chrRAMSize)));
+        logger.info("CHR RAM size (battery): " + formatOptional(formatSize(this.chrRAMSizeBattery)));
         logger.info("==========[Mapper CHR RAM Info - End]==========");
     }
 

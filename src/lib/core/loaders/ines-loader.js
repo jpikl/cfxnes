@@ -93,13 +93,7 @@ export class INESLoader extends AbstractLoader {
     }
 
     readByte10(reader, cartridge) {
-        // This byte is not part of the official iNES specification.
-        var flags = reader.readByte();
-        if (flags & 0x02) { // First two bits => 0: NTSC; 2: PAL; 1/3: dual compatible
-            cartridge.region = Region.PAL; // Override previous value (byte 9) in case the bit is set
-        }
-        cartridge.hasPRGRAM = (flags & 0x10) === 0;
-        cartridge.hasBUSConflicts = (flags & 0x20) !== 0;
+        reader.skip(1);
     }
 
     readByte11(reader, cartridge) {
@@ -138,7 +132,7 @@ export class INESLoader extends AbstractLoader {
 
     detectPRGRAM(cartridge) {
         // Now, we can finally deduce whether there is a PRG RAM and its size
-        cartridge.hasPRGRAM = cartridge.hasPRGRAM || cartridge.hasPRGRAMBattery || cartridge.prgRAMUnits > 0;
+        cartridge.hasPRGRAM = cartridge.hasPRGRAMBattery || cartridge.prgRAMUnits > 0;
         cartridge.prgRAMSize = cartridge.hasPRGRAM ? (cartridge.prgRAMUnits || 1) * 0x2000 : undefined; // N x 8KB (at least 1 unit) if present
     }
 

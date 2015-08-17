@@ -7,15 +7,6 @@ import { AbstractMapper } from "./abstract-mapper";
 export class CNROMMapper extends AbstractMapper {
 
     //=========================================================
-    // Mapper initialization
-    //=========================================================
-
-    init(cartridge) {
-        super.init(cartridge);
-        this.hasPRGRAM = false;
-    }
-
-    //=========================================================
     // Mapper reset
     //=========================================================
 

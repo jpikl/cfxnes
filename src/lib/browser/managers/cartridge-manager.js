@@ -1,5 +1,5 @@
-import { logger }       from "../../core/utils/logger";
-import { readableSize } from "../../core/utils/format";
+import { logger }     from "../../core/utils/logger";
+import { formatSize } from "../../core/utils/format";
 
 const FILE_SIZE_LIMIT = 10 * 1024 * 1024; // 10 MB
 const UNKNOWN_ERROR = "Unknown error";
@@ -28,7 +28,7 @@ export class CartridgeManager {
     loadCartridge(file, onLoad, onError) {
         logger.info("Loding cartridge from file");
         if (file.size > FILE_SIZE_LIMIT) {
-            onError && onError(`Input file is too large (${readableSize(file.size)}).`);
+            onError && onError(`Input file is too large (${formatSize(file.size)}).`);
             return;
         }
         var reader = new FileReader;

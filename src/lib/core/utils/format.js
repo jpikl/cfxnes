@@ -33,9 +33,13 @@ export function capitalize(sentence) {
                 .join(" ");
 }
 
-export function readableSize(size) {
+export function formatOptional(value) {
+    return value != null ? value : "???";
+}
+
+export function formatSize(size) {
     if (typeof size !== "number") {
-        return "???";
+        return undefined;
     }
     if (size >= 1024 * 1024) {
         return ~~(size / (1024 * 1024)) + " MB";
@@ -46,9 +50,9 @@ export function readableSize(size) {
     return size + " B";
 }
 
-export function readableBytes(bytes) {
-    if (!bytes) {
-        return "???";
+export function formatData(data) {
+    if (!data) {
+        return undefined;
     }
-    return String.fromCharCode.apply(null, bytes);
+    return String.fromCharCode.apply(null, data);
 }

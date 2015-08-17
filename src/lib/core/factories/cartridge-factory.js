@@ -1,11 +1,12 @@
-import { Mirroring }                   from "../common/mirroring";
-import { Region }                      from "../common/region";
-import { INESLoader }                  from "../loaders/ines-loader";
-import { NES2Loader }                  from "../loaders/nes2-loader";
-import { ArrayBufferReader }           from "../readers/array-buffer-reader";
-import { LocalFileReader }             from "../readers/local-file-reader";
-import { readableSize, readableBytes } from "../utils/format";
-import { logger }                      from "../utils/logger";
+import { Mirroring }              from "../common/mirroring";
+import { Region }                 from "../common/region";
+import { INESLoader }             from "../loaders/ines-loader";
+import { NES2Loader }             from "../loaders/nes2-loader";
+import { ArrayBufferReader }      from "../readers/array-buffer-reader";
+import { LocalFileReader }        from "../readers/local-file-reader";
+import { formatOptional,
+         formatSize, formatData } from "../utils/format";
+import { logger }                 from "../utils/logger";
 
 var loaders = [
     new NES2Loader, // Must be processed before iNES
@@ -51,25 +52,24 @@ export class CartridgeFactory {
 
     printCartridgeInfo(cartridge) {
         logger.info("==========[Cartridge Info - Start]==========");
-        logger.info("Mapper                : " + cartridge.mapper);
-        logger.info("Submapper             : " + cartridge.submapper);
-        logger.info("has PRG RAM           : " + cartridge.hasPRGRAM);
-        logger.info("has PRG RAM battery   : " + cartridge.hasPRGRAMBattery);
-        logger.info("has CHR RAM           : " + cartridge.hasCHRRAM);
-        logger.info("has CHR RAM battery   : " + cartridge.hasCHRRAMBattery);
-        logger.info("has BUS conflicts     : " + cartridge.hasBUSConflicts);
-        logger.info("has trainer           : " + cartridge.hasTrainer);
-        logger.info("PRG ROM size          : " + readableSize(cartridge.prgROMSize || cartridge.prgROM.length));
-        logger.info("PRG RAM size          : " + readableSize(cartridge.prgRAMSize));
-        logger.info("PRG RAM size (battery): " + readableSize(cartridge.prgRAMSizeBattery));
-        logger.info("CHR ROM size          : " + readableSize(cartridge.chrROMSize || cartridge.chrROM.length));
-        logger.info("CHR RAM size          : " + readableSize(cartridge.chrRAMSize));
-        logger.info("CHR RAM size (battery): " + readableSize(cartridge.chrRAMSizeBattery));
-        logger.info("Mirroring             : " + Mirroring.toString(cartridge.mirroring));
-        logger.info("Region                : " + Region.toString(cartridge.region));
-        logger.info("is Vs Unisistem       : " + cartridge.isVsUnisistem);
-        logger.info("is PlayChoice         : " + cartridge.isPlayChoice);
-        logger.info("Trainer               : " + readableBytes(cartridge.trainer));
+        logger.info("Mapper                : " + formatOptional(cartridge.mapper));
+        logger.info("Submapper             : " + formatOptional(cartridge.submapper));
+        logger.info("has PRG RAM           : " + formatOptional(cartridge.hasPRGRAM));
+        logger.info("has PRG RAM battery   : " + formatOptional(cartridge.hasPRGRAMBattery));
+        logger.info("has CHR RAM           : " + formatOptional(cartridge.hasCHRRAM));
+        logger.info("has CHR RAM battery   : " + formatOptional(cartridge.hasCHRRAMBattery));
+        logger.info("has trainer           : " + formatOptional(cartridge.hasTrainer));
+        logger.info("PRG ROM size          : " + formatOptional(formatSize(cartridge.prgROMSize)));
+        logger.info("PRG RAM size          : " + formatOptional(formatSize(cartridge.prgRAMSize)));
+        logger.info("PRG RAM size (battery): " + formatOptional(formatSize(cartridge.prgRAMSizeBattery)));
+        logger.info("CHR ROM size          : " + formatOptional(formatSize(cartridge.chrROMSize)));
+        logger.info("CHR RAM size          : " + formatOptional(formatSize(cartridge.chrRAMSize)));
+        logger.info("CHR RAM size (battery): " + formatOptional(formatSize(cartridge.chrRAMSizeBattery)));
+        logger.info("Mirroring             : " + formatOptional(Mirroring.toString(cartridge.mirroring)));
+        logger.info("Region                : " + formatOptional(Region.toString(cartridge.region)));
+        logger.info("is Vs Unisistem       : " + formatOptional(cartridge.isVsUnisistem));
+        logger.info("is PlayChoice         : " + formatOptional(cartridge.isPlayChoice));
+        logger.info("Trainer               : " + formatOptional(formatData(cartridge.trainer)));
         logger.info("==========[Cartridge Info - End]==========");
     }
 
