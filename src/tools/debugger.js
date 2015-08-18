@@ -7,7 +7,7 @@ import util               from "util";
 import yargs              from "yargs";
 import baseConfig         from "../lib/core/config/base-config";
 import { LoggingCPU }     from "../lib/core/debug/logging-cpu";
-export { NoOutputPPU }    from "../lib/core/debug/no-output-ppu";
+import { NoOutputPPU }    from "../lib/core/debug/no-output-ppu";
 import { numberAsHex }    from "../lib/core/utils/format";
 import { Injector }       from "../lib/core/utils/inject";
 import { Logger }         from "../lib/core/utils/logger";
@@ -49,7 +49,7 @@ var logger = Logger.get(loggerId);
 var print = console.log;
 
 var config = copyProperties(baseConfig);
-config["cpu"] = {type: "class", value: DebugCPU};
+config["cpu"] = {type: "class", value: LoggingCPU};
 config["ppu"] = {type: "class", value: NoOutputPPU};
 
 var injector = new Injector(config);
