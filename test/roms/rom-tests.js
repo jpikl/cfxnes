@@ -12,6 +12,7 @@ import * as instr_misc    from "./instr_misc/instr_misc"
 import * as cpu_reset     from "./cpu_reset/cpu_reset"
 import * as ppu_vbl_nmi   from "./ppu_vbl_nmi/ppu_vbl_nmi"
 import * as apu_reset     from "./apu_reset/apu_reset"
+import * as apu_test      from "./apu_test/apu_test"
 import baseConfig         from "../../src/lib/core/config/base-config"
 import { dataToString }   from "../../src/lib/core/utils/convert"
 import { Injector }       from "../../src/lib/core/utils/inject"
@@ -26,6 +27,7 @@ describe("Validation ROMs", () => {
     validate(cpu_reset);
     validate(ppu_vbl_nmi);
     validate(apu_reset);
+    validate(apu_test);
 });
 
 function validate(test) {
