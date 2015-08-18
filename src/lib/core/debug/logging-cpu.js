@@ -9,7 +9,7 @@ var verboseLogger = Logger.get("debug-verbose");
 // CPU with debugging printouts
 //=========================================================
 
-export class DebugCPU extends CPU {
+export class LoggingCPU extends CPU {
 
     //=========================================================
     // Program execution

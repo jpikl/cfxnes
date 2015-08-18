@@ -3,8 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/nes_instr_misc.zip
 //=============================================================================
 
-import { TestCPUMemory } from "../test-cpu-memory"
-import { FakeUnit }      from "../../../src/lib/core/debug/fake-unit"
+import { RAMEnabledCPUMemory, DisabledAPU, DisabledPPU } from "../units"
 
 export const names = [
     "instr_misc (01-abs_x_wrap)",
@@ -21,9 +20,9 @@ export const files = [
 ];
 
 export function configure(config) {
-    config["cpuMemory"] = {type: "class", value: TestCPUMemory};
-    config["ppu"] = {type: "class", value: FakeUnit};
-    config["apu"] = {type: "class", value: FakeUnit};
+    config["cpuMemory"] = {type: "class", value: RAMEnabledCPUMemory};
+    config["apu"] = {type: "class", value: DisabledAPU};
+    config["ppu"] = {type: "class", value: DisabledPPU};
 }
 
 export function execute(test) {

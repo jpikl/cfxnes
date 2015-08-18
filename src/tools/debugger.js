@@ -6,8 +6,8 @@ import readline           from "readline";
 import util               from "util";
 import yargs              from "yargs";
 import baseConfig         from "../lib/core/config/base-config";
-import { DebugCPU }       from "../lib/core/debug/debug-cpu";
-import { DebugPPU }       from "../lib/core/debug/debug-ppu";
+import { LoggingCPU }     from "../lib/core/debug/logging-cpu";
+export { NoOutputPPU }    from "../lib/core/debug/no-output-ppu";
 import { numberAsHex }    from "../lib/core/utils/format";
 import { Injector }       from "../lib/core/utils/inject";
 import { Logger }         from "../lib/core/utils/logger";
@@ -50,7 +50,7 @@ var print = console.log;
 
 var config = copyProperties(baseConfig);
 config["cpu"] = {type: "class", value: DebugCPU};
-config["ppu"] = {type: "class", value: DebugPPU};
+config["ppu"] = {type: "class", value: NoOutputPPU};
 
 var injector = new Injector(config);
 var cartridgeFactory = injector.get("cartridgeFactory");

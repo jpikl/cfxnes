@@ -3,8 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/ppu_vbl_nmi.zip
 //=============================================================================
 
-import { TestCPUMemory } from "../test-cpu-memory"
-import { DebugPPU }      from "../../../src/lib/core/debug/debug-ppu"
+import { RAMEnabledCPUMemory, NoOutputPPU, DisabledAPU } from "../units"
 
 export const names = [
     "ppu_vbl_nmi (01-vbl_basics)",
@@ -33,8 +32,9 @@ export const files = [
 ];
 
 export function configure(config) {
-    config["cpuMemory"] = {type: "class", value: TestCPUMemory};
-    config["ppu"] = {type: "class", value: DebugPPU};
+    config["cpuMemory"] = {type: "class", value: RAMEnabledCPUMemory};
+    config["apu"] = {type: "class", value: DisabledAPU};
+    config["ppu"] = {type: "class", value: NoOutputPPU};
 }
 
 export function execute(test) {

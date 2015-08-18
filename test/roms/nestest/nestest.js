@@ -3,16 +3,15 @@
 // Source: http://nickmass.com/images/nestest.nes
 //=============================================================================
 
-import { NestestCPU } from "./nestest-cpu"
-import { FakeUnit }   from "../../../src/lib/core/debug/fake-unit"
+import { LoggingCPU, DisabledAPU, DisabledPPU } from "../units"
 
 export const name = "nestest";
 export const file = "./test/roms/nestest/nestest.nes";
 
 export function configure(config) {
     config["cpu"] = {type: "class", value: NestestCPU};
-    config["ppu"] = {type: "class", value: FakeUnit};
-    config["apu"] = {type: "class", value: FakeUnit};
+    config["apu"] = {type: "class", value: DisabledAPU};
+    config["ppu"] = {type: "class", value: DisabledPPU};
 }
 
 export function execute(test) {
@@ -22,8 +21,12 @@ export function execute(test) {
 
     test.openLog("debug-basic", BASIC_LOG_FILE);
     test.openLog("debug-verbose", VERBOSE_LOG_FILE);
+
     test.power(); // Just to force printing of the verbose log header
     test.step(8991);
+
+    test.closeLog("debug-basic");
+    test.closeLog("debug-verbose");
 
     var basicLog = test.readFile(BASIC_LOG_FILE);
     var verifiedLog = test.readFile(VERIFIED_LOG_FILE);
@@ -36,4 +39,13 @@ export function execute(test) {
         - Run 'vimdiff ${BASIC_LOG_FILE} ${VERIFIED_LOG_FILE}' to see differences.
         - See contents of '${VERBOSE_LOG_FILE}' for more detailed output.`);
     }
+}
+
+class NestestCPU extends LoggingCPU {
+
+    handleReset() {
+        super.handleReset();
+        this.programCounter = 0xC000; // Where the test start
+    }
+
 }

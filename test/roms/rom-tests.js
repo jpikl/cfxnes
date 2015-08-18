@@ -11,6 +11,7 @@ import * as instr_timing  from "./instr_timing/instr_timing"
 import * as instr_misc    from "./instr_misc/instr_misc"
 import * as cpu_reset     from "./cpu_reset/cpu_reset"
 import * as ppu_vbl_nmi   from "./ppu_vbl_nmi/ppu_vbl_nmi"
+import * as apu_reset     from "./apu_reset/apu_reset"
 import baseConfig         from "../../src/lib/core/config/base-config"
 import { dataToString }   from "../../src/lib/core/utils/convert"
 import { Injector }       from "../../src/lib/core/utils/inject"
@@ -24,6 +25,7 @@ describe("Validation ROMs", () => {
     validate(instr_misc);
     validate(cpu_reset);
     validate(ppu_vbl_nmi);
+    validate(apu_reset);
 });
 
 function validate(test) {
@@ -37,18 +39,15 @@ function validate(test) {
 function execute(test, file) {
     var config = copyProperties(baseConfig);
     test.configure(config);
+
     var injector = new Injector(config);
     var cartridgeFactory = injector.get("cartridgeFactory");
     var cartridge = cartridgeFactory.fromLocalFile(file);
     var cpuMemory = injector.get("cpuMemory");
     var nes = injector.get("nes");
-
     nes.insertCartridge(cartridge);
 
-    var loggerIds = [];
-
     test.execute({
-
         assert: chai.assert,
         expect: chai.expect,
 
@@ -91,10 +90,11 @@ function execute(test, file) {
         },
 
         openLog(id, file) {
-            loggerIds.push(id);
-            var logger = Logger.get(id);
-            logger.attach(Logger.toFile(file));
-            return logger;
+            Logger.get(id).attach(Logger.toFile(file));
+        },
+
+        closeLog(id) {
+            Logger.get(id).close();
         },
 
         blargg() {
@@ -126,10 +126,5 @@ function execute(test, file) {
             var message = this.readString(MESSAGE_ADDRESS);
             this.assert(result === RESULT_OK, "\n" + message);
         }
-
     });
-
-    for (var id of loggerIds) {
-        Logger.get(id).close();
-    }
 }
