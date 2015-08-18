@@ -6,13 +6,14 @@
 import chai               from "chai"
 import fs                 from "fs"
 import * as nestest       from "./nestest/nestest"
-import * as instr_test    from "./instr_test/instr_test-v4"
+import * as instr_test    from "./instr_test/instr_test"
 import * as instr_timing  from "./instr_timing/instr_timing"
 import * as instr_misc    from "./instr_misc/instr_misc"
 import * as cpu_reset     from "./cpu_reset/cpu_reset"
 import * as ppu_vbl_nmi   from "./ppu_vbl_nmi/ppu_vbl_nmi"
 import * as apu_reset     from "./apu_reset/apu_reset"
 import * as apu_test      from "./apu_test/apu_test"
+import * as mmc3_test     from "./mmc3_test/mmc3_test"
 import baseConfig         from "../../src/lib/core/config/base-config"
 import { dataToString }   from "../../src/lib/core/utils/convert"
 import { Injector }       from "../../src/lib/core/utils/inject"
@@ -23,11 +24,12 @@ describe("Validation ROMs", () => {
     validate(nestest);
     validate(instr_test);
     validate(instr_timing);
-    validate(instr_misc);
+    validate(instr_misc); // 2 failing tests (disabled)
     validate(cpu_reset);
     validate(ppu_vbl_nmi);
-    validate(apu_reset);
-    validate(apu_test);
+    validate(apu_reset); // 4 failing tests (disabled)
+    validate(apu_test); // 3 failing tests (disabled)
+    validate(mmc3_test); // 2 failing tests (disabled)
 });
 
 function validate(test) {
