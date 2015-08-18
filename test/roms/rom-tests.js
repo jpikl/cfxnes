@@ -9,6 +9,7 @@ import * as nestest       from "./nestest/nestest"
 import * as instr_test    from "./instr_test/instr_test-v4"
 import * as instr_timing  from "./instr_timing/instr_timing"
 import * as instr_misc    from "./instr_misc/instr_misc"
+import * as cpu_reset     from "./cpu_reset/cpu_reset"
 import * as ppu_vbl_nmi   from "./ppu_vbl_nmi/ppu_vbl_nmi"
 import baseConfig         from "../../src/lib/core/config/base-config"
 import { dataToString }   from "../../src/lib/core/utils/convert"
@@ -21,6 +22,7 @@ describe("Validation ROMs", () => {
     validate(instr_test);
     validate(instr_timing);
     validate(instr_misc);
+    validate(cpu_reset);
     validate(ppu_vbl_nmi);
 });
 
@@ -56,6 +58,10 @@ function execute(test, file) {
 
         power() {
             nes.pressPower();
+        },
+
+        reset() {
+            nes.pressReset();
         },
 
         step(count = 1) {
@@ -95,18 +101,28 @@ function execute(test, file) {
             // Test code for all Blargg's test ROMs
             const RESULT_ADDRESS = 0x6000;
             const RESULT_RUNNING = 0x80;
+            const RESULT_RESET = 0x81;
             const RESULT_OK = 0x00;
             const MESSAGE_ADDRESS = 0x6004;
 
-            while (this.readByte(RESULT_ADDRESS) !== RESULT_RUNNING) {
-                this.step();
+            var result;
+            while ((result = this.readByte(RESULT_ADDRESS)) !== RESULT_RUNNING) {
+                this.step(); // Wait until test starts
+            }
+            while ((result = this.readByte(RESULT_ADDRESS)) === RESULT_RUNNING) {
+                this.step(); // Wait while test is in progress
+            }
+            if (result === RESULT_RESET) {
+                this.step(200000); // Reset needs to be done after at least 100 msec (~122880 cpu ticks)
+                this.reset();
+                while ((result = this.readByte(RESULT_ADDRESS)) !== RESULT_RUNNING) {
+                    this.step(); // Wait until test resumes
+                }
+                while ((result = this.readByte(RESULT_ADDRESS)) === RESULT_RUNNING) {
+                    this.step(); // Wait while test is in progress
+                }
             }
 
-            while (this.readByte(RESULT_ADDRESS) === RESULT_RUNNING) {
-                this.step();
-            }
-
-            var result = this.readByte(RESULT_ADDRESS);
             var message = this.readString(MESSAGE_ADDRESS);
             this.assert(result === RESULT_OK, "\n" + message);
         }
