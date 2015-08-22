@@ -175,28 +175,23 @@ export class ExecutionManager {
     }
 
     getTargetFPS() {
-        return Region.getValue(this.nes.getRegion()).framesPerSecond;
+        return Region.getParams(this.nes.getRegion()).framesPerSecond;
     }
 
     //=========================================================
-    // Configuration reading / writing
+    // Configuration
     //=========================================================
 
-    getConfiguration(config) {
-        logger.info("Getting execution manager configuration");
-        return {
-            "region": this.getRegion(),
-            "speed":  this.getSpeed()
-        }
+    readConfiguration(config) {
+        logger.info("Reading execution configuration");
+        config["region"] = this.getRegion();
+        config["speed"] = this.getSpeed();
     }
 
-    setConfiguration(config) {
-        if (config) {
-            logger.info("Setting execution manager configuration");
-            this.setRegion(config["region"]);
-            this.setSpeed(config["speed"]);
-        }
+    writeConfiguration(config) {
+        logger.info("Writing execution configuration");
+        if (config["region"] !== undefined) this.setRegion(config["region"]);
+        if (config["speed"] !== undefined) this.setSpeed(config["speed"]);
     }
-
 
 }

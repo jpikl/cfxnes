@@ -5,7 +5,7 @@
 import readline           from "readline";
 import util               from "util";
 import yargs              from "yargs";
-import baseConfig         from "../lib/core/config/base-config";
+import coreConfig         from "../lib/core/config";
 import { LoggingCPU }     from "../lib/core/debug/logging-cpu";
 import { NoOutputPPU }    from "../lib/core/debug/no-output-ppu";
 import { numberAsHex }    from "../lib/core/utils/format";
@@ -48,7 +48,7 @@ var loggerId = argv.verbose ? "debug-verbose" : "debug-basic";
 var logger = Logger.get(loggerId);
 var print = console.log;
 
-var config = copyProperties(baseConfig);
+var config = copyProperties(coreConfig);
 config["cpu"] = {type: "class", value: LoggingCPU};
 config["ppu"] = {type: "class", value: NoOutputPPU};
 

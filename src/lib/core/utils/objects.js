@@ -45,48 +45,21 @@ export function mergeProperties(source1, source2) {
     return copyProperties(source2, copyProperties(source1));
 }
 
-export function makeEnumeration(object) {
-    var values = {};
-    var defaultValue;
-    forEeachProperty(object, (id, value) => {
-        if (typeof value !== "function") {
-            defaultValue = defaultValue || value;
-            values[value.id || id] = value
-            object[id] = value.id || id;
+export function makeEnumeration(enumeration) {
+    var paramsTable = {};
+    var defaultParams;
+    forEeachProperty(enumeration, (id, params) => {
+        if (typeof params !== "function") {
+            defaultParams = defaultParams || params;
+            paramsTable[params.id || id] = params
+            enumeration[id] = params.id || id;
         }
     });
-    object.getValue = function(id) {
-        return values[id] || defaultValue;
+    enumeration.getParams = function(id) {
+        return paramsTable[id] || defaultParams;
     };
-    object.toString = function(id) {
-        var value = this.getValue(id);
-        return value && (value.name || value.id) || id;
+    enumeration.toString = function(id) {
+        var params = this.getParams(id);
+        return params && (params.name || params.id) || id;
     };
-}
-
-export function createProxy(name, target) {
-    var proxy = function(...args) {
-        var target = proxy.get();
-        if (typeof target === "function") {
-            return target.apply(target, args);
-        }
-        return target;
-    };
-    proxy.get = function() {
-        if (this.missing()) {
-            throw new Error((name ? name : "Proxy target") + " is not available");
-        }
-        return this.target;
-    };
-    proxy.set = function(target) {
-        this.target = target;
-    };
-    proxy.available = function() {
-        return this.target != null;
-    };
-    proxy.missing = function() {
-        return !this.available();
-    };
-    proxy.set(target);
-    return proxy;
 }

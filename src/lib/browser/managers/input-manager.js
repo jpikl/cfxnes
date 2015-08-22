@@ -200,34 +200,31 @@ export class InputManager {
     }
 
     //=========================================================
-    // Configuration reading / writing
+    // Configuration
     //=========================================================
 
-    getConfiguration() {
-        logger.info("Getting input manager configuration");
-        return {
-            "mapping": this.targetsMapping,
-            "devices": arrayToProperties(ports, this.getConnectedTarget, this)
-        }
+    readConfiguration(config) {
+        logger.info("Reading input configuration");
+        config["inputDevices"] = arrayToProperties(ports, this.getConnectedTarget, this);
+        config["inputMapping"] = this.targetsMapping;
+
     }
 
-    setConfiguration(config) {
-        if (config) {
-            logger.info("Setting input manager configuration");
-            if (config["devices"]) {
-                forEeachProperty(config["devices"], this.connectTarget, this);
-            }
-            if(config["mapping"]) {
-                this.clearMapping();
-                forEeachProperty(config["mapping"], (sourceId, sourceInputs) => {
-                    forEeachProperty(sourceInputs, (sourceInput, targetParams) => {
-                        if (targetParams) {
-                            var [ targetPort, targetId, targetInput ] = targetParams;
-                            this.mapInput(targetPort, targetId, targetInput, sourceId, sourceInput);
-                        }
-                    }, this);
+    writeConfiguration(config) {
+        logger.info("Writing input configuration");
+        if (config["inputDevices"] !== undefined) {
+            forEeachProperty(config["inputDevices"], this.connectTarget, this);
+        }
+        if(config["inputMapping"] !== undefined) {
+            this.clearMapping();
+            forEeachProperty(config["inputMapping"], (sourceId, sourceInputs) => {
+                forEeachProperty(sourceInputs, (sourceInput, targetParams) => {
+                    if (targetParams) {
+                        var [ targetPort, targetId, targetInput ] = targetParams;
+                        this.mapInput(targetPort, targetId, targetInput, sourceId, sourceInput);
+                    }
                 }, this);
-            }
+            }, this);
         }
     }
 

@@ -57,6 +57,9 @@ export class AbstractReader {
 
     tryUnzip(JSZip) {
         if (this.contains(ZIP_SIGNATURE)) {
+            if (JSZip == null) {
+                throw new Error("Unable to unzip data: JSZip library is not available.")
+            }
             var files = JSZip(this.getData()).file(/^.*\.nes$/i);
             if (files.length > 0) {
                 this.onUnzip(files[0]);

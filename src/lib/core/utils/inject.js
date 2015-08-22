@@ -1,5 +1,5 @@
-import { forEachProperty, createProxy } from "./objects"
-import { logger }                       from "./logger";
+import { forEachProperty } from "./objects"
+import { logger }          from "./logger";
 
 //=========================================================
 // Dependency injector
@@ -33,7 +33,9 @@ export class Injector {
             logger.info(`Resolving dependency '${name}'`);
             dependency.value = this.resolve(name, dependency);
             dependency.resolved = true;
-            this.inject(dependency.value);
+            if (typeof dependency.value === "object" && dependency.value != null) {
+                this.inject(dependency.value);
+            }
         }
         return dependency.value;
 
@@ -41,21 +43,22 @@ export class Injector {
 
     resolve(name, dependency) {
         var type = dependency.type;
-        if (type == null) {
-            throw new Error(`'${name}' dependency has undefined type`);
-        }
         var value = dependency.value;
-        if (type !== "proxy" && value == null) {
-            throw new Error(`'${name}' dependency has undefined value`);
+        if (type == null) {
+            throw new Error(`Dependency '${name}' has undefined type`);
+        }
+        if (type == "value") {
+            return value;
+        }
+        if (value == null) {
+            throw new Error(`Dependency '${name}' of type '${type}' has undefined value`);
         }
         if (type === "class") {
             return new value(this);
         } else if (type === "factory") {
             return value(this);
-        } else if (type === "proxy") {
-            return createProxy(name, value);
         } else {
-            return value;
+            throw new Error(`Dependency '${name}' has unsupported type '${type}'`);
         }
     }
 

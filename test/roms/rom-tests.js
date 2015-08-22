@@ -14,7 +14,7 @@ import * as ppu_vbl_nmi   from "./ppu_vbl_nmi/ppu_vbl_nmi"
 import * as apu_reset     from "./apu_reset/apu_reset"
 import * as apu_test      from "./apu_test/apu_test"
 import * as mmc3_test     from "./mmc3_test/mmc3_test"
-import baseConfig         from "../../src/lib/core/config/base-config"
+import coreConfig         from "../../src/lib/core/config"
 import { dataToString }   from "../../src/lib/core/utils/convert"
 import { Injector }       from "../../src/lib/core/utils/inject"
 import { Logger }         from "../../src/lib/core/utils/logger"
@@ -41,7 +41,7 @@ function validate(test) {
 }
 
 function execute(test, file) {
-    var config = copyProperties(baseConfig);
+    var config = copyProperties(coreConfig);
     test.configure(config);
 
     var injector = new Injector(config);

@@ -190,13 +190,11 @@ export class NES {
     }
 
     getRegion() {
-        return this.region
-            || this.cartridge && this.cartridge.region
-            || Region.NTSC;
+        return this.region || this.cartridge && this.cartridge.region;
     }
 
     updateRegionParams() {
-        var params = Region.getValue(this.getRegion());
+        var params = Region.getParams(this.getRegion());
         this.ppu.setRegionParams(params);
         this.apu.setRegionParams(params);
     }

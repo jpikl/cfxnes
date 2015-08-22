@@ -132,7 +132,7 @@ export class PPUMemory {
     }
 
     setNamesAttrsMirroring(mirroring) {
-        this.mapNamesAttrsAreas(Mirroring.getValue(mirroring).areas);
+        this.mapNamesAttrsAreas(Mirroring.getParams(mirroring).areas);
     }
 
     //=========================================================

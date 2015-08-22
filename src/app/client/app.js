@@ -2,10 +2,17 @@
 // CFxNES setup
 //=========================================================
 
-cfxnes = new(require("cfxnes"));
-cfxnes.putDependency("hash", require("js-md5"));
-cfxnes.putDependency("jszip", require("jszip"));
-cfxnes.putDependency("screenfull", require("screenfull"));
+var CFxNES = require("cfxnes");
+
+cfxnes = new CFxNES(/*{
+    hash: require("js-md5"),
+    jszip: require("jszip"),
+    screenfull: require("screenfull"),
+    loadOnStart: true,
+    saveOnClose: true,
+    savePeriod: 60, // sec
+    storage: "local"
+}*/);
 
 //=========================================================
 // UI dependencies

@@ -1,18 +1,19 @@
-import config             from "./config/base-config";
+import baseInjectorConfig from "./config";
 import { channels }       from "./managers/audio-manager";
 import { ports }          from "./managers/input-manager";
 import { Injector }       from "../core/utils/inject";
 import { logger, Logger } from "../core/utils/logger";
+import { copyProperties } from "../core/utils/objects";
 
 logger.attach(Logger.toConsole());
 
 //=========================================================
-// Emulator API
+// CFxNES API
 //=========================================================
 
-export class Emulator {
+export class CFxNES {
 
-    constructor() {
+    constructor(config = {}) {
         this.dependencies = [
             "executionManager",
             "cartridgeManager",
@@ -21,8 +22,16 @@ export class Emulator {
             "inputManager",
             "persistenceManager"
         ];
-        this.injector = new Injector(config);
-        this.injector.inject(this);
+        this.bootstrap(config);
+        this.init(config);
+    }
+
+    bootstrap(config) {
+        var injectorConfig = copyProperties(baseInjectorConfig);
+        for (var name of ["hash", "jszip", "screenfull"]) {
+            injectorConfig[name].value = config[name];
+        }
+        new Injector(injectorConfig).inject(this);
     }
 
     inject(executionManager, cartridgeManager, videoManager, audioManager, inputManager, persistenceManager) {
@@ -34,7 +43,14 @@ export class Emulator {
         this.audioManager = audioManager;
         this.inputManager = inputManager;
         this.persistenceManager = persistenceManager;
-        this.persistenceManager.loadConfiguration();
+    }
+
+    init(config) {
+        this.writeConfiguration(config);
+        if (config.storage) this.setStorage(config.storage);
+        if (config.loadOnStart) this.loadConfiguration();
+        if (config.saveOnClose) this.setSaveOnClose(true);
+        if (config.savePeriod) this.setSavePeriod(config.savePeriod);
     }
 
     //=========================================================
@@ -46,13 +62,6 @@ export class Emulator {
         this.videoManager.setDefaults();
         this.audioManager.setDefaults();
         this.inputManager.setDefaults();
-        this.persistenceManager.setDefaults();
-    }
-
-    ["putDependency"](name, dependency) {
-        logger.info(`Putting dependency '${name}'.`);
-        var proxy = this.injector.get(name);
-        proxy.set && proxy.set(dependency);
     }
 
     //=========================================================
@@ -271,16 +280,20 @@ export class Emulator {
     // Persistence API
     //=========================================================
 
-    ["setPersistenceDefaults"]() {
-        this.persistenceManager.setDefaults();
-    }
-
     ["setStorage"](storage) {
         this.persistenceManager.setStorage(storage);
     }
 
     ["getStorage"]() {
         this.persistenceManager.getStorage();
+    }
+
+    ["setSaveOnClose"](enabled) {
+        this.persistenceManager.setSaveOnClose(enabled);
+    }
+
+    ["isSaveOnClose"]() {
+        return this.persistenceManager.isSaveOnClose();
     }
 
     ["setSavePeriod"](period) {
@@ -307,12 +320,12 @@ export class Emulator {
         this.persistenceManager.saveConfiguration();
     }
 
-    ["setConfiguration"](config) {
-        this.persistenceManager.setConfiguration(config);
+    ["readConfiguration"]() {
+        return this.persistenceManager.readConfiguration();
     }
 
-    ["getConfiguration"]() {
-        return this.persistenceManager.getConfiguration();
+    ["writeConfiguration"](config) {
+        this.persistenceManager.writeConfiguration(config);
     }
 
 }
@@ -322,11 +335,11 @@ export class Emulator {
 //=========================================================
 
 if (typeof define === "function" && define["amd"]) {
-    define("CFxNES", () => Emulator);
+    define("CFxNES", () => CFxNES);
 }
 else if (typeof module !== "undefined" && module["exports"]) {
-    module["exports"] = Emulator;
+    module["exports"] = CFxNES;
 }
 else {
-    this["CFxNES"] = Emulator;
+    this["CFxNES"] = CFxNES;
 }

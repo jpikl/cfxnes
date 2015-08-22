@@ -7,35 +7,29 @@ import { logger } from "../../core/utils/logger";
 export class PersistenceManager {
 
     constructor() {
-        this.dependencies = ["nes", "storageFactory", "videoManager", "audioManager", "inputManager", "executionManager"];
+        this.dependencies = ["nes", "storageFactory", "executionManager", "videoManager", "audioManager", "inputManager"];
+        this.saveOnClose = false;
+        this.saveAll = () => {
+            this.saveCartridgeData();
+            this.saveConfiguration();
+        }
     }
 
-    inject(nes,  storageFactory, videoManager, audioManager, inputManager, executionManager) {
+    inject(nes,  storageFactory, executionManager, videoManager, audioManager, inputManager) {
         this.nes = nes;
         this.storageFactory = storageFactory;
+        this.executionManager = executionManager;
         this.videoManager = videoManager;
         this.audioManager = audioManager;
         this.inputManager = inputManager;
-        this.executionManager = executionManager;
         this.setStorage();
-        this.setDefaults();
-        this.initListeners();
-    }
-
-    setDefaults() {
-        logger.info("Using default persistence configuration");
-        this.setSavePeriod();
-    }
-
-    initListeners() {
-        window.addEventListener("beforeunload", () => this.saveAll());
     }
 
     //=========================================================
     // Storage
     //=========================================================
 
-    setStorage(implementor = "local") {
+    setStorage(implementor = "memory") {
         var id = this.storageFactory.getStorageId(implementor);
         logger.info(`Using '${id}' storage`);
         this.storage = this.storageFactory.createStorage(id, implementor);
@@ -46,12 +40,35 @@ export class PersistenceManager {
         return this.storageImplementor;
     }
 
+
     //=========================================================
-    // Periodical save
+    // Save on close
     //=========================================================
 
-    setSavePeriod(period = 60) {
+    setSaveOnClose(enabled) {
+        if (this.saveOnClose !== enabled) {
+            this.saveOnClose = enabled;
+            if (enabled) {
+                logger.info("Enabling save on close");
+                window.addEventListener("beforeunload", this.saveAll);
+            } else {
+                logger.info("Disabling save on close");
+                window.removeEventListener("beforeunload", this.saveAll);
+            }
+        }
+    }
+
+    isSaveOnClose() {
+        return this.saveOnClose;
+    }
+
+    //=========================================================
+    // Periodic save
+    //=========================================================
+
+    setSavePeriod(period) {
         if (this.savePeriod !== period) {
+            this.savePeriod = period;
             if (this.saveId) {
                 logger.info("Disabling periodic save");
                 clearInterval(this.saveId);
@@ -59,18 +76,13 @@ export class PersistenceManager {
             }
             if (period) {
                 logger.info("Enabling periodic save with period " + period + " s");
-                this.saveId = setInterval(() => this.saveAll(), 1000 * period);
+                this.saveId = setInterval(this.saveAll, 1000 * period);
             }
         }
     }
 
     getSavePeriod() {
         return this.savePeriod;
-    }
-
-    saveAll() {
-        this.saveCartridgeData();
-        this.saveConfiguration();
     }
 
     //=========================================================
@@ -97,52 +109,32 @@ export class PersistenceManager {
     //=========================================================
 
     loadConfiguration() {
+        logger.info("Loading configuration");
         var config = this.storage.readObject("config");
         if (config) {
-            logger.info("Loading configuration");
-            this.setConfiguration(config);
+            this.writeConfiguration(config);
         }
     }
 
     saveConfiguration() {
         logger.info("Saving configuration");
-        this.storage.writeObject("config", this.getConfiguration());
+        this.storage.writeObject("config", this.readConfiguration());
     }
 
-    //=========================================================
-    // Configuration reading / writing
-    //=========================================================
-
-    setConfiguration(config) {
-        this.videoManager.setConfiguration(config["video"]);
-        this.audioManager.setConfiguration(config["audio"]);
-        this.inputManager.setConfiguration(config["input"]);
-        this.executionManager.setConfiguration(config["execution"]);
-        this.setPersistenceConfiguration(config["persistence"]);
+    readConfiguration() {
+        var config = {};
+        this.executionManager.readConfiguration(config);
+        this.videoManager.readConfiguration(config);
+        this.audioManager.readConfiguration(config);
+        this.inputManager.readConfiguration(config);
+        return config;
     }
 
-    setPersistenceConfiguration(config) {
-        if (config) {
-            logger.info("Setting persistence manager configuration");
-            this.setSavePeriod(config["savePeriod"]);
-        }
-    }
-
-    getConfiguration() {
-        return {
-            "video":       this.videoManager.getConfiguration(),
-            "audio":       this.audioManager.getConfiguration(),
-            "input":       this.inputManager.getConfiguration(),
-            "execution":   this.executionManager.getConfiguration(),
-            "persistence": this.getPersistenceConfiguration()
-        };
-    }
-
-    getPersistenceConfiguration() {
-        logger.info("Getting persistence manager configuration");
-        return {
-            "savePeriod": this.getSavePeriod()
-        };
+    writeConfiguration(config) {
+        this.executionManager.writeConfiguration(config);
+        this.videoManager.writeConfiguration(config);
+        this.audioManager.writeConfiguration(config);
+        this.inputManager.writeConfiguration(config);
     }
 
 }

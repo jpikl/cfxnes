@@ -22,8 +22,8 @@ export class VideoManager {
     }
 
     initListeners() {
-        if (this.screenfull.available()) {
-            document.addEventListener(this.screenfull().raw.fullscreenchange, () => this.onFullscreenChange());
+        if (this.screenfull) {
+            document.addEventListener(this.screenfull.raw.fullscreenchange, () => this.onFullscreenChange());
         }
     }
 
@@ -216,16 +216,18 @@ export class VideoManager {
     }
 
     enterFullScreen() {
-        if (this.screenfull().enabled && !this.isFullScreen()) {
+        this.checkScreenfullAvailable();
+        if (this.screenfull.enabled && !this.isFullScreen()) {
             logger.info("Entering fullscreen");
-            this.screenfull().request(this.canvas);
+            this.screenfull.request(this.canvas);
         }
     }
 
     leaveFullScreen() {
-        if (this.screenfull().enabled && this.isFullScreen()) {
+        this.checkScreenfullAvailable();
+        if (this.screenfull.enabled && this.isFullScreen()) {
             logger.info("Leaving fullscreen");
-            this.screenfull().exit();
+            this.screenfull.exit();
         }
     }
 
@@ -241,34 +243,36 @@ export class VideoManager {
     }
 
     isFullScreen() {
-        return this.screenfull.available() && this.screenfull().isFullscreen;
+        return this.screenfull && this.screenfull.isFullscreen;
     }
 
-    //=========================================================
-    // Configuration reading / writing
-    //=========================================================
-
-    getConfiguration() {
-        logger.info("Getting video manager configuration");
-        return {
-            "debugging": this.isDebugging(),
-            "smoothing": this.isSmoothing(),
-            "scale":     this.getScale(),
-            "palette":   this.getPalette(),
-            "renderer":  this.getRenderer()
+    checkScreenfullAvailable() {
+        if (this.screenfull == null) {
+            throw new Error("Unable to switch fullscreen: screenfull library is not available.");
         }
     }
 
-    setConfiguration(config) {
-        if (config) {
-            logger.info("Setting video manager configuration");
-            this.setDebugging(config["debugging"]);
-            this.setSmoothing(config["smoothing"]);
-            this.setScale(config["scale"]);
-            this.setPalette(config["palette"]);
-            this.setRenderer(config["renderer"]);
-        }
+    //=========================================================
+    // Configuration
+    //=========================================================
+
+    readConfiguration(config) {
+        logger.info("Reading video configuration");
+        config["videoDebugging"] = this.isDebugging();
+        config["videoSmoothing"] = this.isSmoothing();
+        config["videoScale"] = this.getScale();
+        config["videoPalette"] = this.getPalette();
+        config["videoRenderer"] = this.getRenderer();
+
     }
 
+    writeConfiguration(config) {
+        logger.info("Writing video configuration");
+        if (config["videoDebugging"] !== undefined) this.setDebugging(config["videoDebugging"]);
+        if (config["videoSmoothing"] !== undefined) this.setSmoothing(config["videoSmoothing"]);
+        if (config["videoScale"] !== undefined) this.setScale(config["videoScale"]);
+        if (config["videoPalette"] !== undefined) this.setPalette(config["videoPalette"]);
+        if (config["videoRenderer"] !== undefined) this.setRenderer(config["videoRenderer"]);
+    }
 
 }

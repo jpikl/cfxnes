@@ -118,7 +118,7 @@ export class AbstractMapper {
 
     loadPRGRAM(storage) {
         if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-            if (this.hash.available()) {
+            if (this.hash) {
                 storage.readData(this.getPRGRAMKey(), this.prgRAM);
             } else {
                 logger.warn("Unable to load PRGRAM: hash function is not available.");
@@ -128,7 +128,7 @@ export class AbstractMapper {
 
     savePRGRAM(storage) {
         if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-            if (this.hash.available()) {
+            if (this.hash) {
                 var data = this.prgRAM.subarray(0, this.prgRAMSizeBattery);
                 storage.writeData(this.getPRGRAMKey(), data);
             } else {
@@ -206,7 +206,7 @@ export class AbstractMapper {
 
     loadCHRRAM(storage) {
         if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-            if (this.hash.available()) {
+            if (this.hash) {
                 storage.readData(this.getCHRRAMKey(), this.chrRAM);
             } else {
                 logger.warn("Unable to load CHRRAM: hash function is not available.");
@@ -216,7 +216,7 @@ export class AbstractMapper {
 
     saveCHRRAM(storage) {
         if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-            if (this.hash.available()) {
+            if (this.hash) {
                 var data = this.chrRAM.subarray(0, this.chrRAMSizeBattery);
                 storage.writeData(this.getCHRRAMKey(), data);
             } else {

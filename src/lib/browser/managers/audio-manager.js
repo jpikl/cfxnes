@@ -148,27 +148,21 @@ export class AudioManager {
     }
 
     //=========================================================
-    // Configuration reading / writing
+    // Configuration
     //=========================================================
 
-    getConfiguration() {
-        logger.info("Getting audio manager configuration");
-        return {
-            "enabled":  this.isEnabled(),
-            "volume":   this.getVolume(),
-            "channels": arrayToProperties(channels, this.isChannelEnabled, this)
-        }
+    readConfiguration(config) {
+        logger.info("Reading audio configuration");
+        config["audioEnabled"] = this.isEnabled();
+        config["audioVolume"] = this.getVolume();
+        config["audioChannels"] = arrayToProperties(channels, this.isChannelEnabled, this);
     }
 
-    setConfiguration(config) {
-        if (config) {
-            logger.info("Setting audio manager configuration");
-            this.setEnabled(config["enabled"]);
-            this.setVolume(config["volume"]);
-            if (config["channels"]) {
-                forEeachProperty(config["channels"], this.setChannelEnabled, this);
-            }
-        }
+    writeConfiguration(config) {
+        logger.info("Writing audio configuration");
+        if (config["audioEnabled"] !== undefined) this.setEnabled(config["audioEnabled"]);
+        if (config["audioVolume"] !== undefined) this.setVolume(config["audioVolume"]);
+        if (config["audioChannels"] !== undefined) forEeachProperty(config["audioChannels"], this.setChannelEnabled, this);
     }
 
 }
