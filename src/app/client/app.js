@@ -1,4 +1,10 @@
 //=========================================================
+// Polyfills
+//=========================================================
+
+Promise = Promise || require("promise-polyfill");
+
+//=========================================================
 // CFxNES setup
 //=========================================================
 
@@ -60,6 +66,19 @@ eachTag = function(tags, callback) {
             tags.forEach(callback);
         }
     }
+}
+
+getErrorMessage = function(error) {
+    if (error.message) {
+        return "Error: " + error.message; // Error object
+    }
+    if (error.status) {
+        return "Error: Unable to download file (server response: " + error.status + " " + error.statusText + ")."; // JQuery response
+    }
+    if (error.status === 0) {
+        return "Error: Unable to connect to server."; // JQuery response
+    }
+    return error;
 }
 
 //=========================================================

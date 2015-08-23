@@ -37,19 +37,24 @@ Supported image formats are *JPG*, *PNG* and *GIF*.
 CFxNES can be used as a JS library to run NES games on your website.
 The source code below provides a minimal example how to setup and run emulator.
 
+The library requires browser that supports [Promises](https://promisesaplus.com/).
+You can use [polyfill](https://www.promisejs.org/polyfills/promise-7.0.1.min.js)
+to make it working in Internet Explorer, Firefox (< 29) or Chrome (< 32).
+
 ``` html
 <!DOCTYPE html>
 <html>
 <head>
     <title>CFxNES</title>
+    <script type="text/javascript" src="//www.promisejs.org/polyfills/promise-7.0.1.min.js"></script>
     <script type="text/javascript" src="cfxnes.js"></script>
     <script type="text/javascript">
         window.onload = function() {
             var cfxnes = new CFxNES;
             cfxnes.setVideoOutput(document.getElementById("canvas"));
-            cfxnes.downloadCartridge("game.nes", function() {
+            cfxnes.downloadCartridge("game.nes").then(function() {
                 cfxnes.start(); // Success, run the game.
-            }, function(error) {
+            }).catch(function(error) {
                 alert(error);
             });
         };

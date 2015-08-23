@@ -54,24 +54,18 @@
         }
 
         function downloadCartridge(gameId) {
-            beforeLoad();
-            var url = "/roms/" + gameId;
-            $.get(url).done(function(data) {
-                cfxnes.downloadCartridge(data.fileURL, onLoad.bind(null, gameId), onError);
-            }).fail(function(response) {
-                onError("Unable to download '" + url + "' (server response: " + response.status + ").");
-            });
+            emulatorOutput.showLoading();
+            messagePanel.hide();
+            cfxnes.removeCartridge().then(function() {
+                stopEmulator();
+                return Promise.resolve($.get("/roms/" + gameId));
+            }).then(function(data) {
+                return cfxnes.downloadCartridge(data.fileURL);
+            }).then(onLoad.bind(null, gameId), onError);
         }
 
         function loadCartridge(file) {
-            cfxnes.loadCartridge(file, onLoad, onError);
-        }
-
-        function beforeLoad() {
-            emulatorOutput.showLoading();
-            messagePanel.hide();
-            cfxnes.removeCartridge();
-            stopEmulator();
+            cfxnes.loadCartridge(file).then(onLoad, onError);
         }
 
         function onLoad(gameId) {
@@ -83,7 +77,7 @@
 
         function onError(error) {
             emulatorOutput.hideLoading();
-            messagePanel.showError(error);
+            messagePanel.showError(getErrorMessage(error));
         }
     </script>
 </emulator-view>

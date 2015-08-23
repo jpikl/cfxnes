@@ -79,16 +79,22 @@ export class NES {
 
     loadCartridgeData(storage) {
         if (this.mapper) {
-            this.mapper.loadPRGRAM(storage);
-            this.mapper.loadCHRRAM(storage);
+            return Promise.all([
+                this.mapper.loadPRGRAM(storage),
+                this.mapper.loadCHRRAM(storage)
+            ]);
         }
+        return Promise.resolve();
     }
 
     saveCartridgeData(storage) {
         if (this.mapper) {
-            this.mapper.savePRGRAM(storage);
-            this.mapper.saveCHRRAM(storage);
+            return Promise.all([
+                this.mapper.savePRGRAM(storage),
+                this.mapper.saveCHRRAM(storage)
+            ]);
         }
+        return Promise.resolve();
     }
 
     //=========================================================

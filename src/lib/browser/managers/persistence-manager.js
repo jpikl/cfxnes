@@ -10,8 +10,12 @@ export class PersistenceManager {
         this.dependencies = ["nes", "storageFactory", "executionManager", "videoManager", "audioManager", "inputManager"];
         this.saveOnClose = false;
         this.saveAll = () => {
-            this.saveCartridgeData();
-            this.saveConfiguration();
+            Promise.all([
+                this.saveCartridgeData(),
+                this.saveConfiguration()
+            ]).catch(error => {
+                logger.error(error);
+            });
         }
     }
 
@@ -93,15 +97,17 @@ export class PersistenceManager {
     loadCartridgeData() {
         if (this.nes.isCartridgeInserted()) {
             logger.info("Loading cartridge data");
-            this.nes.loadCartridgeData(this.storage);
+            return this.nes.loadCartridgeData(this.storage);
         }
+        return Promise.resolve();
     }
 
     saveCartridgeData() {
         if (this.nes.isCartridgeInserted()) {
             logger.info("Saving cartridge data");
-            this.nes.saveCartridgeData(this.storage);
+            return this.nes.saveCartridgeData(this.storage);
         }
+        return Promise.resolve();
     }
 
     //=========================================================
@@ -110,15 +116,21 @@ export class PersistenceManager {
 
     loadConfiguration() {
         logger.info("Loading configuration");
-        var config = this.storage.readObject("config");
-        if (config) {
-            this.writeConfiguration(config);
-        }
+        return this.storage.readObject("config").then(config => {
+            return new Promise((resolve, reject) => {
+                if (config) {
+                    this.writeConfiguration(config);
+                }
+                resolve();
+            });
+        })
     }
 
     saveConfiguration() {
         logger.info("Saving configuration");
-        this.storage.writeObject("config", this.readConfiguration());
+        return new Promise((resolve, reject) => {
+            this.storage.writeObject("config", this.readConfiguration()).then(resolve, reject);
+        });
     }
 
     readConfiguration() {

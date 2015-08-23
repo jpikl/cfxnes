@@ -48,7 +48,7 @@
                 }
             }).fail(function(response) {
                 self.games = [];
-                messagePanel.showError("Unable to download game list (server response: " + response.status + ").");
+                messagePanel.showError(getErrorMessage(response));
             }).always(function() {
                 self.update();
             });

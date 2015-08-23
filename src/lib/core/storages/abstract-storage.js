@@ -1,6 +1,5 @@
 import { stringToData, dataToString,
          stringToObject, objectToString } from "../utils/convert";
-import { logger }                         from "../utils/logger";
 
 //=========================================================
 // Base class of storages
@@ -9,42 +8,37 @@ import { logger }                         from "../utils/logger";
 export class AbstractStorage {
 
     readString(key) {
-        return this.read(key) || null;
+        return this.read(key).then(value => {
+            return Promise.resolve(value || null);
+        });
     }
 
     writeString(key, value) {
-        this.write(key, value);
+        return this.write(key, value);
     }
 
     readData(key, output) {
-        var value = this.read(key);
-        if (value != null) {
-            return stringToData(value, output);
-        } else {
-            return null;
-        }
+        return this.read(key).then(value => {
+            return Promise.resolve(value != null ? stringToData(value, output) : null);
+        });
     }
 
     writeData(key, value) {
-        this.write(key, dataToString(value));
+        return new Promise((resolve, reject) => {
+            this.write(key, dataToString(value)).then(resolve, reject);
+        });
     }
 
     readObject(key) {
-        var value = this.read(key);
-        try {
-            if (value != null) {
-                return stringToObject(value);
-            } else {
-                return null;
-            }
-        } catch (error) {
-            logger.error(`Unable to parse object from string: ${value}`);
-            return null;
-        }
+        return this.read(key).then(value => {
+            return Promise.resolve(value != null ? stringToObject(value) : null);
+        });
     }
 
     writeObject(key, value) {
-        this.write(key, objectToString(value));
+        return new Promise((resolve, reject) => {
+            this.write(key, objectToString(value)).then(resolve, reject);
+        });
     }
 
 }

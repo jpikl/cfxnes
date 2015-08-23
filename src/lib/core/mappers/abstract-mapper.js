@@ -119,29 +119,36 @@ export class AbstractMapper {
     loadPRGRAM(storage) {
         if (this.hasPRGRAM && this.hasPRGRAMBattery) {
             if (this.hash) {
-                storage.readData(this.getPRGRAMKey(), this.prgRAM);
+                return this.getPRGRAMKey().then(key => {
+                    return storage.readData(key, this.prgRAM)
+                });
             } else {
                 logger.warn("Unable to load PRGRAM: hash function is not available.");
             }
         }
+        return Promise.resolve();
     }
 
     savePRGRAM(storage) {
         if (this.hasPRGRAM && this.hasPRGRAMBattery) {
             if (this.hash) {
-                var data = this.prgRAM.subarray(0, this.prgRAMSizeBattery);
-                storage.writeData(this.getPRGRAMKey(), data);
+                return this.getPRGRAMKey().then(key => {
+                    return storage.writeData(key, this.prgRAM.subarray(0, this.prgRAMSizeBattery));
+                });
             } else {
                 logger.warn("Unable to save PRGRAM: hash function is not available.");
             }
         }
+        return Promise.resolve();
     }
 
     getPRGRAMKey() {
-        if (this.prgRAMKey == null) {
-            this.prgRAMKey = this.hash(this.prgROM) + "/PRGRAM";
-        }
-        return this.prgRAMKey;
+        return new Promise((resolve, reject) => {
+            if (this.prgRAMKey == null) {
+                this.prgRAMKey = this.hash(this.prgROM) + "/PRGRAM";
+            }
+            resolve(this.prgRAMKey);
+        });
     }
 
     mapPRGRAMBank8K(srcBank, dstBank) {
@@ -207,29 +214,36 @@ export class AbstractMapper {
     loadCHRRAM(storage) {
         if (this.hasCHRRAM && this.hasCHRRAMBattery) {
             if (this.hash) {
-                storage.readData(this.getCHRRAMKey(), this.chrRAM);
+                return this.getCHRRAMKey().then(key => {
+                    return storage.readData(key, this.chrRAM);
+                });
             } else {
                 logger.warn("Unable to load CHRRAM: hash function is not available.");
             }
         }
+        return Promise.resolve();
     }
 
     saveCHRRAM(storage) {
         if (this.hasCHRRAM && this.hasCHRRAMBattery) {
             if (this.hash) {
-                var data = this.chrRAM.subarray(0, this.chrRAMSizeBattery);
-                storage.writeData(this.getCHRRAMKey(), data);
+                return this.getCHRRAMKey().then(key => {
+                    return storage.writeData(key, this.chrRAM.subarray(0, this.chrRAMSizeBattery));
+                });
             } else {
                 logger.warn("Unable to save CHRRAM: hash function is not available.");
             }
         }
+        return Promise.resolve();
     }
 
     getCHRRAMKey() {
-        if (this.chrRAMKey == null) {
-            this.chrRAMKey = this.hash(this.prgROM) + "/CHRRAM";
-        }
-        return this.chrRAMKey;
+        return new Promise((resolve, reject) => {
+            if (this.chrRAMKey == null) {
+                this.chrRAMKey = this.hash(this.prgROM) + "/CHRRAM";
+            }
+            resolve(this.chrRAMKey);
+        });
     }
 
     mapCHRRAMBank8K(srcBank, dstBank) {

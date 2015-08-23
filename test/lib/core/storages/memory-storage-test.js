@@ -3,8 +3,10 @@
 //=============================================================================
 
 import chai              from "chai"
+import chaiAsPromised    from "chai-as-promised";
 import { MemoryStorage } from "../../../../src/lib/core/storages/memory-storage"
 
+chai.use(chaiAsPromised);
 var expect = chai.expect;
 
 describe("MemoryStorage", () => {
@@ -16,14 +18,17 @@ describe("MemoryStorage", () => {
     });
 
     it("should return null for nonexistent keys", () => {
-        expect(storage.readString("key")).to.be.null;
-        expect(storage.readData("key")).to.be.null;
-        expect(storage.readObject("key")).to.be.null;
+        return Promise.all([
+            expect(storage.readString("key")).to.eventually.be.null,
+            expect(storage.readData("key")).to.eventually.be.null,
+            expect(storage.readObject("key")).to.eventually.be.null,
+        ]);
     });
 
     it("should read/write strings", () => {
-        storage.writeString("key", "value");
-        expect(storage.readString("key")).to.equal("value");
+        return storage.writeString("key", "value").then(() => {
+            return expect(storage.readString("key")).to.eventually.equal("value");
+        });
     });
 
     it("should read/write data", () => {
@@ -31,8 +36,9 @@ describe("MemoryStorage", () => {
         for (var i = 0; i < data.length; i++) {
             data[i] = i % 256;
         }
-        storage.writeData("key", data);
-        expect(storage.readData("key")).to.deep.equal(data);
+        return storage.writeData("key", data).then(() => {
+            return expect(storage.readData("key")).to.eventually.deep.equal(data);
+        });
     });
 
     it("should read/write objects", () => {
@@ -44,15 +50,21 @@ describe("MemoryStorage", () => {
                 string: "value"
             }
         };
-        storage.writeObject("key", object);
-        expect(storage.readObject("key")).to.deep.equal(object);
+        return storage.writeObject("key", object).then(() => {
+            return expect(storage.readObject("key")).to.eventually.deep.equal(object);
+        });
     });
 
     it("should handle different keys", () => {
-        storage.writeString("a", "A");
-        storage.writeString("b", "B");
-        expect(storage.readString("a")).to.equal("A");
-        expect(storage.readString("b")).to.equal("B");
+        return Promise.all([
+            storage.writeString("a", "A"),
+            storage.writeString("b", "B")
+        ]).then(() => {
+            return Promise.all([
+                expect(storage.readString("a")).to.eventually.equal("A"),
+                expect(storage.readString("b")).to.eventually.equal("B")
+            ]);
+        });
     });
 
 });

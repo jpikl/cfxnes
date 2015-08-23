@@ -16,7 +16,7 @@ export class ExternalStorage extends AbstractStorage {
     }
 
     write(key, value) {
-        this.callback["write"](key, value);
+        return this.callback["write"](key, value);
     }
 
 }

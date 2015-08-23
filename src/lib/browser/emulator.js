@@ -55,9 +55,10 @@ export class CFxNES {
     init(config) {
         this["writeConfiguration"](config);
         if (config["storage"]) this["setStorage"](config["storage"]);
-        if (config["loadOnStart"]) this["loadConfiguration"]();
-        if (config["saveOnClose"]) this["setSaveOnClose"](true);
-        if (config["savePeriod"]) this["setSavePeriod"](config["savePeriod"]);
+        (config["loadOnStart"] ? this["loadConfiguration"]() : Promise.resolved()).then(() => {
+            if (config["saveOnClose"]) this["setSaveOnClose"](true);
+            if (config["savePeriod"]) this["setSavePeriod"](config["savePeriod"]);
+        });
     }
 
     //=========================================================
@@ -132,23 +133,23 @@ export class CFxNES {
     //=========================================================
 
     ["loadCartridge"](file, onLoad, onError) {
-        this.cartridgeManager.loadCartridge(file, onLoad, onError);
+        return this.cartridgeManager.loadCartridge(file, onLoad, onError);
     }
 
     ["downloadCartridge"](url, onLoad, onError) {
-        this.cartridgeManager.downloadCartridge(url, onLoad, onError);
+        return this.cartridgeManager.downloadCartridge(url, onLoad, onError);
     }
 
     ["insertCartridge"](arrayBuffer) {
-        this.cartridgeManager.insertCartridge(arrayBuffer);
+        return this.cartridgeManager.insertCartridge(arrayBuffer);
+    }
+
+    ["removeCartridge"]() {
+        return this.cartridgeManager.removeCartridge();
     }
 
     ["isCartridgeInserted"]() {
         return this.cartridgeManager.isCartridgeInserted();
-    }
-
-    ["removeCartridge"]() {
-        this.cartridgeManager.removeCartridge();
     }
 
     //=========================================================
@@ -312,19 +313,19 @@ export class CFxNES {
     }
 
     ["loadCartridgeData"]() {
-        this.persistenceManager.loadCartridgeData();
+        return this.persistenceManager.loadCartridgeData();
     }
 
     ["saveCartridgeData"]() {
-        this.persistenceManager.saveCartridgeData();
+        return this.persistenceManager.saveCartridgeData();
     }
 
     ["loadConfiguration"]() {
-        this.persistenceManager.loadConfiguration();
+        return this.persistenceManager.loadConfiguration();
     }
 
     ["saveConfiguration"]() {
-        this.persistenceManager.saveConfiguration();
+        return this.persistenceManager.saveConfiguration();
     }
 
     ["readConfiguration"]() {

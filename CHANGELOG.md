@@ -12,6 +12,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - API to change loggging level.
 
+### Changed
+- API uses Promises for asynchronous operations.
+
 ## [0.3.0] - 2015-08-09
 ### Fixed
 - Mouse cursor detection for zapper.

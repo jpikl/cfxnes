@@ -2,7 +2,6 @@ import { logger }     from "../../core/utils/logger";
 import { formatSize } from "../../core/utils/format";
 
 const FILE_SIZE_LIMIT = 10 * 1024 * 1024; // 10 MB
-const UNKNOWN_ERROR = "Unknown error";
 
 //=========================================================
 // Cartridge manager
@@ -27,85 +26,79 @@ export class CartridgeManager {
 
     loadCartridge(file, onLoad, onError) {
         logger.info("Loding cartridge from file");
-        if (file.size > FILE_SIZE_LIMIT) {
-            onError && onError(`Input file is too large (${formatSize(file.size)}).`);
-            return;
-        }
-        var reader = new FileReader;
-        reader.onload = event => {
-            var data = event.target.result;
-            var error = this.tryInsertCartridge(data);
-            if (error) {
-                onError && onError(error);
-            } else {
-                onLoad && onLoad();
+        return new Promise((resolve, reject) => {
+            if (file.size > FILE_SIZE_LIMIT) {
+                reject(new Error(`Input file is too large (${formatSize(file.size)}).`));
+                return;
             }
-        }
-        reader.onerror = event => {
-            onError && onError(event.target.error || UNKNOWN_ERROR);
-        }
-        try {
+            var reader = new FileReader;
+            reader.onload = event => {
+                this.insertCartridge(event.target.result).then(resolve, reject);
+            }
+            reader.onerror = event => {
+                reject(new Error(event.target.error || "Unknown error"));
+            }
             reader.readAsArrayBuffer(file);
-        } catch (error) {
-            onError && onError(error && error.message || UNKNOWN_ERROR);
-        }
+        });
     }
 
     downloadCartridge(url, onLoad, onError) {
         logger.info(`Downloading cartridge from '${url}'`);
-        var request = new XMLHttpRequest;
-        request.open("GET", url, true);
-        request.responseType = "arraybuffer";
-        request.onload = () => {
-            var error;
-            if (request.status === 200) {
-                error = this.tryInsertCartridge(request.response);
-            } else {
-                error = `Unable to download '${url}' (server response: ${request.status}).`;
+        return new Promise((resolve, reject) => {
+            var request = new XMLHttpRequest;
+            request.open("GET", url, true);
+            request.responseType = "arraybuffer";
+            request.onload = () => {
+                if (request.status === 200) {
+                    this.insertCartridge(request.response).then(resolve, reject);
+                } else if (request.status === 0) {
+                    reject(new Error("Unable to connect to server."));
+                } else {
+                    reject(new Error(`Unable to download file (server response: ${request.status} ${request.statusText}).`));
+                }
             }
-            if (error) {
-                onError && onError(error);
-            } else {
-                onLoad && onLoad();
+            request.onerror = () => {
+                reject(new Error("Unable to connect to server."));
             }
-        }
-        request.onerror = () => {
-            onError && onError(`Unable to download '${url}'.`);
-        }
-        request.send();
+            request.send();
+        });
     }
 
     //=========================================================
     // Cartridge processing
     //=========================================================
 
-    tryInsertCartridge(arrayBuffer) {
-        try {
-            this.insertCartridge(arrayBuffer);
-            return null;
-        } catch (error) {
-            logger.error(error);
-            return error.message || UNKNOWN_ERROR;
-        }
+    insertCartridge(arrayBuffer) {
+        return new Promise((resolve, reject) => {
+            var cartridge = this.cartridgeFactory.fromArrayBuffer(arrayBuffer);
+            this.removeCartridge().then(() => {
+                logger.info("Inserting cartridge");
+                this.nes.insertCartridge(cartridge);
+                return this.persistenceManager.loadCartridgeData();
+            }).then(() => {
+                if (this.executionManager.isRunning()) {
+                    this.executionManager.restart();
+                }
+                resolve();
+            }).catch(reject);
+        });
     }
 
-    insertCartridge(arrayBuffer) {
-        logger.info("Inserting cartridge");
-        var cartridge = this.cartridgeFactory.fromArrayBuffer(arrayBuffer);
-        this.persistenceManager.saveCartridgeData();
-        this.nes.insertCartridge(cartridge);
-        this.persistenceManager.loadCartridgeData();
-        if (this.executionManager.isRunning()) {
-            this.executionManager.restart();
+    removeCartridge() {
+        if (this.isCartridgeInserted()) {
+            return new Promise((resolve, reject) => {
+                this.persistenceManager.saveCartridgeData().then(() => {
+                    logger.info("Removing cartridge");
+                    this.nes.removeCartridge();
+                    resolve();
+                }).catch(reject);
+            });
         }
+        return Promise.resolve();
     }
 
     isCartridgeInserted() {
         return this.nes.isCartridgeInserted();
-    }
-
-    removeCartridge() {
-        this.nes.removeCartridge();
     }
 
 }
