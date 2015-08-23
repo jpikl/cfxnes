@@ -17,7 +17,6 @@ import * as mmc3_test     from "./mmc3_test/mmc3_test"
 import coreConfig         from "../../src/lib/core/config"
 import { dataToString }   from "../../src/lib/core/utils/convert"
 import { Injector }       from "../../src/lib/core/utils/inject"
-import { Logger }         from "../../src/lib/core/utils/logger"
 import { copyProperties } from "../../src/lib/core/utils/objects"
 
 describe("Validation ROMs", () => {
@@ -59,6 +58,10 @@ function execute(test, file) {
             this.assert(false, message);
         },
 
+        get(dependency) {
+            return injector.get(dependency);
+        },
+
         power() {
             nes.pressPower();
         },
@@ -93,14 +96,6 @@ function execute(test, file) {
             return fs.readFileSync(file, "utf8");
         },
 
-        openLog(id, file) {
-            Logger.get(id).attach(Logger.toFile(file));
-        },
-
-        closeLog(id) {
-            Logger.get(id).close();
-        },
-
         blargg() {
             // Test code for all Blargg's test ROMs
             const RESULT_ADDRESS = 0x6000;
@@ -117,7 +112,7 @@ function execute(test, file) {
                 this.step(); // Wait while test is in progress
             }
             if (result === RESULT_RESET) {
-                this.step(200000); // Reset needs to be done after at least 100 msec (~122880 cpu ticks)
+                this.step(200000); // Reset needs to be done at least after 100 msec (~122880 cpu ticks)
                 this.reset();
                 while ((result = this.readByte(RESULT_ADDRESS)) !== RESULT_RUNNING) {
                     this.step(); // Wait until test resumes

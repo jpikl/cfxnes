@@ -2,14 +2,17 @@ import { CPU }                            from "../units/cpu";
 import { byteAsHex, wordAsHex, fillLeft } from "../utils/format";
 import { Logger }                         from "../utils/logger";
 
-var basicLogger   = Logger.get("debug-basic");
-var verboseLogger = Logger.get("debug-verbose");
-
 //=========================================================
 // CPU with debugging printouts
 //=========================================================
 
 export class LoggingCPU extends CPU {
+
+    constructor() {
+        super();
+        this.basicLogger = new Logger;
+        this.verboseLogger = new Logger;
+    }
 
     //=========================================================
     // Program execution
@@ -149,10 +152,15 @@ export class LoggingCPU extends CPU {
         ];
     }
 
+    stopLogging() {
+        this.basicLogger.close();
+        this.verboseLogger.close();
+    }
+
     logHeader() {
-        verboseLogger.info("/-------+-------+------+----------+-----+---+-----+------------+---------------------------+-----------------\\");
-        verboseLogger.info("|     # |  Cyc  |  PC  | D0 D1 D2 | OP  | C | AM  | Addr / Val |        Registers          |      Flags      |");
-        verboseLogger.info("|-------|-------|------|----------|-----|---|-----|------------|---------------------------|-----------------|");
+        this.verboseLogger.info("/-------+-------+------+----------+-----+---+-----+------------+---------------------------+-----------------\\");
+        this.verboseLogger.info("|     # |  Cyc  |  PC  | D0 D1 D2 | OP  | C | AM  | Addr / Val |        Registers          |      Flags      |");
+        this.verboseLogger.info("|-------|-------|------|----------|-----|---|-----|------------|---------------------------|-----------------|");
     }
 
     logAddressingMode(name, result) {
@@ -208,8 +216,8 @@ export class LoggingCPU extends CPU {
             verboseResults.push(method.call(this));
         }
 
-        basicLogger.info(basicResults.join("  "));
-        verboseLogger.info(`| ${(verboseResults.join(' | '))} |`);
+        this.basicLogger.info(basicResults.join("  "));
+        this.verboseLogger.info(`| ${(verboseResults.join(' | '))} |`);
     }
 
     //=========================================================

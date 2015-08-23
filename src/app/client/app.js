@@ -4,15 +4,16 @@
 
 var CFxNES = require("cfxnes");
 
-cfxnes = new CFxNES(/*{
+cfxnes = new CFxNES({
     hash: require("js-md5"),
     jszip: require("jszip"),
     screenfull: require("screenfull"),
+    loggingLevel: "all",
     loadOnStart: true,
     saveOnClose: true,
     savePeriod: 60, // sec
     storage: "local"
-}*/);
+});
 
 //=========================================================
 // UI dependencies

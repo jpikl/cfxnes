@@ -10,7 +10,9 @@ import { LoggingCPU }     from "../lib/core/debug/logging-cpu";
 import { NoOutputPPU }    from "../lib/core/debug/no-output-ppu";
 import { numberAsHex }    from "../lib/core/utils/format";
 import { Injector }       from "../lib/core/utils/inject";
-import { Logger }         from "../lib/core/utils/logger";
+import { Logger,
+         LogLevel,
+         LogWriter }      from "../lib/core/utils/logger";
 import { copyProperties } from "../lib/core/utils/objects";
 
 //=========================================================
@@ -44,10 +46,6 @@ var argv = yargs
 // Initialization
 //=========================================================
 
-var loggerId = argv.verbose ? "debug-verbose" : "debug-basic";
-var logger = Logger.get(loggerId);
-var print = console.log;
-
 var config = copyProperties(coreConfig);
 config["cpu"] = {type: "class", value: LoggingCPU};
 config["ppu"] = {type: "class", value: NoOutputPPU};
@@ -56,10 +54,15 @@ var injector = new Injector(config);
 var cartridgeFactory = injector.get("cartridgeFactory");
 var cartridge = cartridgeFactory.fromLocalFile(argv._[0]);
 var nes = injector.get("nes");
+var cpu = injector.get("cpu");
 
-logger.attach(Logger.toConsole());
+var print = console.log;
+var logger = argv.verbose ? cpu.verboseLogger : cpu.basicLogger;
+logger.attach(LogWriter.toConsole());
+
+logger.setLevel(LogLevel.INFO);
 nes.insertCartridge(cartridge);
-logger.detach(Logger.toConsole());
+logger.setLevel(LogLevel.OFF);
 
 //=========================================================
 // Commands
@@ -97,9 +100,9 @@ function jumpCommand(param) {
 }
 
 function stepCommand(param) {
-    logger.attach(Logger.toConsole());
+    logger.setLevel(LogLevel.INFO);
     jumpCommand(param);
-    logger.detach(Logger.toConsole());
+    logger.setLevel(LogLevel.OFF);
 }
 
 function breakCommand(param) {

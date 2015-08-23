@@ -4,9 +4,14 @@
 //=============================================================================
 
 import { LoggingCPU, DisabledAPU, DisabledPPU } from "../units"
+import { LogLevel, LogWriter } from "../../../src/lib/core/utils/logger";
 
 export const name = "nestest";
 export const file = "./test/roms/nestest/nestest.nes";
+
+const BASIC_LOG_FILE    = "./test/roms/nestest/nestest.log";       // This is what we will compare with the verified log
+const VERBOSE_LOG_FILE  = "./test/roms/nestest/nestest-full.log";  // Contains more information for easier debugging
+const VERIFIED_LOG_FILE = "./test/roms/nestest/nintendulator.log"; // Verified log from Nintendulator (modified to match structure of CFxNES log)
 
 export function configure(config) {
     config["cpu"] = {type: "class", value: NestestCPU};
@@ -15,18 +20,8 @@ export function configure(config) {
 }
 
 export function execute(test) {
-    const BASIC_LOG_FILE    = "./test/roms/nestest/nestest.log";       // This is what we will compare with the verified log
-    const VERBOSE_LOG_FILE  = "./test/roms/nestest/nestest-full.log";  // Contains more information for better debugging
-    const VERIFIED_LOG_FILE = "./test/roms/nestest/nintendulator.log"; // Verified log from Nintendulator (modified to match structure of CFxNES log)
-
-    test.openLog("debug-basic", BASIC_LOG_FILE);
-    test.openLog("debug-verbose", VERBOSE_LOG_FILE);
-
-    test.power(); // Just to force printing of the verbose log header
     test.step(8991);
-
-    test.closeLog("debug-basic");
-    test.closeLog("debug-verbose");
+    test.get("cpu").stopLogging();
 
     var basicLog = test.readFile(BASIC_LOG_FILE);
     var verifiedLog = test.readFile(VERIFIED_LOG_FILE);
@@ -42,6 +37,14 @@ export function execute(test) {
 }
 
 class NestestCPU extends LoggingCPU {
+
+    startLogging() {
+        this.basicLogger.setLevel(LogLevel.INFO);
+        this.basicLogger.attach(LogWriter.toFile(BASIC_LOG_FILE));
+        this.verboseLogger.setLevel(LogLevel.INFO);
+        this.verboseLogger.attach(LogWriter.toFile(VERBOSE_LOG_FILE));
+        super.startLogging();
+    }
 
     handleReset() {
         super.handleReset();

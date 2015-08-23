@@ -1,46 +1,53 @@
-var loggers = {};
+//=========================================================
+// Log levels
+//=========================================================
+
+export var LogLevel = {
+    OFF: 1,
+    ERROR: 2,
+    WARN: 3,
+    INFO: 4
+};
 
 //=========================================================
-// Logger object
+// Logger
 //=========================================================
 
 export class Logger {
 
-    constructor(id) {
-        this.id = id;
-        this.writers = null;
+    constructor(level) {
+        this.level = level || LogLevel.OFF;
+        this.writers = [];
     }
 
     attach(writer) {
-        if (!this.writers) {
-            this.writers = [];
+        if (this.writers.indexOf(writer) < 0) {
+            this.writers.push(writer);
         }
-        this.writers.push(writer);
     }
 
     detach(writer) {
-        if (this.writers) {
-            var index = this.writers.indexOf(writer);
-            if (index >= 0) {
-                this.writers.splice(index, 1);
-            }
+        var index = this.writers.indexOf(writer);
+        if (index >= 0) {
+            this.writers.splice(index, 1);
         }
     }
 
     close() {
-        if (this.writers) {
-            for (var writer of this.writers) {
-                if (typeof writer.close === "function") {
-                    writer.close();
-                }
+        for (var writer of this.writers) {
+            if (writer.close) {
+                writer.close();
             }
-            this.writers = null;
         }
-        loggers[this.id] = undefined;
+        this.writers = [];
+    }
+
+    setLevel(level) {
+        this.level = level;
     }
 
     info(message) {
-        if (this.writers) {
+        if (this.level >= LogLevel.INFO) {
             for (var writer of this.writers) {
                 writer.info(message);
             }
@@ -48,7 +55,7 @@ export class Logger {
     }
 
     warn(message) {
-        if (this.writers) {
+        if (this.level >= LogLevel.WARN) {
             for (var writer of this.writers) {
                 writer.warn(message);
             }
@@ -56,7 +63,7 @@ export class Logger {
     }
 
     error(message) {
-        if (this.writers) {
+        if (this.level >= LogLevel.ERROR) {
             if (typeof message === "object" && message.stack && (typeof window === "undefined" || !window || window.chrome)) {
                 message = message.stack; // Fix ugly error output in chrome + fix terminal output
             }
@@ -66,42 +73,30 @@ export class Logger {
         }
     }
 
-    //=========================================================
-    // Factory methods
-    //=========================================================
-
-    static get(id = "default") {
-        if (!loggers[id]) {
-            loggers[id] = new Logger(id);
-        }
-        return loggers[id];
-    }
-
-    static toConsole() {
-        return console;
-    }
-
-    static toFile(filename) {
-        return new FileWriter(filename);
-    }
-
 }
 
 //=========================================================
-// Default logger
+// Log writers
 //=========================================================
 
-export var logger = Logger.get();
+export var LogWriter = {
+    toConsole() {
+        return console;
+    },
+    toFile(path) {
+        return new FileWriter(path);
+    }
+};
 
 //=========================================================
-// File log writer
+// Log writer to file
 //=========================================================
 
 class FileWriter {
 
-    constructor(filename) {
+    constructor(path) {
         this.fs = require("fs");
-        this.fd = this.fs.openSync(filename, "w");
+        this.fd = this.fs.openSync(path, "w");
     }
 
     info(message) {
@@ -125,3 +120,11 @@ class FileWriter {
     }
 
 }
+
+//=========================================================
+// Default logger
+//=========================================================
+
+export var logger = new Logger;
+logger.setLevel(LogLevel.ERROR);
+logger.attach(LogWriter.toConsole());

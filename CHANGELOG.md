@@ -9,6 +9,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - MMC1 mapper imlementation (PRG RAM protection, PRG ROM mapping).
 - MMC3 mapper implementation (PRG RAM protection, CHR ROM mapping).
 
+### Added
+- API to change loggging level.
+
 ## [0.3.0] - 2015-08-09
 ### Fixed
 - Mouse cursor detection for zapper.

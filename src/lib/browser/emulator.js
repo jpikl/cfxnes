@@ -1,11 +1,17 @@
-import baseInjectorConfig from "./config";
-import { channels }       from "./managers/audio-manager";
-import { ports }          from "./managers/input-manager";
-import { Injector }       from "../core/utils/inject";
-import { logger, Logger } from "../core/utils/logger";
-import { copyProperties } from "../core/utils/objects";
+import baseInjectorConfig   from "./config";
+import { channels }         from "./managers/audio-manager";
+import { ports }            from "./managers/input-manager";
+import { Injector }         from "../core/utils/inject";
+import { logger, LogLevel } from "../core/utils/logger";
+import { copyProperties }   from "../core/utils/objects";
 
-logger.attach(Logger.toConsole());
+var logLevelAliases = {
+    "off": LogLevel.OFF,
+    "error": LogLevel.ERROR,
+    "warn": LogLevel.WARN,
+    "info": LogLevel.INFO,
+    "all": LogLevel.INFO
+}
 
 //=========================================================
 // CFxNES API
@@ -22,6 +28,7 @@ export class CFxNES {
             "inputManager",
             "persistenceManager"
         ];
+        logger.setLevel(logLevelAliases[config["loggingLevel"]] || LogLevel.WARN);
         this.bootstrap(config);
         this.init(config);
     }
@@ -46,11 +53,11 @@ export class CFxNES {
     }
 
     init(config) {
-        this.writeConfiguration(config);
-        if (config.storage) this.setStorage(config.storage);
-        if (config.loadOnStart) this.loadConfiguration();
-        if (config.saveOnClose) this.setSaveOnClose(true);
-        if (config.savePeriod) this.setSavePeriod(config.savePeriod);
+        this["writeConfiguration"](config);
+        if (config["storage"]) this["setStorage"](config["storage"]);
+        if (config["loadOnStart"]) this["loadConfiguration"]();
+        if (config["saveOnClose"]) this["setSaveOnClose"](true);
+        if (config["savePeriod"]) this["setSavePeriod"](config["savePeriod"]);
     }
 
     //=========================================================
