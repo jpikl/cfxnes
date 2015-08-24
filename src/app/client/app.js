@@ -2,7 +2,9 @@
 // Polyfills
 //=========================================================
 
-Promise = Promise || require("promise-polyfill");
+if (typeof Promise === "undefined") {
+    Promise = require("promise-polyfill");
+}
 
 //=========================================================
 // CFxNES setup
