@@ -1,4 +1,4 @@
 #!/usr/bin/node
 
-require("babel/register"); // ES6 transpiling
-require("../src/tools/debugger");
+require('babel/register'); // ES6 transpiling
+require('../src/tools/debugger');

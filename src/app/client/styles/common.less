@@ -1,49 +1,49 @@
 .alert {
-    display: block;
+  display: block;
 }
 
 .slider {
-    .slider-selection {
-        background: #3a94a5;
-        opacity: 0.8;
-    }
-    .slider-handle {
-        background: #3a94a5;
-        opacity: 1;
-    }
+  .slider-selection {
+    background: #3a94a5;
+    opacity: 0.8;
+  }
+  .slider-handle {
+    background: #3a94a5;
+    opacity: 1;
+  }
 }
 
 .slider-disabled {
-    .slider-selection {
-        background: gray;
-    }
+  .slider-selection {
+    background: gray;
+  }
 }
 
 .loader {
+  &:before {
+    content: url('../images/loading-light.gif');
+    padding-right: 12px;
+    vertical-align: -50%;
+  }
+  &.inverse {
+    color: white;
     &:before {
-        content: url("../images/loading-light.gif");
-        padding-right: 12px;
-        vertical-align: -50%;
+      content: url('../images/loading-dark.gif');
     }
-    &.inverse {
-        color: white;
-        &:before {
-            content: url("../images/loading-dark.gif");
-        }
-    }
+  }
 }
 
 .disabled,
 .disabled label,
 .slider-disabled .slider-track {
-    cursor: default !important;
-    color: gray;
+  cursor: default !important;
+  color: gray;
 }
 
 :fullscreen {
-    width: 100%;
-    height: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
