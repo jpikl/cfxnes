@@ -39,7 +39,7 @@ The source code below provides a minimal example how to setup and run emulator.
 
 The library requires browser that supports [Promises](https://promisesaplus.com/).
 You can use [polyfill](https://www.promisejs.org/polyfills/promise-7.0.1.min.js)
-to make it working in Internet Explorer, Firefox (< 29) or Chrome (< 32).
+to make it working in Internet Explorer, Firefox (< 29) and Chrome (< 32).
 
 ``` html
 <!DOCTYPE html>
@@ -68,3 +68,9 @@ to make it working in Internet Explorer, Firefox (< 29) or Chrome (< 32).
 
 The `cfxnes.js` can be build with `npm run lib` command.
 The file is generated to the `dist/lib` directory.
+
+
+## Debugger
+
+Use `./bin/debugger` to debug NES ROM images using CFxNES.
+Run the debugger with `-h` flag to see available options.

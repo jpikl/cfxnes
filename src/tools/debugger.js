@@ -71,7 +71,7 @@ function helpCommand() {
   print('s, step  <number> ... Performs specified number of steps (default: 1).');
   print('j, jump  <number> ... Same as "step" but does not print output.');
   print('b, break <code>   ... Sets JS code that will break "step"/"jump" if evaluated to true (empty value to disable).');
-  print('x, exec  <code>   ... Executes JS code.');
+  print('x, exec  <code>   ... Executes JS code (e.g.: "x nes.cpu.registerX = 0x10" or "x nes.ppu.scanline").');
   print('r, reset          ... Resets CPU.');
   print('h, help           ... Prints this help.');
   print('q, quit           ... Quits the debugger.');
