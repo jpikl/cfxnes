@@ -22,7 +22,7 @@ cfxnes = new CFxNES({
   loadOnStart: true,
   saveOnClose: true,
   savePeriod: 60, // sec
-  storage: 'local',
+  storage: 'browser',
 });
 
 //=========================================================

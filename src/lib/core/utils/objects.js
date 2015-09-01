@@ -2,6 +2,10 @@
 // Object utilities
 //=========================================================
 
+export function copyObject(object) {
+  return JSON.parse(JSON.stringify(object));
+}
+
 // Recursive property getter
 export function getProperty(object, ...names) {
   for (var i = 0; object != null && i < names.length; i++) {

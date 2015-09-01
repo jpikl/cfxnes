@@ -96,6 +96,15 @@ export default class AbstractMapper {
     }
   }
 
+  getPRGROMHash() {
+    return new Promise(resolve => {
+      if (this.prgROMHash == null) {
+        this.prgROMHash = this.hash(this.prgROM);
+      }
+      resolve(this.prgROMHash);
+    });
+  }
+
   //=========================================================
   // PRG RAM mapping
   //=========================================================
@@ -118,8 +127,8 @@ export default class AbstractMapper {
   loadPRGRAM(storage) {
     if (this.hasPRGRAM && this.hasPRGRAMBattery) {
       if (this.hash) {
-        return this.getPRGRAMKey().then(key => {
-          return storage.readData(key, this.prgRAM);
+        return this.getPRGROMHash().then(hash => {
+          return storage.readPRGRAM(hash, this.prgRAM);
         });
       } else {
         logger.warn('Unable to load PRGRAM: hash function is not available.');
@@ -131,23 +140,14 @@ export default class AbstractMapper {
   savePRGRAM(storage) {
     if (this.hasPRGRAM && this.hasPRGRAMBattery) {
       if (this.hash) {
-        return this.getPRGRAMKey().then(key => {
-          return storage.writeData(key, this.prgRAM.subarray(0, this.prgRAMSizeBattery));
+        return this.getPRGROMHash().then(hash => {
+          return storage.writePRGRAM(hash, this.prgRAM.subarray(0, this.prgRAMSizeBattery));
         });
       } else {
         logger.warn('Unable to save PRGRAM: hash function is not available.');
       }
     }
     return Promise.resolve();
-  }
-
-  getPRGRAMKey() {
-    return new Promise((resolve, reject) => {
-      if (this.prgRAMKey == null) {
-        this.prgRAMKey = this.hash(this.prgROM) + '/PRGRAM';
-      }
-      resolve(this.prgRAMKey);
-    });
   }
 
   mapPRGRAMBank8K(srcBank, dstBank) {
@@ -213,8 +213,8 @@ export default class AbstractMapper {
   loadCHRRAM(storage) {
     if (this.hasCHRRAM && this.hasCHRRAMBattery) {
       if (this.hash) {
-        return this.getCHRRAMKey().then(key => {
-          return storage.readData(key, this.chrRAM);
+        return this.getPRGROMHash().then(hash => {
+          return storage.readCHRRAM(hash, this.chrRAM);
         });
       } else {
         logger.warn('Unable to load CHRRAM: hash function is not available.');
@@ -226,23 +226,14 @@ export default class AbstractMapper {
   saveCHRRAM(storage) {
     if (this.hasCHRRAM && this.hasCHRRAMBattery) {
       if (this.hash) {
-        return this.getCHRRAMKey().then(key => {
-          return storage.writeData(key, this.chrRAM.subarray(0, this.chrRAMSizeBattery));
+        return this.getPRGROMHash().then(hash => {
+          return storage.writeCHRRAM(hash, this.chrRAM.subarray(0, this.chrRAMSizeBattery));
         });
       } else {
         logger.warn('Unable to save CHRRAM: hash function is not available.');
       }
     }
     return Promise.resolve();
-  }
-
-  getCHRRAMKey() {
-    return new Promise((resolve, reject) => {
-      if (this.chrRAMKey == null) {
-        this.chrRAMKey = this.hash(this.prgROM) + '/CHRRAM';
-      }
-      resolve(this.chrRAMKey);
-    });
   }
 
   mapCHRRAMBank8K(srcBank, dstBank) {

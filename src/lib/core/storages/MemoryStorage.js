@@ -1,25 +1,63 @@
-import AbstractStorage from './AbstractStorage';
+import { copyArray } from '../utils/arrays';
+import { copyObject } from '../utils/objects';
 
 //=========================================================
 // Memory storage
 //=========================================================
 
-export default class MemoryStorage extends AbstractStorage {
+export default class MemoryStorage {
 
   constructor() {
-    super();
-    this.data = {};
+    this.config = null;
+    this.prgRAMs = {};
+    this.chrRAMs = {};
   }
 
-  read(key) {
-    return new Promise((resolve, reject) => {
-      resolve(this.data[key]);
+  readConfiguration() {
+    return new Promise(resolve => {
+      resolve(copyObject(this.config));
     });
   }
 
-  write(key, value) {
-    return new Promise((resolve, reject) => {
-      this.data[key] = value;
+  writeConfiguration(config) {
+    return new Promise(resolve => {
+      this.config = copyObject(config);
+      resolve();
+    });
+  }
+
+  readPRGRAM(key, buffer) {
+    return new Promise(resolve => {
+      var ram = this.prgRAMs[key];
+      if (ram) {
+        resolve(copyArray(ram, buffer));
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  writePRGRAM(key, ram) {
+    return new Promise(resolve => {
+      this.prgRAMs[key] = copyArray(ram);
+      resolve();
+    });
+  }
+
+  readCHRRAM(key, buffer) {
+    return new Promise(resolve => {
+      var ram = this.chrRAMs[key];
+      if (ram) {
+        resolve(copyArray(ram, buffer));
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  writeCHRRAM(key, ram) {
+    return new Promise(resolve => {
+      this.chrRAMs[key] = copyArray(ram);
       resolve();
     });
   }

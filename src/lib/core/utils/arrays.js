@@ -15,10 +15,14 @@ export function fillArray(array, value, start = 0, end = array.length) {
 }
 
 export function copyArray(source, target) {
+  if (target == null) {
+    target = new Array(source.length);
+  }
   var length = Math.min(source.length, target.length);
   for (var i = 0; i < length; i++) {
     target[i] = source[i];
   }
+  return target;
 }
 
 export function arrayToProperties(array, callback, thisArg) {

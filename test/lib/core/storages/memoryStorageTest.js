@@ -7,60 +7,47 @@ var expect = chai.expect;
 
 describe('MemoryStorage', () => {
 
-  var storage;
+  var storage = new MemoryStorage;
 
-  beforeEach(() => {
-    storage = new MemoryStorage;
+  it('should read/write configuration', () => {
+    var config = { key: 'value' };
+    return storage.writeConfiguration(config).then(() => {
+      return expect(storage.readConfiguration()).to.eventually.deep.equal(config);
+    });
   });
 
-  it('should return null for nonexistent keys', () => {
+  it('should read/write PRG RAM', () => {
+    var keyA = 'A';
+    var keyB = 'B';
+    var inputA = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7];
+    var inputB = [0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF];
     return Promise.all([
-      expect(storage.readString('key')).to.eventually.be.null,
-      expect(storage.readData('key')).to.eventually.be.null,
-      expect(storage.readObject('key')).to.eventually.be.null,
+      expect(readWritePRGRAM(keyA, inputA)).to.eventually.deep.equal(inputA),
+      expect(readWritePRGRAM(keyB, inputB)).to.eventually.deep.equal(inputB),
     ]);
   });
 
-  it('should read/write strings', () => {
-    return storage.writeString('key', 'value').then(() => {
-      return expect(storage.readString('key')).to.eventually.equal('value');
-    });
-  });
-
-  it('should read/write data', () => {
-    var data = new Uint8Array(1024);
-    for (var i = 0; i < data.length; i++) {
-      data[i] = i % 256;
-    }
-    return storage.writeData('key', data).then(() => {
-      return expect(storage.readData('key')).to.eventually.deep.equal(data);
-    });
-  });
-
-  it('should read/write objects', () => {
-    var object = {
-      number: 1,
-      string: 'value',
-      object: {
-        number: 1,
-        string: 'value',
-      },
-    };
-    return storage.writeObject('key', object).then(() => {
-      return expect(storage.readObject('key')).to.eventually.deep.equal(object);
-    });
-  });
-
-  it('should handle different keys', () => {
+  it('should read/write CHR RAM', () => {
+    var keyA = 'A';
+    var keyB = 'B';
+    var inputA = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7];
+    var inputB = [0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF];
     return Promise.all([
-      storage.writeString('a', 'A'),
-      storage.writeString('b', 'B'),
-    ]).then(() => {
-      return Promise.all([
-        expect(storage.readString('a')).to.eventually.equal('A'),
-        expect(storage.readString('b')).to.eventually.equal('B'),
-      ]);
-    });
+      expect(readWriteCHRRAM(keyA, inputA)).to.eventually.deep.equal(inputA),
+      expect(readWriteCHRRAM(keyB, inputB)).to.eventually.deep.equal(inputB),
+    ]);
   });
+
+  function readWritePRGRAM(key, value) {
+    return storage.writePRGRAM(key, value).then(() => {
+      return storage.readPRGRAM(key, new Array(value.length));
+    });
+  }
+
+  function readWriteCHRRAM(key, value) {
+    return storage.writeCHRRAM(key, value).then(() => {
+      return storage.readCHRRAM(key, new Array(value.length));
+    });
+  }
 
 });

@@ -33,15 +33,15 @@ export default class PersistenceManager {
   // Storage
   //=========================================================
 
-  setStorage(implementor = 'memory') {
-    var id = this.storageFactory.getStorageId(implementor);
+  setStorage(implementer = 'memory') {
+    var id = this.storageFactory.getStorageId(implementer);
     logger.info(`Using "${id}" storage`);
-    this.storage = this.storageFactory.createStorage(id, implementor);
-    this.storageImplementor = implementor;
+    this.storage = this.storageFactory.createStorage(id, implementer);
+    this.storageImplementer = implementer;
   }
 
   getStorage() {
-    return this.storageImplementor;
+    return this.storageImplementer;
   }
 
   //=========================================================
@@ -114,7 +114,7 @@ export default class PersistenceManager {
 
   loadConfiguration() {
     logger.info('Loading configuration');
-    return this.storage.readObject('config').then(config => {
+    return this.storage.readConfiguration().then(config => {
       return new Promise((resolve, reject) => {
         if (config) {
           this.writeConfiguration(config);
@@ -127,7 +127,7 @@ export default class PersistenceManager {
   saveConfiguration() {
     logger.info('Saving configuration');
     return new Promise((resolve, reject) => {
-      this.storage.writeObject('config', this.readConfiguration()).then(resolve, reject);
+      this.storage.writeConfiguration(this.readConfiguration()).then(resolve, reject);
     });
   }
 

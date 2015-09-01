@@ -1,22 +1,43 @@
-import AbstractStorage from './AbstractStorage';
-
 //=========================================================
-// External storage
+// External storage adapter
 //=========================================================
 
-export default class ExternalStorage extends AbstractStorage {
+export default class ExternalStorage {
 
-  constructor(callback) {
-    super();
-    this.callback = callback;
+  constructor(implementer) {
+    this.implementer = implementer;
   }
 
-  read(key) {
-    return this.callback['read'](key); // jscs:ignore requireDotNotation
+  call(method, ...args) {
+    if (this.implementer[method]) {
+      return this.implementer[method](...args);
+    } else {
+      return Promise.resolve(null);
+    }
   }
 
-  write(key, value) {
-    return this.callback['write'](key, value); // jscs:ignore requireDotNotation
+  readConfiguration() {
+    return this.call('readConfiguration');
+  }
+
+  writeConfiguration(config) {
+    return this.call('writeConfiguration', config);
+  }
+
+  readPRGRAM(id, prgRAM) {
+    return this.call('readPRGRAM', id, prgRAM);
+  }
+
+  writePRGRAM(id, prgRAM) {
+    return this.call('writePRGRAM', id, prgRAM);
+  }
+
+  readCHRRAM(id, chrRAM) {
+    return this.call('readCHRRAM', id, chrRAM);
+  }
+
+  writeCHRRAM(id, chrRAM) {
+    return this.call('writeCHRRAM', id, chrRAM);
   }
 
 }
