@@ -26,7 +26,7 @@ export default class BrowserStorage {
 
   readPRGRAM(key, buffer) {
     return new Promise(resolve => {
-      var ram = localStorage[makeKey('prgRAM', key)];
+      var ram = localStorage[makeKey(key, 'PRGRAM')];
       if (ram) {
         resolve(stringToData(ram, buffer));
       } else {
@@ -37,14 +37,14 @@ export default class BrowserStorage {
 
   writePRGRAM(key, ram) {
     return new Promise(resolve => {
-      localStorage[makeKey('prgRAM', key)] = dataToString(ram);
+      localStorage[makeKey(key, 'PRGRAM')] = dataToString(ram);
       resolve();
     });
   }
 
   readCHRRAM(key, buffer) {
     return new Promise(resolve => {
-      var ram = localStorage[makeKey('chrRAM', key)];
+      var ram = localStorage[makeKey(key, 'CHRRAM')];
       if (ram) {
         resolve(stringToData(ram, buffer));
       } else {
@@ -55,7 +55,7 @@ export default class BrowserStorage {
 
   writeCHRRAM(key, ram) {
     return new Promise(resolve => {
-      localStorage[makeKey('chrRAM', key)] = dataToString(ram);
+      localStorage[makeKey(key, 'CHRRAM')] = dataToString(ram);
       resolve();
     });
   }
