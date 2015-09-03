@@ -3,11 +3,12 @@
 //=========================================================
 
 import readline from 'readline';
+import path from 'path';
 import util from 'util';
 import yargs from 'yargs';
 import coreConfig from '../lib/core/config';
 import LoggingCPU from '../lib/core/debug/LoggingCPU';
-import NoOutputPPU from '../lib/core/debug/NoOutputPPU';
+import BufferedOutputPPU from '../lib/core/debug/BufferedOutputPPU';
 import Injector from '../lib/core/utils/Injector';
 import { LogLevel, LogWriter } from '../lib/core/utils/logger';
 import { copyProperties } from '../lib/core/utils/objects';
@@ -26,9 +27,14 @@ var argv = yargs
   .describe('s', 'Executes specified number of steps instead of running debugger in interactive mode.')
   .alias('s', 'step')
   .nargs('s', 1)
+  .describe('j', 'Same as "step" but does not print output.')
+  .alias('j', 'jump')
+  .nargs('j', 1)
   .describe('b', 'Sets JS code that will break execution if evaluated to true.')
   .alias('b', 'break')
   .nargs('b', 1)
+  .describe('p', 'Prints current video output to file after execution is done.')
+  .alias('p', 'print')
   .help('h')
   .alias('h', 'help')
   .check(argv => {
@@ -45,7 +51,7 @@ var argv = yargs
 
 var config = copyProperties(coreConfig);
 config.cpu = {type: 'class', value: LoggingCPU};
-config.ppu = {type: 'class', value: NoOutputPPU};
+config.ppu = {type: 'class', value: BufferedOutputPPU};
 
 var injector = new Injector(config);
 var cartridgeFactory = injector.get('cartridgeFactory');
@@ -72,6 +78,7 @@ function helpCommand() {
   print('j, jump  <number> ... Same as "step" but does not print output.');
   print('b, break <code>   ... Sets JS code that will break "step"/"jump" if evaluated to true (empty value to disable).');
   print('x, exec  <code>   ... Executes JS code (e.g.: "x nes.cpu.registerX = 0x10" or "x nes.ppu.scanline").');
+  print('p, print <path>   ... Prints current video output to file (default: out.png).');
   print('r, reset          ... Resets CPU.');
   print('h, help           ... Prints this help.');
   print('q, quit           ... Quits the debugger.');
@@ -135,6 +142,14 @@ function execCommand(param) {
   }
 }
 
+function printCommand(param) {
+  var name = typeof param === 'string' && param ? param : 'out'; // param can boolean when set from command line argument
+  var file = path.extname(name).length ? name : name + '.png';
+  return nes.ppu.writeFrameToFile(file).then(() => {
+    print(`Screenshot written to "${path.resolve(file)}"`);
+  });
+}
+
 function resetCommand() {
   nes.pressReset();
 }
@@ -147,61 +162,86 @@ function quitCommand() {
 // Immediate mode
 //=========================================================
 
-if (argv.step != null) {
+function runImmediate() {
   if (argv.break) {
     breakCommand(argv.break.trim());
   }
-  stepCommand(argv.step);
-  quitCommand();
+  if (argv.step) {
+    stepCommand(argv.step);
+  } else {
+    jumpCommand(argv.jump);
+  }
+  if (argv.print) {
+    printCommand(argv.print).then(quitCommand);
+  } else {
+    quitCommand();
+  }
 }
 
 //=========================================================
 // Interactive mode
 //=========================================================
 
-var rl = readline.createInterface(process.stdin, process.stdout);
-rl.setPrompt('command>');
-rl.prompt();
-
-rl.on('line', line => {
-  var input = line.trim().split(/\s+/);
-  var command = input[0];
-  var param = input.slice(1).join(' ');
-
-  switch (command) {
-    case 'h':
-    case 'help':
-      helpCommand();
-      break;
-    case 's':
-    case 'step':
-      stepCommand(param);
-      break;
-    case 'j':
-    case 'jump':
-      jumpCommand(param);
-      break;
-    case 'b':
-    case 'break':
-      breakCommand(param);
-      break;
-    case 'x':
-    case 'exec':
-      execCommand(param);
-      break;
-    case 'r':
-    case 'reset':
-      resetCommand();
-      break;
-    case 'q':
-    case 'quit':
-      quitCommand();
-      break;
-    default:
-      print('Type "help" to print available commands.');
-  }
-
+function runInteractive() {
+  var rl = readline.createInterface(process.stdin, process.stdout);
+  rl.setPrompt('command>');
   rl.prompt();
-});
 
-rl.on('close', () => quitCommand());
+  rl.on('line', line => {
+    var input = line.trim().split(/\s+/);
+    var command = input[0];
+    var param = input.slice(1).join(' ');
+    var promise = Promise.resolve();
+
+    switch (command) {
+      case 'h':
+      case 'help':
+        helpCommand();
+        break;
+      case 's':
+      case 'step':
+        stepCommand(param);
+        break;
+      case 'j':
+      case 'jump':
+        jumpCommand(param);
+        break;
+      case 'b':
+      case 'break':
+        breakCommand(param);
+        break;
+      case 'x':
+      case 'exec':
+        execCommand(param);
+        break;
+      case 'p':
+      case 'print':
+        promise = printCommand(param);
+        break;
+      case 'r':
+      case 'reset':
+        resetCommand();
+        break;
+      case 'q':
+      case 'quit':
+        quitCommand();
+        break;
+      default:
+        print('Type "help" to print available commands.');
+    }
+
+    promise.then(() => rl.prompt());
+  });
+
+  rl.on('close', () => quitCommand());
+}
+
+//=========================================================
+// Start
+//=========================================================
+
+if (argv.step != null || argv.jump != null) {
+  runImmediate();
+} else {
+  runInteractive();
+}

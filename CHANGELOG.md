@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - API to change loggging level.
+- Screenshots in debugger.
 
 ### Changed
 - API uses Promises for asynchronous operations.
