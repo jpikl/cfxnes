@@ -37,7 +37,7 @@ export default class AudioManager {
     logger.info('Using default audio configuration');
     this.setEnabled();
     this.setVolume();
-    for (channel of channels) {
+    for (var channel of channels) {
       this.setChannelEnabled(channel);
     }
   }

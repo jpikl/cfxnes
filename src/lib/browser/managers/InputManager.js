@@ -91,7 +91,7 @@ export default class InputManager {
 
   getConnectedTarget(port) {
     var targetsOnPort = this.targets[port];
-    for (id in targetsOnPort) {
+    for (var id in targetsOnPort) {
       var target = targetsOnPort[id];
       if (this.nes.getConnectedInputDevice(port) === target.getDevice()) {
         return id;
@@ -100,9 +100,9 @@ export default class InputManager {
   }
 
   updateTargetsState(state) {
-    for (port in this.targets) {
+    for (var port in this.targets) {
       var targetsOnPort = this.targets[port];
-      for (id in targetsOnPort) {
+      for (var id in targetsOnPort) {
         var target = targetsOnPort[id];
         if (target.stateChanged) {
           target.stateChanged(state);

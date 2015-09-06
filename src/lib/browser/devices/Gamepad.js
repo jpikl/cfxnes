@@ -71,7 +71,7 @@ export default class Gamepad {
   //=========================================================
 
   detectChanges(oldGamepads, newGamepads) {
-    for (gamepadIndex in oldGamepads) {
+    for (var gamepadIndex in oldGamepads) {
       var oldGamepad = oldGamepads[gamepadIndex];
       var newGamepad = newGamepads[gamepadIndex];
       if (oldGamepad && newGamepad) {
