@@ -57,7 +57,7 @@ export default class CFxNES {
   init(config) {
     this['writeConfiguration'](config);
     if (config['storage']) this['setStorage'](config['storage']);
-    (config['loadOnStart'] ? this['loadConfiguration']() : Promise.resolved()).then(() => {
+    (config['loadOnStart'] ? this['loadConfiguration']() : Promise.resolve()).then(() => {
       if (config['saveOnClose']) this['setSaveOnClose'](true);
       if (config['savePeriod']) this['setSavePeriod'](config['savePeriod']);
     });
