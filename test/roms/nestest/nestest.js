@@ -48,7 +48,7 @@ class NestestCPU extends LoggingCPU {
 
   handleReset() {
     super.handleReset();
-    this.programCounter = 0xC000; // Where the test start
+    this.programCounter = 0xC000; // Where the test starts
   }
 
 }
