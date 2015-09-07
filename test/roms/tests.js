@@ -13,6 +13,7 @@ import * as instr_test from './instr_test/instr_test';
 import * as instr_timing from './instr_timing/instr_timing';
 import * as instr_misc from './instr_misc/instr_misc';
 import * as cpu_reset from './cpu_reset/cpu_reset';
+import * as ppu_tests from './ppu_tests/ppu_tests';
 import * as ppu_vbl_nmi from './ppu_vbl_nmi/ppu_vbl_nmi';
 import * as apu_reset from './apu_reset/apu_reset';
 import * as apu_test from './apu_test/apu_test';
@@ -28,6 +29,7 @@ describe('Validation ROMs', () => {
   validate(instr_timing);
   validate(instr_misc); // 2 failing tests (disabled)
   validate(cpu_reset);
+  validate(ppu_tests);
   validate(ppu_vbl_nmi);
   validate(apu_reset); // 4 failing tests (disabled)
   validate(apu_test); // 3 failing tests (disabled)
@@ -40,7 +42,7 @@ function validate(test) {
   if (test.file) {
     it(name, () => execute(test, test.file, getPath))
   } else if (test.files) {
-    for (var file of test.files) {
+    for (let file of test.files) {
       var subName = `${name} (${path.basename(file, '.nes')})`;
       it(subName, () => execute(test, file, getPath));
     }
@@ -49,14 +51,19 @@ function validate(test) {
 
 function execute(test, file, getPath) {
   var config = copyProperties(coreConfig);
+
   test.configure(config);
 
   var injector = new Injector(config);
   var cartridgeFactory = injector.get('cartridgeFactory');
   var cartridge = cartridgeFactory.fromLocalFile(getPath(file));
-  var cpuMemory = injector.get('cpuMemory');
   var nes = injector.get('nes');
+
   nes.insertCartridge(cartridge);
+
+  var cpuMemory = injector.get('cpuMemory');
+  var ppu = injector.get('ppu');
+  var asyncResults = [];
 
   test.execute({
     assert: chai.assert,
@@ -104,6 +111,23 @@ function execute(test, file, getPath) {
       return fs.readFileSync(getPath(file), 'utf8');
     },
 
+    screenshot(origFile, testFile) {
+      var name = path.basename(file, '.nes');
+      var origFile = origFile || name + '_orig.png';
+      var testFile = testFile || name + '.png';
+      asyncResults.push(ppu.writeFrameToFile(getPath(testFile)).then(() => {
+        return new Promise((resolve, reject) => {
+          var origBuffer = fs.readFileSync(getPath(origFile));
+          var testBuffer = fs.readFileSync(getPath(testFile));
+          if (testBuffer.equals(origBuffer)) {
+            resolve();
+          } else {
+            reject(new Error(`Screenshot ${testFile} does not match ${origFile}.`))
+          }
+        });
+      }));
+    },
+
     blargg() {
       // Test code for all Blargg's test ROMs
       const RESULT_ADDRESS = 0x6000;
@@ -134,4 +158,8 @@ function execute(test, file, getPath) {
       this.assert(result === RESULT_OK, '\n' + message);
     },
   });
+
+  if (asyncResults.length) {
+    return Promise.all(asyncResults);
+  }
 }

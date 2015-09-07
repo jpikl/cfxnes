@@ -5,6 +5,7 @@ import { newByteArray } from '../../src/lib/core/utils/system';
 
 export { default as LoggingCPU } from '../../src/lib/core/debug/LoggingCPU';
 export { default as NoOutputPPU } from '../../src/lib/core/debug/NoOutputPPU';
+export { default as BufferedOutputPPU } from '../../src/lib/core/debug/BufferedOutputPPU';
 
 //=========================================================
 // Customized units for tests
