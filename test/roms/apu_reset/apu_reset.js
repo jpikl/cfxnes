@@ -5,22 +5,15 @@
 
 import { RAMEnabledCPUMemory, DisabledPPU } from '../units';
 
-export const names = [
-  'apu_reset (4015_cleared)',
-  // 'apu_reset (4017_timing)',
-  // 'apu_reset (4017_written)',
-  // 'apu_reset (irq_flag_cleared)',
-  'apu_reset (len_ctrs_enabled)',
-  // 'apu_reset (works_immediately)',
-];
+export const dir = './test/roms/apu_reset';
 
 export const files = [
-  './test/roms/apu_reset/4015_cleared.nes',
-  // './test/roms/apu_reset/4017_timing.nes',
-  // './test/roms/apu_reset/4017_written.nes',
-  // './test/roms/apu_reset/irq_flag_cleared.nes',
-  './test/roms/apu_reset/len_ctrs_enabled.nes',
-  // './test/roms/apu_reset/works_immediately.nes',
+  '4015_cleared.nes',
+  // '4017_timing.nes',
+  // '4017_written.nes',
+  // 'irq_flag_cleared.nes',
+  'len_ctrs_enabled.nes',
+  // 'works_immediately.nes',
 ];
 
 export function configure(config) {

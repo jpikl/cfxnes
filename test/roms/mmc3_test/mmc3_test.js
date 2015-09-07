@@ -5,22 +5,15 @@
 
 import { DisabledAPU, NoOutputPPU } from '../units';
 
-export const names = [
-  'mmc3_test (1-clocking)',
-  'mmc3_test (2-details)',
-  'mmc3_test (3-A12_clocking)',
-  // 'mmc3_test (4-scanline_timing)',
-  'mmc3_test (5-MMC3)',
-  // 'mmc3_test (6-MMC3_alt)',
-];
+export const dir = './test/roms/mmc3_test';
 
 export const files = [
-  './test/roms/mmc3_test/1-clocking.nes',
-  './test/roms/mmc3_test/2-details.nes',
-  './test/roms/mmc3_test/3-A12_clocking.nes',
-  // './test/roms/mmc3_test/4-scanline_timing.nes',
-  './test/roms/mmc3_test/5-MMC3.nes',
-  // './test/roms/mmc3_test/6-MMC3_alt.nes',
+  '1-clocking.nes',
+  '2-details.nes',
+  '3-A12_clocking.nes',
+  // '4-scanline_timing.nes',
+  '5-MMC3.nes',
+  // '6-MMC3_alt.nes',
 ];
 
 export function configure(config) {

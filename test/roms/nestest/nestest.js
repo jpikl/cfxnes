@@ -6,12 +6,12 @@
 import { LoggingCPU, DisabledAPU, DisabledPPU } from '../units';
 import { LogLevel, LogWriter } from '../../../src/lib/core/utils/logger';
 
-export const name = 'nestest';
-export const file = './test/roms/nestest/nestest.nes';
+export const dir = './test/roms/nestest';
+export const file = 'nestest.nes';
 
-const BASIC_LOG_FILE    = './test/roms/nestest/nestest.log';       // This is what we will compare with the verified log
-const VERBOSE_LOG_FILE  = './test/roms/nestest/nestest-full.log';  // Contains more information for easier debugging
-const VERIFIED_LOG_FILE = './test/roms/nestest/nintendulator.log'; // Verified log from Nintendulator (modified to match structure of CFxNES log)
+const BASIC_LOG_FILE    = 'nestest.log';       // This is what we will compare with the verified log
+const VERBOSE_LOG_FILE  = 'nestest-full.log';  // Contains more information for easier debugging
+const VERIFIED_LOG_FILE = 'nintendulator.log'; // Verified log from Nintendulator (modified to match structure of CFxNES log)
 
 export function configure(config) {
   config.cpu = {type: 'class', value: NestestCPU};

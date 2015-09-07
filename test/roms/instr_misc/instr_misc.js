@@ -5,18 +5,13 @@
 
 import { RAMEnabledCPUMemory, DisabledAPU, DisabledPPU } from '../units';
 
-export const names = [
-  'instr_misc (01-abs_x_wrap)',
-  'instr_misc (02-branch_wrap)',
-  // 'instr_misc (03-dummy_reads)',
-  // 'instr_misc (04-dummy_reads_apu)',
-];
+export const dir = './test/roms/instr_misc';
 
 export const files = [
-  './test/roms/instr_misc/01-abs_x_wrap.nes',
-  './test/roms/instr_misc/02-branch_wrap.nes',
-  // './test/roms/instr_misc/03-dummy_reads.nes',
-  // './test/roms/instr_misc/04-dummy_reads_apu.nes',
+  '01-abs_x_wrap.nes',
+  '02-branch_wrap.nes',
+  // '03-dummy_reads.nes',
+  // '04-dummy_reads_apu.nes',
 ];
 
 export function configure(config) {

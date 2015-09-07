@@ -7,6 +7,7 @@
 
 import chai from 'chai';
 import fs from 'fs';
+import path from 'path';
 import * as nestest from './nestest/nestest';
 import * as instr_test from './instr_test/instr_test';
 import * as instr_timing from './instr_timing/instr_timing';
@@ -34,20 +35,25 @@ describe('Validation ROMs', () => {
 });
 
 function validate(test) {
-  var names = test.names || [test.name];
-  var files = test.files || [test.file];
-  for (let i = 0; i < files.length; i++) {
-    it(names[i], () => execute(test, files[i]));
+  var name = path.basename(test.dir);
+  var getPath = (file) => path.join(test.dir, file);
+  if (test.file) {
+    it(name, () => execute(test, test.file, getPath))
+  } else if (test.files) {
+    for (var file of test.files) {
+      var subName = `${name} (${path.basename(file, '.nes')})`;
+      it(subName, () => execute(test, file, getPath));
+    }
   }
 }
 
-function execute(test, file) {
+function execute(test, file, getPath) {
   var config = copyProperties(coreConfig);
   test.configure(config);
 
   var injector = new Injector(config);
   var cartridgeFactory = injector.get('cartridgeFactory');
-  var cartridge = cartridgeFactory.fromLocalFile(file);
+  var cartridge = cartridgeFactory.fromLocalFile(getPath(file));
   var cpuMemory = injector.get('cpuMemory');
   var nes = injector.get('nes');
   nes.insertCartridge(cartridge);
@@ -95,7 +101,7 @@ function execute(test, file) {
     },
 
     readFile(file) {
-      return fs.readFileSync(file, 'utf8');
+      return fs.readFileSync(getPath(file), 'utf8');
     },
 
     blargg() {

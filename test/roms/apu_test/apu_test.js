@@ -5,26 +5,17 @@
 
 import { RAMEnabledCPUMemory, DisabledPPU } from '../units';
 
-export const names = [
-  'apu_test (1-len_ctr)',
-  'apu_test (2-len_table)',
-  'apu_test (3-irq_flag)',
-  // 'apu_test (4-jitter)',
-  'apu_test (5-len_timing)',
-  'apu_test (6-irq_flag_timing)',
-  // 'apu_test (7-dmc_basics)',
-  // 'apu_test (8-dmc_rates)',
-];
+export const dir = './test/roms/apu_test';
 
 export const files = [
-  './test/roms/apu_test/1-len_ctr.nes',
-  './test/roms/apu_test/2-len_table.nes',
-  './test/roms/apu_test/3-irq_flag.nes',
-  // './test/roms/apu_test/4-jitter.nes',
-  './test/roms/apu_test/5-len_timing.nes',
-  './test/roms/apu_test/6-irq_flag_timing.nes',
-  // './test/roms/apu_test/7-dmc_basics.nes',
-  // './test/roms/apu_test/8-dmc_rates.nes',
+  '1-len_ctr.nes',
+  '2-len_table.nes',
+  '3-irq_flag.nes',
+  // '4-jitter.nes',
+  '5-len_timing.nes',
+  '6-irq_flag_timing.nes',
+  // '7-dmc_basics.nes',
+  // '8-dmc_rates.nes',
 ];
 
 export function configure(config) {

@@ -5,14 +5,11 @@
 
 import { RAMEnabledCPUMemory, DisabledPPU } from '../units';
 
-export const names = [
-  'instr_timing (1-instr_timing)',
-  'instr_timing (2-branch_timing)',
-];
+export const dir = './test/roms/instr_timing';
 
 export const files = [
-  './test/roms/instr_timing/1-instr_timing.nes',
-  './test/roms/instr_timing/2-branch_timing.nes',
+  '1-instr_timing.nes',
+  '2-branch_timing.nes',
 ];
 
 export function configure(config) {

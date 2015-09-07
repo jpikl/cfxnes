@@ -5,14 +5,11 @@
 
 import { RAMEnabledCPUMemory, DisabledAPU, DisabledPPU } from '../units';
 
-export const names = [
-  'cpu_reset (ram_after_reset)',
-  'cpu_reset (registers)',
-];
+export const dir = './test/roms/cpu_reset';
 
 export const files = [
-  './test/roms/cpu_reset/ram_after_reset.nes',
-  './test/roms/cpu_reset/registers.nes',
+  'ram_after_reset.nes',
+  'registers.nes',
 ];
 
 export function configure(config) {
