@@ -18,6 +18,7 @@ import * as ppu_vbl_nmi from './ppu_vbl_nmi/ppu_vbl_nmi';
 import * as apu_reset from './apu_reset/apu_reset';
 import * as apu_test from './apu_test/apu_test';
 import * as mmc3_test from './mmc3_test/mmc3_test';
+import * as bntest from './bntest/bntest';
 import coreConfig from '../../src/lib/core/config';
 import Injector from '../../src/lib/core/utils/Injector';
 import { dataToString } from '../../src/lib/core/utils/convert';
@@ -34,6 +35,7 @@ describe('Validation ROMs', () => {
   validate(apu_reset); // 4 failing tests (disabled)
   validate(apu_test); // 3 failing tests (disabled)
   validate(mmc3_test); // 2 failing tests (disabled)
+  validate(bntest); // 2 failing tests (disabled)
 });
 
 function validate(test) {
