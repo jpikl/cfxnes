@@ -3,15 +3,12 @@
 // Source: http://nickmass.com/images/nestest.nes
 //=============================================================================
 
+import fs from 'fs';
 import { LoggingCPU, DisabledAPU, DisabledPPU } from '../units';
 import { LogLevel, LogWriter } from '../../../src/lib/core/utils/logger';
 
 export const dir = './test/roms/nestest';
 export const file = 'nestest.nes';
-
-const BASIC_LOG_FILE    = 'nestest.log';       // This is what we will compare with the verified log
-const VERBOSE_LOG_FILE  = 'nestest-full.log';  // Contains more information for easier debugging
-const VERIFIED_LOG_FILE = 'nintendulator.log'; // Verified log from Nintendulator (modified to match structure of CFxNES log)
 
 export function configure(config) {
   config.cpu = {type: 'class', value: NestestCPU};
@@ -20,31 +17,37 @@ export function configure(config) {
 }
 
 export function execute(test) {
-  test.step(8991);
-  test.get('cpu').stopLogging();
+  var basicLogFile = test.getOutputPath('nestest.log');        // This is what we will compare with the verified log
+  var verboseLogFile = test.getOutputPath('nestest-full.log'); // Contains more information for easier debugging
+  var verifiedLogFile = test.getPath('nestest.log');           // Verified log from Nintendulator (modified to match structure of CFxNES log)
 
-  var basicLog = test.readFile(BASIC_LOG_FILE);
-  var verifiedLog = test.readFile(VERIFIED_LOG_FILE);
+  var cpu = test.get('cpu');
+  var basicLogger = cpu.basicLogger;
+  var verboseLogger = cpu.verboseLogger;
+
+  basicLogger.setLevel(LogLevel.INFO);
+  basicLogger.attach(LogWriter.toFile(basicLogFile));
+  verboseLogger.setLevel(LogLevel.INFO);
+  verboseLogger.attach(LogWriter.toFile(verboseLogFile));
+
+  test.power();
+  test.step(8991);
+  cpu.stopLogging();
+
+  var basicLog = fs.readFileSync(basicLogFile, 'utf8');
+  var verifiedLog = fs.readFileSync(verifiedLogFile, 'utf8');
 
   try {
     test.expect(basicLog).to.be.equal(verifiedLog);
   } catch (error) {
     // The default error message contains whole log which is completely unreadable and useless
     test.fail(`CFxNES log differs from Nintendulator log.
-        - Run 'vimdiff ${BASIC_LOG_FILE} ${VERIFIED_LOG_FILE}' to see differences.
-        - See contents of ${VERBOSE_LOG_FILE} for more detailed output.`);
+        - Run 'vimdiff ${basicLogFile} ${verifiedLogFile}' to see differences.
+        - See contents of ${verboseLogFile} for more detailed output.`);
   }
 }
 
 class NestestCPU extends LoggingCPU {
-
-  startLogging() {
-    this.basicLogger.setLevel(LogLevel.INFO);
-    this.basicLogger.attach(LogWriter.toFile(BASIC_LOG_FILE));
-    this.verboseLogger.setLevel(LogLevel.INFO);
-    this.verboseLogger.attach(LogWriter.toFile(VERBOSE_LOG_FILE));
-    super.startLogging();
-  }
 
   handleReset() {
     super.handleReset();

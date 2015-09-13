@@ -20,6 +20,6 @@ export function configure(config) {
 }
 
 export function execute(test) {
-  test.step(230000);
+  test.step(test.number === 3 ? 230000 : 180000);
   test.screenshot('ppu_tests.png');
 }
