@@ -28,6 +28,8 @@ export default class AbstractMapper {
     this.mirroring = cartridge.mirroring;
     this.hasPRGRAM = cartridge.hasPRGRAM; // Not reliable information on iNES ROMs (should provide mapper itself)
     this.hasPRGRAMBattery = cartridge.hasPRGRAMBattery;
+    this.hasPRGRAMRegisters = false; // Whether mapper registers are mapped in PRG RAM address space
+    this.hasCHRROM = cartridge.hasCHRROM;
     this.hasCHRRAM = cartridge.hasCHRRAM;
     this.hasCHRRAMBattery = cartridge.hasCHRRAMBattery; // Not present on iNES ROMs
     this.prgROMSize = cartridge.prgROMSize;

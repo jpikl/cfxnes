@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - MMC3 mapper implementation (PRG RAM protection, CHR ROM mapping).
 
 ### Added
+- Support for BNROM and NINA-001 mappers.
 - API to change loggging level.
 - Screenshots in debugger.
 

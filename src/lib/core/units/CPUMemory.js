@@ -231,6 +231,9 @@ export default class CPUMemory {
   writePRGRAM(address, value) {
     if (this.prgRAM && this.mapper.canWritePRGRAM) {
       this.prgRAM[this.mapPRGRAMAddress(address)] = value;
+      if (this.mapper.hasPRGRAMRegisters)  {
+        this.mapper.write(address, value); // Some mappers (NINA-001) have their registers mapped in PRG RAM address space
+      }
     }
   }
 

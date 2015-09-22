@@ -23,6 +23,7 @@ export const files = [
   'M4_P128K.nes',
   'M4_P256K_C256K.nes',
   'M7_P128K.nes',
+  'M34_P128K_H.nes',
 ];
 
 export function configure(config) {
@@ -45,6 +46,7 @@ const steps = [
   1700000, // M4_P128K
    950000, // M4_P256K_C256K
    900000, // M7_P128K
+   900000, // M34_P128K_H
 ];
 
 export function execute(test) {

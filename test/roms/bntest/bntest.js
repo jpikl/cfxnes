@@ -9,8 +9,8 @@ export const dir = './test/roms/bntest';
 
 export const files = [
   'bntest_aorom.nes',
-  // 'bntest_h.nes',
-  // 'bntest_v.nes',
+  'bntest_h.nes',
+  'bntest_v.nes',
 ];
 
 export function configure(config) {

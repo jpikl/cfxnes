@@ -5,12 +5,13 @@ import AbstractLoader from './AbstractLoader';
 const INES_SIGNATURE = [0x4E, 0x45, 0x53, 0x1A]; // 'NES^Z'
 
 var mappers = {
-  0x00: 'NROM',
-  0x01: 'MMC1',
-  0x02: 'UNROM',
-  0x03: 'CNROM',
-  0x04: 'MMC3',
-  0x07: 'AOROM',
+  0: 'NROM',
+  1: 'MMC1',
+  2: 'UNROM',
+  3: 'CNROM',
+  4: 'MMC3',
+  7: 'AOROM',
+  34: 'BNROM', // NINA-001 uses the same ID (see setMapper method)
 };
 
 //=========================================================
@@ -61,6 +62,7 @@ export default class INESLoader extends AbstractLoader {
 
   readCHRROMSize(reader, cartridge) {
     cartridge.chrROMSize = reader.readByte() * 0x2000; // N x 8KB
+    cartridge.hasCHRROM = cartridge.chrROMSize !== 0;
     cartridge.hasCHRRAM = cartridge.chrROMSize === 0;
     cartridge.chrRAMSize = cartridge.hasCHRRAM ? 0x2000 : undefined; // 8K if present
   }
@@ -138,6 +140,9 @@ export default class INESLoader extends AbstractLoader {
 
   setMapper(cartridge) {
     cartridge.mapper = mappers[cartridge.mapperId] || cartridge.mapperId.toString();
+    if (cartridge.mapper === 'BNROM' && cartridge.hasCHRROM) {
+      cartridge.mapper = 'NINA-001'; // Uses the same ID as BNROM, but has CHR ROM instead of CHR RAM
+    }
   }
 
   setSubmapper(cartridge) {

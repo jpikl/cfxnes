@@ -55,6 +55,7 @@ export default class CartridgeFactory {
     logger.info('Submapper             : ' + formatOptional(cartridge.submapper));
     logger.info('has PRG RAM           : ' + formatOptional(cartridge.hasPRGRAM));
     logger.info('has PRG RAM battery   : ' + formatOptional(cartridge.hasPRGRAMBattery));
+    logger.info('has CHR ROM           : ' + formatOptional(cartridge.hasCHRROM));
     logger.info('has CHR RAM           : ' + formatOptional(cartridge.hasCHRRAM));
     logger.info('has CHR RAM battery   : ' + formatOptional(cartridge.hasCHRRAMBattery));
     logger.info('has trainer           : ' + formatOptional(cartridge.hasTrainer));

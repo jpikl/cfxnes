@@ -1,9 +1,11 @@
 // jscs:disable disallowQuotedKeysInObjects, requireCapitalizedConstructors
 
 import AOROMMapper from '../mappers/AOROMMapper';
+import BNROMMapper from '../mappers/BNROMMapper';
 import CNROMMapper from '../mappers/CNROMMapper';
 import MMC1Mapper from '../mappers/MMC1Mapper';
 import MMC3Mapper from '../mappers/MMC3Mapper';
+import NINA001Mapper from '../mappers/NINA001Mapper';
 import NROMMapper from '../mappers/NROMMapper';
 import UNROMMapper from '../mappers/UNROMMapper';
 import logger from '../utils/logger';
@@ -15,6 +17,8 @@ var mappers = {
   'CNROM': CNROMMapper,
   'MMC3': MMC3Mapper,
   'AOROM': AOROMMapper,
+  'BNROM': BNROMMapper,
+  'NINA-001': NINA001Mapper,
 };
 
 //=========================================================
