@@ -41,17 +41,17 @@ export function formatSize(size) {
   if (typeof size !== 'number') {
     return undefined;
   }
-  if (size >= 1024 * 1024) {
+  if (Math.abs(size) >= 1024 * 1024) {
     return ~~(size / (1024 * 1024)) + ' MB';
   }
-  if (size >= 1024) {
+  if (Math.abs(size) >= 1024) {
     return ~~(size / 1024) + ' KB';
   }
   return size + ' B';
 }
 
 export function formatData(data) {
-  if (!data) {
+  if (typeof data !== 'object' || data === null) {
     return undefined;
   }
   return String.fromCharCode.apply(null, data);

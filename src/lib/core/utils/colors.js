@@ -1,4 +1,4 @@
-import { LITTLE_ENDIAN } from './system';
+import { ENDIANNESS } from './system';
 
 //=========================================================
 // Color manipulation utilities
@@ -6,19 +6,19 @@ import { LITTLE_ENDIAN } from './system';
 
 export const BLACK_COLOR = packColor(0, 0, 0);
 
-export function packColor(r, g, b, a = 0xFF) {
-  if (LITTLE_ENDIAN) {
-    return a << 24 | b << 16 | g << 8 | r;
+export function packColor(r, g, b, a = 0xFF, endianness = ENDIANNESS) {
+  if (endianness === 'LE') {
+    return (a << 24 | b << 16 | g << 8 | r) >>> 0; // Convert to 32-bit unsigned integer
   } else {
-    return r << 24 | g << 16 | b << 8 | a;
+    return (r << 24 | g << 16 | b << 8 | a) >>> 0;
   }
 }
 
-export function unpackColor(color) {
-  if (LITTLE_ENDIAN) {
+export function unpackColor(color, endianness = ENDIANNESS) {
+  if (endianness === 'LE') {
     return [
-      (color)        & 0xFF,
-      (color >>>  8) & 0xFF,
+      color & 0xFF,
+      (color >>> 8) & 0xFF,
       (color >>> 16) & 0xFF,
       (color >>> 24) & 0xFF,
     ];
@@ -26,8 +26,8 @@ export function unpackColor(color) {
     return [
       (color >>> 24) & 0xFF,
       (color >>> 16) & 0xFF,
-      (color >>>  8) & 0xFF,
-      (color)        & 0xFF,
+      (color >>> 8) & 0xFF,
+      color & 0xFF,
     ];
   }
 }

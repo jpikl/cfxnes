@@ -4,8 +4,10 @@ import { clearArray } from './arrays';
 // System utilities
 //=========================================================
 
-export const LITTLE_ENDIAN = detectEndianness() === 'LE';
-export const BIG_ENDIAN    = detectEndianness() === 'BE';
+detectEndianness(); /* Extra call to disable inlining of this function by closure compiler.
+                       The inlined value is incorrect. */
+
+export const ENDIANNESS = detectEndianness();
 
 export function detectEndianness() {
   var buffer = new ArrayBuffer(4);

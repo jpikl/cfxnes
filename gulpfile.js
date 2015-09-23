@@ -24,6 +24,8 @@ var buffer = require('vinyl-buffer');
 var source = require('vinyl-source-stream');
 var yargs = require('yargs');
 
+require('babel/register');
+
 //=========================================================
 // Arguments
 //=========================================================
@@ -211,11 +213,22 @@ gulp.task('check', function() {
 // Tests
 //=========================================================
 
-gulp.task('test', function() {
-  require('babel/register');
-  return gulp.src('./test/**/*{t,T}est{,s}.js')
+gulp.task('test-lib', function() {
+  return gulp.src('./test/lib/**/*Test.js')
+    .pipe(mocha());
+});
+
+gulp.task('test-roms', function() {
+  return gulp.src('./test/roms/tests.js')
     .pipe(mocha({timeout: 60000}));
 });
+
+gulp.task('test-tools', function() {
+  return gulp.src('./test/tools/**/*Test.js')
+    .pipe(mocha());
+});
+
+gulp.task('test', gulp.series('test-lib', 'test-roms', 'test-tools'));
 
 //=========================================================
 // Default

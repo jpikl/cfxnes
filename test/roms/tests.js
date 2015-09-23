@@ -37,7 +37,7 @@ describe('Validation ROMs', () => {
   validate(apu_reset); // 4 failing tests (disabled)
   validate(apu_test); // 3 failing tests (disabled)
   validate(mmc3_test); // 2 failing tests (disabled)
-  validate(bntest); // 2 failing tests (disabled)
+  validate(bntest);
   validate(holydiverbatman);
 });
 

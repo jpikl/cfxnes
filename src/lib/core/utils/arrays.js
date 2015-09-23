@@ -2,16 +2,17 @@
 // Array utilities
 //=========================================================
 
-export function clearArray(array, start = 0, end = array.length) {
-  fillArray(array, 0, start, end);
+export function clearArray(array, start, end) {
+  return fillArray(array, 0, start, end);
 }
 
 export function fillArray(array, value, start = 0, end = array.length) {
-  var start = Math.max(0, start);
-  var end = Math.min(end, array.length);
+  start = Math.max(0, start);
+  end = Math.min(end, array.length);
   for (var i = start; i < end; i++) {
     array[i] = value;
   }
+  return array;
 }
 
 export function copyArray(source, target) {
