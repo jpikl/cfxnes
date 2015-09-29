@@ -1,7 +1,7 @@
 // jscs:disable disallowQuotedKeysInObjects, requireDotNotation
 
 import logger from '../../core/utils/logger';
-import { forEeachProperty } from '../../core/utils/objects';
+import { forEachProperty } from '../../core/utils/objects';
 import { arrayToProperties, copyArray } from '../../core/utils/arrays';
 
 const channelAliases = {
@@ -164,7 +164,7 @@ export default class AudioManager {
     logger.info('Writing audio configuration');
     if (config['audioEnabled'] !== undefined) this.setEnabled(config['audioEnabled']);
     if (config['audioVolume'] !== undefined) this.setVolume(config['audioVolume']);
-    if (config['audioChannels'] !== undefined) forEeachProperty(config['audioChannels'], this.setChannelEnabled, this);
+    if (config['audioChannels'] !== undefined) forEachProperty(config['audioChannels'], this.setChannelEnabled, this);
   }
 
 }

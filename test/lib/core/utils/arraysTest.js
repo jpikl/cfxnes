@@ -6,6 +6,8 @@ var expect = chai.expect;
 describe('Arrays utils', () => {
 
   it('can clear array', () => {
+    var array;
+    expect(arrays.clearArray(array = [])).to.equal(array);
     expect(arrays.clearArray([1, 2, 3])).to.deep.equal([0, 0, 0]);
     expect(arrays.clearArray([1, 2, 3], 1)).to.deep.equal([1, 0, 0]);
     expect(arrays.clearArray([1, 2, 3], 1, 2)).to.deep.equal([1, 0, 3]);
@@ -14,6 +16,8 @@ describe('Arrays utils', () => {
   });
 
   it('can fill array', () => {
+    var array;
+    expect(arrays.fillArray(array = [])).to.equal(array);
     expect(arrays.fillArray([1, 2, 3], 'x')).to.deep.equal(['x', 'x', 'x']);
     expect(arrays.fillArray([1, 2, 3], 'x', 1)).to.deep.equal([1, 'x', 'x']);
     expect(arrays.fillArray([1, 2, 3], 'x', 1, 2)).to.deep.equal([1, 'x', 3]);
@@ -22,24 +26,25 @@ describe('Arrays utils', () => {
   });
 
   it('can copy array', () => {
-    var target = new Array(3);
+    var array;
+    expect(arrays.copyArray(array = [])).not.to.equal(array);
+    expect(arrays.copyArray([], array = [])).to.equal(array);
     expect(arrays.copyArray([1, 2, 3])).to.deep.equal([1, 2, 3]);
-    expect(arrays.copyArray([1, 2], target)).to.deep.equal([1, 2, ]);
-    expect(arrays.copyArray([1, 2, 3], target)).to.deep.equal([1, 2, 3]);
-    expect(arrays.copyArray([1, 2, 3, 4], target)).to.deep.equal([1, 2, 3]);
-    expect(arrays.copyArray([1, 2, 3], target)).to.equal(target);
+    expect(arrays.copyArray([1, 2], new Array(3))).to.deep.equal([1, 2, ]);
+    expect(arrays.copyArray([1, 2, 3], new Array(3))).to.deep.equal([1, 2, 3]);
+    expect(arrays.copyArray([1, 2, 3, 4], new Array(3))).to.deep.equal([1, 2, 3]);
   });
 
   it('can convert array to properties', () => {
     var mapper = {
-      a: 'aa',
-      b: 'bb',
+      a: 1,
+      b: 2,
       map(value) {
         return this[value];
       }
     };
-    expect(arrays.arrayToProperties(['a', 'b'], value => mapper[value])).to.deep.equal({a: 'aa', b: 'bb'});
-    expect(arrays.arrayToProperties(['a', 'b'], mapper.map, mapper)).to.deep.equal({a: 'aa', b: 'bb'});
+    expect(arrays.arrayToProperties(['a', 'b'], value => mapper[value])).to.deep.equal({a: 1, b: 2});
+    expect(arrays.arrayToProperties(['a', 'b'], mapper.map, mapper)).to.deep.equal({a: 1, b: 2});
   });
 
 });

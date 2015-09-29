@@ -20,7 +20,8 @@ export function stringToData(input, output) {
   if (output == null) {
     output = new Uint8Array(input.length);
   }
-  for (var i = 0; i < input.length; i++) {
+  var length = Math.min(input.length, output.length);
+  for (var i = 0; i < length; i++) {
     output[i] = input.charCodeAt(i);
   }
   return output;

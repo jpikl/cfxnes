@@ -20,17 +20,19 @@ export function setProperty(object, ...namesAndValue) {
     throw new Error('setProperty: function requires at least 3 arguments');
   }
   var lastNameIndex = namesAndValue.length - 2;
+  var property = object;
   for (var i = 0; i < lastNameIndex; i++) {
     var name = namesAndValue[i];
-    if (object[name] == null) {
-      object[name] = {};
+    if (property[name] == null) {
+      property[name] = {};
     }
-    object = object[name];
+    property = property[name];
   }
-  object[namesAndValue[lastNameIndex]] = namesAndValue[lastNameIndex + 1];
+  property[namesAndValue[lastNameIndex]] = namesAndValue[lastNameIndex + 1];
+  return object;
 }
 
-export function forEeachProperty(object, callback, thisArg) {
+export function forEachProperty(object, callback, thisArg) {
   for (var name in object) {
     if (object.hasOwnProperty(name)) {
       callback.call(thisArg, name, object[name]);
@@ -39,7 +41,7 @@ export function forEeachProperty(object, callback, thisArg) {
 }
 
 export function copyProperties(source, target = {}) {
-  forEeachProperty(source, (name, value) => {
+  forEachProperty(source, (name, value) => {
     target[name] = value;
   });
   return target;
@@ -52,7 +54,7 @@ export function mergeProperties(source1, source2) {
 export function makeEnumeration(enumeration) {
   var paramsTable = {};
   var defaultParams;
-  forEeachProperty(enumeration, (id, params) => {
+  forEachProperty(enumeration, (id, params) => {
     if (typeof params !== 'function') {
       defaultParams = defaultParams || params;
       paramsTable[params.id || id] = params;
@@ -66,4 +68,5 @@ export function makeEnumeration(enumeration) {
     var params = this.getParams(id);
     return params && (params.name || params.id) || id;
   };
+  return enumeration;
 }

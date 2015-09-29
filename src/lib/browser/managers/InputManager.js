@@ -2,7 +2,7 @@
 
 import logger from '../../core/utils/logger';
 import { arrayToProperties } from '../../core/utils/arrays';
-import { forEeachProperty, getProperty, setProperty } from '../../core/utils/objects';
+import { forEachProperty, getProperty, setProperty } from '../../core/utils/objects';
 
 export const ports = [1, 2];
 export const sourceIds = ['keyboard', 'mouse', 'gamepad'];
@@ -214,12 +214,12 @@ export default class InputManager {
   writeConfiguration(config) {
     logger.info('Writing input configuration');
     if (config['inputDevices'] !== undefined) {
-      forEeachProperty(config['inputDevices'], this.connectTarget, this);
+      forEachProperty(config['inputDevices'], this.connectTarget, this);
     }
     if (config['inputMapping'] !== undefined) {
       this.clearMapping();
-      forEeachProperty(config['inputMapping'], (sourceId, sourceInputs) => {
-        forEeachProperty(sourceInputs, (sourceInput, targetParams) => {
+      forEachProperty(config['inputMapping'], (sourceId, sourceInputs) => {
+        forEachProperty(sourceInputs, (sourceInput, targetParams) => {
           if (targetParams) {
             var [ targetPort, targetId, targetInput ] = targetParams;
             this.mapInput(targetPort, targetId, targetInput, sourceId, sourceInput);
