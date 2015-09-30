@@ -13,7 +13,6 @@ export default class Injector {
     for (var name in config) {
       this.put(name, config[name]);
     }
-
   }
 
   put(name, dependency) {
