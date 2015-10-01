@@ -6,7 +6,7 @@ var expect = chai.expect;
 describe('Convert utils', () => {
 
   it('can convert between object and string', () => {
-    var obj = {a: 1, b: "x", c: [1, 2], d: {e: 1}};
+    var obj = {a: 1, b: 'x', c: [1, 2], d: {e: 1}};
     expect(convert.stringToObject(convert.objectToString(obj))).not.to.equal(obj);
     expect(convert.stringToObject(convert.objectToString(obj))).to.deep.equal(obj);
   });
@@ -22,19 +22,19 @@ describe('Convert utils', () => {
   });
 
   it('can convert data to base64', () => {
-    expect(convert.dataToBase64(Uint8Array.of(0x61, 0x62, 0x63))).to.equal("YWJj");
+    expect(convert.dataToBase64(Uint8Array.of(0x61, 0x62, 0x63))).to.equal('YWJj');
   });
 
   it('can convert base64 to data', () => {
-    expect(convert.base64ToData("YWJj")).to.deep.equal(Uint8Array.of(0x61, 0x62, 0x63));
+    expect(convert.base64ToData('YWJj')).to.deep.equal(Uint8Array.of(0x61, 0x62, 0x63));
   });
 
   it('can encode base64', () => {
-    expect(convert.encodeBase64("abc")).to.equal("YWJj");
+    expect(convert.encodeBase64('abc')).to.equal('YWJj');
   });
 
   it('can decode base64', () => {
-    expect(convert.decodeBase64("YWJj")).to.equal("abc");
+    expect(convert.decodeBase64('YWJj')).to.equal('abc');
   });
 
 });

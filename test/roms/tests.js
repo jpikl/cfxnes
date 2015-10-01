@@ -76,8 +76,10 @@ function execute(test) {
   var number = test.number;
   var assert = chai.assert;
   var expect = chai.expect;
-  var context = {number, assert, expect, fail, get, power, reset, step,
-    readByte, readString, screenshot, blargg, getPath, getOutputPath};
+  var context = {
+    number, assert, expect, fail, get, power, reset, step,
+    readByte, readString, screenshot, blargg, getPath, getOutputPath,
+  };
 
   // Execute test
   var asyncResults = [];
@@ -136,7 +138,7 @@ function execute(test) {
         if (outputBuffer.equals(verifiedBuffer)) {
           resolve();
         } else {
-          reject(new Error(`Screenshot ${outputFile} does not match ${verifiedFile}.`))
+          reject(new Error(`Screenshot ${outputFile} does not match ${verifiedFile}.`));
         }
       });
     }));

@@ -10,7 +10,7 @@ describe('MemoryStorage', () => {
   var storage = new MemoryStorage;
 
   it('should read/write configuration', () => {
-    var config = { key: 'value' };
+    var config = {key: 'value'};
     return storage.writeConfiguration(config).then(() => {
       return expect(storage.readConfiguration()).to.eventually.deep.equal(config);
     });

@@ -35,12 +35,12 @@ describe('Objects utils', () => {
       b: 2,
       copy(value) {
         dst2[value] = this[value];
-      }
+      },
     };
     var dst1 = {};
     var dst2 = {};
-    objects.forEachProperty({a: 1, b: 2}, value => dst1[value] = mapper[value])
-    objects.forEachProperty({a: 1, b: 2}, mapper.copy, mapper)
+    objects.forEachProperty({a: 1, b: 2}, value => dst1[value] = mapper[value]);
+    objects.forEachProperty({a: 1, b: 2}, mapper.copy, mapper);
     expect(dst1).to.deep.equal({a: 1, b: 2});
     expect(dst2).to.deep.equal({a: 1, b: 2});
   });

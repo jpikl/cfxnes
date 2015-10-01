@@ -205,7 +205,7 @@ gulp.task('watch',  function() {
 //=========================================================
 
 gulp.task('check', function() {
-  return gulp.src('./{src, test}/**/*.js')
+  return gulp.src('./{src,test}/**/*.js')
     .pipe(jscs());
 });
 

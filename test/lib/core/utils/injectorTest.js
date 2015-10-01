@@ -40,7 +40,7 @@ describe('Injector', () => {
     var injector = new Injector({
       foo: {type: 'value', value: 'Foo'},
       bar: {type: 'factory', value: () => new Bar},
-      baz: {type: 'class', value: Baz}
+      baz: {type: 'class', value: Baz},
     });
     expect(injector.get('foo')).to.be.equal(injector.get('foo'));
     expect(injector.get('bar')).to.be.equal(injector.get('bar'));
@@ -51,7 +51,7 @@ describe('Injector', () => {
     var injector = new Injector({
       foo: {type: 'value', value: 'Foo'},
       bar: {type: 'factory', value: () => new Bar},
-      baz: {type: 'class', value: Baz}
+      baz: {type: 'class', value: Baz},
     });
     var qux = injector.inject(new Qux);
     expect(qux.foo).to.equal('Foo');

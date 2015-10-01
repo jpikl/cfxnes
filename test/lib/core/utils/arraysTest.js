@@ -30,7 +30,7 @@ describe('Arrays utils', () => {
     expect(arrays.copyArray(array = [])).not.to.equal(array);
     expect(arrays.copyArray([], array = [])).to.equal(array);
     expect(arrays.copyArray([1, 2, 3])).to.deep.equal([1, 2, 3]);
-    expect(arrays.copyArray([1, 2], new Array(3))).to.deep.equal([1, 2, ]);
+    expect(arrays.copyArray([1, 2], new Array(3))).to.deep.equal([1, 2,]);
     expect(arrays.copyArray([1, 2, 3], new Array(3))).to.deep.equal([1, 2, 3]);
     expect(arrays.copyArray([1, 2, 3, 4], new Array(3))).to.deep.equal([1, 2, 3]);
   });
@@ -41,7 +41,7 @@ describe('Arrays utils', () => {
       b: 2,
       map(value) {
         return this[value];
-      }
+      },
     };
     expect(arrays.arrayToProperties(['a', 'b'], value => mapper[value])).to.deep.equal({a: 1, b: 2});
     expect(arrays.arrayToProperties(['a', 'b'], mapper.map, mapper)).to.deep.equal({a: 1, b: 2});
