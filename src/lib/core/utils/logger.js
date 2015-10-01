@@ -7,6 +7,7 @@ export var LogLevel = {
   ERROR: 2,
   WARN: 3,
   INFO: 4,
+  ALL: 4,
 };
 
 //=========================================================
@@ -86,6 +87,9 @@ export var LogWriter = {
   toFile(path) {
     return new FileWriter(path);
   },
+  toBuffer() {
+    return new BufferWriter;
+  },
 };
 
 //=========================================================
@@ -100,23 +104,54 @@ class FileWriter {
   }
 
   info(message) {
-    this.write(message + '\n');
+    this.write(message);
   }
 
   warn(message) {
-    this.write(message + '\n');
+    this.write(message);
   }
 
   error(message) {
-    this.write(message + '\n');
+    this.write(message);
   }
 
   write(message) {
-    this.fs.writeSync(this.fd, message);
+    this.fs.writeSync(this.fd, message + '\n');
   }
 
   close() {
     this.fs.close(this.fd);
+  }
+
+}
+
+//=========================================================
+// Log writer to buffer
+//=========================================================
+
+class BufferWriter {
+
+  constructor() {
+    this.buffer = [];
+  }
+
+  info(message) {
+    this.buffer.push(message);
+  }
+
+  warn(message) {
+    this.buffer.push(message);
+  }
+
+  error(message) {
+    this.buffer.push(message);
+  }
+
+  write(message) {
+    this.buffer.push(message);
+  }
+
+  close() {
   }
 
 }

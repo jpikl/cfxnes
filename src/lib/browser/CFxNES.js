@@ -12,7 +12,7 @@ var logLevelAliases = {
   'error': LogLevel.ERROR,
   'warn': LogLevel.WARN,
   'info': LogLevel.INFO,
-  'all': LogLevel.INFO,
+  'all': LogLevel.ALL,
 };
 
 //=========================================================
