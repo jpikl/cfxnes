@@ -1,12 +1,14 @@
 import { ENDIANNESS } from './system';
 
+const _ENDIANNESS = ENDIANNESS; // Closure compiler bug workaround (ENDIANNESS can't be used as a default parameter)
+
 //=========================================================
 // Color manipulation utilities
 //=========================================================
 
 export const BLACK_COLOR = packColor(0, 0, 0);
 
-export function packColor(r, g, b, a = 0xFF, endianness = ENDIANNESS) {
+export function packColor(r, g, b, a = 0xFF, endianness = _ENDIANNESS) {
   if (endianness === 'LE') {
     return (a << 24 | b << 16 | g << 8 | r) >>> 0; // Convert to 32-bit unsigned integer
   } else {
@@ -14,7 +16,7 @@ export function packColor(r, g, b, a = 0xFF, endianness = ENDIANNESS) {
   }
 }
 
-export function unpackColor(color, endianness = ENDIANNESS) {
+export function unpackColor(color, endianness = _ENDIANNESS) {
   if (endianness === 'LE') {
     return [
       color & 0xFF,

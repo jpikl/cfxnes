@@ -139,7 +139,9 @@ gulp.task('server', function() {
 //=========================================================
 
 gulp.task('clean', function(done) {
-  del(['./dist/'], done);
+  del('./dist/').then(function() {
+    done();
+  });
 });
 
 gulp.task('init', function(done) {
@@ -225,7 +227,7 @@ gulp.task('test-roms', function() {
 
 gulp.task('test-tools', function() {
   return gulp.src('./test/tools/**/*Test.js')
-    .pipe(mocha());
+    .pipe(mocha({timeout: 10000}));
 });
 
 gulp.task('test', gulp.series('test-lib', 'test-roms', 'test-tools'));
