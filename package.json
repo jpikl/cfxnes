@@ -52,6 +52,7 @@
     "less-plugin-autoprefix": "^1.4.2",
     "less-plugin-clean-css": "^1.5.1",
     "mkdirp": "^0.5.1",
+    "node-png": "^0.4.3",
     "promise-polyfill": "^2.1.0",
     "riot": "^2.2.4",
     "riotify": "^0.1.2",
