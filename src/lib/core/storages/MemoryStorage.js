@@ -1,5 +1,7 @@
+// jscs:disable disallowQuotedKeysInObjects
+
 import { copyArray } from '../utils/arrays';
-import { copyObject } from '../utils/objects';
+import { copyObject, getProperty, setProperty } from '../utils/objects';
 
 //=========================================================
 // Memory storage
@@ -9,8 +11,7 @@ export default class MemoryStorage {
 
   constructor() {
     this.config = null;
-    this.prgRAMs = {};
-    this.chrRAMs = {};
+    this.rams = {};
   }
 
   readConfiguration() {
@@ -26,38 +27,34 @@ export default class MemoryStorage {
     });
   }
 
-  readPRGRAM(key, buffer) {
+  deleteConfiguration() {
     return new Promise(resolve => {
-      var ram = this.prgRAMs[key];
-      if (ram) {
-        resolve(copyArray(ram, buffer));
-      } else {
-        resolve(null);
-      }
-    });
-  }
-
-  writePRGRAM(key, ram) {
-    return new Promise(resolve => {
-      this.prgRAMs[key] = copyArray(ram);
+      this.config = null;
       resolve();
     });
   }
 
-  readCHRRAM(key, buffer) {
+  readRAM(id, type, buffer) {
     return new Promise(resolve => {
-      var ram = this.chrRAMs[key];
-      if (ram) {
-        resolve(copyArray(ram, buffer));
-      } else {
-        resolve(null);
-      }
+      var data = getProperty(this.rams, id, type);
+      resolve(data ? copyArray(data, buffer) : null);
     });
   }
 
-  writeCHRRAM(key, ram) {
+  writeRAM(id, type, data) {
     return new Promise(resolve => {
-      this.chrRAMs[key] = copyArray(ram);
+      setProperty(this.rams, id, type, data);
+      resolve();
+    });
+  }
+
+  deleteRAM(id) {
+    return new Promise(resolve => {
+      if (id != null) {
+        setProperty(this.rams, id, undefined);
+      } else {
+        this.rams = {};
+      }
       resolve();
     });
   }

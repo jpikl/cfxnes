@@ -80,8 +80,8 @@ export default class NES {
   loadCartridgeData(storage) {
     if (this.mapper) {
       return Promise.all([
-      this.mapper.loadPRGRAM(storage),
-      this.mapper.loadCHRRAM(storage),
+        this.mapper.loadPRGRAM(storage),
+        this.mapper.loadCHRRAM(storage),
       ]);
     }
     return Promise.resolve();

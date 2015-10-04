@@ -98,12 +98,12 @@ export default class AbstractMapper {
     }
   }
 
-  getPRGROMHash() {
+  getPRGROMId() {
     return new Promise(resolve => {
-      if (this.prgROMHash == null) {
-        this.prgROMHash = this.hash(this.prgROM);
+      if (this.prgROMId == null) {
+        this.prgROMId = this.hash(this.prgROM);
       }
-      resolve(this.prgROMHash);
+      resolve(this.prgROMId);
     });
   }
 
@@ -129,8 +129,8 @@ export default class AbstractMapper {
   loadPRGRAM(storage) {
     if (this.hasPRGRAM && this.hasPRGRAMBattery) {
       if (this.hash) {
-        return this.getPRGROMHash().then(hash => {
-          return storage.readPRGRAM(hash, this.prgRAM);
+        return this.getPRGROMId().then(id => {
+          return storage.readRAM(id, 'prg', this.prgRAM);
         });
       } else {
         logger.warn('Unable to load PRGRAM: hash function is not available.');
@@ -142,8 +142,8 @@ export default class AbstractMapper {
   savePRGRAM(storage) {
     if (this.hasPRGRAM && this.hasPRGRAMBattery) {
       if (this.hash) {
-        return this.getPRGROMHash().then(hash => {
-          return storage.writePRGRAM(hash, this.prgRAM.subarray(0, this.prgRAMSizeBattery));
+        return this.getPRGROMId().then(id => {
+          return storage.writeRAM(id, 'prg', this.prgRAM.subarray(0, this.prgRAMSizeBattery));
         });
       } else {
         logger.warn('Unable to save PRGRAM: hash function is not available.');
@@ -215,8 +215,8 @@ export default class AbstractMapper {
   loadCHRRAM(storage) {
     if (this.hasCHRRAM && this.hasCHRRAMBattery) {
       if (this.hash) {
-        return this.getPRGROMHash().then(hash => {
-          return storage.readCHRRAM(hash, this.chrRAM);
+        return this.getPRGROMId().then(id => {
+          return storage.readRAM(id, 'chr', this.chrRAM);
         });
       } else {
         logger.warn('Unable to load CHRRAM: hash function is not available.');
@@ -228,8 +228,8 @@ export default class AbstractMapper {
   saveCHRRAM(storage) {
     if (this.hasCHRRAM && this.hasCHRRAMBattery) {
       if (this.hash) {
-        return this.getPRGROMHash().then(hash => {
-          return storage.writeCHRRAM(hash, this.chrRAM.subarray(0, this.chrRAMSizeBattery));
+        return this.getPRGROMId().then(id => {
+          return storage.writeRAM(id, 'chr', this.chrRAM.subarray(0, this.chrRAMSizeBattery));
         });
       } else {
         logger.warn('Unable to save CHRRAM: hash function is not available.');

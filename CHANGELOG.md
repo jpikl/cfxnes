@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - API uses Promises for asynchronous operations.
+- Cartridge data (battery backed RAM) is stored in IndexedDB.
 
 ## [0.3.0] - 2015-08-09
 ### Fixed

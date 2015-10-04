@@ -74,7 +74,9 @@ export default class CartridgeManager {
       this.removeCartridge().then(() => {
         logger.info('Inserting cartridge');
         this.nes.insertCartridge(cartridge);
-        return this.persistenceManager.loadCartridgeData();
+        return this.persistenceManager.loadCartridgeData().catch(error => {
+          logger.error(error); // Do not propagate loadCartridgeData errors!
+        });
       }).then(() => {
         if (this.executionManager.isRunning()) {
           this.executionManager.restart();
@@ -91,6 +93,8 @@ export default class CartridgeManager {
           logger.info('Removing cartridge');
           this.nes.removeCartridge();
           resolve();
+        }, error => {
+          logger.error(error); // Do not propagate saveCartridgeData errors!
         }).catch(reject);
       });
     }

@@ -8,14 +8,6 @@ export default class ExternalStorage {
     this.implementer = implementer;
   }
 
-  call(method, ...args) {
-    if (this.implementer[method]) {
-      return this.implementer[method](...args);
-    } else {
-      return Promise.resolve(null);
-    }
-  }
-
   readConfiguration() {
     return this.call('readConfiguration');
   }
@@ -24,20 +16,28 @@ export default class ExternalStorage {
     return this.call('writeConfiguration', config);
   }
 
-  readPRGRAM(id, prgRAM) {
-    return this.call('readPRGRAM', id, prgRAM);
+  deleteConfiguration() {
+    return this.call('deleteConfiguration');
   }
 
-  writePRGRAM(id, prgRAM) {
-    return this.call('writePRGRAM', id, prgRAM);
+  readRAM(id, type, buffer) {
+    return this.call('readRAM', id, type, buffer);
   }
 
-  readCHRRAM(id, chrRAM) {
-    return this.call('readCHRRAM', id, chrRAM);
+  writeRAM(id, type, data) {
+    return this.call('writeRAM', id, type, data);
   }
 
-  writeCHRRAM(id, chrRAM) {
-    return this.call('writeCHRRAM', id, chrRAM);
+  deleteRAM(id) {
+    return this.call('deleteRAM', id);
+  }
+
+  call(method, ...args) {
+    if (this.implementer[method]) {
+      return this.implementer[method](...args);
+    } else {
+      return Promise.resolve(null);
+    }
   }
 
 }
