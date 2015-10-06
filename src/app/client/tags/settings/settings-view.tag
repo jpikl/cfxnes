@@ -13,6 +13,9 @@
     <div riot-tag="collapse-panel" panel-id="controls-settings" label="Controls" icon="gamepad">
       <controls-settings></controls-settings>
     </div>
+    <div riot-tag="collapse-panel" panel-id="reset-settings" label="Reset" icon="trash-o">
+      <reset-settings></reset-settings>
+    </div>
   </div>
   <script>
     var self = this;

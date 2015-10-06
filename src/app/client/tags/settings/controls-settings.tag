@@ -4,7 +4,7 @@
     <device-setup port="2"></device-setup>
   </div>
   <div class="controls-settings">
-    <restore-defaults></restore-defaults>
+    <restore-controls></restore-controls>
     <connected-gamepads></connected-gamepads>
     <input-checkbox name="controls-info-enabled" label="Show controls on emulator page" value={ controlsInfoEnabled }></input-checkbox>
   </div>
@@ -24,7 +24,7 @@
       this.tags['device-setup'].forEach(function(deviceSetup) {
         deviceSetup.on('change', deviceSetup.parent.refresh);
       });
-      this.tags['restore-defaults'].on('change', this.refresh);
+      this.tags['restore-controls'].on('change', this.refresh);
       this.tags['connected-gamepads'].on('change', this.refresh);
       this.tags['controls-info-enabled'].on('change', function(value) {
         app.controlsInfoEnabled = value;

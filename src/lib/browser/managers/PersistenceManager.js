@@ -108,6 +108,11 @@ export default class PersistenceManager {
     return Promise.resolve();
   }
 
+  deleteAllCartridgeData() {
+    logger.info('Deleting all cartridge data');
+    return this.storage.deleteRAM();
+  }
+
   //=========================================================
   // Configuration
   //=========================================================
@@ -129,6 +134,11 @@ export default class PersistenceManager {
     return new Promise((resolve, reject) => {
       this.storage.writeConfiguration(this.readConfiguration()).then(resolve, reject);
     });
+  }
+
+  deleteConfiguration() {
+    logger.info('Deleting configuration');
+    return this.storage.deleteConfiguration();
   }
 
   readConfiguration() {

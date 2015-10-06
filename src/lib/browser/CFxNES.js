@@ -322,12 +322,25 @@ export default class CFxNES {
     return this.persistenceManager.saveCartridgeData();
   }
 
+  ['deleteAllCartridgeData']() {
+    return this.persistenceManager.deleteAllCartridgeData();
+  }
+
   ['loadConfiguration']() {
     return this.persistenceManager.loadConfiguration();
   }
 
   ['saveConfiguration']() {
     return this.persistenceManager.saveConfiguration();
+  }
+
+  ['resetConfiguration']() {
+    return new Promise(resolve => {
+      this.persistenceManager.deleteConfiguration().then(() => {
+        this['setDefaults']();
+        resolve();
+      });
+    });
   }
 
   ['readConfiguration']() {

@@ -13,6 +13,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Support for BNROM and NINA-001 mappers.
 - API to change loggging level.
 - Screenshots in debugger.
+- Option to reset configuration.
+- Option to delete game data.
 
 ### Changed
 - API uses Promises for asynchronous operations.
