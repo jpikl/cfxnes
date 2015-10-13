@@ -2,17 +2,26 @@
   <label for={ opts.name } class="control-label">{ opts.label }</label>
   <div>
     <select id="{ opts.name }" class="form-control" onchange={ change }>
-      <!-- Workaround for bug: https://github.com/riot/riot/issues/691 -->
-      <option each="{ option in opts.options }" value={ option.value }>{ option.label }</option>
+      <option each="{ option in opts.options }" value={ option.value } selected={ option.selected }>{ option.label }</option>
     </select>
   </div>
   <script>
+    this.value = opts.value;
+
     change(event) {
-      this.trigger('change', event.target.value);
+      this.value = event.target.value;
+      this.trigger('change', this.value);
     }
 
-    this.on('mount', function() {
-      $(this.root).find('select').val(this.opts.value);
-    });
+    setValue(value) {
+      this.update({value: value});
+    }
+
+    this.on('update', function() {
+      var value = this.value;
+      opts.options.forEach(function(option) {
+        option.selected = option.value === value;
+      });
+    })
   </script>
 </input-select>

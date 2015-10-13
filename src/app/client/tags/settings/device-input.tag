@@ -10,9 +10,9 @@
   </div>
   <script>
     var self = this;
-    var targetPort = this.opts.port;
-    var targetId = this.opts.device;
-    var targetInput = this.opts.input;
+    var targetPort = opts.port;
+    var targetId = opts.device;
+    var targetInput = opts.input;
 
     change() {
       var modal = $('#record-input-modal').modal('show');

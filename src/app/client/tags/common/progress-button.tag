@@ -8,10 +8,10 @@
   </button>
   <script>
     this.state = 'ready';
-    this.title = this.opts.title;
+    this.title = opts.title;
 
     setReady() {
-      this.update({state: 'ready', title: this.opts.title})
+      this.update({state: 'ready', title: opts.title})
     }
 
     setProgress(title) {

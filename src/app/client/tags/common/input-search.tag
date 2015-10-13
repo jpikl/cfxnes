@@ -1,13 +1,20 @@
 <input-search>
-  <input type="search" class="form-control" placeholder={ opts.placeholder } value={ opts.value } oninput={ change }>
+  <input type="search" class="form-control" placeholder={ opts.placeholder } value={ value } oninput={ change }>
   <script>
+    this.value = opts.value;
+
     change(event) {
-      this.trigger('change', event.target.value);
+      this.value = event.target.value;
+      this.trigger('change', this.value);
     }
 
-    if (this.opts.focus) {
+    setValue(value) {
+      this.update({value: value});
+    }
+
+    if (opts.focus) {
       this.on('mount', function() {
-        $('input').focus().select();
+        $(this.root).find('input').focus().select();
       });
     }
   </script>

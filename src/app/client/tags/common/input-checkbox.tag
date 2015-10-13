@@ -1,16 +1,22 @@
-<input-checkbox class="checkbox">
+<input-checkbox class="checkbox {disabled: !enabled}">
   <label for={ opts.name }>
-    <input id={ opts.name } type="checkbox" checked={ opts.value } onclick={ click }>{ opts.label }
+    <input id={ opts.name } type="checkbox" checked={ value } disabled={ !enabled } onclick={ click }>{ opts.label }
   </label>
   <script>
+    this.value = opts.value;
+    this.enabled = true;
+
     click(event) {
-      this.trigger('change', event.target.checked);
+      this.value = event.target.checked;
+      this.trigger('change', this.value);
+    }
+
+    setValue(value) {
+      this.update({value: value});
     }
 
     setEnabled(enabled) {
-      $(this.root).toggleClass('disabled', !enabled)
-            .find('input')
-            .prop('disabled', !enabled);
+      this.update({enabled: enabled});
     }
   </script>
 </input-checkbox>

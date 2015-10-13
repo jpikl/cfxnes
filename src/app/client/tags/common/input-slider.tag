@@ -23,8 +23,20 @@
       return null;
     }
 
+    setValue(value) {
+      if (slider) {
+        slider.slider('setValue', value)
+      } else {
+        opts.value = value;
+      }
+    }
+
     setEnabled(enabled) {
-      slider.slider(enabled ? 'enable' : 'disable');
+      if (slider) {
+        slider.slider(enabled ? 'enable' : 'disable');
+      } else {
+        opts.enabled = enabled;
+      }
     }
 
     this.on('mount', function() {
@@ -33,6 +45,7 @@
         max: toNumber(opts.max),
         step: toNumber(opts.step),
         value: toNumber(opts.value),
+        enabled: opts.enabled,
         formatter: formatters[opts.format]
       }).on('change', function(event) {
         self.trigger('change', event.value.newValue);

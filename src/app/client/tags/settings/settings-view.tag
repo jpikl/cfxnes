@@ -14,7 +14,7 @@
       <controls-settings></controls-settings>
     </div>
     <div riot-tag="collapse-panel" panel-id="reset-settings" label="Reset" icon="trash-o">
-      <reset-settings></reset-settings>
+      <reset-settings name='reset-settings'></reset-settings>
     </div>
   </div>
   <script>
@@ -27,6 +27,12 @@
     this.on('mount', function() {
       this.tags['panel-group'].on('open', function(panelId) {
         app.settingsPanel = panelId.substring(0, panelId.indexOf('-'));
+      });
+      findTag(this, 'reset-settings').on('reset', function() {
+        findTag(self, 'emulation-settings').refresh();
+        findTag(self, 'video-settings').refresh();
+        findTag(self, 'audio-settings').refresh();
+        findTag(self, 'controls-settings').refresh();
       });
     });
   </script>

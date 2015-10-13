@@ -8,7 +8,7 @@
     </span>
   </button>
   <div name="dropdown" class="dropdown-menu volume-dropdown">
-    <input type="checkbox" name="checkbox" title="Enable audio" checked="{ enabled }" onclick={ toggleEnabled }>
+    <input type="checkbox" name="checkbox" title="Enable audio" checked={ enabled } onclick={ toggleEnabled }>
     <input type="text" name="slider">
   </div>
   <script>

@@ -5,7 +5,7 @@
   </div>
   <div>
     <progress-button name="delete-data" title="Delete game data" icon="trash-o"></progress-button>
-    <p>Delete data of all games that supports saving (for example
+    <p>Delete data of all games that support saving (for example
         <em>The Legend of Zelda</em> or <em>Final Fantasy</em>).</p>
   </div>
   <script>
@@ -16,7 +16,12 @@
       resetSettings.on('click', function() {
         resetSettings.setProgress('Reseting settings...');
         cfxnes.resetConfiguration().then(function() {
+          app.fpsEnabled = true;
+          app.controlsInfoEnabled = true;
+          app.controlsInfoVisible = true;
+          app.save();
           resetSettings.setSuccess('Done');
+          resetSettings.parent.trigger('reset');
         }, function(error) {
           resetSettings.setError(error.message || 'Reset failed');
         });

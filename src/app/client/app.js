@@ -72,6 +72,25 @@ eachTag = function(tags, callback) {
   }
 };
 
+findTag = function(root, name) {
+  var tag = root.tags[name];
+  if (tag != null) {
+    return tag;
+  }
+  for (var id in root.tags) {
+    var tags = root.tags[id];
+    if (tags.length == null) {
+      tags = [tags];
+    }
+    for (var i = 0; i < tags.length; i++) {
+      var tag = findTag(tags[i], name);
+      if (tag != null) {
+        return tag;
+      }
+    }
+  }
+}
+
 getErrorMessage = function(error) {
   if (error.message) {
     return 'Error: ' + error.message; // Error object

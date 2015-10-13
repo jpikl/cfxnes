@@ -14,7 +14,7 @@
     <div riot-tag="device-input" port={ port } device="zapper" input="trigger" input-name="Trigger"></div>
   </div>
   <script>
-    this.port = parseInt(this.opts.port);
+    this.port = parseInt(opts.port);
 
     change() {
       this.trigger('change');

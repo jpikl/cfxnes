@@ -6,7 +6,7 @@
   <div class="controls-settings">
     <restore-controls></restore-controls>
     <connected-gamepads></connected-gamepads>
-    <input-checkbox name="controls-info-enabled" label="Show controls on emulator page" value={ controlsInfoEnabled }></input-checkbox>
+    <input-checkbox name="controls-info-enabled" label="Show controls on emulator page"></input-checkbox>
   </div>
   <div id="record-input-modal" class="modal">
     <div class="modal-dialog">
@@ -18,7 +18,12 @@
     </div>
   </div>
   <script>
-    this.controlsInfoEnabled = app.controlsInfoEnabled;
+    refresh() {
+      this.tags['controls-info-enabled'].setValue(app.controlsInfoEnabled);
+      this.tags['device-setup'].forEach(function(deviceSetup) {
+        deviceSetup.update();
+      });
+    }
 
     this.on('mount', function() {
       this.tags['device-setup'].forEach(function(deviceSetup) {
@@ -28,14 +33,10 @@
       this.tags['connected-gamepads'].on('change', this.refresh);
       this.tags['controls-info-enabled'].on('change', function(value) {
         app.controlsInfoEnabled = value;
+        app.controlsInfoVisible = value;
         app.save();
       });
+      this.refresh();
     });
-
-    refresh() {
-      this.tags['device-setup'].forEach(function(deviceSetup) {
-        deviceSetup.update();
-      });
-    }
   </script>
 </controls-settings>
