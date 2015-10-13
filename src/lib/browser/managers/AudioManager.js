@@ -134,7 +134,7 @@ export default class AudioManager {
   // Audio volume
   //=========================================================
 
-  setVolume(volume = 1.0) {
+  setVolume(volume = 0.5) {
     volume = Math.max(0.0, Math.min(volume, 1.0));
     if (this.getVolume() != volume) {
       logger.info(`Setting audio volume to ${~~(100 * volume)}%`);

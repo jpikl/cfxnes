@@ -12,13 +12,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support for BNROM and NINA-001 mappers.
 - API to change loggging level.
-- Screenshots in debugger.
 - Option to reset configuration.
-- Option to delete game data.
+- Option to delete saved game data.
+- Debugger can take screenshots.
 
 ### Changed
 - API uses Promises for asynchronous operations.
 - Cartridge data (battery backed RAM) is stored in IndexedDB.
+- Default audio volume is 50%.
 
 ## [0.3.0] - 2015-08-09
 ### Fixed
