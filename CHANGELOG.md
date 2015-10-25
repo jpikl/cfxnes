@@ -2,54 +2,60 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+Each change is prefixed with code of related module:
+- *core* = emulator core
+- *lib* = emulation library
+- *app* = web application
+- *dbg* = debugger
+
 ## [Unreleased][unreleased]
 ### Fixed
-- Detection of NES 2.0 ROM image format.
-- Correct size of PRG/CHR RAM that is read from ROM images (iNES / NES 2.0).
-- MMC1 mapper imlementation (PRG RAM protection, PRG ROM mapping).
-- MMC3 mapper implementation (PRG RAM protection, CHR ROM mapping).
+- [core] Detection of NES 2.0 ROM image format.
+- [core] Correct size of PRG/CHR RAM that is read from ROM images (iNES / NES 2.0).
+- [core] MMC1 mapper imlementation (PRG RAM protection, PRG ROM mapping).
+- [core] MMC3 mapper implementation (PRG RAM protection, CHR ROM mapping).
 
 ### Added
-- Support for BNROM and NINA-001 mappers.
-- API to change loggging level.
-- Option to reset configuration.
-- Option to delete saved game data.
-- Debugger can take screenshots.
+- [core] Support for BNROM and NINA-001 mappers.
+- [lib] API to change loggging level.
+- [app] Option to reset configuration.
+- [app] Option to delete saved game data.
+- [dbg] Debugger can take screenshots.
 
 ### Changed
-- API uses Promises for asynchronous operations.
-- Cartridge data (battery backed RAM) is stored in IndexedDB.
-- Default audio volume is 50%.
+- [core] Cartridge data (battery backed RAM) is stored in IndexedDB.
+- [core, lib] API uses Promises for asynchronous operations.
+- [lib, app] Default audio volume is 50%.
 
 ## [0.3.0] - 2015-08-09
 ### Fixed
-- Mouse cursor detection for zapper.
+- [lib] Mouse cursor detection for zapper.
 
 ### Added
-- Gamepad support.
+- [lib, app] Gamepad support.
 
 ### Changed
-- Complete UI rewrite (switched from AngularJS to RiotJS).
-- Emulator library can be loaded as AMD or CommonJS module.
-- *TV system* configuration option renamed to *Region*.
+- [lib] Library can be loaded as AMD or CommonJS module.
+- [app] Complete UI rewrite (switched from AngularJS to RiotJS).
+- [app] *TV system* configuration option renamed to *Region*.
 
 ## [0.2.0] - 2015-05-18
 ### Fixed
-- Emulator initialization in Internet Explorer.
+- [core] MMC3 mapper initial state (SMB3 and Shadow of the Ninja games are now playable).
+- [core] Compatibility with Babel compiler (v5.4.3).
+- [core, lib] Compatibility with Closure Compiler (v20150505).
+- [lib, app] Emulator initialization in Internet Explorer.
 - Build process initialization on Windows.
-- MMC3 mapper initial state (SMB3 and Shadow of the Ninja games are now playable).
-- Compatibility with Closure Compiler (v20150505).
-- Compatibility with Babel compiler (v5.4.3).
 
 ## Added
-- Support for loading zipped `.nes` files.
-- Visual effect when dropping files into browser window.
-- Option to hide FPS counter.
-- Favicon.
+- [core] Support for loading of zipped `.nes` files.
+- [app] Visual effect when dropping files into browser window.
+- [app] Option to hide FPS counter.
+- [app] Favicon.
 
 ### Changed
-- UI optimization for small screens.
-- js-md5 and screenfull library are optional dependencies.
+- [core, lib] js-md5 and screenfull library are optional dependencies.
+- [app] UI optimization for small screens.
 
 ## 0.1.0 - 2015-04-26
 - Complete rewrite from CoffeeScript to ECMAScript 6.

@@ -1,76 +1,72 @@
 # CFxNES
 
-A Nintendo Entertainment System emulator written in ECMAScript 6.
+JavaScript NES emulator and emulation library.
 
-![CFxNES logo](https://raw.githubusercontent.com/jpikl/cfxnes/master/src/app/client/images/logo.png)
+![CFxNES logo](app/src/client/images/logo.png)
 
 Try CFxNES out at [cfxnes.heroku.com](http://cfxnes.herokuapp.com)
 
-CFxNES is in early development, so many of the NES games are not playable yet.
-For best berformance, at least 2 GHz CPU and the **latest Google Chrome** or **Firefox**
-are recommended.
+For the best performance, at least 2 GHz CPU and the **latest Google Chrome**
+or **Firefox** are recommended.
 
 The source code is licensed under the MIT License.
 See LICENSE.txt for more details.
 
-## Building and Running
+## Main Features
 
-    npm install
-    npm run build
-    npm start
+- Loading of iNES and NES 2.0 ROM images.
+- Loading of zipped ROM images.
+- Supported mappers: NROM, MMC1, MMC3, UNCOM, CNROM, AOROM, BNROM, NINA-001.
+- Persistence of battery-backed RAM (game saves) in IndexedDB.
+- Rendering using WebGL (with canvas fallback).
+- Full screen mode.
+- Sound emulation using Web Audio.
+- Zapper emulation using mouse.
+- Gamepad input support.
+- Customizable key bindings.
+- Plenty of configuration options.
+- Game library.
 
-Application is running at <http://localhost:5000>.
+## Known Issues
 
-## Game Library
+- No sound in Internet Explorer (and in [other browsers](http://caniuse.com/#feat=audio-api) than do not support Web Audio).
+- Occasional graphical glitches in games using MMC3 mapper.
+- See [list of broken games](broken_games.md).
 
-Put your *.nes* ROM files inside the `dist/app/roms` directory to make them available in game library.
-On non-Widows platforms, symbolic link `roms` to this directory is automatically created.
+## Project Structure
 
-To have custom thumbnails you have to add image with the same name as the ROM file.
-E.g., thumbnail for `Super Mario Bros.nes` should be named `Super Mario Bros.jpg`.
-Supported image formats are *JPG*, *PNG* and *GIF*.
+- [cfxnes-core](core) - core components of the emulator.
+- [cfxnes-lib](lib) - library for NES emulation in web browser.
+- [cfxnes-app](app) - web application build on top of the library.
+- [cfxnes-dbg](dbg) - tool for debugging NES ROM images.
 
-## Using CFxNES as a library
+## How to Setup Development Environment
 
-*The library API is currently unstable and undocumented.*
+1) Install `make`, `nodejs` and `npm`.
 
-CFxNES can be used as a JS library to run NES games on your website.
-The source code below provides a minimal example how to setup and run emulator.
+2) Install build tools:
 
-The library requires browser that supports [Promises](https://promisesaplus.com/).
-You can use [polyfill](https://www.promisejs.org/polyfills/promise-7.0.1.min.js)
-to make it working in Internet Explorer, Firefox (< 29) and Chrome (< 32).
+    npm install -g gulpjs/gulp-cli#4.0
+    npm install -g npm-check-updates
 
-``` html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>CFxNES</title>
-    <script type="text/javascript" src="//www.promisejs.org/polyfills/promise-7.0.1.min.js"></script>
-    <script type="text/javascript" src="cfxnes.js"></script>
-    <script type="text/javascript">
-        window.onload = function() {
-            var cfxnes = new CFxNES;
-            cfxnes.setVideoOutput(document.getElementById("canvas"));
-            cfxnes.downloadCartridge("game.nes").then(function() {
-                cfxnes.start(); // Success, run the game.
-            }).catch(function(error) {
-                alert(error);
-            });
-        };
-    </script>
-</head>
-<body>
-    <canvas id="canvas"></canvas>
-</body>
-</html>
-```
+3) Install project dependencies:
 
-The `cfxnes.js` can be build with `npm run lib` command.
-The file is generated to the `dist/lib` directory.
+    make install_deps
 
+## Useful make targets
 
-## Debugger
+Build both library (minified and debug version) and application:
 
-Use `./bin/debugger` to debug NES ROM images using CFxNES.
-Run the debugger with `-h` flag to see available options.
+    make build_all
+
+Build library in debug mode + watch changes:
+
+    make dev_lib
+
+Build application in debug mode + watch changes + run browser sync:
+
+    make dev_app
+
+Run all tests:
+
+    make test

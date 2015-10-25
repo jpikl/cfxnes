@@ -1,0 +1,55 @@
+{
+  "name": "cfxnes-app",
+  "version": "0.4.0",
+  "description": "CFxNES emulator application",
+  "license": "MIT",
+  "private": true,
+  "keywords": [
+    "emulator",
+    "nes"
+  ],
+  "author": "Jan Pikl <pikl.jan@gmail.com>",
+  "homepage": "https://github.com/jpikl/cfxnes",
+  "bugs": {
+    "url": "https://github.com/jpikl/cfxnes/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jpikl/cfxnes"
+  },
+  "dependencies": {
+    "express": "^4.13.3",
+    "morgan": "^1.6.1"
+  },
+  "devDependencies": {
+    "bootstrap": "^3.3.5",
+    "bootstrap-slider": "^5.0.12",
+    "browser-sync": "^2.9.11",
+    "font-awesome": "^4.4.0",
+    "gulp": "gulpjs/gulp#4.0",
+    "gulp-babel": "^5.3.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-develop-server": "^0.4.3",
+    "gulp-if": "^2.0.0",
+    "gulp-jscs": "^3.0.1",
+    "gulp-less": "^3.0.3",
+    "gulp-replace": "^0.5.4",
+    "gulp-riot": "^0.3.1",
+    "gulp-uglify": "^1.4.0",
+    "jquery": "^2.1.4",
+    "jquery.browser": "0.0.8",
+    "js-md5": "^0.3.0",
+    "jszip": "Stuk/jszip#bcfe0352bfd0d3c93251b68eaebe77109e34a25f",
+    "less-plugin-autoprefix": "^1.4.2",
+    "less-plugin-clean-css": "^1.5.1",
+    "merge2": "^0.3.6",
+    "mkdirp": "^0.5.1",
+    "nodemon": "^1.7.3",
+    "promise-polyfill": "^2.1.0",
+    "riot": "^2.2.4",
+    "screenfull": "^2.0.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "yargs": "^3.23.0"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "cfxnes-core",
+  "version": "0.4.0",
+  "description": "CFxNES emulator core",
+  "license": "MIT",
+  "private": true,
+  "keywords": [
+    "emulator",
+    "nes"
+  ],
+  "author": "Jan Pikl <pikl.jan@gmail.com>",
+  "homepage": "https://github.com/jpikl/cfxnes",
+  "bugs": {
+    "url": "https://github.com/jpikl/cfxnes/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jpikl/cfxnes"
+  },
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "chai": "^3.2.0",
+    "chai-as-promised": "^5.1.0",
+    "gulp": "gulpjs/gulp#4.0",
+    "gulp-jscs": "^3.0.1",
+    "gulp-mocha": "^2.1.3",
+    "node-png": "^0.4.3"
+  }
+}
