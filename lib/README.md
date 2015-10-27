@@ -2,7 +2,7 @@
 
 JavaScript Library for NES emulation in web browser.
 
-*Note: The library API is currently unstable and undocumented.*
+*The library API is currently unstable and undocumented.*
 
 ## Requirements
 
@@ -40,20 +40,12 @@ The video output will be rendered to the canvas element.
 
 ## Building
 
-Install dependencies:
+1) [Set up your development environment](../docs/dev-environment.md).
 
-    npm install
+2) Build optimized and minified version of the library `dist/cfxnes.js`:
 
-Build optimized and minified version of the library `dist/cfxnes.js`:
-    
     gulp build
 
-Build debug version of the library `dist/cfxnes.debug.js`:
+3) Or build debug version of the library `dist/cfxnes.debug.js`:
 
     gulp build -d
-
-## Tests
-
-Run tests:
-
-    gulp test

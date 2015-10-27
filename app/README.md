@@ -6,14 +6,11 @@ Live demo is available at [cfxnes.heroku.com](http://cfxnes.herokuapp.com)
 
 ## Building and Running
 
-1) Build the [CFxNES library](../lib) as described in 
-   [here](../lib#building) (either minified or debug version).
+1) [Set up your development environment](../docs/dev-environment.md).
 
-2) Install dependencies:
+2) [Build the library](../lib/README.md#user-content-building).
 
-    npm install
-
-3) Build application in the `dist` directory:
+3) Build the application:
     
     gulp build
 

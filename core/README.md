@@ -9,7 +9,7 @@ in `ADVANCED_OPTIMIZATIONS` mode to gain significant performance boost.
 
 ## Basic Principles and Usage
 
-*Note: The core API is currently unstable and undocumented.*
+*The core API is currently unstable and undocumented.*
 
 ### Dependency Injection
 
