@@ -45,7 +45,6 @@ Each change is prefixed with code of related module:
 - [core] Compatibility with Babel compiler (v5.4.3).
 - [core, lib] Compatibility with Closure Compiler (v20150505).
 - [lib, app] Emulator initialization in Internet Explorer.
-- Build process initialization on Windows.
 
 ## Added
 - [core] Support for loading of zipped `.nes` files.

@@ -19,7 +19,6 @@
   <h4>Fixed</h4>
   <ul>
     <li>Emulator initialization in Internet Explorer.</li>
-    <li>Build process initialization on Windows.</li>
     <li>MMC3 mapper initial state (SMB3 and Shadow of the Ninja games are now playable).</li>
     <li>Compatibility with Closure Compiler (v20150505).</li>
     <li>Compatibility with Babel compiler (v5.4.3).</li>

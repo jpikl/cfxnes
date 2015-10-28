@@ -65,7 +65,7 @@ export function makeEnumeration(enumeration) {
     return paramsTable[id] || defaultParams;
   };
   enumeration.toString = function(id) {
-    var params = this.getParams(id);
+    var params = enumeration.getParams(id);
     return params && (params.name || params.id) || id;
   };
   return enumeration;

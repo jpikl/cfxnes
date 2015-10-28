@@ -34,7 +34,7 @@ const F_SKIP      = 1 << 20; // Cycle which is skipped during odd frames
 
 var cycleFlags = newUintArray(341);
 
-for (var i = 0; i < cycleFlags.length; i++) {
+for (let i = 0; i < cycleFlags.length; i++) {
   if (i >= 1 && i <= 256) {
     cycleFlags[i] |= F_RENDER;
     cycleFlags[i] |= F_CLIP_TB;
@@ -84,7 +84,7 @@ cycleFlags[338] |= F_SKIP;
 
 var scanlineFlags = newUintArray(262);
 
-for (var i = 0; i < scanlineFlags.length; i++) {
+for (let i = 0; i < scanlineFlags.length; i++) {
   if (i <= 239) {
     scanlineFlags[i] |= F_RENDER;
     scanlineFlags[i] |= F_SHIFT_BG;

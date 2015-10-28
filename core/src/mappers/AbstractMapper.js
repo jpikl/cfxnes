@@ -82,18 +82,16 @@ export default class AbstractMapper {
   //=========================================================
 
   mapPRGROMBank32K(srcBank, dstBank) {
-    this.mapPRGROMBank8K(srcBank, dstBank, 4);
+    this.mapPRGROMBank8K(srcBank * 4, dstBank * 4, 4);
   }
 
   mapPRGROMBank16K(srcBank, dstBank) {
-    this.mapPRGROMBank8K(srcBank, dstBank, 2);
+    this.mapPRGROMBank8K(srcBank * 2, dstBank * 2, 2);
   }
 
-  mapPRGROMBank8K(srcBank, dstBank, ratio = 1) {
-    var srcBank = ratio * srcBank;
-    var dstBank = ratio * dstBank;
+  mapPRGROMBank8K(srcBank, dstBank, count = 1) {
     var maxBank = (this.prgROMSize - 1) >> 13;
-    for (var i = 0; i < ratio; i++) {
+    for (var i = 0; i < count; i++) {
       this.cpuMemory.mapPRGROMBank(srcBank + i, (dstBank + i) & maxBank);
     }
   }
@@ -171,22 +169,20 @@ export default class AbstractMapper {
   //=========================================================
 
   mapCHRROMBank8K(srcBank, dstBank) {
-    this.mapCHRROMBank1K(srcBank, dstBank, 8);
+    this.mapCHRROMBank1K(srcBank * 8, dstBank * 8, 8);
   }
 
   mapCHRROMBank4K(srcBank, dstBank) {
-    this.mapCHRROMBank1K(srcBank, dstBank, 4);
+    this.mapCHRROMBank1K(srcBank * 4, dstBank * 4, 4);
   }
 
   mapCHRROMBank2K(srcBank, dstBank) {
-    this.mapCHRROMBank1K(srcBank, dstBank, 2);
+    this.mapCHRROMBank1K(srcBank * 2, dstBank * 2, 2);
   }
 
-  mapCHRROMBank1K(srcBank, dstBank, ratio = 1) {
-    var srcBank = ratio * srcBank;
-    var dstBank = ratio * dstBank;
+  mapCHRROMBank1K(srcBank, dstBank, count = 1) {
     var maxBank = (this.chrROMSize - 1) >> 10;
-    for (var i = 0; i < ratio; i++) {
+    for (var i = 0; i < count; i++) {
       this.ppuMemory.mapPatternsBank(srcBank + i, (dstBank + i) & maxBank);
     }
   }
@@ -239,14 +235,20 @@ export default class AbstractMapper {
   }
 
   mapCHRRAMBank8K(srcBank, dstBank) {
-    this.mapCHRRAMBank4K(srcBank, dstBank, 8);
+    this.mapCHRRAMBank1K(srcBank * 8, dstBank * 8, 8);
   }
 
-  mapCHRRAMBank4K(srcBank, dstBank, ratio = 4) {
-    var srcBank = ratio * srcBank;
-    var dstBank = ratio * dstBank;
+  mapCHRRAMBank4K(srcBank, dstBank) {
+    this.mapCHRRAMBank1K(srcBank * 4, dstBank * 4, 4);
+  }
+
+  mapCHRRAMBank2K(srcBank, dstBank) {
+    this.mapCHRRAMBank1K(srcBank * 2, dstBank * 2, 2);
+  }
+
+  mapCHRRAMBank1K(srcBank, dstBank, count = 1) {
     var maxBank = (this.chrRAMSize - 1) >> 10;
-    for (var i = 0; i < ratio; i++) {
+    for (var i = 0; i < count; i++) {
       this.ppuMemory.mapPatternsBank(srcBank + i, (dstBank + i) & maxBank);
     }
   }
