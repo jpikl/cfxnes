@@ -5,11 +5,11 @@ var mocha = require('gulp-mocha');
 require('babel/register');
 
 //=========================================================
-// Validate code style
+// Check code style
 //=========================================================
 
-gulp.task('validate', function() {
-  return gulp.src('./{src,test}/**/*.js')
+gulp.task('lint', function() {
+  return gulp.src(['./gulpfile.js', './{src,test}/**/*.js'])
     .pipe(jscs())
     .pipe(jscs.reporter());
 });

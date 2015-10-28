@@ -85,12 +85,13 @@ backup: clean
 # Tests
 ###############################################################################
 
-.PHONY: validate test
+.PHONY: lint test
 
-validate:
-	cd core && gulp validate
-	cd lib && gulp validate
-	cd app && gulp validate
+lint:
+	cd core && gulp lint
+	cd lib && gulp lint
+	cd dbg && gulp lint
+	cd app && gulp lint
 
 test:
 	cd core && gulp test

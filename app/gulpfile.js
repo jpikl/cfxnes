@@ -51,7 +51,7 @@ gulp.task('scripts', function() {
   var appTags = merge(app, tags).pipe(gulpif(!argv.debug, uglify()));
   return merge(libs, appTags)
     .pipe(concat('app.js'))
-    .pipe(gulp.dest('./dist/static/'))
+    .pipe(gulp.dest('./dist/static/'));
 });
 
 gulp.task('styles', function() {
@@ -146,7 +146,7 @@ gulp.task('run', function() {
   };
   server.listen(options, function(error) {
     if (!error) {
-      browser.init({proxy: 'http://localhost:5000'})
+      browser.init({proxy: 'http://localhost:5000'});
     }
   });
 });
@@ -160,11 +160,11 @@ gulp.task('restart', function() {
 });
 
 //=========================================================
-// Check source code style
+// Check code style
 //=========================================================
 
-gulp.task('check', function() {
-  return gulp.src('./{src,test}/**/*.js')
+gulp.task('lint', function() {
+  return gulp.src(['./gulpfile.js', './{src,test}/**/*.js'])
     .pipe(jscs())
     .pipe(jscs.reporter());
 });
@@ -177,18 +177,18 @@ gulp.task('changelog', function() {
   var renderer = new marked.Renderer();
   renderer.firstParagraph = true;
   renderer.heading = function(text, level) {
-    return "<h" + (level + 1) + ">" + text + "</h" + (level + 1) + ">\n";
+    return '<h' + (level + 1) + '>' + text + '</h' + (level + 1) + '>\n';
   };
   renderer.paragraph = function(text) {
     if (this.firstParagraph) {
       this.firstParagraph = false;
-      return "";
+      return '';
     }
-    return "<p>" + text + "</p>\n"
+    return '<p>' + text + '</p>\n';
   };
   return gulp.src('../CHANGELOG.md')
     .pipe(markdown({renderer: renderer}))
-    .pipe(replace(/([\s\S]*)/, "<about-changelog>\n$1</about-changelog>"))
+    .pipe(replace(/([\s\S]*)/, '<about-changelog>\n$1</about-changelog>'))
     .pipe(prettify())
     .pipe(rename('about-changelog.tag'))
     .pipe(gulp.dest('./src/client/tags/about/'));
@@ -198,4 +198,4 @@ gulp.task('changelog', function() {
 // Default
 //=========================================================
 
-gulp.task('default', gulp.series('build', 'symlinks', gulp.parallel('watch','run')));
+gulp.task('default', gulp.series('build', 'symlinks', gulp.parallel('watch', 'run')));
