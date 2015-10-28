@@ -7,11 +7,15 @@ var server = require('gulp-develop-server');
 var gulpif = require('gulp-if');
 var jscs = require('gulp-jscs');
 var less = require('gulp-less');
+var markdown = require('gulp-markdown');
+var prettify = require('gulp-prettify');
+var rename = require('gulp-rename');
 var replace = require('gulp-replace');
 var riot = require('gulp-riot');
 var uglify = require('gulp-uglify');
 var Autoprefix = require('less-plugin-autoprefix');
 var CleanCSS = require('less-plugin-clean-css');
+var marked = require('marked');
 var merge = require('merge2');
 var mkdirp = require('mkdirp');
 var buffer = require('vinyl-buffer');
@@ -163,6 +167,31 @@ gulp.task('check', function() {
   return gulp.src('./{src,test}/**/*.js')
     .pipe(jscs())
     .pipe(jscs.reporter());
+});
+
+//=========================================================
+// Generate HTML changelog
+//=========================================================
+
+gulp.task('changelog', function() {
+  var renderer = new marked.Renderer();
+  renderer.firstParagraph = true;
+  renderer.heading = function(text, level) {
+    return "<h" + (level + 1) + ">" + text + "</h" + (level + 1) + ">\n";
+  };
+  renderer.paragraph = function(text) {
+    if (this.firstParagraph) {
+      this.firstParagraph = false;
+      return "";
+    }
+    return "<p>" + text + "</p>\n"
+  };
+  return gulp.src('../CHANGELOG.md')
+    .pipe(markdown({renderer: renderer}))
+    .pipe(replace(/([\s\S]*)/, "<about-changelog>\n$1</about-changelog>"))
+    .pipe(prettify())
+    .pipe(rename('about-changelog.tag'))
+    .pipe(gulp.dest('./src/client/tags/about/'));
 });
 
 //=========================================================
