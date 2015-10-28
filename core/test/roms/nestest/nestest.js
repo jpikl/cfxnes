@@ -49,6 +49,11 @@ export function execute(test) {
 
 class NestestCPU extends LoggingCPU {
 
+  constructor() {
+    super();
+    this.stateAfterOperation = false;
+  }
+
   handleReset() {
     super.handleReset();
     this.programCounter = 0xC000; // Where the test starts

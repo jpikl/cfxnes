@@ -10,9 +10,10 @@ describe('Debugger', () => {
       status: 0,
       stderr: [],
       stdout: [
-        'C004  78        SEI  A:00 X:00 Y:00 P:24 SP:FD',
-        'C005  D8        CLD  A:00 X:00 Y:00 P:24 SP:FD',
-        'C006  A2 FF     LDX  A:00 X:00 Y:00 P:24 SP:FD',
+        'C004                 A:00 X:00 Y:00 P:24 SP:FD',
+        'C005  78        SEI  A:00 X:00 Y:00 P:24 SP:FD',
+        'C006  D8        CLD  A:00 X:00 Y:00 P:24 SP:FD',
+        'C008  A2 FF     LDX  A:00 X:FF Y:00 P:A4 SP:FD',
       ],
     });
   });

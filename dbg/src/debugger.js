@@ -33,6 +33,9 @@ var argv = yargs
   .describe('b', 'Sets JS code that will break execution if evaluated to true.')
   .alias('b', 'break')
   .nargs('b', 1)
+  .describe('i', 'Each output line will contain state in which the CPU was before executing the instruction.')
+  .alias('i', 'prev-state')
+  .boolean('i')
   .describe('p', 'Prints current video output to file after execution is done.')
   .alias('p', 'print')
   .help('h')
@@ -62,6 +65,7 @@ var cpu = injector.get('cpu');
 var print = console.log;
 var logger = argv.verbose ? cpu.verboseLogger : cpu.basicLogger;
 logger.attach(LogWriter.toConsole());
+cpu.stateAfterOperation = !argv.prevState;
 
 logger.setLevel(LogLevel.INFO);
 nes.insertCartridge(cartridge);

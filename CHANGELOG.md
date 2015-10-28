@@ -21,6 +21,7 @@ Each change is prefixed with code of related module:
 - [app] Option to reset configuration.
 - [app] Option to delete saved game data.
 - [dbg] Debugger can take screenshots.
+- [dbg] Debugger command line options `-i` and `-p`.
 
 ### Changed
 - [core] Cartridge data (battery backed RAM) is stored in IndexedDB.
