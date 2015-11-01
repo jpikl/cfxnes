@@ -79,7 +79,7 @@ deploy: clean build_lib build_prod_app
 
 backup: clean
 	zip -r $(BACKUP_FILE) . -x ".git/*" -x "*/node_modules/*"
-	cp $(BACKUP_FILE) $(BACKUP_DIR)
+	mv $(BACKUP_FILE) $(BACKUP_DIR)
 
 ###############################################################################
 # Tests
