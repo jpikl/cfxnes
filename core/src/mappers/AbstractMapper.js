@@ -1,6 +1,6 @@
 import Mirroring from '../common/Mirroring';
 import logger from '../utils/logger';
-import { clearArray } from '../utils/arrays';
+import { zeroArray } from '../utils/arrays';
 import { newByteArray } from '../utils/system';
 import { formatOptional, formatSize, wordAsHex } from '../utils/format';
 
@@ -120,7 +120,7 @@ export default class AbstractMapper {
 
   resetPRGRAM() {
     if (this.hasPRGRAM) {
-      clearArray(this.prgRAM, this.prgRAMSizeBattery || 0); // Keep battery-backed part of PRGRAM
+      zeroArray(this.prgRAM, this.prgRAMSizeBattery || 0); // Keep battery-backed part of PRGRAM
     }
   }
 
@@ -204,7 +204,7 @@ export default class AbstractMapper {
 
   resetCHRRAM() {
     if (this.hasCHRRAM) {
-      clearArray(this.chrRAM, this.chrRAMSizeBattery || 0); // Keep battery-backed part of CHRRAM
+      zeroArray(this.chrRAM, this.chrRAMSizeBattery || 0); // Keep battery-backed part of CHRRAM
     }
   }
 

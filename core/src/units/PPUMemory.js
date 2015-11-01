@@ -1,6 +1,6 @@
 import Mirroring from '../common/Mirroring';
 import logger from '../utils/logger';
-import { clearArray, copyArray } from '../utils/arrays';
+import { zeroArray, copyArray } from '../utils/arrays';
 import { newByteArray, newUintArray } from '../utils/system';
 
 const POWER_UP_PALETTES = [
@@ -81,7 +81,7 @@ export default class PPUMemory {
   }
 
   resetPatterns() {
-    clearArray(this.patternsMapping);
+    zeroArray(this.patternsMapping);
   }
 
   readPattern(address) {
@@ -116,7 +116,7 @@ export default class PPUMemory {
   }
 
   resetNamesAttrs() {
-    clearArray(this.namesAttrs);
+    zeroArray(this.namesAttrs);
     this.setNamesAttrsMirroring(this.defaultMirroring);
   }
 

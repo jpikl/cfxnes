@@ -1,5 +1,5 @@
 import logger from '../utils/logger';
-import { clearArray } from '../utils/arrays';
+import { zeroArray } from '../utils/arrays';
 import { newByteArray, newUintArray } from '../utils/system';
 
 //=========================================================
@@ -75,7 +75,7 @@ export default class CPUMemory {
   }
 
   resetRAM() {
-    clearArray(this.ram);
+    zeroArray(this.ram);
   }
 
   readRAM(address) {
@@ -258,7 +258,7 @@ export default class CPUMemory {
   }
 
   resetPRGROM() {
-    clearArray(this.prgROMMapping);
+    zeroArray(this.prgROMMapping);
   }
 
   readPRGROM(address) {

@@ -5,14 +5,14 @@ var expect = chai.expect;
 
 describe('Arrays utils', () => {
 
-  it('can clear array', () => {
+  it('can zero array', () => {
     var array;
-    expect(arrays.clearArray(array = [])).to.equal(array);
-    expect(arrays.clearArray([1, 2, 3])).to.deep.equal([0, 0, 0]);
-    expect(arrays.clearArray([1, 2, 3], 1)).to.deep.equal([1, 0, 0]);
-    expect(arrays.clearArray([1, 2, 3], 1, 2)).to.deep.equal([1, 0, 3]);
-    expect(arrays.clearArray([1, 2, 3], 0, 3)).to.deep.equal([0, 0, 0]);
-    expect(arrays.clearArray([1, 2, 3], -1, 4)).to.deep.equal([0, 0, 0]);
+    expect(arrays.zeroArray(array = [])).to.equal(array);
+    expect(arrays.zeroArray([1, 2, 3])).to.deep.equal([0, 0, 0]);
+    expect(arrays.zeroArray([1, 2, 3], 1)).to.deep.equal([1, 0, 0]);
+    expect(arrays.zeroArray([1, 2, 3], 1, 2)).to.deep.equal([1, 0, 3]);
+    expect(arrays.zeroArray([1, 2, 3], 0, 3)).to.deep.equal([0, 0, 0]);
+    expect(arrays.zeroArray([1, 2, 3], -1, 4)).to.deep.equal([0, 0, 0]);
   });
 
   it('can fill array', () => {

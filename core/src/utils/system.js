@@ -1,4 +1,4 @@
-import { clearArray } from './arrays';
+import { zeroArray } from './arrays';
 
 //=========================================================
 // System utilities
@@ -25,6 +25,6 @@ export function newUintArray(size) {
   // For some strange reason, Uint32Array is much slower
   // than ordinary array in Chrome.
   var data = new Array(size);
-  clearArray(data);
+  zeroArray(data);
   return data;
 }
