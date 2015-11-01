@@ -35,8 +35,9 @@ var argv = yargs
 // Client
 //=========================================================
 
-gulp.task('scripts', function() {
-  var libs = gulp.src([
+gulp.task('libs', function() {
+  var sources = [
+    './node_modules/promise-polyfill/Promise.min.js',
     './node_modules/js-md5/build/md5.min.js',
     './node_modules/jszip/dist/jszip.min.js',
     './node_modules/screenfull/dist/screenfull.js',
@@ -45,11 +46,17 @@ gulp.task('scripts', function() {
     './node_modules/bootstrap/dist/js/bootstrap.min.js',
     './node_modules/bootstrap-slider/dist/bootstrap-slider.min.js',
     './node_modules/riot/riot.min.js',
-  ]);
+  ];
+  return gulp.src(sources)
+    .pipe(concat('libs.js'))
+    .pipe(gulp.dest('./dist/static/'));
+});
+
+gulp.task('scripts', function() {
   var app = gulp.src('./src/client/app.js');
   var tags = gulp.src('./src/client/tags/**/*.tag').pipe(riot());
-  var appTags = merge(app, tags).pipe(gulpif(!argv.debug, uglify()));
-  return merge(libs, appTags)
+  return merge(app, tags)
+    .pipe(gulpif(!argv.debug, uglify()))
     .pipe(concat('app.js'))
     .pipe(gulp.dest('./dist/static/'));
 });
@@ -88,7 +95,7 @@ gulp.task('fonts', function() {
     .pipe(gulp.dest('./dist/static/fonts/'));
 });
 
-gulp.task('client', gulp.parallel('scripts', 'styles', 'pages', 'images', 'fonts'));
+gulp.task('client', gulp.parallel('libs', 'scripts', 'styles', 'pages', 'images', 'fonts'));
 
 //=========================================================
 // Server
