@@ -51,6 +51,17 @@ export function mergeProperties(source1, source2) {
   return copyProperties(source2, copyProperties(source1));
 }
 
+export function setProperties(object, properties, value) {
+  for (var property of properties) {
+    object[property] = value;
+  }
+  return object;
+}
+
+export function nullProperties(object, properties) {
+  return setProperties(object, properties, null);
+}
+
 export function makeEnumeration(enumeration) {
   var paramsTable = {};
   var defaultParams;

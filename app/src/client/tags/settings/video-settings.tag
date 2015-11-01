@@ -2,6 +2,7 @@
   <div class="video-settings">
     <div riot-tag="input-number" name="video-scale" label="Output scale" min="1" max={ maxVideoScale }></div>
     <div riot-tag="input-select" name="video-palette" label="Color palette" options={ videoPalettes }></div>
+    <div riot-tag="input-select" name="fullscreen-mode" label="Full screen mode" options={ fullscreenModes }></div>
   </div>
   <div class="video-settings">
     <div riot-tag="input-checkbox" name="video-smoothing" label="Enable smoothing"></div>
@@ -16,10 +17,16 @@
       {value: 'bright', label: 'Bright'},
       {value: 'realistic', label: 'Realistic'},
     ];
+    this.fullscreenModes = [
+      {value: 'keep-aspect-ratio', label: 'Keep aspect ratio'},
+      {value: 'fill-screen', label: 'Fill screen'},
+      {value: 'fill-screen|keep-aspect-ratio', label: 'Fill screen + Keep aspect ratio'},
+    ];
 
     refresh() {
       this.tags['video-scale'].setValue(cfxnes.getVideoScale());
       this.tags['video-palette'].setValue(cfxnes.getVideoPalette());
+      this.tags['fullscreen-mode'].setValue(cfxnes.getFullscreenMode());
       this.tags['video-smoothing'].setValue(cfxnes.isVideoSmoothing());
       this.tags['video-debugging'].setValue(cfxnes.isVideoDebugging());
       this.tags['video-webgl'].setValue(cfxnes.getVideoRenderer() === 'webgl');
@@ -32,6 +39,9 @@
       });
       this.tags['video-palette'].on('change', function(value) {
         cfxnes.setVideoPalette(value);
+      });
+      this.tags['fullscreen-mode'].on('change', function(value) {
+        cfxnes.setFullscreenMode(value);
       });
       this.tags['video-smoothing'].on('change', function(value) {
         cfxnes.setVideoSmoothing(value);

@@ -23,8 +23,8 @@ var app = riot.observable({
   controlsInfoEnabled: localStorage.getItem('controlsInfoEnabled') !== 'false',
   controlsInfoVisible: true,
   save: function() {
-    localStorage.setItem('controlsInfoEnabled', this.controlsInfoEnabled ? 'true' : 'false');
     localStorage.setItem('fpsEnabled', this.fpsEnabled ? 'true' : 'false');
+    localStorage.setItem('controlsInfoEnabled', this.controlsInfoEnabled ? 'true' : 'false');
   },
   route: function(view, param) {
     app.trigger('route', view, param);

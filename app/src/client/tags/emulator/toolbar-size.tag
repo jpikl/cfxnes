@@ -5,7 +5,7 @@
   <button name="scalePlus" class="btn btn-default navbar-btn { disabled: isMaxScale }" title="Increase scale" onclick={ increaseScale }>
     <i class="icon icon-search-plus"></i>
   </button>
-  <button class="btn btn-default navbar-btn" title="Fullscreen" onclick={ enterFullScreen }>
+  <button class="btn btn-default navbar-btn" title="Fullscreen" onclick={ enterFullscreen }>
     <i class="icon icon-arrows-alt"></i>
   </button>
   <script>
@@ -17,8 +17,8 @@
       cfxnes.setVideoScale(Math.min(cfxnes.getVideoScale() + 1, cfxnes.getMaxVideoScale()));
     }
 
-    enterFullScreen() {
-      cfxnes.enterFullScreen();
+    enterFullscreen() {
+      cfxnes.enterFullscreen();
     }
 
     this.on('update', function() {

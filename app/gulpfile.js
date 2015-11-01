@@ -125,18 +125,19 @@ gulp.task('build', gulp.series('dirs', gulp.parallel('client', 'server')));
 // Watch
 //=========================================================
 
-gulp.task('watch',  function(d) {
+gulp.task('watch', function() {
   gulp.watch('./src/client/**/*.{js,tag}', gulp.series('scripts', browser.reload));
   gulp.watch('./src/client/**/*.less', gulp.series('styles'));
   gulp.watch('./src/client/**/*.html', gulp.series('pages', browser.reload));
   gulp.watch('./src/server/**/*.js', gulp.series('server', 'restart'));
+  gulp.watch('./dist/static/cfxnes.js', browser.reload);
 });
 
 //=========================================================
 // Run
 //=========================================================
 
-gulp.task('run', function() {
+gulp.task('start', function() {
   var options = {
     env: {
       NODE_ENV: 'development',
@@ -198,4 +199,4 @@ gulp.task('changelog', function() {
 // Default
 //=========================================================
 
-gulp.task('default', gulp.series('build', 'symlinks', gulp.parallel('watch', 'run')));
+gulp.task('default', gulp.series('build', 'symlinks', gulp.parallel('watch', 'start')));

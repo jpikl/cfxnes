@@ -60,6 +60,18 @@ describe('Objects utils', () => {
     expect(objects.mergeProperties({a: 1}, {b: 2})).not.to.equal({a: 1, b: 2});
   });
 
+  it('can set properties', () => {
+    var obj;
+    expect(objects.setProperties(obj = {}, [], 0)).to.equal(obj);
+    expect(objects.setProperties(obj = {a: 1, b: 2}, ['b', 'c'], 3)).to.deep.equal({a: 1, b: 3, c: 3});
+  });
+
+  it('can null properties', () => {
+    var obj;
+    expect(objects.nullProperties(obj = {}, [], 0)).to.equal(obj);
+    expect(objects.nullProperties(obj = {a: 1, b: 2}, ['b', 'c'])).to.deep.equal({a: 1, b: null, c: null});
+  });
+
   it('can make enumeration', () => {
     var enumeration = objects.makeEnumeration({a: 1, b: {id: 'x'}, c: {name: 'y'}, d: {id: 'z', name: 'w'}});
     expect(enumeration.a).to.equal('a');

@@ -1,7 +1,9 @@
 <emulator-output class="emulator-output">
-  <canvas name="canvas">
-    Your browser does not support canvas.
-  </canvas>
+  <div class="fullscreen-wrapper">
+    <canvas name="canvas">
+      Your browser does not support canvas.
+    </canvas>
+  </div>
   <span show={ loading } class="inverse loader">Loading...</span>
   <img class="drag-effect" src="images/cartridge-insert.png">
   <script>

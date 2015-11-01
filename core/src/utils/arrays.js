@@ -2,6 +2,7 @@
 // Array utilities
 //=========================================================
 
+// TODO rename zeroArray
 export function clearArray(array, start, end) {
   return fillArray(array, 0, start, end);
 }

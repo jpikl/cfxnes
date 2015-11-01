@@ -18,6 +18,7 @@ Each change is prefixed with code of related module:
 ### Added
 - [core] Support for BNROM and NINA-001 mappers.
 - [lib] API to change loggging level.
+- [lib, app] Multiple fullscreen modes.
 - [app] Option to reset configuration.
 - [app] Option to delete saved game data.
 - [dbg] Debugger can take screenshots.
