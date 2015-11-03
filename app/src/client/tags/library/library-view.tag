@@ -5,7 +5,7 @@
   <div class="library-section">
     <div>
       <message-panel></message-panel>
-      <div if={ !games } class="loader">Loading...</div>
+      <loader if={ !games }></loader>
     </div>
     <div riot-tag="input-search" if={ games && games.length } placeholder="Search games" focus={ desktop } value={ filter }></div>
   </div>

@@ -28,6 +28,7 @@ Each change is prefixed with code of related module:
 - [core] Cartridge data (battery backed RAM) is stored in IndexedDB.
 - [core, lib] API uses Promises for asynchronous operations.
 - [lib, app] Default audio volume is 50%.
+- [app] - Use vector graphics where possible.
 
 ## [0.3.0] - 2015-08-09
 ### Fixed

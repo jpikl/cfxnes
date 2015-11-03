@@ -20,15 +20,24 @@
 }
 
 .loader {
-  &:before {
-    content: url('../images/loading-light.gif');
-    padding-right: 12px;
-    vertical-align: -50%;
+  .loader-content {
+    display: inline-block;
+    padding: 1em;
+    * {
+      vertical-align: middle;
+    }
+    .icon {
+      font-size: 2.5em;
+    }
+    span {
+      margin-left: 0.5em;
+      font-size: 1.5em;
+    }
   }
   &.inverse {
     color: white;
-    &:before {
-      content: url('../images/loading-dark.gif');
+    .loader-content {
+      background-color: rgba(0, 0, 0, 0.5);
     }
   }
 }

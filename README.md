@@ -32,7 +32,7 @@ See LICENSE.txt for more details.
 
 ## Known Issues
 
-- No sound in Internet Explorer (and in [other browsers](http://caniuse.com/#feat=audio-api) than do not support Web Audio).
+- No sound in Internet Explorer (and in [other browsers](http://caniuse.com/#feat=audio-api) that do not support Web Audio).
 - Poor performance in Internet Explorer and Edge.
 - Occasional graphical glitches in games using MMC3 mapper.
 - See [list of broken games](docs/broken-games.md).

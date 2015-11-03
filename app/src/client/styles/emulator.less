@@ -43,26 +43,28 @@
     height: 100%;
     .emulator-output {
       display: table-cell;
-      position: relative;
       vertical-align: middle;
       text-align: center;
-      canvas {
-        border: 1px solid black;
-      }
-      .loader, .drag-effect {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        transform: translateY(-50%);
-        margin: auto;
-      }
-      .drag-effect {
-        opacity: 0;
-        transition: opacity 0.25s ease-in-out;
+      .canvas-wrapper {
+        position: relative;
+         canvas {
+          border: 1px solid black;
+        }
+        .loader, .drag-effect {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
       }
     }
-    &.drag-over .emulator-output .drag-effect {
+    .drag-effect {
+      width: 150px;
+      height: auto;
+      opacity: 0;
+      transition: opacity 0.25s ease-in-out;
+    }
+    &.drag-over .drag-effect {
       opacity: 1;
     }
   }
