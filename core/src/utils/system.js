@@ -18,7 +18,7 @@ export function detectEndianness() {
 }
 
 export function newByteArray(size) {
-  return new Uint8ClampedArray(size);
+  return new Uint8Array(size);
 }
 
 export function newUintArray(size) {
