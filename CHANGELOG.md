@@ -12,7 +12,7 @@ Each change is prefixed with code of related module:
 ### Fixed
 - [core] Detection of NES 2.0 ROM image format.
 - [core] Correct size of PRG/CHR RAM that is read from ROM images (iNES / NES 2.0).
-- [core] MMC1 mapper imlementation (PRG RAM protection, PRG ROM mapping).
+- [core] MMC1 mapper implementation (PRG RAM protection, PRG ROM mapping).
 - [core] MMC3 mapper implementation (PRG RAM protection, CHR ROM mapping).
 
 ### Added
@@ -28,7 +28,8 @@ Each change is prefixed with code of related module:
 - [core] Cartridge data (battery backed RAM) is stored in IndexedDB.
 - [core, lib] API uses Promises for asynchronous operations.
 - [lib, app] Default audio volume is 50%.
-- [app] - Use vector graphics where possible.
+- [app] Vector graphics is used where possible.
+- [app] Only single refresh when multiple files are changed in game library.
 
 ## [0.3.0] - 2015-08-09
 ### Fixed
