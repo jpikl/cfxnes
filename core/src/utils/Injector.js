@@ -1,5 +1,5 @@
 import logger from './logger';
-import { forEachProperty } from './objects';
+import { mergeProperties } from './objects';
 
 //=========================================================
 // Dependency injector
@@ -16,11 +16,7 @@ export default class Injector {
   }
 
   put(name, dependency) {
-    this.dependencies[name] = {
-      type: dependency.type,
-      value: dependency.value,
-      resolved: false,
-    };
+    this.dependencies[name] = mergeProperties(dependency, {resolved: false});
   }
 
   get(name) {
@@ -41,24 +37,22 @@ export default class Injector {
   }
 
   resolve(name, dependency) {
-    var type = dependency.type;
-    var value = dependency.value;
-    if (type == null) {
-      throw new Error(`Dependency "${name}" has undefined type`);
+    if (typeof dependency.class !== 'undefined') {
+      if (typeof dependency.class === 'function') {
+        return new dependency.class(this); // jscs:ignore requireCapitalizedConstructors
+      }
+      throw new Error(`Class of "${name}" dependency is not a function`);
     }
-    if (type == 'value') {
-      return value;
+    if (typeof dependency.factory !== 'undefined') {
+      if (typeof dependency.factory === 'function') {
+        return dependency.factory(this);
+      }
+      throw new Error(`Factory of "${name}" dependency is not a function`);
     }
-    if (value == null) {
-      throw new Error(`Dependency "${name}" of type "${type}" has undefined value`);
+    if (typeof dependency.value !== 'undefined') {
+      return dependency.value;
     }
-    if (type === 'class') {
-      return new value(this); // jscs:ignore requireCapitalizedConstructors
-    } else if (type === 'factory') {
-      return value(this);
-    } else {
-      throw new Error(`Dependency "${name}" has unsupported type "${type}"`);
-    }
+    throw new Error(`Dependency "${name}" has no class, factory or value specified`);
   }
 
   inject(object) {

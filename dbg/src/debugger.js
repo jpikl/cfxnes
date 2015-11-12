@@ -53,8 +53,8 @@ var argv = yargs
 //=========================================================
 
 var config = copyProperties(coreConfig);
-config.cpu = {type: 'class', value: LoggingCPU};
-config.ppu = {type: 'class', value: BufferedOutputPPU};
+config.cpu = {class: LoggingCPU};
+config.ppu = {class: BufferedOutputPPU};
 
 var injector = new Injector(config);
 var cartridgeFactory = injector.get('cartridgeFactory');

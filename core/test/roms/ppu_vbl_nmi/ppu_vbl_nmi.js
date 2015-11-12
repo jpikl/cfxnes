@@ -21,9 +21,9 @@ export const files = [
 ];
 
 export function configure(config) {
-  config.cpuMemory = {type: 'class', value: RAMEnabledCPUMemory};
-  config.apu = {type: 'class', value: DisabledAPU};
-  config.ppu = {type: 'class', value: NoOutputPPU};
+  config.cpuMemory = {class: RAMEnabledCPUMemory};
+  config.apu = {class: DisabledAPU};
+  config.ppu = {class: NoOutputPPU};
 }
 
 export function execute(test) {

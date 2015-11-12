@@ -61,8 +61,8 @@ export function download(req, res) {
 //=========================================================
 
 function refresh() {
-    clearTimeout(scanTimer);
-    scanTimer = setTimeout(scan, 1000);
+  clearTimeout(scanTimer);
+  scanTimer = setTimeout(scan, 1000);
 }
 
 function scan() {
@@ -117,7 +117,7 @@ function makeFileId(file) {
 }
 
 function makeName(file) {
-  return path.basename(file, path.extname(file)).trim()
+  return path.basename(file, path.extname(file)).trim();
 }
 
 function findThumbnail(file) {

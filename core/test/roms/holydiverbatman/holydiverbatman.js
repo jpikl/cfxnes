@@ -27,7 +27,7 @@ export const files = [
 ];
 
 export function configure(config) {
-  config.ppu = {type: 'class', value: BufferedOutputPPU};
+  config.ppu = {class: BufferedOutputPPU};
 }
 
 const steps = [

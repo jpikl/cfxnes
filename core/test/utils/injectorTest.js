@@ -11,36 +11,35 @@ describe('Injector', () => {
   });
 
   it('should throw error for invalid configuration', () => {
-    expect(() => new Injector({foo: {value: 'Foo'}}).get('foo')).to.throw(Error); // Missing type
-    expect(() => new Injector({foo: {type: 'invalid', value: 'Foo'}}).get('foo')).to.throw(Error); // Invalid type
-    expect(() => new Injector({foo: {type: 'class'}}).get('foo')).to.throw(Error); // Missing class value
-    expect(() => new Injector({foo: {type: 'factory'}}).get('foo')).to.throw(Error); // Missing factory value
+    expect(() => new Injector({foo: {}}).get('foo')).to.throw(Error); // No class, factory or value
+    expect(() => new Injector({foo: {class: false}}).get('foo')).to.throw(Error); // Class is not a function
+    expect(() => new Injector({foo: {factory: false}}).get('foo')).to.throw(Error); // Factory is not a function
   });
 
   it('should resolve value', () => {
     var injector = new Injector({
-      missing: {type: 'value'},
-      foo: {type: 'value', value: 'Foo'},
+      nil: {value: null},
+      foo: {value: 'Foo'},
     });
-    expect(injector.get('missing')).to.be.undefined;
+    expect(injector.get('nil')).to.be.null;
     expect(injector.get('foo')).to.equal('Foo');
   });
 
   it('should resolve factory value', () => {
-    var injector = new Injector({bar: {type: 'factory', value: () => new Bar}});
+    var injector = new Injector({bar: {factory: () => new Bar}});
     expect(injector.get('bar')).to.be.instanceOf(Bar);
   });
 
   it('should resolve class instance', () => {
-    var injector = new Injector({baz: {type: 'class', value: Baz}});
+    var injector = new Injector({baz: {class: Baz}});
     expect(injector.get('baz')).to.be.instanceOf(Baz);
   });
 
   it('should resolve always the same value', () => {
     var injector = new Injector({
-      foo: {type: 'value', value: 'Foo'},
-      bar: {type: 'factory', value: () => new Bar},
-      baz: {type: 'class', value: Baz},
+      foo: {value: 'Foo'},
+      bar: {factory: () => new Bar},
+      baz: {class: Baz},
     });
     expect(injector.get('foo')).to.be.equal(injector.get('foo'));
     expect(injector.get('bar')).to.be.equal(injector.get('bar'));
@@ -49,9 +48,9 @@ describe('Injector', () => {
 
   it('should inject dependencies', () => {
     var injector = new Injector({
-      foo: {type: 'value', value: 'Foo'},
-      bar: {type: 'factory', value: () => new Bar},
-      baz: {type: 'class', value: Baz},
+      foo: {value: 'Foo'},
+      bar: {factory: () => new Bar},
+      baz: {class: Baz},
     });
     var qux = injector.inject(new Qux);
     expect(qux.foo).to.equal('Foo');
@@ -61,8 +60,8 @@ describe('Injector', () => {
 
   it('should inject circular dependencies', () => {
     var injector = new Injector({
-      xyz: {type: 'class', value: Xyz},
-      zyx: {type: 'class', value: Zyx},
+      xyz: {class: Xyz},
+      zyx: {class: Zyx},
     });
     var xyz = injector.get('xyz');
     var zyx = injector.get('zyx');

@@ -13,8 +13,8 @@ export const files = [
 ];
 
 export function configure(config) {
-  config.cpuMemory = {type: 'class', value: RAMEnabledCPUMemory};
-  config.ppu = {type: 'class', value: DisabledPPU};
+  config.cpuMemory = {class: RAMEnabledCPUMemory};
+  config.ppu = {class: DisabledPPU};
 }
 
 export function execute(test) {

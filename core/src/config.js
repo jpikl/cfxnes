@@ -17,17 +17,17 @@ import PaletteFactory from './factories/PaletteFactory';
 //=========================================================
 
 export default {
-  'nes': {type: 'class', value: NES},
-  'cpu': {type: 'class', value: CPU},
-  'ppu': {type: 'class', value: PPU},
-  'apu': {type: 'class', value: APU},
-  'dma': {type: 'class', value: DMA},
-  'cpuMemory': {type: 'class', value: CPUMemory},
-  'ppuMemory': {type: 'class', value: PPUMemory},
-  'cartridgeFactory': {type: 'class', value: CartridgeFactory},
-  'deviceFactory': {type: 'class', value: DeviceFactory},
-  'mapperFactory': {type: 'class', value: MapperFactory},
-  'paletteFactory': {type: 'class', value: PaletteFactory},
-  'hash': {type: 'value', value: null},  // Optional external dependency
-  'jszip': {type: 'value', value: null}, // Optional external dependency
+  'nes': {class: NES},
+  'cpu': {class: CPU},
+  'ppu': {class: PPU},
+  'apu': {class: APU},
+  'dma': {class: DMA},
+  'cpuMemory': {class: CPUMemory},
+  'ppuMemory': {class: PPUMemory},
+  'cartridgeFactory': {class: CartridgeFactory},
+  'deviceFactory': {class: DeviceFactory},
+  'mapperFactory': {class: MapperFactory},
+  'paletteFactory': {class: PaletteFactory},
+  'hash': {value: null},  // Optional external dependency
+  'jszip': {value: null}, // Optional external dependency
 };

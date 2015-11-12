@@ -17,8 +17,8 @@ export const files = [
 ];
 
 export function configure(config) {
-  config.apu = {type: 'class', value: DisabledAPU};
-  config.ppu = {type: 'class', value: NoOutputPPU};
+  config.apu = {class: DisabledAPU};
+  config.ppu = {class: NoOutputPPU};
 }
 
 export function execute(test) {

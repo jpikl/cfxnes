@@ -11,9 +11,9 @@ export const dir = './test/roms/nestest';
 export const file = 'nestest.nes';
 
 export function configure(config) {
-  config.cpu = {type: 'class', value: NestestCPU};
-  config.apu = {type: 'class', value: DisabledAPU};
-  config.ppu = {type: 'class', value: DisabledPPU};
+  config.cpu = {class: NestestCPU};
+  config.apu = {class: DisabledAPU};
+  config.ppu = {class: DisabledPPU};
 }
 
 export function execute(test) {
