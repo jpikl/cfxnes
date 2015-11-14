@@ -30,6 +30,7 @@ Each change is prefixed with code of related module:
 - [lib, app] Default audio volume is 50%.
 - [app] Vector graphics is used where possible.
 - [app] Only single refresh when multiple files are changed in game library.
+- [app] *Game Library* rename to *Library*.
 
 ## [0.3.0] - 2015-08-09
 ### Fixed

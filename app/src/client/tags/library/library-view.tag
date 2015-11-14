@@ -1,6 +1,6 @@
 <library-view class="library">
   <div class="library-section">
-    <h1>Game Library</h1>
+    <h1>Library</h1>
   </div>
   <div class="library-section">
     <div>

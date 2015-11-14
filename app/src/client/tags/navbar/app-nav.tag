@@ -14,7 +14,7 @@
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav navbar-left">
         <li riot-tag="nav-button" view="emulator" title="Emulator" icon="gamepad"></li>
-        <li riot-tag="nav-button" view="library" title="Game Library" icon="book"></li>
+        <li riot-tag="nav-button" view="library" title="Library" icon="book"></li>
         <li riot-tag="nav-button" view="settings" title="Settings" icon="cog"></li>
       </ul>
       <div id="toolbar"></div>
