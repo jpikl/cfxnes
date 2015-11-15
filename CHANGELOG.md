@@ -14,6 +14,7 @@ Each change is prefixed with code of related module:
 - [core] Correct size of PRG/CHR RAM that is read from ROM images (iNES / NES 2.0).
 - [core] MMC1 mapper implementation (PRG RAM protection, PRG ROM mapping).
 - [core] MMC3 mapper implementation (PRG RAM protection, CHR ROM mapping).
+- [core, lib] Attempt to load invalid configuration won't crash emulator during initialization.
 
 ### Added
 - [core] Support for BNROM and NINA-001 mappers.
@@ -29,8 +30,8 @@ Each change is prefixed with code of related module:
 - [core, lib] API uses Promises for asynchronous operations.
 - [lib, app] Default audio volume is 50%.
 - [app] Vector graphics is used where possible.
-- [app] Only single refresh when multiple files are changed in game library.
-- [app] *Game Library* rename to *Library*.
+- [app] Only single refresh when multiple files are changed in library.
+- [app] *Game Library* renamed to *Library*.
 
 ## [0.3.0] - 2015-08-09
 ### Fixed

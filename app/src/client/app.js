@@ -6,7 +6,7 @@ var cfxnes = new CFxNES({
   hash: md5,
   jszip: JSZip,
   screenfull: screenfull,
-  loggingLevel: 'all',
+  logLevel: 'all',
   loadOnStart: true,
   saveOnClose: true,
   savePeriod: 60, // sec

@@ -5,6 +5,8 @@ import brightPalette from '../palettes/brightPalette';
 import realisticPalette from '../palettes/realisticPalette';
 import logger from '../utils/logger';
 
+const FALLBACK = 'default';
+
 var palettes = {
   'default': defaultPalette,
   'bright': brightPalette,
@@ -19,11 +21,12 @@ export default class PaletteFactory {
 
   createPalette(id) {
     var palette = palettes[id];
-    if (!palette) {
-      throw new Error(`Unsupported palette "${id}"`);
+    if (palette) {
+      logger.info(`Creating "${id}" palette`);
+      return palette;
     }
-    logger.info(`Creating "${id}" palette`);
-    return palette;
+    logger.warn(`Unsupported palette "${id}", using "${FALLBACK}" palette as fallback`);
+    return palettes[FALLBACK];
   }
 
 }

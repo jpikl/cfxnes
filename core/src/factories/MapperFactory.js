@@ -34,12 +34,12 @@ export default class MapperFactory {
   createMapper(cartridge) {
     var name = cartridge.mapper;
     var clazz = mappers[name];
-    if (!clazz) {
-      throw new Error(`Unsupported mapper "${name}"`);
+    if (clazz) {
+      logger.info(`Creating "${name}" mapper`);
+      var mapper = new clazz(cartridge);
+      return this.injector.inject(mapper);
     }
-    logger.info(`Creating "${name}" mapper`);
-    var mapper = new clazz(cartridge);
-    return this.injector.inject(mapper);
+    throw new Error(`Unsupported mapper "${name}"`);
   }
 
 }

@@ -21,11 +21,11 @@ export default class DeviceFactory {
 
   createDevice(id) {
     var clazz = devices[id];
-    if (!clazz) {
-      throw new Error(`Unsupported device "${id}"`);
+    if (clazz) {
+      logger.info(`Creating "${id}" device`);
+      return this.injector.inject(new clazz);
     }
-    logger.info(`Creating "${id}" device`);
-    return this.injector.inject(new clazz);
+    throw new Error(`Unsupported device "${id}"`);
   }
 
 }
