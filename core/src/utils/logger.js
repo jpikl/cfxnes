@@ -1,3 +1,5 @@
+import { formatError } from './format';
+
 //=========================================================
 // Log levels
 //=========================================================
@@ -63,10 +65,14 @@ export class Logger {
     }
   }
 
-  error(message) {
+  error(message, error) {
     if (this.level >= LogLevel.ERROR) {
-      if (typeof message === 'object' && message.stack && (typeof window === 'undefined' || !window || window.chrome)) {
-        message = message.stack; // Fix ugly error output in chrome + fix terminal output
+      if (message && error && typeof error === 'object') {
+        message = message + '\n\n' + formatError(error)
+      } else if (message && typeof message === 'object') {
+        message = formatError(message);
+      } else {
+        message = message || 'Unknown error';
       }
       for (var writer of this.writers) {
         writer.error(message);

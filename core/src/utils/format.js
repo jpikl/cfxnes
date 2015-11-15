@@ -56,3 +56,15 @@ export function formatData(data) {
   }
   return String.fromCharCode.apply(null, data);
 }
+
+export function formatError(error) {
+  var result = 'Name:    ' + error.name + '\n'
+             + 'Message: ' + error.message;
+  if (typeof error.stack === 'string') {
+    result += '\nStack:   ' + error.stack.split('\n')
+                                         .map(line => '         ' + line)
+                                         .join('\n')
+                                         .substr(9);
+  }
+  return result;
+}
