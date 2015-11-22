@@ -8,10 +8,10 @@ var cfxnes = new CFxNES({
   hash: md5,
   jszip: JSZip,
   screenfull: screenfull,
+  storage: 'browser',
   loadOnStart: true,
   saveOnClose: true,
   savePeriod: 60, // sec
-  storage: 'browser',
 });
 
 //=========================================================

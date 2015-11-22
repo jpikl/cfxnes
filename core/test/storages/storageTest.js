@@ -9,11 +9,15 @@ const A_CHR = Uint8Array.of(0x04, 0x05, 0x06);
 const B_PRG = Uint8Array.of(0x07, 0x08, 0x09);
 const B_CHR = Uint8Array.of(0x0a, 0x0b, 0x0c);
 
-export default function makeTest(name, factory) {
+export default function makeTest({name, factory, before}) {
 
   describe(name, () => {
 
     var storage;
+
+    if (before) {
+      before(before);
+    }
 
     beforeEach(() => {
       storage = factory();
