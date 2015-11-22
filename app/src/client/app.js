@@ -2,11 +2,12 @@
 // CFxNES setup
 //=========================================================
 
+CFxNES.setLogLevel('all');
+
 var cfxnes = new CFxNES({
   hash: md5,
   jszip: JSZip,
   screenfull: screenfull,
-  logLevel: 'all',
   loadOnStart: true,
   saveOnClose: true,
   savePeriod: 60, // sec

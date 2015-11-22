@@ -167,6 +167,6 @@ class BufferWriter {
 //=========================================================
 
 var logger = new Logger;
-logger.setLevel(LogLevel.ERROR);
+logger.setLevel(LogLevel.WARN);
 logger.attach(LogWriter.toConsole());
 export default logger;
