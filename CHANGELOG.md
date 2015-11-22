@@ -17,7 +17,7 @@ Each change is prefixed with code of related module:
 - [core, lib] Attempt to load invalid configuration won't crash emulator during initialization.
 
 ### Added
-- [core] Support for BNROM and NINA-001 mappers.
+- [core] Support for BNROM, NINA-001 and Color Dreams mappers.
 - [lib] API to change loggging level.
 - [lib, app] Multiple fullscreen modes.
 - [app] Option to reset configuration.

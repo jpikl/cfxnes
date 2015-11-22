@@ -13,7 +13,7 @@ See LICENSE.txt for more details.
 
 - Loading of iNES and NES 2.0 ROM images.
 - Loading of zipped ROM images.
-- Supported mappers: NROM, MMC1, MMC3, UNCOM, CNROM, AOROM, BNROM, NINA-001.
+- Supported mappers: NROM, MMC1, MMC3, UNCOM, CNROM, AOROM, BNROM, NINA-001, Color Dreams.
 - Persistence of battery-backed RAM (game saves) in IndexedDB.
 - Rendering using WebGL (with canvas fallback).
 - Full screen mode.

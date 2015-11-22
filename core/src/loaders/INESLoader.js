@@ -11,6 +11,7 @@ var mappers = {
   3: 'CNROM',
   4: 'MMC3',
   7: 'AOROM',
+  11: 'ColorDreams',
   34: 'BNROM', // NINA-001 uses the same ID (see setMapper method)
 };
 
