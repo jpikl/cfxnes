@@ -68,7 +68,7 @@ export class Logger {
   error(message, error) {
     if (this.level >= LogLevel.ERROR) {
       if (message && error && typeof error === 'object') {
-        message = message + '\n\n' + formatError(error)
+        message = message + '\n\n' + formatError(error);
       } else if (message && typeof message === 'object') {
         message = formatError(message);
       } else {

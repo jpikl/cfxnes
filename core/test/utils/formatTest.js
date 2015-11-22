@@ -57,4 +57,8 @@ describe('Format utils', () => {
     expect(format.formatData([0x61, 0x62, 0x63])).to.equal('abc');
   });
 
+  it('can format error', () => {
+    expect(format.formatError(new Error('test'))).to.match(/^Name:    Error\nMessage: test\nStack:   /);
+  });
+
 });
