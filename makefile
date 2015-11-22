@@ -3,10 +3,11 @@
 ###############################################################################
 
 VERSION=0.4.0
-DIST_FILE=cfxnes-$(VERSION).zip
+RELEASE_FILE=cfxnes-$(VERSION).zip
 DEPLOY_DIR=../cfxnes-heroku
 BACKUP_DIR=~/Dropbox/Backup/projects
 BACKUP_FILE=cfxnes.zip
+TEMP_DIR=temp
 
 ###############################################################################
 # Dependency management
@@ -65,14 +66,23 @@ dev_app:
 	cd app && gulp -d
 
 ###############################################################################
-# Production
+# Release
 ###############################################################################
 
-.PHONY: backup deploy
+.PHONY: version changelog deploy backup release tag
+
+version:
+	cd core && npm version $(VERSION); true
+	cd lib && npm version $(VERSION); true
+	cd app && npm version $(VERSION); true
+	cd dbg && npm version $(VERSION); true
+
+changelog:
+	cd app && gulp changelog
 
 deploy: clean build_lib build_prod_app
 	mkdir -p $(DEPLOY_DIR)
-	rm -rf $(DEPLOY_DIR)/{node_modules,services,static,app.js,package.json}
+	rm -rf $(DEPLOY_DIR)/{node_modules,static,*.js,package.json}
 	cd app/dist && cp -r . ../../$(DEPLOY_DIR)
 	cp app/package.json $(DEPLOY_DIR)
 	cd $(DEPLOY_DIR) && npm install --production
@@ -80,6 +90,16 @@ deploy: clean build_lib build_prod_app
 backup: clean
 	zip -r $(BACKUP_FILE) . -x ".git/*" -x "*/node_modules/*"
 	mv $(BACKUP_FILE) $(BACKUP_DIR)
+
+release: clean build_all
+	mkdir $(TEMP_DIR)
+	cp lib/dist/* $(TEMP_DIR)
+	cp -r app/dist $(TEMP_DIR)/app
+	cp app/package.json $(TEMP_DIR)/app
+	cd $(TEMP_DIR) && zip -r ../$(RELEASE_FILE) .
+
+tag:
+	git tag -a v$(VERSION) -m "Version $(VERSION)"
 
 ###############################################################################
 # Tests
@@ -107,6 +127,7 @@ test:
 clean:
 	rm -f $(BACKUP_FILE)
 	rm -f $(DIST_FILE)
+	rm -rf $(TEMP_DIR)
 	rm -rf lib/dist
 	rm -rf app/dist
 
