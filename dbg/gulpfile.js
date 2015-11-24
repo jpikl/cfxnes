@@ -2,7 +2,7 @@ var gulp = require('gulp');
 var jscs = require('gulp-jscs');
 var mocha = require('gulp-mocha');
 
-require('babel/register');
+require('babel-core/register');
 
 //=========================================================
 // Check code style

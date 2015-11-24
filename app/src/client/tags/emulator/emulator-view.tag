@@ -20,9 +20,7 @@
       messagePanel = this.tags['message-panel'];
       emulatorOutput = this.tags['dnd-wrapper'].tags['emulator-output'];
       emulatorOutput.on('mount', function() {
-        riot.route.exec(function(view, gameId) {
-          resumeEmulator(gameId);
-        });
+        resumeEmulator(app.viewParam);
       });
     });
 

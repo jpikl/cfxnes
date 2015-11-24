@@ -82,7 +82,7 @@ changelog:
 
 deploy: clean build_lib build_prod_app
 	mkdir -p $(DEPLOY_DIR)
-	rm -rf $(DEPLOY_DIR)/{node_modules,static,*.js,package.json}
+	rm -rf ./$(DEPLOY_DIR)/{node_modules,static,*.js,package.json}
 	cd app/dist && cp -r . ../../$(DEPLOY_DIR)
 	cp app/package.json $(DEPLOY_DIR)
 	cd $(DEPLOY_DIR) && npm install --production
@@ -125,14 +125,14 @@ test:
 .PHONY: clean clean_all
 
 clean:
-	rm -f $(BACKUP_FILE)
-	rm -f $(DIST_FILE)
-	rm -rf $(TEMP_DIR)
-	rm -rf lib/dist
-	rm -rf app/dist
+	rm -f ./$(BACKUP_FILE)
+	rm -f ./$(RELEASE_FILE)
+	rm -rf ./$(TEMP_DIR)
+	rm -rf ./lib/dist
+	rm -rf ./app/dist
 
 clean_all: clean
-	rm -rf core/node_modules
-	rm -rf lib/node_modules
-	rm -rf app/node_modules
-	rm -rf dbg/node_modules
+	rm -rf ./core/node_modules
+	rm -rf ./lib/node_modules
+	rm -rf ./app/node_modules
+	rm -rf ./dbg/node_modules

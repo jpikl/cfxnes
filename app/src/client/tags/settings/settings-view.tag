@@ -20,9 +20,7 @@
   <script>
     var self = this;
 
-    riot.route.exec(function(view, param) {
-      self.panelId = (param || app.settingsPanel || 'emulation') + '-settings';
-    });
+    this.panelId = (app.viewParam || app.settingsPanel || 'emulation') + '-settings';
 
     this.on('mount', function() {
       this.tags['panel-group'].on('open', function(panelId) {

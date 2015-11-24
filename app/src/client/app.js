@@ -28,13 +28,24 @@ var app = riot.observable({
     localStorage.setItem('controlsInfoEnabled', this.controlsInfoEnabled ? 'true' : 'false');
   },
   route: function(view, param) {
-    app.trigger('route', view, param);
+    app.viewParam = param;
+    app.trigger('route', view || 'emulator', param);
   },
   watch: function(events, tag, callback) {
     callback = callback.bind(tag);
     tag.on('mount', this.on.bind(this, events, callback));
     tag.on('unmount', this.off.bind(this, events, callback));
   },
+});
+
+//=========================================================
+// RiotJS setup
+//=========================================================
+
+$(document).ready(function() {
+  riot.mount('*');
+  riot.route(app.route);
+  riot.route.start(true); // start + exec
 });
 
 //=========================================================
@@ -82,25 +93,3 @@ function getErrorMessage(error) {
   }
   return error;
 };
-
-//=========================================================
-// RiotJS setup
-//=========================================================
-
-riot.route.parser(function(path) {
-  if (path.length && path[path.length - 1] === '/') {
-    path = path.substring(0, path.length - 1);
-  }
-  var parts = path.split('/').splice(1);
-  return parts.length > 0 ? parts : ['emulator'];
-});
-riot.route(app.route);
-
-//=========================================================
-// Mount
-//=========================================================
-
-$(document).ready(function() {
-  riot.mount('*');
-  riot.route.exec(app.route);
-});

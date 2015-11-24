@@ -3,7 +3,7 @@ var jscs = require('gulp-jscs');
 var mocha = require('gulp-mocha');
 var yargs = require('yargs');
 
-require('babel/register');
+require('babel-core/register');
 
 //=========================================================
 // Arguments

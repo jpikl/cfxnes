@@ -1,5 +1,5 @@
 <controls-row>
-  <td>{ opts["input-name"] }</td>
+  <td>{ opts.inputName }</td>
   <td>{ mappedInputName }</td>
   <script>
     this.mappedInputName = cfxnes.getMappedInputName(1, opts.device, opts.input)

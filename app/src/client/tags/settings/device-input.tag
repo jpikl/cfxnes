@@ -1,6 +1,6 @@
 <device-input class="device-input">
   <div>
-    <label>{ opts["input-name"] }</label>
+    <label>{ opts.inputName }</label>
   </div>
   <div>
     <span>{ mappedInputName }</span>

@@ -18,8 +18,6 @@ var CleanCSS = require('less-plugin-clean-css');
 var marked = require('marked');
 var merge = require('merge2');
 var mkdirp = require('mkdirp');
-var buffer = require('vinyl-buffer');
-var source = require('vinyl-source-stream');
 var yargs = require('yargs');
 
 //=========================================================
@@ -103,7 +101,7 @@ gulp.task('client', gulp.parallel('libs', 'scripts', 'styles', 'pages', 'images'
 
 gulp.task('server', function() {
   return gulp.src('./src/server/**/*.js')
-    .pipe(babel())
+    .pipe(babel({presets: ['es2015']}))
     .pipe(gulp.dest('./dist/'));
 });
 
@@ -122,7 +120,7 @@ gulp.task('symlinks', function(done) {
   } else {
     mkdirp.sync('../roms/');
     return gulp.src('../roms/')
-      .pipe(gulp.symlink('./dist/'));
+      .pipe(gulp.symlink('./dist/roms/'));
   }
 });
 
