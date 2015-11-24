@@ -19,13 +19,22 @@ var cfxnes = new CFxNES({
 //=========================================================
 
 var app = riot.observable({
-  gameFilter: '',
-  fpsEnabled: localStorage.getItem('fpsEnabled') !== 'false',
-  controlsInfoEnabled: localStorage.getItem('controlsInfoEnabled') !== 'false',
-  controlsInfoVisible: true,
+  init: function() {
+    this.reset();
+    this.load();
+  },
+  reset: function() {
+    this.fpsVisible = true;
+    this.controlsVisible = true;
+    this.controlsOpened = true;
+  },
+  load: function() {
+    this.fpsVisible = localStorage.getItem('fpsVisible') !== 'false';
+    this.controlsVisible = localStorage.getItem('controlsVisible') !== 'false';
+  },
   save: function() {
-    localStorage.setItem('fpsEnabled', this.fpsEnabled ? 'true' : 'false');
-    localStorage.setItem('controlsInfoEnabled', this.controlsInfoEnabled ? 'true' : 'false');
+    localStorage.setItem('fpsVisible', this.fpsVisible ? 'true' : 'false');
+    localStorage.setItem('controlsVisible', this.controlsVisible ? 'true' : 'false');
   },
   route: function(view, param) {
     app.viewParam = param;
@@ -37,6 +46,8 @@ var app = riot.observable({
     tag.on('unmount', this.off.bind(this, events, callback));
   },
 });
+
+app.init();
 
 //=========================================================
 // RiotJS setup
@@ -61,25 +72,6 @@ function eachTag(tags, callback) {
     }
   }
 };
-
-function findTag(root, name) {
-  var tag = root.tags[name];
-  if (tag != null) {
-    return tag;
-  }
-  for (var id in root.tags) {
-    var tags = root.tags[id];
-    if (tags.length == null) {
-      tags = [tags];
-    }
-    for (var i = 0; i < tags.length; i++) {
-      var tag = findTag(tags[i], name);
-      if (tag != null) {
-        return tag;
-      }
-    }
-  }
-}
 
 function getErrorMessage(error) {
   if (error.message) {

@@ -16,12 +16,9 @@
       resetSettings.on('click', function() {
         resetSettings.setProgress('Reseting settings...');
         cfxnes.resetConfiguration().then(function() {
-          app.fpsEnabled = true;
-          app.controlsInfoEnabled = true;
-          app.controlsInfoVisible = true;
+          app.reset();
           app.save();
           resetSettings.setSuccess('Done');
-          resetSettings.parent.trigger('reset');
         }, function(error) {
           resetSettings.setError(error.message || 'Reset failed');
         });

@@ -18,19 +18,11 @@
     </div>
   </div>
   <script>
-    var self = this;
-
     this.panelId = (app.viewParam || app.settingsPanel || 'emulation') + '-settings';
 
     this.on('mount', function() {
       this.tags['panel-group'].on('open', function(panelId) {
         app.settingsPanel = panelId.substring(0, panelId.indexOf('-'));
-      });
-      findTag(this, 'reset-settings').on('reset', function() {
-        findTag(self, 'emulation-settings').refresh();
-        findTag(self, 'video-settings').refresh();
-        findTag(self, 'audio-settings').refresh();
-        findTag(self, 'controls-settings').refresh();
       });
     });
   </script>

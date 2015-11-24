@@ -6,7 +6,7 @@
   <div class="controls-settings">
     <restore-controls></restore-controls>
     <connected-gamepads></connected-gamepads>
-    <input-checkbox name="controls-info-enabled" label="Show controls on emulator page"></input-checkbox>
+    <input-checkbox name="controls-visible" label="Show controls on emulator page"></input-checkbox>
   </div>
   <div id="record-input-modal" class="modal">
     <div class="modal-dialog">
@@ -18,25 +18,24 @@
     </div>
   </div>
   <script>
-    refresh() {
-      this.tags['controls-info-enabled'].setValue(app.controlsInfoEnabled);
+    this.on('update', function() {
+      this.tags['controls-visible'].setValue(app.controlsVisible);
       this.tags['device-setup'].forEach(function(deviceSetup) {
         deviceSetup.update();
       });
-    }
+    });
 
     this.on('mount', function() {
       this.tags['device-setup'].forEach(function(deviceSetup) {
-        deviceSetup.on('change', deviceSetup.parent.refresh);
+        deviceSetup.on('change', deviceSetup.parent.update);
       });
-      this.tags['restore-controls'].on('change', this.refresh);
-      this.tags['connected-gamepads'].on('change', this.refresh);
-      this.tags['controls-info-enabled'].on('change', function(value) {
-        app.controlsInfoEnabled = value;
-        app.controlsInfoVisible = value;
+      this.tags['restore-controls'].on('change', this.update);
+      this.tags['connected-gamepads'].on('change', this.update);
+      this.tags['controls-visible'].on('change', function(value) {
+        app.controlsVisible = value;
+        app.controlsOpened = value;
         app.save();
       });
-      this.refresh();
     });
   </script>
 </controls-settings>

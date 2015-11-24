@@ -20,15 +20,15 @@
       this.trigger('change');
     }
 
+    this.on('update', function() {
+      this.device = cfxnes.getInputDevice(this.port);
+    });
+
     this.on('mount', function() {
       this.tags['device-select'].on('change', this.change);
       this.tags['device-input'].forEach(function(deviceInput) {
         deviceInput.on('change', deviceInput.parent.change);
       });
-    });
-
-    this.on('update', function() {
-      this.device = cfxnes.getInputDevice(this.port);
     });
   </script>
 </device-setup>

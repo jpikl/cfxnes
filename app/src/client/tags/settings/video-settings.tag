@@ -8,7 +8,7 @@
     <div riot-tag="input-checkbox" name="video-smoothing" label="Enable smoothing"></div>
     <div riot-tag="input-checkbox" name="video-debugging" label="Show patterns and paletts"></div>
     <div riot-tag="input-checkbox" name="video-webgl" label="Use WebGL for rendering"></div>
-    <div riot-tag="input-checkbox" name="fps-enabled" label="Show FPS"></div>
+    <div riot-tag="input-checkbox" name="fps-visible" label="Show FPS"></div>
   </div>
   <script>
     this.maxVideoScale = cfxnes.getMaxVideoScale();
@@ -23,15 +23,15 @@
       {value: 'fill-screen|keep-aspect-ratio', label: 'Fill screen + Keep aspect ratio'},
     ];
 
-    refresh() {
+    this.on('update', function() {
       this.tags['video-scale'].setValue(cfxnes.getVideoScale());
       this.tags['video-palette'].setValue(cfxnes.getVideoPalette());
       this.tags['fullscreen-mode'].setValue(cfxnes.getFullscreenMode());
       this.tags['video-smoothing'].setValue(cfxnes.isVideoSmoothing());
       this.tags['video-debugging'].setValue(cfxnes.isVideoDebugging());
       this.tags['video-webgl'].setValue(cfxnes.getVideoRenderer() === 'webgl');
-      this.tags['fps-enabled'].setValue(app.fpsEnabled);
-    }
+      this.tags['fps-visible'].setValue(app.fpsVisible);
+    });
 
     this.on('mount', function() {
       this.tags['video-scale'].on('change', function(value) {
@@ -53,11 +53,10 @@
       this.tags['video-webgl'].on('change', function(value) {
         cfxnes.setVideoRenderer(value ? 'webgl' : 'canvas');
       });
-      this.tags['fps-enabled'].on('change', function(value) {
-        app.fpsEnabled = value;
+      this.tags['fps-visible'].on('change', function(value) {
+        app.fpsVisible = value;
         app.save();
       });
-      this.refresh();
     });
   </script>
 </video-settings>

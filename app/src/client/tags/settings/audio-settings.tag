@@ -15,18 +15,7 @@
     <div riot-tag="input-checkbox" name="dmc-enabled" label="Enable DMC channel"></div>
   </div>
   <script>
-    refresh() {
-      this.tags['audio-volume'].setValue(cfxnes.getAudioVolume());
-      this.tags['audio-enabled'].setValue(cfxnes.isAudioEnabled());
-      this.tags['pulse-1-enabled'].setValue(cfxnes.isAudioChannelEnabled('pulse1'));
-      this.tags['pulse-2-enabled'].setValue(cfxnes.isAudioChannelEnabled('pulse2'));
-      this.tags['triangle-enabled'].setValue(cfxnes.isAudioChannelEnabled('triangle'));
-      this.tags['noise-enabled'].setValue(cfxnes.isAudioChannelEnabled('noise'));
-      this.tags['dmc-enabled'].setValue(cfxnes.isAudioChannelEnabled('dmc'));
-      this.refreshEnablement();
-    }
-
-    refreshEnablement() {
+    updateEnablement() {
       var supported = cfxnes.isAudioSupported();
       var enabled = cfxnes.isAudioEnabled();
       for (var name in this.tags) {
@@ -34,13 +23,24 @@
       }
     }
 
+    this.on('update', function() {
+      this.tags['audio-volume'].setValue(cfxnes.getAudioVolume());
+      this.tags['audio-enabled'].setValue(cfxnes.isAudioEnabled());
+      this.tags['pulse-1-enabled'].setValue(cfxnes.isAudioChannelEnabled('pulse1'));
+      this.tags['pulse-2-enabled'].setValue(cfxnes.isAudioChannelEnabled('pulse2'));
+      this.tags['triangle-enabled'].setValue(cfxnes.isAudioChannelEnabled('triangle'));
+      this.tags['noise-enabled'].setValue(cfxnes.isAudioChannelEnabled('noise'));
+      this.tags['dmc-enabled'].setValue(cfxnes.isAudioChannelEnabled('dmc'));
+      this.updateEnablement();
+    });
+
     this.on('mount', function() {
       this.tags['audio-volume'].on('change', function(value) {
         cfxnes.setAudioVolume(value);
       });
       this.tags['audio-enabled'].on('change', function(value) {
         cfxnes.setAudioEnabled(value);
-        this.parent.refreshEnablement();
+        this.parent.updateEnablement();
       });
       this.tags['pulse-1-enabled'].on('change', function(value) {
         cfxnes.setAudioChannelEnabled('pulse1', value);
@@ -58,9 +58,8 @@
         cfxnes.setAudioChannelEnabled('dmc', value);
       });
       this.tags['audio-volume'].on('mount', function(value) {
-        this.parent.refreshEnablement();
+        this.parent.updateEnablement();
       });
-      this.refresh();
     });
   </script>
 </audio-settings>

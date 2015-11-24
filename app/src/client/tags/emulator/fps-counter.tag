@@ -2,7 +2,7 @@
   <span if={ visible }>FPS: { fps }</span>
   <script>
     this.on('update', function() {
-      this.visible = app.fpsEnabled && cfxnes.isRunning()
+      this.visible = app.fpsVisible && cfxnes.isRunning()
       this.fps = ~~cfxnes.getFPS();
     });
 

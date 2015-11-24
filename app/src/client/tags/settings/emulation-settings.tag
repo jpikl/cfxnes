@@ -8,10 +8,10 @@
       {value: 'pal', label: 'PAL'},
     ];
 
-    refresh() {
+    this.on('update', function() {
       this.tags['region'].setValue(cfxnes.getRegion() || 'auto');
       this.tags['speed'].setValue(cfxnes.getSpeed());
-    }
+    });
 
     this.on('mount', function() {
       this.tags['region'].on('change', function(value) {
@@ -20,7 +20,6 @@
       this.tags['speed'].on('change', function(value) {
         cfxnes.setSpeed(value);
       });
-      this.refresh();
     });
   </script>
 </emulation-settings>

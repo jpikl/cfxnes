@@ -1,4 +1,4 @@
-<controls-info class="alert alert-info alert-dismissible" show={ visible }>
+<controls-info class="alert alert-info alert-dismissible" show={ opened }>
   <button type="button" class="close" onclick={ hide }>
     <span>&times;</span>
   </button>
@@ -15,10 +15,10 @@
     <tr riot-tag="controls-row" device="zapper" input="trigger" input-name="Zapper"></tr>
   </table>
   <script>
-    this.visible = app.controlsInfoVisible && app.controlsInfoEnabled;
+    this.opened = app.controlsOpened && app.controlsVisible;
 
     hide() {
-      this.visible = app.controlsInfoVisible = false;
+      this.opened = app.controlsOpened = false;
     }
   </script>
 </controls-info>
