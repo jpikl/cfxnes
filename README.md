@@ -34,6 +34,7 @@ See LICENSE.txt for more details.
 
 - No sound in Internet Explorer (and in [other browsers](http://caniuse.com/#feat=audio-api) that do not support Web Audio).
 - Poor performance in Internet Explorer and Edge.
+- Very poor performance on mobile devices.
 - Occasional graphical glitches in games using MMC3 mapper.
 - See [list of broken games](docs/broken-games.md).
 
