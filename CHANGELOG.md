@@ -18,6 +18,7 @@ Each change is prefixed with code of related module:
 
 ### Added
 - [core] Support for BNROM, NINA-001 and Color Dreams mappers.
+- [core, app] - New color palettes: ASQ, BMF, FCEU(X), Nestopia.
 - [lib] API to change loggging level.
 - [lib, app] Multiple fullscreen modes.
 - [app] Option to reset configuration.

@@ -235,9 +235,9 @@ export default class PPU {
     var paletteVariant = newUintArray(basePalette.length);
     for (var i = 0; i < basePalette.length; i++) {
       var rgb = basePalette[i];
-      var r = Math.floor(rRatio * ((rgb >>> 16) & 0xFF));
+      var r = Math.floor(rRatio * (rgb & 0xFF));
       var g = Math.floor(gRatio * ((rgb >>>  8) & 0xFF));
-      var b = Math.floor(bRatio * (rgb & 0xFF));
+      var b = Math.floor(bRatio * ((rgb >>> 16) & 0xFF));
       paletteVariant[i] = packColor(r, g, b);
     }
     return paletteVariant;

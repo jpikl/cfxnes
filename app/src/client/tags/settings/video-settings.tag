@@ -13,9 +13,15 @@
   <script>
     this.maxVideoScale = cfxnes.getMaxVideoScale();
     this.videoPalettes = [
-      {value: 'default', label: 'Default'},
-      {value: 'bright', label: 'Bright'},
-      {value: 'realistic', label: 'Realistic'},
+      {value: 'asq-real-a', label: 'ASQ (reality A)'},
+      {value: 'asq-real-b', label: 'ASQ (reality B)'},
+      {value: 'bmf-fin-r2', label: 'BMF (final revision 2)'},
+      {value: 'bmf-fin-r3', label: 'BMF (final revision 3)'},
+      {value: 'fceu-13', label: 'FCEU .13'},
+      {value: 'fceu-15', label: 'FCEU .15'},
+      {value: 'fceux', label: 'FCEUX'},
+      {value: 'nestopia-rgb', label: 'Nestopia (RGB)'},
+      {value: 'nestopia-yuv', label: 'Nestopia (YUV)'},
     ];
     this.fullscreenModes = [
       {value: 'keep-aspect-ratio', label: 'Keep aspect ratio'},
