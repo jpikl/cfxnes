@@ -110,7 +110,7 @@ export default class NES {
   }
 
   renderNormalFrame(buffer) {
-    this.ppu.startFrame(buffer);
+    this.ppu.setFrameBuffer(buffer);
     while (!this.ppu.isFrameAvailable()) {
       this.cpu.step();
     }
@@ -136,7 +136,7 @@ export default class NES {
   }
 
   renderNormalDebugFrame(buffer) {
-    this.ppu.startFrame(buffer);
+    this.ppu.setFrameBuffer(buffer);
     this.ppu.renderDebugFrame();
   }
 

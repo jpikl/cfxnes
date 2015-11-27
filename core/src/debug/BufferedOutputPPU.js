@@ -1,5 +1,4 @@
 import PPU from '../units/PPU';
-import palette from '../palettes/defaultPalette';
 import fs from 'fs';
 import { PNG } from 'node-png';
 import { VIDEO_WIDTH, VIDEO_HEIGHT } from '../common/constants';
@@ -10,17 +9,17 @@ import { newUintArray } from '../utils/system';
 // PPU with output to internal buffer
 //=========================================================
 
-export default class NoOutputPPU extends PPU {
+export default class BufferedOutputPPU extends PPU {
 
   constructor() {
     super();
-    this.setPalette(palette);
-    this.startFrame(newUintArray(VIDEO_WIDTH * VIDEO_HEIGHT));
+    this.dependencies = ['cpu', 'ppuMemory', 'paletteFactory'];
   }
 
-  incrementFrame() {
-    super.incrementFrame();
-    this.startFrame(this.frameBuffer);
+  inject(cpu, ppuMemory, paletteFactory) {
+    super.inject(cpu, ppuMemory);
+    this.setPalette(paletteFactory.createPalette('fceux'));
+    this.setFrameBuffer(newUintArray(VIDEO_WIDTH * VIDEO_HEIGHT));
   }
 
   writeFrameToFile(file) {

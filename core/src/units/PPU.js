@@ -461,9 +461,9 @@ export default class PPU {
   // Frame buffer access
   //=========================================================
 
-  startFrame(buffer) {
-    this.framePosition = 0;
+  setFrameBuffer(buffer) {
     this.frameBuffer = buffer;
+    this.framePosition = 0;
     this.frameAvailable = false;
   }
 
@@ -556,6 +556,7 @@ export default class PPU {
   incrementFrame() {
     this.scanline = 0;
     this.oddFrame = !this.oddFrame;
+    this.framePosition = 0;
   }
 
   //=========================================================
