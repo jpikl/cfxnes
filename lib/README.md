@@ -20,8 +20,8 @@ The video output will be rendered to the canvas element.
 <html>
 <head>
     <title>CFxNES Minimal Example</title>
-    <script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"></script>
-    <script src="cfxnes.js"></script>
+    <script src="http://www.promisejs.org/polyfills/promise-7.0.4.min.js"></script>
+    <script src="http://cfxnes.herokuapp.com/cfxnes.js"></script>
 </head>
 <body>
     <canvas id="canvas"></canvas>
