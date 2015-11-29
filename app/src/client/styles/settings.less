@@ -57,16 +57,21 @@
     }
   }
   .reset-settings {
-    display: table;
-    > * {
-      display: table-row;
+    @media (min-width: @screen-sm-min) {
+      display: table;
       > * {
-        display: table-cell;
-        padding: 8px;
+        display: table-row;
+        > * {
+          display: table-cell;
+          padding: 8px;
+        }
       }
     }
     button {
       width: 150px;
+    }
+    p {
+      margin-top: 10px;
     }
   }
 }

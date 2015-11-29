@@ -7,27 +7,34 @@
     <li><em>app</em> = web application</li>
     <li><em>dbg</em> = debugger</li>
   </ul>
-  <h3><a href="https://github.com/jpikl/cfxnes/compare/v0.3.0...HEAD">Unreleased</a></h3>
+  <h3><a href="https://github.com/jpikl/cfxnes/compare/v0.3.0...v0.4.0">0.4.0</a> - 2015-11-29</h3>
   <h4>Fixed</h4>
   <ul>
     <li>[core] Detection of NES 2.0 ROM image format.</li>
     <li>[core] Correct size of PRG/CHR RAM that is read from ROM images (iNES / NES 2.0).</li>
-    <li>[core] MMC1 mapper imlementation (PRG RAM protection, PRG ROM mapping).</li>
+    <li>[core] MMC1 mapper implementation (PRG RAM protection, PRG ROM mapping).</li>
     <li>[core] MMC3 mapper implementation (PRG RAM protection, CHR ROM mapping).</li>
+    <li>[core, lib] Attempt to load invalid configuration won&#39;t crash emulator during initialization.</li>
   </ul>
   <h4>Added</h4>
   <ul>
-    <li>[core] Support for BNROM and NINA-001 mappers.</li>
+    <li>[core] Support for BNROM, NINA-001 and Color Dreams mappers.</li>
+    <li>[core, app] - New color palettes: ASQ, BMF, FCEU(X), Nestopia.</li>
     <li>[lib] API to change loggging level.</li>
+    <li>[lib, app] Multiple fullscreen modes.</li>
     <li>[app] Option to reset configuration.</li>
     <li>[app] Option to delete saved game data.</li>
     <li>[dbg] Debugger can take screenshots.</li>
+    <li>[dbg] Debugger command line options <code>-i</code> and <code>-p</code>.</li>
   </ul>
   <h4>Changed</h4>
   <ul>
     <li>[core] Cartridge data (battery backed RAM) is stored in IndexedDB.</li>
     <li>[core, lib] API uses Promises for asynchronous operations.</li>
     <li>[lib, app] Default audio volume is 50%.</li>
+    <li>[app] Vector graphics is used where possible.</li>
+    <li>[app] Only single refresh when multiple files are changed in library.</li>
+    <li>[app] <em>Game Library</em> renamed to <em>Library</em>.</li>
   </ul>
   <h3><a href="https://github.com/jpikl/cfxnes/compare/v0.2.0...v0.3.0">0.3.0</a> - 2015-08-09</h3>
   <h4>Fixed</h4>
