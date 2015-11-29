@@ -37,8 +37,11 @@ var app = riot.observable({
     localStorage.setItem('controlsVisible', this.controlsVisible ? 'true' : 'false');
   },
   route: function(view, param) {
-    app.viewParam = param;
-    app.trigger('route', view || 'emulator', param);
+    if (app.view !== view || app.viewParam !== param) { // Workaround for https://github.com/riot/route/issues/28
+      app.view = view;
+      app.viewParam = param;
+      app.trigger('route', view || 'emulator', param);
+    }
   },
   watch: function(events, tag, callback) {
     callback = callback.bind(tag);
@@ -58,6 +61,10 @@ $(document).ready(function() {
   riot.route(app.route);
   riot.route.start(true); // start + exec
 });
+
+$(window).on('hashchange', function() {
+  riot.route.exec(); // Workaround for https://github.com/riot/route/issues/28
+})
 
 //=========================================================
 // Utilities
