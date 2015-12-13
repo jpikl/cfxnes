@@ -13,7 +13,7 @@ export const files = [
   '3-A12_clocking.nes',
   // '4-scanline_timing.nes',
   '5-MMC3.nes',
-  // '6-MMC3_alt.nes',
+  '6-MMC3_alt.nes',
 ];
 
 export function configure(config) {
@@ -22,5 +22,8 @@ export function configure(config) {
 }
 
 export function execute(test) {
+  if (test.number === 4) {
+    test.get('nes').mapper.alternateMode = true;
+  }
   test.blargg();
 }

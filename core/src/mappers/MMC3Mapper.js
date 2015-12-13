@@ -21,6 +21,9 @@ export default class MMC3Mapper extends AbstractMapper {
     super.init(cartridge);
     this.hasPRGRAM = true;
     this.prgRAMSize = 0x2000; // 8K PRG RAM
+    // MMC3A and non-Sharp MMC3B - alternate (old) behavior
+    // MMC3C and Sharp MMC3B     - normal (new) behavior
+    // TODO detection for normal/alternate behavior
     this.alternateMode = false;
   }
 
@@ -176,8 +179,8 @@ export default class MMC3Mapper extends AbstractMapper {
   // - When the counter is reloaded the reload flag is also cleared.
   //
   // IRQ generation:
-  // - Normal behaviour    - checks whether IRQ is enabled and the counter is zero
-  // - Alternate behaviour - additionaly checks that the counter was set to zero either by decrementation or reload
+  // - Normal behavior    - checks whether IRQ is enabled and the counter is zero
+  // - Alternate behavior - additionaly checks that the counter was set to zero either by decrementation or reload
 
   tick() {
     if (this.ppu.addressBus & 0x1000) {
@@ -197,7 +200,7 @@ export default class MMC3Mapper extends AbstractMapper {
     } else {
       this.irqCounter--;
     }
-    if (this.irqEnabled && !this.irqCounter && (!this.alternateMode || !irqCounterOld || this.irqReload)) {
+    if (this.irqEnabled && !this.irqCounter && (!this.alternateMode || irqCounterOld || this.irqReload)) {
       this.cpu.activateInterrupt(IRQ_EXT);
     }
     this.irqReload = false;

@@ -8,6 +8,10 @@ Each change is prefixed with code of related module:
 - *app* = web application
 - *dbg* = debugger
 
+## [Unreleased][unreleased]
+### Fixed
+- [core] MMC3 mapper alternate behavior.
+
 ## [0.4.0] - 2015-11-29
 ### Fixed
 - [core] Detection of NES 2.0 ROM image format.
@@ -66,6 +70,7 @@ Each change is prefixed with code of related module:
 ## 0.1.0 - 2015-04-26
 - Complete rewrite from CoffeeScript to ECMAScript 6.
 
+[unreleased]: https://github.com/jpikl/cfxnes/compare/v0.4.0...HEAD
 [0.4.0]: https://github.com/jpikl/cfxnes/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/jpikl/cfxnes/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/jpikl/cfxnes/compare/v0.1.0...v0.2.0
