@@ -38,7 +38,7 @@
     "gulp-prettify": "^0.3.0",
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.5.4",
-    "gulp-riot": "^0.4.1",
+    "gulp-riot": "^0.4.2",
     "gulp-uglify": "^1.5.1",
     "jquery": "^2.1.4",
     "jquery.browser": "0.1.0",
@@ -50,7 +50,7 @@
     "merge2": "^0.3.6",
     "mkdirp": "^0.5.1",
     "promise-polyfill": "^2.1.0",
-    "riot": "^2.3.11",
+    "riot": "^2.3.12",
     "screenfull": "^3.0.0",
     "yargs": "^3.30.0"
   }
