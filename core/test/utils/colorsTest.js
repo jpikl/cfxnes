@@ -6,15 +6,15 @@ var expect = chai.expect;
 describe('Colors utils', () => {
 
   it('can pack color', () => {
-    expect(colors.packColor(0x12, 0x34, 0x56, 0x78, 'LE')).to.equal(0x78563412);
-    expect(colors.packColor(0x12, 0x34, 0x56, 0x78, 'BE')).to.equal(0x12345678);
-    expect(colors.packColor(0x12, 0x34, 0x56, undefined, 'LE')).to.equal(0xFF563412);
-    expect(colors.packColor(0x12, 0x34, 0x56, undefined, 'BE')).to.equal(0x123456FF);
+    expect(colors.packColorLE(0x12, 0x34, 0x56, 0x78)).to.equal(0x78563412);
+    expect(colors.packColorBE(0x12, 0x34, 0x56, 0x78)).to.equal(0x12345678);
+    expect(colors.packColorLE(0x12, 0x34, 0x56, undefined)).to.equal(0xFF563412);
+    expect(colors.packColorBE(0x12, 0x34, 0x56, undefined)).to.equal(0x123456FF);
   });
 
   it('can unpack color', () => {
-    expect(colors.unpackColor(0x78563412, 'LE')).to.deep.equal([0x12, 0x34, 0x56, 0x78]);
-    expect(colors.unpackColor(0x12345678, 'BE')).to.deep.equal([0x12, 0x34, 0x56, 0x78]);
+    expect(colors.unpackColorLE(0x78563412)).to.deep.equal([0x12, 0x34, 0x56, 0x78]);
+    expect(colors.unpackColorBE(0x12345678)).to.deep.equal([0x12, 0x34, 0x56, 0x78]);
   });
 
 });
