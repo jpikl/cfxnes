@@ -7,11 +7,11 @@ import { RESET, NMI } from '../common/constants';
 
 class Operation {
 
-  constructor(instruction, addressingMode, cycles, pageCrossEnabled) {
+  constructor(instruction, addressingMode, cycles, forceDummyRead) {
     this.instruction = instruction;            // CPU instruction
     this.addressingMode = addressingMode;      // CPU addressing mode
     this.cycles = cycles;                      // Number of CPU cycles
-    this.pageCrossEnabled = pageCrossEnabled;  // Whether memory page crossing can happen during the operation
+    this.forceDummyRead = forceDummyRead;
   }
 
 }
@@ -64,15 +64,15 @@ export default class CPU {
 
   resetMemory() {
     for (var i = 0x0000; i < 0x0800; i++) {
-      this.writeByte(i, 0xFF);
+      this.cpuMemory.write(i, 0xFF);
     }
     for (var i = 0x4000; i < 0x4010; i++) {
-      this.writeByte(i, 0x00);
+      this.cpuMemory.write(i, 0x00);
     }
-    this.writeByte(0x0008, 0xF7);
-    this.writeByte(0x0009, 0xEF);
-    this.writeByte(0x000A, 0xDF);
-    this.writeByte(0x000F, 0xBF);
+    this.cpuMemory.write(0x0008, 0xF7);
+    this.cpuMemory.write(0x0009, 0xEF);
+    this.cpuMemory.write(0x000A, 0xDF);
+    this.cpuMemory.write(0x000F, 0xBF);
     // Writes to $4015 and $4017 are done during following reset
   }
 
@@ -86,7 +86,7 @@ export default class CPU {
       this.resolveInterrupt();
     }
     if (this.halted || blocked) {
-      this.tick(1); // Tick everything else
+      this.tick(); // Tick everything else
     } else {
       this.executeOperation();
     }
@@ -106,7 +106,8 @@ export default class CPU {
     } else {
       this.handleIRQ();
     }
-    this.tick(7); // Each interrupt takes 7 cycles
+    this.tick();
+    this.tick(); // Each interrupt takes 7 cycles
   }
 
   handleReset() {
@@ -116,6 +117,7 @@ export default class CPU {
     this.stackPointer = (this.stackPointer - 3) & 0xFF; // Unlike IRQ/NMI, writing on stack does not modify CPU memory, so we just decrement the stack pointer 3 times
     this.enterInterruptHandler(0xFFFC);
     this.clearInterrupt(RESET);
+    this.tick();
     this.halted = false;
   }
 
@@ -157,13 +159,11 @@ export default class CPU {
     var addressingMode = operation.addressingMode;
 
     this.pageCrossed = false;
-    this.pageCrossEnabled = operation.pageCrossEnabled;
+    this.forceDummyRead = operation.forceDummyRead;
     this.operationCycles = operation.cycles;
 
     var address = addressingMode.call(this);
     instruction.call(this, address);
-
-    this.tick(this.operationCycles);
   }
 
   readOperation() {
@@ -189,22 +189,26 @@ export default class CPU {
   //=========================================================
 
   readByte(address) {
+    this.tick();
     return this.cpuMemory.read(address);
   }
 
   readWord(address) {
     var highAddress = (address + 1) & 0xFFFF;
+    var lowByte = this.readByte(address);
     var highByte = this.readByte(highAddress);
-    return highByte << 8 | this.readByte(address);
+    return highByte << 8 | lowByte;
   }
 
   readWordFromSamePage(address) {
     var highAddress = address & 0xFF00 | (address + 1) & 0x00FF;
+    var lowByte = this.readByte(address);
     var highByte = this.readByte(highAddress);
-    return highByte << 8 | this.readByte(address);
+    return highByte << 8 | lowByte;
   }
 
   writeByte(address, value) {
+    this.tick();
     this.cpuMemory.write(address, value);
     return value;
   }
@@ -212,6 +216,12 @@ export default class CPU {
   writeWord(address, value) {
     this.writeByte(address, value & 0xFF);
     return this.writeByte((address + 1) & 0xFFFF, value >>> 8);
+  }
+
+  readWriteByte(address, value) {
+    var value = this.readByte(address, value);
+    this.writeByte(address, value); // Some instruction do dummy write before their computation
+    return value;
   }
 
   //=========================================================
@@ -281,16 +291,14 @@ export default class CPU {
   //=========================================================
 
   tick(count) {
-    for (var i = 0; i < count; i++) {
-      if (!this.apu.isBlockingDMA()) {
-        this.dma.tick();
-      }
-      this.ppu.tick(); // 3 times faster than CPU
-      this.ppu.tick();
-      this.ppu.tick();
-      this.apu.tick(); // Same rate as CPU
-      this.cycle++;
+    if (!this.apu.isBlockingDMA()) {
+      this.dma.tick();
     }
+    this.ppu.tick(); // 3 times faster than CPU
+    this.ppu.tick();
+    this.ppu.tick();
+    this.apu.tick(); // Same rate as CPU
+    this.cycle++;
   }
 
   //=========================================================
@@ -298,9 +306,11 @@ export default class CPU {
   //=========================================================
 
   impliedMode() {
+    this.tick();
   }
 
   accumulatorMode() {
+    this.tick();
   }
 
   immediateMode() {
@@ -344,9 +354,8 @@ export default class CPU {
   //=========================================================
 
   relativeMode() {
-    var base = (this.programCounter + 1) & 0xFFFF; // We need to get address of the next instruction
     var offset = this.getSignedByte(this.readNextProgramByte());
-    return this.getIndexedAddressWord(base, offset);
+    return this.getIndexedAddressWord(this.programCounter, offset);
   }
 
   //=========================================================
@@ -371,13 +380,18 @@ export default class CPU {
   //=========================================================
 
   getIndexedAddressByte(base, offset) {
+    if (this.forceDummyRead) {
+      this.readByte(base);
+    }
     return (base + offset) & 0xFF;
   }
 
   getIndexedAddressWord(base, offset) {
     this.pageCrossed = (base & 0xFF00) !== ((base + offset) & 0xFF00);
-    if (this.pageCrossEnabled && this.pageCrossed) {
-      this.operationCycles++;
+    if (this.forceDummyRead !== -1) {
+      if (this.forceDummyRead || this.pageCrossed) {
+        this.readByte((base & 0xFF00) | ((base + offset) & 0x00FF));
+      }
     }
     return (base + offset) & 0xFFFF;
   }
@@ -391,6 +405,9 @@ export default class CPU {
   //=========================================================
 
   NOP() {
+    if (this.forceDummyRead >= 0) {
+      this.tick();
+    }
   }
 
   //=========================================================
@@ -534,10 +551,12 @@ export default class CPU {
   //=========================================================
 
   PLA() {
+    this.tick();
     this.storeValueIntoAccumulator(this.popByte());
   }
 
   PLP() {
+    this.tick();
     this.setStatus(this.popByte());
   }
 
@@ -569,7 +588,7 @@ export default class CPU {
   //=========================================================
 
   INC(address) {
-    return this.storeValueIntoMemory(address, (this.readByte(address) + 1) & 0xFF);
+    return this.storeValueIntoMemory(address, (this.readWriteByte(address) + 1) & 0xFF);
   }
 
   INX() {
@@ -585,7 +604,7 @@ export default class CPU {
   //=========================================================
 
   DEC(address) {
-    return this.storeValueIntoMemory(address, (this.readByte(address) - 1) & 0xFF);
+    return this.storeValueIntoMemory(address, (this.readWriteByte(address) - 1) & 0xFF);
   }
 
   DEX() {
@@ -657,11 +676,14 @@ export default class CPU {
   }
 
   JSR(address) {
+    this.tick();
     this.pushWord((this.programCounter - 1) & 0xFFFF); // The pushed address must be the end of the current instruction
     this.programCounter = address;
   }
 
   RTS() {
+    this.tick();
+    this.tick();
     this.programCounter = (this.popWord() + 1) & 0xFFFF; // We decremented the address when pushing it during JSR
   }
 
@@ -678,6 +700,7 @@ export default class CPU {
   }
 
   RTI() {
+    this.tick();
     this.setStatus(this.popByte());
     this.programCounter = this.popWord();
   }
@@ -797,7 +820,7 @@ export default class CPU {
 
   storeHighAddressIntoMemory(address, register) {
     if (this.pageCrossed) {
-      this.writeByte(address, this.readByte(address)); // Just copy the same value
+      this.writeByte(address, this.cpuMemory.read(address)); // Just copy the same value
     } else {
       this.writeByte(address, register & ((address >>> 8) + 1));
     }
@@ -824,13 +847,16 @@ export default class CPU {
   branchIf(condition, address) {
     if (condition) {
       this.programCounter = address;
-      this.operationCycles += this.pageCrossed ? 2 : 1;
+      this.tick();
+      if (this.pageCrossed) {
+        this.tick();
+      }
     }
   }
 
   rotateAccumulatorOrMemory(address, rotation, transferCarry) {
     if (address != null) {
-      var result = rotation.call(this, this.readByte(address), transferCarry);
+      var result = rotation.call(this, this.readWriteByte(address), transferCarry);
       return this.storeValueIntoMemory(address, result);
     } else {
       var result = rotation.call(this, this.accumulator, transferCarry);
@@ -866,13 +892,13 @@ export default class CPU {
     // No operation instruction
     //=========================================================
 
-    this.operations[0x1A] = new Operation(this.NOP, this.impliedMode, 2, 0);
-    this.operations[0x3A] = new Operation(this.NOP, this.impliedMode, 2, 0);
-    this.operations[0x5A] = new Operation(this.NOP, this.impliedMode, 2, 0);
-    this.operations[0x7A] = new Operation(this.NOP, this.impliedMode, 2, 0);
-    this.operations[0xDA] = new Operation(this.NOP, this.impliedMode, 2, 0);
-    this.operations[0xEA] = new Operation(this.NOP, this.impliedMode, 2, 0);
-    this.operations[0xFA] = new Operation(this.NOP, this.impliedMode, 2, 0);
+    this.operations[0x1A] = new Operation(this.NOP, this.impliedMode, 2, -1);
+    this.operations[0x3A] = new Operation(this.NOP, this.impliedMode, 2, -1);
+    this.operations[0x5A] = new Operation(this.NOP, this.impliedMode, 2, -1);
+    this.operations[0x7A] = new Operation(this.NOP, this.impliedMode, 2, -1);
+    this.operations[0xDA] = new Operation(this.NOP, this.impliedMode, 2, -1);
+    this.operations[0xEA] = new Operation(this.NOP, this.impliedMode, 2, -1);
+    this.operations[0xFA] = new Operation(this.NOP, this.impliedMode, 2, -1);
 
     this.operations[0x80] = new Operation(this.NOP, this.immediateMode, 2, 0);
     this.operations[0x82] = new Operation(this.NOP, this.immediateMode, 2, 0);
@@ -884,21 +910,21 @@ export default class CPU {
     this.operations[0x44] = new Operation(this.NOP, this.zeroPageMode, 3, 0);
     this.operations[0x64] = new Operation(this.NOP, this.zeroPageMode, 3, 0);
 
-    this.operations[0x14] = new Operation(this.NOP, this.zeroPageXMode, 4, 0);
-    this.operations[0x34] = new Operation(this.NOP, this.zeroPageXMode, 4, 0);
-    this.operations[0x54] = new Operation(this.NOP, this.zeroPageXMode, 4, 0);
-    this.operations[0x74] = new Operation(this.NOP, this.zeroPageXMode, 4, 0);
-    this.operations[0xD4] = new Operation(this.NOP, this.zeroPageXMode, 4, 0);
-    this.operations[0xF4] = new Operation(this.NOP, this.zeroPageXMode, 4, 0);
+    this.operations[0x14] = new Operation(this.NOP, this.zeroPageXMode, 4, 1);
+    this.operations[0x34] = new Operation(this.NOP, this.zeroPageXMode, 4, 1);
+    this.operations[0x54] = new Operation(this.NOP, this.zeroPageXMode, 4, 1);
+    this.operations[0x74] = new Operation(this.NOP, this.zeroPageXMode, 4, 1);
+    this.operations[0xD4] = new Operation(this.NOP, this.zeroPageXMode, 4, 1);
+    this.operations[0xF4] = new Operation(this.NOP, this.zeroPageXMode, 4, 1);
 
     this.operations[0x0C] = new Operation(this.NOP, this.absoluteMode, 4, 0);
 
-    this.operations[0x1C] = new Operation(this.NOP, this.absoluteXMode, 4, 1);
-    this.operations[0x3C] = new Operation(this.NOP, this.absoluteXMode, 4, 1);
-    this.operations[0x5C] = new Operation(this.NOP, this.absoluteXMode, 4, 1);
-    this.operations[0x7C] = new Operation(this.NOP, this.absoluteXMode, 4, 1);
-    this.operations[0xDC] = new Operation(this.NOP, this.absoluteXMode, 4, 1);
-    this.operations[0xFC] = new Operation(this.NOP, this.absoluteXMode, 4, 1);
+    this.operations[0x1C] = new Operation(this.NOP, this.absoluteXMode, 4, 0);
+    this.operations[0x3C] = new Operation(this.NOP, this.absoluteXMode, 4, 0);
+    this.operations[0x5C] = new Operation(this.NOP, this.absoluteXMode, 4, 0);
+    this.operations[0x7C] = new Operation(this.NOP, this.absoluteXMode, 4, 0);
+    this.operations[0xDC] = new Operation(this.NOP, this.absoluteXMode, 4, 0);
+    this.operations[0xFC] = new Operation(this.NOP, this.absoluteXMode, 4, 0);
 
     //=========================================================
     // Clear flag instructions
@@ -922,30 +948,30 @@ export default class CPU {
     //=========================================================
 
     this.operations[0x85] = new Operation(this.STA, this.zeroPageMode,  3, 0);
-    this.operations[0x95] = new Operation(this.STA, this.zeroPageXMode, 4, 0);
+    this.operations[0x95] = new Operation(this.STA, this.zeroPageXMode, 4, 1);
     this.operations[0x8D] = new Operation(this.STA, this.absoluteMode,  4, 0);
-    this.operations[0x9D] = new Operation(this.STA, this.absoluteXMode, 5, 0);
-    this.operations[0x99] = new Operation(this.STA, this.absoluteYMode, 5, 0);
-    this.operations[0x81] = new Operation(this.STA, this.indirectXMode, 6, 0);
-    this.operations[0x91] = new Operation(this.STA, this.indirectYMode, 6, 0);
+    this.operations[0x9D] = new Operation(this.STA, this.absoluteXMode, 5, 1);
+    this.operations[0x99] = new Operation(this.STA, this.absoluteYMode, 5, 1);
+    this.operations[0x81] = new Operation(this.STA, this.indirectXMode, 6, 1);
+    this.operations[0x91] = new Operation(this.STA, this.indirectYMode, 6, 1);
 
     this.operations[0x86] = new Operation(this.STX, this.zeroPageMode,  3, 0);
-    this.operations[0x96] = new Operation(this.STX, this.zeroPageYMode, 4, 0);
+    this.operations[0x96] = new Operation(this.STX, this.zeroPageYMode, 4, 1);
     this.operations[0x8E] = new Operation(this.STX, this.absoluteMode,  4, 0);
 
     this.operations[0x87] = new Operation(this.SAX, this.zeroPageMode,  3, 0);
-    this.operations[0x97] = new Operation(this.SAX, this.zeroPageYMode, 4, 0);
+    this.operations[0x97] = new Operation(this.SAX, this.zeroPageYMode, 4, 1);
     this.operations[0x8F] = new Operation(this.SAX, this.absoluteMode,  4, 0);
-    this.operations[0x83] = new Operation(this.SAX, this.indirectXMode, 6, 0);
+    this.operations[0x83] = new Operation(this.SAX, this.indirectXMode, 6, 1);
 
     this.operations[0x84] = new Operation(this.STY, this.zeroPageMode,  3, 0);
-    this.operations[0x94] = new Operation(this.STY, this.zeroPageXMode, 4, 0);
+    this.operations[0x94] = new Operation(this.STY, this.zeroPageXMode, 4, 1);
     this.operations[0x8C] = new Operation(this.STY, this.absoluteMode,  4, 0);
 
-    this.operations[0x93] = new Operation(this.SHA, this.indirectYMode, 6, 0);
-    this.operations[0x9F] = new Operation(this.SHA, this.absoluteYMode, 5, 0);
-    this.operations[0x9E] = new Operation(this.SHX, this.absoluteYMode, 5, 0);
-    this.operations[0x9C] = new Operation(this.SHY, this.absoluteXMode, 5, 0);
+    this.operations[0x93] = new Operation(this.SHA, this.indirectYMode, 6, 1);
+    this.operations[0x9F] = new Operation(this.SHA, this.absoluteYMode, 5, 1);
+    this.operations[0x9E] = new Operation(this.SHX, this.absoluteYMode, 5, 1);
+    this.operations[0x9C] = new Operation(this.SHY, this.absoluteXMode, 5, 1);
 
     //=========================================================
     // Memory read instructions
@@ -953,34 +979,34 @@ export default class CPU {
 
     this.operations[0xA9] = new Operation(this.LDA, this.immediateMode, 2, 0);
     this.operations[0xA5] = new Operation(this.LDA, this.zeroPageMode,  3, 0);
-    this.operations[0xB5] = new Operation(this.LDA, this.zeroPageXMode, 4, 0);
+    this.operations[0xB5] = new Operation(this.LDA, this.zeroPageXMode, 4, 1);
     this.operations[0xAD] = new Operation(this.LDA, this.absoluteMode,  4, 0);
-    this.operations[0xBD] = new Operation(this.LDA, this.absoluteXMode, 4, 1);
-    this.operations[0xB9] = new Operation(this.LDA, this.absoluteYMode, 4, 1);
-    this.operations[0xA1] = new Operation(this.LDA, this.indirectXMode, 6, 0);
-    this.operations[0xB1] = new Operation(this.LDA, this.indirectYMode, 5, 1);
+    this.operations[0xBD] = new Operation(this.LDA, this.absoluteXMode, 4, 0);
+    this.operations[0xB9] = new Operation(this.LDA, this.absoluteYMode, 4, 0);
+    this.operations[0xA1] = new Operation(this.LDA, this.indirectXMode, 6, 1);
+    this.operations[0xB1] = new Operation(this.LDA, this.indirectYMode, 5, 0);
 
     this.operations[0xA2] = new Operation(this.LDX, this.immediateMode, 2, 0);
     this.operations[0xA6] = new Operation(this.LDX, this.zeroPageMode,  3, 0);
-    this.operations[0xB6] = new Operation(this.LDX, this.zeroPageYMode, 4, 0);
+    this.operations[0xB6] = new Operation(this.LDX, this.zeroPageYMode, 4, 1);
     this.operations[0xAE] = new Operation(this.LDX, this.absoluteMode,  4, 0);
-    this.operations[0xBE] = new Operation(this.LDX, this.absoluteYMode, 4, 1);
+    this.operations[0xBE] = new Operation(this.LDX, this.absoluteYMode, 4, 0);
 
     this.operations[0xA0] = new Operation(this.LDY, this.immediateMode, 2, 0);
     this.operations[0xA4] = new Operation(this.LDY, this.zeroPageMode,  3, 0);
-    this.operations[0xB4] = new Operation(this.LDY, this.zeroPageXMode, 4, 0);
+    this.operations[0xB4] = new Operation(this.LDY, this.zeroPageXMode, 4, 1);
     this.operations[0xAC] = new Operation(this.LDY, this.absoluteMode,  4, 0);
-    this.operations[0xBC] = new Operation(this.LDY, this.absoluteXMode, 4, 1);
+    this.operations[0xBC] = new Operation(this.LDY, this.absoluteXMode, 4, 0);
 
     this.operations[0xAB] = new Operation(this.LAX, this.immediateMode, 2, 0);
     this.operations[0xA7] = new Operation(this.LAX, this.zeroPageMode,  3, 0);
-    this.operations[0xB7] = new Operation(this.LAX, this.zeroPageYMode, 4, 0);
+    this.operations[0xB7] = new Operation(this.LAX, this.zeroPageYMode, 4, 1);
     this.operations[0xAF] = new Operation(this.LAX, this.absoluteMode,  4, 0);
-    this.operations[0xBF] = new Operation(this.LAX, this.absoluteYMode, 4, 1);
-    this.operations[0xA3] = new Operation(this.LAX, this.indirectXMode, 6, 0);
-    this.operations[0xB3] = new Operation(this.LAX, this.indirectYMode, 5, 1);
+    this.operations[0xBF] = new Operation(this.LAX, this.absoluteYMode, 4, 0);
+    this.operations[0xA3] = new Operation(this.LAX, this.indirectXMode, 6, 1);
+    this.operations[0xB3] = new Operation(this.LAX, this.indirectYMode, 5, 0);
 
-    this.operations[0xBB] = new Operation(this.LAS, this.absoluteYMode, 4, 1);
+    this.operations[0xBB] = new Operation(this.LAS, this.absoluteYMode, 4, 0);
 
     //=========================================================
     // Register transfer instructions
@@ -1013,30 +1039,30 @@ export default class CPU {
 
     this.operations[0x29] = new Operation(this.AND, this.immediateMode, 2, 0);
     this.operations[0x25] = new Operation(this.AND, this.zeroPageMode,  3, 0);
-    this.operations[0x35] = new Operation(this.AND, this.zeroPageXMode, 4, 0);
+    this.operations[0x35] = new Operation(this.AND, this.zeroPageXMode, 4, 1);
     this.operations[0x2D] = new Operation(this.AND, this.absoluteMode,  4, 0);
-    this.operations[0x3D] = new Operation(this.AND, this.absoluteXMode, 4, 1);
-    this.operations[0x39] = new Operation(this.AND, this.absoluteYMode, 4, 1);
-    this.operations[0x21] = new Operation(this.AND, this.indirectXMode, 6, 0);
-    this.operations[0x31] = new Operation(this.AND, this.indirectYMode, 5, 1);
+    this.operations[0x3D] = new Operation(this.AND, this.absoluteXMode, 4, 0);
+    this.operations[0x39] = new Operation(this.AND, this.absoluteYMode, 4, 0);
+    this.operations[0x21] = new Operation(this.AND, this.indirectXMode, 6, 1);
+    this.operations[0x31] = new Operation(this.AND, this.indirectYMode, 5, 0);
 
     this.operations[0x09] = new Operation(this.ORA, this.immediateMode, 2, 0);
     this.operations[0x05] = new Operation(this.ORA, this.zeroPageMode,  3, 0);
-    this.operations[0x15] = new Operation(this.ORA, this.zeroPageXMode, 4, 0);
+    this.operations[0x15] = new Operation(this.ORA, this.zeroPageXMode, 4, 1);
     this.operations[0x0D] = new Operation(this.ORA, this.absoluteMode,  4, 0);
-    this.operations[0x1D] = new Operation(this.ORA, this.absoluteXMode, 4, 1);
-    this.operations[0x19] = new Operation(this.ORA, this.absoluteYMode, 4, 1);
-    this.operations[0x01] = new Operation(this.ORA, this.indirectXMode, 6, 0);
-    this.operations[0x11] = new Operation(this.ORA, this.indirectYMode, 5, 1);
+    this.operations[0x1D] = new Operation(this.ORA, this.absoluteXMode, 4, 0);
+    this.operations[0x19] = new Operation(this.ORA, this.absoluteYMode, 4, 0);
+    this.operations[0x01] = new Operation(this.ORA, this.indirectXMode, 6, 1);
+    this.operations[0x11] = new Operation(this.ORA, this.indirectYMode, 5, 0);
 
     this.operations[0x49] = new Operation(this.EOR, this.immediateMode, 2, 0);
     this.operations[0x45] = new Operation(this.EOR, this.zeroPageMode,  3, 0);
-    this.operations[0x55] = new Operation(this.EOR, this.zeroPageXMode, 4, 0);
+    this.operations[0x55] = new Operation(this.EOR, this.zeroPageXMode, 4, 1);
     this.operations[0x4D] = new Operation(this.EOR, this.absoluteMode,  4, 0);
-    this.operations[0x5D] = new Operation(this.EOR, this.absoluteXMode, 4, 1);
-    this.operations[0x59] = new Operation(this.EOR, this.absoluteYMode, 4, 1);
-    this.operations[0x41] = new Operation(this.EOR, this.indirectXMode, 6, 0);
-    this.operations[0x51] = new Operation(this.EOR, this.indirectYMode, 5, 1);
+    this.operations[0x5D] = new Operation(this.EOR, this.absoluteXMode, 4, 0);
+    this.operations[0x59] = new Operation(this.EOR, this.absoluteYMode, 4, 0);
+    this.operations[0x41] = new Operation(this.EOR, this.indirectXMode, 6, 1);
+    this.operations[0x51] = new Operation(this.EOR, this.indirectYMode, 5, 0);
 
     this.operations[0x24] = new Operation(this.BIT, this.zeroPageMode, 3, 0);
     this.operations[0x2C] = new Operation(this.BIT, this.absoluteMode, 4, 0);
@@ -1046,9 +1072,9 @@ export default class CPU {
     //=========================================================
 
     this.operations[0xE6] = new Operation(this.INC, this.zeroPageMode,  5, 0);
-    this.operations[0xF6] = new Operation(this.INC, this.zeroPageXMode, 6, 0);
+    this.operations[0xF6] = new Operation(this.INC, this.zeroPageXMode, 6, 1);
     this.operations[0xEE] = new Operation(this.INC, this.absoluteMode,  6, 0);
-    this.operations[0xFE] = new Operation(this.INC, this.absoluteXMode, 7, 0);
+    this.operations[0xFE] = new Operation(this.INC, this.absoluteXMode, 7, 1);
 
     this.operations[0xE8] = new Operation(this.INX, this.impliedMode, 2, 0);
     this.operations[0xC8] = new Operation(this.INY, this.impliedMode, 2, 0);
@@ -1058,9 +1084,9 @@ export default class CPU {
     //=========================================================
 
     this.operations[0xC6] = new Operation(this.DEC, this.zeroPageMode,  5, 0);
-    this.operations[0xD6] = new Operation(this.DEC, this.zeroPageXMode, 6, 0);
+    this.operations[0xD6] = new Operation(this.DEC, this.zeroPageXMode, 6, 1);
     this.operations[0xCE] = new Operation(this.DEC, this.absoluteMode,  6, 0);
-    this.operations[0xDE] = new Operation(this.DEC, this.absoluteXMode, 7, 0);
+    this.operations[0xDE] = new Operation(this.DEC, this.absoluteXMode, 7, 1);
 
     this.operations[0xCA] = new Operation(this.DEX, this.impliedMode, 2, 0);
     this.operations[0x88] = new Operation(this.DEY, this.impliedMode, 2, 0);
@@ -1071,12 +1097,12 @@ export default class CPU {
 
     this.operations[0xC9] = new Operation(this.CMP, this.immediateMode, 2, 0);
     this.operations[0xC5] = new Operation(this.CMP, this.zeroPageMode,  3, 0);
-    this.operations[0xD5] = new Operation(this.CMP, this.zeroPageXMode, 4, 0);
+    this.operations[0xD5] = new Operation(this.CMP, this.zeroPageXMode, 4, 1);
     this.operations[0xCD] = new Operation(this.CMP, this.absoluteMode,  4, 0);
-    this.operations[0xDD] = new Operation(this.CMP, this.absoluteXMode, 4, 1);
-    this.operations[0xD9] = new Operation(this.CMP, this.absoluteYMode, 4, 1);
-    this.operations[0xC1] = new Operation(this.CMP, this.indirectXMode, 6, 0);
-    this.operations[0xD1] = new Operation(this.CMP, this.indirectYMode, 5, 1);
+    this.operations[0xDD] = new Operation(this.CMP, this.absoluteXMode, 4, 0);
+    this.operations[0xD9] = new Operation(this.CMP, this.absoluteYMode, 4, 0);
+    this.operations[0xC1] = new Operation(this.CMP, this.indirectXMode, 6, 1);
+    this.operations[0xD1] = new Operation(this.CMP, this.indirectYMode, 5, 0);
 
     this.operations[0xE0] = new Operation(this.CPX, this.immediateMode, 2, 0);
     this.operations[0xE4] = new Operation(this.CPX, this.zeroPageMode,  3, 0);
@@ -1090,17 +1116,17 @@ export default class CPU {
     // Branching instructions
     //=========================================================
 
-    this.operations[0x90] = new Operation(this.BCC, this.relativeMode, 2, 0);
-    this.operations[0xB0] = new Operation(this.BCS, this.relativeMode, 2, 0);
+    this.operations[0x90] = new Operation(this.BCC, this.relativeMode, 2, -1);
+    this.operations[0xB0] = new Operation(this.BCS, this.relativeMode, 2, -1);
 
-    this.operations[0xD0] = new Operation(this.BNE, this.relativeMode, 2, 0);
-    this.operations[0xF0] = new Operation(this.BEQ, this.relativeMode, 2, 0);
+    this.operations[0xD0] = new Operation(this.BNE, this.relativeMode, 2, -1);
+    this.operations[0xF0] = new Operation(this.BEQ, this.relativeMode, 2, -1);
 
-    this.operations[0x50] = new Operation(this.BVC, this.relativeMode, 2, 0);
-    this.operations[0x70] = new Operation(this.BVS, this.relativeMode, 2, 0);
+    this.operations[0x50] = new Operation(this.BVC, this.relativeMode, 2, -1);
+    this.operations[0x70] = new Operation(this.BVS, this.relativeMode, 2, -1);
 
-    this.operations[0x10] = new Operation(this.BPL, this.relativeMode, 2, 0);
-    this.operations[0x30] = new Operation(this.BMI, this.relativeMode, 2, 0);
+    this.operations[0x10] = new Operation(this.BPL, this.relativeMode, 2, -1);
+    this.operations[0x30] = new Operation(this.BMI, this.relativeMode, 2, -1);
 
     //=========================================================
     // Jump / subroutine instructions
@@ -1124,22 +1150,22 @@ export default class CPU {
 
     this.operations[0x69] = new Operation(this.ADC, this.immediateMode, 2, 0);
     this.operations[0x65] = new Operation(this.ADC, this.zeroPageMode,  3, 0);
-    this.operations[0x75] = new Operation(this.ADC, this.zeroPageXMode, 4, 0);
+    this.operations[0x75] = new Operation(this.ADC, this.zeroPageXMode, 4, 1);
     this.operations[0x6D] = new Operation(this.ADC, this.absoluteMode,  4, 0);
-    this.operations[0x7D] = new Operation(this.ADC, this.absoluteXMode, 4, 1);
-    this.operations[0x79] = new Operation(this.ADC, this.absoluteYMode, 4, 1);
-    this.operations[0x61] = new Operation(this.ADC, this.indirectXMode, 6, 0);
-    this.operations[0x71] = new Operation(this.ADC, this.indirectYMode, 5, 1);
+    this.operations[0x7D] = new Operation(this.ADC, this.absoluteXMode, 4, 0);
+    this.operations[0x79] = new Operation(this.ADC, this.absoluteYMode, 4, 0);
+    this.operations[0x61] = new Operation(this.ADC, this.indirectXMode, 6, 1);
+    this.operations[0x71] = new Operation(this.ADC, this.indirectYMode, 5, 0);
 
     this.operations[0xE9] = new Operation(this.SBC, this.immediateMode, 2, 0);
     this.operations[0xEB] = new Operation(this.SBC, this.immediateMode, 2, 0);
     this.operations[0xE5] = new Operation(this.SBC, this.zeroPageMode,  3, 0);
-    this.operations[0xF5] = new Operation(this.SBC, this.zeroPageXMode, 4, 0);
+    this.operations[0xF5] = new Operation(this.SBC, this.zeroPageXMode, 4, 1);
     this.operations[0xED] = new Operation(this.SBC, this.absoluteMode,  4, 0);
-    this.operations[0xFD] = new Operation(this.SBC, this.absoluteXMode, 4, 1);
-    this.operations[0xF9] = new Operation(this.SBC, this.absoluteYMode, 4, 1);
-    this.operations[0xE1] = new Operation(this.SBC, this.indirectXMode, 6, 0);
-    this.operations[0xF1] = new Operation(this.SBC, this.indirectYMode, 5, 1);
+    this.operations[0xFD] = new Operation(this.SBC, this.absoluteXMode, 4, 0);
+    this.operations[0xF9] = new Operation(this.SBC, this.absoluteYMode, 4, 0);
+    this.operations[0xE1] = new Operation(this.SBC, this.indirectXMode, 6, 1);
+    this.operations[0xF1] = new Operation(this.SBC, this.indirectYMode, 5, 0);
 
     //=========================================================
     // Shifting / rotation instructions
@@ -1147,81 +1173,81 @@ export default class CPU {
 
     this.operations[0x0A] = new Operation(this.ASL, this.accumulatorMode, 2, 0);
     this.operations[0x06] = new Operation(this.ASL, this.zeroPageMode,    5, 0);
-    this.operations[0x16] = new Operation(this.ASL, this.zeroPageXMode,   6, 0);
+    this.operations[0x16] = new Operation(this.ASL, this.zeroPageXMode,   6, 1);
     this.operations[0x0E] = new Operation(this.ASL, this.absoluteMode,    6, 0);
-    this.operations[0x1E] = new Operation(this.ASL, this.absoluteXMode,   7, 0);
+    this.operations[0x1E] = new Operation(this.ASL, this.absoluteXMode,   7, 1);
 
     this.operations[0x4A] = new Operation(this.LSR, this.accumulatorMode, 2, 0);
     this.operations[0x46] = new Operation(this.LSR, this.zeroPageMode,    5, 0);
-    this.operations[0x56] = new Operation(this.LSR, this.zeroPageXMode,   6, 0);
+    this.operations[0x56] = new Operation(this.LSR, this.zeroPageXMode,   6, 1);
     this.operations[0x4E] = new Operation(this.LSR, this.absoluteMode,    6, 0);
-    this.operations[0x5E] = new Operation(this.LSR, this.absoluteXMode,   7, 0);
+    this.operations[0x5E] = new Operation(this.LSR, this.absoluteXMode,   7, 1);
 
     this.operations[0x2A] = new Operation(this.ROL, this.accumulatorMode, 2, 0);
     this.operations[0x26] = new Operation(this.ROL, this.zeroPageMode,    5, 0);
-    this.operations[0x36] = new Operation(this.ROL, this.zeroPageXMode,   6, 0);
+    this.operations[0x36] = new Operation(this.ROL, this.zeroPageXMode,   6, 1);
     this.operations[0x2E] = new Operation(this.ROL, this.absoluteMode,    6, 0);
-    this.operations[0x3E] = new Operation(this.ROL, this.absoluteXMode,   7, 0);
+    this.operations[0x3E] = new Operation(this.ROL, this.absoluteXMode,   7, 1);
 
     this.operations[0x6A] = new Operation(this.ROR, this.accumulatorMode, 2, 0);
     this.operations[0x66] = new Operation(this.ROR, this.zeroPageMode,    5, 0);
-    this.operations[0x76] = new Operation(this.ROR, this.zeroPageXMode,   6, 0);
+    this.operations[0x76] = new Operation(this.ROR, this.zeroPageXMode,   6, 1);
     this.operations[0x6E] = new Operation(this.ROR, this.absoluteMode,    6, 0);
-    this.operations[0x7E] = new Operation(this.ROR, this.absoluteXMode,   7, 0);
+    this.operations[0x7E] = new Operation(this.ROR, this.absoluteXMode,   7, 1);
 
     //=========================================================
     // Hybrid instructions
     //=========================================================
 
     this.operations[0xC7] = new Operation(this.DCP, this.zeroPageMode,    5, 0);
-    this.operations[0xD7] = new Operation(this.DCP, this.zeroPageXMode,   6, 0);
+    this.operations[0xD7] = new Operation(this.DCP, this.zeroPageXMode,   6, 1);
     this.operations[0xCF] = new Operation(this.DCP, this.absoluteMode,    6, 0);
-    this.operations[0xDF] = new Operation(this.DCP, this.absoluteXMode,   7, 0);
-    this.operations[0xDB] = new Operation(this.DCP, this.absoluteYMode,   7, 0);
-    this.operations[0xC3] = new Operation(this.DCP, this.indirectXMode,   8, 0);
-    this.operations[0xD3] = new Operation(this.DCP, this.indirectYMode,   8, 0);
+    this.operations[0xDF] = new Operation(this.DCP, this.absoluteXMode,   7, 1);
+    this.operations[0xDB] = new Operation(this.DCP, this.absoluteYMode,   7, 1);
+    this.operations[0xC3] = new Operation(this.DCP, this.indirectXMode,   8, 1);
+    this.operations[0xD3] = new Operation(this.DCP, this.indirectYMode,   8, 1);
 
     this.operations[0xE7] = new Operation(this.ISB, this.zeroPageMode,  5, 0);
-    this.operations[0xF7] = new Operation(this.ISB, this.zeroPageXMode, 6, 0);
+    this.operations[0xF7] = new Operation(this.ISB, this.zeroPageXMode, 6, 1);
     this.operations[0xEF] = new Operation(this.ISB, this.absoluteMode,  6, 0);
-    this.operations[0xFF] = new Operation(this.ISB, this.absoluteXMode, 7, 0);
-    this.operations[0xFB] = new Operation(this.ISB, this.absoluteYMode, 7, 0);
-    this.operations[0xE3] = new Operation(this.ISB, this.indirectXMode, 8, 0);
-    this.operations[0xF3] = new Operation(this.ISB, this.indirectYMode, 8, 0);
+    this.operations[0xFF] = new Operation(this.ISB, this.absoluteXMode, 7, 1);
+    this.operations[0xFB] = new Operation(this.ISB, this.absoluteYMode, 7, 1);
+    this.operations[0xE3] = new Operation(this.ISB, this.indirectXMode, 8, 1);
+    this.operations[0xF3] = new Operation(this.ISB, this.indirectYMode, 8, 1);
 
     this.operations[0x07] = new Operation(this.SLO, this.zeroPageMode,  5, 0);
-    this.operations[0x17] = new Operation(this.SLO, this.zeroPageXMode, 6, 0);
+    this.operations[0x17] = new Operation(this.SLO, this.zeroPageXMode, 6, 1);
     this.operations[0x0F] = new Operation(this.SLO, this.absoluteMode,  6, 0);
-    this.operations[0x1F] = new Operation(this.SLO, this.absoluteXMode, 7, 0);
-    this.operations[0x1B] = new Operation(this.SLO, this.absoluteYMode, 7, 0);
-    this.operations[0x03] = new Operation(this.SLO, this.indirectXMode, 8, 0);
-    this.operations[0x13] = new Operation(this.SLO, this.indirectYMode, 8, 0);
+    this.operations[0x1F] = new Operation(this.SLO, this.absoluteXMode, 7, 1);
+    this.operations[0x1B] = new Operation(this.SLO, this.absoluteYMode, 7, 1);
+    this.operations[0x03] = new Operation(this.SLO, this.indirectXMode, 8, 1);
+    this.operations[0x13] = new Operation(this.SLO, this.indirectYMode, 8, 1);
 
     this.operations[0x47] = new Operation(this.SRE, this.zeroPageMode,  5, 0);
-    this.operations[0x57] = new Operation(this.SRE, this.zeroPageXMode, 6, 0);
+    this.operations[0x57] = new Operation(this.SRE, this.zeroPageXMode, 6, 1);
     this.operations[0x4F] = new Operation(this.SRE, this.absoluteMode,  6, 0);
-    this.operations[0x5F] = new Operation(this.SRE, this.absoluteXMode, 7, 0);
-    this.operations[0x5B] = new Operation(this.SRE, this.absoluteYMode, 7, 0);
-    this.operations[0x43] = new Operation(this.SRE, this.indirectXMode, 8, 0);
-    this.operations[0x53] = new Operation(this.SRE, this.indirectYMode, 8, 0);
+    this.operations[0x5F] = new Operation(this.SRE, this.absoluteXMode, 7, 1);
+    this.operations[0x5B] = new Operation(this.SRE, this.absoluteYMode, 7, 1);
+    this.operations[0x43] = new Operation(this.SRE, this.indirectXMode, 8, 1);
+    this.operations[0x53] = new Operation(this.SRE, this.indirectYMode, 8, 1);
 
     this.operations[0x27] = new Operation(this.RLA, this.zeroPageMode,  5, 0);
-    this.operations[0x37] = new Operation(this.RLA, this.zeroPageXMode, 6, 0);
+    this.operations[0x37] = new Operation(this.RLA, this.zeroPageXMode, 6, 1);
     this.operations[0x2F] = new Operation(this.RLA, this.absoluteMode,  6, 0);
-    this.operations[0x3F] = new Operation(this.RLA, this.absoluteXMode, 7, 0);
-    this.operations[0x3B] = new Operation(this.RLA, this.absoluteYMode, 7, 0);
-    this.operations[0x23] = new Operation(this.RLA, this.indirectXMode, 8, 0);
-    this.operations[0x33] = new Operation(this.RLA, this.indirectYMode, 8, 0);
+    this.operations[0x3F] = new Operation(this.RLA, this.absoluteXMode, 7, 1);
+    this.operations[0x3B] = new Operation(this.RLA, this.absoluteYMode, 7, 1);
+    this.operations[0x23] = new Operation(this.RLA, this.indirectXMode, 8, 1);
+    this.operations[0x33] = new Operation(this.RLA, this.indirectYMode, 8, 1);
 
     this.operations[0x8B] = new Operation(this.XAA, this.immediateMode, 2, 0);
 
     this.operations[0x67] = new Operation(this.RRA, this.zeroPageMode,  5, 0);
-    this.operations[0x77] = new Operation(this.RRA, this.zeroPageXMode, 6, 0);
+    this.operations[0x77] = new Operation(this.RRA, this.zeroPageXMode, 6, 1);
     this.operations[0x6F] = new Operation(this.RRA, this.absoluteMode,  6, 0);
-    this.operations[0x7F] = new Operation(this.RRA, this.absoluteXMode, 7, 0);
-    this.operations[0x7B] = new Operation(this.RRA, this.absoluteYMode, 7, 0);
-    this.operations[0x63] = new Operation(this.RRA, this.indirectXMode, 8, 0);
-    this.operations[0x73] = new Operation(this.RRA, this.indirectYMode, 8, 0);
+    this.operations[0x7F] = new Operation(this.RRA, this.absoluteXMode, 7, 1);
+    this.operations[0x7B] = new Operation(this.RRA, this.absoluteYMode, 7, 1);
+    this.operations[0x63] = new Operation(this.RRA, this.indirectXMode, 8, 1);
+    this.operations[0x73] = new Operation(this.RRA, this.indirectYMode, 8, 1);
 
     this.operations[0xCB] = new Operation(this.AXS, this.immediateMode, 2, 0);
 
@@ -1231,7 +1257,7 @@ export default class CPU {
     this.operations[0x4B] = new Operation(this.ALR, this.immediateMode, 2, 0);
     this.operations[0x6B] = new Operation(this.ARR, this.immediateMode, 2, 0);
 
-    this.operations[0x9B] = new Operation(this.TAS, this.absoluteYMode, 5, 0);
+    this.operations[0x9B] = new Operation(this.TAS, this.absoluteYMode, 5, 1);
   }
 
   //=========================================================

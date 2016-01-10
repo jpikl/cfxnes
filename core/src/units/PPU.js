@@ -256,7 +256,7 @@ export default class PPU {
     this.setControl(value);
     this.tempAddress = (this.tempAddress & 0xF3FF) | (value & 0x03) << 10; // T[11,10] = C[1,0]
     if (this.vblankFlag && !nmiEnabledOld && this.nmiEnabled && !(this.csFlags & F_VB_END)) {
-      this.nmiDelay = 15; // Generate NMI after next instruction when its enabled (from 0 to 1) during VBlank
+      this.nmiDelay = 1; // Generate NMI after next instruction when its enabled (from 0 to 1) during VBlank
     }
   }
 
@@ -497,7 +497,7 @@ export default class PPU {
 
   updateVBlank() {
     if (this.nmiDelay) {
-      if (this.nmiDelay > 12 && !this.nmiEnabled) {
+      if (!this.nmiEnabled) {
         this.nmiDelay = 0; // NMI disabled near the time VBlank flag is set
       } else if (!--this.nmiDelay && !this.nmiSuppressed) {
         this.cpu.activateInterrupt(NMI); // Delay decremented to zero
@@ -515,7 +515,7 @@ export default class PPU {
     if (!this.vblankSuppressed) {
       this.vblankFlag = 1;
     }
-    this.nmiDelay = 14;
+    this.nmiDelay = 2;
     this.frameAvailable = true;
   }
 
