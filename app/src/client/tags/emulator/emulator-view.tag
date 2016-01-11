@@ -74,6 +74,7 @@
     }
 
     function onError(error) {
+      console.error(error);
       emulatorOutput.hideLoading();
       messagePanel.showError(getErrorMessage(error));
     }

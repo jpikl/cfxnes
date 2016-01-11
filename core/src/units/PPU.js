@@ -475,7 +475,7 @@ export default class PPU {
     if (y < this.scanline - 5 || y >= this.scanline) {
       return false; // Screen luminance decreases in time
     }
-    var [ r, g, b ] = unpackColor(this.frameBuffer[y * VIDEO_WIDTH + x]);
+    var [r, g, b] = unpackColor(this.frameBuffer[y * VIDEO_WIDTH + x]);
     return r > 0x12 || g > 0x12 || b > 0x12;
   }
 
