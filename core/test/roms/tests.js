@@ -46,14 +46,14 @@ function validate(test) {
   if (test.file) {
     var file = path.join(test.dir, test.file);
     var name = baseName;
-    var environment = mergeProperties(test, {file, name});
-    it(name, () => execute(environment));
+    var context = mergeProperties(test, {file, name});
+    it(name, () => execute(context));
   } else if (test.files) {
     for (let number = 0; number < test.files.length; number++) {
       let file = path.join(test.dir, test.files[number]);
       let name = path.basename(file, '.nes');
-      let environment = mergeProperties(test, {file, name, number});
-      it(`${baseName} (${name})`, () => execute(environment));
+      let context = mergeProperties(test, {file, name, number});
+      it(`${baseName} (${name})`, () => execute(context));
     }
   }
 }

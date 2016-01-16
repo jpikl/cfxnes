@@ -14,7 +14,7 @@ export const files = [
   '04-dummy_reads_apu.nes',
 ];
 
-export function configure(config, number) {
+export function configure(config) {
   config.cpuMemory = {class: RAMEnabledCPUMemory};
   config.ppu = {class: NoOutputPPU};
 }

@@ -391,7 +391,7 @@ export default class CPU {
   }
 
   isDifferentPage(address1, address2) {
-    return (address1 & 0xFF00) !== (address2 & 0xFF00)
+    return (address1 & 0xFF00) !== (address2 & 0xFF00);
   }
 
   //=========================================================
