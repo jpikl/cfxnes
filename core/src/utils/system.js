@@ -22,9 +22,5 @@ export function newByteArray(size) {
 }
 
 export function newUintArray(size) {
-  // For some strange reason, Uint32Array is much slower
-  // than ordinary array in Chrome.
-  var data = new Array(size);
-  zeroArray(data);
-  return data;
+  return new Uint32Array(size);
 }
