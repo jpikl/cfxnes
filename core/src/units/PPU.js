@@ -89,6 +89,7 @@ for (let i = 0; i < scanlineFlags.length; i++) {
     scanlineFlags[i] |= F_RENDER;
     scanlineFlags[i] |= F_SHIFT_BG;
     scanlineFlags[i] |= F_CLIP_LEFT;
+    scanlineFlags[i] |= F_EVAL_SP;
   }
   if (i <= 239 || i === 261) {
     scanlineFlags[i] |= F_FETCH_NT;
@@ -98,7 +99,6 @@ for (let i = 0; i < scanlineFlags.length; i++) {
     scanlineFlags[i] |= F_FETCH_SPL;
     scanlineFlags[i] |= F_FETCH_SPH;
     scanlineFlags[i] |= F_COPY_BG;
-    scanlineFlags[i] |= F_EVAL_SP;
     scanlineFlags[i] |= F_INC_CX;
     scanlineFlags[i] |= F_INC_FY;
     scanlineFlags[i] |= F_COPY_HS;
@@ -525,6 +525,7 @@ export default class PPU {
     this.vblankSuppressed = false;
     this.nmiSuppressed = false;
     this.spriteZeroHit = 0;
+    this.spriteOverflow = 0;
   }
 
   //=========================================================
@@ -778,7 +779,6 @@ export default class PPU {
   evaluateSprites() {
     this.spriteNumber = 0;
     this.spriteCount = 0;
-    this.spriteOverflow = 0;
 
     var height = this.bigSprites ? 16 : 8;
     var bottomY = this.scanline;
@@ -788,6 +788,11 @@ export default class PPU {
       var spriteY = this.primaryOAM[address];
       if (spriteY <= topY || spriteY > bottomY) {
         continue;
+      }
+
+      if (this.spriteCount >= 8) {
+        this.spriteOverflow = 1;
+        break;
       }
 
       var patternTableAddress = this.spPatternTableAddress;
@@ -816,11 +821,7 @@ export default class PPU {
 
       var patternAddress = patternTableAddress + (patternNumber << 4);
       sprite.patternRowAddress = patternAddress + rowNumber;
-
-      if (++this.spriteCount >= 8) {
-        this.spriteOverflow = 1;
-        break;
-      }
+      this.spriteCount++;
     }
   }
 

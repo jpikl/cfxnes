@@ -30,7 +30,7 @@ describe('Validation ROMs', () => {
   validate(nestest);
   validate(instr_test);
   validate(instr_timing);
-  validate(instr_misc); // 2 failing tests (disabled)
+  validate(instr_misc);
   validate(cpu_reset);
   validate(ppu_tests);
   validate(ppu_vbl_nmi);
