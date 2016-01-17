@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/ppu_sprite_hit.zip
 //=============================================================================
 
-import { RAMEnabledCPUMemory, NoOutputPPU } from '../units';
+import { RAMEnabledCPUMemory, NoOutputPPU, DisabledAPU } from '../units';
 
 export const dir = './test/roms/ppu_sprite_hit';
 
@@ -23,6 +23,7 @@ export const files = [
 export function configure(config) {
   config.cpuMemory = {class: RAMEnabledCPUMemory};
   config.ppu = {class: NoOutputPPU};
+  config.apu = {class: DisabledAPU};
 }
 
 export function execute(test) {
