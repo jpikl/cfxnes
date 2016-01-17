@@ -17,6 +17,7 @@ import * as cpu_reset from './cpu_reset/cpu_reset';
 import * as ppu_tests from './ppu_tests/ppu_tests';
 import * as ppu_vbl_nmi from './ppu_vbl_nmi/ppu_vbl_nmi';
 import * as ppu_sprite_hit from './ppu_sprite_hit/ppu_sprite_hit';
+import * as ppu_sprite_overflow from './ppu_sprite_overflow/ppu_sprite_overflow';
 import * as oam_read from './oam_read/oam_read';
 import * as oam_stress from './oam_stress/oam_stress';
 import * as apu_reset from './apu_reset/apu_reset';
@@ -37,12 +38,13 @@ describe('Validation ROMs', () => {
   validate(cpu_reset);
   validate(ppu_tests);
   validate(ppu_vbl_nmi);
-  validate(ppu_sprite_hit); // 1 failing tests (disabled)
+  validate(ppu_sprite_hit); // 1 failing (disabled)
+  validate(ppu_sprite_overflow); // 2 failing (disabled)
   validate(oam_read);
   validate(oam_stress);
-  validate(apu_reset); // 4 failing tests (disabled)
-  validate(apu_test); // 3 failing tests (disabled)
-  validate(mmc3_test); // 1 failing tests (disabled)
+  validate(apu_reset); // 4 failing (disabled)
+  validate(apu_test); // 3 failing (disabled)
+  validate(mmc3_test); // 1 failing (disabled)
   validate(bntest);
   validate(holydiverbatman);
 });
