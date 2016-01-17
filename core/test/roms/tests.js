@@ -16,6 +16,7 @@ import * as instr_misc from './instr_misc/instr_misc';
 import * as cpu_reset from './cpu_reset/cpu_reset';
 import * as ppu_tests from './ppu_tests/ppu_tests';
 import * as ppu_vbl_nmi from './ppu_vbl_nmi/ppu_vbl_nmi';
+import * as ppu_sprite_hit from './ppu_sprite_hit/ppu_sprite_hit';
 import * as apu_reset from './apu_reset/apu_reset';
 import * as apu_test from './apu_test/apu_test';
 import * as mmc3_test from './mmc3_test/mmc3_test';
@@ -34,6 +35,7 @@ describe('Validation ROMs', () => {
   validate(cpu_reset);
   validate(ppu_tests);
   validate(ppu_vbl_nmi);
+  validate(ppu_sprite_hit); // 1 failing tests (disabled)
   validate(apu_reset); // 4 failing tests (disabled)
   validate(apu_test); // 3 failing tests (disabled)
   validate(mmc3_test); // 1 failing tests (disabled)

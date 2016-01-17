@@ -279,8 +279,8 @@ export default class PPU {
 
   setMask(value) {
     this.monochromeMode     =    value        & 1;  //  M[0]   Color / monochrome mode switch
-    this.backgroundClipping = !((value >>> 1) & 1); // !M[1]   Whether to show background in leftmost 8 pixels of screen
-    this.spriteClipping     = !((value >>> 2) & 1); // !M[2]   Whether to show sprites in leftmost 8 pixels of screen
+    this.backgroundClipping = !((value >>> 1) & 1); // !M[1]   Whether to hide background in leftmost 8 pixels of screen
+    this.spriteClipping     = !((value >>> 2) & 1); // !M[2]   Whether to hide sprites in leftmost 8 pixels of screen
     this.backgroundVisible  =   (value >>> 3) & 1;  //  M[3]   Whether background is visible
     this.spritesVisible     =   (value >>> 4) & 1;  //  M[4]   Whether sprites are visible
     this.colorEmphasis      =   (value >>> 5) & 7;  //  M[5-7] Color palette BGR emphasis bits
@@ -305,8 +305,8 @@ export default class PPU {
 
   getStatus() {
     return this.spriteOverflow << 5  // S[5]
-       | this.spriteZeroHit  << 6  // S[6]
-       | this.vblankFlag     << 7; // S[7]
+       | this.spriteZeroHit    << 6  // S[6]
+       | this.vblankFlag       << 7; // S[7]
   }
 
   setStatus(value) {
@@ -550,7 +550,10 @@ export default class PPU {
       this.incrementFrame();
     }
     if (this.scanline <= 239) {
-      this.prerenderSprites();
+      this.clearSprites();
+      if (this.scanline > 0) {
+        this.prerenderSprites(); // Sprites are not rendered on scanline 0
+      }
     }
   }
 
@@ -628,10 +631,10 @@ export default class PPU {
   //=========================================================
 
   updateFramePixel() {
+    var address = this.renderFramePixel();
     if (this.clipTopBottom && (this.csFlags & F_CLIP_TB)) {
       this.clearFramePixel();
     } else {
-      var address = this.renderFramePixel();
       var color = this.ppuMemory.readPalette(address);
       this.setFramePixel(color);
     }
@@ -643,7 +646,9 @@ export default class PPU {
     if (backgroundColorAddress & 0x03) {
       if (spriteColorAddress & 0x03) {
         var sprite = this.getRenderedSprite();
-        this.spriteZeroHit |= sprite.zeroSprite;
+        if (sprite.zeroSprite && this.cycle !== 256) { // Sprite zero hit does not happen for (x = 255)
+          this.spriteZeroHit = 1;
+        }
         if (sprite.inFront) {
           return spriteColorAddress;     // The sprite has priority over the background
         } else {
@@ -781,12 +786,12 @@ export default class PPU {
     this.spriteCount = 0;
 
     var height = this.bigSprites ? 16 : 8;
-    var bottomY = this.scanline;
-    var topY = Math.max(0, bottomY - height);
+    var bottomY = this.scanline + 1;
+    var topY = bottomY - height + 1;
 
     for (var address = 0; address < this.primaryOAM.length; address += 4) {
-      var spriteY = this.primaryOAM[address];
-      if (spriteY <= topY || spriteY > bottomY) {
+      var spriteY = this.primaryOAM[address] + 1;
+      if (spriteY < topY || spriteY > bottomY) {
         continue;
       }
 
@@ -845,19 +850,22 @@ export default class PPU {
     }
   }
 
-  prerenderSprites() {
+  clearSprites() {
     for (var i = 0; i < this.spriteCache.length; i++) {
       this.spriteCache[i] = null;
       this.spritePixelCache[i] = 0;
     }
+  }
+
+  prerenderSprites() {
     for (var i = 0; i < this.spriteCount; i++) {
       var sprite = this.secondaryOAM[i];
       for (var j = 0; j < 8; j++) {
-        var x = sprite.x + j + 1;
-        if (x > VIDEO_WIDTH) {
+        var cycle = sprite.x + j + 1;
+        if (cycle > VIDEO_WIDTH) {
           break;
         }
-        if (x < 1 || this.spriteCache[x]) {
+        if (this.spriteCache[cycle]) {
           continue;
         }
         var columnNumber = sprite.horizontalFlip ? j : j ^ 0x07;
@@ -865,8 +873,8 @@ export default class PPU {
         var colorBit1 = ((sprite.patternRow1 >>> columnNumber) & 1) << 1;
         var colorNumber = colorBit1 | colorBit0;
         if (colorNumber) {
-          this.spriteCache[x] = sprite;
-          this.spritePixelCache[x] = sprite.paletteNumber | colorNumber;
+          this.spriteCache[cycle] = sprite;
+          this.spritePixelCache[cycle] = sprite.paletteNumber | colorNumber;
         }
       }
     }
