@@ -10,6 +10,12 @@ BACKUP_FILE=cfxnes.zip
 TEMP_DIR=temp
 
 ###############################################################################
+# Default target
+###############################################################################
+
+all: debug_lib lib app
+
+###############################################################################
 # Dependency management
 ###############################################################################
 
@@ -37,33 +43,34 @@ update_deps:
 # Build
 ###############################################################################
 
-.PHONY: build_all build_debug_lib build_lib build_app build_prod_app
+.PHONY: all debug_lib lib app prod_app
 
-build_all: build_debug_lib build_lib build_app
-
-build_debug_lib:
+debug_lib:
 	cd lib && gulp build -d
 
-build_lib:
+lib:
 	cd lib && gulp build
 
-build_app:
+app:
 	cd app && gulp build
 
-build_prod_app:
+prod_app:
 	cd app && gulp build -a
 
 ###############################################################################
 # Development
 ###############################################################################
 
-.PHONY: dev_lib dev_app
+.PHONY: dev_lib dev_app run
 
 dev_lib:
 	cd lib && gulp -d
 
 dev_app:
 	cd app && gulp -d
+
+run:
+	node app/dist/app.js
 
 ###############################################################################
 # Release
@@ -80,7 +87,7 @@ version:
 changelog:
 	cd app && gulp changelog
 
-deploy: clean build_lib build_prod_app
+deploy: clean lib prod_app
 	mkdir -p $(DEPLOY_DIR)
 	rm -rf ./$(DEPLOY_DIR)/{node_modules,static,*.js,package.json}
 	cd app/dist && cp -r . ../../$(DEPLOY_DIR)
@@ -91,7 +98,7 @@ backup: clean
 	zip -r $(BACKUP_FILE) . -x ".git/*" -x "*/node_modules/*"
 	mv $(BACKUP_FILE) $(BACKUP_DIR)
 
-release: clean build_all
+release: clean all
 	mkdir $(TEMP_DIR)
 	cp lib/dist/* $(TEMP_DIR)
 	cp -r app/dist $(TEMP_DIR)/app

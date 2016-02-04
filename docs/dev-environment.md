@@ -16,9 +16,9 @@
 
 ## Useful Make Targets
 
-Build both library (minified and debug version) and application:
+Build library (minified and debug version) and application:
 
-    make build_all
+    make all
 
 Build library in debug mode + watch changes:
 

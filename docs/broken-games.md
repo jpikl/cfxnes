@@ -4,4 +4,3 @@
 
 - Battletoads - crashes in second level.
 - 3-D Battles of WorldRunner - crashes after starting the game from title screen.
-- Break Time - The National Pool Tour - black screen after start.
