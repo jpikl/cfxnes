@@ -14,6 +14,7 @@ import * as instr_test from './instr_test/instr_test';
 import * as instr_timing from './instr_timing/instr_timing';
 import * as instr_misc from './instr_misc/instr_misc';
 import * as cpu_reset from './cpu_reset/cpu_reset';
+import * as cpu_interrupts from './cpu_interrupts/cpu_interrupts';
 import * as ppu_tests from './ppu_tests/ppu_tests';
 import * as ppu_vbl_nmi from './ppu_vbl_nmi/ppu_vbl_nmi';
 import * as ppu_sprite_hit from './ppu_sprite_hit/ppu_sprite_hit';
@@ -36,6 +37,7 @@ describe('Validation ROMs', () => {
   validate(instr_timing);
   validate(instr_misc);
   validate(cpu_reset);
+  validate(cpu_interrupts);
   validate(ppu_tests);
   validate(ppu_vbl_nmi);
   validate(ppu_sprite_hit); // 1 failing (disabled)

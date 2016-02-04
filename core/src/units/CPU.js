@@ -107,7 +107,7 @@ export default class CPU {
       this.handleReset();
     } else if (this.activeInterrupts & NMI) {
       this.handleNMI();
-    } else if (this.interruptDisable) {
+    } else if (this.irqDisabled) {
       return; // IRQ requested, but disabled
     } else {
       this.handleIRQ();
@@ -145,7 +145,7 @@ export default class CPU {
   }
 
   enterInterruptHandler(address) {
-    this.interruptDisable = 1;
+    this.interruptFlag = 1;
     this.programCounter = this.readWord(address);
   }
 
@@ -156,6 +156,10 @@ export default class CPU {
   executeOperation() {
     var operation = this.readOperation();
     if (operation) {
+      // The interrupt flag is checked at the start of last cycle of each instruction.
+      // RTI and BRK instructions set the flag before it's read, so the change is immediately visible.
+      // CLI, SEI and PLP instructions set the flag after it's read, so the change is delayed.
+      this.irqDisabled = this.interruptFlag;
       operation.execute(this);
     } else {
       logger.warn('CPU halted!');
@@ -252,22 +256,22 @@ export default class CPU {
   // - bit 5 is written on stack as 1 during PHP/BRK instructions and IRQ/NMI
 
   getStatus() {
-    return this.carryFlag            // S[0] - carry bit of the last operation
-       | this.zeroFlag         << 1  // S[1] - whether result of the last operation was zero
-       | this.interruptDisable << 2  // S[2] - whether IRQs are disabled (this does not affect NMI/reset)
-       | this.decimalMode      << 3  // S[3] - NES CPU actually does not use this flag, but it's stored in status register and modified by CLD/SED instructions
-       | 1                     << 5  // S[5] - allways 1, see comment above
-       | this.overflowFlag     << 6  // S[6] - wheter result of the last operation caused overflow
-       | this.negativeFlag     << 7; // S[7] - wheter result of the last operation was negative number (bit 7 of the result was 1)
+    return this.carryFlag         // S[0] - carry bit of the last operation
+       | this.zeroFlag      << 1  // S[1] - whether result of the last operation was zero
+       | this.interruptFlag << 2  // S[2] - whether IRQs are disabled (this does not affect NMI/reset)
+       | this.decimalFlag   << 3  // S[3] - NES CPU actually does not use this flag, but it's stored in status register and modified by CLD/SED instructions
+       | 1                  << 5  // S[5] - allways 1, see comment above
+       | this.overflowFlag  << 6  // S[6] - wheter result of the last operation caused overflow
+       | this.negativeFlag  << 7; // S[7] - wheter result of the last operation was negative number (bit 7 of the result was 1)
   }
 
   setStatus(value) {
-    this.carryFlag        =  value        & 1; // S[0]
-    this.zeroFlag         = (value >>> 1) & 1; // S[1]
-    this.interruptDisable = (value >>> 2) & 1; // S[2]
-    this.decimalMode      = (value >>> 3) & 1; // S[3]
-    this.overflowFlag     = (value >>> 6) & 1; // S[6]
-    this.negativeFlag     =  value >>> 7;      // S[7]
+    this.carryFlag     =  value        & 1; // S[0]
+    this.zeroFlag      = (value >>> 1) & 1; // S[1]
+    this.interruptFlag = (value >>> 2) & 1; // S[2]
+    this.decimalFlag   = (value >>> 3) & 1; // S[3]
+    this.overflowFlag  = (value >>> 6) & 1; // S[6]
+    this.negativeFlag  =  value >>> 7;      // S[7]
   }
 
   //=========================================================
@@ -414,11 +418,12 @@ export default class CPU {
   }
 
   CLI() {
-    this.interruptDisable = 0;
+    this.irqDisabled = this.interruptFlag; // Delayed change to IRQ disablement
+    this.interruptFlag = 0;
   }
 
   CLD() {
-    this.decimalMode = 0;
+    this.decimalFlag = 0;
   }
 
   CLV() {
@@ -434,11 +439,12 @@ export default class CPU {
   }
 
   SEI() {
-    this.interruptDisable = 1;
+    this.irqDisabled = this.interruptFlag; // Delayed change to IRQ disablement
+    this.interruptFlag = 1;
   }
 
   SED() {
-    this.decimalMode = 1;
+    this.decimalFlag = 1;
   }
 
   //=========================================================
@@ -552,6 +558,7 @@ export default class CPU {
 
   PLP() {
     this.tick();
+    this.irqDisabled = this.interruptFlag; // Delayed change to IRQ disablement
     this.setStatus(this.popByte());
   }
 
@@ -690,13 +697,14 @@ export default class CPU {
     this.moveProgramCounter(1);             // BRK is 2 byte instruction (skip the unused byte)
     this.pushWord(this.programCounter);
     this.pushByte(this.getStatus() | 0x10); // Push status with bit 4 on (break command flag)
-    this.interruptDisable = 1;
+    this.irqDisabled = this.interruptFlag = 1; // Immediate change to IRQ disablement
     this.programCounter = this.readWord(0xFFFE);
   }
 
   RTI() {
     this.tick();
     this.setStatus(this.popByte());
+    this.irqDisabled = this.interruptFlag; // Immediate change to IRQ disablement
     this.programCounter = this.popWord();
   }
 
