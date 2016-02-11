@@ -65,7 +65,8 @@ gulp.task('styles', function() {
   var options = {
     paths: [
       './node_modules/bootstrap/less/',
-      './node_modules/bootstrap-slider/less/',
+      './node_modules/bootstrap-slider/src/less/',
+      './node_modules/bootstrap-slider/', // Workaround: bootstrap-slider seems to use wrong path in @import
       './node_modules/font-awesome/less/',
     ],
     plugins: argv.debug ? [autoprefix] : [autoprefix, cleancss],

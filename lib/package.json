@@ -18,10 +18,10 @@
     "url": "https://github.com/jpikl/cfxnes"
   },
   "devDependencies": {
-    "babel-core": "^6.2.1",
-    "babel-preset-es2015": "^6.1.18",
-    "chai": "^3.4.1",
-    "chai-as-promised": "^5.1.0",
+    "babel-core": "^6.5.1",
+    "babel-preset-es2015": "^6.5.0",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.2.0",
     "fake-indexeddb": "^1.0.3",
     "gulp": "gulpjs/gulp#4.0",
     "gulp-closurecompiler": "^0.1.0",
@@ -32,6 +32,6 @@
     "gulp-replace": "^0.5.4",
     "mkdirp": "^0.5.1",
     "mock-localstorage": "^0.1.3",
-    "yargs": "^3.30.0"
+    "yargs": "^3.32.0"
   }
 }
