@@ -7,20 +7,20 @@ import { RESET, NMI } from '../common/constants';
 
 class Operation {
 
-  constructor(instruction, addressingMode, optionalDoubleRead) {
+  constructor(instruction, addressingMode, flags) {
     this.instruction = instruction;
     this.addressingMode = addressingMode;
-    this.optionalDoubleRead = optionalDoubleRead; // Some instructions re-read from effective addres only when its
-    //                                               previously computed value was invalid because of crossed page boundary
-  }
-
-  execute(cpu) {
-    cpu.optionalDoubleRead = this.optionalDoubleRead;
-    var address = this.addressingMode.call(cpu);
-    this.instruction.call(cpu, address);
+    this.flags = flags;
   }
 
 }
+
+//=========================================================
+// CPU operation flags
+//=========================================================
+
+const F_EXTRA_CYCLE = 1 << 0; // Operation has +1 cycle
+const F_DOUBLE_READ = 1 << 1; // Operation always does double read during "absolute X/Y" and "indirect Y" addresing modes
 
 //=========================================================
 // Central processing unit
@@ -159,8 +159,12 @@ export default class CPU {
       // The interrupt flag is checked at the start of last cycle of each instruction.
       // RTI and BRK instructions set the flag before it's read, so the change is immediately visible.
       // CLI, SEI and PLP instructions set the flag after it's read, so the change is delayed.
+      // Most of instructions do not modify the flag, so we set the read value for them here.
       this.irqDisabled = this.interruptFlag;
-      operation.execute(this);
+      // Compute effective address + execute operation on it
+      this.operationFlags = operation.flags;
+      var address = operation.addressingMode.call(this);
+      operation.instruction.call(this, address);
     } else {
       logger.warn('CPU halted!');
       this.halted = true; // CPU halt (KIL operation code)
@@ -388,7 +392,7 @@ export default class CPU {
   computeAbsoluteAddress(base, offset) {
     var result = (base + offset) & 0xFFFF;
     this.pageCrossed = this.isDifferentPage(base, result);
-    if (!this.optionalDoubleRead || this.pageCrossed) {
+    if ((this.operationFlags & F_DOUBLE_READ) || this.pageCrossed) {
       this.readByte((base & 0xFF00) | (result & 0x00FF)); // Dummy read from address before fixing page overflow in its higher byte
     }
     return result;
@@ -402,11 +406,10 @@ export default class CPU {
   // No operation instruction
   //=========================================================
 
-  NOP0() {
-  }
-
-  NOP1() {
-    this.tick(); // This NOP version has +1 more cycle
+  NOP() {
+    if (this.operationFlags & F_EXTRA_CYCLE) {
+      this.tick();
+    }
   }
 
   //=========================================================
@@ -895,39 +898,39 @@ export default class CPU {
     // No operation instruction
     //=========================================================
 
-    this.operations[0x1A] = new Operation(this.NOP0, this.impliedMode, 0); // 2 cycles
-    this.operations[0x3A] = new Operation(this.NOP0, this.impliedMode, 0); // 2 cycles
-    this.operations[0x5A] = new Operation(this.NOP0, this.impliedMode, 0); // 2 cycles
-    this.operations[0x7A] = new Operation(this.NOP0, this.impliedMode, 0); // 2 cycles
-    this.operations[0xDA] = new Operation(this.NOP0, this.impliedMode, 0); // 2 cycles
-    this.operations[0xEA] = new Operation(this.NOP0, this.impliedMode, 0); // 2 cycles
-    this.operations[0xFA] = new Operation(this.NOP0, this.impliedMode, 0); // 2 cycles
+    this.operations[0x1A] = new Operation(this.NOP, this.impliedMode, 0); // 2 cycles
+    this.operations[0x3A] = new Operation(this.NOP, this.impliedMode, 0); // 2 cycles
+    this.operations[0x5A] = new Operation(this.NOP, this.impliedMode, 0); // 2 cycles
+    this.operations[0x7A] = new Operation(this.NOP, this.impliedMode, 0); // 2 cycles
+    this.operations[0xDA] = new Operation(this.NOP, this.impliedMode, 0); // 2 cycles
+    this.operations[0xEA] = new Operation(this.NOP, this.impliedMode, 0); // 2 cycles
+    this.operations[0xFA] = new Operation(this.NOP, this.impliedMode, 0); // 2 cycles
 
-    this.operations[0x80] = new Operation(this.NOP1, this.immediateMode, 0); // 2 cycles
-    this.operations[0x82] = new Operation(this.NOP1, this.immediateMode, 0); // 2 cycles
-    this.operations[0x89] = new Operation(this.NOP1, this.immediateMode, 0); // 2 cycles
-    this.operations[0xC2] = new Operation(this.NOP1, this.immediateMode, 0); // 2 cycles
-    this.operations[0xE2] = new Operation(this.NOP1, this.immediateMode, 0); // 2 cycles
+    this.operations[0x80] = new Operation(this.NOP, this.immediateMode, F_EXTRA_CYCLE); // 2 cycles
+    this.operations[0x82] = new Operation(this.NOP, this.immediateMode, F_EXTRA_CYCLE); // 2 cycles
+    this.operations[0x89] = new Operation(this.NOP, this.immediateMode, F_EXTRA_CYCLE); // 2 cycles
+    this.operations[0xC2] = new Operation(this.NOP, this.immediateMode, F_EXTRA_CYCLE); // 2 cycles
+    this.operations[0xE2] = new Operation(this.NOP, this.immediateMode, F_EXTRA_CYCLE); // 2 cycles
 
-    this.operations[0x04] = new Operation(this.NOP1, this.zeroPageMode, 0); // 3 cycles
-    this.operations[0x44] = new Operation(this.NOP1, this.zeroPageMode, 0); // 3 cycles
-    this.operations[0x64] = new Operation(this.NOP1, this.zeroPageMode, 0); // 3 cycles
+    this.operations[0x04] = new Operation(this.NOP, this.zeroPageMode, F_EXTRA_CYCLE); // 3 cycles
+    this.operations[0x44] = new Operation(this.NOP, this.zeroPageMode, F_EXTRA_CYCLE); // 3 cycles
+    this.operations[0x64] = new Operation(this.NOP, this.zeroPageMode, F_EXTRA_CYCLE); // 3 cycles
 
-    this.operations[0x14] = new Operation(this.NOP1, this.zeroPageXMode, 0); // 4 cycles
-    this.operations[0x34] = new Operation(this.NOP1, this.zeroPageXMode, 0); // 4 cycles
-    this.operations[0x54] = new Operation(this.NOP1, this.zeroPageXMode, 0); // 4 cycles
-    this.operations[0x74] = new Operation(this.NOP1, this.zeroPageXMode, 0); // 4 cycles
-    this.operations[0xD4] = new Operation(this.NOP1, this.zeroPageXMode, 0); // 4 cycles
-    this.operations[0xF4] = new Operation(this.NOP1, this.zeroPageXMode, 0); // 4 cycles
+    this.operations[0x14] = new Operation(this.NOP, this.zeroPageXMode, F_EXTRA_CYCLE); // 4 cycles
+    this.operations[0x34] = new Operation(this.NOP, this.zeroPageXMode, F_EXTRA_CYCLE); // 4 cycles
+    this.operations[0x54] = new Operation(this.NOP, this.zeroPageXMode, F_EXTRA_CYCLE); // 4 cycles
+    this.operations[0x74] = new Operation(this.NOP, this.zeroPageXMode, F_EXTRA_CYCLE); // 4 cycles
+    this.operations[0xD4] = new Operation(this.NOP, this.zeroPageXMode, F_EXTRA_CYCLE); // 4 cycles
+    this.operations[0xF4] = new Operation(this.NOP, this.zeroPageXMode, F_EXTRA_CYCLE); // 4 cycles
 
-    this.operations[0x0C] = new Operation(this.NOP1, this.absoluteMode, 0); // 4 cycles
+    this.operations[0x0C] = new Operation(this.NOP, this.absoluteMode, F_EXTRA_CYCLE); // 4 cycles
 
-    this.operations[0x1C] = new Operation(this.NOP1, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
-    this.operations[0x3C] = new Operation(this.NOP1, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
-    this.operations[0x5C] = new Operation(this.NOP1, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
-    this.operations[0x7C] = new Operation(this.NOP1, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
-    this.operations[0xDC] = new Operation(this.NOP1, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
-    this.operations[0xFC] = new Operation(this.NOP1, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
+    this.operations[0x1C] = new Operation(this.NOP, this.absoluteXMode, F_EXTRA_CYCLE); // 4 cycles (+1 if page crossed)
+    this.operations[0x3C] = new Operation(this.NOP, this.absoluteXMode, F_EXTRA_CYCLE); // 4 cycles (+1 if page crossed)
+    this.operations[0x5C] = new Operation(this.NOP, this.absoluteXMode, F_EXTRA_CYCLE); // 4 cycles (+1 if page crossed)
+    this.operations[0x7C] = new Operation(this.NOP, this.absoluteXMode, F_EXTRA_CYCLE); // 4 cycles (+1 if page crossed)
+    this.operations[0xDC] = new Operation(this.NOP, this.absoluteXMode, F_EXTRA_CYCLE); // 4 cycles (+1 if page crossed)
+    this.operations[0xFC] = new Operation(this.NOP, this.absoluteXMode, F_EXTRA_CYCLE); // 4 cycles (+1 if page crossed)
 
     //=========================================================
     // Clear flag instructions
@@ -953,10 +956,10 @@ export default class CPU {
     this.operations[0x85] = new Operation(this.STA, this.zeroPageMode,  0); // 3 cycles
     this.operations[0x95] = new Operation(this.STA, this.zeroPageXMode, 0); // 4 cycles
     this.operations[0x8D] = new Operation(this.STA, this.absoluteMode,  0); // 4 cycles
-    this.operations[0x9D] = new Operation(this.STA, this.absoluteXMode, 0); // 5 cycles
-    this.operations[0x99] = new Operation(this.STA, this.absoluteYMode, 0); // 5 cycles
+    this.operations[0x9D] = new Operation(this.STA, this.absoluteXMode, F_DOUBLE_READ); // 5 cycles
+    this.operations[0x99] = new Operation(this.STA, this.absoluteYMode, F_DOUBLE_READ); // 5 cycles
     this.operations[0x81] = new Operation(this.STA, this.indirectXMode, 0); // 6 cycles
-    this.operations[0x91] = new Operation(this.STA, this.indirectYMode, 0); // 6 cycles
+    this.operations[0x91] = new Operation(this.STA, this.indirectYMode, F_DOUBLE_READ); // 6 cycles
 
     this.operations[0x86] = new Operation(this.STX, this.zeroPageMode,  0); // 3 cycles
     this.operations[0x96] = new Operation(this.STX, this.zeroPageYMode, 0); // 4 cycles
@@ -971,10 +974,10 @@ export default class CPU {
     this.operations[0x94] = new Operation(this.STY, this.zeroPageXMode, 0); // 4 cycles
     this.operations[0x8C] = new Operation(this.STY, this.absoluteMode,  0); // 4 cycles
 
-    this.operations[0x93] = new Operation(this.SHA, this.indirectYMode, 0); // 6 cycles
-    this.operations[0x9F] = new Operation(this.SHA, this.absoluteYMode, 0); // 5 cycles
-    this.operations[0x9E] = new Operation(this.SHX, this.absoluteYMode, 0); // 5 cycles
-    this.operations[0x9C] = new Operation(this.SHY, this.absoluteXMode, 0); // 5 cycles
+    this.operations[0x93] = new Operation(this.SHA, this.indirectYMode, F_DOUBLE_READ); // 6 cycles
+    this.operations[0x9F] = new Operation(this.SHA, this.absoluteYMode, F_DOUBLE_READ); // 5 cycles
+    this.operations[0x9E] = new Operation(this.SHX, this.absoluteYMode, F_DOUBLE_READ); // 5 cycles
+    this.operations[0x9C] = new Operation(this.SHY, this.absoluteXMode, F_DOUBLE_READ); // 5 cycles
 
     //=========================================================
     // Memory read instructions
@@ -984,32 +987,32 @@ export default class CPU {
     this.operations[0xA5] = new Operation(this.LDA, this.zeroPageMode,  0); // 3 cycles
     this.operations[0xB5] = new Operation(this.LDA, this.zeroPageXMode, 0); // 4 cycles
     this.operations[0xAD] = new Operation(this.LDA, this.absoluteMode,  0); // 4 cycles
-    this.operations[0xBD] = new Operation(this.LDA, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
-    this.operations[0xB9] = new Operation(this.LDA, this.absoluteYMode, 1); // 4 cycles (+1 if page crossed)
+    this.operations[0xBD] = new Operation(this.LDA, this.absoluteXMode, 0); // 4 cycles (+1 if page crossed)
+    this.operations[0xB9] = new Operation(this.LDA, this.absoluteYMode, 0); // 4 cycles (+1 if page crossed)
     this.operations[0xA1] = new Operation(this.LDA, this.indirectXMode, 0); // 6 cycles
-    this.operations[0xB1] = new Operation(this.LDA, this.indirectYMode, 1); // 5 cycles (+1 if page crossed)
+    this.operations[0xB1] = new Operation(this.LDA, this.indirectYMode, 0); // 5 cycles (+1 if page crossed)
 
     this.operations[0xA2] = new Operation(this.LDX, this.immediateMode, 0); // 2 cycles
     this.operations[0xA6] = new Operation(this.LDX, this.zeroPageMode,  0); // 3 cycles
     this.operations[0xB6] = new Operation(this.LDX, this.zeroPageYMode, 0); // 4 cycles
     this.operations[0xAE] = new Operation(this.LDX, this.absoluteMode,  0); // 4 cycles
-    this.operations[0xBE] = new Operation(this.LDX, this.absoluteYMode, 1); // 4 cycles (+1 if page crossed)
+    this.operations[0xBE] = new Operation(this.LDX, this.absoluteYMode, 0); // 4 cycles (+1 if page crossed)
 
     this.operations[0xA0] = new Operation(this.LDY, this.immediateMode, 0); // 2 cycles
     this.operations[0xA4] = new Operation(this.LDY, this.zeroPageMode,  0); // 3 cycles
     this.operations[0xB4] = new Operation(this.LDY, this.zeroPageXMode, 0); // 4 cycles
     this.operations[0xAC] = new Operation(this.LDY, this.absoluteMode,  0); // 4 cycles
-    this.operations[0xBC] = new Operation(this.LDY, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
+    this.operations[0xBC] = new Operation(this.LDY, this.absoluteXMode, 0); // 4 cycles (+1 if page crossed)
 
     this.operations[0xAB] = new Operation(this.LAX, this.immediateMode, 0); // 2 cycles
     this.operations[0xA7] = new Operation(this.LAX, this.zeroPageMode,  0); // 3 cycles
     this.operations[0xB7] = new Operation(this.LAX, this.zeroPageYMode, 0); // 4 cycles
     this.operations[0xAF] = new Operation(this.LAX, this.absoluteMode,  0); // 4 cycles
-    this.operations[0xBF] = new Operation(this.LAX, this.absoluteYMode, 1); // 4 cycles (+1 if page crossed)
+    this.operations[0xBF] = new Operation(this.LAX, this.absoluteYMode, 0); // 4 cycles (+1 if page crossed)
     this.operations[0xA3] = new Operation(this.LAX, this.indirectXMode, 0); // 6 cycles
-    this.operations[0xB3] = new Operation(this.LAX, this.indirectYMode, 1); // 5 cycles (+1 if page crossed)
+    this.operations[0xB3] = new Operation(this.LAX, this.indirectYMode, 0); // 5 cycles (+1 if page crossed)
 
-    this.operations[0xBB] = new Operation(this.LAS, this.absoluteYMode, 1); // 4 cycles (+1 if page crossed)
+    this.operations[0xBB] = new Operation(this.LAS, this.absoluteYMode, 0); // 4 cycles (+1 if page crossed)
 
     //=========================================================
     // Register transfer instructions
@@ -1044,28 +1047,28 @@ export default class CPU {
     this.operations[0x25] = new Operation(this.AND, this.zeroPageMode,  0); // 3 cycles
     this.operations[0x35] = new Operation(this.AND, this.zeroPageXMode, 0); // 4 cycles
     this.operations[0x2D] = new Operation(this.AND, this.absoluteMode,  0); // 4 cycles
-    this.operations[0x3D] = new Operation(this.AND, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
-    this.operations[0x39] = new Operation(this.AND, this.absoluteYMode, 1); // 4 cycles (+1 if page crossed)
+    this.operations[0x3D] = new Operation(this.AND, this.absoluteXMode, 0); // 4 cycles (+1 if page crossed)
+    this.operations[0x39] = new Operation(this.AND, this.absoluteYMode, 0); // 4 cycles (+1 if page crossed)
     this.operations[0x21] = new Operation(this.AND, this.indirectXMode, 0); // 6 cycles
-    this.operations[0x31] = new Operation(this.AND, this.indirectYMode, 1); // 5 cycles (+1 if page crossed)
+    this.operations[0x31] = new Operation(this.AND, this.indirectYMode, 0); // 5 cycles (+1 if page crossed)
 
     this.operations[0x09] = new Operation(this.ORA, this.immediateMode, 0); // 2 cycles
     this.operations[0x05] = new Operation(this.ORA, this.zeroPageMode,  0); // 3 cycles
     this.operations[0x15] = new Operation(this.ORA, this.zeroPageXMode, 0); // 4 cycles
     this.operations[0x0D] = new Operation(this.ORA, this.absoluteMode,  0); // 4 cycles
-    this.operations[0x1D] = new Operation(this.ORA, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
-    this.operations[0x19] = new Operation(this.ORA, this.absoluteYMode, 1); // 4 cycles (+1 if page crossed)
+    this.operations[0x1D] = new Operation(this.ORA, this.absoluteXMode, 0); // 4 cycles (+1 if page crossed)
+    this.operations[0x19] = new Operation(this.ORA, this.absoluteYMode, 0); // 4 cycles (+1 if page crossed)
     this.operations[0x01] = new Operation(this.ORA, this.indirectXMode, 0); // 6 cycles
-    this.operations[0x11] = new Operation(this.ORA, this.indirectYMode, 1); // 5 cycles (+1 if page crossed)
+    this.operations[0x11] = new Operation(this.ORA, this.indirectYMode, 0); // 5 cycles (+1 if page crossed)
 
     this.operations[0x49] = new Operation(this.EOR, this.immediateMode, 0); // 2 cycles
     this.operations[0x45] = new Operation(this.EOR, this.zeroPageMode,  0); // 3 cycles
     this.operations[0x55] = new Operation(this.EOR, this.zeroPageXMode, 0); // 4 cycles
     this.operations[0x4D] = new Operation(this.EOR, this.absoluteMode,  0); // 4 cycles
-    this.operations[0x5D] = new Operation(this.EOR, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
-    this.operations[0x59] = new Operation(this.EOR, this.absoluteYMode, 1); // 4 cycles (+1 if page crossed)
+    this.operations[0x5D] = new Operation(this.EOR, this.absoluteXMode, 0); // 4 cycles (+1 if page crossed)
+    this.operations[0x59] = new Operation(this.EOR, this.absoluteYMode, 0); // 4 cycles (+1 if page crossed)
     this.operations[0x41] = new Operation(this.EOR, this.indirectXMode, 0); // 6 cycles
-    this.operations[0x51] = new Operation(this.EOR, this.indirectYMode, 1); // 5 cycles (+1 if page crossed)
+    this.operations[0x51] = new Operation(this.EOR, this.indirectYMode, 0); // 5 cycles (+1 if page crossed)
 
     this.operations[0x24] = new Operation(this.BIT, this.zeroPageMode, 0); // 3 cycles
     this.operations[0x2C] = new Operation(this.BIT, this.absoluteMode, 0); // 4 cycles
@@ -1077,7 +1080,7 @@ export default class CPU {
     this.operations[0xE6] = new Operation(this.INC, this.zeroPageMode,  0); // 5 cycles
     this.operations[0xF6] = new Operation(this.INC, this.zeroPageXMode, 0); // 6 cycles
     this.operations[0xEE] = new Operation(this.INC, this.absoluteMode,  0); // 6 cycles
-    this.operations[0xFE] = new Operation(this.INC, this.absoluteXMode, 0); // 7 cycles
+    this.operations[0xFE] = new Operation(this.INC, this.absoluteXMode, F_DOUBLE_READ); // 7 cycles
 
     this.operations[0xE8] = new Operation(this.INX, this.impliedMode, 0); // 2 cycles
     this.operations[0xC8] = new Operation(this.INY, this.impliedMode, 0); // 2 cycles
@@ -1089,7 +1092,7 @@ export default class CPU {
     this.operations[0xC6] = new Operation(this.DEC, this.zeroPageMode,  0); // 5 cycles
     this.operations[0xD6] = new Operation(this.DEC, this.zeroPageXMode, 0); // 6 cycles
     this.operations[0xCE] = new Operation(this.DEC, this.absoluteMode,  0); // 6 cycles
-    this.operations[0xDE] = new Operation(this.DEC, this.absoluteXMode, 0); // 7 cycles
+    this.operations[0xDE] = new Operation(this.DEC, this.absoluteXMode, F_DOUBLE_READ); // 7 cycles
 
     this.operations[0xCA] = new Operation(this.DEX, this.impliedMode, 0); // 2 cycles
     this.operations[0x88] = new Operation(this.DEY, this.impliedMode, 0); // 2 cycles
@@ -1102,10 +1105,10 @@ export default class CPU {
     this.operations[0xC5] = new Operation(this.CMP, this.zeroPageMode,  0); // 3 cycles
     this.operations[0xD5] = new Operation(this.CMP, this.zeroPageXMode, 0); // 4 cycles
     this.operations[0xCD] = new Operation(this.CMP, this.absoluteMode,  0); // 4 cycles
-    this.operations[0xDD] = new Operation(this.CMP, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
-    this.operations[0xD9] = new Operation(this.CMP, this.absoluteYMode, 1); // 4 cycles (+1 if page crossed)
+    this.operations[0xDD] = new Operation(this.CMP, this.absoluteXMode, 0); // 4 cycles (+1 if page crossed)
+    this.operations[0xD9] = new Operation(this.CMP, this.absoluteYMode, 0); // 4 cycles (+1 if page crossed)
     this.operations[0xC1] = new Operation(this.CMP, this.indirectXMode, 0); // 6 cycles
-    this.operations[0xD1] = new Operation(this.CMP, this.indirectYMode, 1); // 5 cycles (+1 if page crossed)
+    this.operations[0xD1] = new Operation(this.CMP, this.indirectYMode, 0); // 5 cycles (+1 if page crossed)
 
     this.operations[0xE0] = new Operation(this.CPX, this.immediateMode, 0); // 2 cycles
     this.operations[0xE4] = new Operation(this.CPX, this.zeroPageMode,  0); // 3 cycles
@@ -1155,20 +1158,20 @@ export default class CPU {
     this.operations[0x65] = new Operation(this.ADC, this.zeroPageMode,  0); // 3 cycles
     this.operations[0x75] = new Operation(this.ADC, this.zeroPageXMode, 0); // 4 cycles
     this.operations[0x6D] = new Operation(this.ADC, this.absoluteMode,  0); // 4 cycles
-    this.operations[0x7D] = new Operation(this.ADC, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
-    this.operations[0x79] = new Operation(this.ADC, this.absoluteYMode, 1); // 4 cycles (+1 if page crossed)
+    this.operations[0x7D] = new Operation(this.ADC, this.absoluteXMode, 0); // 4 cycles (+1 if page crossed)
+    this.operations[0x79] = new Operation(this.ADC, this.absoluteYMode, 0); // 4 cycles (+1 if page crossed)
     this.operations[0x61] = new Operation(this.ADC, this.indirectXMode, 0); // 6 cycles
-    this.operations[0x71] = new Operation(this.ADC, this.indirectYMode, 1); // 5 cycles (+1 if page crossed)
+    this.operations[0x71] = new Operation(this.ADC, this.indirectYMode, 0); // 5 cycles (+1 if page crossed)
 
     this.operations[0xE9] = new Operation(this.SBC, this.immediateMode, 0); // 2 cycles
     this.operations[0xEB] = new Operation(this.SBC, this.immediateMode, 0); // 2 cycles
     this.operations[0xE5] = new Operation(this.SBC, this.zeroPageMode,  0); // 3 cycles
     this.operations[0xF5] = new Operation(this.SBC, this.zeroPageXMode, 0); // 4 cycles
     this.operations[0xED] = new Operation(this.SBC, this.absoluteMode,  0); // 4 cycles
-    this.operations[0xFD] = new Operation(this.SBC, this.absoluteXMode, 1); // 4 cycles (+1 if page crossed)
-    this.operations[0xF9] = new Operation(this.SBC, this.absoluteYMode, 1); // 4 cycles (+1 if page crossed)
+    this.operations[0xFD] = new Operation(this.SBC, this.absoluteXMode, 0); // 4 cycles (+1 if page crossed)
+    this.operations[0xF9] = new Operation(this.SBC, this.absoluteYMode, 0); // 4 cycles (+1 if page crossed)
     this.operations[0xE1] = new Operation(this.SBC, this.indirectXMode, 0); // 6 cycles
-    this.operations[0xF1] = new Operation(this.SBC, this.indirectYMode, 1); // 5 cycles (+1 if page crossed)
+    this.operations[0xF1] = new Operation(this.SBC, this.indirectYMode, 0); // 5 cycles (+1 if page crossed)
 
     //=========================================================
     // Shifting / rotation instructions
@@ -1178,25 +1181,25 @@ export default class CPU {
     this.operations[0x06] = new Operation(this.ASL, this.zeroPageMode,    0); // 5 cycles
     this.operations[0x16] = new Operation(this.ASL, this.zeroPageXMode,   0); // 6 cycles
     this.operations[0x0E] = new Operation(this.ASL, this.absoluteMode,    0); // 6 cycles
-    this.operations[0x1E] = new Operation(this.ASL, this.absoluteXMode,   0); // 7 cycles
+    this.operations[0x1E] = new Operation(this.ASL, this.absoluteXMode,   F_DOUBLE_READ); // 7 cycles
 
     this.operations[0x4A] = new Operation(this.LSR, this.accumulatorMode, 0); // 2 cycles
     this.operations[0x46] = new Operation(this.LSR, this.zeroPageMode,    0); // 5 cycles
     this.operations[0x56] = new Operation(this.LSR, this.zeroPageXMode,   0); // 6 cycles
     this.operations[0x4E] = new Operation(this.LSR, this.absoluteMode,    0); // 6 cycles
-    this.operations[0x5E] = new Operation(this.LSR, this.absoluteXMode,   0); // 7 cycles
+    this.operations[0x5E] = new Operation(this.LSR, this.absoluteXMode,   F_DOUBLE_READ); // 7 cycles
 
     this.operations[0x2A] = new Operation(this.ROL, this.accumulatorMode, 0); // 2 cycles
     this.operations[0x26] = new Operation(this.ROL, this.zeroPageMode,    0); // 5 cycles
     this.operations[0x36] = new Operation(this.ROL, this.zeroPageXMode,   0); // 6 cycles
     this.operations[0x2E] = new Operation(this.ROL, this.absoluteMode,    0); // 6 cycles
-    this.operations[0x3E] = new Operation(this.ROL, this.absoluteXMode,   0); // 7 cycles
+    this.operations[0x3E] = new Operation(this.ROL, this.absoluteXMode,   F_DOUBLE_READ); // 7 cycles
 
     this.operations[0x6A] = new Operation(this.ROR, this.accumulatorMode, 0); // 2 cycles
     this.operations[0x66] = new Operation(this.ROR, this.zeroPageMode,    0); // 5 cycles
     this.operations[0x76] = new Operation(this.ROR, this.zeroPageXMode,   0); // 6 cycles
     this.operations[0x6E] = new Operation(this.ROR, this.absoluteMode,    0); // 6 cycles
-    this.operations[0x7E] = new Operation(this.ROR, this.absoluteXMode,   0); // 7 cycles
+    this.operations[0x7E] = new Operation(this.ROR, this.absoluteXMode,   F_DOUBLE_READ); // 7 cycles
 
     //=========================================================
     // Hybrid instructions
@@ -1205,52 +1208,52 @@ export default class CPU {
     this.operations[0xC7] = new Operation(this.DCP, this.zeroPageMode,  0); // 5 cycles
     this.operations[0xD7] = new Operation(this.DCP, this.zeroPageXMode, 0); // 6 cycles
     this.operations[0xCF] = new Operation(this.DCP, this.absoluteMode,  0); // 6 cycles
-    this.operations[0xDF] = new Operation(this.DCP, this.absoluteXMode, 0); // 7 cycles
-    this.operations[0xDB] = new Operation(this.DCP, this.absoluteYMode, 0); // 7 cycles
+    this.operations[0xDF] = new Operation(this.DCP, this.absoluteXMode, F_DOUBLE_READ); // 7 cycles
+    this.operations[0xDB] = new Operation(this.DCP, this.absoluteYMode, F_DOUBLE_READ); // 7 cycles
     this.operations[0xC3] = new Operation(this.DCP, this.indirectXMode, 0); // 8 cycles
-    this.operations[0xD3] = new Operation(this.DCP, this.indirectYMode, 0); // 8 cycles
+    this.operations[0xD3] = new Operation(this.DCP, this.indirectYMode, F_DOUBLE_READ); // 8 cycles
 
     this.operations[0xE7] = new Operation(this.ISB, this.zeroPageMode,  0); // 5 cycles
     this.operations[0xF7] = new Operation(this.ISB, this.zeroPageXMode, 0); // 6 cycles
     this.operations[0xEF] = new Operation(this.ISB, this.absoluteMode,  0); // 6 cycles
-    this.operations[0xFF] = new Operation(this.ISB, this.absoluteXMode, 0); // 7 cycles
-    this.operations[0xFB] = new Operation(this.ISB, this.absoluteYMode, 0); // 7 cycles
+    this.operations[0xFF] = new Operation(this.ISB, this.absoluteXMode, F_DOUBLE_READ); // 7 cycles
+    this.operations[0xFB] = new Operation(this.ISB, this.absoluteYMode, F_DOUBLE_READ); // 7 cycles
     this.operations[0xE3] = new Operation(this.ISB, this.indirectXMode, 0); // 8 cycles
-    this.operations[0xF3] = new Operation(this.ISB, this.indirectYMode, 0); // 8 cycles
+    this.operations[0xF3] = new Operation(this.ISB, this.indirectYMode, F_DOUBLE_READ); // 8 cycles
 
     this.operations[0x07] = new Operation(this.SLO, this.zeroPageMode,  0); // 5 cycles
     this.operations[0x17] = new Operation(this.SLO, this.zeroPageXMode, 0); // 6 cycles
     this.operations[0x0F] = new Operation(this.SLO, this.absoluteMode,  0); // 6 cycles
-    this.operations[0x1F] = new Operation(this.SLO, this.absoluteXMode, 0); // 7 cycles
-    this.operations[0x1B] = new Operation(this.SLO, this.absoluteYMode, 0); // 7 cycles
+    this.operations[0x1F] = new Operation(this.SLO, this.absoluteXMode, F_DOUBLE_READ); // 7 cycles
+    this.operations[0x1B] = new Operation(this.SLO, this.absoluteYMode, F_DOUBLE_READ); // 7 cycles
     this.operations[0x03] = new Operation(this.SLO, this.indirectXMode, 0); // 8 cycles
-    this.operations[0x13] = new Operation(this.SLO, this.indirectYMode, 0); // 8 cycles
+    this.operations[0x13] = new Operation(this.SLO, this.indirectYMode, F_DOUBLE_READ); // 8 cycles
 
     this.operations[0x47] = new Operation(this.SRE, this.zeroPageMode,  0); // 5 cycles
     this.operations[0x57] = new Operation(this.SRE, this.zeroPageXMode, 0); // 6 cycles
     this.operations[0x4F] = new Operation(this.SRE, this.absoluteMode,  0); // 6 cycles
-    this.operations[0x5F] = new Operation(this.SRE, this.absoluteXMode, 0); // 7 cycles
-    this.operations[0x5B] = new Operation(this.SRE, this.absoluteYMode, 0); // 7 cycles
+    this.operations[0x5F] = new Operation(this.SRE, this.absoluteXMode, F_DOUBLE_READ); // 7 cycles
+    this.operations[0x5B] = new Operation(this.SRE, this.absoluteYMode, F_DOUBLE_READ); // 7 cycles
     this.operations[0x43] = new Operation(this.SRE, this.indirectXMode, 0); // 8 cycles
-    this.operations[0x53] = new Operation(this.SRE, this.indirectYMode, 0); // 8 cycles
+    this.operations[0x53] = new Operation(this.SRE, this.indirectYMode, F_DOUBLE_READ); // 8 cycles
 
     this.operations[0x27] = new Operation(this.RLA, this.zeroPageMode,  0); // 5 cycles
     this.operations[0x37] = new Operation(this.RLA, this.zeroPageXMode, 0); // 6 cycles
     this.operations[0x2F] = new Operation(this.RLA, this.absoluteMode,  0); // 6 cycles
-    this.operations[0x3F] = new Operation(this.RLA, this.absoluteXMode, 0); // 7 cycles
-    this.operations[0x3B] = new Operation(this.RLA, this.absoluteYMode, 0); // 7 cycles
+    this.operations[0x3F] = new Operation(this.RLA, this.absoluteXMode, F_DOUBLE_READ); // 7 cycles
+    this.operations[0x3B] = new Operation(this.RLA, this.absoluteYMode, F_DOUBLE_READ); // 7 cycles
     this.operations[0x23] = new Operation(this.RLA, this.indirectXMode, 0); // 8 cycles
-    this.operations[0x33] = new Operation(this.RLA, this.indirectYMode, 0); // 8 cycles
+    this.operations[0x33] = new Operation(this.RLA, this.indirectYMode, F_DOUBLE_READ); // 8 cycles
 
     this.operations[0x8B] = new Operation(this.XAA, this.immediateMode, 0); // 2 cycles
 
     this.operations[0x67] = new Operation(this.RRA, this.zeroPageMode,  0); // 5 cycles
     this.operations[0x77] = new Operation(this.RRA, this.zeroPageXMode, 0); // 6 cycles
     this.operations[0x6F] = new Operation(this.RRA, this.absoluteMode,  0); // 6 cycles
-    this.operations[0x7F] = new Operation(this.RRA, this.absoluteXMode, 0); // 7 cycles
-    this.operations[0x7B] = new Operation(this.RRA, this.absoluteYMode, 0); // 7 cycles
+    this.operations[0x7F] = new Operation(this.RRA, this.absoluteXMode, F_DOUBLE_READ); // 7 cycles
+    this.operations[0x7B] = new Operation(this.RRA, this.absoluteYMode, F_DOUBLE_READ); // 7 cycles
     this.operations[0x63] = new Operation(this.RRA, this.indirectXMode, 0); // 8 cycles
-    this.operations[0x73] = new Operation(this.RRA, this.indirectYMode, 0); // 8 cycles
+    this.operations[0x73] = new Operation(this.RRA, this.indirectYMode, F_DOUBLE_READ); // 8 cycles
 
     this.operations[0xCB] = new Operation(this.AXS, this.immediateMode, 0); // 2 cycles
 
@@ -1260,7 +1263,7 @@ export default class CPU {
     this.operations[0x4B] = new Operation(this.ALR, this.immediateMode, 0); // 2 cycles
     this.operations[0x6B] = new Operation(this.ARR, this.immediateMode, 0); // 2 cycles
 
-    this.operations[0x9B] = new Operation(this.TAS, this.absoluteYMode, 0); // 5 cycles
+    this.operations[0x9B] = new Operation(this.TAS, this.absoluteYMode, F_DOUBLE_READ); // 5 cycles
   }
 
   //=========================================================
