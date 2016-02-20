@@ -15,7 +15,7 @@ app.get('/files/:name', roms.download);
 
 app.use(function(error, req, res, next) {
   console.log(error.stack);
-  res.send(500, 'Server internal error.');
+  res.sendStatus(500);
 });
 
 app.listen(process.env.PORT || 5000);

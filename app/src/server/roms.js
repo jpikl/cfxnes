@@ -122,10 +122,9 @@ function makeName(file) {
 
 function findThumbnail(file) {
   for (var ext of ['png', 'git', 'jpg', 'jpeg']) {
-    var thumbnailFile = file.replace(/\.nes$/i, `.${ext}`);
-    var thumbnailPath = path.join(romDir, thumbnailFile);
-    if (fs.existsSync(thumbnailPath)) {
-      return thumbnailFile;
+    var imageFile = file.replace(/\.nes$/i, `.${ext}`);
+    if (fs.existsSync(path.join(romDir, imageFile))) {
+      return imageFile;
     }
   }
   return null;
