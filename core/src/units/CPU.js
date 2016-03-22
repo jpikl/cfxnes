@@ -23,6 +23,14 @@ const F_EXTRA_CYCLE = 1 << 0; // Operation has +1 cycle
 const F_DOUBLE_READ = 1 << 1; // Operation always does double read during "absolute X/Y" and "indirect Y" addresing modes
 
 //=========================================================
+// Interrupt handler addresses
+//=========================================================
+
+const RESET_ADDRESS = 0xFFFC;
+const NMI_ADDRESS = 0xFFFA;
+const IRQ_ADDRESS = 0xFFFE;
+
+//=========================================================
 // Central processing unit
 //=========================================================
 
@@ -121,7 +129,7 @@ export default class CPU {
     this.writeByte(0x4015, 0x00);                       // Disable all APU channels immediatelly
     this.writeByte(0x4017, this.apu.frameCounterLast);  // Zero on power up, last written frame counter value otherwise
     this.stackPointer = (this.stackPointer - 3) & 0xFF; // Unlike IRQ/NMI, writing on stack does not modify CPU memory, so we just decrement the stack pointer 3 times
-    this.enterInterruptHandler(0xFFFC);
+    this.enterInterruptHandler(RESET_ADDRESS);
     this.clearInterrupt(RESET);
     this.tick();
     this.halted = false;
@@ -129,13 +137,13 @@ export default class CPU {
 
   handleNMI() {
     this.saveStateBeforeInterrupt();
-    this.enterInterruptHandler(0xFFFA);
+    this.enterInterruptHandler(NMI_ADDRESS);
     this.clearInterrupt(NMI);
   }
 
   handleIRQ() {
     this.saveStateBeforeInterrupt();
-    this.enterInterruptHandler(0xFFFE);
+    this.enterInterruptHandler(IRQ_ADDRESS);
     // Unlike reset/NMI, the interrupt flag is not cleared
   }
 
@@ -701,7 +709,7 @@ export default class CPU {
     this.pushWord(this.programCounter);
     this.pushByte(this.getStatus() | 0x10); // Push status with bit 4 on (break command flag)
     this.irqDisabled = this.interruptFlag = 1; // Immediate change to IRQ disablement
-    this.programCounter = this.readWord(0xFFFE);
+    this.programCounter = this.readWord(this.activeInterrupts & NMI ? NMI_ADDRESS : IRQ_ADDRESS); // Active NMI hijacks BRK
   }
 
   RTI() {
