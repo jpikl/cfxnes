@@ -11,6 +11,9 @@ Each change is prefixed with code of related module:
 ## [Unreleased][unreleased]
 ### Fixed
 - [core] MMC3 mapper alternate behavior.
+- [core] Delayed IRQ response after CLI/SEI/PLP.
+- [core] Sprite zero hit detection.
+- [core] Sprite overflow flag clearing.
 
 ## [0.4.0] - 2015-11-29
 ### Fixed
