@@ -9,9 +9,13 @@ var cfxnes = new CFxNES({
   jszip: JSZip,
   screenfull: screenfull,
   storage: 'browser',
-  loadOnStart: true,
-  saveOnClose: true,
-  savePeriod: 60, // sec
+});
+
+cfxnes.loadConfiguration().then(function() {
+  cfxnes.setSaveOnClose(true);
+  cfxnes.setSavePeriod(60); // sec
+}).catch(function(error) {
+  console.error('Unable to load CFxNES configuration', error)
 });
 
 //=========================================================
