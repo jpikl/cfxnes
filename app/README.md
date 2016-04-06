@@ -1,4 +1,4 @@
-# CFxNES application
+# CFxNES Web App
 
 Web application build on top of the [CFxNES library](../lib).
 
