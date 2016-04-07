@@ -29,7 +29,7 @@
       });
     }
 
-    this.setFilter(app.viewParam || app.gameFilter);
+    this.setFilter(app.viewParam || app.gameFilter || '');
 
     this.on('mount', function() {
       var messagePanel = this.tags['message-panel'];
