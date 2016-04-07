@@ -346,6 +346,10 @@ export default class APU {
     this.recordingActive = false;
   }
 
+  isRecording() {
+    return this.recordingActive;
+  }
+
   recordOutputValue() {
     var position = ~~(this.recordCycle++ * this.sampleRate / this.cpuFrequency);
     if (position > this.recordPosition) {
@@ -355,7 +359,7 @@ export default class APU {
 
   fillRecordBuffer(position) {
     var outputValue = this.getOutputValue();
-    if ((position == null) || position > this.lastPosition) {
+    if (position == null || position > this.lastPosition) {
       position = this.lastPosition;
     }
     while (this.recordPosition < position) {

@@ -162,6 +162,10 @@ export default class NES {
     this.apu.stopRecording();
   }
 
+  isAudioRecording() {
+    return this.apu.isRecording();
+  }
+
   readAudioBuffer() {
     return this.apu.readOutputBuffer();
   }
