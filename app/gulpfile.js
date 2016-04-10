@@ -35,7 +35,7 @@ var argv = yargs
 
 gulp.task('libs', function() {
   var sources = [
-    './node_modules/promise-polyfill/Promise.min.js',
+    './node_modules/promise-polyfill/promise.min.js',
     './node_modules/js-sha1/build/sha1.min.js',
     './node_modules/jszip/dist/jszip.min.js',
     './node_modules/screenfull/dist/screenfull.js',
