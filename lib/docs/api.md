@@ -28,7 +28,7 @@ var cfxnes = new CFxNES({
 
 ## Options and Methods
 
-For better orientation, the documentation was split into multiple pages.
+For better orientation, the documentation was split into multiple documents.
 
 - [General API](general-api.md)
 - [Cartridge API](cartridge-api.md)
@@ -43,7 +43,7 @@ The following are **optional dependencies** which are not part of the CFxNES lib
 
 | Name | Description | Impact |
 |------|-------------|--------|
-| hash | Any hash function `ArrayBuffer ⇒ string` ([js-md5](https://github.com/emn178/js-md5) is recommended). | Internally used to differentiate between ROM images. Emulator will be able to persist data of games that support saving. |
+| sha1 | Any SHA-1 implementation `ArrayBuffer ⇒ string` ([js-sha1](https://github.com/emn178/js-sha1) is recommended). | Internally used to differentiate between ROM images. Emulator will be able to persist data of games that support saving. |
 | screenfull | [screenfull.js](https://github.com/sindresorhus/screenfull.js/) (v3.0.0 or compatible). | Emulator will support full screen mode. |
 | jszip | [JSZip](https://github.com/Stuk/jszip) (v2.5.0 or compatible). | Emulator will be able to load zipped ROM images. |
 

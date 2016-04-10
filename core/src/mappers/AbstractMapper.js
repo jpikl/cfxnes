@@ -15,7 +15,7 @@ export default class AbstractMapper {
   //=========================================================
 
   constructor(cartridge) {
-    this.dependencies = ['cpuMemory', 'ppuMemory', 'hash'];
+    this.dependencies = ['cpuMemory', 'ppuMemory'];
     this.init(cartridge);
     this.initPRGRAM();
     this.initCHRRAM();
@@ -24,6 +24,7 @@ export default class AbstractMapper {
   }
 
   init(cartridge) {
+    this.sha1 = cartridge.sha1;
     this.submapper = cartridge.submapper; // Not present on iNES ROMs
     this.mirroring = cartridge.mirroring;
     this.hasPRGRAM = cartridge.hasPRGRAM; // Not reliable information on iNES ROMs (should provide mapper itself)
@@ -44,10 +45,9 @@ export default class AbstractMapper {
     this.canWritePRGRAM = true; // PRG RAM write protection
   }
 
-  inject(cpuMemory, ppuMemory, hash) {
+  inject(cpuMemory, ppuMemory) {
     this.cpuMemory = cpuMemory;
     this.ppuMemory = ppuMemory;
-    this.hash = hash;
   }
 
   //=========================================================
@@ -96,15 +96,6 @@ export default class AbstractMapper {
     }
   }
 
-  getPRGROMId() {
-    return new Promise(resolve => {
-      if (this.prgROMId == null) {
-        this.prgROMId = this.hash(this.prgROM);
-      }
-      resolve(this.prgROMId);
-    });
-  }
-
   //=========================================================
   // PRG RAM mapping
   //=========================================================
@@ -126,12 +117,10 @@ export default class AbstractMapper {
 
   loadPRGRAM(storage) {
     if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-      if (this.hash) {
-        return this.getPRGROMId().then(id => {
-          return storage.readRAM(id, 'prg', this.prgRAM);
-        });
+      if (this.sha1) {
+        return storage.readRAM(this.sha1, 'prg', this.prgRAM);
       } else {
-        logger.warn('Unable to load PRGRAM: hash function is not available.');
+        logger.warn('Unable to load PRGRAM: SHA-1 is not available.');
       }
     }
     return Promise.resolve();
@@ -139,12 +128,10 @@ export default class AbstractMapper {
 
   savePRGRAM(storage) {
     if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-      if (this.hash) {
-        return this.getPRGROMId().then(id => {
-          return storage.writeRAM(id, 'prg', this.prgRAM.subarray(0, this.prgRAMSizeBattery));
-        });
+      if (this.sha1) {
+        return storage.writeRAM(this.sha1, 'prg', this.prgRAM.subarray(0, this.prgRAMSizeBattery));
       } else {
-        logger.warn('Unable to save PRGRAM: hash function is not available.');
+        logger.warn('Unable to save PRGRAM: SHA-1 is not available.');
       }
     }
     return Promise.resolve();
@@ -210,12 +197,10 @@ export default class AbstractMapper {
 
   loadCHRRAM(storage) {
     if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-      if (this.hash) {
-        return this.getPRGROMId().then(id => {
-          return storage.readRAM(id, 'chr', this.chrRAM);
-        });
+      if (this.sha1) {
+        return storage.readRAM(this.sha1, 'chr', this.chrRAM);
       } else {
-        logger.warn('Unable to load CHRRAM: hash function is not available.');
+        logger.warn('Unable to load CHRRAM: SHA-1 is not available.');
       }
     }
     return Promise.resolve();
@@ -223,12 +208,10 @@ export default class AbstractMapper {
 
   saveCHRRAM(storage) {
     if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-      if (this.hash) {
-        return this.getPRGROMId().then(id => {
-          return storage.writeRAM(id, 'chr', this.chrRAM.subarray(0, this.chrRAMSizeBattery));
-        });
+      if (this.sha1) {
+        return storage.writeRAM(this.sha1, 'chr', this.chrRAM.subarray(0, this.chrRAMSizeBattery));
       } else {
-        logger.warn('Unable to save CHRRAM: hash function is not available.');
+        logger.warn('Unable to save CHRRAM: SHA-1 is not available.');
       }
     }
     return Promise.resolve();

@@ -5,6 +5,7 @@ import ArrayBufferReader from '../readers/ArrayBufferReader';
 import LocalFileReader from '../readers/LocalFileReader';
 import INESLoader from '../loaders/INESLoader';
 import NES2Loader from '../loaders/NES2Loader';
+import { copyArray } from '../utils/arrays';
 import { formatOptional, formatSize, formatData } from '../utils/format';
 
 var loaders = [
@@ -19,11 +20,12 @@ var loaders = [
 export default class CartridgeFactory {
 
   constructor() {
-    this.dependencies = ['jszip'];
+    this.dependencies = ['jszip', 'sha1'];
   }
 
-  inject(JSZip) {
+  inject(JSZip, sha1) {
     this.JSZip = JSZip;
+    this.sha1 = sha1;
   }
 
   fromArrayBuffer(buffer) {
@@ -42,6 +44,9 @@ export default class CartridgeFactory {
       if (loader.supports(reader)) {
         logger.info(`Using "${loader.name}" loader`);
         var cartridge = loader.load(reader);
+        if (this.sha1) {
+          this.computeSha1(cartridge);
+        }
         this.printCartridgeInfo(cartridge);
         return cartridge;
       }
@@ -49,8 +54,17 @@ export default class CartridgeFactory {
     throw new Error('Unsupported input data format.');
   }
 
+  computeSha1(cartridge) {
+    logger.info('Computing SHA-1');
+    var buffer = new Uint8Array(cartridge.prgROMSize + cartridge.chrROMSize);
+    copyArray(cartridge.prgROM, buffer, 0, 0);
+    copyArray(cartridge.chrROM, buffer, 0, cartridge.prgROMSize);
+    cartridge.sha1 = this.sha1(buffer);
+  }
+
   printCartridgeInfo(cartridge) {
     logger.info('==========[Cartridge Info - Start]==========');
+    logger.info('SHA-1                 : ' + formatOptional(cartridge.sha1));
     logger.info('Mapper                : ' + formatOptional(cartridge.mapper));
     logger.info('Submapper             : ' + formatOptional(cartridge.submapper));
     logger.info('has PRG RAM           : ' + formatOptional(cartridge.hasPRGRAM));

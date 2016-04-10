@@ -28,6 +28,6 @@ export default {
   'deviceFactory': {class: DeviceFactory},
   'mapperFactory': {class: MapperFactory},
   'paletteFactory': {class: PaletteFactory},
-  'hash': {value: null},  // Optional external dependency
+  'sha1': {value: null},  // Optional external dependency
   'jszip': {value: null}, // Optional external dependency
 };

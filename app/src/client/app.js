@@ -5,7 +5,7 @@
 CFxNES.setLogLevel('all');
 
 var cfxnes = new CFxNES({
-  hash: md5,
+  sha1: sha1,
   jszip: JSZip,
   screenfull: screenfull,
   storage: 'browser',
@@ -15,7 +15,7 @@ cfxnes.loadConfiguration().then(function() {
   cfxnes.setSaveOnClose(true);
   cfxnes.setSavePeriod(60); // sec
 }).catch(function(error) {
-  console.error('Unable to load CFxNES configuration', error)
+  console.error('Unable to load CFxNES configuration', error);
 });
 
 //=========================================================

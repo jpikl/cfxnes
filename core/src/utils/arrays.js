@@ -2,28 +2,27 @@
 // Array utilities
 //=========================================================
 
-export function zeroArray(array, start, end) {
-  return fillArray(array, 0, start, end);
+export function zeroArray(array, position, length) {
+  return fillArray(array, 0, position, length);
 }
 
-export function fillArray(array, value, start = 0, end = array.length) {
-  start = Math.max(0, start);
-  end = Math.min(end, array.length);
-  for (var i = start; i < end; i++) {
+export function fillArray(array, value, position = 0, length = array.length) {
+  var end = Math.min(position + length, array.length);
+  for (var i = position; i < end; i++) {
     array[i] = value;
   }
   return array;
 }
 
-export function copyArray(source, target) {
-  if (target == null) {
-    target = new Array(source.length);
+export function copyArray(src, dst, srcPos = 0, dstPos = 0, length = src.length) {
+  if (dst == null) {
+    dst = new Array(src.length);
   }
-  var length = Math.min(source.length, target.length);
-  for (var i = 0; i < length; i++) {
-    target[i] = source[i];
+  var end = Math.min(Math.min(src.length - srcPos, dst.length - dstPos), length);
+  for (var i = 0; i < end; i++) {
+    dst[dstPos + i] = src[srcPos + i];
   }
-  return target;
+  return dst;
 }
 
 export function arrayToProperties(array, callback, thisArg) {

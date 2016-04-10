@@ -42,7 +42,7 @@
     "gulp-uglify": "^1.5.2",
     "jquery": "^2.2.0",
     "jquery.browser": "0.1.0",
-    "js-md5": "^0.4.0",
+    "js-sha1": "^0.3.0",
     "jszip": "Stuk/jszip#bcfe0352bfd0d3c93251b68eaebe77109e34a25f",
     "less-plugin-autoprefix": "^1.5.1",
     "less-plugin-clean-css": "^1.5.1",

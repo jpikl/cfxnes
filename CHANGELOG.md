@@ -15,6 +15,9 @@ Each change is prefixed with code of related module:
 - [core] Sprite zero hit detection.
 - [core] Sprite overflow flag clearing.
 
+### Changed
+- [core] SHA-1 is used to compute checksums instead of MD5. Checksums are computed from PRGRAM + CHRRAM data (previously only PRGRAM).
+
 ## [0.4.0] - 2015-11-29
 ### Fixed
 - [core] Detection of NES 2.0 ROM image format.
