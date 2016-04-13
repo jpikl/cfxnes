@@ -1,4 +1,4 @@
-# General API
+# System API
 
 - [Options](#user-content-options)
 - [Methods](#user-content-methods)
@@ -13,13 +13,9 @@
 
 ## Methods
 
-#### .setDefaults()
-
-Sets the default emulator configuration. 
-
 #### .start()
 
-Starts emulator.
+Starts emulator. In case there is no ROM image loaded, the emulator will display white noise as its video output.
 
 #### .stop()
 
@@ -27,7 +23,7 @@ Stops emulator.
 
 #### .step()
 
-Causes emulator to render one frame. Useful when you need to just refresh video output without starting the emulator.
+Forces emulator to render one frame. Useful when you need to just refresh video output without starting the emulator.
 
 #### .isRunning()
 

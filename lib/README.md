@@ -2,6 +2,11 @@
 
 JavaScript library for NES emulation in web browser.
 
+``` javascript
+var cfxnes = new CFxNES({videoOutput: canvas});
+cfxnes.downloadCartridge('game.nes').then(() => cfxnes.start());
+```
+
 ## Requirements
 
 The library requires browser with [Promise](https://promisesaplus.com/) support.
@@ -14,8 +19,7 @@ See [API documentation](docs/api.md).
 
 ## Example
 
-This example will download and execute `game.nes` ROM image. 
-The video output will be rendered to the canvas element.
+A minimal example that will download and execute ROM image. 
 
 ``` html
 <!DOCTYPE html>
@@ -28,12 +32,15 @@ The video output will be rendered to the canvas element.
 <body>
     <canvas id="canvas"></canvas>
     <script>
+        // Canvas element used for rendering
         var canvas = document.getElementById("canvas");
+        // Initialization
         var cfxnes = new CFxNES({videoOuput: canvas});
-        cfxnes.downloadCartridge("game.nes").then(function() {
+        // Download ROM image from relative URL
+        cfxnes.downloadCartridge("roms/game.nes").then(function() {
             cfxnes.start(); // Success, start the emulator
         }).catch(function(error) {
-            alert(error); // Something went wrong
+            alert(error); // Something wen wrong, handle error
         });
     </script>
 </body>

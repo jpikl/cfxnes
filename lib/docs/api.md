@@ -1,7 +1,10 @@
 # CFxNES API
 
+**Warning: This documentation is for the upcoming version 0.5.0**
+
 - [Initialization](#user-content-initialization)
 - [Options and Methods](#user-content-options-and-methods)
+- [External dependencies](#user-content-external-dependencies)
 - [Static properties](#user-content-static-properties)
 - [Static methods](#user-content-static-methods)
 - [Enumerations](#user-content-enumerations)
@@ -16,7 +19,7 @@ Creates instance of the emulator.
 
 *Example*:
 
-```javascript
+``` javascript
 var cfxnes = new CFxNES({
     // Configuration options
     videoOutput: document.getElementById('canvas'),
@@ -30,12 +33,11 @@ var cfxnes = new CFxNES({
 
 For better orientation, the documentation was split into multiple documents.
 
-- [General API](general-api.md)
-- [Cartridge API](cartridge-api.md)
+- [System API](system-api.md)
+- [Data API](data-api.md)
 - [Video API](video-api.md)
 - [Audio API](audio-api.md)
 - [Input API](input-api.md)
-- [Persistence API](persistence-api.md)
 
 ## External dependencies
 
@@ -43,7 +45,7 @@ The following are **optional dependencies** which are not part of the CFxNES lib
 
 | Name | Description | Impact |
 |------|-------------|--------|
-| sha1 | Any SHA-1 implementation `ArrayBuffer ⇒ string` ([js-sha1](https://github.com/emn178/js-sha1) is recommended). | Internally used to differentiate between ROM images. Emulator will be able to persist data of games that support saving. |
+| sha1 | Any SHA-1 implementation `ArrayBuffer ⇒ string` ([js-sha1](https://github.com/emn178/js-sha1) is recommended). | Internally used to differentiate between ROM images. Emulator will be able to persist game saves. |
 | screenfull | [screenfull.js](https://github.com/sindresorhus/screenfull.js/) (v3.0.0 or compatible). | Emulator will support full screen mode. |
 | jszip | [JSZip](https://github.com/Stuk/jszip) (v2.6.0 or compatible). | Emulator will be able to load zipped ROM images. |
 
