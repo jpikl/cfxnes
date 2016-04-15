@@ -1,6 +1,6 @@
 # CFxNES API
 
-**Warning: This documentation is for the upcoming version 0.5.0**
+**Note: This documentation is for the upcoming version 0.5.0**
 
 - [Initialization](#user-content-initialization)
 - [Options and Methods](#user-content-options-and-methods)

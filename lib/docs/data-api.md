@@ -1,6 +1,8 @@
 
 # Data API
 
+**Note: This documentation is for the upcoming version 0.5.0**
+
 - [ROM images](#user-content-rom-images)
 - [Non-Volatile RAM](#user-content-non-volatile-ram)
 - [Configuration](#user-content-configuration)
@@ -15,13 +17,13 @@ You can also provide ZIP archive as an input. In that case the first file with `
 
 ``` javascript
 cfxnes.loadROM('roms/game.nes') // Load ROM image from relative URL
-    .then(() => cfxnes.start()) // Start the emulator afterwards
-    .catch(error => /* handle error */)
+    .then(() => cfxnes.start()) // Start the emulator
+    .catch(error => /* Handle error */)
 ```
 
 #### .loadROM(source)
 
-Loads ROM image from the specified source. Emulator does not have to be stopped for an ROM image to be loaded.
+Loads ROM image from the specified source. If the emulator is already running, the ROM image will be immediately executed.
 
 - **source**: `string` | `File` | `ArrayBuffer` - source of a ROM image
 - **returns**: `Promise` - promise resolved when the ROM image is loaded
@@ -39,11 +41,11 @@ Unloads the current ROM image.
 
 ## Non-volatile RAM
 
-Non-volatile RAM (NVRAM) is a part of memory that is usually battery-backed and serves as a place for game saves. Its length and origin (PRG/CHR) varies between games (most of then does not even have NVRAM).
+Non-volatile RAM (NVRAM) is a memory that is usually battery-backed and serves as a place for game saves. NVRAM is only used by some games (e.g., The Legend of Zelda or Final Fantasy).
 
 Use [getNVRAM](#user-content-get-nvram), [setNVRAM](#user-content-set-nvram) for direct NVRAM manipulation. 
 
-Use [loadNVRAM](#user-content-load-nvram), [saveNVRAM](#user-content-save-nvram) for persisting NVRAM inside IndexedDB. NVRAMs of various games are differentiated using SHA-1 checksums of their ROM images. To be able to compute SHA-1, an [external dependency](api.md#user-content-external-dependencies) is required.
+Use [loadNVRAM](#user-content-load-nvram), [saveNVRAM](#user-content-save-nvram) for persisting NVRAM in IndexedDB. NVRAMs of various games are differentiated using SHA-1 checksums of their ROM images. To be able to compute SHA-1, an [external dependency](api.md#user-content-external-dependencies) is required.
 
 *Example:*
 ``` javascript
@@ -54,15 +56,15 @@ cfxnes.saveNVRAM() // Persist game saves of the currently running game
 
 #### .getNVRAM()
 
-Returns NVRAM of the currently running game.
+Returns NVRAM data of the currently running game.
 
-- **returns**: `Uint8Array` | `null` - data or `null` when NVRAM is not available
+- **returns**: `Uint8Array` | `null` - NVRAM data or `null` when NVRAM is not available
 
 #### .setNVRAM(data)
 
-Sets NVRAM of the currently running game. The behavior of this method is undefined if NVRAM unavailable or has different size then the provided data.
+Sets NVRAM data of the currently running game. The behavior of this method is undefined if NVRAM is unavailable or has different size then the provided data.
 
-- **data**: Uint8Array - data
+- **data**: Uint8Array - NVRAM data
 
 #### .loadNVRAM()
 
@@ -76,34 +78,48 @@ Stores NVRAM of the currently running game into IndexedDB.
 
 - **returns**: `Promise` - promise resolved when data are stored
 
+#### .deleteNVRAMs()
+
+Deletes all NVRAMs stored in IndexedDB.
+
+- **returns**: `Promise` - promise resolved when all data are deleted
+
 ## Configuration
 
-Emulator configuration has a form of key-value pairs. See [their documentation](api.md#user-content-options-and-methods).
+See documentation of all available [configuration options](api.md#user-content-options-and-methods).
 
 *Example:*
 ``` javascript
-cfxnes.setConfig({audioVolume: 0.75, videoScale: 2});
+cfxnes.setOptions({audioVolume: 0.75, videoScale: 2});
 // Has the same effect as
 cfxnes.setAudioVolume(0.75);
 cfxnes.setVideoScale(2);
 ```
 
-#### .getConfig()
+#### .getOptions()
 
-Returns emulator configuration.
+Returns all configuration options and their values.
 
-- **returns**: `object` - the configuration
+- **returns**: `object` - configuration options
 
-#### .setConfig([config])
+#### .setOptions(options)
 
-Sets emulator configuration. Calling the method without parameter will set default configuration.
+Sets values of the specified configuration options.
 
-- **config**: `object` - the configuration
+- **options**: `object` - configuration options
 
-#### .loadConfig()
+#### .resetOptions()
 
-Loads emulator configuration from Local Storage.
+Resets all configuration options to their default value.
 
-#### .saveConfig()
+#### .loadOptions()
 
-Stores emulator configuration into Local Storage.
+Loads configuration options from Local Storage.
+
+#### .saveOptions()
+
+Stores all configuration options to Local Storage.
+
+#### .deleteOptions()
+
+Removes all configuration options from Local Storage.

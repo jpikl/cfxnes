@@ -1,12 +1,14 @@
 # System API
 
+**Note: This documentation is for the upcoming version 0.5.0**
+
 - [Options](#user-content-options)
 - [Methods](#user-content-methods)
 - [Enumerations](#user-content-enumerations)
 
 ## Options
 
-| Name | Type | Defaults | Description |
+| Name | Type | Default | Description |
 |------|------|----------|-------------|
 | speed | `number` | `1.0` | Emulation speed multiplier. |
 | region | [`Region`](#user-content-region) | `'auto'` | Emulated region of NES. |
@@ -27,7 +29,7 @@ Forces emulator to render one frame. Useful when you need to just refresh video 
 
 #### .isRunning()
 
-Checks whether emulator is running.
+Returns whether emulator is running.
 
 - **returns**: `boolean` - `true` if emulator is running; `false` otherwise
 
@@ -73,6 +75,6 @@ Returns the number of frames per second of running emulator. Undefined behavior 
 
 #### Region
 
-- `'auto'` - Automatic region detection based on header data of ROM images.
+- `'auto'` - Automatic region detection based on header data of ROM image.
 - `'ntsc'` - NTSC region. Emulation will run at 60 FPS.
 - `'pal'` - PAL region. Emulation will run at 50 FPS.
