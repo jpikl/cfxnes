@@ -3,7 +3,7 @@ import TriangleChannel from '../channels/TriangleChannel';
 import NoiseChannel from '../channels/NoiseChannel';
 import DMCChannel from '../channels/DMCChannel';
 import logger from '../utils/logger';
-import { IRQ_APU } from '../common/constants';
+import {IRQ_APU} from '../common/constants';
 
 //=========================================================
 // Audio processing unit

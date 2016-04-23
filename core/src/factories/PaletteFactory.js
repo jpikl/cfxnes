@@ -10,7 +10,7 @@ import fceux from '../palettes/fceux';
 import nestopia_rgb from '../palettes/nestopia_rgb';
 import nestopia_yuv from '../palettes/nestopia_yuv';
 import logger from '../utils/logger';
-import { base64ToData } from '../utils/convert';
+import {base64ToData} from '../utils/convert';
 
 const FALLBACK = 'fceux';
 

@@ -1,12 +1,12 @@
 import Mirroring from '../common/Mirroring';
 import Region from '../common/Region';
 import logger from '../utils/logger';
-import ArrayBufferReader from '../readers/ArrayBufferReader';
-import LocalFileReader from '../readers/LocalFileReader';
+import Uint8ArrayReader from '../readers/Uint8ArrayReader';
+import FileSystemReader from '../readers/FileSystemReader';
 import INESLoader from '../loaders/INESLoader';
 import NES2Loader from '../loaders/NES2Loader';
-import { copyArray } from '../utils/arrays';
-import { formatOptional, formatSize, formatData } from '../utils/format';
+import {copyArray} from '../utils/arrays';
+import {formatOptional, formatSize, formatData} from '../utils/format';
 
 var loaders = [
   new NES2Loader, // Must be processed before iNES
@@ -28,17 +28,20 @@ export default class CartridgeFactory {
     this.sha1 = sha1;
   }
 
-  fromArrayBuffer(buffer) {
-    logger.info('Loading cartridge from array buffer');
-    return this.fromReader(new ArrayBufferReader(buffer));
+  readArray(array) {
+    logger.info('Creating cartridge from array');
+    if (array instanceof Array || array instanceof ArrayBuffer) {
+      array = new Uint8Array(array);
+    }
+    return this.read(new Uint8ArrayReader(array));
   }
 
-  fromLocalFile(path) {
-    logger.info(`Loading cartridge from "${path}"`);
-    return this.fromReader(new LocalFileReader(path));
+  readFile(path) {
+    logger.info(`Creating cartridge from file "${path}"`);
+    return this.read(new FileSystemReader(path));
   }
 
-  fromReader(reader) {
+  read(reader) {
     reader.tryUnzip(this.JSZip);
     for (var loader of loaders) {
       if (loader.supports(reader)) {

@@ -28,8 +28,8 @@ import * as bntest from './bntest/bntest';
 import * as holydiverbatman from './holydiverbatman/holydiverbatman';
 import coreConfig from '../../src/config';
 import Injector from '../../src/utils/Injector';
-import { dataToString } from '../../src/utils/convert';
-import { copyProperties, mergeProperties } from '../../src/utils/objects';
+import {dataToString} from '../../src/utils/convert';
+import {copyProperties, mergeProperties} from '../../src/utils/objects';
 
 describe('Validation ROMs', () => {
   validate(nestest);
@@ -76,7 +76,7 @@ function execute(test) {
   // Setup emulator
   var injector = new Injector(config);
   var cartridgeFactory = injector.get('cartridgeFactory');
-  var cartridge = cartridgeFactory.fromLocalFile(test.file);
+  var cartridge = cartridgeFactory.readFile(test.file);
   var cpuMemory = injector.get('cpuMemory');
   var nes = injector.get('nes');
   var ppu = injector.get('ppu');

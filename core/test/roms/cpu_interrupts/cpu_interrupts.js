@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/cpu_interrupts_v2.zip
 //=============================================================================
 
-import { RAMEnabledCPUMemory, NoOutputPPU } from '../units';
+import {RAMEnabledCPUMemory, NoOutputPPU} from '../units';
 
 export const dir = './test/roms/cpu_interrupts';
 

@@ -1,4 +1,4 @@
-import { zeroArray } from './arrays';
+import {zeroArray} from './arrays';
 
 //=========================================================
 // System utilities

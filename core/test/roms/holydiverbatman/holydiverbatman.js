@@ -3,7 +3,7 @@
 // Source: http://pineight.com/nes/holydiverbatman-bin-0.01.7z
 //=============================================================================
 
-import { BufferedOutputPPU } from '../units';
+import {BufferedOutputPPU} from '../units';
 
 export const dir = './test/roms/holydiverbatman';
 

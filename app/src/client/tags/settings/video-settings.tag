@@ -61,7 +61,6 @@
       });
       this.tags['fps-visible'].on('change', function(value) {
         app.fpsVisible = value;
-        app.save();
       });
     });
   </script>

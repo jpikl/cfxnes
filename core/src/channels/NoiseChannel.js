@@ -1,5 +1,5 @@
 import logger from '../utils/logger';
-import { LENGTH_COUNTER_VALUES } from '../common/constants';
+import {LENGTH_COUNTER_VALUES} from '../common/constants';
 
 //=========================================================
 // Noise channel

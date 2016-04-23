@@ -1,11 +1,11 @@
 import Mirroring from '../common/Mirroring';
 import logger from '../utils/logger';
-import { zeroArray } from '../utils/arrays';
-import { newByteArray } from '../utils/system';
-import { formatOptional, formatSize, wordAsHex } from '../utils/format';
+import {zeroArray, copyArray} from '../utils/arrays';
+import {newByteArray} from '../utils/system';
+import {formatOptional, formatSize, wordAsHex} from '../utils/format';
 
 //=========================================================
-// Base class of mappers
+// Base class for mappers
 //=========================================================
 
 export default class AbstractMapper {
@@ -115,28 +115,6 @@ export default class AbstractMapper {
     }
   }
 
-  loadPRGRAM(storage) {
-    if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-      if (this.sha1) {
-        return storage.readRAM(this.sha1, 'prg', this.prgRAM);
-      } else {
-        logger.warn('Unable to load PRGRAM: SHA-1 is not available.');
-      }
-    }
-    return Promise.resolve();
-  }
-
-  savePRGRAM(storage) {
-    if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-      if (this.sha1) {
-        return storage.writeRAM(this.sha1, 'prg', this.prgRAM.subarray(0, this.prgRAMSizeBattery));
-      } else {
-        logger.warn('Unable to save PRGRAM: SHA-1 is not available.');
-      }
-    }
-    return Promise.resolve();
-  }
-
   mapPRGRAMBank8K(srcBank, dstBank) {
     var maxBank = (this.prgRAMSize - 1) >> 13;
     this.cpuMemory.mapPRGRAMBank(srcBank, dstBank & maxBank);
@@ -195,28 +173,6 @@ export default class AbstractMapper {
     }
   }
 
-  loadCHRRAM(storage) {
-    if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-      if (this.sha1) {
-        return storage.readRAM(this.sha1, 'chr', this.chrRAM);
-      } else {
-        logger.warn('Unable to load CHRRAM: SHA-1 is not available.');
-      }
-    }
-    return Promise.resolve();
-  }
-
-  saveCHRRAM(storage) {
-    if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-      if (this.sha1) {
-        return storage.writeRAM(this.sha1, 'chr', this.chrRAM.subarray(0, this.chrRAMSizeBattery));
-      } else {
-        logger.warn('Unable to save CHRRAM: SHA-1 is not available.');
-      }
-    }
-    return Promise.resolve();
-  }
-
   mapCHRRAMBank8K(srcBank, dstBank) {
     this.mapCHRRAMBank1K(srcBank * 8, dstBank * 8, 8);
   }
@@ -243,6 +199,39 @@ export default class AbstractMapper {
     logger.info('CHR RAM size          : ' + formatOptional(formatSize(this.chrRAMSize)));
     logger.info('CHR RAM size (battery): ' + formatOptional(formatSize(this.chrRAMSizeBattery)));
     logger.info('==========[Mapper CHR RAM Info - End]==========');
+  }
+
+  //=========================================================
+  // Non-Volatile RAM
+  //=========================================================
+
+  getNVRAMSize() {
+    // No know NES game uses both battery-backed PRGRAM and CHRRAM
+    if (this.hasPRGRAM && this.hasPRGRAMBattery) {
+      return this.prgRAMSizeBattery;
+    }
+    if (this.hasCHRRAM && this.hasCHRRAMBattery) {
+      return this.chrRAMSizeBattery;
+    }
+    return 0;
+  }
+
+  getNVRAM() {
+    if (this.hasPRGRAM && this.hasPRGRAMBattery) {
+      return this.prgRAM.subarray(0, this.prgRAMSizeBattery);
+    }
+    if (this.hasCHRRAM && this.hasCHRRAMBattery) {
+      return this.chrRAM.subarray(0, this.chrRAMSizeBattery);
+    }
+    return null;
+  }
+
+  setNVRAM(data) {
+    if (this.hasPRGRAM && this.hasPRGRAMBattery) {
+      copyArray(data, this.prgRAM, 0, 0, this.prgRAMSizeBattery);
+    } else if (this.hasCHRRAM && this.hasCHRRAMBattery) {
+      copyArray(data, this.chrRAM, 0, 0, this.chrRAMSizeBattery);
+    }
   }
 
   //=========================================================

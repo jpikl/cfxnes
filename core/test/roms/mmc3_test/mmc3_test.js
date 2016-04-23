@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/mmc3_test_2.zip
 //=============================================================================
 
-import { DisabledAPU, NoOutputPPU } from '../units';
+import {DisabledAPU, NoOutputPPU} from '../units';
 
 export const dir = './test/roms/mmc3_test';
 

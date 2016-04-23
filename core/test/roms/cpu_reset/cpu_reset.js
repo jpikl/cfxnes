@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/cpu_reset.zip
 //=============================================================================
 
-import { RAMEnabledCPUMemory, DisabledAPU, DisabledPPU } from '../units';
+import {RAMEnabledCPUMemory, DisabledAPU, DisabledPPU} from '../units';
 
 export const dir = './test/roms/cpu_reset';
 

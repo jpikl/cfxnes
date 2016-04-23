@@ -28,7 +28,7 @@ export function copyArray(src, dst, srcPos = 0, dstPos = 0, length = src.length)
 export function arrayToProperties(array, callback, thisArg) {
   var object = {};
   for (var value of array) {
-    object[value] = callback.call(thisArg, value);
+    object[value] = typeof callback === 'function' ? callback.call(thisArg, value) : callback;
   }
   return object;
 }

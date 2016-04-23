@@ -1,10 +1,10 @@
 import AbstractReader from './AbstractReader';
 
 //=========================================================
-// Reader of local files
+// File system reader
 //=========================================================
 
-export default class LocalFileReader extends AbstractReader {
+export default class FileSystemReader extends AbstractReader {
 
   constructor(path) {
     super();

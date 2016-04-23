@@ -1,14 +1,14 @@
 import AbstractReader from './AbstractReader';
 
 //=========================================================
-// Reader of array buffers
+// Uint8Array reader
 //=========================================================
 
-export default class ArrayBufferReader extends AbstractReader {
+export default class Uint8ArrayReader extends AbstractReader {
 
-  constructor(buffer) {
+  constructor(array) {
     super();
-    this.array = new Uint8Array(buffer);
+    this.array = array;
   }
 
   getData() {

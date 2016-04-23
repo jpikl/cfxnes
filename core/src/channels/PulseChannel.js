@@ -1,5 +1,5 @@
 import logger from '../utils/logger';
-import { LENGTH_COUNTER_VALUES } from '../common/constants';
+import {LENGTH_COUNTER_VALUES} from '../common/constants';
 
 const DUTY_WAVEFORMS = [
   [0, 1, 0, 0, 0, 0, 0, 0], // _X______ (12.5%)

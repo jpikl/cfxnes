@@ -1,6 +1,6 @@
 import AbstractMapper from './AbstractMapper';
 import Mirroring from '../common/Mirroring';
-import { IRQ_EXT } from '../common/constants';
+import {IRQ_EXT} from '../common/constants';
 
 //=========================================================
 // MMC3 mapper

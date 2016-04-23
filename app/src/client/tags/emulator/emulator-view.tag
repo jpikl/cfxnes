@@ -14,8 +14,8 @@
     var emulatorOutput;
 
     this.on('mount', function() {
-      this.tags['input-file'].on('fileopen', loadCartridge);
-      this.tags['dnd-wrapper'].on('filedrop', loadCartridge);
+      this.tags['input-file'].on('fileopen', loadGame);
+      this.tags['dnd-wrapper'].on('filedrop', loadGame);
 
       messagePanel = this.tags['message-panel'];
       emulatorOutput = this.tags['dnd-wrapper'].tags['emulator-output'];
@@ -28,10 +28,10 @@
 
     function resumeEmulator(gameId) {
       if (gameId && gameId !== app.gameId) {
-        downloadCartridge(gameId);
+        loadGame(gameId);
       } else if (app.autoPaused) {
         startEmulator();
-      } else if (cfxnes.isCartridgeInserted()) {
+      } else if (cfxnes.isROMLoaded()) {
         cfxnes.step(); // To refresh the output
       }
     }
@@ -51,32 +51,39 @@
       app.trigger('stop');
     }
 
-    function downloadCartridge(gameId) {
-      emulatorOutput.showLoading();
-      messagePanel.hide();
-      cfxnes.removeCartridge().then(function() {
+    function loadGame(source) {
+      var gameId = typeof source === 'string' ? source : null;
+      if (gameId) {
         stopEmulator();
-        return Promise.resolve($.get('/roms/' + gameId));
-      }).then(function(data) {
-        return cfxnes.downloadCartridge(data.fileURL);
-      }).then(onLoad.bind(null, gameId), onError);
-    }
+        emulatorOutput.showLoading();
+        messagePanel.hide();
+      }
 
-    function loadCartridge(file) {
-      cfxnes.loadCartridge(file).then(onLoad, onError);
-    }
-
-    function onLoad(gameId) {
-      app.gameId = gameId;
-      emulatorOutput.hideLoading();
-      messagePanel.hide();
-      startEmulator();
-    }
-
-    function onError(error) {
-      console.error(error);
-      emulatorOutput.hideLoading();
-      messagePanel.showError(getErrorMessage(error));
+      cfxnes.saveNVRAM()
+        .catch(logError)
+        .then(function() {
+          if (!gameId) {
+            return cfxnes.loadROM(source);
+          }
+          return $.get('/roms/' + gameId).then(function(data) {
+            return cfxnes.loadROM(data.fileURL);
+          });
+        })
+        .catch(function(error) {
+          emulatorOutput.hideLoading();
+          messagePanel.showError(getErrorMessage(error));
+          throw error;
+        })
+        .then(function() {
+          return cfxnes.loadNVRAM().catch(logError);
+        })
+        .then(function() {
+          app.gameId = gameId;
+          emulatorOutput.hideLoading();
+          messagePanel.hide();
+          startEmulator();
+        })
+        .catch(logError);
     }
   </script>
 </emulator-view>

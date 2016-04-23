@@ -3,7 +3,7 @@
 // Source: http://www.slack.net/~ant/nes-tests/blargg_ppu_tests.zip
 //=============================================================================
 
-import { BufferedOutputPPU } from '../units';
+import {BufferedOutputPPU} from '../units';
 
 export const dir = './test/roms/ppu_tests';
 

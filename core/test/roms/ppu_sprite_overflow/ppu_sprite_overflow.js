@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/ppu_sprite_overflow.zip
 //=============================================================================
 
-import { RAMEnabledCPUMemory, NoOutputPPU, DisabledAPU } from '../units';
+import {RAMEnabledCPUMemory, NoOutputPPU, DisabledAPU} from '../units';
 
 export const dir = './test/roms/ppu_sprite_overflow';
 

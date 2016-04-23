@@ -10,9 +10,9 @@ import coreConfig from '../../core/src/config';
 import LoggingCPU from '../../core/src/debug/LoggingCPU';
 import BufferedOutputPPU from '../../core/src/debug/BufferedOutputPPU';
 import Injector from '../../core/src/utils/Injector';
-import { LogLevel, LogWriter } from '../../core/src/utils/logger';
-import { copyProperties } from '../../core/src/utils/objects';
-import { numberAsHex } from '../../core/src/utils/format';
+import {LogLevel, LogWriter} from '../../core/src/utils/logger';
+import {copyProperties} from '../../core/src/utils/objects';
+import {numberAsHex} from '../../core/src/utils/format';
 
 //=========================================================
 // Command line parser
@@ -58,7 +58,7 @@ config.ppu = {class: BufferedOutputPPU};
 
 var injector = new Injector(config);
 var cartridgeFactory = injector.get('cartridgeFactory');
-var cartridge = cartridgeFactory.fromLocalFile(argv._[0]);
+var cartridge = cartridgeFactory.readFile(argv._[0]);
 var nes = injector.get('nes');
 var cpu = injector.get('cpu');
 
@@ -147,7 +147,7 @@ function execCommand(param) {
 }
 
 function printCommand(param) {
-  var name = typeof param === 'string' && param ? param : 'out'; // param can boolean when set from command line argument
+  var name = typeof param === 'string' && param ? param : 'out'; // param can be boolean when set from command line argument
   var file = path.extname(name).length ? name : name + '.png';
   return nes.ppu.writeFrameToFile(file).then(() => {
     print(`Screenshot written to "${path.resolve(file)}"`);

@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/ppu_vbl_nmi.zip
 //=============================================================================
 
-import { RAMEnabledCPUMemory, NoOutputPPU, DisabledAPU } from '../units';
+import {RAMEnabledCPUMemory, NoOutputPPU, DisabledAPU} from '../units';
 
 export const dir = './test/roms/ppu_vbl_nmi';
 

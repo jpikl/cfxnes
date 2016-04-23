@@ -1,6 +1,6 @@
 import CPU from '../units/CPU';
-import { Logger } from '../utils/logger';
-import { byteAsHex, wordAsHex, fillLeft } from '../utils/format';
+import {Logger} from '../utils/logger';
+import {byteAsHex, wordAsHex, fillLeft} from '../utils/format';
 
 //=========================================================
 // CPU with debugging printouts

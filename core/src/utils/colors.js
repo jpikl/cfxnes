@@ -1,4 +1,4 @@
-import { ENDIANNESS } from './system';
+import {ENDIANNESS} from './system';
 
 //=========================================================
 // Color manipulation utilities

@@ -15,7 +15,7 @@
 
 Creates instance of the emulator. 
 
-- **options**: `object` - [configuration options](#user-content-options-and-methods) and [external dependencies](#user-content-external-dependencies).
+- **options**: `object` - [configuration options](#user-content-options-and-methods) and [external dependencies](#user-content-external-dependencies)
 
 *Example*:
 
@@ -45,7 +45,7 @@ The following are **optional dependencies** which are not part of the CFxNES lib
 
 | Name | Description | Impact |
 |------|-------------|--------|
-| sha1 | Any SHA-1 implementation `ArrayBuffer ⇒ string` ([js-sha1](https://github.com/emn178/js-sha1) is recommended). | Internally used to differentiate between ROM images. Emulator will be able to persist game saves. |
+| sha1 | Any SHA-1 implementation `Uint8Array ⇒ string` ([js-sha1](https://github.com/emn178/js-sha1) is recommended). | Internally used to differentiate between ROM images. Emulator will be able to persist game saves. |
 | screenfull | [screenfull.js](https://github.com/sindresorhus/screenfull.js/) (v3.0.0 or compatible). | Emulator will support full screen mode. |
 | jszip | [JSZip](https://github.com/Stuk/jszip) (v2.6.0 or compatible). | Emulator will be able to load zipped ROM images. |
 
@@ -60,9 +60,9 @@ Version of the emulator.
 
 #### CFxNES.setLogLevel(level)
 
-Sets global logging level for all emulator instances. The default value is `'warn'`.
+Sets verbosity of logging for all instances of the emulator. The default value is `'warn'`.
 
-- **level**: [`LogLevel`](#user-content-loglevel) - logging level
+- **level**: [`LogLevel`](#user-content-loglevel) - the log verbosity level
 
 ## Enumerations
 

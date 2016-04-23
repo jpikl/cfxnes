@@ -1,5 +1,5 @@
 import logger from '../utils/logger';
-import { RESET, NMI } from '../common/constants';
+import {RESET, NMI} from '../common/constants';
 
 //=========================================================
 // CPU operation
@@ -231,7 +231,7 @@ export default class CPU {
     return this.writeByte((address + 1) & 0xFFFF, value >>> 8);
   }
 
-  readWriteByte(address, value) {
+  readWriteByte(address) {
     var value = this.readByte(address, value);
     return this.writeByte(address, value); // Some instructions do dummy write before their computation
   }

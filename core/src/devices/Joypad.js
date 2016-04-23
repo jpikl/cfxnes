@@ -1,4 +1,4 @@
-import { newByteArray } from '../utils/system';
+import {newByteArray} from '../utils/system';
 
 //=========================================================
 // Joypad input device

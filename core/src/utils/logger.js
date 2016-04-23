@@ -1,4 +1,4 @@
-import { formatError } from './format';
+import {formatError} from './format';
 
 //=========================================================
 // Log levels

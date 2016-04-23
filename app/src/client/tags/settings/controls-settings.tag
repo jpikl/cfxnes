@@ -34,7 +34,6 @@
       this.tags['controls-visible'].on('change', function(value) {
         app.controlsVisible = value;
         app.controlsOpened = value;
-        app.save();
       });
     });
   </script>

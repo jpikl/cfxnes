@@ -9,7 +9,7 @@
     ];
 
     this.on('update', function() {
-      this.tags['region'].setValue(cfxnes.getRegion() || 'auto');
+      this.tags['region'].setValue(cfxnes.getRegion());
       this.tags['speed'].setValue(cfxnes.getSpeed());
     });
 

@@ -4,7 +4,7 @@ JavaScript NES emulator and emulation library.
 
 ![CFxNES logo](app/src/client/images/logo.png)
 
-Try CFxNES out at [cfxnes.heroku.com](http://cfxnes.herokuapp.com)
+Try out CFxNES at [cfxnes.herokuapp.com](http://cfxnes.herokuapp.com)
 
 The source code is licensed under the MIT License.
 See LICENSE.txt for more details.
@@ -44,7 +44,3 @@ See LICENSE.txt for more details.
 - [cfxnes-lib](lib) - library for NES emulation in web browser.
 - [cfxnes-app](app) - web application build on top of the library.
 - [cfxnes-dbg](dbg) - tool for debugging NES ROM images.
-
-## See also
-
-- [Setting up a development environment](docs/dev-environment.md)

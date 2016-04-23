@@ -45,6 +45,7 @@ describe('Arrays utils', () => {
         return this[value];
       },
     };
+    expect(arrays.arrayToProperties(['a', 'b'], true)).to.deep.equal({a: true, b: true});
     expect(arrays.arrayToProperties(['a', 'b'], value => mapper[value])).to.deep.equal({a: 1, b: 2});
     expect(arrays.arrayToProperties(['a', 'b'], mapper.map, mapper)).to.deep.equal({a: 1, b: 2});
   });

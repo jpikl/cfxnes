@@ -1,4 +1,4 @@
-import { makeEnumeration } from '../utils/objects';
+import {makeEnumeration} from '../utils/objects';
 
 //=========================================================
 // Regions

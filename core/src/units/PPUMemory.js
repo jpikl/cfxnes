@@ -1,7 +1,7 @@
 import Mirroring from '../common/Mirroring';
 import logger from '../utils/logger';
-import { zeroArray, copyArray } from '../utils/arrays';
-import { newByteArray, newUintArray } from '../utils/system';
+import {zeroArray, copyArray} from '../utils/arrays';
+import {newByteArray, newUintArray} from '../utils/system';
 
 const POWER_UP_PALETTES = [
   0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D,

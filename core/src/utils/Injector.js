@@ -1,5 +1,5 @@
 import logger from './logger';
-import { mergeProperties } from './objects';
+import {mergeProperties} from './objects';
 
 //=========================================================
 // Dependency injector

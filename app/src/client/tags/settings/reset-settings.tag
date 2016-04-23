@@ -15,22 +15,18 @@
 
       resetSettings.on('click', function() {
         resetSettings.setProgress('Reseting settings...');
-        cfxnes.resetConfiguration().then(function() {
-          app.reset();
-          app.save();
-          resetSettings.setSuccess('Done');
-        }, function(error) {
-          resetSettings.setError(error.message || 'Reset failed');
-        });
+        app.reset();
+        resetSettings.setSuccess('Done');
       });
 
       deleteData.on('click', function() {
         if (confirm('Delete stored data of all games?')) {
           deleteData.setProgress('Deleting data...');
-          cfxnes.deleteAllCartridgeData().then(function() {
+          cfxnes.deleteNVRAMs().then(function() {
             deleteData.setSuccess('Done');
           }, function(error) {
-            deleteData.setError(error.message || 'Deletion failed');
+            console.error(error);
+            deleteData.setError('Deletion failed');
           });
         }
       });

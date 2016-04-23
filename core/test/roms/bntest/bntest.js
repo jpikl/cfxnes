@@ -3,7 +3,7 @@
 // Source: http://pics.pineight.com/nes/bntest.zip
 //=============================================================================
 
-import { BufferedOutputPPU } from '../units';
+import {BufferedOutputPPU} from '../units';
 
 export const dir = './test/roms/bntest';
 

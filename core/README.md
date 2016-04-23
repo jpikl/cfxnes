@@ -1,24 +1,16 @@
 # CFxNES Core
 
-Collection of JavaScript classes that forms core of the [CFxNES emulator](../README.md).
-The core can be independently used in browser or in Node.js environment.
+Collection of JavaScript classes that forms core of the [CFxNES emulator](../README.md). The core can be independently used in browser or in Node.js environment.
 
-When using components from CFxNES core, it is highly recommended to compile the
-result with the [closure compiler](https://github.com/google/closure-compiler)
-in `ADVANCED_OPTIMIZATIONS` mode to gain significant performance boost.
+When using components from CFxNES core, it is highly recommended to compile the result with the [closure compiler](https://github.com/google/closure-compiler) in `ADVANCED_OPTIMIZATIONS` mode to gain significant performance boost.
 
 ## Basic Principles and Usage
 
-*The core API is currently unstable and undocumented.*
-
 ### Dependency Injection
 
-The core uses its own [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection)
-(DI) mechanism to supply implementation of emulator components (CPU, PPU, APU, etc.).
-DI allows easy replacement of any emulator component with a different implementation.
-This is mainly used for mocking/customizing components for various emulator tests.
+The core uses its own [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) (DI) mechanism to supply implementation of emulator components (CPU, PPU, APU, etc.). DI allows easy replacement of any emulator component with a different implementation. This is mainly used for mocking/customizing components for various emulator tests.
 
-```javascript
+``` javascript
 import Injector from './utils/Injector'; // Dependency injector
 import config from './config'; // Base DI configuration
 
@@ -28,22 +20,20 @@ var nes = injector.get('nes');
 
 ### Loading of ROM images
 
-Core supports loading of iNES and NES 2.0 ROM images which can be supplied
-as ArrayBuffer or as a file system path (when running in Node.js).
+Core is capable of loading *iNES* and *NES 2.0* ROM images which can be supplied as `ArrayBuffer`, `Uint8Array` or as a file system path (when running in Node.js).
 
-```javascript
+``` javascript
 var cartridgeFactory = injector.get('cartridgeFactory');
-var cartridge = cartridgeFactory.fromArrayBuffer(arrayBuffer);
-// Or alternatively cartridgeFactory.fromLocalFile(filename)
+var cartridge = cartridgeFactory.readArray(arrayBuffer);
+// Or alternatively cartridgeFactory.readFile(path)
 nes.insertCartridge(cartridge);
 ```
 
 ### Rendering loop
 
-Video output is rendered into provided Uint32Array.
-Color of each pixel is encoded as 32-bit unsigned integer in RGBA format.
+Video output is rendered into provided `Uint32Array`. Color of each pixel is encoded as 32-bit unsigned integer in RGBA format.
 
-```javascript
+``` javascript
 var videoBuffer = new Uint32Array(256 * 240); // Screen resolution
 while(running) {
     nes.renderFrame(videoBuffer);
@@ -54,14 +44,11 @@ while(running) {
 
 ### Audio Output
 
-Audio samples are automatically recorded into internal Float32Array.
-This buffer should be periodically read and send to an audio device
-(for example, through Web Audio).
+Audio samples are automatically recorded into internal `Float32Array`. This buffer should be periodically read and send to an audio device (for example, through Web Audio).
 
-Buffer underflow/overflow is automatically managed
-by dynamical adjustment of sampling rate.
+Buffer underflow/overflow is automatically managed by dynamical adjustment of sampling rate.
 
-```javascript
+``` javascript
 nes.initAudioRecording(4096); // 4K audio buffer
 nes.startAudioRecording(44100); // 44.1 KHz sampling rate
 
@@ -70,18 +57,17 @@ function audioCallback() {
     // Supply audio samples to audio device
 }
 
-// 60 FPS (NTSC) / 50 FPS (PAL) rendering loop
+// Rendering loop
 
 nes.stopAudioRecording();
 ```
-
 
 ### Input devices
 
 Core can emulate standard NES controller (joypad) and Zapper.
 
-```javascript
-import { Button } from './devices/Joypad'
+``` javascript
+import {Button} from './devices/Joypad'
 
 var deviceFactory = injector.get('deviceFactory');
 var joypad = deviceFactory.createDevice('joypad');

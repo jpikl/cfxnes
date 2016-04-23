@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/apu_test.zip
 //=============================================================================
 
-import { RAMEnabledCPUMemory, DisabledPPU } from '../units';
+import {RAMEnabledCPUMemory, DisabledPPU} from '../units';
 
 export const dir = './test/roms/apu_test';
 

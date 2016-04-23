@@ -1,6 +1,6 @@
 import logger from '../utils/logger';
-import { zeroArray } from '../utils/arrays';
-import { newByteArray, newUintArray } from '../utils/system';
+import {zeroArray} from '../utils/arrays';
+import {newByteArray, newUintArray} from '../utils/system';
 
 //=========================================================
 // CPU memory
@@ -95,7 +95,7 @@ export default class CPUMemory {
   //=========================================================
 
   initIO() {
-    this.inputDevices = { 1: null, 2: null };
+    this.inputDevices = {1: null, 2: null};
     this.inputStrobe = 0;
   }
 

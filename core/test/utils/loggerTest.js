@@ -1,6 +1,6 @@
 import chai from 'chai';
 import os from 'os';
-import { Logger, LogLevel, LogWriter } from '../../src/utils/logger';
+import {Logger, LogLevel, LogWriter} from '../../src/utils/logger';
 
 var expect = chai.expect;
 

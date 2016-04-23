@@ -1,11 +1,11 @@
 import APU from '../../src/units/APU';
 import PPU from '../../src/units/PPU';
 import CPUMemory from '../../src/units/CPUMemory';
-import { newByteArray } from '../../src/utils/system';
+import {newByteArray} from '../../src/utils/system';
 
-export { default as LoggingCPU } from '../../src/debug/LoggingCPU';
-export { default as NoOutputPPU } from '../../src/debug/NoOutputPPU';
-export { default as BufferedOutputPPU } from '../../src/debug/BufferedOutputPPU';
+export {default as LoggingCPU} from '../../src/debug/LoggingCPU';
+export {default as NoOutputPPU} from '../../src/debug/NoOutputPPU';
+export {default as BufferedOutputPPU} from '../../src/debug/BufferedOutputPPU';
 
 //=========================================================
 // Customized units for tests

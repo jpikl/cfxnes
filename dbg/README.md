@@ -22,6 +22,6 @@ Execute 100 CPU instructions, break execution when 0x10 is written to the accumu
 
     ./bin/debugger game.nes -s 100 -b "cpu.accumulator == 0x10"
 
-Execute 100 CPU instructions (without text output) and then take screenshot of the video output:
+Execute 100 CPU instructions (without text output) and take screenshot of the video output:
 
     ./bin/debugger game.nes -j 100 -p screen.png

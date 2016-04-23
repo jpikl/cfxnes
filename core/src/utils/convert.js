@@ -1,4 +1,4 @@
-import { copyArray, copyCharCodes } from './arrays';
+import {copyArray, copyCharCodes} from './arrays';
 
 //=========================================================
 // Conversion utilities

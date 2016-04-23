@@ -1,6 +1,6 @@
 import Region from './common/Region';
-import { RESET } from './common/constants';
-import { BLACK_COLOR, packColor } from './utils/colors';
+import {RESET} from './common/constants';
+import {BLACK_COLOR, packColor} from './utils/colors';
 
 //=========================================================
 // Nintendo Entertainment System
@@ -28,7 +28,7 @@ export default class NES {
 
   pressPower() {
     this.updateRegionParams();
-    if (this.isCartridgeInserted()) {
+    if (this.cartridge) {
       this.cpuMemory.powerUp();
       this.ppuMemory.powerUp();
       this.mapper.powerUp(); // Must be done after memory
@@ -69,32 +69,30 @@ export default class NES {
     this.pressPower();
   }
 
-  isCartridgeInserted() {
-    return this.cartridge != null;
-  }
-
   removeCartridge() {
     this.cartridge = null;
   }
 
-  loadCartridgeData(storage) {
-    if (this.mapper) {
-      return Promise.all([
-        this.mapper.loadPRGRAM(storage),
-        this.mapper.loadCHRRAM(storage),
-      ]);
-    }
-    return Promise.resolve();
+  getCartridge() {
+    return this.cartridge;
   }
 
-  saveCartridgeData(storage) {
-    if (this.mapper) {
-      return Promise.all([
-        this.mapper.savePRGRAM(storage),
-        this.mapper.saveCHRRAM(storage),
-      ]);
+  //=========================================================
+  // Non-Volatile RAM
+  //=========================================================
+
+  getNVRAMSize() {
+    return this.cartridge ? this.mapper.getNVRAMSize() : 0;
+  }
+
+  getNVRAM() {
+    return this.cartridge ? this.mapper.getNVRAM() : null;
+  }
+
+  setNVRAM(data) {
+    if (this.cartridge) {
+      this.mapper.setNVRAM(data);
     }
-    return Promise.resolve();
   }
 
   //=========================================================
@@ -102,7 +100,7 @@ export default class NES {
   //=========================================================
 
   renderFrame(buffer) {
-    if (this.isCartridgeInserted()) {
+    if (this.cartridge) {
       this.renderNormalFrame(buffer);
     } else {
       this.renderEmptyFrame(buffer);
@@ -128,7 +126,7 @@ export default class NES {
   //=========================================================
 
   renderDebugFrame(buffer) {
-    if (this.isCartridgeInserted()) {
+    if (this.cartridge) {
       this.renderNormalDebugFrame(buffer);
     } else {
       this.renderEmptyDebugFrame(buffer);

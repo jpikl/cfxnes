@@ -40,6 +40,12 @@ export function forEachProperty(object, callback, thisArg) {
   }
 }
 
+export function applyProperty(property, callback, thisArg) {
+  if (property !== undefined) {
+    callback.call(thisArg, property);
+  }
+}
+
 export function copyProperties(source, target = {}) {
   forEachProperty(source, (name, value) => {
     target[name] = value;

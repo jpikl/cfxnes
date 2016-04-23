@@ -8,14 +8,6 @@ var cfxnes = new CFxNES({
   sha1: sha1,
   jszip: JSZip,
   screenfull: screenfull,
-  storage: 'browser',
-});
-
-cfxnes.loadConfiguration().then(function() {
-  cfxnes.setSaveOnClose(true);
-  cfxnes.setSavePeriod(60); // sec
-}).catch(function(error) {
-  console.error('Unable to load CFxNES configuration', error);
 });
 
 //=========================================================
@@ -31,14 +23,17 @@ var app = riot.observable({
     this.fpsVisible = true;
     this.controlsVisible = true;
     this.controlsOpened = true;
+    cfxnes.resetOptions();
   },
   load: function() {
     this.fpsVisible = localStorage.getItem('fpsVisible') !== 'false';
     this.controlsVisible = localStorage.getItem('controlsVisible') !== 'false';
+    cfxnes.loadOptions();
   },
   save: function() {
     localStorage.setItem('fpsVisible', this.fpsVisible ? 'true' : 'false');
     localStorage.setItem('controlsVisible', this.controlsVisible ? 'true' : 'false');
+    cfxnes.saveOptions();
   },
   route: function(view, param) {
     app.viewParam = param;
@@ -52,6 +47,18 @@ var app = riot.observable({
 });
 
 app.init();
+
+//=========================================================
+// State persistence
+//=========================================================
+
+$(window).on('beforeunload', saveAll);
+setInterval(saveAll, 60 * 1000);
+
+function saveAll() {
+    app.save();
+    cfxnes.saveNVRAM().catch(logError);
+}
 
 //=========================================================
 // RiotJS setup
@@ -77,15 +84,19 @@ function eachTag(tags, callback) {
   }
 };
 
-function getErrorMessage(error) {
-  if (error.message) {
-    return 'Error: ' + error.message; // Error object
+function getErrorMessage(object) {
+  if (object.message) {
+    return 'Error: ' + object.message; // Error
   }
-  if (error.status) {
-    return 'Error: Unable to download file (server response: ' + error.status + ' ' + error.statusText + ').'; // JQuery response
+  if (object.status) {
+    return 'Error: Unable to download file (server response: ' + object.status + ' ' + object.statusText + ').'; // XMLHttpRequest
   }
-  if (error.status === 0) {
-    return 'Error: Unable to connect to server.'; // JQuery response
+  if (object.status === 0) {
+    return 'Error: Unable to connect to the server.'; // XMLHttpRequest
   }
-  return error;
+  return object;
 };
+
+function logError(error) {
+  console.error(error);
+}
