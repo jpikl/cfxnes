@@ -10,7 +10,7 @@
 
 | Name | Type | Default | Description |
 |------|------|----------|-------------|
-| speed | `number` | `1.0` | Emulation speed multiplier. |
+| speed | `number` | `1.0` | Emulation speed multiplier. It must be larger than `0`. |
 | region | [`Region`](#user-content-region) | `'auto'` | Emulated region of NES. |
 
 ## Methods

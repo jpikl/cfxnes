@@ -14,7 +14,7 @@
     }
 
     increaseScale() {
-      cfxnes.setVideoScale(Math.min(cfxnes.getVideoScale() + 1, cfxnes.getMaxVideoScale()));
+      cfxnes.setVideoScale(Math.min(cfxnes.getVideoScale() + 1, ~~cfxnes.getMaxVideoScale()));
     }
 
     enterFullscreen() {
@@ -23,7 +23,7 @@
 
     this.on('update', function() {
       this.isMinScale = cfxnes.getVideoScale() <= 1;
-      this.isMaxScale = cfxnes.getVideoScale() >= cfxnes.getMaxVideoScale();
+      this.isMaxScale = cfxnes.getVideoScale() >= ~~cfxnes.getMaxVideoScale();
     });
   </script>
 </toolbar-size>

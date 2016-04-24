@@ -25,7 +25,7 @@ cfxnes.loadROM('roms/game.nes') // Load ROM image from relative URL
 
 Loads ROM image from the specified source. If the emulator is already running, the ROM image will be immediately executed.
 
-- **source**: `string` | `File` | `Array` | `ArrayBuffer` | `Uint8Array` - source of a ROM image
+- **source**: `string` | `File` | `Array` | `ArrayBuffer` | `Uint8Array` - the source of a ROM image
 - **returns**: `Promise` - promise resolved when the ROM image is loaded
 
 | Source type   | Meaning |
@@ -63,19 +63,19 @@ cfxnes.saveNVRAM() // Persist game saves of the currently running game
 
 Return NVRAM size of the currently running game.
 
-- **returns**: `number` - NVRAM size or `0` when NVRAM is unavailable
+- **returns**: `number` - the size or `0` when NVRAM is unavailable
 
 #### .getNVRAM()
 
 Returns NVRAM data of the currently running game.
 
-- **returns**: `Uint8Array` - NVRAM data or `null` when NVRAM is unavailable
+- **returns**: `Uint8Array` - the data or `null` when NVRAM is unavailable
 
 #### .setNVRAM(data)
 
 Sets NVRAM data for the currently running game. The behavior of this method is undefined if NVRAM is unavailable or has different size then the provided data.
 
-- **data**: Uint8Array - NVRAM data
+- **data**: Uint8Array - the data
 
 #### .loadNVRAM()
 
@@ -111,13 +111,13 @@ cfxnes.setVideoScale(2);
 
 Returns all configuration options and their values.
 
-- **returns**: `object` - configuration options
+- **returns**: `object` - the configuration options
 
 #### .setOptions(options)
 
 Sets values of the specified configuration options.
 
-- **options**: `object` - configuration options
+- **options**: `object` - the configuration options
 
 #### .resetOptions([options])
 

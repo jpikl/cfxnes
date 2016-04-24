@@ -2,7 +2,7 @@
   <div class="video-settings">
     <div riot-tag="input-number" name="video-scale" label="Output scale" min="1" max={ maxVideoScale }></div>
     <div riot-tag="input-select" name="video-palette" label="Color palette" options={ videoPalettes }></div>
-    <div riot-tag="input-select" name="fullscreen-mode" label="Full screen mode" options={ fullscreenModes }></div>
+    <div riot-tag="input-select" name="fullscreen-mode" label="Type of full screen mode" options={ fullscreenTypes }></div>
   </div>
   <div class="video-settings">
     <div riot-tag="input-checkbox" name="video-smoothing" label="Enable smoothing"></div>
@@ -11,7 +11,7 @@
     <div riot-tag="input-checkbox" name="fps-visible" label="Show FPS"></div>
   </div>
   <script>
-    this.maxVideoScale = cfxnes.getMaxVideoScale();
+    this.maxVideoScale = ~~cfxnes.getMaxVideoScale();
     this.videoPalettes = [
       {value: 'asq-real-a', label: 'ASQ (reality A)'},
       {value: 'asq-real-b', label: 'ASQ (reality B)'},
@@ -23,16 +23,16 @@
       {value: 'nestopia-rgb', label: 'Nestopia (RGB)'},
       {value: 'nestopia-yuv', label: 'Nestopia (YUV)'},
     ];
-    this.fullscreenModes = [
-      {value: 'keep-aspect-ratio', label: 'Keep aspect ratio'},
-      {value: 'fill-screen', label: 'Fill screen'},
-      {value: 'fill-screen|keep-aspect-ratio', label: 'Fill screen + Keep aspect ratio'},
+    this.fullscreenTypes = [
+      {value: 'maximized', label: 'Upscale to maximum resolution'},
+      {value: 'normalized', label: 'Upscale without visual artifacts'},
+      {value: 'stretched', label: 'Stretch to fill the whole sceen'},
     ];
 
     this.on('update', function() {
       this.tags['video-scale'].setValue(cfxnes.getVideoScale());
       this.tags['video-palette'].setValue(cfxnes.getVideoPalette());
-      this.tags['fullscreen-mode'].setValue(cfxnes.getFullscreenMode());
+      this.tags['fullscreen-mode'].setValue(cfxnes.getFullscreenType());
       this.tags['video-smoothing'].setValue(cfxnes.isVideoSmoothing());
       this.tags['video-debugging'].setValue(cfxnes.isVideoDebugging());
       this.tags['video-webgl'].setValue(cfxnes.getVideoRenderer() === 'webgl');
@@ -47,7 +47,7 @@
         cfxnes.setVideoPalette(value);
       });
       this.tags['fullscreen-mode'].on('change', function(value) {
-        cfxnes.setFullscreenMode(value);
+        cfxnes.setFullscreenType(value);
       });
       this.tags['video-smoothing'].on('change', function(value) {
         cfxnes.setVideoSmoothing(value);

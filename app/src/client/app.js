@@ -56,8 +56,8 @@ $(window).on('beforeunload', saveAll);
 setInterval(saveAll, 60 * 1000);
 
 function saveAll() {
-    app.save();
-    cfxnes.saveNVRAM().catch(logError);
+  app.save();
+  cfxnes.saveNVRAM().catch(logError);
 }
 
 //=========================================================
