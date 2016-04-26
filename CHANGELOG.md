@@ -15,6 +15,9 @@ Each change is prefixed with code of related module:
 - [core] Sprite zero hit detection.
 - [core] Sprite overflow flag clearing.
 
+### Added
+- [core, lib, app] Option to set volume of each audio channel.
+
 ### Changed
 - [core] SHA-1 is used to compute checksums instead of MD5. Checksums are computed from PRGRAM + CHRRAM data (previously only PRGRAM).
 
@@ -30,7 +33,7 @@ Each change is prefixed with code of related module:
 - [core] Support for BNROM, NINA-001 and Color Dreams mappers.
 - [core, app] - New color palettes: ASQ, BMF, FCEU(X), Nestopia.
 - [lib] API to change loggging level.
-- [lib, app] Multiple fullscreen modes.
+- [lib, app] Multiple types of fullscreen mode.
 - [app] Option to reset configuration.
 - [app] Option to delete saved game data.
 - [dbg] Debugger can take screenshots.

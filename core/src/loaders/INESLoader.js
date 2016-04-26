@@ -90,7 +90,7 @@ export default class INESLoader extends AbstractLoader {
   }
 
   readByte9(reader, cartridge) {
-    // Virtually no ROM images use this byte, but it is part of the iNES specification.
+    // Virtually no ROM images uses this byte, but it is part of the iNES specification.
     var flags = reader.readByte();
     cartridge.region = flags & 0x01 ? Region.PAL : Region.NTSC;
   }

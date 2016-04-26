@@ -46,6 +46,9 @@
         step: toNumber(opts.step),
         value: toNumber(opts.value),
         enabled: opts.enabled,
+        orientation: opts.orientation || 'horizontal',
+        reversed: opts.orientation === 'vertical',
+        selection: opts.orientation !== 'vertical' ? 'before' : 'after',
         formatter: formatters[opts.format]
       }).on('change', function(event) {
         self.trigger('change', event.value.newValue);

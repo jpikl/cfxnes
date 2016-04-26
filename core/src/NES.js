@@ -168,12 +168,12 @@ export default class NES {
     return this.apu.readOutputBuffer();
   }
 
-  setChannelEnabled(id, enabled) {
-    this.apu.setChannelEnabled(id, enabled);
+  setAudioChannelVolume(id, volume) {
+    this.apu.setChannelVolume(id, volume);
   }
 
-  isChannelEnabled(id) {
-    return this.apu.isChannelEnabled(id);
+  getAudioChannelVolume(id) {
+    return this.apu.getChannelVolume(id);
   }
 
   //=========================================================

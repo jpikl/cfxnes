@@ -22,7 +22,7 @@ export default class APU {
     this.triangleChannel = new TriangleChannel;
     this.noiseChannel = new NoiseChannel;
     this.dmcChannel = new DMCChannel(cpu, cpuMemory);
-    this.channelEnabled = [true, true, true, true, true]; // Enable flag for each channel
+    this.channelVolume = [1, 1, 1, 1, 1];
     this.stopRecording();
   }
 
@@ -166,15 +166,15 @@ export default class APU {
   }
 
   //=========================================================
-  // Channel enablement
+  // Channel volumes
   //=========================================================
 
-  setChannelEnabled(id, enabled) {
-    this.channelEnabled[id] = enabled;
+  setChannelVolume(id, volume) {
+    this.channelVolume[id] = volume;
   }
 
-  isChannelEnabled(id) {
-    return this.channelEnabled[id];
+  getChannelVolume(id) {
+    return this.channelVolume[id];
   }
 
   //=========================================================
@@ -299,8 +299,8 @@ export default class APU {
   }
 
   getPulseOutputValue() {
-    var pulse1Value = this.channelEnabled[0] ? this.pulseChannel1.getOutputValue() : 0;
-    var pulse2value = this.channelEnabled[1] ? this.pulseChannel2.getOutputValue() : 0;
+    var pulse1Value = this.channelVolume[0] * this.pulseChannel1.getOutputValue();
+    var pulse2value = this.channelVolume[1] * this.pulseChannel2.getOutputValue();
     if (pulse1Value || pulse2value) {
       return 95.88 / (8128 / (pulse1Value + pulse2value) + 100);
     } else {
@@ -309,9 +309,9 @@ export default class APU {
   }
 
   getTriangleNoiseDMCOutput() {
-    var triangleValue = this.channelEnabled[2] ? this.triangleChannel.getOutputValue() : 0;
-    var noiseValue = this.channelEnabled[3] ? this.noiseChannel.getOutputValue() : 0;
-    var dmcValue = this.channelEnabled[4] ? this.dmcChannel.getOutputValue() : 0;
+    var triangleValue = this.channelVolume[2] * this.triangleChannel.getOutputValue();
+    var noiseValue = this.channelVolume[3] * this.noiseChannel.getOutputValue();
+    var dmcValue = this.channelVolume[4] * this.dmcChannel.getOutputValue();
     if (triangleValue || noiseValue || dmcValue) {
       return 159.79 / (1 / (triangleValue / 8227 + noiseValue / 12241 + dmcValue / 22638) + 100);
     } else {

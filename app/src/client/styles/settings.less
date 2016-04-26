@@ -1,7 +1,4 @@
 .settings:extend(.container) {
-  .slider {
-    width: 100%;
-  }
   .panel-title a {
     outline: none;
     .icon {
@@ -11,6 +8,9 @@
   .emulation-settings {
     .make-xs-column(12);
     .make-md-column(6);
+    .slider {
+      width: 100%;
+    }
   }
   .video-settings {
     .make-xs-column(12);
@@ -18,8 +18,23 @@
   }
   .audio-settings {
     .make-xs-column(12);
-    &:not(:nth-child(2)) {
-      .make-md-column(6);
+    *[riot-tag="input-slider"] {
+      display: inline-block;
+      width: percentage(1 / 7);
+      label {
+        display: block;
+        padding: 1em 0 1.5em;
+        vertical-align: top;
+        white-space: nowrap;
+        writing-mode: vertical-rl;
+      }
+      @media (min-width: @screen-xs-min) {
+        text-align: center;
+        label {
+          white-space: normal;
+          writing-mode: initial;
+        }
+      }
     }
   }
   .device-list {

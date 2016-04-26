@@ -75,7 +75,7 @@ Returns NVRAM data of the currently running game.
 
 Sets NVRAM data for the currently running game. The behavior of this method is undefined if NVRAM is unavailable or has different size then the provided data.
 
-- **data**: Uint8Array - the data
+- **data**: `Uint8Array` - the data
 
 #### .loadNVRAM()
 

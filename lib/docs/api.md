@@ -31,8 +31,6 @@ var cfxnes = new CFxNES({
 
 ## Options and Methods
 
-For better orientation, the documentation was split into multiple documents.
-
 - [System API](system-api.md)
 - [Data API](data-api.md)
 - [Video API](video-api.md)
