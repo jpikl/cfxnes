@@ -21,11 +21,11 @@ Creates instance of the emulator.
 
 ``` javascript
 var cfxnes = new CFxNES({
-    // Configuration options
-    videoOutput: document.getElementById('canvas'),
-    audioVolume: 0.75,
-    // External dependencies (obtained through global variable, CommonJS, AMD, etc.)
-    jszip: JSZip
+  // Configuration options
+  videoOutput: document.getElementById('canvas-id'),
+  audioVolume: 0.75,
+  // External dependencies (obtained through global variable, CommonJS, AMD, etc.)
+  jszip: JSZip
 });
 ```
 

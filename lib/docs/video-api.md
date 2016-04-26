@@ -18,6 +18,21 @@
 | videoDebugging | `boolean` | `false` | Enables additional video output (content of pattern tables and image/sprite palettes). Setting it `true` will double width of the canvas. |
 | fullscreenType | [`FullscreenType`](#user-content-fullscreentype) | `'maximized'` | Type of full screen mode. |
 
+*Example:*
+
+``` javascript
+new CFxNES({
+  videoOutput: document.getElementById('canvas-id'),
+  videoRenderer: 'webgl',
+  videoPalette: 'fceux',
+  videoScale: 1.0,
+  videoSmooting: false,
+  videoDebugging: false,
+  fullscreenType: 'maximized'
+});
+```
+
+
 ## Methods
 
 #### .setVideoOutput(canvas)

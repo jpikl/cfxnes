@@ -13,6 +13,16 @@
 | speed | `number` | `1.0` | Emulation speed multiplier. It must be larger than `0`. |
 | region | [`Region`](#user-content-region) | `'auto'` | Emulated region of NES. |
 
+*Example:*
+
+``` javascript
+new CFxNES({
+  speed: 1.0,
+  region: 'auto',
+});
+```
+
+
 ## Methods
 
 #### .start()
@@ -67,7 +77,7 @@ Sets the emulated region of NES.
 
 #### .getFPS()
 
-Returns the number of frames per second of the running emulator.
+Returns number of frames per second of the running emulator.
 
 - **returns**: `number` - the number of FPS
 
