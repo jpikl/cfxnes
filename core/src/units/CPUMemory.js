@@ -1,6 +1,5 @@
 import logger from '../utils/logger';
 import {zeroArray} from '../utils/arrays';
-import {newByteArray, newUintArray} from '../utils/system';
 
 //=========================================================
 // CPU memory
@@ -71,7 +70,7 @@ export default class CPUMemory {
   //=========================================================
 
   initRAM() {
-    this.ram = newByteArray(0x800); // 2KB of RAM (mirrored in 8K at $0000-$1FFF)
+    this.ram = new Uint8Array(0x800); // 2KB of RAM (mirrored in 8K at $0000-$1FFF)
   }
 
   resetRAM() {
@@ -250,7 +249,7 @@ export default class CPUMemory {
   //=========================================================
 
   initPRGROM() {
-    this.prgROMMapping = newUintArray(4);
+    this.prgROMMapping = new Uint32Array(4);
   }
 
   remapPRGROM(mapper) {

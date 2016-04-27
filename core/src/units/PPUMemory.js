@@ -1,7 +1,6 @@
 import Mirroring from '../common/Mirroring';
 import logger from '../utils/logger';
 import {zeroArray, copyArray} from '../utils/arrays';
-import {newByteArray, newUintArray} from '../utils/system';
 
 const POWER_UP_PALETTES = [
   0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D,
@@ -67,7 +66,7 @@ export default class PPUMemory {
   //=========================================================
 
   initPatterns() {
-    this.patternsMapping = newUintArray(8);
+    this.patternsMapping = new Uint32Array(8);
   }
 
   remapPatterns(mapper) {
@@ -107,8 +106,8 @@ export default class PPUMemory {
   //=========================================================
 
   initNamesAttrs() {
-    this.namesAttrs = newByteArray(0x1000); // Up to 4KB
-    this.namesAttrsMapping = newUintArray(4);
+    this.namesAttrs = new Uint8Array(0x1000); // Up to 4KB
+    this.namesAttrsMapping = new Uint32Array(4);
   }
 
   remapNamesAttrs(mapper) {
@@ -147,7 +146,7 @@ export default class PPUMemory {
   //=========================================================
 
   initPalettes() {
-    this.paletts = newByteArray(0x20); // 2 * 16B palette (background / sprites)
+    this.paletts = new Uint8Array(0x20); // 2 * 16B palette (background / sprites)
   }
 
   resetPaletts() {

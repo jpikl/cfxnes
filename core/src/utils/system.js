@@ -16,11 +16,3 @@ export function detectEndianness() {
   u32[0] = 0xFF;
   return (u8[0] === 0xFF) ? 'LE' : 'BE';
 }
-
-export function newByteArray(size) {
-  return new Uint8Array(size);
-}
-
-export function newUintArray(size) {
-  return new Uint32Array(size);
-}

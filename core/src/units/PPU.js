@@ -1,7 +1,6 @@
 import logger from '../utils/logger';
 import {VIDEO_WIDTH, VIDEO_HEIGHT, NMI} from '../common/constants';
 import {BLACK_COLOR, packColor, unpackColor} from '../utils/colors';
-import {newByteArray, newUintArray} from '../utils/system';
 
 //=========================================================
 // PPU cycle/scanlines flags
@@ -32,7 +31,7 @@ const F_SKIP      = 1 << 20; // Cycle which is skipped during odd frames
 // Cycle flags table
 //=========================================================
 
-var cycleFlags = newUintArray(341);
+var cycleFlags = new Uint32Array(341);
 
 for (let i = 0; i < cycleFlags.length; i++) {
   if (i >= 1 && i <= 256) {
@@ -82,7 +81,7 @@ cycleFlags[338] |= F_SKIP;
 // Scanline flags table
 //=========================================================
 
-var scanlineFlags = newUintArray(262);
+var scanlineFlags = new Uint32Array(262);
 
 for (let i = 0; i < scanlineFlags.length; i++) {
   if (i <= 239) {
@@ -161,7 +160,7 @@ export default class PPU {
   }
 
   resetOAM() {
-    this.primaryOAM = newByteArray(0x100); // Sprite data - 256B (64 x 4B sprites)
+    this.primaryOAM = new Uint8Array(0x100); // Sprite data - 256B (64 x 4B sprites)
     this.secondaryOAM = new Array(8);      // Sprite data for rendered scanline (up to 8 sprites)
     for (var i = 0; i < this.secondaryOAM.length; i++) {
       this.secondaryOAM[i] = new Sprite;
@@ -201,7 +200,7 @@ export default class PPU {
     this.spriteCount = 0;          // Total number of sprites on current scanline
     this.spriteNumber = 0;         // Number of currently fetched sprite
     this.spriteCache = new Array(261);         // Preprocessed sprite data for current scanline (cycle -> sprite rendered on this cycle)
-    this.spritePixelCache = newByteArray(261); // Prerendered sprite pixels for current scanline (cycle -> sprite pixel rendered on this cycle)
+    this.spritePixelCache = new Uint8Array(261); // Prerendered sprite pixels for current scanline (cycle -> sprite pixel rendered on this cycle)
   }
 
   //=========================================================
@@ -232,7 +231,7 @@ export default class PPU {
   }
 
   createPaletteVariant(basePalette, rRatio, gRatio, bRatio) {
-    var paletteVariant = newUintArray(basePalette.length);
+    var paletteVariant = new Uint32Array(basePalette.length);
     for (var i = 0; i < basePalette.length; i++) {
       var rgb = basePalette[i];
       var r = Math.floor(rRatio * (rgb & 0xFF));

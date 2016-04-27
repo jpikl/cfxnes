@@ -1,7 +1,6 @@
 import Mirroring from '../common/Mirroring';
 import logger from '../utils/logger';
 import {zeroArray, copyArray} from '../utils/arrays';
-import {newByteArray} from '../utils/system';
 import {formatOptional, formatSize, wordAsHex} from '../utils/format';
 
 //=========================================================
@@ -102,7 +101,7 @@ export default class AbstractMapper {
 
   initPRGRAM() {
     if (this.hasPRGRAM) {
-      this.prgRAM = newByteArray(this.prgRAMSize);
+      this.prgRAM = new Uint8Array(this.prgRAMSize);
       if (this.hasPRGRAMBattery && this.prgRAMSizeBattery == null) {
         this.prgRAMSizeBattery = this.prgRAMSize; // If not defined, the whole PRG RAM is battery backed
       }
@@ -160,7 +159,7 @@ export default class AbstractMapper {
 
   initCHRRAM() {
     if (this.hasCHRRAM) {
-      this.chrRAM = newByteArray(this.chrRAMSize);
+      this.chrRAM = new Uint8Array(this.chrRAMSize);
       if (this.hasCHRRAMBattery && this.chrRAMSizeBattery == null) {
         this.chrRAMSizeBattery = this.chrRAMSize; // If not defined, the whole CHR RAM is battery backed
       }

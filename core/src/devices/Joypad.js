@@ -1,5 +1,3 @@
-import {newByteArray} from '../utils/system';
-
 //=========================================================
 // Joypad input device
 //=========================================================
@@ -7,7 +5,7 @@ import {newByteArray} from '../utils/system';
 export default class Joypad {
 
   constructor() {
-    this.buttonStates = newByteArray(24);
+    this.buttonStates = new Uint8Array(24);
     this.buttonStates[19] = 1;
     this.readPosition = 0;
   }

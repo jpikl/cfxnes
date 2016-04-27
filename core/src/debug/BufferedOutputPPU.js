@@ -3,7 +3,6 @@ import fs from 'fs';
 import {PNG} from 'node-png';
 import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../common/constants';
 import {unpackColor} from '../utils/colors';
-import {newUintArray} from '../utils/system';
 
 //=========================================================
 // PPU with output to internal buffer
@@ -19,7 +18,7 @@ export default class BufferedOutputPPU extends PPU {
   inject(cpu, ppuMemory, paletteFactory) {
     super.inject(cpu, ppuMemory);
     this.setPalette(paletteFactory.createPalette('fceux'));
-    this.setFrameBuffer(newUintArray(VIDEO_WIDTH * VIDEO_HEIGHT));
+    this.setFrameBuffer(new Uint32Array(VIDEO_WIDTH * VIDEO_HEIGHT));
   }
 
   writeFrameToFile(file) {
