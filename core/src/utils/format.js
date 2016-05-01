@@ -22,18 +22,13 @@ export function fillLeft(value, width, character = ' ') {
   return result.slice(result.length - width);
 }
 
-export function fillRight(value, width, character = ' ') {
-  var result = value + Array(width + 1).join(character);
-  return result.slice(0, width);
-}
-
 export function capitalize(sentence) {
   return sentence.split(' ')
         .map(word => word.length ? word[0].toUpperCase() + word.slice(1) : word)
         .join(' ');
 }
 
-export function formatOptional(value) {
+export function formatOpt(value) {
   return value != null ? value : '???';
 }
 

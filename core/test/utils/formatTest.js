@@ -27,19 +27,13 @@ describe('Format utils', () => {
     expect(format.fillLeft('ABC', 2)).to.equal('BC');
   });
 
-  it('can fill characters from right', () => {
-    expect(format.fillRight('ABC', 6)).to.equal('ABC   ');
-    expect(format.fillRight('ABC', 6, 'xxx')).to.equal('ABCxxx');
-    expect(format.fillRight('ABC', 2)).to.equal('AB');
-  });
-
   it('can capitalize words', () => {
     expect(format.capitalize('nintendo entertainment system')).to.equal('Nintendo Entertainment System');
   });
 
   it('can format optional value', () => {
-    expect(format.formatOptional('value')).to.equal('value');
-    expect(format.formatOptional(null)).to.equal('???');
+    expect(format.formatOpt('value')).to.equal('value');
+    expect(format.formatOpt(null)).to.equal('???');
   });
 
   it('can format size', () => {

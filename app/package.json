@@ -49,6 +49,7 @@
     "marked": "^0.3.5",
     "merge2": "^1.0.2",
     "mkdirp": "^0.5.1",
+    "object-assign-polyfill": "^0.1.0",
     "promise-polyfill": "^4.0.3",
     "riot": "^2.3.18",
     "screenfull": "^3.0.0",

@@ -35,6 +35,7 @@ var argv = yargs
 
 gulp.task('libs', function() {
   var sources = [
+    './node_modules/object-assign-polyfill/index.js',
     './node_modules/promise-polyfill/promise.min.js',
     './node_modules/js-sha1/build/sha1.min.js',
     './node_modules/jszip/dist/jszip.min.js',

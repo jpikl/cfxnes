@@ -1,5 +1,4 @@
 import logger from './logger';
-import {mergeProperties} from './objects';
 
 //=========================================================
 // Dependency injector
@@ -16,7 +15,7 @@ export default class Injector {
   }
 
   put(name, dependency) {
-    this.dependencies[name] = mergeProperties(dependency, {resolved: false});
+    this.dependencies[name] = Object.assign({}, dependency, {resolved: false});
   }
 
   get(name) {

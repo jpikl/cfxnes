@@ -5,8 +5,8 @@ import Uint8ArrayReader from '../readers/Uint8ArrayReader';
 import FileSystemReader from '../readers/FileSystemReader';
 import INESLoader from '../loaders/INESLoader';
 import NES2Loader from '../loaders/NES2Loader';
-import {copyArray} from '../utils/arrays';
-import {formatOptional, formatSize, formatData} from '../utils/format';
+import {copyArray} from '../utils/array';
+import {formatOpt, formatSize, formatData} from '../utils/format';
 
 var loaders = [
   new NES2Loader, // Must be processed before iNES
@@ -67,26 +67,26 @@ export default class CartridgeFactory {
 
   printCartridgeInfo(cartridge) {
     logger.info('==========[Cartridge Info - Start]==========');
-    logger.info('SHA-1                 : ' + formatOptional(cartridge.sha1));
-    logger.info('Mapper                : ' + formatOptional(cartridge.mapper));
-    logger.info('Submapper             : ' + formatOptional(cartridge.submapper));
-    logger.info('has PRG RAM           : ' + formatOptional(cartridge.hasPRGRAM));
-    logger.info('has PRG RAM battery   : ' + formatOptional(cartridge.hasPRGRAMBattery));
-    logger.info('has CHR ROM           : ' + formatOptional(cartridge.hasCHRROM));
-    logger.info('has CHR RAM           : ' + formatOptional(cartridge.hasCHRRAM));
-    logger.info('has CHR RAM battery   : ' + formatOptional(cartridge.hasCHRRAMBattery));
-    logger.info('has trainer           : ' + formatOptional(cartridge.hasTrainer));
-    logger.info('PRG ROM size          : ' + formatOptional(formatSize(cartridge.prgROMSize)));
-    logger.info('PRG RAM size          : ' + formatOptional(formatSize(cartridge.prgRAMSize)));
-    logger.info('PRG RAM size (battery): ' + formatOptional(formatSize(cartridge.prgRAMSizeBattery)));
-    logger.info('CHR ROM size          : ' + formatOptional(formatSize(cartridge.chrROMSize)));
-    logger.info('CHR RAM size          : ' + formatOptional(formatSize(cartridge.chrRAMSize)));
-    logger.info('CHR RAM size (battery): ' + formatOptional(formatSize(cartridge.chrRAMSizeBattery)));
-    logger.info('Mirroring             : ' + formatOptional(Mirroring.toString(cartridge.mirroring)));
-    logger.info('Region                : ' + formatOptional(Region.toString(cartridge.region)));
-    logger.info('is Vs Unisistem       : ' + formatOptional(cartridge.isVsUnisistem));
-    logger.info('is PlayChoice         : ' + formatOptional(cartridge.isPlayChoice));
-    logger.info('Trainer               : ' + formatOptional(formatData(cartridge.trainer)));
+    logger.info('SHA-1                 : ' + formatOpt(cartridge.sha1));
+    logger.info('Mapper                : ' + formatOpt(cartridge.mapper));
+    logger.info('Submapper             : ' + formatOpt(cartridge.submapper));
+    logger.info('has PRG RAM           : ' + formatOpt(cartridge.hasPRGRAM));
+    logger.info('has PRG RAM battery   : ' + formatOpt(cartridge.hasPRGRAMBattery));
+    logger.info('has CHR ROM           : ' + formatOpt(cartridge.hasCHRROM));
+    logger.info('has CHR RAM           : ' + formatOpt(cartridge.hasCHRRAM));
+    logger.info('has CHR RAM battery   : ' + formatOpt(cartridge.hasCHRRAMBattery));
+    logger.info('has trainer           : ' + formatOpt(cartridge.hasTrainer));
+    logger.info('PRG ROM size          : ' + formatOpt(formatSize(cartridge.prgROMSize)));
+    logger.info('PRG RAM size          : ' + formatOpt(formatSize(cartridge.prgRAMSize)));
+    logger.info('PRG RAM size (battery): ' + formatOpt(formatSize(cartridge.prgRAMSizeBattery)));
+    logger.info('CHR ROM size          : ' + formatOpt(formatSize(cartridge.chrROMSize)));
+    logger.info('CHR RAM size          : ' + formatOpt(formatSize(cartridge.chrRAMSize)));
+    logger.info('CHR RAM size (battery): ' + formatOpt(formatSize(cartridge.chrRAMSizeBattery)));
+    logger.info('Mirroring             : ' + formatOpt(Mirroring.toString(cartridge.mirroring)));
+    logger.info('Region                : ' + formatOpt(Region.toString(cartridge.region)));
+    logger.info('is Vs Unisistem       : ' + formatOpt(cartridge.isVsUnisistem));
+    logger.info('is PlayChoice         : ' + formatOpt(cartridge.isPlayChoice));
+    logger.info('Trainer               : ' + formatOpt(formatData(cartridge.trainer)));
     logger.info('==========[Cartridge Info - End]==========');
   }
 

@@ -1,5 +1,3 @@
-import {zeroArray} from './arrays';
-
 //=========================================================
 // System utilities
 //=========================================================
@@ -10,9 +8,7 @@ detectEndianness(); /* Extra call to disable inlining of this function by closur
 export const ENDIANNESS = detectEndianness();
 
 export function detectEndianness() {
-  var buffer = new ArrayBuffer(4);
-  var u32 = new Uint32Array(buffer);
-  var u8 = new Uint8Array(buffer);
-  u32[0] = 0xFF;
-  return (u8[0] === 0xFF) ? 'LE' : 'BE';
+  var u16 = new Uint16Array([0x1234]);
+  var u8 = new Uint8Array(u16.buffer);
+  return u8[0] === 0x12 ? 'BE' : 'LE';
 }

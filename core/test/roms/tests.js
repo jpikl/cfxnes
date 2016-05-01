@@ -28,8 +28,6 @@ import * as bntest from './bntest/bntest';
 import * as holydiverbatman from './holydiverbatman/holydiverbatman';
 import coreConfig from '../../src/config';
 import Injector from '../../src/utils/Injector';
-import {dataToString} from '../../src/utils/convert';
-import {copyProperties, mergeProperties} from '../../src/utils/objects';
 
 describe('Validation ROMs', () => {
   validate(nestest);
@@ -56,13 +54,13 @@ function validate(test) {
   if (test.file) {
     var file = path.join(test.dir, test.file);
     var name = baseName;
-    var context = mergeProperties(test, {file, name});
+    var context = Object.assign({}, test, {file, name});
     it(name, () => execute(context));
   } else if (test.files) {
     for (let number = 0; number < test.files.length; number++) {
       let file = path.join(test.dir, test.files[number]);
       let name = path.basename(file, '.nes');
-      let context = mergeProperties(test, {file, name, number});
+      let context = Object.assign({}, test, {file, name, number});
       it(`${baseName} (${name})`, () => execute(context));
     }
   }
@@ -70,7 +68,7 @@ function validate(test) {
 
 function execute(test) {
   // Read configuration
-  var config = copyProperties(coreConfig);
+  var config = Object.assign({}, coreConfig);
   test.configure(config);
 
   // Setup emulator
@@ -135,7 +133,7 @@ function execute(test) {
       }
       data.push(value);
     }
-    return dataToString(data);
+    String.fromCharCode.apply(null, data);
   }
 
   function screenshot(file) {

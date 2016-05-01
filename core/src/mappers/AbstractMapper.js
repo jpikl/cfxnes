@@ -1,7 +1,7 @@
 import Mirroring from '../common/Mirroring';
 import logger from '../utils/logger';
-import {zeroArray, copyArray} from '../utils/arrays';
-import {formatOptional, formatSize, wordAsHex} from '../utils/format';
+import {zeroArray, copyArray} from '../utils/array';
+import {formatOpt, formatSize, wordAsHex} from '../utils/format';
 
 //=========================================================
 // Base class for mappers
@@ -121,10 +121,10 @@ export default class AbstractMapper {
 
   printPRGRAMInfo() {
     logger.info('==========[Mapper PRG RAM Info - Start]==========');
-    logger.info('has PRG RAM           : ' + formatOptional(this.hasPRGRAM));
-    logger.info('has PRG RAM battery   : ' + formatOptional(this.hasPRGRAMBattery));
-    logger.info('PRG RAM size          : ' + formatOptional(formatSize(this.prgRAMSize)));
-    logger.info('PRG RAM size (battery): ' + formatOptional(formatSize(this.prgRAMSizeBattery)));
+    logger.info('has PRG RAM           : ' + formatOpt(this.hasPRGRAM));
+    logger.info('has PRG RAM battery   : ' + formatOpt(this.hasPRGRAMBattery));
+    logger.info('PRG RAM size          : ' + formatOpt(formatSize(this.prgRAMSize)));
+    logger.info('PRG RAM size (battery): ' + formatOpt(formatSize(this.prgRAMSizeBattery)));
     logger.info('==========[Mapper PRG RAM Info - End]==========');
   }
 
@@ -193,10 +193,10 @@ export default class AbstractMapper {
 
   printCHRRAMInfo() {
     logger.info('==========[Mapper CHR RAM Info - Start]==========');
-    logger.info('has CHR RAM           : ' + formatOptional(this.hasCHRRAM));
-    logger.info('has CHR RAM battery   : ' + formatOptional(this.hasCHRRAMBattery));
-    logger.info('CHR RAM size          : ' + formatOptional(formatSize(this.chrRAMSize)));
-    logger.info('CHR RAM size (battery): ' + formatOptional(formatSize(this.chrRAMSizeBattery)));
+    logger.info('has CHR RAM           : ' + formatOpt(this.hasCHRRAM));
+    logger.info('has CHR RAM battery   : ' + formatOpt(this.hasCHRRAMBattery));
+    logger.info('CHR RAM size          : ' + formatOpt(formatSize(this.chrRAMSize)));
+    logger.info('CHR RAM size (battery): ' + formatOpt(formatSize(this.chrRAMSizeBattery)));
     logger.info('==========[Mapper CHR RAM Info - End]==========');
   }
 

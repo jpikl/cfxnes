@@ -1,6 +1,6 @@
 import logger from '../utils/logger';
 import {VIDEO_WIDTH, VIDEO_HEIGHT, NMI} from '../common/constants';
-import {BLACK_COLOR, packColor, unpackColor} from '../utils/colors';
+import {BLACK_COLOR, packColor, unpackColor} from '../utils/color';
 
 //=========================================================
 // PPU cycle/scanlines flags

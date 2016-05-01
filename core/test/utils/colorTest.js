@@ -1,5 +1,5 @@
 import chai from 'chai';
-import * as colors from '../../src/utils/colors';
+import * as colors from '../../src/utils/color';
 
 var expect = chai.expect;
 

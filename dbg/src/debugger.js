@@ -11,7 +11,6 @@ import LoggingCPU from '../../core/src/debug/LoggingCPU';
 import BufferedOutputPPU from '../../core/src/debug/BufferedOutputPPU';
 import Injector from '../../core/src/utils/Injector';
 import {LogLevel, LogWriter} from '../../core/src/utils/logger';
-import {copyProperties} from '../../core/src/utils/objects';
 import {numberAsHex} from '../../core/src/utils/format';
 
 //=========================================================
@@ -52,7 +51,7 @@ var argv = yargs
 // Initialization
 //=========================================================
 
-var config = copyProperties(coreConfig);
+var config = Object.assign({}, coreConfig);
 config.cpu = {class: LoggingCPU};
 config.ppu = {class: BufferedOutputPPU};
 

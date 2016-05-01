@@ -10,7 +10,6 @@ import fceux from '../palettes/fceux';
 import nestopia_rgb from '../palettes/nestopia_rgb';
 import nestopia_yuv from '../palettes/nestopia_yuv';
 import logger from '../utils/logger';
-import {base64ToData} from '../utils/convert';
 
 const FALLBACK = 'fceux';
 
@@ -43,16 +42,25 @@ export default class PaletteFactory {
   }
 
   readPalette(base64) {
-    var data = base64ToData(base64);
+    var data = decodeBase64(base64);
     var colors = new Uint32Array(64);
     var length = Math.min(data.length / 3, colors.length);
     for (var i = 0; i < colors.length; i++) {
-      var r = data[3 * i];
-      var g = data[3 * i + 1];
-      var b = data[3 * i + 2];
+      var r = data.charCodeAt(3 * i);
+      var g = data.charCodeAt(3 * i + 1);
+      var b = data.charCodeAt(3 * i + 2);
       colors[i] = r | g << 8 | b << 16;
     }
     return colors;
   }
 
+}
+
+function decodeBase64(input) {
+  if (typeof atob === 'function') {
+    return atob(input);
+  } else if (typeof Buffer === 'function') {
+    return new Buffer(input, 'base64').toString('binary');
+  }
+  throw new Error('Unable to decode base64 string');
 }
