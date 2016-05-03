@@ -11,16 +11,27 @@
 | Name | Type | Default | Description |
 |------|------|----------|-------------|
 | audioEnabled | `boolean` | `true` | Enables audio. |
-| audioVolume | `number` | `0.5` | Master volume. It must be between `0` and `1`. |
-| audioChannels | `object` | `1.0` for each [`AudioChannel`](#user-content-audiochannel) | Volume of each channel (value between `0` and `1`). Channels can be omitted to keep their default volume. |
+| audioVolume | `number`&nbsp;or&nbsp;`object` | `0.5` (see example bellow) | Audio volume or detailed volume configuration. Volume is a value between `0` and `1`. |
 
 *Example:*
 
 ``` javascript
 new CFxNES({
   audioEnabled: true,
-  audioVolume: 0.5,
-  audioChannels: {pulse1: 1.0, pulse2: 1.0, triangle: 1.0, noise: 1.0, dmc: 1.0}    
+  audioVolume: 0.5 // Master volume
+});
+```
+
+*Example (detailed volume configuration):*
+
+``` javascript
+new CFxNES({
+  audioVolume: {
+    // Master volume (0.5 when omitted)
+    master: 0.5,
+    // Separate volume for each audio channel (1.0 when a channel is omitted)
+    pulse1: 1.0, pulse2: 1.0,  triangle: 1.0, noise: 1.0, dmc: 1.0 
+  },
 });
 ```
 
@@ -44,28 +55,16 @@ Returns whether audio is enabled.
 
 - **returns**: `boolean` - `true` if audio is enabled; `false` otherwise
 
-#### .setAudioVolume(volume)
+#### .setAudioVolume([channel,] volume)
 
-Sets the master volume.
+Sets volume of the specified channel. The `channel` argument can be omitted to set the master volume.
 
-- **volume**: `number` - the volume
-
-#### .getAudioVolume()
-
-Returns the current master volume.
-
-- **returns**: `number` - the volume
-
-#### .setAudioChannelVolume(channel, volume)
-
-Sets volume of the specified channel.
-
-- **channel**: [`AudioChannel`](#user-content-audiochannel) - the channel 
+- **channel**: [`AudioChannel`](#user-content-audiochannel) - the channel
 - **volume**: `number` - the volume 
 
-#### .getAudioChannelVolume(channel)
+#### .getAudioVolume([channel])
 
-Returns current volume of the specified channel.
+Returns current volume of the specified channel. The `channel` argument can be omitted to return the master volume.
 
 - **channel**: [`AudioChannel`](#user-content-audiochannel) - the channel 
 - **returns**: `number` - the volume 
@@ -79,3 +78,4 @@ Returns current volume of the specified channel.
 - `'triangle'` - Triangle channel
 - `'noise'` - Noise channel
 - `'dmc'` - DMC channel
+- `'master'` - *Special value used to set the master volume*.

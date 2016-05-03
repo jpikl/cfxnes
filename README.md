@@ -15,7 +15,7 @@ See LICENSE.txt for more details.
 - Loading of zipped ROM images.
 - Supported mappers: NROM, MMC1, MMC3, UNCOM, CNROM, AOROM, BNROM, NINA-001, Color Dreams.
 - Persistence of battery-backed RAM (game saves) in IndexedDB.
-- Rendering using WebGL (with canvas fallback).
+- Rendering using WebGL (with canvas API as fallback).
 - Full screen mode.
 - Sound emulation using Web Audio.
 - Zapper emulation using mouse.
@@ -23,12 +23,12 @@ See LICENSE.txt for more details.
 - Customizable key bindings.
 - Plenty of configuration options.
 
-## Supported Browsers
+## Browser Compatibility
 
 - Chrome >= 44
 - Firefox >= 40
-- Internet Explorer 11 (see [known issues](#user-content-known-issues))
-- Edge >= 12 (see [known issues](#user-content-known-issues))
+- Internet Explorer 11 (with [polyfill](lib/README.md#user-content-browser-compatibility))
+- Edge >= 12
 
 ## Known Issues
 

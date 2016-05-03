@@ -7,9 +7,11 @@ var cfxnes = new CFxNES({videoOutput: canvas});
 cfxnes.loadROM('rom.nes').then(() => cfxnes.start());
 ```
 
-## Requirements
+## Browser Compatibility
 
-A browser with [Promise](https://promisesaplus.com/) support is required. Use [polyfill](https://www.promisejs.org/polyfills/promise-7.0.4.min.js) for Internet Explorer, Firefox (< 29) and Chrome (< 32).
+In order to support IE 11, some polyfills are required:
+- [Promise](https://www.npmjs.com/package/promise-polyfill)
+- [Object.assign](https://www.npmjs.com/package/object-assign-polyfill)
 
 ## API
 
@@ -26,7 +28,6 @@ A minimal example that will download and execute ROM image.
 <html>
 <head>
     <title>CFxNES Example</title>
-    <script src="http://www.promisejs.org/polyfills/promise-7.0.4.min.js"></script>
     <script src="http://cfxnes.herokuapp.com/cfxnes.js"></script>
 </head>
 <body>
