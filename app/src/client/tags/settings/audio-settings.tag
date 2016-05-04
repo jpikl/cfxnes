@@ -3,7 +3,7 @@
     <div riot-tag="input-checkbox" name="audio-enabled" label="Enable audio"></div>
   </div>
   <div class="audio-settings">
-    <div riot-tag="input-slider" name="audio-volume" label="Master Volume" min="0" orientation="vertical" max="1" step="0.01" format="%"></div>
+    <div riot-tag="input-slider" name="master-volume" label="Master Volume" min="0" orientation="vertical" max="1" step="0.01" format="%"></div>
     <div riot-tag="input-slider" name="pulse-1-volume" label="Pulse channel 1" orientation="vertical" min="0" max="1" step="0.01" format="%"></div>
     <div riot-tag="input-slider" name="pulse-2-volume" label="Pulse channel 2" orientation="vertical" min="0" max="1" step="0.01" format="%"></div>
     <div riot-tag="input-slider" name="triangle-volume" label="Triangle channel" orientation="vertical" min="0" max="1" step="0.01" format="%"></div>
@@ -21,12 +21,12 @@
 
     this.on('update', function() {
       this.tags['audio-enabled'].setValue(cfxnes.isAudioEnabled());
-      this.tags['audio-volume'].setValue(cfxnes.getAudioVolume());
-      this.tags['pulse-1-volume'].setValue(cfxnes.getAudioChannelVolume('pulse1'));
-      this.tags['pulse-2-volume'].setValue(cfxnes.getAudioChannelVolume('pulse2'));
-      this.tags['triangle-volume'].setValue(cfxnes.getAudioChannelVolume('triangle'));
-      this.tags['noise-volume'].setValue(cfxnes.getAudioChannelVolume('noise'));
-      this.tags['dmc-volume'].setValue(cfxnes.getAudioChannelVolume('dmc'));
+      this.tags['master-volume'].setValue(cfxnes.getAudioVolume());
+      this.tags['pulse-1-volume'].setValue(cfxnes.getAudioVolume('pulse1'));
+      this.tags['pulse-2-volume'].setValue(cfxnes.getAudioVolume('pulse2'));
+      this.tags['triangle-volume'].setValue(cfxnes.getAudioVolume('triangle'));
+      this.tags['noise-volume'].setValue(cfxnes.getAudioVolume('noise'));
+      this.tags['dmc-volume'].setValue(cfxnes.getAudioVolume('dmc'));
       this.updateEnablement();
     });
 
@@ -35,25 +35,25 @@
         cfxnes.setAudioEnabled(value);
         this.parent.updateEnablement();
       });
-      this.tags['audio-volume'].on('change', function(value) {
+      this.tags['master-volume'].on('change', function(value) {
         cfxnes.setAudioVolume(value);
       });
       this.tags['pulse-1-volume'].on('change', function(value) {
-        cfxnes.setAudioChannelVolume('pulse1', value);
+        cfxnes.setAudioVolume('pulse1', value);
       });
       this.tags['pulse-2-volume'].on('change', function(value) {
-        cfxnes.setAudioChannelVolume('pulse2', value);
+        cfxnes.setAudioVolume('pulse2', value);
       });
       this.tags['triangle-volume'].on('change', function(value) {
-        cfxnes.setAudioChannelVolume('triangle', value);
+        cfxnes.setAudioVolume('triangle', value);
       });
       this.tags['noise-volume'].on('change', function(value) {
-        cfxnes.setAudioChannelVolume('noise', value);
+        cfxnes.setAudioVolume('noise', value);
       });
       this.tags['dmc-volume'].on('change', function(value) {
-        cfxnes.setAudioChannelVolume('dmc', value);
+        cfxnes.setAudioVolume('dmc', value);
       });
-      this.tags['audio-volume'].on('mount', function(value) {
+      this.tags['master-volume'].on('mount', function(value) {
         this.parent.updateEnablement();
       });
     });

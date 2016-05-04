@@ -11,7 +11,7 @@
 | Name | Type | Default | Description |
 |------|------|----------|-------------|
 | audioEnabled | `boolean` | `true` | Enables audio. |
-| audioVolume | `number`&nbsp;or&nbsp;`object` | `0.5` (see example bellow) | Audio volume or detailed volume configuration. Volume is a value between `0` and `1`. |
+| audioVolume | `number`&nbsp;or&nbsp;`object` | `0.5` (master volume), `1.0` (channel volume) | Master volume or detailed volume configuration. Volume is a value between `0` and `1`. |
 
 *Example:*
 
@@ -78,4 +78,4 @@ Returns current volume of the specified channel. The `channel` argument can be o
 - `'triangle'` - Triangle channel
 - `'noise'` - Noise channel
 - `'dmc'` - DMC channel
-- `'master'` - *Special value used to set the master volume*.
+- `'master'` - *Special value used to address the master volume*.

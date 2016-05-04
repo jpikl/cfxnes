@@ -46,7 +46,7 @@ Input of any source can be represented as a string `'<source>.<name>'`:
 - `'gamepad.x'` - X button of any gamepad.
 - `'gamepad0'.start` - Start button of gamepad #0.
 
-One or more *source inputs* can be mapped to *device input* using the [mapInputs](#user-content-mapinputsdeviceinput-sourceinputs) method.
+One or more *source inputs* can be mapped to *device input* using the [mapInput](#user-content-mapinputdeviceinput-sourceinputs) method.
 
 ## Options
 
@@ -59,7 +59,7 @@ One or more *source inputs* can be mapped to *device input* using the [mapInputs
 
 ```` javascript
 new CFxNES({
-  inputDevices: ['joypad', 'zapper'] // Devices connected to port 1 and 2.
+  inputDevices: ['joypad', 'zapper'], // Devices connected to port 1 and 2.
   inputMapping: {
     '1.joypad.a': 'keyboard.x', // 'X' key will emulate 'A' button of a joypad on port 1
     '1.joypad.b': ['keyboard.y', 'keyboard.z'], // Multiple source inputs
@@ -123,10 +123,26 @@ cfxnes.mapInput('1.joypad.a', 'keyboard.y');
 
 #### .getMappedInputs(input)
 
-Returns all device or source inputs mapped to their counterparts.
+Returns all device or source inputs mapped to their counterpart.
 
 - **deviceInput**: `string` - the device/source input
 - **returns**: `Array` - array of mapped source/devices inputs
+
+#### .recordInput(callback)
+
+Registers a callback function that will be called when the next source input is received. The callback is immediately dropped after its use. Typical use of this method is to let users customize key bindings (see example below).
+
+- **callback** - `function(sourceInput)` - the callback function that will receive the next source input
+
+*Example:*
+
+```` javascript
+showUserMessage('Press any key..."');
+cfxnes.recordInput(sourceInput => {
+  hideUserMessage();
+  cfxnes.mapInput('1.joypad.a', sourceInput);
+});
+````
 
 ## Inputs
 
@@ -168,7 +184,7 @@ Returns all device or source inputs mapped to their counterparts.
 
 #### Gamepad Inputs
 
-The set of inputs that are received from a gamepad depends on whether browser is able to recognize gamepad layout. If the gamepad is correctly recognized the [standard layout](https://w3c.github.io/gamepad/#remapping) is used. Otherwise the *generic layout* will be used as fallback.
+The set of inputs that are received from a gamepad depends on whether browser is able to recognize gamepad layout. If the gamepad is correctly recognized, the [standard layout](https://w3c.github.io/gamepad/#remapping) is used. Otherwise the *generic layout* will be used as fallback.
 
 ##### Standard Gamepad Layout
 
