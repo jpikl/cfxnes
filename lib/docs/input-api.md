@@ -121,12 +121,25 @@ cfxnes.unmapInput('keyboard.z');
 cfxnes.mapInput('1.joypad.a', 'keyboard.y');
 ````
 
+#### .unmapAllInputs()
+
+Clears mapping of all inputs.
+
 #### .getMappedInputs(input)
 
 Returns all device or source inputs mapped to their counterpart.
 
 - **deviceInput**: `string` - the device/source input
 - **returns**: `Array` - array of mapped source/devices inputs
+
+*Example:*
+
+```` javascript
+cfxnes.mapInput('1.joypad.a', ['keyboard.y', 'keyboard.z']);
+cfxnes.getMappedInputs('1.joypad.a'); // Returns ['keyboard.y', 'keyboard.z']
+cfxnes.getMappedInputs('keyboard.z'); // Returns ['1.joypad.a']
+````
+
 
 #### .recordInput(callback)
 

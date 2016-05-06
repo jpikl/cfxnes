@@ -47,11 +47,11 @@ export default class NES {
   // Input devices
   //=========================================================
 
-  connectInputDevice(port, device) {
+  setInputDevice(port, device) {
     this.cpuMemory.setInputDevice(port, device);
   }
 
-  getConnectedInputDevice(port) {
+  getInputDevice(port) {
     return this.cpuMemory.getInputDevice(port);
   }
 

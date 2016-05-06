@@ -19,13 +19,13 @@ export default class DeviceFactory {
     this.injector = injector;
   }
 
-  createDevice(id) {
-    var clazz = devices[id];
+  createDevice(type) {
+    var clazz = devices[type];
     if (clazz) {
-      logger.info(`Creating "${id}" device`);
+      logger.info(`Creating "${type}" device`);
       return this.injector.inject(new clazz);
     }
-    throw new Error(`Unsupported device "${id}"`);
+    throw new Error(`Unsupported device "${type}"`);
   }
 
 }
