@@ -10,12 +10,12 @@
 
 | Name | Type | Default | Description |
 |------|------|----------|-------------|
-| videoOutput | `HTMLCanvasElement` | `undefined` | Canvas element used for rendering. This option is not persisted when calling [`.saveOptions()`](data-api.md#user-content-saveoptions). |
+| videoOutput | `HTMLCanvasElement` | `undefined` | Canvas element used for rendering. This option is not persisted when calling [`saveOptions()`](data-api.md#user-content-saveoptions). |
 | videoRenderer | [`VideoRenderer`](#user-content-videorenderer) | `'webgl'` | Rendering back-end. |
 | videoPalette | [`VideoPalette`](#user-content-videopalette) | `'fceux'` | Palette used for generating RGB color values. |
-| videoScale | `number` | `1.0` | Canvas resolution multiplier. The base resolution is 256x240. It must larger than `0`. Non-integer value might cause visual artifacts due to upscaling. |
+| videoScale | `number` | `1.0` | Canvas resolution multiplier. Value must be larger than `0`. Non-integer value might cause visual artifacts due to upscaling. The base resolution is 256x240. |
 | videoSmooting | `boolean` | `false` | Enables smoothing effect for upscaled canvas resolution. |
-| videoDebugging | `boolean` | `false` | Enables additional video output (content of pattern tables and image/sprite palettes). Setting it `true` will double width of the canvas. |
+| videoDebugging | `boolean` | `false` | Enables additional video output (content of pattern tables and background/sprite palettes) to be displayed on canvas. This will also double width of the canvas. |
 | fullscreenType | [`FullscreenType`](#user-content-fullscreentype) | `'maximized'` | Type of full screen mode. |
 
 *Example:*
@@ -49,19 +49,19 @@ Returns the `canvas` element currently used for rendering.
 
 #### .setVideoRenderer(renderer)
 
-Sets the rendering back-end.
+Sets the rendering back-end. The `'canvas'` renderer is used as fallback in case of unsupported renderer.
 
 - **renderer**: [`VideoRenderer`](#user-content-videorenderer) - the renderer
 
 #### .getVideoRenderer()
 
-Returns the current rendering back-end.
+Returns the currently used rendering back-end.
 
 - **returns**: [`VideoRenderer`](#user-content-videorenderer) - the renderer
 
 #### .isVideoRendererSupported(renderer)
 
-Returns whether a renderer is supported. It will always return `true` for the `'canvas'` renderer.
+Returns whether a renderer is supported. The method will always return `true` for the `'canvas'` renderer.
 
 - **returns**: `boolean` - `true` if the specified render is supported; `false` otherwise
 
@@ -69,47 +69,47 @@ Returns whether a renderer is supported. It will always return `true` for the `'
 
 Sets the canvas resolution multiplier.
 
-- **scale**: `number` - the multiplier
+- **scale**: `number` - the resolution multiplier
 
 #### .getVideoScale()
 
 Returns the current canvas resolution multiplier.
 
-- **returns**: `number` - the multiplier
+- **returns**: `number` - the resolution multiplier
 
 #### .getMaxVideoScale()
 
-Returns the maximal possible value of the `videoScale` option that does not cause canvas to overgrow the screen resolution.
+Returns the largest possible value of the `videoScale` option that does not cause canvas to overgrow screen resolution.
 
-- **returns**: `number` - the multiplier
+- **returns**: `number` - the resolution multiplier
 
 #### .setVideoSmoothing(smoothing)
 
-Sets whether smoothing is enabled.
+Enables/disables smoothing effect for upscaled canvas.
 
 - **smoothing**: `boolean` - `true` to enable smoothing; `false` to disable
 
 #### .isVideoSmoothing()
 
-Returns whether smoothing is enabled.
+Returns whether smoothing effect is currently enabled.
 
 - **returns**: `boolean` - `true` if smoothing is enabled; `false` otherwise
 
 #### .setVideoDebugging(debugging)
 
-Sets whether the debugging output is enabled.
+Enables/disables additional debugging output to be displayed on canvas.
 
 - **debugging**: `boolean` - `true` to enable debugging output; `false` to disable
 
 #### .isVideoDebugging()
 
-Returns whether the debugging output is enabled.
+Returns whether debugging output is currently enabled.
 
 - **returns**: `boolean` - `true` if debugging output is enabled; `false` otherwise
 
 #### .enterFullscreen()
 
-Enables full screen mode.
+Switches to full screen mode. It's recommended to wrap `canvas` element in extra `div` to make full screen working properly.
 
 #### .setFullscreenType(type)
 
@@ -147,5 +147,5 @@ See [FCEUX documentation](http://www.fceux.com/web/help/fceux.html?PaletteOption
 #### FullscreenType
 
 - `'maximized'` - Maximizes the output resolution while keeping its original aspect ratio.
-- `'normalized'` - Same as the `'maximazed'`, but the output resolution is integer multiple of the base resolution 256x240.
+- `'normalized'` - Same as the `'maximazed'` type, but the output resolution is integer multiple of the base resolution 256x240. This should reduce visual artifacts caused by resolution upscaling.
 - `'stretched'` - Output is stretched to fill the whole screen (both horizontally and vertically). The original aspect ratio is not preserved.

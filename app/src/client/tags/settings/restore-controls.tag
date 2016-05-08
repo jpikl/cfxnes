@@ -4,7 +4,7 @@
   </p>
   <script>
     restore() {
-      cfxnes.resetOptions(['inputDevices', 'inputMapping']);
+      cfxnes.resetOptions('inputDevices', 'inputMapping');
       this.trigger('change');
     }
   </script>

@@ -19,9 +19,9 @@ See [API documentation](docs/api.md).
 
 ## Example
 
-A minimal example that will download and execute ROM image. 
-
 **Note: This example is for the upcoming version 0.5.0**
+
+A minimal example that will download and execute ROM image:
 
 ``` html
 <!DOCTYPE html>
@@ -50,7 +50,7 @@ A minimal example that will download and execute ROM image.
 
 ## Building
 
-Optimized and minified version `dist/cfxnes.js`:
+Optimized minified version `dist/cfxnes.js`:
 
     gulp build
 

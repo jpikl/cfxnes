@@ -10,32 +10,32 @@
 
 ## Devices
 
-CFxNES is currently able to emulate the following NES input devices:
-- `'joypad'` - Joypad (standar NES controller)
+CFxNES is currently able to emulate the following NES controllers:
+- `'joypad'` - Joypad (standard NES controller)
 - `'zapper'` - Zapper (beam gun)
 
-Each type of device can be connected to one of available ports (`1`, `2`) using the [setInputDevice](#user-content-setinputdeviceport-device) method. Empty port is represented by `null` value.
+We refer to them as *virtual input devices* (or just *devices*). Each type of device can be connected to *port* #1 or #2 using the [setInputDevice()](#user-content-setinputdeviceport-device) method. Empty port is represented by `null` value.
 
-Input of any device can be represented as a string `'<port>.<device>.<name>'`:
-- `<port>` - the device port
+Input of any device can be expressed as a string `'<port>.<device>.<name>'`:
+- `<port>` - the port number
 - `<device>` - the device
 - `<name>` - name of the input
 
 *Examples:*
 
-- `'1.joypad.start'` - Start button of a joypad connected to the 1st port
-- `'2.zapper.trigger'` - Trigger button of a zapper connected to the 2nd port.
+- `'1.joypad.start'` - Start button of a joypad connected to the port #1.
+- `'2.zapper.trigger'` - Trigger button of a zapper connected to the port #2.
 
 ## Sources
 
-Source refers to a *real* input device that is used to emulate one ore more *virtual* NES devices.
+Source refers to a *real input device* that is used to emulate one ore more *virtual input devices*.
 - `'keyboard'` - Keyboard
 - `'mouse'` - Mouse
 - `'gamepad'` - Gamepad
 
-The value `'gamepad'` means any connected gamepad. Use `'gamepadN'` (where `N` is [gamepad index](https://w3c.github.io/gamepad/#gamepad-interface))  to address a specific gamepad (`'gamepad0'`, `'gamepad1'`, etc.).
+The value `'gamepad'` means *any connected gamepad*. Use `'gamepadN'` (where *N* is a [gamepad index](https://w3c.github.io/gamepad/#gamepad-interface))  to address a specific gamepad (`'gamepad0'`, `'gamepad1'`, etc.).
 
-Input of any source can be represented as a string `'<source>.<name>'`:
+Input of any source can be expressed as a string `'<source>.<name>'`:
 - `<source>` - the source
 - `<name>` - name of the input
 
@@ -46,22 +46,22 @@ Input of any source can be represented as a string `'<source>.<name>'`:
 - `'gamepad.x'` - X button of any gamepad.
 - `'gamepad0'.start` - Start button of gamepad #0.
 
-One or more *source inputs* can be mapped to *device input* using the [mapInput](#user-content-mapinputdeviceinput-sourceinputs) method.
+One or more *source inputs* can be mapped to *device input* using the [mapInputs()](#user-content-mapinputsdeviceinput-sourceinputs) method.
 
 ## Options
 
 | Name | Type | Default | Description |
 |------|------|----------|-------------|
-| inputDevices | `Array` | See example bellow | Devices connected to port 1 and 2. |
+| inputDevices | `Array` | See example bellow | Devices connected to ports #1 and #2. |
 | inputMapping | `object` | See example bellow | Mapping between source and device inputs. |
 
 *Example:*
 
 ```` javascript
 new CFxNES({
-  inputDevices: ['joypad', 'zapper'], // Devices connected to port 1 and 2.
+  inputDevices: ['joypad', 'zapper'], // Devices connected to ports #1 and #2.
   inputMapping: {
-    '1.joypad.a': 'keyboard.x', // 'X' key will emulate 'A' button of a joypad on port 1
+    '1.joypad.a': 'keyboard.x', // 'X' key will emulate 'A' button of a joypad on port #1
     '1.joypad.b': ['keyboard.y', 'keyboard.z'], // Multiple source inputs
     '1.joypad.start': 'keyboard.enter',
     '1.joypad.select': 'keyboard.shift',
@@ -81,18 +81,18 @@ new CFxNES({
 Sets device connected to the specified port.
 
 - **port**: `number` - the port number (`1` or `2`)
-- **device**: `string` - the device or `null`
+- **device**: `string` - the device; `null` to make the port empty
 
 #### .getInputDevice(port)
 
 Returns device that is currently connected to the specified port.
 
 - **port**: `number` - the port number (`1` or `2`)
-- **returns**: `string` - the device or`null` when there is no device connected
+- **returns**: `string` - the device;`null` if the port is empty
 
-#### .mapInput(deviceInput, sourceInputs)
+#### .mapInputs(deviceInput, sourceInputs)
 
-Maps device input to one ore more source inputs.
+Creates mapping between *device input* and one or more *source inputs*.
 
 - **deviceInput**: `string` - the device input
 - **sourceInputs**: `string` | `Array` - the source input or array of source inputs
@@ -106,31 +106,27 @@ cfxnes.mapInput('1.joypad.a', 'keyboard.z');
 cfxnes.mapInput('1.joypad.a', ['keyboard.y', 'keyboard.z']);
 ````
 
-#### .unmapInput(input)
+#### .unmapInputs(...inputs)
 
-Unmaps currently mapped device or source input.
+Removes mapping for the specified *device* or *source inputs*.
 
-- **input**: `string` - the device/source input
+- **inputs**: `...string` - one or more inputs; omit to remove mapping for all inputs
 
 *Example:*
 
 ```` javascript
-cfxnes.mapInput('1.joypad.a', ['keyboard.y', 'keyboard.z']);
-cfxnes.unmapInput('keyboard.z');
+cfxnes.mapInputs('1.joypad.a', ['keyboard.y', 'keyboard.z']);
+cfxnes.unmapInputs('keyboard.z');
 // Has the same effect as calling only
-cfxnes.mapInput('1.joypad.a', 'keyboard.y');
+cfxnes.mapInputs('1.joypad.a', 'keyboard.y');
 ````
-
-#### .unmapAllInputs()
-
-Clears mapping of all inputs.
 
 #### .getMappedInputs(input)
 
-Returns all device or source inputs mapped to their counterpart.
+Returns *device* or *source inputs* mapped to their counterpart.
 
-- **deviceInput**: `string` - the device/source input
-- **returns**: `Array` - array of mapped source/devices inputs
+- **deviceInput**: `string` - the input
+- **returns**: `Array` - array of mapped inputs
 
 *Example:*
 
@@ -143,7 +139,7 @@ cfxnes.getMappedInputs('keyboard.z'); // Returns ['1.joypad.a']
 
 #### .recordInput(callback)
 
-Registers a callback function that will be called when the next source input is received. The callback is immediately dropped after its use. Typical use of this method is to let users customize key bindings (see example below).
+Registers a callback function that will be called when the next *source input* is received. The callback is immediately dropped after its use. Typical use of this method is to let users customize key bindings (see example below).
 
 - **callback** - `function(sourceInput)` - the callback function that will receive the next source input
 
@@ -153,7 +149,7 @@ Registers a callback function that will be called when the next source input is 
 showUserMessage('Press any key..."');
 cfxnes.recordInput(sourceInput => {
   hideUserMessage();
-  cfxnes.mapInput('1.joypad.a', sourceInput);
+  cfxnes.mapInputs('1.joypad.a', sourceInput);
 });
 ````
 
@@ -197,7 +193,7 @@ cfxnes.recordInput(sourceInput => {
 
 #### Gamepad Inputs
 
-The set of inputs that are received from a gamepad depends on whether browser is able to recognize gamepad layout. If the gamepad is correctly recognized, the [standard layout](https://w3c.github.io/gamepad/#remapping) is used. Otherwise the *generic layout* will be used as fallback.
+The set of inputs that are received from a gamepad depends on whether browser is able to recognize gamepad layout. If the gamepad is correctly recognized, the [standard layout](https://w3c.github.io/gamepad/#remapping) is used. Otherwise the *generic layout* is used as fallback.
 
 ##### Standard Gamepad Layout
 

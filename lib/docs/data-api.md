@@ -9,7 +9,7 @@
 
 ## ROM Images
 
-CFxNES is currently able to load *iNES* and *NES 2.0* ROM images. 
+CFxNES is able to load [iNES](http://wiki.nesdev.com/w/index.php/INES) and [NES 2.0](http://wiki.nesdev.com/w/index.php/NES_2.0) ROM images. 
 
 It is also possible to load ZIP archive containing ROM image. The first file with `.nes` extension found in ZIP archive will be always loaded. This feature requires an [external dependency](api.md#user-content-external-dependencies)
 
@@ -30,7 +30,7 @@ Loads ROM image from the specified source. If the emulator is already running, t
 
 | Source type   | Meaning |
 |---------------|---------|
-| `string`      | URL of the ROM image. |
+| `string`      | URL of a ROM image. |
 | `File`        | File containing ROM image. |
 | `Array`, `ArrayBuffer`, `Uint8Array` | Buffer containing ROM image. |
 
@@ -50,7 +50,7 @@ Non-volatile RAM (NVRAM) is a memory that is usually battery-backed and serves a
 
 Use [getNVRAM](#user-content-getnvram), [setNVRAM](#user-content-setnvram) for direct NVRAM manipulation. 
 
-Use [loadNVRAM](#user-content-loadnvram), [saveNVRAM](#user-content-savenvram) for persisting NVRAM in IndexedDB. NVRAMs of various games are differentiated using SHA-1 checksums of their ROM images. To be able to compute SHA-1, an [external dependency](api.md#user-content-external-dependencies) is required.
+Use [loadNVRAM](#user-content-loadnvram), [saveNVRAM](#user-content-savenvram) to persist NVRAM in IndexedDB. NVRAMs of various games are differentiated using SHA-1 checksums of their ROM images. To be able to compute SHA-1, an [external dependency](api.md#user-content-external-dependencies) is required.
 
 *Example:*
 ``` javascript
@@ -61,7 +61,7 @@ cfxnes.saveNVRAM() // Persist game saves of the currently running game
 
 #### .getNVRAMSize()
 
-Return NVRAM size of the currently running game.
+Returns NVRAM size of the currently running game.
 
 - **returns**: `number` - the size or `0` when NVRAM is unavailable
 
@@ -93,7 +93,7 @@ Stores NVRAM of the currently running game into IndexedDB. The method does nothi
 
 Deletes all NVRAMs stored in IndexedDB.
 
-- **returns**: `Promise` - promise resolved when all data are deleted
+- **returns**: `Promise` - promise resolved when data are deleted
 
 ## Configuration
 
@@ -119,11 +119,11 @@ Sets values of the specified configuration options.
 
 - **options**: `object` - the configuration options
 
-#### .resetOptions([options])
+#### .resetOptions(...options)
 
 Resets the specified configuration options to their default value.
 
-- **options**: `Array`  - array of option names to reset; omit the parameter to reset all configuration options
+- **options**: `...string`  - one or more names of options to reset; omit to reset all options
 
 #### .loadOptions()
 
@@ -135,4 +135,4 @@ Stores all configuration options to Local Storage.
 
 #### .deleteOptions()
 
-Removes all configuration options from Local Storage.
+Deletes all configuration options from Local Storage.

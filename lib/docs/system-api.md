@@ -10,7 +10,7 @@
 
 | Name | Type | Default | Description |
 |------|------|----------|-------------|
-| speed | `number` | `1.0` | Emulation speed multiplier. It must be larger than `0`. |
+| speed | `number` | `1.0` | Emulation speed multiplier. Value must be larger than `0`. |
 | region | [`Region`](#user-content-region) | `'auto'` | Emulated region of NES. |
 
 *Example:*
@@ -35,7 +35,7 @@ Stops the emulator.
 
 #### .step()
 
-Forces the emulator to render one frame. Useful when you need to just refresh video output without starting the emulator.
+Forces the emulator to render one frame. Useful when you need just to refresh video output without starting the emulator.
 
 #### .isRunning()
 
@@ -45,11 +45,11 @@ Returns whether the emulator is running.
 
 #### .hardReset()
 
-Does hard reset. Equivalent of pressing the *power* button of the original NES.
+Does hard reset. Equivalent to pressing NES *power* button.
 
 #### .softReset()
 
-Does soft reset. Equivalent of pressing the *reset* button of the original NES.
+Does soft reset. Equivalent to pressing NES *reset* button.
 
 #### .getSpeed()
 
@@ -85,6 +85,6 @@ Returns number of frames per second of the running emulator.
 
 #### Region
 
-- `'auto'` - Automatic region detection based on header data of loaded ROM image.
+- `'auto'` - Automatic region detection that relies on header data of loaded ROM image.
 - `'ntsc'` - NTSC region. Emulation will run at 60 FPS.
 - `'pal'` - PAL region. Emulation will run at 50 FPS.

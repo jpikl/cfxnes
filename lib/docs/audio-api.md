@@ -10,7 +10,7 @@
 
 | Name | Type | Default | Description |
 |------|------|----------|-------------|
-| audioEnabled | `boolean` | `true` | Enables audio. |
+| audioEnabled | `boolean` | `true` | Enables audio output. |
 | audioVolume | `number`&nbsp;or&nbsp;`object` | `0.5` (master volume), `1.0` (channel volume) | Master volume or detailed volume configuration. Volume is a value between `0` and `1`. |
 
 *Example:*
@@ -45,28 +45,28 @@ Returns whether audio playback is supported by the current browser.
 
 #### .setAudioEnabled(enabled)
 
-Enables audio.
+Enables/disables audio output.
 
-- **enabled**: `boolean` - `true` to enable audio; `false` to disable 
+- **enabled**: `boolean` - `true` to enable audio output; `false` to disable 
 
 #### .isAudioEnabled()
 
-Returns whether audio is enabled.
+Returns whether audio output is currently enabled.
 
-- **returns**: `boolean` - `true` if audio is enabled; `false` otherwise
+- **returns**: `boolean` - `true` if audio output is enabled; `false` otherwise
 
 #### .setAudioVolume([channel,] volume)
 
-Sets volume of the specified channel. The `channel` argument can be omitted to set the master volume.
+Sets volume of the specified channel.
 
-- **channel**: [`AudioChannel`](#user-content-audiochannel) - the channel
+- **channel**: [`AudioChannel`](#user-content-audiochannel) - the channel; omit to set the master volume
 - **volume**: `number` - the volume 
 
 #### .getAudioVolume([channel])
 
-Returns current volume of the specified channel. The `channel` argument can be omitted to return the master volume.
+Returns current volume of the specified channel.
 
-- **channel**: [`AudioChannel`](#user-content-audiochannel) - the channel 
+- **channel**: [`AudioChannel`](#user-content-audiochannel) - the channel; omit to get the master volume
 - **returns**: `number` - the volume 
 
 ## Enumerations
