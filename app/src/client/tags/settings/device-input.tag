@@ -1,32 +1,29 @@
 <device-input class="device-input">
   <div>
-    <label>{ opts.inputName }</label>
+    <label>{ opts.label }</label>
   </div>
   <div>
-    <span>{ mappedInputName }</span>
+    <mapped-inputs input={ opts.input }></mapped-inputs>
   </div>
   <div>
     <button class="btn btn-default" onclick={ change }>Change</button>
   </div>
   <script>
     var self = this;
-    var targetPort = opts.port;
-    var targetId = opts.device;
-    var targetInput = opts.input;
+    var devceInput = opts.input;
 
     change() {
       var modal = $('#record-input-modal').modal('show');
-      cfxnes.recordInput(function(sourceId, sourceInput) {
+      cfxnes.recordInput(function(sourceInput) {
         modal.modal('hide');
-        if (sourceId !== 'keyboard' || sourceInput !== 'escape') {
-          cfxnes.mapInput(targetPort, targetId, targetInput, sourceId, sourceInput);
+        if (sourceInput !== 'keyboard.escape') {
+          cfxnes.unmapInputs(devceInput, sourceInput);
+          cfxnes.mapInputs(devceInput, sourceInput);
           self.trigger('change');
         }
       });
     }
 
-    this.on('update', function() {
-      this.mappedInputName = cfxnes.getMappedInputName(targetPort, targetId, targetInput) || '--';
-    });
+    this.on('update', this.tags['mapped-inputs'].update);
   </script>
 </device-input>

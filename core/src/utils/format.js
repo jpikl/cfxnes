@@ -22,12 +22,6 @@ export function fillLeft(value, width, character = ' ') {
   return result.slice(result.length - width);
 }
 
-export function capitalize(sentence) {
-  return sentence.split(' ')
-        .map(word => word.length ? word[0].toUpperCase() + word.slice(1) : word)
-        .join(' ');
-}
-
 export function formatOpt(value) {
   return value != null ? value : '???';
 }

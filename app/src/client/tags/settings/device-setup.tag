@@ -1,17 +1,17 @@
 <device-setup class="device">
   <div riot-tag="device-select" port={ port }></div>
   <div if={ device == 'joypad' }>
-    <div riot-tag="device-input" port={ port } device="joypad" input="a" input-name="A"></div>
-    <div riot-tag="device-input" port={ port } device="joypad" input="b" input-name="B"></div>
-    <div riot-tag="device-input" port={ port } device="joypad" input="start" input-name="Start"></div>
-    <div riot-tag="device-input" port={ port } device="joypad" input="select" input-name="Select"></div>
-    <div riot-tag="device-input" port={ port } device="joypad" input="left" input-name="Left"></div>
-    <div riot-tag="device-input" port={ port } device="joypad" input="right" input-name="Right"></div>
-    <div riot-tag="device-input" port={ port } device="joypad" input="up" input-name="Up"></div>
-    <div riot-tag="device-input" port={ port } device="joypad" input="down" input-name="Down"></div>
+    <div riot-tag="device-input" input="{ port }.joypad.a" label="A"></div>
+    <div riot-tag="device-input" input="{ port }.joypad.b" label="B"></div>
+    <div riot-tag="device-input" input="{ port }.joypad.start" label="Start"></div>
+    <div riot-tag="device-input" input="{ port }.joypad.select" label="Select"></div>
+    <div riot-tag="device-input" input="{ port }.joypad.left" label="Left"></div>
+    <div riot-tag="device-input" input="{ port }.joypad.right" label="Right"></div>
+    <div riot-tag="device-input" input="{ port }.joypad.up" label="Up"></div>
+    <div riot-tag="device-input" input="{ port }.joypad.down" label="Down"></div>
   </div>
   <div if={ device == 'zapper' }>
-    <div riot-tag="device-input" port={ port } device="zapper" input="trigger" input-name="Trigger"></div>
+    <div riot-tag="device-input" input="{ port }.zapper.trigger" label="Trigger"></div>
   </div>
   <script>
     this.port = parseInt(opts.port);

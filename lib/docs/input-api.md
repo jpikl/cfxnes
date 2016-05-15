@@ -14,7 +14,7 @@ CFxNES is currently able to emulate the following NES controllers:
 - `'joypad'` - Joypad (standard NES controller)
 - `'zapper'` - Zapper (beam gun)
 
-We refer to them as *virtual input devices* (or just *devices*). Each type of device can be connected to *port* #1 or #2 using the [setInputDevice()](#user-content-setinputdeviceport-device) method. Empty port is represented by `null` value.
+We refer to them as *devices*. Each type of device can be connected to *port* #1 or #2 using the [setInputDevice()](#user-content-setinputdeviceport-device) method. Empty port is represented by `null` value.
 
 Input of any device can be expressed as a string `'<port>.<device>.<name>'`:
 - `<port>` - the port number
@@ -28,7 +28,7 @@ Input of any device can be expressed as a string `'<port>.<device>.<name>'`:
 
 ## Sources
 
-Source refers to a *real input device* that is used to emulate one ore more *virtual input devices*.
+Source refers to a *real* input device that is used to emulate one ore more NES controllers.
 - `'keyboard'` - Keyboard
 - `'mouse'` - Mouse
 - `'gamepad'` - Gamepad

@@ -27,10 +27,6 @@ describe('Format utils', () => {
     expect(format.fillLeft('ABC', 2)).to.equal('BC');
   });
 
-  it('can capitalize words', () => {
-    expect(format.capitalize('nintendo entertainment system')).to.equal('Nintendo Entertainment System');
-  });
-
   it('can format optional value', () => {
     expect(format.formatOpt('value')).to.equal('value');
     expect(format.formatOpt(null)).to.equal('???');
