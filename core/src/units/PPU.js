@@ -1,37 +1,37 @@
-import logger from '../utils/logger';
-import {VIDEO_WIDTH, VIDEO_HEIGHT, NMI} from '../common/constants';
+import {VIDEO_WIDTH, NMI} from '../common/constants';
 import {BLACK_COLOR, packColor, unpackColor} from '../utils/color';
+import logger from '../utils/logger';
 
 //=========================================================
 // PPU cycle/scanlines flags
 //=========================================================
 
-const F_RENDER    = 1 <<  1; // Rendering cycle
-const F_FETCH_NT  = 1 <<  2; // Cycle where nametable byte is fetched
-const F_FETCH_AT  = 1 <<  3; // Cycle where attribute byte is fetched
-const F_FETCH_BGL = 1 <<  4; // Cycle where low background byte is fetched
-const F_FETCH_BGH = 1 <<  5; // Cycle where high background byte is fetched
-const F_FETCH_SPL = 1 <<  6; // Cycle where low sprite byte is fetched
-const F_FETCH_SPH = 1 <<  7; // Cycle where high sprite byte is fetched
-const F_COPY_BG   = 1 <<  8; // Cycle where background buffers are copied
-const F_SHIFT_BG  = 1 <<  9; // Cycle where background buffers are shifted
-const F_EVAL_SP   = 1 << 10; // Cycle where sprites for next line are being evaluated
+const F_RENDER = 1 << 1;     // Rendering cycle
+const F_FETCH_NT = 1 << 2;   // Cycle where nametable byte is fetched
+const F_FETCH_AT = 1 << 3;   // Cycle where attribute byte is fetched
+const F_FETCH_BGL = 1 << 4;  // Cycle where low background byte is fetched
+const F_FETCH_BGH = 1 << 5;  // Cycle where high background byte is fetched
+const F_FETCH_SPL = 1 << 6;  // Cycle where low sprite byte is fetched
+const F_FETCH_SPH = 1 << 7;  // Cycle where high sprite byte is fetched
+const F_COPY_BG = 1 << 8;    // Cycle where background buffers are copied
+const F_SHIFT_BG = 1 << 9;   // Cycle where background buffers are shifted
+const F_EVAL_SP = 1 << 10;   // Cycle where sprites for next line are being evaluated
 const F_CLIP_LEFT = 1 << 11; // Cycle where 8 left pixels are clipped
-const F_CLIP_TB   = 1 << 12; // Cycle where 8 top/bottom pixels are clipped
-const F_INC_CX    = 1 << 13; // Cycle where coarse X scroll is incremented
-const F_INC_FY    = 1 << 14; // Cycle where fine Y scroll is incremented
-const F_COPY_HS   = 1 << 15; // Cycle where horizontal scroll bits are copied
-const F_COPY_VS   = 1 << 16; // Cycle where vertical scroll bits are copied
-const F_VB_START  = 1 << 17; // Cycle where VBlank starts
+const F_CLIP_TB = 1 << 12;   // Cycle where 8 top/bottom pixels are clipped
+const F_INC_CX = 1 << 13;    // Cycle where coarse X scroll is incremented
+const F_INC_FY = 1 << 14;    // Cycle where fine Y scroll is incremented
+const F_COPY_HS = 1 << 15;   // Cycle where horizontal scroll bits are copied
+const F_COPY_VS = 1 << 16;   // Cycle where vertical scroll bits are copied
+const F_VB_START = 1 << 17;  // Cycle where VBlank starts
 const F_VB_START2 = 1 << 18; // Cycle where VBlank starts and the 2 following cycles
-const F_VB_END    = 1 << 19; // Cycle where VBlank ends
-const F_SKIP      = 1 << 20; // Cycle which is skipped during odd frames
+const F_VB_END = 1 << 19;    // Cycle where VBlank ends
+const F_SKIP = 1 << 20;      // Cycle which is skipped during odd frames
 
 //=========================================================
 // Cycle flags table
 //=========================================================
 
-var cycleFlags = new Uint32Array(341);
+const cycleFlags = new Uint32Array(341);
 
 for (let i = 0; i < cycleFlags.length; i++) {
   if (i >= 1 && i <= 256) {
@@ -70,9 +70,9 @@ for (let i = 0; i < cycleFlags.length; i++) {
   }
 }
 
-cycleFlags[1]   |= F_VB_START;
-cycleFlags[1]   |= F_VB_END;
-cycleFlags[65]  |= F_EVAL_SP;
+cycleFlags[1] |= F_VB_START;
+cycleFlags[1] |= F_VB_END;
+cycleFlags[65] |= F_EVAL_SP;
 cycleFlags[256] |= F_INC_FY;
 cycleFlags[257] |= F_COPY_HS;
 cycleFlags[338] |= F_SKIP;
@@ -81,7 +81,7 @@ cycleFlags[338] |= F_SKIP;
 // Scanline flags table
 //=========================================================
 
-var scanlineFlags = new Uint32Array(262);
+const scanlineFlags = new Uint32Array(262);
 
 for (let i = 0; i < scanlineFlags.length; i++) {
   if (i <= 239) {
@@ -162,7 +162,7 @@ export default class PPU {
   resetOAM() {
     this.primaryOAM = new Uint8Array(0x100); // Sprite data - 256B (64 x 4B sprites)
     this.secondaryOAM = new Array(8);      // Sprite data for rendered scanline (up to 8 sprites)
-    for (var i = 0; i < this.secondaryOAM.length; i++) {
+    for (let i = 0; i < this.secondaryOAM.length; i++) {
       this.secondaryOAM[i] = new Sprite;
     }
   }
@@ -222,21 +222,21 @@ export default class PPU {
 
   createPaletteVariants(basePalette) {
     this.paletteVariants = new Array(8); // Palette for each combination of colors emphasis bits: BGR
-    for (var colorEmphasis = 0; colorEmphasis < this.paletteVariants.length; colorEmphasis++) {
-      var rRatio = colorEmphasis & 6 ? 0.75 : 1.0; // Dim red when green or blue is emphasized
-      var gRatio = colorEmphasis & 5 ? 0.75 : 1.0; // Dim green when red or blue is emphasized
-      var bRatio = colorEmphasis & 3 ? 0.75 : 1.0; // Dim blue when red or green is emphasized
+    for (let colorEmphasis = 0; colorEmphasis < this.paletteVariants.length; colorEmphasis++) {
+      const rRatio = colorEmphasis & 6 ? 0.75 : 1.0; // Dim red when green or blue is emphasized
+      const gRatio = colorEmphasis & 5 ? 0.75 : 1.0; // Dim green when red or blue is emphasized
+      const bRatio = colorEmphasis & 3 ? 0.75 : 1.0; // Dim blue when red or green is emphasized
       this.paletteVariants[colorEmphasis] = this.createPaletteVariant(basePalette, rRatio, gRatio, bRatio);
     }
   }
 
   createPaletteVariant(basePalette, rRatio, gRatio, bRatio) {
-    var paletteVariant = new Uint32Array(basePalette.length);
-    for (var i = 0; i < basePalette.length; i++) {
-      var rgb = basePalette[i];
-      var r = Math.floor(rRatio * (rgb & 0xFF));
-      var g = Math.floor(gRatio * ((rgb >>>  8) & 0xFF));
-      var b = Math.floor(bRatio * ((rgb >>> 16) & 0xFF));
+    const paletteVariant = new Uint32Array(basePalette.length);
+    for (let i = 0; i < basePalette.length; i++) {
+      const rgb = basePalette[i];
+      const r = Math.floor(rRatio * (rgb & 0xFF));
+      const g = Math.floor(gRatio * ((rgb >>> 8) & 0xFF));
+      const b = Math.floor(bRatio * ((rgb >>> 16) & 0xFF));
       paletteVariant[i] = packColor(r, g, b);
     }
     return paletteVariant;
@@ -251,7 +251,7 @@ export default class PPU {
   //=========================================================
 
   writeControl(value) {
-    var nmiEnabledOld = this.nmiEnabled;
+    const nmiEnabledOld = this.nmiEnabled;
     this.setControl(value);
     this.tempAddress = (this.tempAddress & 0xF3FF) | (value & 0x03) << 10; // T[11,10] = C[1,0]
     if (this.vblankFlag && !nmiEnabledOld && this.nmiEnabled && !(this.csFlags & F_VB_END)) {
@@ -260,11 +260,11 @@ export default class PPU {
   }
 
   setControl(value) {
-    this.bigAddressIncrement   = (value >>> 2) & 1;      // C[2] VRAM address increment per CPU read/write of PPUDATA (1 / 32)
-    this.spPatternTableAddress = (value  << 9) & 0x1000; // C[3] Sprite pattern table address for 8x8 sprites ($0000 / $1000)
-    this.bgPatternTableAddress = (value  << 8) & 0x1000; // C[4] Background pattern table address-($0000 / $1000)
-    this.bigSprites            = (value >>> 5) & 1;      // C[5] Sprite size (8x8 / 8x16)
-    this.nmiEnabled            =  value >>> 7;           // C[7] Whether NMI is generated at the start of the VBlank
+    this.bigAddressIncrement = (value >>> 2) & 1;       // C[2] VRAM address increment per CPU read/write of PPUDATA (1 / 32)
+    this.spPatternTableAddress = (value << 9) & 0x1000; // C[3] Sprite pattern table address for 8x8 sprites ($0000 / $1000)
+    this.bgPatternTableAddress = (value << 8) & 0x1000; // C[4] Background pattern table address-($0000 / $1000)
+    this.bigSprites = (value >>> 5) & 1;                // C[5] Sprite size (8x8 / 8x16)
+    this.nmiEnabled = value >>> 7;                      // C[7] Whether NMI is generated at the start of the VBlank
   }
 
   //=========================================================
@@ -277,12 +277,12 @@ export default class PPU {
   }
 
   setMask(value) {
-    this.monochromeMode     =    value        & 1;  //  M[0]   Color / monochrome mode switch
+    this.monochromeMode = value & 1;                //  M[0]   Color / monochrome mode switch
     this.backgroundClipping = !((value >>> 1) & 1); // !M[1]   Whether to hide background in leftmost 8 pixels of screen
-    this.spriteClipping     = !((value >>> 2) & 1); // !M[2]   Whether to hide sprites in leftmost 8 pixels of screen
-    this.backgroundVisible  =   (value >>> 3) & 1;  //  M[3]   Whether background is visible
-    this.spritesVisible     =   (value >>> 4) & 1;  //  M[4]   Whether sprites are visible
-    this.colorEmphasis      =   (value >>> 5) & 7;  //  M[5-7] Color palette BGR emphasis bits
+    this.spriteClipping = !((value >>> 2) & 1);     // !M[2]   Whether to hide sprites in leftmost 8 pixels of screen
+    this.backgroundVisible = (value >>> 3) & 1;     //  M[3]   Whether background is visible
+    this.spritesVisible = (value >>> 4) & 1;        //  M[4]   Whether sprites are visible
+    this.colorEmphasis = (value >>> 5) & 7;         //  M[5-7] Color palette BGR emphasis bits
   }
 
   //=========================================================
@@ -290,7 +290,7 @@ export default class PPU {
   //=========================================================
 
   readStatus() {
-    var value = this.getStatus();
+    const value = this.getStatus();
     this.vblankFlag = 0;  // Cleared by reading status
     this.writeToogle = 0; // Cleared by reading status
     if (this.csFlags & F_VB_START) {
@@ -304,14 +304,14 @@ export default class PPU {
 
   getStatus() {
     return this.spriteOverflow << 5  // S[5]
-       | this.spriteZeroHit    << 6  // S[6]
-       | this.vblankFlag       << 7; // S[7]
+       | this.spriteZeroHit << 6     // S[6]
+       | this.vblankFlag << 7;       // S[7]
   }
 
   setStatus(value) {
     this.spriteOverflow = (value >>> 5) & 1; // S[5]
-    this.spriteZeroHit  = (value >>> 6) & 1; // S[6]
-    this.vblankFlag     =  value >>> 7;      // S[7]
+    this.spriteZeroHit = (value >>> 6) & 1;  // S[6]
+    this.vblankFlag = value >>> 7;           // S[7]
   }
 
   //=========================================================
@@ -323,7 +323,7 @@ export default class PPU {
   }
 
   readOAMData() {
-    var value = this.primaryOAM[this.oamAddress]; // Read does not increment the address
+    let value = this.primaryOAM[this.oamAddress]; // Read does not increment the address
     if ((this.oamAddress & 0x03) === 2) {
       value &= 0xE3; // Clear bits 2-4 when reading byte 2 of a sprite (these bits are not stored in OAM)
     }
@@ -344,10 +344,10 @@ export default class PPU {
   writeAddress(address) {
     this.writeToogle = !this.writeToogle;
     if (this.writeToogle) {
-      var addressHigh = (address & 0x3F) << 8;
+      const addressHigh = (address & 0x3F) << 8;
       this.tempAddress = (this.tempAddress & 0x00FF) | addressHigh; // High bits [13-8] (bit 14 is cleared)
     } else {
-      var addressLow = address;
+      const addressLow = address;
       this.tempAddress = (this.tempAddress & 0xFF00) | addressLow;  // Low bits  [7-0]
       this.vramAddress = this.tempAddress;
     }
@@ -355,16 +355,15 @@ export default class PPU {
 
   readData() {
     if ((this.vramAddress & 0x3F00) === 0x3F00) {
-      var value = this.ppuMemory.read(this.vramAddress); // Immediate read inside the palette memory area
+      const value = this.ppuMemory.read(this.vramAddress); // Immediate read inside the palette memory area
       this.vramReadBuffer = this.ppuMemory.read(this.vramAddress & 0x2FFF); //  Buffer musn't be reloaded from palette address, but from underlying nametable address
       this.incrementAddress();
       return value;
-    } else {
-      var value = this.vramReadBuffer; // Delayed read outside the palette memory area (values are passed through read buffer first)
-      this.vramReadBuffer = this.ppuMemory.read(this.vramAddress);
-      this.incrementAddress();
-      return value;
     }
+    const value = this.vramReadBuffer; // Delayed read outside the palette memory area (values are passed through read buffer first)
+    this.vramReadBuffer = this.ppuMemory.read(this.vramAddress);
+    this.incrementAddress();
+    return value;
   }
 
   writeData(value) {
@@ -375,7 +374,7 @@ export default class PPU {
   }
 
   incrementAddress() {
-    var increment = this.bigAddressIncrement ? 0x20 : 0x01; // Vertical/horizontal move in pattern table
+    const increment = this.bigAddressIncrement ? 0x20 : 0x01; // Vertical/horizontal move in pattern table
     this.vramAddress = (this.vramAddress + increment) & 0xFFFF;
   }
 
@@ -395,11 +394,11 @@ export default class PPU {
     this.writeToogle = !this.writeToogle;
     if (this.writeToogle) { // 1st write (X scroll)
       this.fineXScroll = value & 0x07;
-      var coarseXScroll = value >>> 3;
+      const coarseXScroll = value >>> 3;
       this.tempAddress = (this.tempAddress & 0xFFE0) | coarseXScroll;
     } else {                // 2nd write (Y scroll)
-      var fineYScroll = (value & 0x07) << 12;
-      var coarseYScroll = (value & 0xF8) << 2;
+      const fineYScroll = (value & 0x07) << 12;
+      const coarseYScroll = (value & 0xF8) << 2;
       this.tempAddress = (this.tempAddress & 0x0C1F) | coarseYScroll | fineYScroll;
     }
   }
@@ -474,7 +473,7 @@ export default class PPU {
     if (y < this.scanline - 5 || y >= this.scanline) {
       return false; // Screen luminance decreases in time
     }
-    var [r, g, b] = unpackColor(this.frameBuffer[y * VIDEO_WIDTH + x]);
+    const [r, g, b] = unpackColor(this.frameBuffer[y * VIDEO_WIDTH + x]);
     return r > 0x12 || g > 0x12 || b > 0x12;
   }
 
@@ -630,37 +629,34 @@ export default class PPU {
   //=========================================================
 
   updateFramePixel() {
-    var address = this.renderFramePixel();
+    const address = this.renderFramePixel();
     if (this.clipTopBottom && (this.csFlags & F_CLIP_TB)) {
       this.clearFramePixel();
     } else {
-      var color = this.ppuMemory.readPalette(address);
+      const color = this.ppuMemory.readPalette(address);
       this.setFramePixel(color);
     }
   }
 
   renderFramePixel() {
-    var backgroundColorAddress = this.renderBackgroundPixel();
-    var spriteColorAddress = this.renderSpritePixel();
+    const backgroundColorAddress = this.renderBackgroundPixel();
+    const spriteColorAddress = this.renderSpritePixel();
     if (backgroundColorAddress & 0x03) {
       if (spriteColorAddress & 0x03) {
-        var sprite = this.getRenderedSprite();
+        const sprite = this.getRenderedSprite();
         if (sprite.zeroSprite && this.cycle !== 256) { // Sprite zero hit does not happen for (x = 255)
           this.spriteZeroHit = 1;
         }
         if (sprite.inFront) {
-          return spriteColorAddress;     // The sprite has priority over the background
-        } else {
-          return backgroundColorAddress; // The background has priority over the sprite
+          return spriteColorAddress;   // The sprite has priority over the background
         }
-      } else {
-        return backgroundColorAddress;     // Only the background is visible
       }
-    } else if (spriteColorAddress & 0x03) {
-      return spriteColorAddress;             // Only the sprite is visible
-    } else {
-      return 0;                              // Use backdrop color
+      return backgroundColorAddress;   // Only the background is visible or it has priority over the sprite
     }
+    if (spriteColorAddress & 0x03) {
+      return spriteColorAddress;       // Only the sprite is visible
+    }
+    return 0;                          // Use backdrop color
   }
 
   //=========================================================
@@ -706,19 +702,19 @@ export default class PPU {
 
   fetchNametable() {
     this.addressBus = 0x2000 | this.vramAddress & 0x0FFF;
-    var patternNumer = this.ppuMemory.readNameAttr(this.addressBus); // Nametable byte fetch
-    var patternAddress = this.bgPatternTableAddress + (patternNumer << 4);
-    var fineYScroll = (this.vramAddress >>> 12) & 0x07;
+    const patternNumer = this.ppuMemory.readNameAttr(this.addressBus); // Nametable byte fetch
+    const patternAddress = this.bgPatternTableAddress + (patternNumer << 4);
+    const fineYScroll = (this.vramAddress >>> 12) & 0x07;
     this.patternRowAddress = patternAddress + fineYScroll;
   }
 
   fetchAttribute() {
-    var attributeTableAddress = 0x23C0 | this.vramAddress & 0x0C00;
-    var attributeNumber = (this.vramAddress >>> 4) & 0x38 | (this.vramAddress >>> 2) & 0x07;
+    const attributeTableAddress = 0x23C0 | this.vramAddress & 0x0C00;
+    const attributeNumber = (this.vramAddress >>> 4) & 0x38 | (this.vramAddress >>> 2) & 0x07;
     this.addressBus = attributeTableAddress + attributeNumber;
-    var attribute = this.ppuMemory.readNameAttr(this.addressBus); // Attribute byte fetch
-    var areaNumber = (this.vramAddress >>> 4) & 0x04 | this.vramAddress & 0x02;
-    var paletteNumber = (attribute >>> areaNumber) & 0x03;
+    const attribute = this.ppuMemory.readNameAttr(this.addressBus); // Attribute byte fetch
+    const areaNumber = (this.vramAddress >>> 4) & 0x04 | this.vramAddress & 0x02;
+    const paletteNumber = (attribute >>> areaNumber) & 0x03;
     this.paletteLatchNext0 = paletteNumber & 1;
     this.paletteLatchNext1 = (paletteNumber >>> 1) & 1;
   }
@@ -741,22 +737,21 @@ export default class PPU {
   }
 
   shiftBackground() {
-    this.patternBuffer0 =  this.patternBuffer0 << 1;
-    this.patternBuffer1 =  this.patternBuffer1 << 1;
+    this.patternBuffer0 = this.patternBuffer0 << 1;
+    this.patternBuffer1 = this.patternBuffer1 << 1;
     this.paletteBuffer0 = (this.paletteBuffer0 << 1) | this.paletteLatch0;
     this.paletteBuffer1 = (this.paletteBuffer1 << 1) | this.paletteLatch1;
   }
 
   renderBackgroundPixel() {
     if (this.isBackgroundPixelVisible()) {
-      var colorBit0   = ((this.patternBuffer0 << this.fineXScroll) >> 15) & 0x1;
-      var colorBit1   = ((this.patternBuffer1 << this.fineXScroll) >> 14) & 0x2;
-      var paletteBit0 = ((this.paletteBuffer0 << this.fineXScroll) >>  5) & 0x4;
-      var paletteBit1 = ((this.paletteBuffer1 << this.fineXScroll) >>  4) & 0x8;
+      const colorBit0 = ((this.patternBuffer0 << this.fineXScroll) >> 15) & 0x1;
+      const colorBit1 = ((this.patternBuffer1 << this.fineXScroll) >> 14) & 0x2;
+      const paletteBit0 = ((this.paletteBuffer0 << this.fineXScroll) >> 5) & 0x4;
+      const paletteBit1 = ((this.paletteBuffer1 << this.fineXScroll) >> 4) & 0x8;
       return paletteBit1 | paletteBit0 | colorBit1 | colorBit0;
-    } else {
-      return 0;
     }
+    return 0;
   }
 
   isBackgroundPixelVisible() {
@@ -784,12 +779,12 @@ export default class PPU {
     this.spriteNumber = 0;
     this.spriteCount = 0;
 
-    var height = this.bigSprites ? 16 : 8;
-    var bottomY = this.scanline + 1;
-    var topY = bottomY - height + 1;
+    const height = this.bigSprites ? 16 : 8;
+    const bottomY = this.scanline + 1;
+    const topY = bottomY - height + 1;
 
-    for (var address = 0; address < this.primaryOAM.length; address += 4) {
-      var spriteY = this.primaryOAM[address] + 1;
+    for (let address = 0; address < this.primaryOAM.length; address += 4) {
+      const spriteY = this.primaryOAM[address] + 1;
       if (spriteY < topY || spriteY > bottomY) {
         continue;
       }
@@ -799,15 +794,15 @@ export default class PPU {
         break;
       }
 
-      var patternTableAddress = this.spPatternTableAddress;
-      var patternNumber = this.primaryOAM[address + 1];
+      let patternTableAddress = this.spPatternTableAddress;
+      let patternNumber = this.primaryOAM[address + 1];
       if (this.bigSprites) {
         patternTableAddress = (patternNumber & 1) << 12;
         patternNumber &= 0xFE;
       }
 
-      var attributes = this.primaryOAM[address + 2];
-      var rowNumber = bottomY - spriteY;
+      const attributes = this.primaryOAM[address + 2];
+      let rowNumber = bottomY - spriteY;
       if (attributes & 0x80) {
         rowNumber = height - rowNumber - 1; // Vertical flip
       }
@@ -816,14 +811,14 @@ export default class PPU {
         patternNumber++;
       }
 
-      var sprite = this.secondaryOAM[this.spriteCount];
+      const sprite = this.secondaryOAM[this.spriteCount];
       sprite.x = this.primaryOAM[address + 3];
       sprite.zeroSprite = address === 0;
       sprite.horizontalFlip = attributes & 0x40;
       sprite.paletteNumber = 0x10 | (attributes & 0x03) << 2;
       sprite.inFront = (attributes & 0x20) === 0;
 
-      var patternAddress = patternTableAddress + (patternNumber << 4);
+      const patternAddress = patternTableAddress + (patternNumber << 4);
       sprite.patternRowAddress = patternAddress + rowNumber;
       this.spriteCount++;
     }
@@ -831,7 +826,7 @@ export default class PPU {
 
   fetchSpriteLow() {
     if (this.spriteNumber < this.spriteCount) {
-      var sprite = this.secondaryOAM[this.spriteNumber];
+      const sprite = this.secondaryOAM[this.spriteNumber];
       this.addressBus = sprite.patternRowAddress;
       sprite.patternRow0 = this.ppuMemory.readPattern(this.addressBus);
     } else {
@@ -841,7 +836,7 @@ export default class PPU {
 
   fetchSpriteHigh() {
     if (this.spriteNumber < this.spriteCount) {
-      var sprite = this.secondaryOAM[this.spriteNumber++];
+      const sprite = this.secondaryOAM[this.spriteNumber++];
       this.addressBus = sprite.patternRowAddress + 8;
       sprite.patternRow1 = this.ppuMemory.readPattern(this.addressBus);
     } else {
@@ -850,27 +845,27 @@ export default class PPU {
   }
 
   clearSprites() {
-    for (var i = 0; i < this.spriteCache.length; i++) {
+    for (let i = 0; i < this.spriteCache.length; i++) {
       this.spriteCache[i] = null;
       this.spritePixelCache[i] = 0;
     }
   }
 
   prerenderSprites() {
-    for (var i = 0; i < this.spriteCount; i++) {
-      var sprite = this.secondaryOAM[i];
-      for (var j = 0; j < 8; j++) {
-        var cycle = sprite.x + j + 1;
+    for (let i = 0; i < this.spriteCount; i++) {
+      const sprite = this.secondaryOAM[i];
+      for (let j = 0; j < 8; j++) {
+        const cycle = sprite.x + j + 1;
         if (cycle > VIDEO_WIDTH) {
           break;
         }
         if (this.spriteCache[cycle]) {
           continue;
         }
-        var columnNumber = sprite.horizontalFlip ? j : j ^ 0x07;
-        var colorBit0 = (sprite.patternRow0 >>> columnNumber) & 1;
-        var colorBit1 = ((sprite.patternRow1 >>> columnNumber) & 1) << 1;
-        var colorNumber = colorBit1 | colorBit0;
+        const columnNumber = sprite.horizontalFlip ? j : j ^ 0x07;
+        const colorBit0 = (sprite.patternRow0 >>> columnNumber) & 1;
+        const colorBit1 = ((sprite.patternRow1 >>> columnNumber) & 1) << 1;
+        const colorNumber = colorBit1 | colorBit0;
         if (colorNumber) {
           this.spriteCache[cycle] = sprite;
           this.spritePixelCache[cycle] = sprite.paletteNumber | colorNumber;
@@ -882,9 +877,8 @@ export default class PPU {
   renderSpritePixel() {
     if (this.isSpritePixelVisible()) {
       return this.spritePixelCache[this.cycle];
-    } else {
-      return 0;
     }
+    return 0;
   }
 
   isSpritePixelVisible() {
@@ -905,46 +899,46 @@ export default class PPU {
   }
 
   renderPatterns() {
-    for (var tileY = 0; tileY < 16; tileY++) {
-      var baseY = tileY << 3;
-      for (var tileX = 0; tileX < 32; tileX++) {
-        var baseX = tileX << 3;
-        var address = ((tileX & 0x10) << 4 | tileY << 4 | tileX & 0x0F) << 4;
+    for (let tileY = 0; tileY < 16; tileY++) {
+      const baseY = tileY << 3;
+      for (let tileX = 0; tileX < 32; tileX++) {
+        const baseX = tileX << 3;
+        const address = ((tileX & 0x10) << 4 | tileY << 4 | tileX & 0x0F) << 4;
         this.renderPatternTile(baseX, baseY, address);
       }
     }
   }
 
   renderPatternTile(baseX, baseY, address) {
-    for (var rowNumber = 0; rowNumber < 8; rowNumber++) {
-      var y = baseY + rowNumber;
-      var patternBuffer0 = this.ppuMemory.readPattern(address + rowNumber);
-      var patternBuffer1 = this.ppuMemory.readPattern(address + rowNumber + 8);
-      for (var columnNumber = 0; columnNumber < 8; columnNumber++) {
-        var x = baseX + columnNumber;
-        var bitPosition = columnNumber ^ 0x07;
-        var colorBit0 =  (patternBuffer0 >> bitPosition) & 0x01;
-        var colorBit1 = ((patternBuffer1 >> bitPosition) & 0x01) << 1;
-        var color = this.ppuMemory.readPalette(colorBit1 | colorBit0);
+    for (let rowNumber = 0; rowNumber < 8; rowNumber++) {
+      const y = baseY + rowNumber;
+      const patternBuffer0 = this.ppuMemory.readPattern(address + rowNumber);
+      const patternBuffer1 = this.ppuMemory.readPattern(address + rowNumber + 8);
+      for (let columnNumber = 0; columnNumber < 8; columnNumber++) {
+        const x = baseX + columnNumber;
+        const bitPosition = columnNumber ^ 0x07;
+        const colorBit0 = (patternBuffer0 >> bitPosition) & 0x01;
+        const colorBit1 = ((patternBuffer1 >> bitPosition) & 0x01) << 1;
+        const color = this.ppuMemory.readPalette(colorBit1 | colorBit0);
         this.setFramePixelOnPosition(x, y, color);
       }
     }
   }
 
   renderPalettes() {
-    for (var tileY = 0; tileY < 4; tileY++) {
-      var baseY = 128 + tileY * 28;
-      for (var tileX = 0; tileX < 8; tileX++) {
-        var baseX = tileX << 5;
-        var color = this.ppuMemory.readPalette((tileY << 3) | tileX);
+    for (let tileY = 0; tileY < 4; tileY++) {
+      const baseY = 128 + tileY * 28;
+      for (let tileX = 0; tileX < 8; tileX++) {
+        const baseX = tileX << 5;
+        const color = this.ppuMemory.readPalette((tileY << 3) | tileX);
         this.renderPaletteTile(baseX, baseY, color);
       }
     }
   }
 
   renderPaletteTile(baseX, baseY, color) {
-    for (var y = baseY; y < baseY + 28; y++) {
-      for (var x = baseX; x < baseX + 32; x++) {
+    for (let y = baseY; y < baseY + 28; y++) {
+      for (let x = baseX; x < baseX + 32; x++) {
         this.setFramePixelOnPosition(x, y, color);
       }
     }

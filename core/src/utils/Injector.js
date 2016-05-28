@@ -9,7 +9,7 @@ export default class Injector {
   constructor(config) {
     logger.info('Creating injector');
     this.dependencies = {};
-    for (var name in config) {
+    for (const name in config) {
       this.put(name, config[name]);
     }
   }
@@ -19,7 +19,7 @@ export default class Injector {
   }
 
   get(name) {
-    var dependency = this.dependencies[name];
+    const dependency = this.dependencies[name];
     if (!dependency) {
       throw new Error(`Dependency "${name}" is not defined.`);
     }
@@ -32,13 +32,12 @@ export default class Injector {
       }
     }
     return dependency.value;
-
   }
 
   resolve(name, dependency) {
     if (typeof dependency.class !== 'undefined') {
       if (typeof dependency.class === 'function') {
-        return new dependency.class(this); // jscs:ignore requireCapitalizedConstructors
+        return new dependency.class(this);
       }
       throw new Error(`Class of "${name}" dependency is not a function`);
     }
@@ -55,10 +54,10 @@ export default class Injector {
   }
 
   inject(object) {
-    var dependencies = object.dependencies;
-    var injectMethod = object.inject;
+    const dependencies = object.dependencies;
+    const injectMethod = object.inject;
     if (dependencies && injectMethod) {
-      logger.info(`Injecting dependencies: ${dependencies.join(', ')}`);
+      logger.info('Injecting dependencies: ' + dependencies.join(', '));
       injectMethod.apply(object, dependencies.map(name => this.get(name)));
     }
     return object;

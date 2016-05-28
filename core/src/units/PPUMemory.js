@@ -1,6 +1,6 @@
+import {zeroArray, copyArray} from '../utils/array';
 import Mirroring from '../common/Mirroring';
 import logger from '../utils/logger';
-import {zeroArray, copyArray} from '../utils/array';
 
 const POWER_UP_PALETTES = [
   0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D,
@@ -41,9 +41,8 @@ export default class PPUMemory {
       return this.readPattern(address);  // $0000-$1FFF
     } else if (address < 0x3F00) {
       return this.readNameAttr(address); // $2000-$3EFF
-    } else {
-      return this.readPalette(address);  // $3F00-$3FFF
     }
+    return this.readPalette(address);    // $3F00-$3FFF
   }
 
   write(address, value) {
@@ -132,7 +131,7 @@ export default class PPUMemory {
   }
 
   mapNamesAttrsAreas(areas) {
-    for (var i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
       this.namesAttrsMapping[i] = areas[i] * 0x0400;
     }
   }
@@ -164,9 +163,8 @@ export default class PPUMemory {
   mapPaletteAddress(address) {
     if (address & 0x0003) {
       return address & 0x001F; // Mirroring of [$3F00-$3F1F] in [$3F00-$3FFF]
-    } else {
-      return address & 0x000F; // $3F10/$3F14/$3F18/$3F1C are mirrorors of $3F00/$3F04/$3F08$/3F0C
     }
+    return address & 0x000F; // $3F10/$3F14/$3F18/$3F1C are mirrorors of $3F00/$3F04/$3F08$/3F0C
   }
 
   //=========================================================

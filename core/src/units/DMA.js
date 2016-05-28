@@ -40,8 +40,8 @@ export default class DMA {
   }
 
   transferData() {
-    var address = this.baseAddress + (this.cyclesCount >> 1);
-    var data = this.cpuMemory.read(address);
+    const address = this.baseAddress + (this.cyclesCount >> 1);
+    const data = this.cpuMemory.read(address);
     this.cpuMemory.write(0x2004, data);
   }
 

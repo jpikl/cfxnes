@@ -1,13 +1,14 @@
+/* eslint-env mocha */
+/* eslint-disable no-unused-expressions */
+
 import chai from 'chai';
-import os from 'os';
 import {Logger, LogLevel, LogWriter} from '../../src/utils/logger';
 
-var expect = chai.expect;
+const expect = chai.expect;
 
 describe('Logger', () => {
-
-  var logger;
-  var writer;
+  let logger;
+  let writer;
 
   beforeEach(() => {
     logger = new Logger(LogLevel.ALL);
@@ -23,7 +24,7 @@ describe('Logger', () => {
   });
 
   it('should be able to attach multiple writers', () => {
-    var secondWriter = LogWriter.toBuffer();
+    const secondWriter = LogWriter.toBuffer();
     logger.attach(writer);
     logger.attach(secondWriter);
     logger.info('foo');
@@ -75,5 +76,4 @@ describe('Logger', () => {
     logger.info('info');
     expect(writer.buffer).to.deep.equal(output);
   }
-
 });

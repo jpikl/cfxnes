@@ -1,10 +1,12 @@
+/* eslint-disable no-console */
+
+import path from 'path';
 import express from 'express';
 import morgan from 'morgan';
-import path from 'path';
 import * as roms from './roms';
 
-var app = express();
-var dev = app.get('env') === 'development';
+const app = express();
+const dev = app.get('env') === 'development';
 
 app.use(morgan(dev ? 'dev' : 'common'));
 app.use('/', express.static(path.join(__dirname, 'static')));
@@ -13,7 +15,7 @@ app.get('/roms', roms.list);
 app.get('/roms/:id', roms.get);
 app.get('/files/:name', roms.download);
 
-app.use(function(error, req, res, next) {
+app.use((error, req, res, next) => { // eslint-disable-line no-unused-vars
   console.log(error.stack);
   res.sendStatus(500);
 });

@@ -1,0 +1,13 @@
+{
+  "extends": "../.eslintrc",
+  "env": {
+    "browser": true,
+  }
+  "plugins": [
+    "html"
+  ],
+  "settings": {
+    "html/indent": "+2",
+    "html/report-bad-indent": "warn"
+  }
+}

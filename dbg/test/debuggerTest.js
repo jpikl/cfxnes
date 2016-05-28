@@ -1,10 +1,11 @@
-import chai from 'chai';
-import childProcess from 'child_process';
+/* eslint-env mocha */
 
-var expect = chai.expect;
+import childProcess from 'child_process';
+import chai from 'chai';
+
+const expect = chai.expect;
 
 describe('Debugger', () => {
-
   it('should execute N steps', () => {
     expectResult(['../core/test/roms/nestest/nestest.nes', '-s3'], {
       status: 0,
@@ -17,12 +18,11 @@ describe('Debugger', () => {
       ],
     });
   });
-
 });
 
 function expectResult(args, {status, stdout, stderr}) {
   args.unshift('./bin/debugger');
-  var result = childProcess.spawnSync('node', args);
+  const result = childProcess.spawnSync('node', args);
 
   if (stderr !== undefined) {
     expect(readLines(result.stderr)).to.be.deep.equal(stderr, 'Different error output');
@@ -36,7 +36,7 @@ function expectResult(args, {status, stdout, stderr}) {
 }
 
 function readLines(buffer) {
-  var lines = buffer.toString().split('\n');
+  const lines = buffer.toString().split('\n');
   lines.pop();
   return lines;
 }

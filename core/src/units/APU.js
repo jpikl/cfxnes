@@ -1,9 +1,9 @@
+import {IRQ_APU} from '../common/constants';
 import PulseChannel from '../channels/PulseChannel';
 import TriangleChannel from '../channels/TriangleChannel';
 import NoiseChannel from '../channels/NoiseChannel';
 import DMCChannel from '../channels/DMCChannel';
 import logger from '../utils/logger';
-import {IRQ_APU} from '../common/constants';
 
 //=========================================================
 // Audio processing unit
@@ -84,9 +84,8 @@ export default class APU {
   getFrameCounterMax() {
     if (this.frameFiveStepMode) {
       return this.frameCounterMax5[this.frameStep];
-    } else {
-      return this.frameCounterMax4[this.frameStep];
     }
+    return this.frameCounterMax4[this.frameStep];
   }
 
   //=========================================================
@@ -190,19 +189,19 @@ export default class APU {
   }
 
   readStatus() {
-    var value = this.getStatus();
+    const value = this.getStatus();
     this.clearFrameIRQ();
     return value;
   }
 
   getStatus() {
-    return (this.pulseChannel1.lengthCounter      > 0)
-       | (this.pulseChannel2.lengthCounter      > 0) << 1
-       | (this.triangleChannel.lengthCounter    > 0) << 2
-       | (this.noiseChannel.lengthCounter       > 0) << 3
+    return (this.pulseChannel1.lengthCounter > 0)
+       | (this.pulseChannel2.lengthCounter > 0) << 1
+       | (this.triangleChannel.lengthCounter > 0) << 2
+       | (this.noiseChannel.lengthCounter > 0) << 3
        | (this.dmcChannel.sampleRemainingLength > 0) << 4
-       | (this.frameIrqActive)                       << 6
-       | (this.dmcChannel.irqActive)                 << 7;
+       | (this.frameIrqActive) << 6
+       | (this.dmcChannel.irqActive) << 7;
   }
 
   //=========================================================
@@ -299,24 +298,22 @@ export default class APU {
   }
 
   getPulseOutputValue() {
-    var pulse1Value = this.channelVolume[0] * this.pulseChannel1.getOutputValue();
-    var pulse2value = this.channelVolume[1] * this.pulseChannel2.getOutputValue();
+    const pulse1Value = this.channelVolume[0] * this.pulseChannel1.getOutputValue();
+    const pulse2value = this.channelVolume[1] * this.pulseChannel2.getOutputValue();
     if (pulse1Value || pulse2value) {
       return 95.88 / (8128 / (pulse1Value + pulse2value) + 100);
-    } else {
-      return 0;
     }
+    return 0;
   }
 
   getTriangleNoiseDMCOutput() {
-    var triangleValue = this.channelVolume[2] * this.triangleChannel.getOutputValue();
-    var noiseValue = this.channelVolume[3] * this.noiseChannel.getOutputValue();
-    var dmcValue = this.channelVolume[4] * this.dmcChannel.getOutputValue();
+    const triangleValue = this.channelVolume[2] * this.triangleChannel.getOutputValue();
+    const noiseValue = this.channelVolume[3] * this.noiseChannel.getOutputValue();
+    const dmcValue = this.channelVolume[4] * this.dmcChannel.getOutputValue();
     if (triangleValue || noiseValue || dmcValue) {
       return 159.79 / (1 / (triangleValue / 8227 + noiseValue / 12241 + dmcValue / 22638) + 100);
-    } else {
-      return 0;
     }
+    return 0;
   }
 
   //=========================================================
@@ -351,14 +348,14 @@ export default class APU {
   }
 
   recordOutputValue() {
-    var position = ~~(this.recordCycle++ * this.sampleRate / this.cpuFrequency);
+    const position = ~~(this.recordCycle++ * this.sampleRate / this.cpuFrequency);
     if (position > this.recordPosition) {
       this.fillRecordBuffer(position);
     }
   }
 
   fillRecordBuffer(position) {
-    var outputValue = this.getOutputValue();
+    const outputValue = this.getOutputValue();
     if (position == null || position > this.lastPosition) {
       position = this.lastPosition;
     }
@@ -389,7 +386,7 @@ export default class APU {
 
   computeSampleRateAdjustment() {
     // Our goal is to have right now about 50% of data in buffer
-    var percentageDifference = 0.5 - this.recordPosition / this.bufferSize;   // Difference from expected value (50% of data in buffer)
+    const percentageDifference = 0.5 - this.recordPosition / this.bufferSize; // Difference from expected value (50% of data in buffer)
     this.sampleRateAdjustment = 100 * percentageDifference / this.bufferSize; // Adjustment per 1 output value in buffer
   }
 

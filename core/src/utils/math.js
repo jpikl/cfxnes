@@ -3,7 +3,7 @@
 //=========================================================
 
 export function roundUpToPowerOf2(number) {
-  var result = 1;
+  let result = 1;
   while (result < number) {
     result *= 2;
   }

@@ -1,5 +1,3 @@
-// jscs:disable disallowQuotedKeysInObjects, requireCapitalizedConstructors
-
 import AOROMMapper from '../mappers/AOROMMapper';
 import BNROMMapper from '../mappers/BNROMMapper';
 import CNROMMapper from '../mappers/CNROMMapper';
@@ -11,7 +9,7 @@ import NROMMapper from '../mappers/NROMMapper';
 import UNROMMapper from '../mappers/UNROMMapper';
 import logger from '../utils/logger';
 
-var mappers = {
+const mappers = {
   'NROM': NROMMapper,
   'MMC1': MMC1Mapper,
   'UNROM': UNROMMapper,
@@ -34,11 +32,11 @@ export default class MapperFactory {
   }
 
   createMapper(cartridge) {
-    var name = cartridge.mapper;
-    var clazz = mappers[name];
+    const name = cartridge.mapper;
+    const clazz = mappers[name];
     if (clazz) {
       logger.info(`Creating "${name}" mapper`);
-      var mapper = new clazz(cartridge);
+      const mapper = new clazz(cartridge);
       return this.injector.inject(mapper);
     }
     throw new Error(`Unsupported mapper "${name}"`);

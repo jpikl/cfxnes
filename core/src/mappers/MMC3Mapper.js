@@ -1,6 +1,6 @@
-import AbstractMapper from './AbstractMapper';
-import Mirroring from '../common/Mirroring';
 import {IRQ_EXT} from '../common/constants';
+import Mirroring from '../common/Mirroring';
+import AbstractMapper from './AbstractMapper';
 
 //=========================================================
 // MMC3 mapper
@@ -67,14 +67,14 @@ export default class MMC3Mapper extends AbstractMapper {
 
   write(address, value) {
     switch (address & 0xE001) {
-      case 0x8000: this.bankSelect = value;       break; // $8000-$9FFE (100X), even address
-      case 0x8001: this.writeBankData(value);     break; // $8001-$9FFF (100X), odd  address
-      case 0xA000: this.writeMirroring(value);    break; // $A000-$BFFE (101X), even address
+      case 0x8000: this.bankSelect = value; break;       // $8000-$9FFE (100X), even address
+      case 0x8001: this.writeBankData(value); break;     // $8001-$9FFF (100X), odd  address
+      case 0xA000: this.writeMirroring(value); break;    // $A000-$BFFE (101X), even address
       case 0xA001: this.writePRGRAMEnable(value); break; // $A001-$BFFF (101X), odd  address
-      case 0xC000: this.irqLatch = value;         break; // $C000-$DFFE (110X), even address
-      case 0xC001: this.writeIRQReload();         break; // $C001-$DFFF (110X), odd  address
-      case 0xE000: this.writeIRQEnable(false);    break; // $E000-$FFFE (111X), even address
-      case 0xE001: this.writeIRQEnable(true);     break; // $E001-$FFFF (111X), odd  address
+      case 0xC000: this.irqLatch = value; break;         // $C000-$DFFE (110X), even address
+      case 0xC001: this.writeIRQReload(); break;         // $C001-$DFFF (110X), odd  address
+      case 0xE000: this.writeIRQEnable(false); break;    // $E000-$FFFE (111X), even address
+      case 0xE001: this.writeIRQEnable(true); break;     // $E001-$FFFF (111X), odd  address
     }
   }
 
@@ -129,18 +129,18 @@ export default class MMC3Mapper extends AbstractMapper {
   //=========================================================
 
   switchDoubleCHRROMBanks(target) {
-    var source = (this.bankSelect & 0x80) >>> 6 | this.bankSelect & 0x01; // S[1,0] = C[7,0]
+    const source = (this.bankSelect & 0x80) >>> 6 | this.bankSelect & 0x01; // S[1,0] = C[7,0]
     this.mapCHRROMBank2K(source, target >>> 1);
   }
 
   switchSingleCHRROMBanks(target) {
-    var source = (~this.bankSelect & 0x80) >>> 5 | (this.bankSelect - 2) & 0x03; // S[2,1,0] = (C-2)[!7,1,0]
+    const source = (~this.bankSelect & 0x80) >>> 5 | (this.bankSelect - 2) & 0x03; // S[2,1,0] = (C-2)[!7,1,0]
     this.mapCHRROMBank1K(source, target);
   }
 
   switchPRGROMBanks0And2(target) {
-    var sourceA = (this.bankSelect & 0x40) >>> 5;  // SA[1] = C[6]
-    var sourceB = (~this.bankSelect & 0x40) >>> 5; // SB[1] = C[!6]
+    const sourceA = (this.bankSelect & 0x40) >>> 5;  // SA[1] = C[6]
+    const sourceB = (~this.bankSelect & 0x40) >>> 5; // SB[1] = C[!6]
     this.mapPRGROMBank8K(sourceA, target);      // Selected bank
     this.mapPRGROMBank8K(sourceB, -2);          // Second last bank
   }
@@ -194,7 +194,7 @@ export default class MMC3Mapper extends AbstractMapper {
   }
 
   updateIRQCounter() {
-    var irqCounterOld = this.irqCounter;
+    const irqCounterOld = this.irqCounter;
     if (!this.irqCounter || this.irqReload) {
       this.irqCounter = this.irqLatch;
     } else {

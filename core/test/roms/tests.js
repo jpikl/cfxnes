@@ -1,14 +1,17 @@
-// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-
 //=============================================================================
 // Collection of ROM-based tests
 // Source: http://wiki.nesdev.com/w/index.php/Emulator_tests
 //=============================================================================
 
-import chai from 'chai';
+/* eslint-env mocha */
+/* eslint-disable camelcase */
+
 import fs from 'fs';
-import mkdirp from 'mkdirp';
 import path from 'path';
+import chai from 'chai';
+import mkdirp from 'mkdirp';
+import coreConfig from '../../src/config';
+import Injector from '../../src/utils/Injector';
 import * as nestest from './nestest/nestest';
 import * as instr_test from './instr_test/instr_test';
 import * as instr_timing from './instr_timing/instr_timing';
@@ -26,8 +29,8 @@ import * as apu_test from './apu_test/apu_test';
 import * as mmc3_test from './mmc3_test/mmc3_test';
 import * as bntest from './bntest/bntest';
 import * as holydiverbatman from './holydiverbatman/holydiverbatman';
-import coreConfig from '../../src/config';
-import Injector from '../../src/utils/Injector';
+
+/* eslint-enable camelcase */
 
 describe('Validation ROMs', () => {
   validate(nestest);
@@ -50,17 +53,17 @@ describe('Validation ROMs', () => {
 });
 
 function validate(test) {
-  var baseName = path.basename(test.dir);
+  const baseName = path.basename(test.dir);
   if (test.file) {
-    var file = path.join(test.dir, test.file);
-    var name = baseName;
-    var context = Object.assign({}, test, {file, name});
+    const file = path.join(test.dir, test.file);
+    const name = baseName;
+    const context = Object.assign({}, test, {file, name});
     it(name, () => execute(context));
   } else if (test.files) {
     for (let number = 0; number < test.files.length; number++) {
-      let file = path.join(test.dir, test.files[number]);
-      let name = path.basename(file, '.nes');
-      let context = Object.assign({}, test, {file, name, number});
+      const file = path.join(test.dir, test.files[number]);
+      const name = path.basename(file, '.nes');
+      const context = Object.assign({}, test, {file, name, number});
       it(`${baseName} (${name})`, () => execute(context));
     }
   }
@@ -68,35 +71,38 @@ function validate(test) {
 
 function execute(test) {
   // Read configuration
-  var config = Object.assign({}, coreConfig);
+  const config = Object.assign({}, coreConfig);
   test.configure(config);
 
   // Setup emulator
-  var injector = new Injector(config);
-  var cartridgeFactory = injector.get('cartridgeFactory');
-  var cartridge = cartridgeFactory.readFile(test.file);
-  var cpuMemory = injector.get('cpuMemory');
-  var nes = injector.get('nes');
-  var ppu = injector.get('ppu');
+  const injector = new Injector(config);
+  const cartridgeFactory = injector.get('cartridgeFactory');
+  const cartridge = cartridgeFactory.readFile(test.file);
+  const cpuMemory = injector.get('cpuMemory');
+  const nes = injector.get('nes');
+  const ppu = injector.get('ppu');
   nes.insertCartridge(cartridge);
 
   // Prepare context
-  var number = test.number;
-  var assert = chai.assert;
-  var expect = chai.expect;
-  var context = {
+  const number = test.number;
+  const assert = chai.assert;
+  const expect = chai.expect;
+  const context = {
     number, assert, expect, fail, get, power, reset, step,
     readByte, readString, screenshot, blargg, getPath, getOutputPath,
   };
 
   // Execute test
-  var asyncResults = [];
+  const asyncResults = [];
   test.execute(context);
   if (asyncResults.length) {
     return Promise.all(asyncResults);
   }
+  return undefined;
 
-  // ==================== Helper functions ====================
+  //==========================================================
+  // Helper functions
+  //==========================================================
 
   function fail(message) {
     assert(false, message);
@@ -115,7 +121,7 @@ function execute(test) {
   }
 
   function step(count = 1) {
-    for (var i = 0; i < count; i++) {
+    for (let i = 0; i < count; i++) {
       nes.step();
     }
   }
@@ -125,24 +131,21 @@ function execute(test) {
   }
 
   function readString(address) {
-    var data = [];
-    while (true) {
-      var value = readByte(address++);
-      if (value === 0) {
-        break;
-      }
+    const data = [];
+    let value;
+    while ((value = readByte(address++)) !== 0) {
       data.push(value);
     }
     String.fromCharCode.apply(null, data);
   }
 
   function screenshot(file) {
-    var verifiedFile = getPath(file || test.name + '.png');
-    var outputFile = getOutputPath(test.name + '.png');
+    const verifiedFile = getPath(file || test.name + '.png');
+    const outputFile = getOutputPath(test.name + '.png');
     asyncResults.push(ppu.writeFrameToFile(outputFile).then(() => {
       return new Promise((resolve, reject) => {
-        var verifiedBuffer = fs.readFileSync(verifiedFile);
-        var outputBuffer = fs.readFileSync(outputFile);
+        const verifiedBuffer = fs.readFileSync(verifiedFile);
+        const outputBuffer = fs.readFileSync(outputFile);
         if (outputBuffer.equals(verifiedBuffer)) {
           resolve();
         } else {
@@ -150,6 +153,16 @@ function execute(test) {
         }
       });
     }));
+  }
+
+  function getPath(...names) {
+    return path.join(test.dir, ...names);
+  }
+
+  function getOutputPath(...names) {
+    const dir = 'out';
+    mkdirp(getPath(dir));
+    return getPath(dir, ...names);
   }
 
   function blargg() {
@@ -160,35 +173,25 @@ function execute(test) {
     const RESULT_OK = 0x00;
     const MESSAGE_ADDRESS = 0x6004;
 
-    var result;
-    while ((result = readByte(RESULT_ADDRESS)) !== RESULT_RUNNING) {
-      step(); // Wait until test starts
+    function run() {
+      let result;
+      while ((result = readByte(RESULT_ADDRESS)) !== RESULT_RUNNING) {
+        step(); // Wait until test starts/resumes
+      }
+      while ((result = readByte(RESULT_ADDRESS)) === RESULT_RUNNING) {
+        step(); // Wait until test starts/resumes
+      }
+      return result;
     }
-    while ((result = readByte(RESULT_ADDRESS)) === RESULT_RUNNING) {
-      step(); // Wait while test is in progress
-    }
+
+    let result = run();
     if (result === RESULT_RESET) {
       step(200000); // Reset needs to be done at least after 100 msec (~122880 cpu ticks)
       reset();
-      while ((result = readByte(RESULT_ADDRESS)) !== RESULT_RUNNING) {
-        step(); // Wait until test resumes
-      }
-      while ((result = readByte(RESULT_ADDRESS)) === RESULT_RUNNING) {
-        step(); // Wait while test is in progress
-      }
+      result = run();
     }
 
-    var message = readString(MESSAGE_ADDRESS);
+    const message = readString(MESSAGE_ADDRESS);
     assert(result === RESULT_OK, '\n' + message);
-  }
-
-  function getPath(...names) {
-    return path.join(test.dir, ...names);
-  }
-
-  function getOutputPath(...names) {
-    var dir = 'out';
-    mkdirp(getPath(dir));
-    return getPath(dir, ...names);
   }
 }

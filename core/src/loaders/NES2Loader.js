@@ -1,9 +1,7 @@
-// jscs:disable disallowQuotedKeysInObjects
-
 import Region from '../common/Region';
 import INESLoader from './INESLoader';
 
-var submappers = {
+const submappers = {
   'MMC1': {
     0x01: 'SUROM',
     0x02: 'SOROM',
@@ -18,12 +16,13 @@ var submappers = {
 export default class NES2Loader extends INESLoader {
 
   constructor() {
-    super('NES 2.0');
+    super();
+    this.name = 'NES 2.0';
   }
 
   supports(reader) {
     if (super.supports(reader)) {
-      var flags = reader.peek(8); // Byte 7 must be xxxx10xx
+      const flags = reader.peek(8); // Byte 7 must be xxxx10xx
       return flags.length === 8 && (flags[7] & 0x0C) === 0x08;
     }
     return false;
@@ -34,19 +33,19 @@ export default class NES2Loader extends INESLoader {
   //=========================================================
 
   readByte8(reader, cartridge) {
-    var flags = reader.readByte();
+    const flags = reader.readByte();
     cartridge.mapperId |= (flags & 0x0F) << 8;    // Bits 8-11 of mapper number
     cartridge.submapperId = (flags & 0xF0) >>> 4; // Zero when not used
   }
 
   readByte9(reader, cartridge) {
-    var flags = reader.readByte();
+    const flags = reader.readByte();
     cartridge.prgROMSize += ((flags & 0x0F) << 8) * 0x4000; // + N x 16KB (bits 8-11 of N)
     cartridge.chrROMSize += ((flags & 0xF0) << 4) * 0x2000; // + N x  8KB (bits 8-11 of N)
   }
 
   readByte10(reader, cartridge) {
-    var flags = reader.readByte();
+    const flags = reader.readByte();
     cartridge.prgRAMSizeBattery = this.computeRAMSize((flags & 0xF0) >>> 4);
     cartridge.prgRAMSize = cartridge.prgRAMSizeBattery + this.computeRAMSize(flags & 0x0F);
     cartridge.hasPRGRAM = cartridge.prgRAMSize !== 0;
@@ -54,7 +53,7 @@ export default class NES2Loader extends INESLoader {
   }
 
   readByte11(reader, cartridge) {
-    var flags = reader.readByte();
+    const flags = reader.readByte();
     cartridge.chrRAMSizeBattery = this.computeRAMSize((flags & 0xF0) >>> 4);
     cartridge.chrRAMSize = cartridge.chrRAMSizeBattery + this.computeRAMSize(flags & 0x0F);
     cartridge.hasCHRRAM = cartridge.chrRAMSize !== 0;
@@ -62,7 +61,7 @@ export default class NES2Loader extends INESLoader {
   }
 
   readByte12(reader, cartridge) {
-    var flags = reader.readByte();
+    const flags = reader.readByte();
     cartridge.region = flags & 0x01 ? Region.PAL : Region.NTSC;
   }
 

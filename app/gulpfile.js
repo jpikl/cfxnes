@@ -1,30 +1,31 @@
-var browser = require('browser-sync').create();
-var fs = require('fs');
-var babel = require('gulp-babel');
-var concat = require('gulp-concat');
-var gulp = require('gulp');
-var server = require('gulp-develop-server');
-var gulpif = require('gulp-if');
-var jscs = require('gulp-jscs');
-var less = require('gulp-less');
-var markdown = require('gulp-markdown');
-var prettify = require('gulp-prettify');
-var rename = require('gulp-rename');
-var replace = require('gulp-replace');
-var riot = require('gulp-riot');
-var uglify = require('gulp-uglify');
-var Autoprefix = require('less-plugin-autoprefix');
-var CleanCSS = require('less-plugin-clean-css');
-var marked = require('marked');
-var merge = require('merge2');
-var mkdirp = require('mkdirp');
-var yargs = require('yargs');
+const fs = require('fs');
+const path = require('path');
+const browser = require('browser-sync').create();
+const babel = require('gulp-babel');
+const concat = require('gulp-concat');
+const gulp = require('gulp');
+const server = require('gulp-develop-server');
+const eslint = require('gulp-eslint');
+const gulpif = require('gulp-if');
+const less = require('gulp-less');
+const markdown = require('gulp-markdown');
+const prettify = require('gulp-prettify');
+const rename = require('gulp-rename');
+const replace = require('gulp-replace');
+const riot = require('gulp-riot');
+const uglify = require('gulp-uglify');
+const Autoprefix = require('less-plugin-autoprefix');
+const CleanCSS = require('less-plugin-clean-css');
+const marked = require('marked');
+const merge = require('merge2');
+const mkdirp = require('mkdirp');
+const yargs = require('yargs');
 
 //=========================================================
 // Arguments
 //=========================================================
 
-var argv = yargs
+const argv = yargs
   .boolean('d').alias('d', 'debug')
   .boolean('a').alias('a', 'analytics')
   .argv;
@@ -33,8 +34,8 @@ var argv = yargs
 // Client
 //=========================================================
 
-gulp.task('libs', function() {
-  var sources = [
+gulp.task('libs', () => {
+  const sources = [
     './node_modules/object-assign-polyfill/index.js',
     './node_modules/promise-polyfill/promise.min.js',
     './node_modules/js-sha1/build/sha1.min.js',
@@ -51,19 +52,19 @@ gulp.task('libs', function() {
     .pipe(gulp.dest('./dist/static/'));
 });
 
-gulp.task('scripts', function() {
-  var app = gulp.src('./src/client/app.js');
-  var tags = gulp.src('./src/client/tags/**/*.tag').pipe(riot());
+gulp.task('scripts', () => {
+  const app = gulp.src('./src/client/app.js');
+  const tags = gulp.src('./src/client/tags/**/*.tag').pipe(riot());
   return merge(app, tags)
     .pipe(gulpif(!argv.debug, uglify()))
     .pipe(concat('app.js'))
     .pipe(gulp.dest('./dist/static/'));
 });
 
-gulp.task('styles', function() {
-  var autoprefix = new Autoprefix({browsers: ['last 2 versions']});
-  var cleancss = new CleanCSS({advanced: true, keepSpecialComments: false});
-  var options = {
+gulp.task('styles', () => {
+  const autoprefix = new Autoprefix({browsers: ['last 2 versions']});
+  const cleancss = new CleanCSS({advanced: true, keepSpecialComments: false});
+  const options = {
     paths: [
       './node_modules/bootstrap/less/',
       './node_modules/bootstrap-slider/src/less/',
@@ -78,19 +79,19 @@ gulp.task('styles', function() {
     .pipe(browser.stream());
 });
 
-gulp.task('pages', function() {
+gulp.task('pages', () => {
   return gulp.src('./src/client/index.html')
     .pipe(replace('<!-- Google Analytics -->',
       argv.analytics ? fs.readFileSync('./src/client/ga.html', 'utf8') : ''))
     .pipe(gulp.dest('./dist/static/'));
 });
 
-gulp.task('images', function() {
+gulp.task('images', () => {
   return gulp.src('./src/client/**/*.{png,jpg,gif,svg}')
     .pipe(gulp.dest('./dist/static/'));
 });
 
-gulp.task('fonts', function() {
+gulp.task('fonts', () => {
   return gulp.src('./node_modules/font-awesome/fonts/fontawesome-webfont.*')
     .pipe(gulp.dest('./dist/static/fonts/'));
 });
@@ -101,7 +102,7 @@ gulp.task('client', gulp.parallel('libs', 'scripts', 'styles', 'pages', 'images'
 // Server
 //=========================================================
 
-gulp.task('server', function() {
+gulp.task('server', () => {
   return gulp.src('./src/server/**/*.js')
     .pipe(babel({presets: ['es2015']}))
     .pipe(gulp.dest('./dist/'));
@@ -111,19 +112,18 @@ gulp.task('server', function() {
 // Build
 //=========================================================
 
-gulp.task('dirs', function(done) {
+gulp.task('dirs', done => {
   mkdirp.sync('./dist/');
   done();
 });
 
-gulp.task('symlinks', function(done) {
+gulp.task('symlinks', done => {
   if (process.platform === 'win32') {
-    done(); // Common Windows user doesn't have right to create symbolic links
-  } else {
-    mkdirp.sync('../roms/');
-    return gulp.src('../roms/')
-      .pipe(gulp.symlink('./dist/roms/'));
+    return done(); // Common Windows user doesn't have right to create symbolic links
   }
+  mkdirp.sync('../roms/');
+  return gulp.src('../roms/')
+    .pipe(gulp.symlink('./dist/roms/'));
 });
 
 gulp.task('build', gulp.series('dirs', gulp.parallel('client', 'server')));
@@ -132,7 +132,7 @@ gulp.task('build', gulp.series('dirs', gulp.parallel('client', 'server')));
 // Watch
 //=========================================================
 
-gulp.task('watch', function() {
+gulp.task('watch', () => {
   gulp.watch('./src/client/**/*.{js,tag}', gulp.series('scripts', browser.reload));
   gulp.watch('./src/client/**/*.less', gulp.series('styles'));
   gulp.watch('./src/client/**/*.html', gulp.series('pages', browser.reload));
@@ -144,23 +144,23 @@ gulp.task('watch', function() {
 // Run
 //=========================================================
 
-gulp.task('start', function() {
-  var options = {
+gulp.task('start', () => {
+  const options = {
     env: {
       NODE_ENV: 'development',
-      NODE_PATH: __dirname + '/node_modules',
+      NODE_PATH: path.join(__dirname, 'node_modules'),
     },
     path: './dist/app.js',
   };
-  server.listen(options, function(error) {
+  server.listen(options, error => {
     if (!error) {
       browser.init({proxy: 'http://localhost:5000'});
     }
   });
 });
 
-gulp.task('restart', function() {
-  server.restart(function(error) {
+gulp.task('restart', () => {
+  server.restart(error => {
     if (!error) {
       browser.reload();
     }
@@ -168,21 +168,21 @@ gulp.task('restart', function() {
 });
 
 //=========================================================
-// Check code style
+// Linter
 //=========================================================
 
-gulp.task('lint', function() {
+gulp.task('lint', () => {
   return gulp.src(['./gulpfile.js', './{src,test}/**/*.js'])
-    .pipe(jscs())
-    .pipe(jscs.reporter());
+    .pipe(eslint())
+    .pipe(eslint.format());
 });
 
 //=========================================================
 // Generate HTML changelog
 //=========================================================
 
-gulp.task('changelog', function() {
-  var renderer = new marked.Renderer();
+gulp.task('changelog', () => {
+  const renderer = new marked.Renderer();
   renderer.firstParagraph = true;
   renderer.heading = function(text, level) {
     return '<h' + (level + 1) + '>' + text + '</h' + (level + 1) + '>\n';

@@ -1,5 +1,5 @@
-import logger from '../utils/logger';
 import {IRQ_DCM} from '../common/constants';
+import logger from '../utils/logger';
 
 //=========================================================
 // DMC Channel
@@ -128,10 +128,8 @@ export default class DMCChannel {
         if (this.outputValue <= 125) {
           this.outputValue += 2; // We cannot go over 127
         }
-      } else {
-        if (this.outputValue >= 2) {
-          this.outputValue -= 2; // We cannot go bellow 0
-        }
+      } else if (this.outputValue >= 2) {
+        this.outputValue -= 2; // We cannot go bellow 0
       }
       this.shiftRegister >>>= 1;
     }

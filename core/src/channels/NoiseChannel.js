@@ -1,5 +1,5 @@
-import logger from '../utils/logger';
 import {LENGTH_COUNTER_VALUES} from '../common/constants';
+import logger from '../utils/logger';
 
 //=========================================================
 // Noise channel
@@ -78,8 +78,8 @@ export default class NoiseChannel {
   //=========================================================
 
   updateShiftRegister() {
-    var feedbackPosition = this.timerMode ? 6 : 1;
-    var feedbackValue = (this.shiftRegister & 1) ^ ((this.shiftRegister >>> feedbackPosition) & 1);
+    const feedbackPosition = this.timerMode ? 6 : 1;
+    const feedbackValue = (this.shiftRegister & 1) ^ ((this.shiftRegister >>> feedbackPosition) & 1);
     this.shiftRegister = (this.shiftRegister >>> 1) | (feedbackValue << 14);
   }
 

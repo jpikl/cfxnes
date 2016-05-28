@@ -11,7 +11,7 @@
 
 CFxNES is able to load [iNES](http://wiki.nesdev.com/w/index.php/INES) and [NES 2.0](http://wiki.nesdev.com/w/index.php/NES_2.0) ROM images. 
 
-It is also possible to load ZIP archive containing ROM image. The first file with `.nes` extension found in ZIP archive will be always loaded. This feature requires an [external dependency](api.md#user-content-external-dependencies)
+It is also possible to load ZIP archive containing ROM image. The first file with `.nes` extension found in ZIP archive will be always loaded. This feature requires an [external dependency](api.md#user-content-external-dependencies).
 
 *Example:*
 

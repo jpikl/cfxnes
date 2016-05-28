@@ -1,10 +1,9 @@
 import Mirroring from '../common/Mirroring';
 import Region from '../common/Region';
-import AbstractLoader from './AbstractLoader';
 
 const INES_SIGNATURE = [0x4E, 0x45, 0x53, 0x1A]; // 'NES^Z'
 
-var mappers = {
+const mappers = {
   0: 'NROM',
   1: 'MMC1',
   2: 'UNROM',
@@ -19,17 +18,18 @@ var mappers = {
 // Loader for the iNES ROM format
 //=========================================================
 
-export default class INESLoader extends AbstractLoader {
+export default class INESLoader {
 
-  constructor(name) {
-    super(name || 'iNES');
+  constructor() {
+    this.name = 'iNES';
   }
 
   supports(reader) {
     return reader.contains(INES_SIGNATURE);
   }
 
-  read(reader, cartridge) {
+  load(reader) {
+    const cartridge = {};
     this.readHeader(reader, cartridge);  //  16 B [$00-$0F]
     this.readTrainer(reader, cartridge); // 512 B (optional)
     this.readPRGROM(reader, cartridge);  //  16KB x number of units
@@ -37,6 +37,7 @@ export default class INESLoader extends AbstractLoader {
     this.detectPRGRAM(cartridge);
     this.setMapper(cartridge);
     this.setSubmapper(cartridge);
+    return cartridge;
   }
 
   //=========================================================
@@ -69,8 +70,8 @@ export default class INESLoader extends AbstractLoader {
   }
 
   readControlBytes(reader, cartridge) {
-    var control1 = reader.readByte();
-    var control2 = reader.readByte();
+    const control1 = reader.readByte();
+    const control2 = reader.readByte();
     if (control1 & 0x08) {
       cartridge.mirroring = Mirroring.FOUR_SCREEN;
     } else if (control1 & 0x01) {
@@ -91,23 +92,23 @@ export default class INESLoader extends AbstractLoader {
 
   readByte9(reader, cartridge) {
     // Virtually no ROM images uses this byte, but it is part of the iNES specification.
-    var flags = reader.readByte();
+    const flags = reader.readByte();
     cartridge.region = flags & 0x01 ? Region.PAL : Region.NTSC;
   }
 
-  readByte10(reader, cartridge) {
+  readByte10(reader) {
     reader.skip(1);
   }
 
-  readByte11(reader, cartridge) {
+  readByte11(reader) {
     reader.skip(1);
   }
 
-  readByte12(reader, cartridge) {
+  readByte12(reader) {
     reader.skip(1);
   }
 
-  readByte13(reader, cartridge) {
+  readByte13(reader) {
     reader.skip(1);
   }
 
@@ -146,7 +147,7 @@ export default class INESLoader extends AbstractLoader {
     }
   }
 
-  setSubmapper(cartridge) {
+  setSubmapper() {
   }
 
 }

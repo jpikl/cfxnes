@@ -1,5 +1,5 @@
-import logger from '../utils/logger';
 import {zeroArray} from '../utils/array';
+import logger from '../utils/logger';
 
 //=========================================================
 // CPU memory
@@ -40,23 +40,22 @@ export default class CPUMemory {
   read(address) {
     if (address >= 0x8000) {
       return this.readPRGROM(address); // $8000-$FFFF
-    } else if (address <  0x2000) {
+    } else if (address < 0x2000) {
       return this.readRAM(address);    // $0000-$1FFF
-    } else if (address <  0x4020) {
+    } else if (address < 0x4020) {
       return this.readIO(address);     // $2000-$401F
     } else if (address >= 0x6000) {
       return this.readPRGRAM(address); // $6000-$7FFF
-    } else {
-      return this.readEXROM(address);  // $4020-$5FFF
     }
+    return this.readEXROM(address);    // $4020-$5FFF
   }
 
   write(address, value) {
     if (address >= 0x8000) {
       this.writePRGROM(address, value); // $8000-$FFFF
-    } else if (address <  0x2000) {
+    } else if (address < 0x2000) {
       this.writeRAM(address, value);    // $0000-$1FFF
-    } else if (address <  0x4020) {
+    } else if (address < 0x4020) {
       this.writeIO(address, value);     // $2000-$401F
     } else if (address >= 0x6000) {
       this.writePRGRAM(address, value); // $6000-$7FFF
@@ -110,7 +109,7 @@ export default class CPUMemory {
       case 0x4015: return this.apu.readStatus();
       case 0x4016: return this.readInputDevice(1);
       case 0x4017: return this.readInputDevice(2);
-      default:     return 0;
+      default: return 0;
     }
   }
 
@@ -154,9 +153,8 @@ export default class CPUMemory {
   mapIOAddress(address) {
     if (address < 0x4000) {
       return address & 0x2007; // Mirroring of [$2000-$2007] in [$2000-$3FFF]
-    } else {
-      return address;
     }
+    return address;
   }
 
   //=========================================================
@@ -172,19 +170,19 @@ export default class CPUMemory {
   }
 
   readInputDevice(port) {
-    var device = this.inputDevices[port];
+    const device = this.inputDevices[port];
     return device ? device.read() : 0;
   }
 
   strobeInputDevice(port) {
-    var device = this.inputDevices[port];
+    const device = this.inputDevices[port];
     if (device) {
       device.strobe();
     }
   }
 
   writeInputDevice(value) {
-    var strobe = value & 1;
+    const strobe = value & 1;
     if (strobe && !this.inputStrobe) {
       this.strobeInputDevice(1);
       this.strobeInputDevice(2);
@@ -196,11 +194,11 @@ export default class CPUMemory {
   // EX ROM acceess ($4020-$5FFF)
   //=========================================================
 
-  readEXROM(address) {
+  readEXROM() {
     return 0; // Not supported yet
   }
 
-  writeEXROM(address, value) {
+  writeEXROM() {
     // Not supported yet
   }
 
@@ -230,7 +228,7 @@ export default class CPUMemory {
   writePRGRAM(address, value) {
     if (this.prgRAM && this.mapper.canWritePRGRAM) {
       this.prgRAM[this.mapPRGRAMAddress(address)] = value;
-      if (this.mapper.hasPRGRAMRegisters)  {
+      if (this.mapper.hasPRGRAMRegisters) {
         this.mapper.write(address, value); // Some mappers (NINA-001) have their registers mapped in PRG RAM address space
       }
     }

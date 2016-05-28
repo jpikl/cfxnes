@@ -1,5 +1,5 @@
-import logger from '../utils/logger';
 import {LENGTH_COUNTER_VALUES} from '../common/constants';
+import logger from '../utils/logger';
 
 const DUTY_WAVEFORMS = [
   [0, 1, 0, 0, 0, 0, 0, 0], // _X______ (12.5%)
@@ -19,7 +19,7 @@ export default class PulseChannel {
   }
 
   powerUp() {
-    logger.info('Reseting pulse channel ' + this.channelId);
+    logger.info(`Reseting pulse channel ${this.channelId}`);
     this.setEnabled(false);
     this.timerCycle = 0;     // Timer counter value
     this.timerPeriod = 0;    // Timer counter reset value
@@ -144,16 +144,14 @@ export default class PulseChannel {
   }
 
   getSweep() {
-    var sweep = this.timerPeriod >>> this.sweepShift;
+    const sweep = this.timerPeriod >>> this.sweepShift;
     if (this.sweepNegate) {
       if (this.channelId === 1) {
         return ~sweep; // Square channel 1 use one's complement instead of the expected two's complement
-      } else {
-        return -sweep;
       }
-    } else {
-      return sweep;
+      return -sweep;
     }
+    return sweep;
   }
 
   isTimerPeriodValid() {
@@ -166,11 +164,10 @@ export default class PulseChannel {
 
   getOutputValue() {
     if (this.lengthCounter && this.isTimerPeriodValid()) {
-      var volume = this.useConstantVolume ? this.constantVolume : this.envelopeVolume;
+      const volume = this.useConstantVolume ? this.constantVolume : this.envelopeVolume;
       return volume * DUTY_WAVEFORMS[this.dutySelection][this.dutyPosition];
-    } else {
-      return 0;
     }
+    return 0;
   }
 
 }

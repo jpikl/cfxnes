@@ -1,5 +1,5 @@
 //=========================================================
-// Joypad device
+// Joypad
 //=========================================================
 
 export default class Joypad {
@@ -15,13 +15,13 @@ export default class Joypad {
   }
 
   read() {
-    var state = this.buttonStates[this.readPosition];
+    const state = this.buttonStates[this.readPosition];
     this.readPosition = (this.readPosition + 1) % this.buttonStates.length;
     return state;
   }
 
   setButtonPressed(button, pressed) {
-    return this.buttonStates[button] = pressed ? 1 : 0;
+    this.buttonStates[button] = pressed ? 1 : 0;
   }
 
 }
@@ -30,7 +30,7 @@ export default class Joypad {
 // Joypad buttons
 //=========================================================
 
-export var Button = {
+export const Button = {
   A: 0,
   B: 1,
   SELECT: 2,

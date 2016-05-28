@@ -4,8 +4,8 @@ import {ENDIANNESS} from './system';
 // Color manipulation utilities
 //=========================================================
 
-export var packColor = ENDIANNESS === 'LE' ? packColorLE : packColorBE;
-export var unpackColor = ENDIANNESS === 'LE' ? unpackColorLE : unpackColorBE;
+export const packColor = ENDIANNESS === 'LE' ? packColorLE : packColorBE;
+export const unpackColor = ENDIANNESS === 'LE' ? unpackColorLE : unpackColorBE;
 
 export const BLACK_COLOR = packColor(0, 0, 0);
 

@@ -1,6 +1,6 @@
-import Region from './common/Region';
 import {RESET} from './common/constants';
 import {BLACK_COLOR, packColor} from './utils/color';
+import Region from './common/Region';
 
 //=========================================================
 // Nintendo Entertainment System
@@ -115,8 +115,8 @@ export default class NES {
   }
 
   renderEmptyFrame(buffer) {
-    for (var i = 0; i < buffer.length; i++) {
-      var color = ~~(0xFF * Math.random());
+    for (let i = 0; i < buffer.length; i++) {
+      const color = ~~(0xFF * Math.random());
       buffer[i] = packColor(color, color, color);
     }
   }
@@ -139,7 +139,7 @@ export default class NES {
   }
 
   renderEmptyDebugFrame(buffer) {
-    for (var i = 0; i < buffer.length; i++) {
+    for (let i = 0; i < buffer.length; i++) {
       buffer[i] = BLACK_COLOR;
     }
   }
@@ -202,7 +202,7 @@ export default class NES {
   }
 
   updateRegionParams() {
-    var params = Region.getParams(this.getRegion());
+    const params = Region.getParams(this.getRegion());
     this.ppu.setRegionParams(params);
     this.apu.setRegionParams(params);
   }

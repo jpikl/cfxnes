@@ -1,6 +1,8 @@
-import CPU from '../units/CPU';
+/* eslint-disable new-cap */
+
 import {Logger} from '../utils/logger';
 import {byteAsHex, wordAsHex, fillLeft} from '../utils/format';
+import CPU from '../units/CPU';
 
 //=========================================================
 // CPU with debugging printouts
@@ -45,19 +47,19 @@ export default class LoggingCPU extends CPU {
   // Addressing modes
   //=========================================================
 
-  impliedMode()     { return this.recordAddressingMode('imp', super.impliedMode());     }
+  impliedMode() { return this.recordAddressingMode('imp', super.impliedMode()); }
   accumulatorMode() { return this.recordAddressingMode('acc', super.accumulatorMode()); }
-  immediateMode()   { return this.recordAddressingMode('imm', super.immediateMode());   }
-  zeroPageMode()    { return this.recordAddressingMode('zpg', super.zeroPageMode());    }
-  zeroPageXMode()   { return this.recordAddressingMode('zpx', super.zeroPageXMode());   }
-  zeroPageYMode()   { return this.recordAddressingMode('zpy', super.zeroPageYMode());   }
-  absoluteMode()    { return this.recordAddressingMode('abs', super.absoluteMode());    }
-  absoluteXMode()   { return this.recordAddressingMode('abx', super.absoluteXMode());   }
-  absoluteYMode()   { return this.recordAddressingMode('aby', super.absoluteYMode());   }
-  relativeMode()    { return this.recordAddressingMode('abx', super.relativeMode());    }
-  indirectMode()    { return this.recordAddressingMode('ind', super.indirectMode());    }
-  indirectXMode()   { return this.recordAddressingMode('inx', super.indirectXMode());   }
-  indirectYMode()   { return this.recordAddressingMode('iny', super.indirectYMode());   }
+  immediateMode() { return this.recordAddressingMode('imm', super.immediateMode()); }
+  zeroPageMode() { return this.recordAddressingMode('zpg', super.zeroPageMode()); }
+  zeroPageXMode() { return this.recordAddressingMode('zpx', super.zeroPageXMode()); }
+  zeroPageYMode() { return this.recordAddressingMode('zpy', super.zeroPageYMode()); }
+  absoluteMode() { return this.recordAddressingMode('abs', super.absoluteMode()); }
+  absoluteXMode() { return this.recordAddressingMode('abx', super.absoluteXMode()); }
+  absoluteYMode() { return this.recordAddressingMode('aby', super.absoluteYMode()); }
+  relativeMode() { return this.recordAddressingMode('abx', super.relativeMode()); }
+  indirectMode() { return this.recordAddressingMode('ind', super.indirectMode()); }
+  indirectXMode() { return this.recordAddressingMode('inx', super.indirectXMode()); }
+  indirectYMode() { return this.recordAddressingMode('iny', super.indirectYMode()); }
 
   //=========================================================
   // Instructions
@@ -176,10 +178,10 @@ export default class LoggingCPU extends CPU {
   }
 
   printLine() {
-    var basicResults = this.basicFormatters.map(method => method.call(this));
-    var verboseResults = this.verboseFormatters.map(method => method.call(this));
+    const basicResults = this.basicFormatters.map(method => method.call(this));
+    const verboseResults = this.verboseFormatters.map(method => method.call(this));
     this.basicLogger.info(basicResults.join('  '));
-    this.verboseLogger.info(`| ${(verboseResults.join(' | '))} |`);
+    this.verboseLogger.info('| ' + verboseResults.join(' | ') + '|');
   }
 
   //=========================================================
@@ -201,7 +203,7 @@ export default class LoggingCPU extends CPU {
     this.instructionCycles = this.cycle - this.cycleBefore;
   }
 
- recordAddressingMode(name, result) {
+  recordAddressingMode(name, result) {
     this.addressingModeName = name;
     this.instructionSize = this.programCounter - this.instructionAddress;
     this.effectiveAddress = result;
@@ -250,17 +252,16 @@ export default class LoggingCPU extends CPU {
   }
 
   formatInstructionData() {
-    return this.formatInstructionByte(0) + ' '
-       + this.formatInstructionByte(1) + ' '
-       + this.formatInstructionByte(2);
+    return this.formatInstructionByte(0)
+      + ' ' + this.formatInstructionByte(1)
+      + ' ' + this.formatInstructionByte(2);
   }
 
   formatInstructionByte(offset) {
     if (offset < this.instructionSize) {
       return byteAsHex(this.instructionData[offset]);
-    } else {
-      return '  ';
     }
+    return '  ';
   }
 
   formatInstructionCode() {
@@ -287,7 +288,7 @@ export default class LoggingCPU extends CPU {
 
   formatFlags() {
     return ['N', 'V', '?', '?', 'D', 'I', 'Z', 'C']
-      .map((name, i) => this.flags[i] ? name : '.', this)
+      .map((name, i) => (this.flags[i] ? name : '.'), this)
       .join(' ');
   }
 

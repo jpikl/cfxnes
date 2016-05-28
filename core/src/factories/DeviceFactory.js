@@ -1,10 +1,8 @@
-// jscs:disable disallowQuotedKeysInObjects, requireCapitalizedConstructors
-
 import Joypad from '../devices/Joypad';
 import Zapper from '../devices/Zapper';
 import logger from '../utils/logger';
 
-var devices = {
+const devices = {
   'joypad': Joypad,
   'zapper': Zapper,
 };
@@ -20,7 +18,7 @@ export default class DeviceFactory {
   }
 
   createDevice(type) {
-    var clazz = devices[type];
+    const clazz = devices[type];
     if (clazz) {
       logger.info(`Creating "${type}" device`);
       return this.injector.inject(new clazz);

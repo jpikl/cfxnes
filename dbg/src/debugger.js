@@ -1,3 +1,5 @@
+/* eslint-disable no-eval */
+
 //=========================================================
 // CFxNES debugger
 //=========================================================
@@ -17,7 +19,7 @@ import {numberAsHex} from '../../core/src/utils/format';
 // Command line parser
 //=========================================================
 
-var argv = yargs
+const argv = yargs
   .usage('Usage: $0 <file> [options]')
   .demand(1)
   .describe('v', 'Enables verbose output.')
@@ -39,8 +41,8 @@ var argv = yargs
   .alias('p', 'print')
   .help('h')
   .alias('h', 'help')
-  .check(argv => {
-    var steps = argv.steps;
+  .check(args => {
+    const steps = args.steps;
     if ((steps != null) && (typeof steps !== 'number' || steps <= 0)) {
       return 'invalid number of steps';
     }
@@ -51,18 +53,18 @@ var argv = yargs
 // Initialization
 //=========================================================
 
-var config = Object.assign({}, coreConfig);
+const config = Object.assign({}, coreConfig);
 config.cpu = {class: LoggingCPU};
 config.ppu = {class: BufferedOutputPPU};
 
-var injector = new Injector(config);
-var cartridgeFactory = injector.get('cartridgeFactory');
-var cartridge = cartridgeFactory.readFile(argv._[0]);
-var nes = injector.get('nes');
-var cpu = injector.get('cpu');
+const injector = new Injector(config);
+const cartridgeFactory = injector.get('cartridgeFactory');
+const cartridge = cartridgeFactory.readFile(argv._[0]);
+const nes = injector.get('nes');
+const cpu = injector.get('cpu');
 
-var print = console.log;
-var logger = argv.verbose ? cpu.verboseLogger : cpu.basicLogger;
+const print = line => process.stdout.write(line + '\n');
+const logger = argv.verbose ? cpu.verboseLogger : cpu.basicLogger;
 logger.attach(LogWriter.toConsole());
 cpu.stateAfterOperation = !argv.prevState;
 
@@ -74,7 +76,7 @@ logger.setLevel(LogLevel.OFF);
 // Commands
 //=========================================================
 
-var breakCondition = null;
+let breakCondition = null;
 
 function helpCommand() {
   print('s, step  <number> ... Performs specified number of steps (default: 1).');
@@ -88,11 +90,11 @@ function helpCommand() {
 }
 
 function jumpCommand(param) {
-  var count = parseInt(param) || 1;
-  for (var i = 0; i < count; i++) {
+  const count = parseInt(param) || 1;
+  for (let i = 0; i < count; i++) {
     if (breakCondition) {
       try {
-        var result = eval(breakCondition);
+        const result = eval(breakCondition);
         if (result) {
           print(`Break condition "${breakCondition}" evaluated to ${result}`);
           break;
@@ -126,7 +128,7 @@ function execCommand(param) {
     return;
   }
   try {
-    var result = eval(param);
+    let result = eval(param);
     if (typeof result === 'number') {
       result = `0x${numberAsHex(result)}`;
     } else if (typeof result === 'object') {
@@ -146,8 +148,8 @@ function execCommand(param) {
 }
 
 function printCommand(param) {
-  var name = typeof param === 'string' && param ? param : 'out'; // param can be boolean when set from command line argument
-  var file = path.extname(name).length ? name : name + '.png';
+  const name = typeof param === 'string' && param ? param : 'out'; // param can be boolean when set from command line argument
+  const file = path.extname(name).length ? name : name + '.png';
   return nes.ppu.writeFrameToFile(file).then(() => {
     print(`Screenshot written to "${path.resolve(file)}"`);
   });
@@ -186,15 +188,15 @@ function runImmediate() {
 //=========================================================
 
 function runInteractive() {
-  var rl = readline.createInterface(process.stdin, process.stdout);
+  const rl = readline.createInterface(process.stdin, process.stdout);
   rl.setPrompt('command>');
   rl.prompt();
 
   rl.on('line', line => {
-    var input = line.trim().split(/\s+/);
-    var command = input[0];
-    var param = input.slice(1).join(' ');
-    var promise = Promise.resolve();
+    const input = line.trim().split(/\s+/);
+    const command = input[0];
+    const param = input.slice(1).join(' ');
+    let promise = Promise.resolve();
 
     switch (command) {
       case 'h':

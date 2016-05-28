@@ -3,22 +3,22 @@
 //=========================================================
 
 export function makeEnum(object) {
-  var params = {};
+  const params = {};
 
-  for (var key in object) {
-    var value = object[key];
+  for (const key in object) {
+    const value = object[key];
     if (typeof value === 'object') {
-      var id = value.id || key;
+      const id = value.id || key;
       object[key] = id;
       params[id] = value;
     }
   }
 
-  object.getParams = function(id) {
+  object.getParams = function getParams(id) {
     return params[id] || {};
   };
 
-  object.toString = function(id) {
+  object.toString = function toString(id) {
     return object.getParams(id).name || String(id);
   };
 

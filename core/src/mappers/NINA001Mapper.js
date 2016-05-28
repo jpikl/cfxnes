@@ -6,10 +6,6 @@ import AbstractMapper from './AbstractMapper';
 
 export default class NINA001Mapper extends AbstractMapper {
 
-  //=========================================================
-  // Mapper initialization
-  //=========================================================
-
   init(cartridge) {
     super.init(cartridge);
     this.hasPRGRAM = true;
@@ -17,19 +13,11 @@ export default class NINA001Mapper extends AbstractMapper {
     this.prgRAMSize = 0x2000; // 8K PRG RAM
   }
 
-  //=========================================================
-  // Mapper reset
-  //=========================================================
-
   reset() {
     this.mapPRGROMBank32K(0, 0); // First 32K PRG ROM bank
     this.mapPRGRAMBank8K(0, 0);  // 8K PRG RAM
     this.mapCHRROMBank8K(0, 0);  // First 8K CHR ROM bank
   }
-
-  //=========================================================
-  // Mapper writing
-  //=========================================================
 
   write(address, value) {
     switch (address) {

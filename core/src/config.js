@@ -1,5 +1,3 @@
-// jscs:disable disallowQuotedKeysInObjects
-
 import NES from './NES';
 import CPU from './units/CPU';
 import PPU from './units/PPU';

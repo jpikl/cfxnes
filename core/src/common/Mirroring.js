@@ -10,7 +10,7 @@ import {makeEnum} from '../utils/enum';
 //                           --+--
 //                           C | D
 
-var Mirroring = {
+const Mirroring = {
 
   SINGLE_SCREEN_0: {
     id: 'single-screen-0',
@@ -60,6 +60,7 @@ var Mirroring = {
       case 1: return Mirroring.SINGLE_SCREEN_1;
       case 2: return Mirroring.SINGLE_SCREEN_2;
       case 3: return Mirroring.SINGLE_SCREEN_3;
+      default: return null;
     }
   },
 

@@ -69,7 +69,7 @@ export default class MMC1Mapper extends AbstractMapper {
       case 0x8000: this.controllRegister = this.shiftRegister; break; // $8000-$9FFF (100X)
       case 0xA000: this.chrBankRegister1 = this.shiftRegister; break; // $A000-$BFFF (101X)
       case 0xC000: this.chrBankRegister2 = this.shiftRegister; break; // $C000-$DFFF (110X)
-      case 0xE000: this.prgBankRegister  = this.shiftRegister; break; // $E000-$FFFF (111X)
+      case 0xE000: this.prgBankRegister = this.shiftRegister; break;  // $E000-$FFFF (111X)
     }
   }
 
@@ -92,15 +92,15 @@ export default class MMC1Mapper extends AbstractMapper {
     switch (this.controllRegister & 0x03) {
       case 0: this.setSingleScreenMirroring(0); break;
       case 1: this.setSingleScreenMirroring(1); break;
-      case 2: this.setVerticalMirroring();      break;
-      case 3: this.setHorizontalMirroring();    break;
+      case 2: this.setVerticalMirroring(); break;
+      case 3: this.setHorizontalMirroring(); break;
     }
   }
 
   switchPRGROMBanks() {
     // Bit 4 of CHR bank register has different usage when 8KB CHR RAM is present (SUROM and SXROM boards)
-    var base = this.hasCHRRAM ? this.chrBankRegister1 & 0x10 : 0; // Selection of 256K area on 512K PRG ROM
-    var offset = this.prgBankRegister & 0x0F; // 16K bank selection within 256K area
+    const base = this.hasCHRRAM ? this.chrBankRegister1 & 0x10 : 0; // Selection of 256K area on 512K PRG ROM
+    const offset = this.prgBankRegister & 0x0F; // 16K bank selection within 256K area
     switch (this.controllRegister & 0x0C) {
       case 0x0C:
         this.mapPRGROMBank16K(0, base | offset); // Selected 16K PRG ROM bank
@@ -119,8 +119,8 @@ export default class MMC1Mapper extends AbstractMapper {
   switchPRGRAMBank() {
     // Bits 2 and 3 of CHR bank register have different usage when 8KB CHR RAM is present (SOROM, and SXROM boards)
     this.mapPRGRAMBank8K(0, this.hasCHRRAM ? this.chrBankRegister1 >>> 2 : 0); // Selected 8K PRG RAM bank
-    var enabled = (this.prgBankRegister & 0x10) === 0; // Ignored on MMC1A (iNES mapper 155)
-    var enabledOnSNROM = (this.chrBankRegister1 & 0x10) === 0; // SNROM board also disables PRG RAM when bit 4 of CHR bank register is 1
+    const enabled = (this.prgBankRegister & 0x10) === 0; // Ignored on MMC1A (iNES mapper 155)
+    const enabledOnSNROM = (this.chrBankRegister1 & 0x10) === 0; // SNROM board also disables PRG RAM when bit 4 of CHR bank register is 1
     this.canReadPRGRAM = this.canWritePRGRAM = enabled && (!this.snrom || enabledOnSNROM);
   }
 

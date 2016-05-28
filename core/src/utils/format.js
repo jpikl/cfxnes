@@ -7,18 +7,18 @@ export function numberAsHex(value) {
 }
 
 export function byteAsHex(value) {
-  var hex = numberAsHex(value);
-  return (hex.length === 1) ? '0' + hex : hex;
+  const hex = numberAsHex(value);
+  return hex.length === 1 ? '0' + hex : hex;
 }
 
 export function wordAsHex(value) {
-  var hex1 = byteAsHex(value & 0xFF);
-  var hex2 = byteAsHex(value >>> 8);
+  const hex1 = byteAsHex(value & 0xFF);
+  const hex2 = byteAsHex(value >>> 8);
   return hex2 + hex1;
 }
 
 export function fillLeft(value, width, character = ' ') {
-  var result = Array(width + 1).join(character) + value;
+  const result = Array(width + 1).join(character) + value;
   return result.slice(result.length - width);
 }
 
@@ -47,13 +47,13 @@ export function formatData(data) {
 }
 
 export function formatError(error) {
-  var result = 'Name:    ' + error.name + '\n'
-             + 'Message: ' + error.message;
+  let result = 'Name:    ' + error.name
+           + '\nMessage: ' + error.message;
   if (typeof error.stack === 'string') {
     result += '\nStack:   ' + error.stack.split('\n')
-                                         .map(line => '         ' + line)
-                                         .join('\n')
-                                         .substr(9);
+                             .map(line => '         ' + line)
+                             .join('\n')
+                             .substr(9);
   }
   return result;
 }

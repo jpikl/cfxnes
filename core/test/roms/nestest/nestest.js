@@ -17,13 +17,13 @@ export function configure(config) {
 }
 
 export function execute(test) {
-  var basicLogFile = test.getOutputPath('nestest.log');        // This is what we will compare with the verified log
-  var verboseLogFile = test.getOutputPath('nestest-full.log'); // Contains more information for easier debugging
-  var verifiedLogFile = test.getPath('nestest.log');           // Verified log from Nintendulator (modified to match structure of CFxNES log)
+  const basicLogFile = test.getOutputPath('nestest.log');        // This is what we will compare with the verified log
+  const verboseLogFile = test.getOutputPath('nestest-full.log'); // Contains more information for easier debugging
+  const verifiedLogFile = test.getPath('nestest.log');           // Verified log from Nintendulator (modified to match structure of CFxNES log)
 
-  var cpu = test.get('cpu');
-  var basicLogger = cpu.basicLogger;
-  var verboseLogger = cpu.verboseLogger;
+  const cpu = test.get('cpu');
+  const basicLogger = cpu.basicLogger;
+  const verboseLogger = cpu.verboseLogger;
 
   basicLogger.setLevel(LogLevel.INFO);
   basicLogger.attach(LogWriter.toFile(basicLogFile));
@@ -34,8 +34,8 @@ export function execute(test) {
   test.step(8991);
   cpu.stopLogging();
 
-  var basicLog = fs.readFileSync(basicLogFile, 'utf8');
-  var verifiedLog = fs.readFileSync(verifiedLogFile, 'utf8');
+  const basicLog = fs.readFileSync(basicLogFile, 'utf8');
+  const verifiedLog = fs.readFileSync(verifiedLogFile, 'utf8');
 
   try {
     test.expect(basicLog).to.be.equal(verifiedLog);

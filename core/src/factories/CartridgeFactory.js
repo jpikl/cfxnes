@@ -1,14 +1,14 @@
+import {copyArray} from '../utils/array';
+import {formatOpt, formatSize, formatData} from '../utils/format';
 import Mirroring from '../common/Mirroring';
 import Region from '../common/Region';
-import logger from '../utils/logger';
 import Uint8ArrayReader from '../readers/Uint8ArrayReader';
 import FileSystemReader from '../readers/FileSystemReader';
 import INESLoader from '../loaders/INESLoader';
 import NES2Loader from '../loaders/NES2Loader';
-import {copyArray} from '../utils/array';
-import {formatOpt, formatSize, formatData} from '../utils/format';
+import logger from '../utils/logger';
 
-var loaders = [
+const loaders = [
   new NES2Loader, // Must be processed before iNES
   new INESLoader,
 ];
@@ -43,10 +43,10 @@ export default class CartridgeFactory {
 
   read(reader) {
     reader.tryUnzip(this.JSZip);
-    for (var loader of loaders) {
+    for (const loader of loaders) {
       if (loader.supports(reader)) {
         logger.info(`Using "${loader.name}" loader`);
-        var cartridge = loader.load(reader);
+        const cartridge = loader.load(reader);
         if (this.sha1) {
           this.computeSha1(cartridge);
         }
@@ -59,7 +59,7 @@ export default class CartridgeFactory {
 
   computeSha1(cartridge) {
     logger.info('Computing SHA-1');
-    var buffer = new Uint8Array(cartridge.prgROMSize + cartridge.chrROMSize);
+    const buffer = new Uint8Array(cartridge.prgROMSize + cartridge.chrROMSize);
     copyArray(cartridge.prgROM, buffer, 0, 0);
     copyArray(cartridge.chrROM, buffer, 0, cartridge.prgROMSize);
     cartridge.sha1 = this.sha1(buffer);

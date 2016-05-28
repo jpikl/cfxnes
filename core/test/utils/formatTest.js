@@ -1,10 +1,12 @@
+/* eslint-env mocha */
+/* eslint-disable no-unused-expressions */
+
 import chai from 'chai';
 import * as format from '../../src/utils/format';
 
-var expect = chai.expect;
+const expect = chai.expect;
 
 describe('Format utils', () => {
-
   it('can format number as hex', () => {
     expect(format.numberAsHex(0x12EF)).to.equal('12EF');
   });
@@ -48,7 +50,6 @@ describe('Format utils', () => {
   });
 
   it('can format error', () => {
-    expect(format.formatError(new Error('test'))).to.match(/^Name:    Error\nMessage: test\nStack:   /);
+    expect(format.formatError(new Error('test'))).to.match(/^Name: {4}Error\nMessage: test\nStack: {3}/);
   });
-
 });

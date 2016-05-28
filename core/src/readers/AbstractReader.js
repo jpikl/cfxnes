@@ -19,7 +19,7 @@ export default class AbstractReader {
   }
 
   read(length) {
-    var data = this.peek(length);
+    const data = this.peek(length);
     this.skip(length);
     return data;
   }
@@ -36,11 +36,11 @@ export default class AbstractReader {
   }
 
   contains(signature) {
-    var data = this.peek(signature.length);
+    const data = this.peek(signature.length);
     if (data.length !== signature.length) {
       return false;
     }
-    for (var i = 0; i < signature.length; i++) {
+    for (let i = 0; i < signature.length; i++) {
       if (data[i] !== signature[i]) {
         return false;
       }
@@ -60,7 +60,7 @@ export default class AbstractReader {
       if (JSZip == null) {
         throw new Error('Unable to unzip data: JSZip is not available.');
       }
-      var files = JSZip(this.getData()).file(/^.*\.nes$/i);
+      const files = new JSZip(this.getData()).file(/^.*\.nes$/i);
       if (files.length > 0) {
         this.onUnzip(files[0]);
       }

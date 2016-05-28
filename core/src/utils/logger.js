@@ -4,7 +4,7 @@ import {formatError} from './format';
 // Log levels
 //=========================================================
 
-export var LogLevel = {
+export const LogLevel = {
   OFF: 1,
   ERROR: 2,
   WARN: 3,
@@ -30,14 +30,14 @@ export class Logger {
   }
 
   detach(writer) {
-    var index = this.writers.indexOf(writer);
+    const index = this.writers.indexOf(writer);
     if (index >= 0) {
       this.writers.splice(index, 1);
     }
   }
 
   close() {
-    for (var writer of this.writers) {
+    for (const writer of this.writers) {
       if (writer.close) {
         writer.close();
       }
@@ -51,7 +51,7 @@ export class Logger {
 
   info(message) {
     if (this.level >= LogLevel.INFO) {
-      for (var writer of this.writers) {
+      for (const writer of this.writers) {
         writer.info(message);
       }
     }
@@ -59,7 +59,7 @@ export class Logger {
 
   warn(message) {
     if (this.level >= LogLevel.WARN) {
-      for (var writer of this.writers) {
+      for (const writer of this.writers) {
         writer.warn(message);
       }
     }
@@ -74,7 +74,7 @@ export class Logger {
       } else {
         message = message || 'Unknown error';
       }
-      for (var writer of this.writers) {
+      for (const writer of this.writers) {
         writer.error(message);
       }
     }
@@ -86,7 +86,7 @@ export class Logger {
 // Log writers
 //=========================================================
 
-export var LogWriter = {
+export const LogWriter = {
   toConsole() {
     return console;
   },
@@ -105,7 +105,7 @@ export var LogWriter = {
 class FileWriter {
 
   constructor(path) {
-    this.fs = require('fs');
+    this.fs = require('fs'); // eslint-disable-line import/newline-after-import
     this.fd = this.fs.openSync(path, 'w');
   }
 
@@ -166,7 +166,7 @@ class BufferWriter {
 // Default logger
 //=========================================================
 
-var logger = new Logger;
+const logger = new Logger;
 logger.setLevel(LogLevel.WARN);
 logger.attach(LogWriter.toConsole());
 export default logger;

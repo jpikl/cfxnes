@@ -1,4 +1,4 @@
-// jscs:disable disallowQuotedKeysInObjects, requireCamelCaseOrUpperCaseIdentifiers
+/* eslint-disable camelcase */
 
 import asq_real_a from '../palettes/asq_real_a';
 import asq_real_b from '../palettes/asq_real_b';
@@ -13,7 +13,7 @@ import logger from '../utils/logger';
 
 const FALLBACK = 'fceux';
 
-var palettes = {
+const palettes = {
   'asq-real-a': asq_real_a,
   'asq-real-b': asq_real_b,
   'bmf-fin-r2': bmf_fin_r2,
@@ -32,7 +32,7 @@ var palettes = {
 export default class PaletteFactory {
 
   createPalette(id) {
-    var palette = palettes[id];
+    const palette = palettes[id];
     if (palette) {
       logger.info(`Creating "${id}" palette`);
       return this.readPalette(palette);
@@ -42,13 +42,13 @@ export default class PaletteFactory {
   }
 
   readPalette(base64) {
-    var data = decodeBase64(base64);
-    var colors = new Uint32Array(64);
-    var length = Math.min(data.length / 3, colors.length);
-    for (var i = 0; i < colors.length; i++) {
-      var r = data.charCodeAt(3 * i);
-      var g = data.charCodeAt(3 * i + 1);
-      var b = data.charCodeAt(3 * i + 2);
+    const data = decodeBase64(base64);
+    const colors = new Uint32Array(64);
+    const length = Math.min(data.length / 3, colors.length);
+    for (let i = 0; i < length; i++) {
+      const r = data.charCodeAt(3 * i);
+      const g = data.charCodeAt(3 * i + 1);
+      const b = data.charCodeAt(3 * i + 2);
       colors[i] = r | g << 8 | b << 16;
     }
     return colors;
@@ -58,7 +58,7 @@ export default class PaletteFactory {
 
 function decodeBase64(input) {
   if (typeof atob === 'function') {
-    return atob(input);
+    return atob(input); // eslint-disable-line no-undef
   } else if (typeof Buffer === 'function') {
     return new Buffer(input, 'base64').toString('binary');
   }

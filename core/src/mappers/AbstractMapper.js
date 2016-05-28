@@ -1,7 +1,7 @@
+import {zeroArray, copyArray} from '../utils/array';
+import {formatOpt, formatSize} from '../utils/format';
 import Mirroring from '../common/Mirroring';
 import logger from '../utils/logger';
-import {zeroArray, copyArray} from '../utils/array';
-import {formatOpt, formatSize, wordAsHex} from '../utils/format';
 
 //=========================================================
 // Base class for mappers
@@ -68,7 +68,7 @@ export default class AbstractMapper {
   // Mapper inputs
   //=========================================================
 
-  write(address, value) {
+  write() {
     // For mapper to implement
   }
 
@@ -89,8 +89,8 @@ export default class AbstractMapper {
   }
 
   mapPRGROMBank8K(srcBank, dstBank, count = 1) {
-    var maxBank = (this.prgROMSize - 1) >> 13;
-    for (var i = 0; i < count; i++) {
+    const maxBank = (this.prgROMSize - 1) >> 13;
+    for (let i = 0; i < count; i++) {
       this.cpuMemory.mapPRGROMBank(srcBank + i, (dstBank + i) & maxBank);
     }
   }
@@ -115,7 +115,7 @@ export default class AbstractMapper {
   }
 
   mapPRGRAMBank8K(srcBank, dstBank) {
-    var maxBank = (this.prgRAMSize - 1) >> 13;
+    const maxBank = (this.prgRAMSize - 1) >> 13;
     this.cpuMemory.mapPRGRAMBank(srcBank, dstBank & maxBank);
   }
 
@@ -145,8 +145,8 @@ export default class AbstractMapper {
   }
 
   mapCHRROMBank1K(srcBank, dstBank, count = 1) {
-    var maxBank = (this.chrROMSize - 1) >> 10;
-    for (var i = 0; i < count; i++) {
+    const maxBank = (this.chrROMSize - 1) >> 10;
+    for (let i = 0; i < count; i++) {
       this.ppuMemory.mapPatternsBank(srcBank + i, (dstBank + i) & maxBank);
     }
   }
@@ -185,8 +185,8 @@ export default class AbstractMapper {
   }
 
   mapCHRRAMBank1K(srcBank, dstBank, count = 1) {
-    var maxBank = (this.chrRAMSize - 1) >> 10;
-    for (var i = 0; i < count; i++) {
+    const maxBank = (this.chrRAMSize - 1) >> 10;
+    for (let i = 0; i < count; i++) {
       this.ppuMemory.mapPatternsBank(srcBank + i, (dstBank + i) & maxBank);
     }
   }
