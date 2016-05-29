@@ -1,33 +1,29 @@
 <mapped-inputs>
-  <script>
-    this.on('update', function() {
+  <script type="babel">
+    this.on('update', () => {
       if (opts.checkPort) {
-        var parts = opts.input.split('.');
-        var port = parseInt(parts[0]);
-        var device = parts[1];
-        if (cfxnes.getInputDevice(port) !== device) {
+        const [port, device] = opts.input.split('.');
+        if (cfxnes.getInputDevice(parseInt(port)) !== device) {
           this.root.innerHTML = '--';
           return;
         }
       }
 
-      this.root.innerHTML = cfxnes.getMappedInputs(opts.input).map(function(input) {
-        var parts = input.split('.');
-        var source = parts[0];
-        var name = parts[1];
+      this.root.innerHTML = cfxnes.getMappedInputs(opts.input).map(input => {
+        const [source, name] = input.split('.');
 
-        name = name.split('-')
-            .map(function(word) { return word.length ? word[0].toUpperCase() + word.slice(1) : word })
+        let result = name.split('-')
+            .map(word => (word.length ? word[0].toUpperCase() + word.slice(1) : word))
             .join(' ');
 
         if (source === 'mouse') {
-          name += ' button';
+          result += ' button';
         } else if (source.startsWith('gamepad')) {
-          name = name.replace('Dpad', 'D-pad')
-            .replace(/ $/, '-');
+          result = result.replace('Dpad', 'D-pad')
+                         .replace(/ $/, '-');
         }
 
-        return name;
+        return result;
       }).join(' / ') || '--';
     });
   </script>

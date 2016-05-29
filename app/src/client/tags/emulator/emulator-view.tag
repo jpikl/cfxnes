@@ -9,81 +9,79 @@
     <emulator-output></emulator-output>
   </dnd-wrapper>
   <input riot-tag="input-file" id="input-file">
-  <script>
-    var messagePanel;
-    var emulatorOutput;
+  <script type="babel">
+    let message;
+    let output;
 
-    this.on('mount', function() {
-      this.tags['input-file'].on('fileopen', loadGame);
-      this.tags['dnd-wrapper'].on('filedrop', loadGame);
-
-      messagePanel = this.tags['message-panel'];
-      emulatorOutput = this.tags['dnd-wrapper'].tags['emulator-output'];
-      emulatorOutput.on('mount', function() {
-        resumeEmulator(app.viewParam);
-      });
-    });
-
-    this.on('unmount', suspendEmulator);
-
-    function resumeEmulator(gameId) {
+    this.resume = gameId => {
       if (gameId && gameId !== app.gameId) {
-        loadGame(gameId);
+        this.load(gameId);
       } else if (app.autoPaused) {
-        startEmulator();
+        this.start();
       } else if (cfxnes.isROMLoaded()) {
         cfxnes.step(); // To refresh the output
       }
-    }
+    };
 
-    function suspendEmulator() {
+    this.suspend = () => {
       app.autoPaused = cfxnes.isRunning();
-      stopEmulator();
-    }
+      this.stop();
+    };
 
-    function startEmulator() {
+    this.start = () => {
       cfxnes.start();
       app.trigger('start');
-    }
+    };
 
-    function stopEmulator() {
+    this.stop = () => {
       cfxnes.stop();
       app.trigger('stop');
-    }
+    };
 
-    function loadGame(source) {
-      var gameId = typeof source === 'string' ? source : null;
+    this.load = source => {
+      const gameId = typeof source === 'string' ? source : null;
       if (gameId) {
-        stopEmulator();
-        emulatorOutput.showLoading();
-        messagePanel.hide();
+        this.stop();
+        output.showLoading();
+        message.hide();
       }
 
       cfxnes.saveNVRAM()
         .catch(logError)
-        .then(function() {
+        .then(() => {
           if (!gameId) {
             return cfxnes.loadROM(source);
           }
-          return $.get('/roms/' + gameId).then(function(data) {
+          return $.get('/roms/' + gameId).then(data => {
             return cfxnes.loadROM(data.fileURL);
           });
         })
-        .catch(function(error) {
-          emulatorOutput.hideLoading();
-          messagePanel.showError(getErrorMessage(error));
+        .catch(error => {
+          output.hideLoading();
+          message.showError(formatError(error));
           throw error;
         })
-        .then(function() {
+        .then(() => {
           return cfxnes.loadNVRAM().catch(logError);
         })
-        .then(function() {
+        .then(() => {
           app.gameId = gameId;
-          emulatorOutput.hideLoading();
-          messagePanel.hide();
-          startEmulator();
+          output.hideLoading();
+          message.hide();
+          this.start();
         })
         .catch(logError);
-    }
+    };
+
+    this.on('mount', () => {
+      this.tags['input-file'].on('fileopen', this.load);
+      this.tags['dnd-wrapper'].on('filedrop', this.load);
+
+      message = this.tags['message-panel'];
+      output = this.tags['dnd-wrapper'].tags['emulator-output'];
+      output.on('mount', () => this.resume(app.viewParam));
+    });
+
+    this.on('unmount', this.suspend);
   </script>
 </emulator-view>

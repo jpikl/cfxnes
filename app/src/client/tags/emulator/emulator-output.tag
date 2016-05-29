@@ -4,22 +4,22 @@
       Your browser does not support canvas.
     </canvas>
     <img class="drag-effect" src="images/cartridge-insert.svg">
-    <loader show={ loading } inverse="true"></loader>
+    <loader-indicator show={ loading } inverse="true"></loader-indicator>
   </div>
-  <script>
-    showLoading() {
+  <script type="babel">
+    this.showLoading = () => {
       this.update({loading: true});
-    }
+    };
 
-    hideLoading() {
+    this.hideLoading = () => {
       this.update({loading: false});
-    }
+    };
 
-    this.on('mount', function() {
+    this.on('mount', () => {
       cfxnes.setVideoOutput(this.canvas);
     });
 
-    this.on('unmount', function() {
+    this.on('unmount', () => {
       cfxnes.setVideoOutput(null);
     });
   </script>

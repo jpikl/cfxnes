@@ -1,16 +1,15 @@
 <panel-group class="panel-group">
   <yield/>
-  <script>
-    this.on('mount', function() {
-      var panelId = opts.openPanel;
-      if (panelId) {
-        $(this.root).find('#' + panelId).addClass('in');
-        this.trigger('open', panelId);
+  <script type="babel">
+    this.on('mount', () => {
+      const openPanelId = opts.openPanelId;
+      if (openPanelId) {
+        $(this.root).find('#' + openPanelId).addClass('in');
+        this.trigger('open', openPanelId);
       }
-      var self = this;
-      this.tags['collapse-panel'].forEach(function(panel) {
-        panel.on('open', function() {
-          self.trigger('open', panel.opts.panelId);
+      this.tags['collapse-panel'].forEach(panel => {
+        panel.on('open', () => {
+          this.trigger('open', panel.opts.panelId);
         });
       });
     });

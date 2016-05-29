@@ -11,27 +11,17 @@
   <button show={ running } class="btn btn-default btn-pause navbar-btn" title="Pause" onclick={ stop }>
     <i class="icon icon-pause"></i>
   </button>
-  <script>
-    hardReset() {
-      cfxnes.hardReset();
-    }
+  <script type="babel">
+    this.hardReset = () => cfxnes.hardReset();
+    this.softReset = () => cfxnes.softReset();
+    this.start = () => cfxnes.start();
+    this.stop = () => cfxnes.stop();
 
-    softReset() {
-      cfxnes.softReset();
-    }
-
-    start() {
-      cfxnes.start();
-    }
-
-    stop() {
-      cfxnes.stop();
-    }
-
-    this.on('update', function() {
+    this.on('update', () => {
       this.running = cfxnes.isRunning();
     });
 
-    app.watch('start stop', this, this.update);
+    this.on('mount', () => app.on('start stop', this.update));
+    this.on('unmount', () => app.off('start stop', this.update));
   </script>
 </toolbar-run>

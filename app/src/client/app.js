@@ -1,48 +1,36 @@
+/* global CFxNES, sha1, JSZip, screenfull */
+/* eslint-disable no-unused-vars */
+
 //=========================================================
 // CFxNES setup
 //=========================================================
 
 CFxNES.setLogLevel('all');
 
-var cfxnes = new CFxNES({
-  sha1: sha1,
-  jszip: JSZip,
-  screenfull: screenfull,
-});
+const cfxnes = new CFxNES({sha1, JSZip, screenfull});
 
 //=========================================================
-// Application state
+// App state
 //=========================================================
 
-var app = riot.observable({
-  init: function() {
-    this.reset();
-    this.load();
-  },
-  reset: function() {
-    this.fpsVisible = true;
-    this.controlsVisible = true;
-    this.controlsOpened = true;
-    cfxnes.resetOptions();
-  },
-  load: function() {
-    this.fpsVisible = localStorage.getItem('fpsVisible') !== 'false';
-    this.controlsVisible = localStorage.getItem('controlsVisible') !== 'false';
+const app = riot.observable({
+  init() {
+    app.fpsVisible = localStorage.getItem('fpsVisible') !== 'false';
+    app.controlsVisible = localStorage.getItem('controlsVisible') !== 'false';
+    app.controlsOpened = true;
     cfxnes.loadOptions();
   },
-  save: function() {
-    localStorage.setItem('fpsVisible', this.fpsVisible ? 'true' : 'false');
-    localStorage.setItem('controlsVisible', this.controlsVisible ? 'true' : 'false');
+  reset() {
+    app.fpsVisible = true;
+    app.controlsVisible = true;
+    app.controlsOpened = true;
+    cfxnes.resetOptions();
+  },
+  save() {
+    localStorage.setItem('fpsVisible', app.fpsVisible ? 'true' : 'false');
+    localStorage.setItem('controlsVisible', app.controlsVisible ? 'true' : 'false');
     cfxnes.saveOptions();
-  },
-  route: function(view, param) {
-    app.viewParam = param;
-    app.trigger('route', view || 'emulator', param);
-  },
-  watch: function(events, tag, callback) {
-    callback = callback.bind(tag);
-    tag.on('mount', this.on.bind(this, events, callback));
-    tag.on('unmount', this.off.bind(this, events, callback));
+    cfxnes.saveNVRAM().catch(logError);
   },
 });
 
@@ -52,21 +40,20 @@ app.init();
 // State persistence
 //=========================================================
 
-$(window).on('beforeunload', saveAll);
-setInterval(saveAll, 60 * 1000);
-
-function saveAll() {
-  app.save();
-  cfxnes.saveNVRAM().catch(logError);
-}
+$(window).on('beforeunload', app.save);
+setInterval(app.save, 60 * 1000);
 
 //=========================================================
 // RiotJS setup
 //=========================================================
 
-$(document).ready(function() {
+$(document).ready(() => {
   riot.mount('*');
-  riot.route(app.route);
+  riot.route((view, param) => {
+    app.view = view || 'emulator';
+    app.viewParam = param;
+    app.trigger('route', app.view, app.viewParam);
+  });
   riot.route.start(true); // start + exec
 });
 
@@ -82,20 +69,20 @@ function eachTag(tags, callback) {
       tags.forEach(callback);
     }
   }
-};
+}
 
-function getErrorMessage(object) {
-  if (object.message) {
-    return 'Error: ' + object.message; // Error
+function formatError(error) {
+  if (error.message) {
+    return `Error: ${error.message}`; // Error
   }
-  if (object.status) {
-    return 'Error: Unable to download file (server response: ' + object.status + ' ' + object.statusText + ').'; // XMLHttpRequest
+  if (error.status) {
+    return `Error: Unable to download file (server response: ${error.status} ${error.statusText}).`; // XMLHttpRequest
   }
-  if (object.status === 0) {
+  if (error.status === 0) {
     return 'Error: Unable to connect to the server.'; // XMLHttpRequest
   }
-  return object;
-};
+  return error;
+}
 
 function logError(error) {
   console.error(error);

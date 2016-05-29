@@ -1,13 +1,23 @@
 {
   "extends": "../.eslintrc",
   "env": {
-    "browser": true,
-  }
+    "browser": true
+  },
   "plugins": [
-    "html"
+    "riot"
   ],
-  "settings": {
-    "html/indent": "+2",
-    "html/report-bad-indent": "warn"
+  "globals": {
+    "$": true,
+    "app": true,
+    "cfxnes": true,
+    "eachTag": true,
+    "formatError": true,
+    "logError": true,
+    "opts": true,
+    "riot": true
+  },
+  "rules": {
+    "no-console": "off",
+    "no-invalid-this": "off"
   }
 }

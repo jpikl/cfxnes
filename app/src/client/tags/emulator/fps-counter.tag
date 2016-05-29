@@ -1,16 +1,16 @@
 <fps-counter class="navbar-text">
   <span if={ visible }>FPS: { fps }</span>
-  <script>
-    this.on('update', function() {
-      this.visible = app.fpsVisible && cfxnes.isRunning()
+  <script type="babel">
+    this.on('update', () => {
+      this.visible = app.fpsVisible && cfxnes.isRunning();
       this.fps = ~~cfxnes.getFPS();
     });
 
-    this.on('mount', function() {
+    this.on('mount', () => {
       this.refreshId = setInterval(this.update, 1000);
     });
 
-    this.on('unmount', function() {
+    this.on('unmount', () => {
       clearInterval(this.refreshId);
     });
   </script>

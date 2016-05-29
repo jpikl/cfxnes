@@ -198,7 +198,7 @@ export default class NES {
   }
 
   getRegion() {
-    return this.region || this.cartridge && this.cartridge.region;
+    return this.region || this.cartridge && this.cartridge.region || Region.NTSC;
   }
 
   updateRegionParams() {

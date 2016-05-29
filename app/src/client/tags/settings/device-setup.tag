@@ -13,21 +13,19 @@
   <div if={ device == 'zapper' }>
     <div riot-tag="device-input" input="{ port }.zapper.trigger" label="Trigger"></div>
   </div>
-  <script>
+  <script type="babel">
     this.port = parseInt(opts.port);
 
-    change() {
-      this.trigger('change');
-    }
-
-    this.on('update', function() {
+    this.on('update', () => {
       this.device = cfxnes.getInputDevice(this.port);
     });
 
-    this.on('mount', function() {
-      this.tags['device-select'].on('change', this.change);
-      this.tags['device-input'].forEach(function(deviceInput) {
-        deviceInput.on('change', deviceInput.parent.change);
+    this.on('mount', () => {
+      this.tags['device-select'].on('change', () => {
+        this.trigger('change');
+      });
+      this.tags['device-input'].forEach(di => {
+        di.on('change', () => this.trigger('change'));
       });
     });
   </script>

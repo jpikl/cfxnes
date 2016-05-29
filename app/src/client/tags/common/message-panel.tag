@@ -3,21 +3,17 @@
     <span>&times;</span>
   </button>
   <p>{ message }</p>
-  <script>
-    showInfo(message) {
-      this.show('info', message);
-    }
+  <script type="babel">
+    this.showInfo = message => {
+      this.update({type: 'info', message});
+    };
 
-    showError(message) {
-      this.show('danger', message);
-    }
+    this.showError = message => {
+      this.update({type: 'danger', message});
+    };
 
-    show(type, message) {
-      this.update({type: type, message: message});
-    }
-
-    hide() {
-      this.update({message: null})
-    }
+    this.hide = () => {
+      this.update({message: null});
+    };
   </script>
 </message-panel>

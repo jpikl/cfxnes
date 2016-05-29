@@ -1,31 +1,30 @@
 <dnd-wrapper>
   <yield/>
-  <script>
-    var self = this;
-    var element = $(this.root);
+  <script type="babel">
+    const element = $(this.root);
 
-    element.on('dragenter', function(event) {
+    element.on('dragenter', () => {
       element.addClass('drag-over');
     });
 
-    element.on('dragleave', function(event) {
+    element.on('dragleave', () => {
       element.removeClass('drag-over');
     });
 
-    element.on('dragover', function(event) {
+    element.on('dragover', event => {
       element.addClass('drag-over');
       event.preventDefault();
       event.stopPropagation();
       event.originalEvent.dataTransfer.dropEffect = 'copy';
     });
 
-    element.on('drop', function(event) {
+    element.on('drop', event => {
       element.removeClass('drag-over');
       event.preventDefault();
       event.stopPropagation();
-      var file = event.originalEvent.dataTransfer.files[0];
+      const file = event.originalEvent.dataTransfer.files[0];
       if (file) {
-        self.trigger('filedrop', file);
+        this.trigger('filedrop', file);
       }
     });
   </script>

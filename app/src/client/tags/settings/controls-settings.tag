@@ -17,21 +17,19 @@
       </div>
     </div>
   </div>
-  <script>
-    this.on('update', function() {
+  <script type="babel">
+    this.on('update', () => {
       this.tags['controls-visible'].setValue(app.controlsVisible);
-      this.tags['device-setup'].forEach(function(deviceSetup) {
-        deviceSetup.update();
-      });
+      this.tags['device-setup'].forEach(ds => ds.update());
     });
 
-    this.on('mount', function() {
-      this.tags['device-setup'].forEach(function(deviceSetup) {
-        deviceSetup.on('change', deviceSetup.parent.update);
+    this.on('mount', () => {
+      this.tags['device-setup'].forEach(ds => {
+        ds.on('change', this.update);
       });
       this.tags['restore-controls'].on('change', this.update);
       this.tags['connected-gamepads'].on('change', this.update);
-      this.tags['controls-visible'].on('change', function(value) {
+      this.tags['controls-visible'].on('change', value => {
         app.controlsVisible = value;
         app.controlsOpened = value;
       });

@@ -8,20 +8,24 @@
   <button class="btn btn-default navbar-btn" title="Fullscreen" onclick={ enterFullscreen }>
     <i class="icon icon-arrows-alt"></i>
   </button>
-  <script>
-    decreaseScale() {
-      cfxnes.setVideoScale(Math.max(cfxnes.getVideoScale() - 1, 1));
-    }
+  <script type="babel">
+    this.decreaseScale = () => {
+      if (!this.isMinScale) {
+        cfxnes.setVideoScale(cfxnes.getVideoScale() - 1);
+      }
+    };
 
-    increaseScale() {
-      cfxnes.setVideoScale(Math.min(cfxnes.getVideoScale() + 1, ~~cfxnes.getMaxVideoScale()));
-    }
+    this.increaseScale = () => {
+      if (!this.isMaxScale) {
+        cfxnes.setVideoScale(cfxnes.getVideoScale() + 1);
+      }
+    };
 
-    enterFullscreen() {
+    this.enterFullscreen = () => {
       cfxnes.enterFullscreen();
-    }
+    };
 
-    this.on('update', function() {
+    this.on('update', () => {
       this.isMinScale = cfxnes.getVideoScale() <= 1;
       this.isMaxScale = cfxnes.getVideoScale() >= ~~cfxnes.getMaxVideoScale();
     });

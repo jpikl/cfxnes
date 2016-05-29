@@ -12,9 +12,9 @@
       <about-changelog show={ changelogVisible }></about-changelog>
     </div>
   </div>
-  <script>
-    showChangelog() {
+  <script type="babel">
+    this.showChangelog = () => {
       this.changelogVisible = true;
-    }
+    };
   </script>
 </about-view>

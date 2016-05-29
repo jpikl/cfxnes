@@ -23,12 +23,15 @@
       </ul>
     </div>
   </div>
-  <script>
-    var toolbar;
+  <script type="babel">
+    let toolbar;
 
-    app.watch('route', this, function(view) {
-      toolbar && toolbar.unmount(true);
-      toolbar = riot.mount('#toolbar', view + '-toolbar')[0];
-    });
+    this.setToolbar = name => {
+      if (toolbar) toolbar.unmount(true);
+      toolbar = riot.mount('#toolbar', `${name}-toolbar`)[0];
+    };
+
+    this.on('mount', () => app.on('route', this.setToolbar));
+    this.on('unmount', () => app.off('route', this.setToolbar));
   </script>
 </app-nav>

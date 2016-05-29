@@ -5,7 +5,7 @@
   <div class="library-section">
     <div>
       <message-panel></message-panel>
-      <loader if={ !games }></loader>
+      <loader-indicator if={ !games }></loader-indicator>
     </div>
     <div riot-tag="input-search" if={ games && games.length } placeholder="Search games" focus={ desktop } value={ filter }></div>
   </div>
@@ -14,42 +14,41 @@
       <li each={ game in games } riot-tag="game-tile" game={ game }></li>
     </ul>
   </div>
-  <script>
-    var self = this;
+  <script type="babel">
     this.desktop = $.browser.desktop;
 
-    setFilter(filter) {
+    this.setFilter = filter => {
       this.filter = app.gameFilter = filter;
-    }
+    };
 
-    applyFilter() {
-      var filter = this.filter.trim().toLowerCase();
-      eachTag(this.tags['game-tile'], function(gameTile) {
-        gameTile.applyFilter(filter);
+    this.applyFilter = () => {
+      const filter = this.filter.trim().toLowerCase();
+      eachTag(this.tags['game-tile'], tile => {
+        tile.applyFilter(filter);
       });
-    }
+    };
 
     this.setFilter(app.viewParam || app.gameFilter || '');
 
-    this.on('mount', function() {
-      var messagePanel = this.tags['message-panel'];
+    this.on('mount', () => {
+      const message = this.tags['message-panel'];
 
-      this.tags['input-search'].on('change', function(value) {
-        self.setFilter(value);
-        self.applyFilter();
+      this.tags['input-search'].on('change', value => {
+        this.setFilter(value);
+        this.applyFilter();
       });
 
-      $.get('/roms/').done(function(games) {
-        self.games = games;
+      $.get('/roms/').done(games => {
+        this.games = games;
         if (!games.length) {
-          messagePanel.showInfo('There are no games available.');
+          message.showInfo('There are no games available.');
         }
-      }).fail(function(response) {
-        self.games = [];
-        messagePanel.showError(getErrorMessage(response));
-      }).always(function() {
-        self.update();
-      });
+      })
+      .fail(response => {
+        this.games = [];
+        message.showError(formatError(response));
+      })
+      .always(this.update);
     });
 
     this.on('updated', this.applyFilter);

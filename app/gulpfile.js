@@ -53,7 +53,7 @@ gulp.task('libs', () => {
 });
 
 gulp.task('scripts', () => {
-  const app = gulp.src('./src/client/app.js');
+  const app = gulp.src('./src/client/app.js').pipe(babel());
   const tags = gulp.src('./src/client/tags/**/*.tag').pipe(riot());
   return merge(app, tags)
     .pipe(gulpif(!argv.debug, uglify()))
@@ -104,7 +104,7 @@ gulp.task('client', gulp.parallel('libs', 'scripts', 'styles', 'pages', 'images'
 
 gulp.task('server', () => {
   return gulp.src('./src/server/**/*.js')
-    .pipe(babel({presets: ['es2015']}))
+    .pipe(babel())
     .pipe(gulp.dest('./dist/'));
 });
 
@@ -172,7 +172,7 @@ gulp.task('restart', () => {
 //=========================================================
 
 gulp.task('lint', () => {
-  return gulp.src(['./gulpfile.js', './{src,test}/**/*.js'])
+  return gulp.src(['./gulpfile.js', './{src,test}/**/*.{js,tag}'])
     .pipe(eslint())
     .pipe(eslint.format());
 });

@@ -20,7 +20,7 @@ const loaders = [
 export default class CartridgeFactory {
 
   constructor() {
-    this.dependencies = ['jszip', 'sha1'];
+    this.dependencies = ['JSZip', 'sha1'];
   }
 
   inject(JSZip, sha1) {

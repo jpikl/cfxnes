@@ -6,13 +6,13 @@
     <toolbar-volume></toolbar-volume>
   </div>
   <fps-counter></fps-counter>
-  <script>
-    this.on('mount', function() {
+  <script type="babel">
+    this.on('mount', () => {
       $(this.root).find('button').tooltip({
         placement: 'bottom',
         trigger: 'hover',
         animation: false,
-        container: 'body'
+        container: 'body',
       });
     });
   </script>

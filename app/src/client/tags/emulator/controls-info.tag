@@ -1,5 +1,5 @@
 <controls-info class="alert alert-info alert-dismissible" show={ opened }>
-  <button type="button" class="close" onclick={ hide }>
+  <button type="button" class="close" onclick={ close }>
     <span>&times;</span>
   </button>
   <h3>Controls <small>(<a class="alert-link" href="#/settings/controls"><i class="icon icon-wrench"></i> configure</a>)</small></h3>
@@ -14,11 +14,11 @@
     <tr riot-tag="controls-row" input="1.joypad.down" label="Down"></tr>
     <tr riot-tag="controls-row" input="2.zapper.trigger" label="Zapper"></tr>
   </table>
-  <script>
+  <script type="babel">
     this.opened = app.controlsOpened && app.controlsVisible;
 
-    hide() {
+    this.close = () => {
       this.opened = app.controlsOpened = false;
-    }
+    };
   </script>
 </controls-info>

@@ -4,9 +4,9 @@
     <img src="{ game.thumbnailURL || 'images/cartridge.svg' }">
     { game.name }
   </a>
-  <script>
-    applyFilter(filter) {
+  <script type="babel">
+    this.applyFilter = filter => {
       $(this.root).toggle(this.game.name.toLowerCase().indexOf(filter) >= 0);
-    }
+    };
   </script>
 </game-tile>

@@ -11,29 +11,28 @@
     <input type="checkbox" name="checkbox" title="Enable audio" checked={ enabled } onclick={ toggleEnabled }>
     <input type="text" name="slider">
   </div>
-  <script>
+  <script type="babel">
     this.supported = cfxnes.isAudioSupported();
 
-    toggleEnabled() {
+    this.toggleEnabled = () => {
       cfxnes.setAudioEnabled(!cfxnes.isAudioEnabled());
       $(this.slider).slider('toggle');
-    }
+    };
 
-    this.on('update', function() {
+    this.on('update', () => {
       this.enabled = cfxnes.isAudioEnabled();
       this.volume = cfxnes.getAudioVolume();
     });
 
-    this.on('mount', function() {
-      var self = this;
-      $(this.dropdown).click(function(event) {
+    this.on('mount', () => {
+      $(this.dropdown).click(event => {
         event.stopPropagation(); // Disable accidental dropdown closing
       });
       $(this.checkbox).tooltip({
         placement: 'right',
         trigger: 'hover',
         animation: false,
-        container: 'body'
+        container: 'body',
       });
       $(this.slider).slider({
         min: 0,
@@ -44,12 +43,10 @@
         selection: 'after',
         enabled: cfxnes.isAudioEnabled(),
         value: cfxnes.getAudioVolume(),
-        formatter: function(value) {
-          return ~~(100 * value) + '%';
-        }
-      }).on('change', function(event) {
+        formatter: value => ~~(100 * value) + '%',
+      }).on('change', event => {
         cfxnes.setAudioVolume(event.value.newValue);
-        self.update();
+        this.update();
       });
     });
   </script>

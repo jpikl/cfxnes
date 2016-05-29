@@ -2,12 +2,15 @@
   <div class="main-content">
     <div id="view"></div>
   </div>
-  <script>
-    var view;
+  <script type="babel">
+    let view;
 
-    app.watch('route', this, function(name) {
-      view && view.unmount(true);
-      view = riot.mount('#view', name + '-view')[0];
-    });
+    this.setView = name => {
+      if (view) view.unmount(true);
+      view = riot.mount('#view', `${name}-view`)[0];
+    };
+
+    this.on('mount', () => app.on('route', this.setView));
+    this.on('unmount', () => app.off('route', this.setView));
   </script>
 </app-main>

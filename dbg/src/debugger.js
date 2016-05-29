@@ -1,5 +1,3 @@
-/* eslint-disable no-eval */
-
 //=========================================================
 // CFxNES debugger
 //=========================================================
@@ -63,7 +61,7 @@ const cartridge = cartridgeFactory.readFile(argv._[0]);
 const nes = injector.get('nes');
 const cpu = injector.get('cpu');
 
-const print = line => process.stdout.write(line + '\n');
+const print = console.log;
 const logger = argv.verbose ? cpu.verboseLogger : cpu.basicLogger;
 logger.attach(LogWriter.toConsole());
 cpu.stateAfterOperation = !argv.prevState;

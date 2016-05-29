@@ -27,5 +27,5 @@ export default {
   'mapperFactory': {class: MapperFactory},
   'paletteFactory': {class: PaletteFactory},
   'sha1': {value: null},  // Optional external dependency
-  'jszip': {value: null}, // Optional external dependency
+  'JSZip': {value: null}, // Optional external dependency
 };

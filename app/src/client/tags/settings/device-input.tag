@@ -6,23 +6,20 @@
     <mapped-inputs input={ opts.input }></mapped-inputs>
   </div>
   <div>
-    <button class="btn btn-default" onclick={ change }>Change</button>
+    <button class="btn btn-default" onclick={ changeInput }>Change</button>
   </div>
-  <script>
-    var self = this;
-    var devceInput = opts.input;
-
-    change() {
-      var modal = $('#record-input-modal').modal('show');
-      cfxnes.recordInput(function(sourceInput) {
+  <script type="babel">
+    this.changeInput = () => {
+      const modal = $('#record-input-modal').modal('show');
+      cfxnes.recordInput(input => {
         modal.modal('hide');
-        if (sourceInput !== 'keyboard.escape') {
-          cfxnes.unmapInputs(devceInput, sourceInput);
-          cfxnes.mapInputs(devceInput, sourceInput);
-          self.trigger('change');
+        if (input !== 'keyboard.escape') {
+          cfxnes.unmapInputs(opts.input, input);
+          cfxnes.mapInputs(opts.input, input);
+          this.trigger('change');
         }
       });
-    }
+    };
 
     this.on('update', this.tags['mapped-inputs'].update);
   </script>

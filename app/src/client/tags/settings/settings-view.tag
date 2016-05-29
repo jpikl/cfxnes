@@ -1,6 +1,6 @@
 <settings-view class="settings">
   <h1>Settings</h1>
-  <div riot-tag="panel-group" id="settings-group" open-panel={ panelId }>
+  <div riot-tag="panel-group" id="settings-group" open-panel-id={ panelId }>
     <div riot-tag="collapse-panel" panel-id="emulation-settings" label="Emulation" icon="server">
       <emulation-settings></emulation-settings>
     </div>
@@ -17,11 +17,11 @@
       <reset-settings name='reset-settings'></reset-settings>
     </div>
   </div>
-  <script>
+  <script type="babel">
     this.panelId = (app.viewParam || app.settingsPanel || 'emulation') + '-settings';
 
-    this.on('mount', function() {
-      this.tags['panel-group'].on('open', function(panelId) {
+    this.on('mount', () => {
+      this.tags['panel-group'].on('open', panelId => {
         app.settingsPanel = panelId.substring(0, panelId.indexOf('-'));
       });
     });
