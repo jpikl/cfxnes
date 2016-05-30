@@ -11,7 +11,7 @@ Each change is prefixed with code of related module:
 ## [Unreleased][unreleased]
 ### Fixed
 - [core] MMC3 mapper alternate behavior.
-- [core] Delayed IRQ response after CLI/SEI/PLP.
+- [core] Delayed IRQ response after CLI/SEI/PLP (*Break Time* is now playable).
 - [core] Sprite zero hit detection.
 - [core] Sprite overflow flag clearing.
 
@@ -19,7 +19,8 @@ Each change is prefixed with code of related module:
 - [core, lib, app] Option to set volume of each audio channel.
 
 ### Changed
-- [core] SHA-1 is used to compute checksums instead of MD5. Checksums are computed from PRGRAM + CHRRAM data (previously only PRGRAM).
+- [core] Checksums are computed using SHA-1 (previously MD5) from PRGRAM + CHRRAM (previously only PRGRAM).
+- [lib] Improved library API.
 
 ## [0.4.0] - 2015-11-29
 ### Fixed
@@ -27,7 +28,7 @@ Each change is prefixed with code of related module:
 - [core] Correct size of PRG/CHR RAM that is read from ROM images (iNES / NES 2.0).
 - [core] MMC1 mapper implementation (PRG RAM protection, PRG ROM mapping).
 - [core] MMC3 mapper implementation (PRG RAM protection, CHR ROM mapping).
-- [core, lib] Attempt to load invalid configuration won't crash emulator during initialization.
+- [core, lib] Crash during attempt to load invalid configuration.
 
 ### Added
 - [core] Support for BNROM, NINA-001 and Color Dreams mappers.
@@ -40,11 +41,11 @@ Each change is prefixed with code of related module:
 - [dbg] Debugger command line options `-i` and `-p`.
 
 ### Changed
-- [core] Cartridge data (battery backed RAM) is stored in IndexedDB.
+- [core] Non-volatile RAM is stored in IndexedDB.
 - [core, lib] API uses Promises for asynchronous operations.
 - [lib, app] Default audio volume is 50%.
 - [app] Vector graphics is used where possible.
-- [app] Only single refresh when multiple files are changed in library.
+- [app] Only single reload when multiple files are changed in library directory.
 - [app] *Game Library* renamed to *Library*.
 
 ## [0.3.0] - 2015-08-09
@@ -61,7 +62,7 @@ Each change is prefixed with code of related module:
 
 ## [0.2.0] - 2015-05-18
 ### Fixed
-- [core] MMC3 mapper initial state (SMB3 and Shadow of the Ninja games are now playable).
+- [core] MMC3 mapper initial state (*SMB3* and *Shadow of the Ninja* are now playable).
 - [core] Compatibility with Babel compiler (v5.4.3).
 - [core, lib] Compatibility with Closure Compiler (v20150505).
 - [lib, app] Emulator initialization in Internet Explorer.

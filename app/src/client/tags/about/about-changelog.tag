@@ -1,78 +1,49 @@
 <about-changelog>
   <h2>Change Log</h2>
-  <p>Each change is prefixed with code of related module:</p>
+  <h3>Unreleased</h3>
   <ul>
-    <li><em>core</em> = emulator core</li>
-    <li><em>lib</em> = emulation library</li>
-    <li><em>app</em> = web application</li>
-    <li><em>dbg</em> = debugger</li>
+    <li>Fixed MMC3 mapper alternate behavior.</li>
+    <li>Fixed delayed IRQ response after CLI/SEI/PLP (<i>Break Time</i> is now playable).</li>
+    <li>Fixed sprite zero hit detection.</li>
+    <li>Fixed sprite overflow flag clearing.</li>
+    <li>Added option to set volume of each audio channel.</li>
+    <li>Checksums are computed using SHA-1 (previously MD5) from PRGRAM + CHRRAM (previously only PRGRAM).</li>
   </ul>
-  <h3><a href="https://github.com/jpikl/cfxnes/compare/v0.3.0...v0.4.0">0.4.0</a> - 2015-11-29</h3>
-  <h4>Fixed</h4>
+  <h3>0.4.0 - 2015-11-29</h3>
   <ul>
-    <li>[core] Detection of NES 2.0 ROM image format.</li>
-    <li>[core] Correct size of PRG/CHR RAM that is read from ROM images (iNES / NES 2.0).</li>
-    <li>[core] MMC1 mapper implementation (PRG RAM protection, PRG ROM mapping).</li>
-    <li>[core] MMC3 mapper implementation (PRG RAM protection, CHR ROM mapping).</li>
-    <li>[core, lib] Attempt to load invalid configuration won&#39;t crash emulator during initialization.</li>
+    <li>Fixed detection of NES 2.0 ROM image format.</li>
+    <li>Fixed correct size of PRG/CHR RAM that is read from ROM images (iNES / NES 2.0).</li>
+    <li>Fixed MMC1 mapper implementation (PRG RAM protection, PRG ROM mapping).</li>
+    <li>Fixed MMC3 mapper implementation (PRG RAM protection, CHR ROM mapping).</li>
+    <li>Fixed crash during attempt to load invalid configuration.</li>
+    <li>Added support for BNROM, NINA-001 and Color Dreams mappers.</li>
+    <li>Added new color palettes: ASQ, BMF, FCEU(X), Nestopia.</li>
+    <li>Added multiple types of fullscreen mode.</li>
+    <li>Added option to reset configuration.</li>
+    <li>Added option to delete saved game data.</li>
+    <li>Non-volatile RAM is stored in IndexedDB.</li>
+    <li>Default audio volume is 50%.</li>
+    <li>Vector graphics is used where possible.</li>
+    <li><i>Game Library</i> renamed to <i>Library</i>.</li>
   </ul>
-  <h4>Added</h4>
+  <h3>0.3.0 - 2015-08-09</h3>
   <ul>
-    <li>[core] Support for BNROM, NINA-001 and Color Dreams mappers.</li>
-    <li>[core, app] - New color palettes: ASQ, BMF, FCEU(X), Nestopia.</li>
-    <li>[lib] API to change loggging level.</li>
-    <li>[lib, app] Multiple fullscreen modes.</li>
-    <li>[app] Option to reset configuration.</li>
-    <li>[app] Option to delete saved game data.</li>
-    <li>[dbg] Debugger can take screenshots.</li>
-    <li>[dbg] Debugger command line options <code>-i</code> and <code>-p</code>.</li>
+    <li>Fixed mouse cursor detection for zapper.</li>
+    <li>Added gamepad support.</li>
+    <li><i>TV system</i> configuration option renamed to <i>Region</i>.</li>
   </ul>
-  <h4>Changed</h4>
+  <h3>0.2.0 - 2015-05-18</h3>
   <ul>
-    <li>[core] Cartridge data (battery backed RAM) is stored in IndexedDB.</li>
-    <li>[core, lib] API uses Promises for asynchronous operations.</li>
-    <li>[lib, app] Default audio volume is 50%.</li>
-    <li>[app] Vector graphics is used where possible.</li>
-    <li>[app] Only single refresh when multiple files are changed in library.</li>
-    <li>[app] <em>Game Library</em> renamed to <em>Library</em>.</li>
-  </ul>
-  <h3><a href="https://github.com/jpikl/cfxnes/compare/v0.2.0...v0.3.0">0.3.0</a> - 2015-08-09</h3>
-  <h4>Fixed</h4>
-  <ul>
-    <li>[lib] Mouse cursor detection for zapper.</li>
-  </ul>
-  <h4>Added</h4>
-  <ul>
-    <li>[lib, app] Gamepad support.</li>
-  </ul>
-  <h4>Changed</h4>
-  <ul>
-    <li>[lib] Library can be loaded as AMD or CommonJS module.</li>
-    <li>[app] Complete UI rewrite (switched from AngularJS to RiotJS).</li>
-    <li>[app] <em>TV system</em> configuration option renamed to <em>Region</em>.</li>
-  </ul>
-  <h3><a href="https://github.com/jpikl/cfxnes/compare/v0.1.0...v0.2.0">0.2.0</a> - 2015-05-18</h3>
-  <h4>Fixed</h4>
-  <ul>
-    <li>[core] MMC3 mapper initial state (SMB3 and Shadow of the Ninja games are now playable).</li>
-    <li>[core] Compatibility with Babel compiler (v5.4.3).</li>
-    <li>[core, lib] Compatibility with Closure Compiler (v20150505).</li>
-    <li>[lib, app] Emulator initialization in Internet Explorer.</li>
-  </ul>
-  <h3>Added</h3>
-  <ul>
-    <li>[core] Support for loading of zipped <code>.nes</code> files.</li>
-    <li>[app] Visual effect when dropping files into browser window.</li>
-    <li>[app] Option to hide FPS counter.</li>
-    <li>[app] Favicon.</li>
-  </ul>
-  <h4>Changed</h4>
-  <ul>
-    <li>[core, lib] js-md5 and screenfull library are optional dependencies.</li>
-    <li>[app] UI optimization for small screens.</li>
+    <li>Fixed MMC3 mapper initial state (<i>SMB3</i> and <i>Shadow of the Ninja</i> are now playable).</li>
+    <li>Fixed initialization in Internet Explorer.</li>
+    <li>Added support for loading of zipped <code>.nes</code> files.</li>
+    <li>Added visual effect when dropping files into browser window.</li>
+    <li>Added option to hide FPS counter.</li>
+    <li>Added favicon.</li>
+    <li>UI optimization for small screens.</li>
   </ul>
   <h3>0.1.0 - 2015-04-26</h3>
   <ul>
-    <li>Complete rewrite from CoffeeScript to ECMAScript 6.</li>
+    <li>Initial version.</li>
   </ul>
 </about-changelog>

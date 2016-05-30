@@ -8,15 +8,11 @@ const server = require('gulp-develop-server');
 const eslint = require('gulp-eslint');
 const gulpif = require('gulp-if');
 const less = require('gulp-less');
-const markdown = require('gulp-markdown');
-const prettify = require('gulp-prettify');
-const rename = require('gulp-rename');
 const replace = require('gulp-replace');
 const riot = require('gulp-riot');
 const uglify = require('gulp-uglify');
 const Autoprefix = require('less-plugin-autoprefix');
 const CleanCSS = require('less-plugin-clean-css');
-const marked = require('marked');
 const merge = require('merge2');
 const mkdirp = require('mkdirp');
 const yargs = require('yargs');
@@ -175,31 +171,6 @@ gulp.task('lint', () => {
   return gulp.src(['./gulpfile.js', './{src,test}/**/*.{js,tag}'])
     .pipe(eslint())
     .pipe(eslint.format());
-});
-
-//=========================================================
-// Generate HTML changelog
-//=========================================================
-
-gulp.task('changelog', () => {
-  const renderer = new marked.Renderer();
-  renderer.firstParagraph = true;
-  renderer.heading = function(text, level) {
-    return '<h' + (level + 1) + '>' + text + '</h' + (level + 1) + '>\n';
-  };
-  renderer.paragraph = function(text) {
-    if (this.firstParagraph) {
-      this.firstParagraph = false;
-      return '';
-    }
-    return '<p>' + text + '</p>\n';
-  };
-  return gulp.src('../CHANGELOG.md')
-    .pipe(markdown({renderer: renderer}))
-    .pipe(replace(/([\s\S]*)/, '<about-changelog>\n$1</about-changelog>'))
-    .pipe(prettify())
-    .pipe(rename('about-changelog.tag'))
-    .pipe(gulp.dest('./src/client/tags/about/'));
 });
 
 //=========================================================

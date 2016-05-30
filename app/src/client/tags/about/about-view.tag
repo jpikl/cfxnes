@@ -7,7 +7,7 @@
       <h1>CFxNES ({ CFxNES.version })</h1>
       <p>JavaScript NES emulator and emulation library.</p>
       <p>The source code is available at <a href="https://github.com/jpikl/cfxnes">github</a> and licensed under the MIT License.</p>
-      <p>Copyright © 2014-2015 Jan Pikl</p>
+      <p>Copyright © 2014-2016 Jan Pikl</p>
       <a href="" hide={ changelogVisible } onclick={ showChangelog }>Show change log</a>
       <about-changelog show={ changelogVisible }></about-changelog>
     </div>

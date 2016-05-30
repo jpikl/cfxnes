@@ -76,16 +76,13 @@ run:
 # Release
 ###############################################################################
 
-.PHONY: version changelog deploy backup release tag
+.PHONY: version deploy backup release tag
 
 version:
 	cd core && npm version $(VERSION); true
 	cd lib && npm version $(VERSION); true
 	cd app && npm version $(VERSION); true
 	cd dbg && npm version $(VERSION); true
-
-changelog:
-	cd app && gulp changelog
 
 deploy: clean lib prod_app
 	mkdir -p $(DEPLOY_DIR)
