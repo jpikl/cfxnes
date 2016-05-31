@@ -100,10 +100,10 @@ Creates mapping between *device input* and one or more *source inputs*.
 *Example:*
 
 ```` javascript
-cfxnes.mapInput('1.joypad.a', 'keyboard.y');
-cfxnes.mapInput('1.joypad.a', 'keyboard.z');
+cfxnes.mapInputs('1.joypad.a', 'keyboard.y');
+cfxnes.mapInputs('1.joypad.a', 'keyboard.z');
 // Can be simplified to one call
-cfxnes.mapInput('1.joypad.a', ['keyboard.y', 'keyboard.z']);
+cfxnes.mapInputs('1.joypad.a', ['keyboard.y', 'keyboard.z']);
 ````
 
 #### .unmapInputs(...inputs)
@@ -131,7 +131,7 @@ Returns *device* or *source inputs* mapped to their counterpart.
 *Example:*
 
 ```` javascript
-cfxnes.mapInput('1.joypad.a', ['keyboard.y', 'keyboard.z']);
+cfxnes.mapInputs('1.joypad.a', ['keyboard.y', 'keyboard.z']);
 cfxnes.getMappedInputs('1.joypad.a'); // Returns ['keyboard.y', 'keyboard.z']
 cfxnes.getMappedInputs('keyboard.z'); // Returns ['1.joypad.a']
 ````

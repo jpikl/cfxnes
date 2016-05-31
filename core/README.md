@@ -14,8 +14,8 @@ The core uses its own [dependency injection](https://en.wikipedia.org/wiki/Depen
 import Injector from './utils/Injector'; // Dependency injector
 import config from './config'; // Base DI configuration
 
-var injector = new Injector(config);
-var nes = injector.get('nes');
+const injector = new Injector(config);
+const nes = injector.get('nes');
 ```
 
 ### Loading of ROM images
@@ -23,10 +23,10 @@ var nes = injector.get('nes');
 Core is capable of loading *iNES* and *NES 2.0* ROM images which can be supplied as `ArrayBuffer`, `Uint8Array` or as a file system path (when running in Node.js).
 
 ``` javascript
-var cartridgeFactory = injector.get('cartridgeFactory');
-var cartridge = cartridgeFactory.readArray(arrayBuffer);
-// Or alternatively cartridgeFactory.readFile(path)
-nes.insertCartridge(cartridge);
+const cartridgeFactory = injector.get('cartridgeFactory');
+const cartridge1 = cartridgeFactory.readArray(arrayBuffer);
+const cartridge2 = cartridgeFactory.readFile('./data/rom.nes');
+nes.insertCartridge(cartridge1);
 ```
 
 ### Rendering loop
@@ -34,7 +34,7 @@ nes.insertCartridge(cartridge);
 Video output is rendered into provided `Uint32Array`. Color of each pixel is encoded as 32-bit unsigned integer in RGBA format.
 
 ``` javascript
-var videoBuffer = new Uint32Array(256 * 240); // Screen resolution
+const videoBuffer = new Uint32Array(256 * 240); // Screen resolution
 while(running) {
     nes.renderFrame(videoBuffer);
     // Display output buffer
@@ -53,7 +53,7 @@ nes.initAudioRecording(4096); // 4K audio buffer
 nes.startAudioRecording(44100); // 44.1 KHz sampling rate
 
 function audioCallback() {
-    var audioBuffer = nes.readAudioBuffer();
+    const audioBuffer = nes.readAudioBuffer();
     // Supply audio samples to audio device
 }
 
@@ -69,9 +69,9 @@ Core can emulate standard NES controller (joypad) and Zapper.
 ``` javascript
 import {Button} from './devices/Joypad'
 
-var deviceFactory = injector.get('deviceFactory');
-var joypad = deviceFactory.createDevice('joypad');
-var zapper = deviceFactory.createDevice('zapper');
+const deviceFactory = injector.get('deviceFactory');
+const joypad = deviceFactory.createDevice('joypad');
+const zapper = deviceFactory.createDevice('zapper');
 
 nes.connectInputDevice(1, joypad); // Port 1
 joypad.setButtonPressed(Button.START, true);

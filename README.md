@@ -40,7 +40,7 @@ See LICENSE.txt for more details.
 
 ## Project Structure
 
-- [cfxnes-core](core) - core components of the emulator.
-- [cfxnes-lib](lib) - library for NES emulation in web browser.
-- [cfxnes-app](app) - web application build on top of the library.
-- [cfxnes-dbg](dbg) - tool for debugging NES ROM images.
+- [Core](core) - core components of the emulator.
+- [Lib](lib) - library for NES emulation in web browser.
+- [App](app) - web application build on top of the library.
+- [Dbg](dbg) - tool for debugging NES ROM images.

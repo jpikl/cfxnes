@@ -1,6 +1,6 @@
-# CFxNES Debugger
+# CFxNES Dbg
 
-Tool for debugging of NES ROM images using the [CFxNES emulator](../README.md).
+Tool for debugging of NES ROM images.
 
 ## Usage
 
