@@ -1,6 +1,6 @@
 {
   "extends": "../.eslintrc",
   "rules": {
-    "no-eval": "off"
+    "no-console": "error"
   }
 }

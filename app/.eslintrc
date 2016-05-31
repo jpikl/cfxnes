@@ -17,7 +17,6 @@
     "riot": true
   },
   "rules": {
-    "no-console": "off",
     "no-invalid-this": "off"
   }
 }
