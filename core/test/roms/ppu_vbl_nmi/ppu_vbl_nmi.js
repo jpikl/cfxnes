@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/ppu_vbl_nmi.zip
 //=============================================================================
 
-import {RAMEnabledCPUMemory, NoOutputPPU, DisabledAPU} from '../units';
+import {NoOutputPPU, DisabledAPU} from '../units';
 
 export const dir = './test/roms/ppu_vbl_nmi';
 
@@ -21,7 +21,6 @@ export const files = [
 ];
 
 export function configure(config) {
-  config.cpuMemory = {class: RAMEnabledCPUMemory};
   config.apu = {class: DisabledAPU};
   config.ppu = {class: NoOutputPPU};
 }

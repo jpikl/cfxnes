@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-/* eslint-disable no-sparse-arrays */
+/* eslint-disable no-sparse-arrays, no-unused-expressions */
 
 import chai from 'chai';
 import * as arrays from '../../src/utils/array';
@@ -7,6 +7,12 @@ import * as arrays from '../../src/utils/array';
 const expect = chai.expect;
 
 describe('Arrays utils', () => {
+  it('can make array', () => {
+    expect(arrays.makeArray(0)).to.deep.equal([]);
+    expect(arrays.makeArray(2)).to.deep.equal([0, 0]);
+    expect(arrays.makeArray(2, 'x')).to.deep.equal(['x', 'x']);
+  });
+
   it('can zero array', () => {
     let array;
     expect(arrays.zeroArray(array = [])).to.equal(array);
@@ -37,5 +43,15 @@ describe('Arrays utils', () => {
     expect(arrays.copyArray([1, 2, 3], new Array(3), 1, 1)).to.deep.equal([, 2, 3]);
     expect(arrays.copyArray([1, 2, 3], new Array(3), 1, 1, 1)).to.deep.equal([, 2]);
     expect(arrays.copyArray([1, 2, 3], new Array(3), 1, 2, 3)).to.deep.equal([,, 2]);
+  });
+
+  it('can test subarray containment', () => {
+    expect(arrays.containsSubarray([1, 2, 3], [1, 2, 3, 4])).to.be.false;
+    expect(arrays.containsSubarray([1, 2, 3], [1, 2, 3])).to.be.true;
+    expect(arrays.containsSubarray([1, 2, 3], [1, 2])).to.be.true;
+    expect(arrays.containsSubarray([], [])).to.be.true;
+    expect(arrays.containsSubarray([1, 2, 3], [2, 3], 2)).to.be.false;
+    expect(arrays.containsSubarray([1, 2, 3], [2, 3], 1)).to.be.true;
+    expect(arrays.containsSubarray([1, 2, 3], [2, 3], 0)).to.be.false;
   });
 });

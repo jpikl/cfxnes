@@ -1,6 +1,5 @@
 import APU from '../../src/units/APU';
 import PPU from '../../src/units/PPU';
-import CPUMemory from '../../src/units/CPUMemory';
 
 export {default as LoggingCPU} from '../../src/debug/LoggingCPU';
 export {default as NoOutputPPU} from '../../src/debug/NoOutputPPU';
@@ -9,15 +8,6 @@ export {default as BufferedOutputPPU} from '../../src/debug/BufferedOutputPPU';
 //=========================================================
 // Customized units for tests
 //=========================================================
-
-export class RAMEnabledCPUMemory extends CPUMemory {
-
-  remapPRGRAM(mapper) {
-    // Some ROM images expect 8K PRG RAM
-    this.prgRAM = mapper.prgRAM || new Uint8Array(0x2000);
-  }
-
-}
 
 export class DisabledPPU extends PPU {
 

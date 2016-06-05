@@ -8,9 +8,7 @@ export default class NINA001Mapper extends AbstractMapper {
 
   init(cartridge) {
     super.init(cartridge);
-    this.hasPRGRAM = true;
     this.hasPRGRAMRegisters = true; // Registers are mapped to PRG RAM address space
-    this.prgRAMSize = 0x2000; // 8K PRG RAM
   }
 
   reset() {

@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/cpu_reset.zip
 //=============================================================================
 
-import {RAMEnabledCPUMemory, DisabledAPU, DisabledPPU} from '../units';
+import {DisabledAPU, DisabledPPU} from '../units';
 
 export const dir = './test/roms/cpu_reset';
 
@@ -13,7 +13,6 @@ export const files = [
 ];
 
 export function configure(config) {
-  config.cpuMemory = {class: RAMEnabledCPUMemory};
   config.apu = {class: DisabledAPU};
   config.ppu = {class: DisabledPPU};
 }

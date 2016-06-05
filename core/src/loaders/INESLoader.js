@@ -1,7 +1,7 @@
 import Mirroring from '../common/Mirroring';
 import Region from '../common/Region';
 
-const INES_SIGNATURE = [0x4E, 0x45, 0x53, 0x1A]; // 'NES^Z'
+export const INES_SIGNATURE = [0x4E, 0x45, 0x53, 0x1A]; // 'NES^Z'
 
 const mappers = {
   0: 'NROM',
@@ -66,7 +66,7 @@ export default class INESLoader {
     cartridge.chrROMSize = reader.readByte() * 0x2000; // N x 8KB
     cartridge.hasCHRROM = cartridge.chrROMSize !== 0;
     cartridge.hasCHRRAM = cartridge.chrROMSize === 0;
-    cartridge.chrRAMSize = cartridge.hasCHRRAM ? 0x2000 : undefined; // 8K if present
+    cartridge.chrRAMSize = cartridge.hasCHRRAM ? 0x2000 : 0; // 8K if present
   }
 
   readControlBytes(reader, cartridge) {
@@ -127,7 +127,9 @@ export default class INESLoader {
   }
 
   readCHRROM(reader, cartridge) {
-    cartridge.chrROM = reader.read(cartridge.chrROMSize);
+    if (cartridge.hasCHRROM) {
+      cartridge.chrROM = reader.read(cartridge.chrROMSize);
+    }
   }
 
   //=========================================================
@@ -135,9 +137,8 @@ export default class INESLoader {
   //=========================================================
 
   detectPRGRAM(cartridge) {
-    // Now, we can finally deduce whether there is a PRG RAM and its size
-    cartridge.hasPRGRAM = cartridge.hasPRGRAMBattery || cartridge.prgRAMUnits > 0;
-    cartridge.prgRAMSize = cartridge.hasPRGRAM ? (cartridge.prgRAMUnits || 1) * 0x2000 : undefined; // N x 8KB (at least 1 unit) if present
+    cartridge.hasPRGRAM = true; // Always true (iNES backward compatibility)
+    cartridge.prgRAMSize = cartridge.hasPRGRAM ? (cartridge.prgRAMUnits || 1) * 0x2000 : 0; // N x 8KB (at least 1 unit) if present
   }
 
   setMapper(cartridge) {

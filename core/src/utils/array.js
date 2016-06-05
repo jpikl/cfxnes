@@ -2,6 +2,10 @@
 // Array utilities
 //=========================================================
 
+export function makeArray(size, value = 0) {
+  return fillArray(new Array(size), value);
+}
+
 export function zeroArray(array, start, end) {
   return fillArray(array, 0, start, end);
 }
@@ -24,4 +28,16 @@ export function copyArray(src, dst, srcPos = 0, dstPos = 0, length = src.length)
     dst[dstPos + i] = src[srcPos + i];
   }
   return dst;
+}
+
+export function containsSubarray(array, subarray, pos = 0) {
+  if (subarray.length > array.length - pos) {
+    return false;
+  }
+  for (let i = 0; i < subarray.length; i++) {
+    if (array[pos + i] !== subarray[i]) {
+      return false;
+    }
+  }
+  return true;
 }

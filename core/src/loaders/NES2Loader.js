@@ -3,9 +3,9 @@ import INESLoader from './INESLoader';
 
 const submappers = {
   'MMC1': {
-    0x01: 'SUROM',
-    0x02: 'SOROM',
-    0x03: 'SXROM',
+    1: 'SUROM',
+    2: 'SOROM',
+    3: 'SXROM',
   },
 };
 

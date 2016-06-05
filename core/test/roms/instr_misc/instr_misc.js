@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/nes_instr_misc.zip
 //=============================================================================
 
-import {RAMEnabledCPUMemory, NoOutputPPU} from '../units';
+import {NoOutputPPU} from '../units';
 
 export const dir = './test/roms/instr_misc';
 
@@ -15,7 +15,6 @@ export const files = [
 ];
 
 export function configure(config) {
-  config.cpuMemory = {class: RAMEnabledCPUMemory};
   config.ppu = {class: NoOutputPPU};
 }
 

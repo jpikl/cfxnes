@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/ppu_sprite_overflow.zip
 //=============================================================================
 
-import {RAMEnabledCPUMemory, NoOutputPPU, DisabledAPU} from '../units';
+import {NoOutputPPU, DisabledAPU} from '../units';
 
 export const dir = './test/roms/ppu_sprite_overflow';
 
@@ -16,7 +16,6 @@ export const files = [
 ];
 
 export function configure(config) {
-  config.cpuMemory = {class: RAMEnabledCPUMemory};
   config.ppu = {class: NoOutputPPU};
   config.apu = {class: DisabledAPU};
 }

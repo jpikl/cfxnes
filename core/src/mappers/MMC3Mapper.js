@@ -19,8 +19,6 @@ export default class MMC3Mapper extends AbstractMapper {
 
   init(cartridge) {
     super.init(cartridge);
-    this.hasPRGRAM = true;
-    this.prgRAMSize = 0x2000; // 8K PRG RAM
     // MMC3A and non-Sharp MMC3B - alternate (old) behavior
     // MMC3C and Sharp MMC3B     - normal (new) behavior
     // TODO detection for normal/alternate behavior

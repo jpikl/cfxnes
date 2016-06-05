@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/nes-tests/instr_test-v5.zip
 //=============================================================================
 
-import {RAMEnabledCPUMemory, DisabledAPU, DisabledPPU} from '../units';
+import {DisabledAPU, DisabledPPU} from '../units';
 
 export const dir = './test/roms/instr_test';
 
@@ -27,7 +27,6 @@ export const files = [
 ];
 
 export function configure(config) {
-  config.cpuMemory = {class: RAMEnabledCPUMemory};
   config.apu = {class: DisabledAPU};
   config.ppu = {class: DisabledPPU};
 }

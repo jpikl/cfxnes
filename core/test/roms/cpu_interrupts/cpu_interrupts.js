@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/cpu_interrupts_v2.zip
 //=============================================================================
 
-import {RAMEnabledCPUMemory, NoOutputPPU} from '../units';
+import {NoOutputPPU} from '../units';
 
 export const dir = './test/roms/cpu_interrupts';
 
@@ -16,7 +16,6 @@ export const files = [
 ];
 
 export function configure(config) {
-  config.cpuMemory = {class: RAMEnabledCPUMemory};
   config.ppu = {class: NoOutputPPU};
 }
 

@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/apu_test.zip
 //=============================================================================
 
-import {RAMEnabledCPUMemory, DisabledPPU} from '../units';
+import {DisabledPPU} from '../units';
 
 export const dir = './test/roms/apu_test';
 
@@ -19,7 +19,6 @@ export const files = [
 ];
 
 export function configure(config) {
-  config.cpuMemory = {class: RAMEnabledCPUMemory};
   config.ppu = {class: DisabledPPU};
 }
 

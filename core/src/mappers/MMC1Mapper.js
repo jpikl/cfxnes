@@ -12,12 +12,6 @@ export default class MMC1Mapper extends AbstractMapper {
 
   init(cartridge) {
     super.init(cartridge);
-    // PRG RAM detection, in case we are loading from iNES instead of NES 2.0 image
-    // - existence of PRG RAM depends on board, so we presume PRG RAM exists
-    // - size of PRG RAM is 32K on SXROM, 16K on SOROM, 8K elsewhere;
-    //   we will use the most common value 8K, when is not defined
-    this.hasPRGRAM = true;
-    this.prgRAMSize = this.prgRAMSize || 0x2000;
     // SNROM board detection (128 / 256 KB PRG ROM; 8 KB PRG RAM; 8 KB CHR RAM/ROM)
     this.snrom = (this.prgROMSize === 0x20000 || this.prgROMSize === 0x40000)
           && this.prgRAMSize === 0x2000
