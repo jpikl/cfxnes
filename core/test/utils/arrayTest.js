@@ -44,14 +44,4 @@ describe('Arrays utils', () => {
     expect(arrays.copyArray([1, 2, 3], new Array(3), 1, 1, 1)).to.deep.equal([, 2]);
     expect(arrays.copyArray([1, 2, 3], new Array(3), 1, 2, 3)).to.deep.equal([,, 2]);
   });
-
-  it('can test subarray containment', () => {
-    expect(arrays.containsSubarray([1, 2, 3], [1, 2, 3, 4])).to.be.false;
-    expect(arrays.containsSubarray([1, 2, 3], [1, 2, 3])).to.be.true;
-    expect(arrays.containsSubarray([1, 2, 3], [1, 2])).to.be.true;
-    expect(arrays.containsSubarray([], [])).to.be.true;
-    expect(arrays.containsSubarray([1, 2, 3], [2, 3], 2)).to.be.false;
-    expect(arrays.containsSubarray([1, 2, 3], [2, 3], 1)).to.be.true;
-    expect(arrays.containsSubarray([1, 2, 3], [2, 3], 0)).to.be.false;
-  });
 });

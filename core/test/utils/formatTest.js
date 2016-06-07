@@ -43,12 +43,6 @@ describe('Format utils', () => {
     expect(format.formatSize('not a number')).to.be.undefined;
   });
 
-  it('can format data', () => {
-    expect(format.formatData(null)).to.be.undefined;
-    expect(format.formatData(0)).to.be.undefined;
-    expect(format.formatData([0x61, 0x62, 0x63])).to.equal('abc');
-  });
-
   it('can format error', () => {
     expect(format.formatError(new Error('test'))).to.match(/^Name: {4}Error\nMessage: test\nStack: {3}/);
   });

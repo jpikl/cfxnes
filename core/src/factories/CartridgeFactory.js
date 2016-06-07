@@ -1,17 +1,11 @@
 import {copyArray} from '../utils/array';
-import {formatOpt, formatSize, formatData} from '../utils/format';
+import {formatOpt, formatSize} from '../utils/format';
 import Mirroring from '../common/Mirroring';
 import Region from '../common/Region';
-import Uint8ArrayReader from '../readers/Uint8ArrayReader';
-import FileSystemReader from '../readers/FileSystemReader';
-import INESLoader from '../loaders/INESLoader';
-import NES2Loader from '../loaders/NES2Loader';
+import ines from '../loaders/ines';
 import logger from '../utils/logger';
 
-const loaders = [
-  new NES2Loader, // Must be processed before iNES
-  new INESLoader,
-];
+const loaders = [ines];
 
 //=========================================================
 // Factory for cartridge creation
@@ -28,25 +22,27 @@ export default class CartridgeFactory {
     this.sha1 = sha1;
   }
 
+  readFile(path) {
+    logger.info(`Creating cartridge from file "${path}"`);
+    return this.readArray(require('fs').readFileSync(path));
+  }
+
   readArray(array) {
     logger.info('Creating cartridge from array');
     if (array instanceof Array || array instanceof ArrayBuffer) {
       array = new Uint8Array(array);
     }
-    return this.read(new Uint8ArrayReader(array));
+    return this.read(array);
   }
 
-  readFile(path) {
-    logger.info(`Creating cartridge from file "${path}"`);
-    return this.read(new FileSystemReader(path));
-  }
-
-  read(reader) {
-    reader.tryUnzip(this.JSZip);
+  read(data) {
+    if (this.hasZipSignature(data)) {
+      data = this.unzip(data);
+    }
     for (const loader of loaders) {
-      if (loader.supports(reader)) {
+      if (loader.supports(data)) {
         logger.info(`Using "${loader.name}" loader`);
-        const cartridge = loader.load(reader);
+        const cartridge = loader.load(data);
         if (this.sha1) {
           this.computeSha1(cartridge);
         }
@@ -55,6 +51,25 @@ export default class CartridgeFactory {
       }
     }
     throw new Error('Unsupported input data format.');
+  }
+
+  hasZipSignature(data) {
+    return data[0] === 0x50
+        && data[1] === 0x45
+        && data[2] === 0x03
+        && data[3] === 0x04;
+  }
+
+  unzip(data) {
+    logger.info('Unzipping ROM image');
+    if (this.JSZip == null) {
+      throw new Error('Unable to unzip ROM image: JSZip is not available.');
+    }
+    const files = new this.JSZip(data).file(/^.*\.nes$/i);
+    if (files.length === 0) {
+      throw new Error('ZIP does not contain ".nes" ROM image');
+    }
+    return files[0].asUint8Array();
   }
 
   computeSha1(cartridge) {
@@ -70,12 +85,6 @@ export default class CartridgeFactory {
     logger.info('SHA-1                 : ' + formatOpt(cartridge.sha1));
     logger.info('Mapper                : ' + formatOpt(cartridge.mapper));
     logger.info('Submapper             : ' + formatOpt(cartridge.submapper));
-    logger.info('has PRG RAM           : ' + formatOpt(cartridge.hasPRGRAM));
-    logger.info('has PRG RAM battery   : ' + formatOpt(cartridge.hasPRGRAMBattery));
-    logger.info('has CHR ROM           : ' + formatOpt(cartridge.hasCHRROM));
-    logger.info('has CHR RAM           : ' + formatOpt(cartridge.hasCHRRAM));
-    logger.info('has CHR RAM battery   : ' + formatOpt(cartridge.hasCHRRAMBattery));
-    logger.info('has trainer           : ' + formatOpt(cartridge.hasTrainer));
     logger.info('PRG ROM size          : ' + formatOpt(formatSize(cartridge.prgROMSize)));
     logger.info('PRG RAM size          : ' + formatOpt(formatSize(cartridge.prgRAMSize)));
     logger.info('PRG RAM size (battery): ' + formatOpt(formatSize(cartridge.prgRAMSizeBattery)));
@@ -84,9 +93,6 @@ export default class CartridgeFactory {
     logger.info('CHR RAM size (battery): ' + formatOpt(formatSize(cartridge.chrRAMSizeBattery)));
     logger.info('Mirroring             : ' + formatOpt(Mirroring.toString(cartridge.mirroring)));
     logger.info('Region                : ' + formatOpt(Region.toString(cartridge.region)));
-    logger.info('is Vs Unisistem       : ' + formatOpt(cartridge.isVsUnisistem));
-    logger.info('is PlayChoice         : ' + formatOpt(cartridge.isPlayChoice));
-    logger.info('Trainer               : ' + formatOpt(formatData(cartridge.trainer)));
     logger.info('==========[Cartridge Info - End]==========');
   }
 

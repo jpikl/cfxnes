@@ -45,7 +45,7 @@ export default class MMC3Mapper extends AbstractMapper {
     this.mapPRGROMBank16K(1, -1); // Last 16K PRG RAM bank
     this.mapPRGRAMBank8K(0, 0);   // 8K PRG RAM
     this.mapCHRROMBank8K(0, 0);   // First 8K CHR ROM bank (if CHR RAM is not present)
-    if (this.hasCHRRAM) {
+    if (this.chrRAM) {
       this.mapCHRRAMBank8K(0, 0); // 8K CHR RAM (if CHR RAM is present)
     }
   }

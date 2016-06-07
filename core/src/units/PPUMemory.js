@@ -69,7 +69,7 @@ export default class PPUMemory {
   }
 
   remapPatterns(mapper) {
-    if (mapper.hasCHRRAM) {
+    if (mapper.chrRAM) {
       this.patterns = mapper.chrRAM;
       this.canWritePattern = true;
     } else {

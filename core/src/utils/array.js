@@ -29,15 +29,3 @@ export function copyArray(src, dst, srcPos = 0, dstPos = 0, length = src.length)
   }
   return dst;
 }
-
-export function containsSubarray(array, subarray, pos = 0) {
-  if (subarray.length > array.length - pos) {
-    return false;
-  }
-  for (let i = 0; i < subarray.length; i++) {
-    if (array[pos + i] !== subarray[i]) {
-      return false;
-    }
-  }
-  return true;
-}

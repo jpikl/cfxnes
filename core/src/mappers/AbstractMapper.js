@@ -26,12 +26,6 @@ export default class AbstractMapper {
     this.sha1 = cartridge.sha1;
     this.submapper = cartridge.submapper; // Not present on iNES ROMs
     this.mirroring = cartridge.mirroring;
-    this.hasPRGRAM = cartridge.hasPRGRAM; // Not reliable information on iNES ROMs (should provide mapper itself)
-    this.hasPRGRAMBattery = cartridge.hasPRGRAMBattery;
-    this.hasPRGRAMRegisters = false; // Whether mapper registers are mapped in PRG RAM address space
-    this.hasCHRROM = cartridge.hasCHRROM;
-    this.hasCHRRAM = cartridge.hasCHRRAM;
-    this.hasCHRRAMBattery = cartridge.hasCHRRAMBattery; // Not present on iNES ROMs
     this.prgROMSize = cartridge.prgROMSize;
     this.prgRAMSize = cartridge.prgRAMSize; // Not reliable information on iNES ROMs (should provide mapper itself)
     this.prgRAMSizeBattery = cartridge.prgRAMSizeBattery; // Not present on iNES ROMs
@@ -40,6 +34,7 @@ export default class AbstractMapper {
     this.chrRAMSizeBattery = cartridge.chrRAMSizeBattery; // Not present on iNES ROMs
     this.prgROM = cartridge.prgROM;
     this.chrROM = cartridge.chrROM;
+    this.hasPRGRAMRegisters = false; // Whether mapper registers are mapped in PRG RAM address space
     this.canReadPRGRAM = true; // PRG RAM read protection
     this.canWritePRGRAM = true; // PRG RAM write protection
   }
@@ -100,17 +95,14 @@ export default class AbstractMapper {
   //=========================================================
 
   initPRGRAM() {
-    if (this.hasPRGRAM) {
+    if (this.prgRAMSize) {
       this.prgRAM = new Uint8Array(this.prgRAMSize);
-      if (this.hasPRGRAMBattery && this.prgRAMSizeBattery == null) {
-        this.prgRAMSizeBattery = this.prgRAMSize; // If not defined, the whole PRG RAM is battery backed
-      }
     }
   }
 
   resetPRGRAM() {
-    if (this.hasPRGRAM) {
-      zeroArray(this.prgRAM, this.prgRAMSizeBattery || 0); // Keep battery-backed part of PRGRAM
+    if (this.prgRAM) {
+      zeroArray(this.prgRAM, this.prgRAMSizeBattery); // Keep battery-backed part of PRGRAM
     }
   }
 
@@ -121,8 +113,6 @@ export default class AbstractMapper {
 
   printPRGRAMInfo() {
     logger.info('==========[Mapper PRG RAM Info - Start]==========');
-    logger.info('has PRG RAM           : ' + formatOpt(this.hasPRGRAM));
-    logger.info('has PRG RAM battery   : ' + formatOpt(this.hasPRGRAMBattery));
     logger.info('PRG RAM size          : ' + formatOpt(formatSize(this.prgRAMSize)));
     logger.info('PRG RAM size (battery): ' + formatOpt(formatSize(this.prgRAMSizeBattery)));
     logger.info('==========[Mapper PRG RAM Info - End]==========');
@@ -158,17 +148,14 @@ export default class AbstractMapper {
   // Note: Only known game using battery-backed CHR RAM is RacerMate Challenge II
 
   initCHRRAM() {
-    if (this.hasCHRRAM) {
+    if (this.chrRAMSize) {
       this.chrRAM = new Uint8Array(this.chrRAMSize);
-      if (this.hasCHRRAMBattery && this.chrRAMSizeBattery == null) {
-        this.chrRAMSizeBattery = this.chrRAMSize; // If not defined, the whole CHR RAM is battery backed
-      }
     }
   }
 
   resetCHRRAM() {
-    if (this.hasCHRRAM) {
-      zeroArray(this.chrRAM, this.chrRAMSizeBattery || 0); // Keep battery-backed part of CHRRAM
+    if (this.chrRAM) {
+      zeroArray(this.chrRAM, this.chrRAMSizeBattery); // Keep battery-backed part of CHRRAM
     }
   }
 
@@ -193,8 +180,6 @@ export default class AbstractMapper {
 
   printCHRRAMInfo() {
     logger.info('==========[Mapper CHR RAM Info - Start]==========');
-    logger.info('has CHR RAM           : ' + formatOpt(this.hasCHRRAM));
-    logger.info('has CHR RAM battery   : ' + formatOpt(this.hasCHRRAMBattery));
     logger.info('CHR RAM size          : ' + formatOpt(formatSize(this.chrRAMSize)));
     logger.info('CHR RAM size (battery): ' + formatOpt(formatSize(this.chrRAMSizeBattery)));
     logger.info('==========[Mapper CHR RAM Info - End]==========');
@@ -206,29 +191,23 @@ export default class AbstractMapper {
 
   getNVRAMSize() {
     // No know NES game uses both battery-backed PRGRAM and CHRRAM
-    if (this.hasPRGRAM && this.hasPRGRAMBattery) {
-      return this.prgRAMSizeBattery;
-    }
-    if (this.hasCHRRAM && this.hasCHRRAMBattery) {
-      return this.chrRAMSizeBattery;
-    }
-    return 0;
+    return this.prgRAMSizeBattery + this.chrRAMSizeBattery;
   }
 
   getNVRAM() {
-    if (this.hasPRGRAM && this.hasPRGRAMBattery) {
+    if (this.prgRAMSizeBattery) {
       return this.prgRAM.subarray(0, this.prgRAMSizeBattery);
     }
-    if (this.hasCHRRAM && this.hasCHRRAMBattery) {
+    if (this.chrRAMSizeBattery) {
       return this.chrRAM.subarray(0, this.chrRAMSizeBattery);
     }
     return null;
   }
 
   setNVRAM(data) {
-    if (this.hasPRGRAM && this.hasPRGRAMBattery) {
+    if (this.prgRAMSizeBattery) {
       copyArray(data, this.prgRAM, 0, 0, this.prgRAMSizeBattery);
-    } else if (this.hasCHRRAM && this.hasCHRRAMBattery) {
+    } else if (this.chrRAMSizeBattery) {
       copyArray(data, this.chrRAM, 0, 0, this.chrRAMSizeBattery);
     }
   }

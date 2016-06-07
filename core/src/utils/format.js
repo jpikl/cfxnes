@@ -39,13 +39,6 @@ export function formatSize(size) {
   return size + ' B';
 }
 
-export function formatData(data) {
-  if (typeof data !== 'object' || data === null) {
-    return undefined;
-  }
-  return String.fromCharCode.apply(null, data);
-}
-
 export function formatError(error) {
   let result = 'Name:    ' + error.name
            + '\nMessage: ' + error.message;
