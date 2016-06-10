@@ -1,5 +1,4 @@
-import Mirroring from '../common/Mirroring';
-import Region from '../common/Region';
+import {Mirroring, Region} from '../enums';
 
 const name = 'iNES / NES 2.0';
 
@@ -27,7 +26,7 @@ function supports(data) {
       && data[3] === 0x1A; // 'NES^Z' signature
 }
 
-function load(data) {
+function parse(data) {
   if (!supports(data)) {
     throw new Error('Incorrect signature');
   }
@@ -107,4 +106,4 @@ function computeExpSize(value) {
   return 0;
 }
 
-export default {name, supports, load};
+export default {name, supports, parse};

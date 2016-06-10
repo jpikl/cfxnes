@@ -7,10 +7,10 @@ import * as arrays from '../../src/utils/array';
 const expect = chai.expect;
 
 describe('Arrays utils', () => {
-  it('can make array', () => {
-    expect(arrays.makeArray(0)).to.deep.equal([]);
-    expect(arrays.makeArray(2)).to.deep.equal([0, 0]);
-    expect(arrays.makeArray(2, 'x')).to.deep.equal(['x', 'x']);
+  it('can create array', () => {
+    expect(arrays.createArray(0)).to.deep.equal([]);
+    expect(arrays.createArray(2)).to.deep.equal([0, 0]);
+    expect(arrays.createArray(2, 'x')).to.deep.equal(['x', 'x']);
   });
 
   it('can zero array', () => {
@@ -29,19 +29,5 @@ describe('Arrays utils', () => {
     expect(arrays.fillArray([1, 2, 3], 'x', 1)).to.deep.equal([1, 'x', 'x']);
     expect(arrays.fillArray([1, 2, 3], 'x', 1, 2)).to.deep.equal([1, 'x', 3]);
     expect(arrays.fillArray([1, 2, 3], 'x', 0, 4)).to.deep.equal(['x', 'x', 'x']);
-  });
-
-  it('can copy array', () => {
-    let array;
-    expect(arrays.copyArray(array = [])).not.to.equal(array);
-    expect(arrays.copyArray([], array = [])).to.equal(array);
-    expect(arrays.copyArray([1, 2, 3])).to.deep.equal([1, 2, 3]);
-    expect(arrays.copyArray([1, 2], new Array(3))).to.deep.equal([1, 2]);
-    expect(arrays.copyArray([1, 2, 3], new Array(3))).to.deep.equal([1, 2, 3]);
-    expect(arrays.copyArray([1, 2, 3, 4], new Array(3))).to.deep.equal([1, 2, 3]);
-    expect(arrays.copyArray([1, 2, 3], new Array(3), 1)).to.deep.equal([2, 3]);
-    expect(arrays.copyArray([1, 2, 3], new Array(3), 1, 1)).to.deep.equal([, 2, 3]);
-    expect(arrays.copyArray([1, 2, 3], new Array(3), 1, 1, 1)).to.deep.equal([, 2]);
-    expect(arrays.copyArray([1, 2, 3], new Array(3), 1, 2, 3)).to.deep.equal([,, 2]);
   });
 });

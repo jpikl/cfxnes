@@ -1,4 +1,4 @@
-import {IRQ_APU} from '../common/constants';
+import {IRQ_APU} from '../constants';
 import PulseChannel from '../channels/PulseChannel';
 import TriangleChannel from '../channels/TriangleChannel';
 import NoiseChannel from '../channels/NoiseChannel';

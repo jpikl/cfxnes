@@ -1,6 +1,6 @@
 import fs from 'fs';
 import {PNG} from 'node-png';
-import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../common/constants';
+import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../constants';
 import {unpackColor} from '../utils/color';
 import PPU from '../units/PPU';
 

@@ -1,6 +1,6 @@
-import {RESET} from './common/constants';
+import {RESET} from './constants';
+import {Region} from './enums';
 import {BLACK_COLOR, packColor} from './utils/color';
-import Region from './common/Region';
 
 //=========================================================
 // Nintendo Entertainment System

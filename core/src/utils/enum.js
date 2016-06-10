@@ -2,7 +2,7 @@
 // Enum utilities
 //=========================================================
 
-export function makeEnum(object) {
+export function createEnum(object) {
   const params = {};
 
   for (const key in object) {

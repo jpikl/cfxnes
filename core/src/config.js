@@ -5,7 +5,6 @@ import APU from './units/APU';
 import DMA from './units/DMA';
 import CPUMemory from './units/CPUMemory';
 import PPUMemory from './units/PPUMemory';
-import CartridgeFactory from './factories/CartridgeFactory';
 import DeviceFactory from './factories/DeviceFactory';
 import MapperFactory from './factories/MapperFactory';
 import PaletteFactory from './factories/PaletteFactory';
@@ -22,7 +21,6 @@ export default {
   'dma': {class: DMA},
   'cpuMemory': {class: CPUMemory},
   'ppuMemory': {class: PPUMemory},
-  'cartridgeFactory': {class: CartridgeFactory},
   'deviceFactory': {class: DeviceFactory},
   'mapperFactory': {class: MapperFactory},
   'paletteFactory': {class: PaletteFactory},

@@ -1,5 +1,5 @@
-import {IRQ_EXT} from '../common/constants';
-import Mirroring from '../common/Mirroring';
+import {IRQ_EXT} from '../constants';
+import {Mirroring} from '../enums';
 import AbstractMapper from './AbstractMapper';
 
 //=========================================================

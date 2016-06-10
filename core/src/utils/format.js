@@ -22,10 +22,6 @@ export function fillLeft(value, width, character = ' ') {
   return result.slice(result.length - width);
 }
 
-export function formatOpt(value) {
-  return value != null ? value : '???';
-}
-
 export function formatSize(size) {
   if (typeof size !== 'number') {
     return undefined;

@@ -1,4 +1,4 @@
-import {VIDEO_WIDTH, NMI} from '../common/constants';
+import {VIDEO_WIDTH, NMI} from '../constants';
 import {BLACK_COLOR, packColor, unpackColor} from '../utils/color';
 import logger from '../utils/logger';
 

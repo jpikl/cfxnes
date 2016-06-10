@@ -2,7 +2,7 @@
 // Array utilities
 //=========================================================
 
-export function makeArray(size, value = 0) {
+export function createArray(size, value = 0) {
   return fillArray(new Array(size), value);
 }
 
@@ -17,15 +17,4 @@ export function fillArray(array, value, start = 0, end = array.length) {
     array[i] = value;
   }
   return array;
-}
-
-export function copyArray(src, dst, srcPos = 0, dstPos = 0, length = src.length) {
-  if (dst == null) {
-    dst = new Array(src.length);
-  }
-  const end = Math.min(Math.min(src.length - srcPos, dst.length - dstPos), length);
-  for (let i = 0; i < end; i++) {
-    dst[dstPos + i] = src[srcPos + i];
-  }
-  return dst;
 }

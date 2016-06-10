@@ -1,4 +1,4 @@
-import {LENGTH_COUNTER_VALUES} from '../common/constants';
+import {LENGTH_COUNTER_VALUES} from '../constants';
 import logger from '../utils/logger';
 
 const DUTY_WAVEFORMS = [

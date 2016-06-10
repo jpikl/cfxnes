@@ -76,12 +76,12 @@ function scan() {
       continue;
     }
 
-    const id = makeId(file);
-    const name = makeName(file);
-    const fileId = makeFileId(file);
+    const id = createId(file);
+    const name = createName(file);
+    const fileId = createFileId(file);
     const fileURL = `/files/${fileId}`;
     const thumbnail = findThumbnail(file);
-    const thumbnailId = thumbnail ? makeFileId(thumbnail) : null;
+    const thumbnailId = thumbnail ? createFileId(thumbnail) : null;
     const thumbnailURL = thumbnail ? `/files/${thumbnailId}` : null;
     const rom = {id, name, fileURL, thumbnailURL};
 
@@ -99,7 +99,7 @@ function scan() {
   console.log(`Found ${romList.length} ROMs`);
 }
 
-function makeId(file) {
+function createId(file) {
   return path.basename(file, path.extname(file))
          .replace(/[ _\-]+/g, ' ').trim()
          .replace(/[^a-zA-Z0-9 ]+/g, '')
@@ -107,7 +107,7 @@ function makeId(file) {
          .toLowerCase();
 }
 
-function makeFileId(file) {
+function createFileId(file) {
   const ext = path.extname(file);
   return path.basename(file, ext)
          .replace(/[ _\-]+/g, ' ').trim()
@@ -115,7 +115,7 @@ function makeFileId(file) {
          .replace(/ +/g, '_') + ext;
 }
 
-function makeName(file) {
+function createName(file) {
   return path.basename(file, path.extname(file)).trim();
 }
 

@@ -12,6 +12,7 @@ import chai from 'chai';
 import mkdirp from 'mkdirp';
 import coreConfig from '../../src/config';
 import Injector from '../../src/utils/Injector';
+import {readCartridge} from '../../src/cartridge';
 import * as nestest from './nestest/nestest';
 import * as instr_test from './instr_test/instr_test';
 import * as instr_timing from './instr_timing/instr_timing';
@@ -76,8 +77,7 @@ function execute(test) {
 
   // Setup emulator
   const injector = new Injector(config);
-  const cartridgeFactory = injector.get('cartridgeFactory');
-  const cartridge = cartridgeFactory.readFile(test.file);
+  const cartridge = readCartridge(test.file);
   const cpuMemory = injector.get('cpuMemory');
   const nes = injector.get('nes');
   const ppu = injector.get('ppu');

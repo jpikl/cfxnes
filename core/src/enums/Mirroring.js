@@ -1,4 +1,4 @@
-import {makeEnum} from '../utils/enum';
+import {createEnum} from '../utils/enum';
 
 //=========================================================
 // Nametable mirroring
@@ -66,6 +66,6 @@ const Mirroring = {
 
 };
 
-makeEnum(Mirroring);
+createEnum(Mirroring);
 
 export default Mirroring;

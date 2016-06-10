@@ -1,5 +1,5 @@
-import {zeroArray, copyArray} from '../utils/array';
-import Mirroring from '../common/Mirroring';
+import {zeroArray} from '../utils/array';
+import {Mirroring} from '../enums';
 import logger from '../utils/logger';
 
 const POWER_UP_PALETTES = [
@@ -149,7 +149,7 @@ export default class PPUMemory {
   }
 
   resetPaletts() {
-    copyArray(POWER_UP_PALETTES, this.paletts);
+    this.paletts.set(POWER_UP_PALETTES);
   }
 
   readPalette(address) {

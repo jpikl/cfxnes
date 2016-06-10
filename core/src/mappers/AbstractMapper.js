@@ -1,6 +1,6 @@
-import {zeroArray, copyArray} from '../utils/array';
-import {formatOpt, formatSize} from '../utils/format';
-import Mirroring from '../common/Mirroring';
+import {zeroArray} from '../utils/array';
+import {formatSize} from '../utils/format';
+import {Mirroring} from '../enums';
 import logger from '../utils/logger';
 
 //=========================================================
@@ -113,8 +113,8 @@ export default class AbstractMapper {
 
   printPRGRAMInfo() {
     logger.info('==========[Mapper PRG RAM Info - Start]==========');
-    logger.info('PRG RAM size          : ' + formatOpt(formatSize(this.prgRAMSize)));
-    logger.info('PRG RAM size (battery): ' + formatOpt(formatSize(this.prgRAMSizeBattery)));
+    logger.info('PRG RAM size          : ' + formatSize(this.prgRAMSize));
+    logger.info('PRG RAM size (battery): ' + formatSize(this.prgRAMSizeBattery));
     logger.info('==========[Mapper PRG RAM Info - End]==========');
   }
 
@@ -180,8 +180,8 @@ export default class AbstractMapper {
 
   printCHRRAMInfo() {
     logger.info('==========[Mapper CHR RAM Info - Start]==========');
-    logger.info('CHR RAM size          : ' + formatOpt(formatSize(this.chrRAMSize)));
-    logger.info('CHR RAM size (battery): ' + formatOpt(formatSize(this.chrRAMSizeBattery)));
+    logger.info('CHR RAM size          : ' + formatSize(this.chrRAMSize));
+    logger.info('CHR RAM size (battery): ' + formatSize(this.chrRAMSizeBattery));
     logger.info('==========[Mapper CHR RAM Info - End]==========');
   }
 
@@ -191,7 +191,7 @@ export default class AbstractMapper {
 
   getNVRAMSize() {
     // No know NES game uses both battery-backed PRGRAM and CHRRAM
-    return this.prgRAMSizeBattery + this.chrRAMSizeBattery;
+    return this.prgRAMSizeBattery || this.chrRAMSizeBattery;
   }
 
   getNVRAM() {
@@ -206,9 +206,9 @@ export default class AbstractMapper {
 
   setNVRAM(data) {
     if (this.prgRAMSizeBattery) {
-      copyArray(data, this.prgRAM, 0, 0, this.prgRAMSizeBattery);
+      this.prgRAM.set(data.subarray(0, this.prgRAMSizeBattery));
     } else if (this.chrRAMSizeBattery) {
-      copyArray(data, this.chrRAM, 0, 0, this.chrRAMSizeBattery);
+      this.chrRAM.set(data.subarray(0, this.chrRAMSizeBattery));
     }
   }
 

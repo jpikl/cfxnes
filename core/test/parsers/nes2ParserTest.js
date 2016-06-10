@@ -2,24 +2,23 @@
 /* eslint-disable no-sparse-arrays, no-unused-expressions */
 
 import chai from 'chai';
-import {makeArray} from '../../src/utils/array';
-import Mirroring from '../../src/common/Mirroring';
-import Region from '../../src/common/Region';
-import ines from '../../src/loaders/ines';
+import {createArray} from '../../src/utils/array';
+import {Mirroring, Region} from '../../src/enums';
+import inesParser from '../../src/parsers/inesParser';
 
 const expect = chai.expect;
-const loadROM = ines.load;
+const parseROM = inesParser.parse;
 
-describe('NES 2.0 loader', () => {
+describe('inesParser (NES 2.0 input)', () => {
   it('should accept valid input', () => {
     expect(testROM()).to.be.an('object');
   });
 
-  it('should reject invalid input', () => {
-    expect(() => loadROM(new Uint8Array(100))).to.throw(Error);
-    expect(() => loadROM(makeROM().subarray(0, 4))).to.throw(Error);
-    expect(() => loadROM(makeROM().subarray(0, 16))).to.throw(Error);
-    expect(() => loadROM(makeROM().subarray(0, 20))).to.throw(Error);
+  it('should throw error for invalid input', () => {
+    expect(() => parseROM(new Uint8Array(100))).to.throw(Error);
+    expect(() => parseROM(createROM().subarray(0, 4))).to.throw(Error);
+    expect(() => parseROM(createROM().subarray(0, 16))).to.throw(Error);
+    expect(() => parseROM(createROM().subarray(0, 20))).to.throw(Error);
   });
 
   it('should read PRG ROM size', () => {
@@ -29,8 +28,8 @@ describe('NES 2.0 loader', () => {
   });
 
   it('should read PRG ROM', () => {
-    expect(testROM({prgROMUnits: 1}).prgROM).to.deep.equal(new Uint8Array(makeArray(0x4000, 1)));
-    expect(testROM({prgROMUnits: 2}).prgROM).to.deep.equal(new Uint8Array(makeArray(0x8000, 1)));
+    expect(testROM({prgROMUnits: 1}).prgROM).to.deep.equal(new Uint8Array(createArray(0x4000, 1)));
+    expect(testROM({prgROMUnits: 2}).prgROM).to.deep.equal(new Uint8Array(createArray(0x8000, 1)));
   });
 
   it('should read PRG RAM size', () => {
@@ -63,8 +62,8 @@ describe('NES 2.0 loader', () => {
 
   it('should read CHR ROM', () => {
     expect(testROM({chrROMUnits: 0}).chrROM).to.be.undefined;
-    expect(testROM({chrROMUnits: 1}).chrROM).to.deep.equal(new Uint8Array(makeArray(0x2000, 2)));
-    expect(testROM({chrROMUnits: 2}).chrROM).to.deep.equal(new Uint8Array(makeArray(0x4000, 2)));
+    expect(testROM({chrROMUnits: 1}).chrROM).to.deep.equal(new Uint8Array(createArray(0x2000, 2)));
+    expect(testROM({chrROMUnits: 2}).chrROM).to.deep.equal(new Uint8Array(createArray(0x4000, 2)));
   });
 
   it('should read CHR RAM size', () => {
@@ -89,8 +88,8 @@ describe('NES 2.0 loader', () => {
   });
 
   it('should skip trainer', () => {
-    expect(testROM({hasTrainer: true}).prgROM).to.deep.equal(new Uint8Array(makeArray(0x4000, 1)));
-    expect(testROM({hasTrainer: true}).chrROM).to.deep.equal(new Uint8Array(makeArray(0x2000, 2)));
+    expect(testROM({hasTrainer: true}).prgROM).to.deep.equal(new Uint8Array(createArray(0x4000, 1)));
+    expect(testROM({hasTrainer: true}).chrROM).to.deep.equal(new Uint8Array(createArray(0x2000, 2)));
   });
 
   it('should read mirroring', () => {
@@ -135,22 +134,22 @@ describe('NES 2.0 loader', () => {
 });
 
 function testROM(params = {}) {
-  return loadROM(makeROM(params));
+  return parseROM(createROM(params));
 }
 
-function makeROM({prgROMUnits = 1,
-                  prgRAMUnits = 0,
-                  prgRAMUnitsBattery = 0,
-                  chrROMUnits = 1,
-                  chrRAMUnits = 0,
-                  chrRAMUnitsBattery = 0,
-                  hasPRGRAMBattery = false,
-                  hasTrainer = false,
-                  verticalMirroring = false,
-                  fourScreenMode = false,
-                  palRegion = false,
-                  mapperId = 0,
-                  submapperId = 0}) {
+function createROM({prgROMUnits = 1,
+                    prgRAMUnits = 0,
+                    prgRAMUnitsBattery = 0,
+                    chrROMUnits = 1,
+                    chrRAMUnits = 0,
+                    chrRAMUnitsBattery = 0,
+                    hasPRGRAMBattery = false,
+                    hasTrainer = false,
+                    verticalMirroring = false,
+                    fourScreenMode = false,
+                    palRegion = false,
+                    mapperId = 0,
+                    submapperId = 0}) {
   const header = [
     0x4E, 0x45, 0x53, 0x1A,
     prgROMUnits & 0xFF,
@@ -165,9 +164,9 @@ function makeROM({prgROMUnits = 1,
     0, 0, 0,
   ];
 
-  const trainer = makeArray(hasTrainer ? 512 : 0, 0);
-  const prgROM = makeArray(prgROMUnits * 0x4000, 1);
-  const chrROM = makeArray(chrROMUnits * 0x2000, 2);
+  const trainer = createArray(hasTrainer ? 512 : 0, 0);
+  const prgROM = createArray(prgROMUnits * 0x4000, 1);
+  const chrROM = createArray(chrROMUnits * 0x2000, 2);
 
   return new Uint8Array([...header, ...trainer, ...prgROM, ...chrROM]);
 }

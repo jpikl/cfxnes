@@ -12,6 +12,7 @@ import BufferedOutputPPU from '../../core/src/debug/BufferedOutputPPU';
 import Injector from '../../core/src/utils/Injector';
 import {LogLevel, LogWriter} from '../../core/src/utils/logger';
 import {numberAsHex} from '../../core/src/utils/format';
+import {readCartridge} from '../../core/src/cartridge';
 
 //=========================================================
 // Command line parser
@@ -56,8 +57,7 @@ config.cpu = {class: LoggingCPU};
 config.ppu = {class: BufferedOutputPPU};
 
 const injector = new Injector(config);
-const cartridgeFactory = injector.get('cartridgeFactory');
-const cartridge = cartridgeFactory.readFile(argv._[0]);
+const cartridge = readCartridge(argv._[0]);
 const nes = injector.get('nes');
 const cpu = injector.get('cpu');
 

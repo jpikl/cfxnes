@@ -1,4 +1,4 @@
-import {IRQ_DCM} from '../common/constants';
+import {IRQ_DCM} from '../constants';
 import logger from '../utils/logger';
 
 //=========================================================

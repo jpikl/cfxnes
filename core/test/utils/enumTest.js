@@ -1,13 +1,13 @@
 /* eslint-env mocha */
 
 import chai from 'chai';
-import {makeEnum} from '../../src/utils/enum';
+import {createEnum} from '../../src/utils/enum';
 
 const expect = chai.expect;
 
 describe('Enum utils', () => {
-  it('can make simple enum', () => {
-    const e = makeEnum({a: 1, b: 2});
+  it('can create simple enum', () => {
+    const e = createEnum({a: 1, b: 2});
     expect(e.a).to.equal(1);
     expect(e.b).to.equal(2);
     expect(e.toString(e.a)).to.equal('1');
@@ -16,8 +16,8 @@ describe('Enum utils', () => {
     expect(e.getParams(e.b)).to.deep.equal({});
   });
 
-  it('can make structured enum', () => {
-    const e = makeEnum({a: {}, b: {value: 'b-value'}});
+  it('can create structured enum', () => {
+    const e = createEnum({a: {}, b: {value: 'b-value'}});
     expect(e.a).to.equal('a');
     expect(e.b).to.equal('b');
     expect(e.toString(e.a)).to.equal('a');
@@ -26,8 +26,8 @@ describe('Enum utils', () => {
     expect(e.getParams(e.b)).to.deep.equal({value: 'b-value'});
   });
 
-  it('can make structured enum with custom ID', () => {
-    const e = makeEnum({a: {}, b: {id: 'b-id'}});
+  it('can create structured enum with custom ID', () => {
+    const e = createEnum({a: {}, b: {id: 'b-id'}});
     expect(e.a).to.equal('a');
     expect(e.b).to.equal('b-id');
     expect(e.toString(e.a)).to.equal('a');
@@ -36,8 +36,8 @@ describe('Enum utils', () => {
     expect(e.getParams(e.b)).to.deep.equal({id: 'b-id'});
   });
 
-  it('can make structured enum with custom name', () => {
-    const e = makeEnum({a: {}, b: {id: 'b-id'}, c: {name: 'c-name'}, d: {id: 'd-id', name: 'd-name'}});
+  it('can create structured enum with custom name', () => {
+    const e = createEnum({a: {}, b: {id: 'b-id'}, c: {name: 'c-name'}, d: {id: 'd-id', name: 'd-name'}});
     expect(e.a).to.equal('a');
     expect(e.b).to.equal('b-id');
     expect(e.c).to.equal('c');

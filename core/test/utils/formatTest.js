@@ -29,11 +29,6 @@ describe('Format utils', () => {
     expect(format.fillLeft('ABC', 2)).to.equal('BC');
   });
 
-  it('can format optional value', () => {
-    expect(format.formatOpt('value')).to.equal('value');
-    expect(format.formatOpt(null)).to.equal('???');
-  });
-
   it('can format size', () => {
     expect(format.formatSize(0)).to.equal('0 B');
     expect(format.formatSize(2)).to.equal('2 B');

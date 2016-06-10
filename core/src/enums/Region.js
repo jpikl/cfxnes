@@ -1,4 +1,4 @@
-import {makeEnum} from '../utils/enum';
+import {createEnum} from '../utils/enum';
 
 //=========================================================
 // Region parameters
@@ -32,6 +32,6 @@ const Region = {
 
 };
 
-makeEnum(Region);
+createEnum(Region);
 
 export default Region;
