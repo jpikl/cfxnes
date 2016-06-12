@@ -10,10 +10,10 @@ import {LogLevel, LogWriter} from '../../../src/utils';
 export const dir = './test/roms/nestest';
 export const file = 'nestest.nes';
 
-export function configure(config) {
-  config.cpu = {class: NestestCPU};
-  config.apu = {class: DisabledAPU};
-  config.ppu = {class: DisabledPPU};
+export function mock(units) {
+  units.cpu = new NestestCPU;
+  units.apu = new DisabledAPU;
+  units.ppu = new DisabledPPU;
 }
 
 export function execute(test) {
@@ -21,7 +21,7 @@ export function execute(test) {
   const verboseLogFile = test.getOutputPath('nestest-full.log'); // Contains more information for easier debugging
   const verifiedLogFile = test.getPath('nestest.log');           // Verified log from Nintendulator (modified to match structure of CFxNES log)
 
-  const cpu = test.get('cpu');
+  const cpu = test.nes.cpu;
   const basicLogger = cpu.basicLogger;
   const verboseLogger = cpu.verboseLogger;
 

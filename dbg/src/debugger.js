@@ -6,10 +6,10 @@ import readline from 'readline';
 import path from 'path';
 import util from 'util';
 import yargs from 'yargs';
-import coreConfig from '../../core/src/config';
+import NES from '../../core/src/NES';
 import LoggingCPU from '../../core/src/units/special/LoggingCPU';
 import BufferedOutputPPU from '../../core/src/units/special/BufferedOutputPPU';
-import {LogLevel, LogWriter, Injector, numberAsHex} from '../../core/src/utils';
+import {LogLevel, LogWriter, numberAsHex} from '../../core/src/utils';
 import {readCartridge} from '../../core/src/cartridge';
 
 //=========================================================
@@ -50,14 +50,10 @@ const argv = yargs
 // Initialization
 //=========================================================
 
-const config = Object.assign({}, coreConfig);
-config.cpu = {class: LoggingCPU};
-config.ppu = {class: BufferedOutputPPU};
-
-const injector = new Injector(config);
+const cpu = new LoggingCPU;
+const ppu = new BufferedOutputPPU;
+const nes = new NES({cpu, ppu});
 const cartridge = readCartridge(argv._[0]);
-const nes = injector.get('nes');
-const cpu = injector.get('cpu');
 
 const print = console.log;
 const logger = argv.verbose ? cpu.verboseLogger : cpu.basicLogger;

@@ -7,17 +7,16 @@ import {zeroArray, logger} from '../utils';
 export default class CPUMemory {
 
   constructor() {
-    this.dependencies = ['ppu', 'apu', 'dma'];
     this.initRAM();
     this.initIO();
     this.initPRGRAM();
     this.initPRGROM();
   }
 
-  inject(ppu, apu, dma) {
-    this.ppu = ppu;
-    this.apu = apu;
-    this.dma = dma;
+  connect(nes) {
+    this.ppu = nes.ppu;
+    this.apu = nes.apu;
+    this.dma = nes.dma;
   }
 
   //=========================================================

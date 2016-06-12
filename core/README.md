@@ -4,28 +4,35 @@ Collection of JavaScript classes that forms core of the [CFxNES emulator](../REA
 
 When using components from CFxNES core, it is highly recommended to compile the result with the [closure compiler](https://github.com/google/closure-compiler) in `ADVANCED_OPTIMIZATIONS` mode to gain significant performance boost.
 
-## Basic Principles and Usage
-
-### Dependency Injection
-
-The core uses its own [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) (DI) mechanism to supply implementation of emulator components (CPU, PPU, APU, etc.). DI allows easy replacement of any emulator component with a different implementation. This is mainly used for mocking/customizing components for various emulator tests.
+## Initialization
 
 ``` javascript
-import Injector from './utils/Injector'; // Dependency injector
-import config from './config'; // Base DI configuration
+import NES from './NES';
 
-const injector = new Injector(config);
-const nes = injector.get('nes');
+const nes = new NES;
+```
+
+NES constructor allows to pass different implementation of base components (CPU, PPU, APU, etc.). This is mainly used for their mocking/customization for various tests.
+
+``` javascript
+import LoggingCPU from './units/special/LoggingCPU';
+import BufferedOutputPPU from './units/special/BufferedOutputPPU';
+
+const cpu = new LoggingCPU;
+const ppu = new BufferedOutputPPU;
+const nes = new NES({cpu, ppu});
 ```
 
 ### Loading of ROM images
 
-Core is capable of loading *iNES* and *NES 2.0* ROM images which can be supplied as `ArrayBuffer`, `Uint8Array` or as a file system path (when running in Node.js).
+Core is capable of loading *iNES* and *NES 2.0* ROM images which can be supplied as `Array`, `ArrayBuffer`, `Uint8Array` or as a file system path (when running in Node.js).
 
 ``` javascript
-const cartridgeFactory = injector.get('cartridgeFactory');
-const cartridge1 = cartridgeFactory.readArray(arrayBuffer);
-const cartridge2 = cartridgeFactory.readFile('./data/rom.nes');
+import {createCartridge, readCartridge} from './cartridge';
+
+const cartridge1 = createCartridge([...]); // From buffer
+const cartridge2 = readCartridge('./data/rom.nes'); // From filesystem
+
 nes.insertCartridge(cartridge1);
 ```
 

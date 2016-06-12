@@ -12,9 +12,9 @@ export const files = [
   'registers.nes',
 ];
 
-export function configure(config) {
-  config.apu = {class: DisabledAPU};
-  config.ppu = {class: DisabledPPU};
+export function mock(units) {
+  units.apu = new DisabledAPU;
+  units.ppu = new DisabledPPU;
 }
 
 export function execute(test) {

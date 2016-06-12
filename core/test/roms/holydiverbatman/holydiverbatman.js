@@ -26,8 +26,8 @@ export const files = [
   'M34_P128K_H.nes',
 ];
 
-export function configure(config) {
-  config.ppu = {class: BufferedOutputPPU};
+export function mock(units) {
+  units.ppu = new BufferedOutputPPU;
 }
 
 const steps = [

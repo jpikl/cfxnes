@@ -16,8 +16,8 @@ export const files = [
   // 'works_immediately.nes',
 ];
 
-export function configure(config) {
-  config.ppu = {class: DisabledPPU};
+export function mock(units) {
+  units.ppu = new DisabledPPU;
 }
 
 export function execute(test) {

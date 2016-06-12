@@ -138,13 +138,12 @@ class Sprite {
 export default class PPU {
 
   constructor() {
-    this.dependencies = ['cpu', 'ppuMemory'];
     this.colorEmphasis = 0; // Color palette BGR emphasis bits
   }
 
-  inject(cpu, ppuMemory) {
-    this.cpu = cpu;
-    this.ppuMemory = ppuMemory;
+  connect(nes) {
+    this.cpu = nes.cpu;
+    this.ppuMemory = nes.ppuMemory;
   }
 
   //=========================================================

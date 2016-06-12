@@ -8,12 +8,8 @@ const TOTAL_DMA_CYCLES = 0x200; // Total 512 CPU cycles for DMA transfer
 
 export default class DMA {
 
-  constructor() {
-    this.dependencies = ['cpuMemory'];
-  }
-
-  inject(cpuMemory) {
-    this.cpuMemory = cpuMemory;
+  connect(nes) {
+    this.cpuMemory = nes.cpuMemory;
   }
 
   powerUp() {

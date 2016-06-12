@@ -10,8 +10,7 @@ import fs from 'fs';
 import path from 'path';
 import chai from 'chai';
 import mkdirp from 'mkdirp';
-import coreConfig from '../../src/config';
-import {Injector} from '../../src/utils';
+import NES from '../../src/NES';
 import {readCartridge} from '../../src/cartridge';
 import * as nestest from './nestest/nestest';
 import * as instr_test from './instr_test/instr_test';
@@ -71,16 +70,15 @@ function validate(test) {
 }
 
 function execute(test) {
-  // Read configuration
-  const config = Object.assign({}, coreConfig);
-  test.configure(config);
+  // Prepare mocks
+  const units = {};
+  test.mock(units);
 
   // Setup emulator
-  const injector = new Injector(config);
   const cartridge = readCartridge(test.file);
-  const cpuMemory = injector.get('cpuMemory');
-  const nes = injector.get('nes');
-  const ppu = injector.get('ppu');
+  const nes = new NES(units);
+  const cpuMemory = nes.cpuMemory;
+  const ppu = nes.ppu;
   nes.insertCartridge(cartridge);
 
   // Prepare context
@@ -88,7 +86,7 @@ function execute(test) {
   const assert = chai.assert;
   const expect = chai.expect;
   const context = {
-    number, assert, expect, fail, get, power, reset, step,
+    number, assert, expect, fail, power, reset, step, nes,
     readByte, readString, screenshot, blargg, getPath, getOutputPath,
   };
 
@@ -106,10 +104,6 @@ function execute(test) {
 
   function fail(message) {
     assert(false, message);
-  }
-
-  function get(dependency) {
-    return injector.get(dependency);
   }
 
   function power() {

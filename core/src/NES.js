@@ -1,6 +1,7 @@
 import {RESET} from './constants';
 import {Region} from './enums';
 import {createMapper} from './mappers';
+import {APU, CPU, DMA, PPU, CPUMemory, PPUMemory} from './units';
 import {BLACK_COLOR, packColor} from './utils';
 
 //=========================================================
@@ -9,17 +10,27 @@ import {BLACK_COLOR, packColor} from './utils';
 
 export default class NES {
 
-  constructor() {
-    this.dependencies = ['cpu', 'cpuMemory', 'ppu', 'ppuMemory', 'apu', 'dma'];
+  constructor(units = {}) {
+    this.init(units);
+    this.connect();
   }
 
-  inject(cpu, cpuMemory, ppu, ppuMemory, apu, dma) {
-    this.cpu = cpu;
-    this.ppu = ppu;
-    this.apu = apu;
-    this.dma = dma;
-    this.cpuMemory = cpuMemory;
-    this.ppuMemory = ppuMemory;
+  init(units) {
+    this.cpu = units.cpu || new CPU;
+    this.ppu = units.ppu || new PPU;
+    this.apu = units.apu || new APU;
+    this.dma = units.dma || new DMA;
+    this.cpuMemory = units.cpuMemory || new CPUMemory;
+    this.ppuMemory = units.ppuMemory || new PPUMemory;
+  }
+
+  connect() {
+    this.cpu.connect(this);
+    this.ppu.connect(this);
+    this.apu.connect(this);
+    this.dma.connect(this);
+    this.cpuMemory.connect(this);
+    this.ppuMemory.connect(this);
   }
 
   //=========================================================

@@ -8,11 +8,6 @@ export default class MMC3 extends Mapper {
   // Initialization
   //=========================================================
 
-  constructor(cartridge) {
-    super(cartridge);
-    this.dependencies = ['cpu', 'ppu', 'cpuMemory', 'ppuMemory'];
-  }
-
   init(cartridge) {
     super.init(cartridge);
     // MMC3A and non-Sharp MMC3B - alternate (old) behavior

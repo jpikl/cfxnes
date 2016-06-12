@@ -39,15 +39,14 @@ const IRQ_ADDRESS = 0xFFFE;
 export default class CPU {
 
   constructor() {
-    this.dependencies = ['cpuMemory', 'ppu', 'apu', 'dma'];
     this.initOperations();
   }
 
-  inject(cpuMemory, ppu, apu, dma) {
-    this.cpuMemory = cpuMemory;
-    this.ppu = ppu;
-    this.apu = apu;
-    this.dma = dma;
+  connect(nes) {
+    this.cpuMemory = nes.cpuMemory;
+    this.ppu = nes.ppu;
+    this.apu = nes.apu;
+    this.dma = nes.dma;
   }
 
   //=========================================================

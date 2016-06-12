@@ -18,8 +18,8 @@ export const files = [
   // '8-dmc_rates.nes',
 ];
 
-export function configure(config) {
-  config.ppu = {class: DisabledPPU};
+export function mock(units) {
+  units.ppu = new DisabledPPU;
 }
 
 export function execute(test) {

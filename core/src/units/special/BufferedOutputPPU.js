@@ -11,13 +11,8 @@ import PPU from '../../units/PPU';
 
 export default class BufferedOutputPPU extends PPU {
 
-  constructor() {
-    super();
-    this.dependencies = ['cpu', 'ppuMemory'];
-  }
-
-  inject(cpu, ppuMemory) {
-    super.inject(cpu, ppuMemory);
+  connect(nes) {
+    super.connect(nes);
     this.setPalette(createPalette('fceux'));
     this.setFrameBuffer(new Uint32Array(VIDEO_WIDTH * VIDEO_HEIGHT));
   }

@@ -20,6 +20,9 @@ export default class PPUMemory {
     this.initPalettes();
   }
 
+  connect() {
+  }
+
   //=========================================================
   // Power-up state initialization
   //=========================================================

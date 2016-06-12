@@ -12,8 +12,8 @@ export const files = [
   '2-branch_timing.nes',
 ];
 
-export function configure(config) {
-  config.ppu = {class: DisabledPPU};
+export function mock(units) {
+  units.ppu = new DisabledPPU;
 }
 
 export function execute(test) {

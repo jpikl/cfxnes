@@ -28,12 +28,12 @@ export default class Joypad {
 
 }
 
-// Buttons
-Joypad.A = 0;
-Joypad.B = 1;
-Joypad.SELECT = 2;
-Joypad.START = 3;
-Joypad.UP = 4;
-Joypad.DOWN = 5;
-Joypad.LEFT = 6;
-Joypad.RIGHT = 7;
+// Buttons - Must be specified using string key (closure compiler issue)
+Joypad['A'] = 0;
+Joypad['B'] = 1;
+Joypad['SELECT'] = 2;
+Joypad['START'] = 3;
+Joypad['UP'] = 4;
+Joypad['DOWN'] = 5;
+Joypad['LEFT'] = 6;
+Joypad['RIGHT'] = 7;

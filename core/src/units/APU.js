@@ -11,17 +11,13 @@ import {logger} from '../utils';
 
 export default class APU {
 
-  constructor() {
-    this.dependencies = ['cpu', 'cpuMemory'];
-  }
-
-  inject(cpu, cpuMemory) {
-    this.cpu = cpu;
+  connect(nes) {
+    this.cpu = nes.cpu;
     this.pulseChannel1 = new PulseChannel(1);
     this.pulseChannel2 = new PulseChannel(2);
     this.triangleChannel = new TriangleChannel;
     this.noiseChannel = new NoiseChannel;
-    this.dmcChannel = new DMCChannel(cpu, cpuMemory);
+    this.dmcChannel = new DMCChannel(nes.cpu, nes.cpuMemory);
     this.channelVolume = [1, 1, 1, 1, 1];
     this.stopRecording();
   }

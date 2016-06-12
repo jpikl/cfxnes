@@ -13,8 +13,8 @@ export const files = [
   'bntest_v.nes',
 ];
 
-export function configure(config) {
-  config.ppu = {class: BufferedOutputPPU};
+export function mock(units) {
+  units.ppu = new BufferedOutputPPU;
 }
 
 export function execute(test) {

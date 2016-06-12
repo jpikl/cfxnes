@@ -20,9 +20,9 @@ export const files = [
   '10-even_odd_timing.nes',
 ];
 
-export function configure(config) {
-  config.apu = {class: DisabledAPU};
-  config.ppu = {class: NoOutputPPU};
+export function mock(units) {
+  units.apu = new DisabledAPU;
+  units.ppu = new NoOutputPPU;
 }
 
 export function execute(test) {

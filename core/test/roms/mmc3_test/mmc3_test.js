@@ -16,14 +16,14 @@ export const files = [
   '6-MMC3_alt.nes',
 ];
 
-export function configure(config) {
-  config.apu = {class: DisabledAPU};
-  config.ppu = {class: NoOutputPPU};
+export function mock(units) {
+  units.apu = new DisabledAPU;
+  units.ppu = new NoOutputPPU;
 }
 
 export function execute(test) {
   if (test.number === 4) {
-    test.get('nes').mapper.alternateMode = true;
+    test.nes.mapper.alternateMode = true;
   }
   test.blargg();
 }

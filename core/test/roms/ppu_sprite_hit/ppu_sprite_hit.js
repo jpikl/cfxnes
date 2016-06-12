@@ -20,9 +20,9 @@ export const files = [
   '10-timing_order.nes',
 ];
 
-export function configure(config) {
-  config.ppu = {class: NoOutputPPU};
-  config.apu = {class: DisabledAPU};
+export function mock(units) {
+  units.ppu = new NoOutputPPU;
+  units.apu = new DisabledAPU;
 }
 
 export function execute(test) {
