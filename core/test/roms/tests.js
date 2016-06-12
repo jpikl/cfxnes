@@ -11,7 +11,7 @@ import path from 'path';
 import chai from 'chai';
 import mkdirp from 'mkdirp';
 import coreConfig from '../../src/config';
-import Injector from '../../src/utils/Injector';
+import {Injector} from '../../src/utils';
 import {readCartridge} from '../../src/cartridge';
 import * as nestest from './nestest/nestest';
 import * as instr_test from './instr_test/instr_test';

@@ -1,9 +1,9 @@
-import logger from '../utils/logger';
+import {logger} from '../utils';
 
 const TOTAL_DMA_CYCLES = 0x200; // Total 512 CPU cycles for DMA transfer
 
 //=========================================================
-// Direct memory access unit
+// Direct memory access
 //=========================================================
 
 export default class DMA {
@@ -18,29 +18,29 @@ export default class DMA {
 
   powerUp() {
     logger.info('Reseting DMA');
-    this.cyclesCount = TOTAL_DMA_CYCLES;
+    this.cycle = TOTAL_DMA_CYCLES;
   }
 
   writeAddress(address) {
-    this.cyclesCount = 0;
+    this.cycle = 0;
     this.baseAddress = address << 8; // Source memory address (multiplied by 0x100)
   }
 
   tick() {
     if (this.isBlockingCPU()) {
-      this.cyclesCount++;
-      if (this.cyclesCount & 1) {
-        this.transferData(); // Each even tick
+      this.cycle++;
+      if (this.cycle & 1) {
+        this.transferData(); // Each even cycle
       }
     }
   }
 
   isBlockingCPU() {
-    return this.cyclesCount < TOTAL_DMA_CYCLES;
+    return this.cycle < TOTAL_DMA_CYCLES;
   }
 
   transferData() {
-    const address = this.baseAddress + (this.cyclesCount >> 1);
+    const address = this.baseAddress + (this.cycle >> 1);
     const data = this.cpuMemory.read(address);
     this.cpuMemory.write(0x2004, data);
   }

@@ -2,7 +2,7 @@
 /* eslint-disable no-sparse-arrays, no-unused-expressions */
 
 import {expect} from 'chai';
-import * as Region from '../../src/enums/Region';
+import * as Region from '../../src/enums/region';
 
 const regions = [Region.NTSC, Region.PAL];
 

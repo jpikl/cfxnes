@@ -1,8 +1,7 @@
 /* eslint-disable new-cap */
 
-import {Logger} from '../utils/logger';
-import {byteAsHex, wordAsHex, fillLeft} from '../utils/format';
-import CPU from '../units/CPU';
+import {byteAsHex, wordAsHex, fillLeft, Logger} from '../../utils';
+import CPU from '../CPU';
 
 //=========================================================
 // CPU with debugging printouts

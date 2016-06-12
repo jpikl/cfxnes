@@ -1,9 +1,9 @@
 import fs from 'fs';
 import {PNG} from 'node-png';
-import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../constants';
-import {createPalette} from '../palettes';
-import {unpackColor} from '../utils/color';
-import PPU from '../units/PPU';
+import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../../constants';
+import {createPalette} from '../../palettes';
+import {unpackColor} from '../../utils';
+import PPU from '../../units/PPU';
 
 //=========================================================
 // PPU with output to internal buffer

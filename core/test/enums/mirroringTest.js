@@ -2,7 +2,7 @@
 /* eslint-disable no-sparse-arrays, no-unused-expressions */
 
 import {expect} from 'chai';
-import * as Mirroring from '../../src/enums/Mirroring';
+import * as Mirroring from '../../src/enums/mirroring';
 
 const mirrorings = [
   Mirroring.SINGLE_SCREEN_0, Mirroring.SINGLE_SCREEN_1,

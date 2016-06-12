@@ -1,4 +1,2 @@
-import Joypad from './devices/Joypad';
-import Zapper from './devices/Zapper';
-
-export {Joypad, Zapper};
+export {default as Joypad} from './devices/Joypad';
+export {default as Zapper} from './devices/Zapper';

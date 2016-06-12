@@ -1,5 +1,5 @@
 import {IRQ_DCM} from '../constants';
-import logger from '../utils/logger';
+import {logger} from '../utils';
 
 //=========================================================
 // DMC Channel

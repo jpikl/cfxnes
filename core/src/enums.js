@@ -1,4 +1,4 @@
-import * as Mirroring from './enums/Mirroring';
-import * as Region from './enums/Region';
+import * as Mirroring from './enums/mirroring';
+import * as Region from './enums/region';
 
 export {Region, Mirroring};

@@ -1,6 +1,5 @@
-import {zeroArray} from '../utils/array';
 import {Mirroring} from '../enums';
-import logger from '../utils/logger';
+import {zeroArray, logger} from '../utils';
 
 const POWER_UP_PALETTES = [
   0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D,

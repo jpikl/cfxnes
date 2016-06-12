@@ -1,4 +1,4 @@
-import PPU from '../units/PPU';
+import PPU from '../PPU';
 
 //=========================================================
 // PPU with disabled output generation

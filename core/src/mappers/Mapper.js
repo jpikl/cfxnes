@@ -1,6 +1,5 @@
-import {zeroArray} from '../utils/array';
 import {Mirroring} from '../enums';
-import logger from '../utils/logger';
+import {zeroArray, logger} from '../utils';
 
 export default class Mapper {
 

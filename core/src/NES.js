@@ -1,7 +1,7 @@
 import {RESET} from './constants';
 import {Region} from './enums';
 import {createMapper} from './mappers';
-import {BLACK_COLOR, packColor} from './utils/color';
+import {BLACK_COLOR, packColor} from './utils';
 
 //=========================================================
 // Nintendo Entertainment System

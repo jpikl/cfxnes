@@ -3,7 +3,7 @@ import PulseChannel from '../channels/PulseChannel';
 import TriangleChannel from '../channels/TriangleChannel';
 import NoiseChannel from '../channels/NoiseChannel';
 import DMCChannel from '../channels/DMCChannel';
-import logger from '../utils/logger';
+import {logger} from '../utils';
 
 //=========================================================
 // Audio processing unit

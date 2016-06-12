@@ -5,7 +5,7 @@
 
 import fs from 'fs';
 import {LoggingCPU, DisabledAPU, DisabledPPU} from '../units';
-import {LogLevel, LogWriter} from '../../../src/utils/logger';
+import {LogLevel, LogWriter} from '../../../src/utils';
 
 export const dir = './test/roms/nestest';
 export const file = 'nestest.nes';

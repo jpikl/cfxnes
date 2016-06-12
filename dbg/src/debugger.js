@@ -7,11 +7,9 @@ import path from 'path';
 import util from 'util';
 import yargs from 'yargs';
 import coreConfig from '../../core/src/config';
-import LoggingCPU from '../../core/src/debug/LoggingCPU';
-import BufferedOutputPPU from '../../core/src/debug/BufferedOutputPPU';
-import Injector from '../../core/src/utils/Injector';
-import {LogLevel, LogWriter} from '../../core/src/utils/logger';
-import {numberAsHex} from '../../core/src/utils/format';
+import LoggingCPU from '../../core/src/units/special/LoggingCPU';
+import BufferedOutputPPU from '../../core/src/units/special/BufferedOutputPPU';
+import {LogLevel, LogWriter, Injector, numberAsHex} from '../../core/src/utils';
 import {readCartridge} from '../../core/src/cartridge';
 
 //=========================================================

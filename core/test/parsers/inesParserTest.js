@@ -2,7 +2,7 @@
 /* eslint-disable no-sparse-arrays, no-unused-expressions */
 
 import chai from 'chai';
-import {createArray} from '../../src/utils/array';
+import {createArray} from '../../src/utils';
 import {Mirroring, Region} from '../../src/enums';
 import inesParser from '../../src/parsers/inesParser';
 

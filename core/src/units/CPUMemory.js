@@ -1,5 +1,4 @@
-import {zeroArray} from '../utils/array';
-import logger from '../utils/logger';
+import {zeroArray, logger} from '../utils';
 
 //=========================================================
 // CPU memory

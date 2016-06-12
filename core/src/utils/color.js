@@ -1,11 +1,9 @@
-import {ENDIANNESS} from './system';
-
 //=========================================================
 // Color manipulation utilities
 //=========================================================
 
-export const packColor = ENDIANNESS === 'LE' ? packColorLE : packColorBE;
-export const unpackColor = ENDIANNESS === 'LE' ? unpackColorLE : unpackColorBE;
+export const packColor = isLittleEndian() ? packColorLE : packColorBE;
+export const unpackColor = isLittleEndian() ? unpackColorLE : unpackColorBE;
 
 export const BLACK_COLOR = packColor(0, 0, 0);
 
@@ -23,4 +21,11 @@ export function unpackColorLE(c) {
 
 export function unpackColorBE(c) {
   return [(c >>> 24) & 0xFF, (c >>> 16) & 0xFF, (c >>> 8) & 0xFF, c & 0xFF];
+}
+
+// Must be called multiple times, otherwise closure compiler will try to inline it with wrong result.
+export function isLittleEndian() {
+  const u16 = new Uint16Array([0x1234]);
+  const u8 = new Uint8Array(u16.buffer);
+  return u8[0] === 0x34;
 }

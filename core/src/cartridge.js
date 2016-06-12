@@ -1,6 +1,5 @@
-import {formatSize} from './utils/format';
+import {formatSize, logger} from './utils';
 import inesParser from './parsers/inesParser';
-import logger from './utils/logger';
 
 const parsers = [inesParser];
 

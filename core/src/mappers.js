@@ -7,7 +7,7 @@ import MMC3 from './mappers/MMC3';
 import NINA001 from './mappers/NINA001';
 import NROM from './mappers/NROM';
 import UNROM from './mappers/UNROM';
-import logger from './utils/logger';
+import {logger} from './utils';
 
 const mappers = {
   'AOROM': AOROM,

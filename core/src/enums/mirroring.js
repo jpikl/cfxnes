@@ -9,7 +9,6 @@ export const FOUR_SCREEN = 'FS';
 //                                                 A | B
 // Alignment of nametables [A, B, C, D] on screen  --+--
 //                                                 C | D
-//
 
 const areas = {
   [SINGLE_SCREEN_0]: [0, 0, 0, 0],
