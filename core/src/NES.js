@@ -1,5 +1,6 @@
 import {RESET} from './constants';
 import {Region} from './enums';
+import {createMapper} from './mappers';
 import {BLACK_COLOR, packColor} from './utils/color';
 
 //=========================================================
@@ -9,17 +10,16 @@ import {BLACK_COLOR, packColor} from './utils/color';
 export default class NES {
 
   constructor() {
-    this.dependencies = ['cpu', 'cpuMemory', 'ppu', 'ppuMemory', 'apu', 'dma', 'mapperFactory'];
+    this.dependencies = ['cpu', 'cpuMemory', 'ppu', 'ppuMemory', 'apu', 'dma'];
   }
 
-  inject(cpu, cpuMemory, ppu, ppuMemory, apu, dma, mapperFactory) {
+  inject(cpu, cpuMemory, ppu, ppuMemory, apu, dma) {
     this.cpu = cpu;
     this.ppu = ppu;
     this.apu = apu;
     this.dma = dma;
     this.cpuMemory = cpuMemory;
     this.ppuMemory = ppuMemory;
-    this.mapperFactory = mapperFactory;
   }
 
   //=========================================================
@@ -48,7 +48,14 @@ export default class NES {
   //=========================================================
 
   setInputDevice(port, device) {
+    const prevDevice = this.getInputDevice(port);
+    if (prevDevice) {
+      prevDevice.disconnect();
+    }
     this.cpuMemory.setInputDevice(port, device);
+    if (device) {
+      device.connect(this);
+    }
   }
 
   getInputDevice(port) {
@@ -60,16 +67,18 @@ export default class NES {
   //=========================================================
 
   insertCartridge(cartridge) {
+    this.removeCartridge();
     this.cartridge = cartridge;
-    this.mapper = this.mapperFactory.createMapper(cartridge);
-    this.cpu.connectMapper(this.mapper);
-    this.ppu.connectMapper(this.mapper);
-    this.cpuMemory.connectMapper(this.mapper);
-    this.ppuMemory.connectMapper(this.mapper);
+    this.mapper = createMapper(cartridge);
+    this.mapper.connect(this);
     this.pressPower();
   }
 
   removeCartridge() {
+    if (this.mapper) {
+      this.mapper.disconnect();
+    }
+    this.mapper = null;
     this.cartridge = null;
   }
 

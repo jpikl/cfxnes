@@ -1,10 +1,6 @@
-import AbstractMapper from './AbstractMapper';
+import Mapper from './Mapper';
 
-//=========================================================
-// CNROM mapper
-//=========================================================
-
-export default class CNROMMapper extends AbstractMapper {
+export default class CNROM extends Mapper {
 
   reset() {
     this.mapPRGROMBank16K(0, 0);  // First 16K PRG ROM bank

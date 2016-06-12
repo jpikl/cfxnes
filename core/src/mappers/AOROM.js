@@ -1,10 +1,6 @@
-import AbstractMapper from './AbstractMapper';
+import Mapper from './Mapper';
 
-//=========================================================
-// AOROM mapper
-//=========================================================
-
-export default class AOROMMapper extends AbstractMapper {
+export default class AOROM extends Mapper {
 
   reset() {
     this.mapPRGROMBank32K(0, 0); // First 32K PRG ROM bank

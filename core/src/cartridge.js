@@ -1,5 +1,4 @@
 import {formatSize} from './utils/format';
-import {Mirroring, Region} from './enums';
 import inesParser from './parsers/inesParser';
 import logger from './utils/logger';
 
@@ -61,7 +60,9 @@ function computeSHA1(cartridge, sha1) {
     logger.info('Computing SHA-1');
     const buffer = new Uint8Array(cartridge.prgROMSize + cartridge.chrROMSize);
     buffer.set(cartridge.prgROM);
-    buffer.set(cartridge.chrROM, cartridge.prgROMSize);
+    if (cartridge.chrROM) {
+      buffer.set(cartridge.chrROM, cartridge.prgROMSize);
+    }
     cartridge.sha1 = sha1(buffer);
   }
 }
@@ -71,8 +72,8 @@ function printInfo(cartridge) {
   logger.info('SHA-1                 : ' + cartridge.sha1);
   logger.info('Mapper                : ' + cartridge.mapper);
   logger.info('Submapper             : ' + cartridge.submapper);
-  logger.info('Region                : ' + Region.toString(cartridge.region));
-  logger.info('Mirroring             : ' + Mirroring.toString(cartridge.mirroring));
+  logger.info('Region                : ' + cartridge.region);
+  logger.info('Mirroring             : ' + cartridge.mirroring);
   logger.info('PRG ROM size          : ' + formatSize(cartridge.prgROMSize));
   logger.info('PRG RAM size          : ' + formatSize(cartridge.prgRAMSize));
   logger.info('PRG RAM size (battery): ' + formatSize(cartridge.prgRAMSizeBattery));

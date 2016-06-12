@@ -67,16 +67,14 @@ nes.stopAudioRecording();
 Core can emulate standard NES controller (joypad) and Zapper.
 
 ``` javascript
-import {Button} from './devices/Joypad'
+import {Joypad, Zapper} from './devices'
 
-const deviceFactory = injector.get('deviceFactory');
-const joypad = deviceFactory.createDevice('joypad');
-const zapper = deviceFactory.createDevice('zapper');
+const joypad = new Joypad;
+nes.setInputDevice(1, joypad); // Port 1
+joypad.setButtonPressed(Joypad.START, true);
 
-nes.connectInputDevice(1, joypad); // Port 1
-joypad.setButtonPressed(Button.START, true);
-
-nes.connectInputDevice(2, zapper); // Port 2
+const zapper = new Zapper;
+nes.setInputDevice(2, zapper); // Port 2
 zapper.setBeamPosition(128, 120);
 zapper.setTriggerPressed(true);
 ```

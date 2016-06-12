@@ -68,13 +68,17 @@ export default class PPUMemory {
     this.patternsMapping = new Uint32Array(8);
   }
 
-  remapPatterns(mapper) {
-    if (mapper.chrRAM) {
-      this.patterns = mapper.chrRAM;
-      this.canWritePattern = true;
+  remapPatterns() {
+    if (this.mapper) {
+      if (this.mapper.chrRAM) {
+        this.patterns = this.mapper.chrRAM;
+        this.canWritePattern = true;
+      } else {
+        this.patterns = this.mapper.chrROM;
+        this.canWritePattern = false;
+      }
     } else {
-      this.patterns = mapper.chrROM;
-      this.canWritePattern = false;
+      this.patterns = undefined;
     }
   }
 
@@ -109,8 +113,8 @@ export default class PPUMemory {
     this.namesAttrsMapping = new Uint32Array(4);
   }
 
-  remapNamesAttrs(mapper) {
-    this.defaultMirroring = mapper.mirroring;
+  remapNamesAttrs() {
+    this.defaultMirroring = this.mapper && this.mapper.mirroring;
   }
 
   resetNamesAttrs() {
@@ -137,7 +141,7 @@ export default class PPUMemory {
   }
 
   setNamesAttrsMirroring(mirroring) {
-    this.mapNamesAttrsAreas(Mirroring.getParams(mirroring).areas);
+    this.mapNamesAttrsAreas(Mirroring.getAreas(mirroring));
   }
 
   //=========================================================
@@ -171,9 +175,10 @@ export default class PPUMemory {
   // Mapper connection
   //=========================================================
 
-  connectMapper(mapper) {
-    this.remapPatterns(mapper);
-    this.remapNamesAttrs(mapper);
+  setMapper(mapper) {
+    this.mapper = mapper;
+    this.remapPatterns();
+    this.remapNamesAttrs();
   }
 
 }

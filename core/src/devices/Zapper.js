@@ -1,18 +1,19 @@
-//=========================================================
-// Zapper
-//=========================================================
+import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../constants';
 
 export default class Zapper {
 
   constructor() {
-    this.dependencies = ['ppu'];
     this.triggerPressed = false;
-    this.beamX = 0;
-    this.beamY = 0;
+    this.beamX = -1;
+    this.beamY = -1;
   }
 
-  inject(ppu) {
-    this.ppu = ppu;
+  connect(nes) {
+    this.ppu = nes.ppu;
+  }
+
+  disconnect() {
+    this.ppu = undefined;
   }
 
   strobe() {
@@ -23,8 +24,9 @@ export default class Zapper {
   }
 
   isLightDetected() {
-    return this.beamX && this.beamY
-      && this.ppu.isBrightFramePixel(this.beamX, this.beamY);
+    return this.beamX >= 0 && this.beamX < VIDEO_WIDTH
+        && this.beamY >= 0 && this.beamY < VIDEO_HEIGHT
+        && this.ppu.isBrightFramePixel(this.beamX, this.beamY);
   }
 
   setTriggerPressed(pressed) {

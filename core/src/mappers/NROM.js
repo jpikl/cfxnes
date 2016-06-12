@@ -1,10 +1,10 @@
-import AbstractMapper from './AbstractMapper';
+import Mapper from './Mapper';
 
 //=========================================================
 // NROM mapper
 //=========================================================
 
-export default class NROMMapper extends AbstractMapper {
+export default class NROM extends Mapper {
 
   reset() {
     this.mapPRGROMBank16K(0, 0);  // First 16K PRG ROM bank

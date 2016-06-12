@@ -1,25 +1,17 @@
 import {zeroArray} from '../utils/array';
-import {formatSize} from '../utils/format';
 import {Mirroring} from '../enums';
 import logger from '../utils/logger';
 
-//=========================================================
-// Base class for mappers
-//=========================================================
-
-export default class AbstractMapper {
+export default class Mapper {
 
   //=========================================================
-  // Mapper initialization
+  // Initialization
   //=========================================================
 
   constructor(cartridge) {
-    this.dependencies = ['cpuMemory', 'ppuMemory'];
     this.init(cartridge);
     this.initPRGRAM();
     this.initCHRRAM();
-    this.printPRGRAMInfo();
-    this.printCHRRAMInfo();
   }
 
   init(cartridge) {
@@ -39,13 +31,28 @@ export default class AbstractMapper {
     this.canWritePRGRAM = true; // PRG RAM write protection
   }
 
-  inject(cpuMemory, ppuMemory) {
-    this.cpuMemory = cpuMemory;
-    this.ppuMemory = ppuMemory;
+  connect(nes) {
+    this.cpu = nes.cpu;
+    this.ppu = nes.ppu;
+    this.cpuMemory = nes.cpuMemory;
+    this.ppuMemory = nes.ppuMemory;
+    this.cpu.setMapper(this);
+    this.cpuMemory.setMapper(this);
+    this.ppuMemory.setMapper(this);
+  }
+
+  disconnect() {
+    this.ppuMemory.setMapper(undefined);
+    this.cpuMemory.setMapper(undefined);
+    this.cpu.setMapper(undefined);
+    this.ppuMemory = undefined;
+    this.cpuMemory = undefined;
+    this.ppu = undefined;
+    this.cpu = undefined;
   }
 
   //=========================================================
-  // Mapper reset
+  // Reset
   //=========================================================
 
   powerUp() {
@@ -60,7 +67,7 @@ export default class AbstractMapper {
   }
 
   //=========================================================
-  // Mapper inputs
+  // Inputs
   //=========================================================
 
   write() {
@@ -109,13 +116,6 @@ export default class AbstractMapper {
   mapPRGRAMBank8K(srcBank, dstBank) {
     const maxBank = (this.prgRAMSize - 1) >> 13;
     this.cpuMemory.mapPRGRAMBank(srcBank, dstBank & maxBank);
-  }
-
-  printPRGRAMInfo() {
-    logger.info('==========[Mapper PRG RAM Info - Start]==========');
-    logger.info('PRG RAM size          : ' + formatSize(this.prgRAMSize));
-    logger.info('PRG RAM size (battery): ' + formatSize(this.prgRAMSizeBattery));
-    logger.info('==========[Mapper PRG RAM Info - End]==========');
   }
 
   //=========================================================
@@ -176,13 +176,6 @@ export default class AbstractMapper {
     for (let i = 0; i < count; i++) {
       this.ppuMemory.mapPatternsBank(srcBank + i, (dstBank + i) & maxBank);
     }
-  }
-
-  printCHRRAMInfo() {
-    logger.info('==========[Mapper CHR RAM Info - Start]==========');
-    logger.info('CHR RAM size          : ' + formatSize(this.chrRAMSize));
-    logger.info('CHR RAM size (battery): ' + formatSize(this.chrRAMSizeBattery));
-    logger.info('==========[Mapper CHR RAM Info - End]==========');
   }
 
   //=========================================================

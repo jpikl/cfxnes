@@ -1,6 +1,7 @@
 import fs from 'fs';
 import {PNG} from 'node-png';
 import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../constants';
+import {createPalette} from '../palettes';
 import {unpackColor} from '../utils/color';
 import PPU from '../units/PPU';
 
@@ -12,12 +13,12 @@ export default class BufferedOutputPPU extends PPU {
 
   constructor() {
     super();
-    this.dependencies = ['cpu', 'ppuMemory', 'paletteFactory'];
+    this.dependencies = ['cpu', 'ppuMemory'];
   }
 
-  inject(cpu, ppuMemory, paletteFactory) {
+  inject(cpu, ppuMemory) {
     super.inject(cpu, ppuMemory);
-    this.setPalette(paletteFactory.createPalette('fceux'));
+    this.setPalette(createPalette('fceux'));
     this.setFrameBuffer(new Uint32Array(VIDEO_WIDTH * VIDEO_HEIGHT));
   }
 

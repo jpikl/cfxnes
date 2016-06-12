@@ -576,7 +576,6 @@ export default class PPU {
     }
     this.updateVBlank();
     this.incrementCycle();
-    this.mapper.tick();
   }
 
   fetchData() {
@@ -942,14 +941,6 @@ export default class PPU {
         this.setFramePixelOnPosition(x, y, color);
       }
     }
-  }
-
-  //=========================================================
-  // Mapper connection
-  //=========================================================
-
-  connectMapper(mapper) {
-    this.mapper = mapper;
   }
 
 }

@@ -1,15 +1,11 @@
 import {IRQ_EXT} from '../constants';
 import {Mirroring} from '../enums';
-import AbstractMapper from './AbstractMapper';
+import Mapper from './Mapper';
 
-//=========================================================
-// MMC3 mapper
-//=========================================================
-
-export default class MMC3Mapper extends AbstractMapper {
+export default class MMC3 extends Mapper {
 
   //=========================================================
-  // Mapper initialization
+  // Initialization
   //=========================================================
 
   constructor(cartridge) {
@@ -25,14 +21,8 @@ export default class MMC3Mapper extends AbstractMapper {
     this.alternateMode = false;
   }
 
-  inject(cpu, ppu, cpuMemory, ppuMemory) {
-    super.inject(cpuMemory, ppuMemory);
-    this.cpu = cpu;
-    this.ppu = ppu;
-  }
-
   //=========================================================
-  // Mapper reset
+  // Reset
   //=========================================================
 
   reset() {
@@ -60,7 +50,7 @@ export default class MMC3Mapper extends AbstractMapper {
   }
 
   //=========================================================
-  // Mapper writing
+  // Writing
   //=========================================================
 
   write(address, value) {

@@ -1,10 +1,6 @@
-import AbstractMapper from './AbstractMapper';
+import Mapper from './Mapper';
 
-//=========================================================
-// Color Dreams mapper
-//=========================================================
-
-export default class ColorDreamsMapper extends AbstractMapper {
+export default class ColorDreams extends Mapper {
 
   reset() {
     this.mapPRGROMBank32K(0, 0); // First 32K PRG ROM bank

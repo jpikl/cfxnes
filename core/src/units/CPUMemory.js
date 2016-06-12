@@ -210,8 +210,8 @@ export default class CPUMemory {
     this.prgRAMMapping = 0;
   }
 
-  remapPRGRAM(mapper) {
-    this.prgRAM = mapper.prgRAM;
+  remapPRGRAM() {
+    this.prgRAM = this.mapper && this.mapper.prgRAM;
   }
 
   resetPRGRAM() {
@@ -250,8 +250,8 @@ export default class CPUMemory {
     this.prgROMMapping = new Uint32Array(4);
   }
 
-  remapPRGROM(mapper) {
-    this.prgROM = mapper.prgROM;
+  remapPRGROM() {
+    this.prgROM = this.mapper && this.mapper.prgROM;
   }
 
   resetPRGROM() {
@@ -278,10 +278,10 @@ export default class CPUMemory {
   // Mapper connection
   //=========================================================
 
-  connectMapper(mapper) {
+  setMapper(mapper) {
     this.mapper = mapper;
-    this.remapPRGRAM(mapper);
-    this.remapPRGROM(mapper);
+    this.remapPRGRAM();
+    this.remapPRGROM();
   }
 
 }

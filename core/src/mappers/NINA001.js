@@ -1,10 +1,10 @@
-import AbstractMapper from './AbstractMapper';
+import Mapper from './Mapper';
 
 //=========================================================
 // NINA-001 mapper
 //=========================================================
 
-export default class NINA001Mapper extends AbstractMapper {
+export default class NINA001 extends Mapper {
 
   init(cartridge) {
     super.init(cartridge);

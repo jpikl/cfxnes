@@ -1,13 +1,15 @@
-//=========================================================
-// Joypad
-//=========================================================
-
 export default class Joypad {
 
   constructor() {
     this.buttonStates = new Uint8Array(24);
     this.buttonStates[19] = 1;
     this.readPosition = 0;
+  }
+
+  connect() {
+  }
+
+  disconnect() {
   }
 
   strobe() {
@@ -26,17 +28,12 @@ export default class Joypad {
 
 }
 
-//=========================================================
-// Joypad buttons
-//=========================================================
-
-export const Button = {
-  A: 0,
-  B: 1,
-  SELECT: 2,
-  START: 3,
-  UP: 4,
-  DOWN: 5,
-  LEFT: 6,
-  RIGHT: 7,
-};
+// Buttons
+Joypad.A = 0;
+Joypad.B = 1;
+Joypad.SELECT = 2;
+Joypad.START = 3;
+Joypad.UP = 4;
+Joypad.DOWN = 5;
+Joypad.LEFT = 6;
+Joypad.RIGHT = 7;

@@ -1,13 +1,9 @@
-import AbstractMapper from './AbstractMapper';
+import Mapper from './Mapper';
 
-//=========================================================
-// MMC1 mapper
-//=========================================================
-
-export default class MMC1Mapper extends AbstractMapper {
+export default class MMC1 extends Mapper {
 
   //=========================================================
-  // Mapper initialization
+  // Initialization
   //=========================================================
 
   init(cartridge) {
@@ -19,7 +15,7 @@ export default class MMC1Mapper extends AbstractMapper {
   }
 
   //=========================================================
-  // Mapper reset
+  // Reset
   //=========================================================
 
   reset() {
@@ -41,7 +37,7 @@ export default class MMC1Mapper extends AbstractMapper {
   }
 
   //=========================================================
-  // Mapper writing
+  // Writing
   //=========================================================
 
   write(address, value) {
@@ -68,7 +64,7 @@ export default class MMC1Mapper extends AbstractMapper {
   }
 
   //=========================================================
-  // Mapper reconfiguration
+  // Reconfiguration
   //=========================================================
 
   synchronizeMapping() {

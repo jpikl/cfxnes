@@ -307,6 +307,7 @@ export default class CPU {
   tick() {
     if (!this.apu.isBlockingDMA()) {
       this.dma.tick();
+      this.mapper.tick();
     }
     this.ppu.tick(); // 3 times faster than CPU
     this.ppu.tick();
@@ -1279,7 +1280,7 @@ export default class CPU {
   // Mapper connection
   //=========================================================
 
-  connectMapper(mapper) {
+  setMapper(mapper) {
     this.mapper = mapper;
   }
 

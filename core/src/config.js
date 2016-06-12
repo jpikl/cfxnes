@@ -5,9 +5,6 @@ import APU from './units/APU';
 import DMA from './units/DMA';
 import CPUMemory from './units/CPUMemory';
 import PPUMemory from './units/PPUMemory';
-import DeviceFactory from './factories/DeviceFactory';
-import MapperFactory from './factories/MapperFactory';
-import PaletteFactory from './factories/PaletteFactory';
 
 //=========================================================
 // Emulator core configuration
@@ -21,9 +18,6 @@ export default {
   'dma': {class: DMA},
   'cpuMemory': {class: CPUMemory},
   'ppuMemory': {class: PPUMemory},
-  'deviceFactory': {class: DeviceFactory},
-  'mapperFactory': {class: MapperFactory},
-  'paletteFactory': {class: PaletteFactory},
   'sha1': {value: null},  // Optional external dependency
   'JSZip': {value: null}, // Optional external dependency
 };

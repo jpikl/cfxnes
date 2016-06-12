@@ -1,71 +1,30 @@
-import {createEnum} from '../utils/enum';
+export const SINGLE_SCREEN_0 = getSingleScreen(0);
+export const SINGLE_SCREEN_1 = getSingleScreen(1);
+export const SINGLE_SCREEN_2 = getSingleScreen(2);
+export const SINGLE_SCREEN_3 = getSingleScreen(3);
+export const HORIZONTAL = 'HOR';
+export const VERTICAL = 'VER';
+export const FOUR_SCREEN = 'FS';
 
-//=========================================================
-// Nametable mirroring
-//=========================================================
-
-// Defines how are nametables aligned on the screen.
+//                                                 A | B
+// Alignment of nametables [A, B, C, D] on screen  --+--
+//                                                 C | D
 //
-// areas: [A, B, C, D] means A | B
-//                           --+--
-//                           C | D
 
-const Mirroring = {
-
-  SINGLE_SCREEN_0: {
-    id: 'single-screen-0',
-    name: 'Single screen (0)',
-    areas: [0, 0, 0, 0],
-  },
-
-  SINGLE_SCREEN_1: {
-    id: 'single-screen-1',
-    name: 'Single screen (1)',
-    areas: [1, 1, 1, 1],
-  },
-
-  SINGLE_SCREEN_2: {
-    id: 'single-screen-2',
-    name: 'Single screen (2)',
-    areas: [2, 2, 2, 2],
-  },
-
-  SINGLE_SCREEN_3: {
-    id: 'single-screen-3',
-    name: 'Single screen (3)',
-    areas: [3, 3, 3, 3],
-  },
-
-  HORIZONTAL: {
-    id: 'horizontal',
-    name: 'Horizontal',
-    areas: [0, 0, 1, 1],
-  },
-
-  VERTICAL: {
-    id: 'vertical',
-    name: 'Vertical',
-    areas: [0, 1, 0, 1],
-  },
-
-  FOUR_SCREEN: {
-    id: 'four-screen',
-    name: 'Four screen',
-    areas: [0, 1, 2, 3],
-  },
-
-  getSingleScreen(area) {
-    switch (area) {
-      case 0: return Mirroring.SINGLE_SCREEN_0;
-      case 1: return Mirroring.SINGLE_SCREEN_1;
-      case 2: return Mirroring.SINGLE_SCREEN_2;
-      case 3: return Mirroring.SINGLE_SCREEN_3;
-      default: return null;
-    }
-  },
-
+const areas = {
+  [SINGLE_SCREEN_0]: [0, 0, 0, 0],
+  [SINGLE_SCREEN_1]: [1, 1, 1, 1],
+  [SINGLE_SCREEN_2]: [2, 2, 2, 2],
+  [SINGLE_SCREEN_3]: [3, 3, 3, 3],
+  [HORIZONTAL]: [0, 0, 1, 1],
+  [VERTICAL]: [0, 1, 0, 1],
+  [FOUR_SCREEN]: [0, 1, 2, 3],
 };
 
-createEnum(Mirroring);
+export function getAreas(mirroring) {
+  return areas[mirroring];
+}
 
-export default Mirroring;
+export function getSingleScreen(area) {
+  return 'SS' + area;
+}

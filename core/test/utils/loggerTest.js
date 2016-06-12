@@ -15,7 +15,7 @@ describe('Logger', () => {
     writer = LogWriter.toBuffer();
   });
 
-  it('should be able to attach writer', () => {
+  it('should attach writer', () => {
     logger.info('foo');
     expect(writer.buffer).to.be.empty;
     logger.attach(writer);
@@ -23,7 +23,7 @@ describe('Logger', () => {
     expect(writer.buffer).to.deep.equal(['foo']);
   });
 
-  it('should be able to attach multiple writers', () => {
+  it('should attach multiple writers', () => {
     const secondWriter = LogWriter.toBuffer();
     logger.attach(writer);
     logger.attach(secondWriter);
@@ -32,7 +32,7 @@ describe('Logger', () => {
     expect(secondWriter.buffer).to.deep.equal(['foo']);
   });
 
-  it('should be able to detach writer', () => {
+  it('should detach writer', () => {
     logger.attach(writer);
     logger.info('foo');
     expect(writer.buffer).to.deep.equal(['foo']);
