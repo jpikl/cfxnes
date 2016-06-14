@@ -15,8 +15,8 @@ export const files = [
   // '5-branch_delays_irq.nes',
 ];
 
-export function mock(units) {
-  units.ppu = new NoOutputPPU;
+export function init() {
+  return {ppu: new NoOutputPPU};
 }
 
 export function execute(test) {

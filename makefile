@@ -25,19 +25,16 @@ install_deps:
 	cd core && npm install
 	cd lib && npm install
 	cd app && npm install
-	cd dbg && npm install
 
 check_deps:
 	cd core && ncu
 	cd lib && ncu
 	cd app && ncu
-	cd dbg && ncu
 
 update_deps:
 	cd core && ncu -a
 	cd lib && ncu -a
 	cd app && ncu -a
-	cd dbg && ncu -a
 
 ###############################################################################
 # Build
@@ -82,7 +79,6 @@ version:
 	cd core && npm version $(VERSION); true
 	cd lib && npm version $(VERSION); true
 	cd app && npm version $(VERSION); true
-	cd dbg && npm version $(VERSION); true
 
 deploy: clean lib prod_app
 	mkdir -p $(DEPLOY_DIR)
@@ -114,13 +110,11 @@ tag:
 lint:
 	cd core && gulp lint
 	cd lib && gulp lint
-	cd dbg && gulp lint
 	cd app && gulp lint
 
 test:
 	cd core && gulp test
 	cd lib && gulp test
-	cd dbg && gulp test
 
 ###############################################################################
 # Cleanup
@@ -139,4 +133,3 @@ clean_all: clean
 	rm -rf ./core/node_modules
 	rm -rf ./lib/node_modules
 	rm -rf ./app/node_modules
-	rm -rf ./dbg/node_modules

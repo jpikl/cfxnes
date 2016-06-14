@@ -3,7 +3,7 @@
 // Source: http://pineight.com/nes/holydiverbatman-bin-0.01.7z
 //=============================================================================
 
-import {BufferedOutputPPU} from '../units';
+import {MemoryOutputPPU} from '../units';
 
 export const dir = './test/roms/holydiverbatman';
 
@@ -26,8 +26,8 @@ export const files = [
   'M34_P128K_H.nes',
 ];
 
-export function mock(units) {
-  units.ppu = new BufferedOutputPPU;
+export function init() {
+  return {ppu: new MemoryOutputPPU};
 }
 
 const steps = [

@@ -14,8 +14,8 @@ export const files = [
   '04-dummy_reads_apu.nes',
 ];
 
-export function mock(units) {
-  units.ppu = new NoOutputPPU;
+export function init() {
+  return {ppu: new NoOutputPPU};
 }
 
 export function execute(test) {

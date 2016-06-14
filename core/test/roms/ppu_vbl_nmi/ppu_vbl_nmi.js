@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/ppu_vbl_nmi.zip
 //=============================================================================
 
-import {NoOutputPPU, DisabledAPU} from '../units';
+import {DisabledAPU, NoOutputPPU} from '../units';
 
 export const dir = './test/roms/ppu_vbl_nmi';
 
@@ -20,9 +20,8 @@ export const files = [
   '10-even_odd_timing.nes',
 ];
 
-export function mock(units) {
-  units.apu = new DisabledAPU;
-  units.ppu = new NoOutputPPU;
+export function init() {
+  return {apu: new DisabledAPU, ppu: new NoOutputPPU};
 }
 
 export function execute(test) {

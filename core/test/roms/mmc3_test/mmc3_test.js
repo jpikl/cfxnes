@@ -16,9 +16,8 @@ export const files = [
   '6-MMC3_alt.nes',
 ];
 
-export function mock(units) {
-  units.apu = new DisabledAPU;
-  units.ppu = new NoOutputPPU;
+export function init() {
+  return {apu: new DisabledAPU, ppu: new NoOutputPPU};
 }
 
 export function execute(test) {

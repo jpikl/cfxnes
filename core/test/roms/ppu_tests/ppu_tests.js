@@ -3,7 +3,7 @@
 // Source: http://www.slack.net/~ant/nes-tests/blargg_ppu_tests.zip
 //=============================================================================
 
-import {BufferedOutputPPU} from '../units';
+import {MemoryOutputPPU} from '../units';
 
 export const dir = './test/roms/ppu_tests';
 
@@ -15,8 +15,8 @@ export const files = [
   'vram_access.nes',
 ];
 
-export function mock(units) {
-  units.ppu = new BufferedOutputPPU;
+export function init() {
+  return {ppu: new MemoryOutputPPU};
 }
 
 export function execute(test) {

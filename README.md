@@ -43,4 +43,3 @@ See LICENSE.txt for more details.
 - [Core](core) - core components of the emulator.
 - [Lib](lib) - library for NES emulation in web browser.
 - [App](app) - web application build on top of the library.
-- [Dbg](dbg) - tool for debugging NES ROM images.

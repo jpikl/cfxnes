@@ -15,12 +15,12 @@ const nes = new NES;
 NES constructor allows to pass different implementation of base components (CPU, PPU, APU, etc.). This is mainly used for their mocking/customization for various tests.
 
 ``` javascript
-import LoggingCPU from './units/special/LoggingCPU';
 import BufferedOutputPPU from './units/special/BufferedOutputPPU';
+import DisabledAPU from './units/special/DisabledAPU';
 
-const cpu = new LoggingCPU;
 const ppu = new BufferedOutputPPU;
-const nes = new NES({cpu, ppu});
+const apu = new DisabledAPU;
+const nes = new NES({ppu, apu});
 ```
 
 ### Loading of ROM images

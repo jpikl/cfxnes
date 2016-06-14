@@ -26,9 +26,8 @@ export const files = [
   '16-special.nes',
 ];
 
-export function mock(units) {
-  units.apu = new DisabledAPU;
-  units.ppu = new DisabledPPU;
+export function init() {
+  return {apu: new DisabledAPU, ppu: new DisabledPPU};
 }
 
 export function execute(test) {

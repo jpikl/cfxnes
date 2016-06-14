@@ -24,7 +24,7 @@ export function unpackColorBE(c) {
 }
 
 // Must be called multiple times, otherwise closure compiler will try to inline it with wrong result.
-export function isLittleEndian() {
+function isLittleEndian() {
   const u16 = new Uint16Array([0x1234]);
   const u8 = new Uint8Array(u16.buffer);
   return u8[0] === 0x34;

@@ -70,15 +70,9 @@ function validate(test) {
 }
 
 function execute(test) {
-  // Prepare mocks
-  const units = {};
-  test.mock(units);
-
   // Setup emulator
   const cartridge = readCartridge(test.file);
-  const nes = new NES(units);
-  const cpuMemory = nes.cpuMemory;
-  const ppu = nes.ppu;
+  const nes = new NES(test.init());
   nes.insertCartridge(cartridge);
 
   // Prepare context
@@ -121,7 +115,7 @@ function execute(test) {
   }
 
   function readByte(address) {
-    return cpuMemory.read(address);
+    return nes.cpuMemory.read(address);
   }
 
   function readString(address) {
@@ -136,7 +130,7 @@ function execute(test) {
   function screenshot(file) {
     const verifiedFile = getPath(file || test.name + '.png');
     const outputFile = getOutputPath(test.name + '.png');
-    asyncResults.push(ppu.writeFrameToFile(outputFile).then(() => {
+    asyncResults.push(nes.ppu.writeFrameToFile(outputFile).then(() => {
       return new Promise((resolve, reject) => {
         const verifiedBuffer = fs.readFileSync(verifiedFile);
         const outputBuffer = fs.readFileSync(outputFile);

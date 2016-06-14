@@ -103,7 +103,7 @@ export default class CPU {
     if (this.halted || blocked) {
       this.tick(); // Tick everything else
     } else {
-      this.executeOperation();
+      this.readAndExecuteOperation();
     }
   }
 
@@ -162,7 +162,7 @@ export default class CPU {
   // Program execution
   //=========================================================
 
-  executeOperation() {
+  readAndExecuteOperation() {
     const operation = this.readOperation();
     if (operation) {
       // The interrupt flag is checked at the start of last cycle of each instruction.
@@ -170,14 +170,17 @@ export default class CPU {
       // CLI, SEI and PLP instructions set the flag after it's read, so the change is delayed.
       // Most of instructions do not modify the flag, so we set the read value for them here.
       this.irqDisabled = this.interruptFlag;
-      // Compute effective address + execute operation on it
       this.operationFlags = operation.flags;
-      const address = operation.addressingMode.call(this);
-      operation.instruction.call(this, address);
+      this.executeOperation(operation);
     } else {
       logger.warn('CPU halted!');
       this.halted = true; // CPU halt (KIL operation code)
     }
+  }
+
+  executeOperation(operation) {
+    const effectiveAddress = operation.addressingMode.call(this);
+    operation.instruction.call(this, effectiveAddress);
   }
 
   readOperation() {
