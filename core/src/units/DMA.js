@@ -1,4 +1,4 @@
-import {log} from '../utils';
+import log from '../log';
 
 const TOTAL_DMA_CYCLES = 0x200; // Total 512 CPU cycles for DMA transfer
 

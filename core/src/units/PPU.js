@@ -1,5 +1,6 @@
-import {VIDEO_WIDTH, NMI} from '../constants';
-import {BLACK_COLOR, packColor, unpackColor, log} from '../utils';
+import {BLACK_COLOR, VIDEO_WIDTH, NMI} from '../constants';
+import {packColor, unpackColor} from '../utils';
+import log from '../log';
 
 //=========================================================
 // PPU cycle/scanlines flags

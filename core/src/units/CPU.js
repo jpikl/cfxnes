@@ -1,7 +1,7 @@
 /* eslint-disable new-cap */
 
 import {RESET, NMI} from '../constants';
-import {log} from '../utils';
+import log from '../log';
 
 //=========================================================
 // CPU operation

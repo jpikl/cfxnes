@@ -1,4 +1,4 @@
-import {zeroArray, log} from '../utils';
+import log from '../log';
 
 //=========================================================
 // CPU memory
@@ -71,7 +71,7 @@ export default class CPUMemory {
   }
 
   resetRAM() {
-    zeroArray(this.ram);
+    this.ram.fill(0);
   }
 
   readRAM(address) {
@@ -253,7 +253,7 @@ export default class CPUMemory {
   }
 
   resetPRGROM() {
-    zeroArray(this.prgROMMapping);
+    this.prgROMMapping.fill(0);
   }
 
   readPRGROM(address) {

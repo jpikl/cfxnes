@@ -9,7 +9,7 @@ import fceu_15 from './palettes/fceu_15';
 import fceux from './palettes/fceux';
 import nestopia_rgb from './palettes/nestopia_rgb';
 import nestopia_yuv from './palettes/nestopia_yuv';
-import {log} from './utils';
+import log from './log';
 
 const palettes = {
   'asq-real-a': asq_real_a,

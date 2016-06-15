@@ -1,5 +1,5 @@
 import {Mirroring} from '../enums';
-import {zeroArray, log} from '../utils';
+import log from '../log';
 
 export default class Mapper {
 
@@ -108,7 +108,7 @@ export default class Mapper {
 
   resetPRGRAM() {
     if (this.prgRAM) {
-      zeroArray(this.prgRAM, this.prgRAMSizeBattery); // Keep battery-backed part of PRGRAM
+      this.prgRAM.fill(0, this.prgRAMSizeBattery); // Keep battery-backed part of PRGRAM
     }
   }
 
@@ -154,7 +154,7 @@ export default class Mapper {
 
   resetCHRRAM() {
     if (this.chrRAM) {
-      zeroArray(this.chrRAM, this.chrRAMSizeBattery); // Keep battery-backed part of CHRRAM
+      this.chrRAM.fill(0, this.chrRAMSizeBattery); // Keep battery-backed part of CHRRAM
     }
   }
 

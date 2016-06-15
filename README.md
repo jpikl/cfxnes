@@ -23,17 +23,15 @@ See LICENSE.txt for more details.
 - Customizable key bindings.
 - Plenty of configuration options.
 
-## Browser Compatibility
+## Supported Browsers
 
 - Chrome >= 44
 - Firefox >= 40
-- Internet Explorer 11 (with [polyfill](lib/README.md#user-content-browser-compatibility))
 - Edge >= 12
 
 ## Known Issues
 
-- No sound in Internet Explorer (and in [other browsers](http://caniuse.com/#feat=audio-api) that do not support Web Audio).
-- Poor performance in Internet Explorer and Edge.
+- Poor performance in Edge.
 - Very poor performance on mobile devices.
 - Occasional graphical glitches in games using MMC3 mapper.
 - See [list of broken games](docs/broken-games.md).

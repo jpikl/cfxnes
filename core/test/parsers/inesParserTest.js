@@ -2,7 +2,6 @@
 /* eslint-disable no-sparse-arrays, no-unused-expressions */
 
 import chai from 'chai';
-import {createArray} from '../../src/utils';
 import {Mirroring, Region} from '../../src/enums';
 import inesParser from '../../src/parsers/inesParser';
 
@@ -28,8 +27,8 @@ describe('inesParser (iNES input)', () => {
   });
 
   it('should read PRG ROM', () => {
-    expect(testROM({prgROMUnits: 1}).prgROM).to.deep.equal(new Uint8Array(createArray(0x4000, 1)));
-    expect(testROM({prgROMUnits: 2}).prgROM).to.deep.equal(new Uint8Array(createArray(0x8000, 1)));
+    expect(testROM({prgROMUnits: 1}).prgROM).to.deep.equal(new Uint8Array(0x4000).fill(1));
+    expect(testROM({prgROMUnits: 2}).prgROM).to.deep.equal(new Uint8Array(0x8000).fill(1));
   });
 
   it('should read PRG RAM size', () => {
@@ -52,8 +51,8 @@ describe('inesParser (iNES input)', () => {
 
   it('should read CHR ROM', () => {
     expect(testROM({chrROMUnits: 0}).chrROM).to.be.undefined;
-    expect(testROM({chrROMUnits: 1}).chrROM).to.deep.equal(new Uint8Array(createArray(0x2000, 2)));
-    expect(testROM({chrROMUnits: 2}).chrROM).to.deep.equal(new Uint8Array(createArray(0x4000, 2)));
+    expect(testROM({chrROMUnits: 1}).chrROM).to.deep.equal(new Uint8Array(0x2000).fill(2));
+    expect(testROM({chrROMUnits: 2}).chrROM).to.deep.equal(new Uint8Array(0x4000).fill(2));
   });
 
   it('should read CHR RAM size', () => {
@@ -66,8 +65,8 @@ describe('inesParser (iNES input)', () => {
   });
 
   it('should skip trainer', () => {
-    expect(testROM({hasTrainer: true}).prgROM).to.deep.equal(new Uint8Array(createArray(0x4000, 1)));
-    expect(testROM({hasTrainer: true}).chrROM).to.deep.equal(new Uint8Array(createArray(0x2000, 2)));
+    expect(testROM({hasTrainer: true}).prgROM).to.deep.equal(new Uint8Array(0x4000).fill(1));
+    expect(testROM({hasTrainer: true}).chrROM).to.deep.equal(new Uint8Array(0x2000).fill(2));
   });
 
   it('should read mirroring', () => {
@@ -127,9 +126,9 @@ function createROM({prgROMUnits = 1,
     0, 0, 0, 0, 0, 0,
   ];
 
-  const trainer = createArray(hasTrainer ? 512 : 0, 0);
-  const prgROM = createArray(prgROMUnits * 0x4000, 1);
-  const chrROM = createArray(chrROMUnits * 0x2000, 2);
+  const trainer = new Uint8Array(hasTrainer ? 512 : 0).fill(0);
+  const prgROM = new Uint8Array(prgROMUnits * 0x4000).fill(1);
+  const chrROM = new Uint8Array(chrROMUnits * 0x2000).fill(2);
 
   return new Uint8Array([...header, ...trainer, ...prgROM, ...chrROM]);
 }

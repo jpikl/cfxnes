@@ -5,7 +5,7 @@
 // CFxNES setup
 //=========================================================
 
-CFxNES.setLogLevel('all');
+CFxNES.setLogLevel('info');
 
 const cfxnes = new CFxNES({sha1, JSZip, screenfull});
 

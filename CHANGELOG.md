@@ -20,6 +20,7 @@ Each change is prefixed with code of related module:
 ### Changed
 - [core] Checksums are computed using SHA-1 (previously MD5) from PRGRAM + CHRRAM (previously only PRGRAM).
 - [lib] Improved library API.
+- [core, lib, app] Dropped IE 11 support.
 
 ## [0.4.0] - 2015-11-29
 ### Fixed

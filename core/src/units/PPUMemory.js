@@ -1,5 +1,5 @@
 import {Mirroring} from '../enums';
-import {zeroArray, log} from '../utils';
+import log from '../log';
 
 const POWER_UP_PALETTES = [
   0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D,
@@ -85,7 +85,7 @@ export default class PPUMemory {
   }
 
   resetPatterns() {
-    zeroArray(this.patternsMapping);
+    this.patternsMapping.fill(0);
   }
 
   readPattern(address) {
@@ -120,7 +120,7 @@ export default class PPUMemory {
   }
 
   resetNamesAttrs() {
-    zeroArray(this.namesAttrs);
+    this.namesAttrs.fill(0);
     this.setNamesAttrsMirroring(this.defaultMirroring);
   }
 

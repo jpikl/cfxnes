@@ -7,12 +7,6 @@ const cfxnes = new CFxNES({videoOutput: canvas});
 cfxnes.loadROM(source).then(() => cfxnes.start());
 ```
 
-## Browser Compatibility
-
-In order to support IE 11, some polyfills are required:
-- [Promise](https://www.npmjs.com/package/promise-polyfill)
-- [Object.assign](https://www.npmjs.com/package/object-assign-polyfill)
-
 ## API
 
 See [API documentation](docs/api.md).

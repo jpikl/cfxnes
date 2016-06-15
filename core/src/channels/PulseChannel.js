@@ -1,5 +1,5 @@
 import {LENGTH_COUNTER_VALUES} from '../constants';
-import {log} from '../utils';
+import log from '../log';
 
 const DUTY_WAVEFORMS = [
   [0, 1, 0, 0, 0, 0, 0, 0], // _X______ (12.5%)
