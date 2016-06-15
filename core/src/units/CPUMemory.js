@@ -1,4 +1,4 @@
-import {zeroArray, logger} from '../utils';
+import {zeroArray, log} from '../utils';
 
 //=========================================================
 // CPU memory
@@ -24,7 +24,7 @@ export default class CPUMemory {
   //=========================================================
 
   powerUp() {
-    logger.info('Reseting CPU memory');
+    log.info('Reseting CPU memory');
     this.resetRAM();
     this.resetIO();
     this.resetPRGRAM();

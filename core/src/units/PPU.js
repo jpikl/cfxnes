@@ -1,5 +1,5 @@
 import {VIDEO_WIDTH, NMI} from '../constants';
-import {BLACK_COLOR, packColor, unpackColor, logger} from '../utils';
+import {BLACK_COLOR, packColor, unpackColor, log} from '../utils';
 
 //=========================================================
 // PPU cycle/scanlines flags
@@ -151,7 +151,7 @@ export default class PPU {
   //=========================================================
 
   powerUp() {
-    logger.info('Reseting PPU');
+    log.info('Reseting PPU');
     this.resetOAM();
     this.resetRegisters();
     this.resetVariables();

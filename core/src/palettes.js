@@ -9,7 +9,7 @@ import fceu_15 from './palettes/fceu_15';
 import fceux from './palettes/fceux';
 import nestopia_rgb from './palettes/nestopia_rgb';
 import nestopia_yuv from './palettes/nestopia_yuv';
-import {logger} from './utils';
+import {log} from './utils';
 
 const palettes = {
   'asq-real-a': asq_real_a,
@@ -26,7 +26,7 @@ const palettes = {
 export function createPalette(id) {
   const palette = palettes[id];
   if (palette) {
-    logger.info(`Creating "${id}" palette`);
+    log.info(`Creating "${id}" palette`);
     return readPalette(palette);
   }
   throw new Error(`Unknown palette "${id}"`);

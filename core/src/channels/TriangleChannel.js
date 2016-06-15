@@ -1,5 +1,5 @@
 import {LENGTH_COUNTER_VALUES} from '../constants';
-import {logger} from '../utils';
+import {log} from '../utils';
 
 const DUTY_WAVEFORM = [
   15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
@@ -13,7 +13,7 @@ const DUTY_WAVEFORM = [
 export default class TriangleChannel {
 
   powerUp() {
-    logger.info('Reseting triangle channel');
+    log.info('Reseting triangle channel');
     this.setEnabled(false);
     this.timerCycle = 0;    // Timer counter value
     this.timerPeriod = 0;   // Timer counter reset value

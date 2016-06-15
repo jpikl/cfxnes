@@ -1,5 +1,5 @@
 import {IRQ_DCM} from '../constants';
-import {logger} from '../utils';
+import {log} from '../utils';
 
 //=========================================================
 // DMC Channel
@@ -13,7 +13,7 @@ export default class DMCChannel {
   }
 
   powerUp() {
-    logger.info('Reseting DMC channel');
+    log.info('Reseting DMC channel');
     this.setEnabled(false);
     this.timerCycle = 0;         // Timer counter value
     this.sampleBuffer = null;    // Buffered sample data, readed from memory (null = buffered data not available)

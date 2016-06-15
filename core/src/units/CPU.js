@@ -1,7 +1,7 @@
 /* eslint-disable new-cap */
 
 import {RESET, NMI} from '../constants';
-import {logger} from '../utils';
+import {log} from '../utils';
 
 //=========================================================
 // CPU operation
@@ -54,7 +54,7 @@ export default class CPU {
   //=========================================================
 
   powerUp() {
-    logger.info('Reseting CPU');
+    log.info('Reseting CPU');
     this.resetRegisters();
     this.resetVariables();
     this.resetMemory();
@@ -173,7 +173,7 @@ export default class CPU {
       this.operationFlags = operation.flags;
       this.executeOperation(operation);
     } else {
-      logger.warn('CPU halted!');
+      log.warn('CPU halted!');
       this.halted = true; // CPU halt (KIL operation code)
     }
   }

@@ -1,16 +1,16 @@
-import {formatSize, logger} from './utils';
+import {formatSize, log} from './utils';
 import inesParser from './parsers/inesParser';
 
 const parsers = [inesParser];
 
 export function readCartridge(path, libs) {
-  logger.info(`Reading cartridge from file "${path}"`);
+  log.info(`Reading cartridge from file "${path}"`);
   const buffer = require('fs').readFileSync(path); // eslint-disable-line import/newline-after-import
   return createCartridge(new Uint8Array(buffer), libs);
 }
 
 export function createCartridge(data, {JSZip, sha1} = {}) {
-  logger.info('Creating cartridge');
+  log.info('Creating cartridge');
 
   if (data instanceof Array || data instanceof ArrayBuffer) {
     data = new Uint8Array(data);
@@ -24,7 +24,7 @@ export function createCartridge(data, {JSZip, sha1} = {}) {
 
   for (const parser of parsers) {
     if (parser.supports(data)) {
-      logger.info(`Using "${parser.name}" parser`);
+      log.info(`Using "${parser.name}" parser`);
       const cartridge = parser.parse(data);
       computeSHA1(cartridge, sha1);
       printInfo(cartridge);
@@ -43,7 +43,7 @@ function hasZipSignature(data) {
 }
 
 function unzip(data, JSZip) {
-  logger.info('Unzipping ROM image');
+  log.info('Unzipping ROM image');
   if (JSZip == null) {
     throw new Error('Unable to unzip ROM image: JSZip is not available.');
   }
@@ -56,7 +56,7 @@ function unzip(data, JSZip) {
 
 function computeSHA1(cartridge, sha1) {
   if (sha1) {
-    logger.info('Computing SHA-1');
+    log.info('Computing SHA-1');
     const buffer = new Uint8Array(cartridge.prgROMSize + cartridge.chrROMSize);
     buffer.set(cartridge.prgROM);
     if (cartridge.chrROM) {
@@ -67,17 +67,17 @@ function computeSHA1(cartridge, sha1) {
 }
 
 function printInfo(cartridge) {
-  logger.info('==========[Cartridge Info - Start]==========');
-  logger.info('SHA-1                 : ' + cartridge.sha1);
-  logger.info('Mapper                : ' + cartridge.mapper);
-  logger.info('Submapper             : ' + cartridge.submapper);
-  logger.info('Region                : ' + cartridge.region);
-  logger.info('Mirroring             : ' + cartridge.mirroring);
-  logger.info('PRG ROM size          : ' + formatSize(cartridge.prgROMSize));
-  logger.info('PRG RAM size          : ' + formatSize(cartridge.prgRAMSize));
-  logger.info('PRG RAM size (battery): ' + formatSize(cartridge.prgRAMSizeBattery));
-  logger.info('CHR ROM size          : ' + formatSize(cartridge.chrROMSize));
-  logger.info('CHR RAM size          : ' + formatSize(cartridge.chrRAMSize));
-  logger.info('CHR RAM size (battery): ' + formatSize(cartridge.chrRAMSizeBattery));
-  logger.info('==========[Cartridge Info - End]==========');
+  log.info('==========[Cartridge Info - Start]==========');
+  log.info('SHA-1                 : ' + cartridge.sha1);
+  log.info('Mapper                : ' + cartridge.mapper);
+  log.info('Submapper             : ' + cartridge.submapper);
+  log.info('Region                : ' + cartridge.region);
+  log.info('Mirroring             : ' + cartridge.mirroring);
+  log.info('PRG ROM size          : ' + formatSize(cartridge.prgROMSize));
+  log.info('PRG RAM size          : ' + formatSize(cartridge.prgRAMSize));
+  log.info('PRG RAM size (battery): ' + formatSize(cartridge.prgRAMSizeBattery));
+  log.info('CHR ROM size          : ' + formatSize(cartridge.chrROMSize));
+  log.info('CHR RAM size          : ' + formatSize(cartridge.chrRAMSize));
+  log.info('CHR RAM size (battery): ' + formatSize(cartridge.chrRAMSizeBattery));
+  log.info('==========[Cartridge Info - End]==========');
 }

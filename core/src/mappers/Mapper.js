@@ -1,5 +1,5 @@
 import {Mirroring} from '../enums';
-import {zeroArray, logger} from '../utils';
+import {zeroArray, log} from '../utils';
 
 export default class Mapper {
 
@@ -55,7 +55,7 @@ export default class Mapper {
   //=========================================================
 
   powerUp() {
-    logger.info('Resetting mapper');
+    log.info('Resetting mapper');
     this.resetPRGRAM();
     this.resetCHRRAM();
     this.reset();

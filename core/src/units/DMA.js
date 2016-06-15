@@ -1,4 +1,4 @@
-import {logger} from '../utils';
+import {log} from '../utils';
 
 const TOTAL_DMA_CYCLES = 0x200; // Total 512 CPU cycles for DMA transfer
 
@@ -13,7 +13,7 @@ export default class DMA {
   }
 
   powerUp() {
-    logger.info('Reseting DMA');
+    log.info('Reseting DMA');
     this.cycle = TOTAL_DMA_CYCLES;
   }
 

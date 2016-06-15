@@ -1,5 +1,5 @@
 import {Mirroring} from '../enums';
-import {zeroArray, logger} from '../utils';
+import {zeroArray, log} from '../utils';
 
 const POWER_UP_PALETTES = [
   0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D,
@@ -28,7 +28,7 @@ export default class PPUMemory {
   //=========================================================
 
   powerUp() {
-    logger.info('Reseting PPU memory');
+    log.info('Reseting PPU memory');
     this.resetPatterns();
     this.resetNamesAttrs();
     this.resetPaletts();

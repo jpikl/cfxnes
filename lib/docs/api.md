@@ -13,7 +13,7 @@
 
 #### new CFxNES([options])
 
-Creates instance of the emulator. 
+Creates instance of the emulator.
 
 - **options**: `object` - [configuration options](#user-content-options-and-methods) and [external dependencies](#user-content-external-dependencies)
 
@@ -70,4 +70,3 @@ Sets verbosity of logging for all instances of the emulator. The default value i
 - `'error'` - Log errors.
 - `'warn'` - Log errors and warnings.
 - `'info'` - Log errors, warnings and info messages.
-- `'all'` - Alias for `'info'`.

@@ -3,7 +3,7 @@ import PulseChannel from '../channels/PulseChannel';
 import TriangleChannel from '../channels/TriangleChannel';
 import NoiseChannel from '../channels/NoiseChannel';
 import DMCChannel from '../channels/DMCChannel';
-import {logger} from '../utils';
+import {log} from '../utils';
 
 //=========================================================
 // Audio processing unit
@@ -27,7 +27,7 @@ export default class APU {
   //=========================================================
 
   powerUp() {
-    logger.info('Reseting APU');
+    log.info('Reseting APU');
     this.clearFrameIRQ();
     this.pulseChannel1.powerUp();
     this.pulseChannel2.powerUp();

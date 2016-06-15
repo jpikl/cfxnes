@@ -1,5 +1,5 @@
 import {LENGTH_COUNTER_VALUES} from '../constants';
-import {logger} from '../utils';
+import {log} from '../utils';
 
 const DUTY_WAVEFORMS = [
   [0, 1, 0, 0, 0, 0, 0, 0], // _X______ (12.5%)
@@ -19,7 +19,7 @@ export default class PulseChannel {
   }
 
   powerUp() {
-    logger.info(`Reseting pulse channel ${this.channelId}`);
+    log.info(`Reseting pulse channel ${this.channelId}`);
     this.setEnabled(false);
     this.timerCycle = 0;     // Timer counter value
     this.timerPeriod = 0;    // Timer counter reset value

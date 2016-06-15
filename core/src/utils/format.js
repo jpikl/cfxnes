@@ -14,15 +14,3 @@ export function formatSize(size) {
   }
   return size + ' B';
 }
-
-export function formatError(error) {
-  let result = 'Name:    ' + error.name
-           + '\nMessage: ' + error.message;
-  if (typeof error.stack === 'string') {
-    result += '\nStack:   ' + error.stack.split('\n')
-                             .map(line => '         ' + line)
-                             .join('\n')
-                             .substr(9);
-  }
-  return result;
-}

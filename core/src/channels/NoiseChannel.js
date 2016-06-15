@@ -1,5 +1,5 @@
 import {LENGTH_COUNTER_VALUES} from '../constants';
-import {logger} from '../utils';
+import {log} from '../utils';
 
 //=========================================================
 // Noise channel
@@ -8,7 +8,7 @@ import {logger} from '../utils';
 export default class NoiseChannel {
 
   powerUp() {
-    logger.info('Reseting noise channel');
+    log.info('Reseting noise channel');
     this.setEnabled(false);
     this.timerCycle = 0;     // Timer counter value
     this.envelopeCycle = 0;  // Envelope divider counter

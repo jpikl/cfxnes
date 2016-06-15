@@ -7,7 +7,7 @@ import MMC3 from './mappers/MMC3';
 import NINA001 from './mappers/NINA001';
 import NROM from './mappers/NROM';
 import UNROM from './mappers/UNROM';
-import {logger} from './utils';
+import {log} from './utils';
 
 const mappers = {
   'AOROM': AOROM,
@@ -25,7 +25,7 @@ export function createMapper(cartridge) {
   const id = cartridge.mapper;
   const clazz = mappers[id];
   if (clazz) {
-    logger.info(`Creating "${id}" mapper`);
+    log.info(`Creating "${id}" mapper`);
     return new clazz(cartridge);
   }
   throw new Error(`Unkown mapper "${id}"`);

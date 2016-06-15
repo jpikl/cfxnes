@@ -15,8 +15,4 @@ describe('Format utils', () => {
     expect(format.formatSize(-1)).to.equal('-1 B');
     expect(format.formatSize('not a number')).to.be.undefined;
   });
-
-  it('can format error', () => {
-    expect(format.formatError(new Error('test'))).to.match(/^Name: {4}Error\nMessage: test\nStack: {3}/);
-  });
 });
