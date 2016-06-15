@@ -1,32 +1,37 @@
 /* eslint-disable no-console */
 
-export const LogLevel = {
-  OFF: 1,
-  ERROR: 2,
-  WARN: 3,
-  INFO: 4,
+const OFF = 0;
+const ERROR = 1;
+const WARN = 2;
+const INFO = 3;
+
+const levels = {
+  'off': OFF,
+  'error': ERROR,
+  'warn': WARN,
+  'info': INFO,
 };
 
-let level = LogLevel.WARN;
+let level = WARN;
 
-function setLevel(value) {
-  level = value;
+function setLevel(name) {
+  level = levels[name] || OFF;
 }
 
-function info(message) {
-  if (level >= LogLevel.INFO) {
-    console.info(message);
+function info(...args) {
+  if (level >= INFO) {
+    console.info(...args);
   }
 }
 
-function warn(message) {
-  if (level >= LogLevel.WARN) {
-    console.warn(message);
+function warn(...args) {
+  if (level >= WARN) {
+    console.warn(...args);
   }
 }
 
 function error(...args) {
-  if (level >= LogLevel.ERROR) {
+  if (level >= ERROR) {
     console.error(...args);
   }
 }
