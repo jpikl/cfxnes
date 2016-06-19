@@ -1,5 +1,5 @@
-import {BLACK_COLOR, VIDEO_WIDTH, NMI} from '../constants';
-import {packColor, unpackColor} from '../utils';
+import {VIDEO_WIDTH, NMI} from '../constants';
+import {createPaletteVariant, unpackColor, BLACK_COLOR} from '../palettes';
 import log from '../log';
 
 //=========================================================
@@ -225,20 +225,8 @@ export default class PPU {
       const rRatio = colorEmphasis & 6 ? 0.75 : 1.0; // Dim red when green or blue is emphasized
       const gRatio = colorEmphasis & 5 ? 0.75 : 1.0; // Dim green when red or blue is emphasized
       const bRatio = colorEmphasis & 3 ? 0.75 : 1.0; // Dim blue when red or green is emphasized
-      this.paletteVariants[colorEmphasis] = this.createPaletteVariant(basePalette, rRatio, gRatio, bRatio);
+      this.paletteVariants[colorEmphasis] = createPaletteVariant(basePalette, rRatio, gRatio, bRatio);
     }
-  }
-
-  createPaletteVariant(basePalette, rRatio, gRatio, bRatio) {
-    const paletteVariant = new Uint32Array(basePalette.length);
-    for (let i = 0; i < basePalette.length; i++) {
-      const rgb = basePalette[i];
-      const r = Math.floor(rRatio * (rgb & 0xFF));
-      const g = Math.floor(gRatio * ((rgb >>> 8) & 0xFF));
-      const b = Math.floor(bRatio * ((rgb >>> 16) & 0xFF));
-      paletteVariant[i] = packColor(r, g, b);
-    }
-    return paletteVariant;
   }
 
   updatePalette() {

@@ -16,7 +16,7 @@ const ids = [
   'UNROM',
 ];
 
-describe('createMapper', () => {
+describe('mappers', () => {
   it('should create mapper for valid ID', () => {
     for (const id of ids) {
       expect(createMapper({mapper: id})).to.be.an('object');

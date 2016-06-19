@@ -1,8 +1,8 @@
-import {BLACK_COLOR, RESET} from './constants';
+import {RESET} from './constants';
 import {Region} from './enums';
 import {createMapper} from './mappers';
 import {APU, CPU, DMA, PPU, CPUMemory, PPUMemory} from './units';
-import {packColor} from './utils';
+import {packColor, BLACK_COLOR} from './palettes';
 
 //=========================================================
 // Nintendo Entertainment System

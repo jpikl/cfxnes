@@ -9,7 +9,10 @@ import fceu_15 from './palettes/fceu_15';
 import fceux from './palettes/fceux';
 import nestopia_rgb from './palettes/nestopia_rgb';
 import nestopia_yuv from './palettes/nestopia_yuv';
+import {decodeBase64, isLittleEndian} from './utils';
 import log from './log';
+
+const PALETTE_LENGTH = 64;
 
 const palettes = {
   'asq-real-a': asq_real_a,
@@ -23,33 +26,59 @@ const palettes = {
   'nestopia-yuv': nestopia_yuv,
 };
 
+export const packColor = isLittleEndian() ? packColorLE : packColorBE;
+export const unpackColor = isLittleEndian() ? unpackColorLE : unpackColorBE;
+
+export const BLACK_COLOR = packColor(0, 0, 0);
+
+export function packColorLE(r, g, b, a = 0xFF) {
+  return (a << 24 | b << 16 | g << 8 | r) >>> 0; // Convert to 32-bit unsigned integer
+}
+
+export function packColorBE(r, g, b, a = 0xFF) {
+  return (r << 24 | g << 16 | b << 8 | a) >>> 0; // Convert to 32-bit unsigned integer
+}
+
+export function unpackColorLE(c) {
+  return [c & 0xFF, (c >>> 8) & 0xFF, (c >>> 16) & 0xFF, (c >>> 24) & 0xFF];
+}
+
+export function unpackColorBE(c) {
+  return [(c >>> 24) & 0xFF, (c >>> 16) & 0xFF, (c >>> 8) & 0xFF, c & 0xFF];
+}
+
 export function createPalette(id) {
-  const palette = palettes[id];
-  if (palette) {
+  const base64 = palettes[id];
+  if (base64) {
     log.info(`Creating "${id}" palette`);
-    return readPalette(palette);
+    return readPalette(base64);
   }
   throw new Error(`Unknown palette "${id}"`);
 }
 
 function readPalette(base64) {
   const data = decodeBase64(base64);
-  const colors = new Uint32Array(64);
-  const length = Math.min(data.length / 3, colors.length);
-  for (let i = 0; i < length; i++) {
+  if (data.length !== PALETTE_LENGTH * 3) {
+    throw new Error(`Palette data does not contains ${PALETTE_LENGTH} entries`);
+  }
+  const palette = new Uint32Array(PALETTE_LENGTH);
+  for (let i = 0; i < PALETTE_LENGTH; i++) {
     const r = data.charCodeAt(3 * i);
     const g = data.charCodeAt(3 * i + 1);
     const b = data.charCodeAt(3 * i + 2);
-    colors[i] = r | g << 8 | b << 16;
+    palette[i] = packColor(r, g, b);
   }
-  return colors;
+  return palette;
 }
 
-function decodeBase64(input) {
-  if (typeof atob === 'function') {
-    return atob(input); // eslint-disable-line no-undef
-  } else if (typeof Buffer === 'function') {
-    return new Buffer(input, 'base64').toString('binary');
+export function createPaletteVariant(palette, rRatio, gRatio, bRatio) {
+  const paletteVariant = new Uint32Array(PALETTE_LENGTH);
+  for (let i = 0; i < PALETTE_LENGTH; i++) {
+    let [r, g, b] = unpackColor(palette[i]);
+    r = Math.floor(rRatio * r);
+    g = Math.floor(gRatio * g);
+    b = Math.floor(bRatio * b);
+    paletteVariant[i] = packColor(r, g, b);
   }
-  throw new Error('Unable to decode base64 string');
+  return paletteVariant;
 }

@@ -1,8 +1,7 @@
 import fs from 'fs';
 import {PNG} from 'node-png';
 import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../../src/constants';
-import {createPalette} from '../../src/palettes';
-import {unpackColor} from '../../src/utils';
+import {createPalette, unpackColor} from '../../src/palettes';
 import {CPU, PPU, APU} from '../../src/units';
 
 export {CPU, PPU, APU};
