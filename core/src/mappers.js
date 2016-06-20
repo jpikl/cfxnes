@@ -23,9 +23,9 @@ const mappers = {
 
 export function createMapper(cartridge) {
   const id = cartridge.mapper;
+  log.info(`Creating "${id}" mapper`);
   const clazz = mappers[id];
   if (clazz) {
-    log.info(`Creating "${id}" mapper`);
     return new clazz(cartridge);
   }
   throw new Error(`Unkown mapper "${id}"`);

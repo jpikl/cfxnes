@@ -4,20 +4,19 @@
 import {expect} from 'chai';
 import {createMapper} from '../src/mappers';
 
-const ids = [
-  'AOROM',
-  'BNROM',
-  'CNROM',
-  'ColorDreams',
-  'MMC1',
-  'MMC3',
-  'NINA-001',
-  'NROM',
-  'UNROM',
-];
-
 describe('mappers', () => {
   it('should create mapper for valid ID', () => {
+    const ids = [
+      'AOROM',
+      'BNROM',
+      'CNROM',
+      'ColorDreams',
+      'MMC1',
+      'MMC3',
+      'NINA-001',
+      'NROM',
+      'UNROM',
+    ];
     for (const id of ids) {
       expect(createMapper({mapper: id})).to.be.an('object');
     }

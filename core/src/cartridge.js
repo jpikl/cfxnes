@@ -6,12 +6,12 @@ const parsers = [inesParser];
 
 export function readCartridge(path, libs) {
   log.info(`Reading cartridge from file "${path}"`);
-  const buffer = require('fs').readFileSync(path); // eslint-disable-line import/newline-after-import
-  return createCartridge(new Uint8Array(buffer), libs);
+  const data = require('fs').readFileSync(path); // eslint-disable-line import/newline-after-import
+  return createCartridge(new Uint8Array(data), libs);
 }
 
 export function createCartridge(data, {JSZip, sha1} = {}) {
-  log.info('Creating cartridge');
+  log.info('Creating cartridge from array');
 
   if (data instanceof Array || data instanceof ArrayBuffer) {
     data = new Uint8Array(data);
@@ -23,6 +23,7 @@ export function createCartridge(data, {JSZip, sha1} = {}) {
     data = unzip(data, JSZip);
   }
 
+  log.info(`Parsing ${formatSize(data.length)} of data`);
   for (const parser of parsers) {
     if (parser.supports(data)) {
       log.info(`Using "${parser.name}" parser`);
@@ -33,7 +34,7 @@ export function createCartridge(data, {JSZip, sha1} = {}) {
     }
   }
 
-  throw new Error('Unsupported data format.');
+  throw new Error('Unsupported data format');
 }
 
 function hasZipSignature(data) {
@@ -44,13 +45,13 @@ function hasZipSignature(data) {
 }
 
 function unzip(data, JSZip) {
-  log.info('Unzipping ROM image');
+  log.info(`Extracting ROM image from ${formatSize(data.length)} ZIP archive`);
   if (JSZip == null) {
-    throw new Error('Unable to unzip ROM image: JSZip is not available.');
+    throw new Error('Unable to extract ROM image: JSZip is not available');
   }
   const files = new JSZip(data).file(/^.*\.nes$/i);
   if (files.length === 0) {
-    throw new Error('ZIP does not contain ".nes" ROM image');
+    throw new Error('ZIP archive does not contain ".nes" ROM image');
   }
   return files[0].asUint8Array();
 }

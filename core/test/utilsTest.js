@@ -3,12 +3,11 @@
 
 import os from 'os';
 import {expect} from 'chai';
-
 import * as module from '../src/utils';
 
 describe('utils', () => {
   it('should detect endianness', () => {
-    expect(module.isLittleEndian()).to.be.equal(os.endianness() === 'LE');
+    expect(module.detectEndianness()).to.be.equal(os.endianness());
   });
 
   it('should decode base64', () => {

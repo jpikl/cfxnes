@@ -4,15 +4,8 @@
 import {expect} from 'chai';
 import Zapper from '../../src/devices/Zapper';
 
-const nes = {
-  ppu: {
-    isBrightFramePixel(x, y) {
-      return x > y;
-    },
-  },
-};
-
 describe('Zapper', () => {
+  const nes = {ppu: {isBrightFramePixel(x, y) { return x > y; }}};
   let zapper;
 
   beforeEach(() => {

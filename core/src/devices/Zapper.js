@@ -1,4 +1,5 @@
 import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../constants';
+import log from '../log';
 
 export default class Zapper {
 
@@ -9,10 +10,12 @@ export default class Zapper {
   }
 
   connect(nes) {
+    log.info('Zapper connected');
     this.ppu = nes.ppu;
   }
 
   disconnect() {
+    log.info('Zapper disconnected');
     this.ppu = undefined;
   }
 

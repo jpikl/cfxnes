@@ -8,14 +8,14 @@ import sha1 from 'js-sha1';
 import {readCartridge, createCartridge} from '../src/cartridge';
 import {Mirroring, Region} from '../src/enums';
 
-const romData = readFile('./test/roms/nestest/nestest.nes');
-const zipData = readFile('./test/roms/nestest/nestest.zip');
+describe('cartridge', () => {
+  let romData, zipData;
 
-function readFile(file) {
-  return new Uint8Array(fs.readFileSync(file));
-}
+  before(() => {
+    romData = new Uint8Array(fs.readFileSync('./test/roms/nestest/nestest.nes'));
+    zipData = new Uint8Array(fs.readFileSync('./test/roms/nestest/nestest.zip'));
+  });
 
-describe('createCartridge', () => {
   it('should accept valid data type', () => {
     expect(createCartridge(romData)).to.be.an('object'); // Uint8Array
     expect(createCartridge(romData.buffer)).to.be.an('object'); // ArrayBuffer
@@ -71,16 +71,14 @@ describe('createCartridge', () => {
     const cartridge2 = createCartridge(romData);
     expect(cartridge1).to.deep.equal(cartridge2);
   });
-});
 
-describe('readCartridge', () => {
-  it('should return the same result as createCartridge', () => {
+  it('should read cartridge from file', () => {
     const cartridge1 = readCartridge('./test/roms/nestest/nestest.nes');
     const cartridge2 = createCartridge(romData);
     expect(cartridge1).to.deep.equal(cartridge2);
   });
 
-  it('should return the same result as createCartridge (JSZip, sha1)', () => {
+  it('should read cartridge from file (JSZip, sha1)', () => {
     const cartridge1 = readCartridge('./test/roms/nestest/nestest.zip', {JSZip, sha1});
     const cartridge2 = createCartridge(zipData, {JSZip, sha1});
     expect(cartridge1).to.deep.equal(cartridge2);

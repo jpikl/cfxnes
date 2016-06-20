@@ -4,9 +4,8 @@
 import {expect} from 'chai';
 import Joypad from '../../src/devices/Joypad';
 
-const nes = {};
-
 describe('Joypad', () => {
+  const nes = {};
   let joypad;
 
   beforeEach(() => {

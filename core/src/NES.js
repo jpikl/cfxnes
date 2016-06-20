@@ -3,6 +3,8 @@ import {Region} from './enums';
 import {createMapper} from './mappers';
 import {APU, CPU, DMA, PPU, CPUMemory, PPUMemory} from './units';
 import {packColor, BLACK_COLOR} from './palettes';
+import {detectEndianness} from './utils';
+import log from './log';
 
 //=========================================================
 // Nintendo Entertainment System
@@ -11,6 +13,8 @@ import {packColor, BLACK_COLOR} from './palettes';
 export default class NES {
 
   constructor(units = {}) {
+    log.info('Creating NES');
+    log.info(`Endianness: ${detectEndianness()}`);
     this.init(units);
     this.connect();
   }

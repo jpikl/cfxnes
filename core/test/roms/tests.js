@@ -8,7 +8,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import chai from 'chai';
+import {assert, expect} from 'chai';
 import mkdirp from 'mkdirp';
 import NES from '../../src/NES';
 import {readCartridge} from '../../src/cartridge';
@@ -77,8 +77,6 @@ function execute(test) {
 
   // Prepare context
   const number = test.number;
-  const assert = chai.assert;
-  const expect = chai.expect;
   const context = {
     number, assert, expect, fail, power, reset, step, nes,
     readByte, readString, screenshot, blargg, getPath, getOutputPath,
@@ -137,7 +135,7 @@ function execute(test) {
         if (outputBuffer.equals(verifiedBuffer)) {
           resolve();
         } else {
-          reject(new Error(`Screenshot ${outputFile} does not match ${verifiedFile}.`));
+          reject(new Error(`Screenshot ${outputFile} does not match ${verifiedFile}`));
         }
       });
     }));

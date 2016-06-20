@@ -9,7 +9,7 @@ import fceu_15 from './palettes/fceu_15';
 import fceux from './palettes/fceux';
 import nestopia_rgb from './palettes/nestopia_rgb';
 import nestopia_yuv from './palettes/nestopia_yuv';
-import {decodeBase64, isLittleEndian} from './utils';
+import {decodeBase64, detectEndianness} from './utils';
 import log from './log';
 
 const PALETTE_LENGTH = 64;
@@ -26,8 +26,10 @@ const palettes = {
   'nestopia-yuv': nestopia_yuv,
 };
 
-export const packColor = isLittleEndian() ? packColorLE : packColorBE;
-export const unpackColor = isLittleEndian() ? unpackColorLE : unpackColorBE;
+const littleEndian = detectEndianness() === 'LE';
+
+export const packColor = littleEndian ? packColorLE : packColorBE;
+export const unpackColor = littleEndian ? unpackColorLE : unpackColorBE;
 
 export const BLACK_COLOR = packColor(0, 0, 0);
 
@@ -48,18 +50,19 @@ export function unpackColorBE(c) {
 }
 
 export function createPalette(id) {
+  log.info(`Creating "${id}" palette`);
   const base64 = palettes[id];
   if (base64) {
-    log.info(`Creating "${id}" palette`);
-    return readPalette(base64);
+    return decodePalette(base64);
   }
   throw new Error(`Unknown palette "${id}"`);
 }
 
-function readPalette(base64) {
+function decodePalette(base64) {
+  log.info('Decoding palette data');
   const data = decodeBase64(base64);
   if (data.length !== PALETTE_LENGTH * 3) {
-    throw new Error(`Palette data does not contains ${PALETTE_LENGTH} entries`);
+    throw new Error(`Palette data does not contain ${PALETTE_LENGTH} entries`);
   }
   const palette = new Uint32Array(PALETTE_LENGTH);
   for (let i = 0; i < PALETTE_LENGTH; i++) {
@@ -72,6 +75,7 @@ function readPalette(base64) {
 }
 
 export function createPaletteVariant(palette, rRatio, gRatio, bRatio) {
+  log.info(`Creating palette variant (${rRatio}, ${gRatio}, ${bRatio})`);
   const paletteVariant = new Uint32Array(PALETTE_LENGTH);
   for (let i = 0; i < PALETTE_LENGTH; i++) {
     let [r, g, b] = unpackColor(palette[i]);

@@ -4,13 +4,6 @@
 import {expect} from 'chai';
 import * as module from '../src/palettes';
 
-const ids = [
-  'asq-real-a', 'asq-real-b',
-  'bmf-fin-r2', 'bmf-fin-r3',
-  'fceu-13', 'fceu-15', 'fceux',
-  'nestopia-rgb', 'nestopia-yuv',
-];
-
 describe('palettes', () => {
   it('should pack color', () => {
     expect(module.packColorLE(0x12, 0x34, 0x56, 0x78)).to.equal(0x78563412);
@@ -25,6 +18,17 @@ describe('palettes', () => {
   });
 
   it('should create palette for valid ID', () => {
+    const ids = [
+      'asq-real-a',
+      'asq-real-b',
+      'bmf-fin-r2',
+      'bmf-fin-r3',
+      'fceu-13',
+      'fceu-15',
+      'fceux',
+      'nestopia-rgb',
+      'nestopia-yuv',
+    ];
     for (const id of ids) {
       const palette = module.createPalette(id);
       expect(palette).to.be.an('uint32array');

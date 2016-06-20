@@ -1,10 +1,9 @@
 /* eslint-env browser */
 
-// Must be called multiple times by other modules, otherwise closure compiler will try to inline it with wrong result.
-export function isLittleEndian() {
+export function detectEndianness() {
   const u16 = new Uint16Array([0x1234]);
   const u8 = new Uint8Array(u16.buffer);
-  return u8[0] === 0x34;
+  return u8[0] === 0x34 ? 'LE' : 'BE';
 }
 
 export function decodeBase64(input) {

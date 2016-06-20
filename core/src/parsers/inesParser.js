@@ -1,4 +1,5 @@
 import {Mirroring, Region} from '../enums';
+import log from '../log';
 
 const name = 'iNES / NES 2.0';
 
@@ -38,7 +39,7 @@ function parse(data) {
   let chrROMUnits = data[5];
   let region, mirroring;
   let mapperId = data[7] & 0xF0 | (data[6] >>> 4);
-  let submapperId = 0;
+  let submapperId;
   let prgRAMSize, prgRAMSizeBattery;
   let chrRAMSize, chrRAMSizeBattery;
 
@@ -51,7 +52,7 @@ function parse(data) {
   }
 
   if (data[7] & 0x08) {
-    // NES 2.0 extension
+    log.info('Detected NES 2.0 format');
     mapperId |= (data[8] & 0x0F) << 8; // Extra 4 bits for mapper
     submapperId = (data[8] & 0xF0) >>> 4;
     prgROMUnits |= (data[9] & 0x0F) << 8; // Extra 4 bits for PRG ROM size
@@ -62,7 +63,7 @@ function parse(data) {
     chrRAMSize = chrRAMSizeBattery + computeExpSize(data[11] & 0x0F);
     region = data[12] & 0x01 ? Region.PAL : Region.NTSC;
   } else {
-    // iNES
+    log.info('Detected iNES format');
     prgRAMSize = (data[8] || 1) * 0x2000; // N x 8KB (at least 1 unit - iNES format backward compatibility)
     prgRAMSizeBattery = data[6] & 0x02 ? prgRAMSize : 0;
     chrRAMSize = chrROMUnits ? 0 : 0x2000; // Exclusive with CHR ROM

@@ -1,3 +1,5 @@
+import log from '../log';
+
 export default class Joypad {
 
   constructor() {
@@ -7,9 +9,11 @@ export default class Joypad {
   }
 
   connect() {
+    log.info('Joypad connected');
   }
 
   disconnect() {
+    log.info('Joypad disconnect');
   }
 
   strobe() {
