@@ -8,31 +8,26 @@ export default class MMC3 extends Mapper {
   // Initialization
   //=========================================================
 
-  init(cartridge) {
-    super.init(cartridge);
+  initState() {
     // MMC3A and non-Sharp MMC3B - alternate (old) behavior
     // MMC3C and Sharp MMC3B     - normal (new) behavior
-    // TODO detection for normal/alternate behavior
-    this.alternateMode = false;
+    this.alternateMode = false; // TODO detection for normal/alternate behavior
   }
 
   //=========================================================
   // Reset
   //=========================================================
 
-  reset() {
+  resetState() {
     this.resetMapping();
     this.resetRegisters();
   }
 
   resetMapping() {
-    this.mapPRGROMBank16K(0, 0);  // First 16K PRG RAM bank
-    this.mapPRGROMBank16K(1, -1); // Last 16K PRG RAM bank
-    this.mapPRGRAMBank8K(0, 0);   // 8K PRG RAM
-    this.mapCHRROMBank8K(0, 0);   // First 8K CHR ROM bank (if CHR RAM is not present)
-    if (this.chrRAM) {
-      this.mapCHRRAMBank8K(0, 0); // 8K CHR RAM (if CHR RAM is present)
-    }
+    this.mapPRGROMBank16K(0, 0);  // Map first 16K PRG RAM bank to $8000
+    this.mapPRGROMBank16K(1, -1); // Map last 16K PRG RAM bank to $C000
+    this.mapPRGRAMBank8K(0, 0);   // Map 8K PRG RAM to $0000
+    this.mapCHRBank8K(0, 0);      // Map first 8K CHR bank to $0000
   }
 
   resetRegisters() {
@@ -63,14 +58,14 @@ export default class MMC3 extends Mapper {
 
   writeBankData(value) {
     switch (this.bankSelect & 7) {
-      case 0: // Select 2 KB CHR bank at PPU $0000-$07FF (or $1000-$17FF)
-      case 1: // Select 2 KB CHR bank at PPU $0800-$0FFF (or $1800-$1FFF)
+      case 0: // Select 2 KB CHR bank at $0000-$07FF (or $1000-$17FF)
+      case 1: // Select 2 KB CHR bank at $0800-$0FFF (or $1800-$1FFF)
         this.switchDoubleCHRROMBanks(value);
         break;
-      case 2: // Select 1 KB CHR bank at PPU $1000-$13FF (or $0000-$03FF)
-      case 3: // Select 1 KB CHR bank at PPU $1400-$17FF (or $0400-$07FF)
-      case 4: // Select 1 KB CHR bank at PPU $1800-$1BFF (or $0800-$0BFF)
-      case 5: // Select 1 KB CHR bank at PPU $1C00-$1FFF (or $0C00-$0FFF)
+      case 2: // Select 1 KB CHR bank at $1000-$13FF (or $0000-$03FF)
+      case 3: // Select 1 KB CHR bank at $1400-$17FF (or $0400-$07FF)
+      case 4: // Select 1 KB CHR bank at $1800-$1BFF (or $0800-$0BFF)
+      case 5: // Select 1 KB CHR bank at $1C00-$1FFF (or $0C00-$0FFF)
         this.switchSingleCHRROMBanks(value);
         break;
       case 6: // Select 8 KB PRG ROM bank at $8000-$9FFF (or $C000-$DFFF)
@@ -113,19 +108,19 @@ export default class MMC3 extends Mapper {
 
   switchDoubleCHRROMBanks(target) {
     const source = (this.bankSelect & 0x80) >>> 6 | this.bankSelect & 0x01; // S[1,0] = C[7,0]
-    this.mapCHRROMBank2K(source, target >>> 1);
+    this.mapCHRBank2K(source, target >>> 1);
   }
 
   switchSingleCHRROMBanks(target) {
     const source = (~this.bankSelect & 0x80) >>> 5 | (this.bankSelect - 2) & 0x03; // S[2,1,0] = (C-2)[!7,1,0]
-    this.mapCHRROMBank1K(source, target);
+    this.mapCHRBank1K(source, target);
   }
 
   switchPRGROMBanks0And2(target) {
     const sourceA = (this.bankSelect & 0x40) >>> 5;  // SA[1] = C[6]
     const sourceB = (~this.bankSelect & 0x40) >>> 5; // SB[1] = C[!6]
-    this.mapPRGROMBank8K(sourceA, target);      // Selected bank
-    this.mapPRGROMBank8K(sourceB, -2);          // Second last bank
+    this.mapPRGROMBank8K(sourceA, target); // Map selected bank
+    this.mapPRGROMBank8K(sourceB, -2);     // Map second last bank
   }
 
   switchPRGROMBank1(target) {

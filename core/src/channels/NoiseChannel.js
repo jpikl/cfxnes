@@ -7,7 +7,7 @@ import log from '../log';
 
 export default class NoiseChannel {
 
-  powerUp() {
+  reset() {
     log.info('Reseting noise channel');
     this.setEnabled(false);
     this.timerCycle = 0;     // Timer counter value

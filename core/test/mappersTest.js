@@ -23,6 +23,7 @@ describe('mappers', () => {
   });
 
   it('should throw error for invalid ID', () => {
+    expect(() => createMapper({})).to.throw(Error);
     expect(() => createMapper({mapper: 'x'})).to.throw(Error);
   });
 });

@@ -3,23 +3,21 @@ import {Region} from './enums';
 import {createMapper} from './mappers';
 import {APU, CPU, DMA, PPU, CPUMemory, PPUMemory} from './units';
 import {packColor, BLACK_COLOR} from './palettes';
-import {detectEndianness} from './utils';
 import log from './log';
-
-//=========================================================
-// Nintendo Entertainment System
-//=========================================================
 
 export default class NES {
 
   constructor(units = {}) {
-    log.info('Creating NES');
-    log.info(`Endianness: ${detectEndianness()}`);
-    this.init(units);
-    this.connect();
+    log.info('Initializing NES');
+    this.initUnits(units);
+    this.connectUnits();
   }
 
-  init(units) {
+  //=========================================================
+  // Units
+  //=========================================================
+
+  initUnits(units) {
     this.cpu = units.cpu || new CPU;
     this.ppu = units.ppu || new PPU;
     this.apu = units.apu || new APU;
@@ -28,13 +26,23 @@ export default class NES {
     this.ppuMemory = units.ppuMemory || new PPUMemory;
   }
 
-  connect() {
+  connectUnits() {
     this.cpu.connect(this);
     this.ppu.connect(this);
     this.apu.connect(this);
     this.dma.connect(this);
     this.cpuMemory.connect(this);
     this.ppuMemory.connect(this);
+  }
+
+  resetUnits() {
+    this.cpuMemory.reset();
+    this.ppuMemory.reset();
+    this.mapper.reset(); // Must be done after memory
+    this.ppu.reset();
+    this.apu.reset();
+    this.dma.reset();
+    this.cpu.reset(); // Must be done last
   }
 
   //=========================================================
@@ -44,13 +52,7 @@ export default class NES {
   pressPower() {
     this.updateRegionParams();
     if (this.cartridge) {
-      this.cpuMemory.powerUp();
-      this.ppuMemory.powerUp();
-      this.mapper.powerUp(); // Must be done after memory
-      this.ppu.powerUp();
-      this.apu.powerUp();
-      this.dma.powerUp();
-      this.cpu.powerUp(); // Must be done last
+      this.resetUnits();
     }
   }
 
@@ -106,15 +108,15 @@ export default class NES {
   //=========================================================
 
   getNVRAMSize() {
-    return this.cartridge ? this.mapper.getNVRAMSize() : 0;
+    return this.mapper ? this.mapper.getNVRAMSize() : 0;
   }
 
   getNVRAM() {
-    return this.cartridge ? this.mapper.getNVRAM() : null;
+    return this.mapper ? this.mapper.getNVRAM() : null;
   }
 
   setNVRAM(data) {
-    if (this.cartridge) {
+    if (this.mapper) {
       this.mapper.setNVRAM(data);
     }
   }

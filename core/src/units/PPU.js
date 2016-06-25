@@ -151,7 +151,7 @@ export default class PPU {
   // Power-up state initialization
   //=========================================================
 
-  powerUp() {
+  reset() {
     log.info('Reseting PPU');
     this.resetOAM();
     this.resetRegisters();
@@ -688,7 +688,7 @@ export default class PPU {
 
   fetchNametable() {
     this.addressBus = 0x2000 | this.vramAddress & 0x0FFF;
-    const patternNumer = this.ppuMemory.readNameAttr(this.addressBus); // Nametable byte fetch
+    const patternNumer = this.ppuMemory.readNametable(this.addressBus); // Nametable byte fetch
     const patternAddress = this.bgPatternTableAddress + (patternNumer << 4);
     const fineYScroll = (this.vramAddress >>> 12) & 0x07;
     this.patternRowAddress = patternAddress + fineYScroll;
@@ -698,7 +698,7 @@ export default class PPU {
     const attributeTableAddress = 0x23C0 | this.vramAddress & 0x0C00;
     const attributeNumber = (this.vramAddress >>> 4) & 0x38 | (this.vramAddress >>> 2) & 0x07;
     this.addressBus = attributeTableAddress + attributeNumber;
-    const attribute = this.ppuMemory.readNameAttr(this.addressBus); // Attribute byte fetch
+    const attribute = this.ppuMemory.readNametable(this.addressBus); // Attribute byte fetch
     const areaNumber = (this.vramAddress >>> 4) & 0x04 | this.vramAddress & 0x02;
     const paletteNumber = (attribute >>> areaNumber) & 0x03;
     this.paletteLatchNext0 = paletteNumber & 1;

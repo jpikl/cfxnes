@@ -1,91 +1,116 @@
 import {Mirroring} from '../enums';
 import log from '../log';
 
-const POWER_UP_PALETTES = [
-  0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D,
-  0x08, 0x10, 0x08, 0x24, 0x00, 0x00, 0x04, 0x2C,
-  0x09, 0x01, 0x34, 0x03, 0x00, 0x04, 0x00, 0x14,
-  0x08, 0x3A, 0x00, 0x02, 0x00, 0x20, 0x2C, 0x08,
+const INITIAL_PALETTES = [
+  0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D, // Background palettes 0, 1
+  0x08, 0x10, 0x08, 0x24, 0x00, 0x00, 0x04, 0x2C, // Background palettes 2, 3
+  0x09, 0x01, 0x34, 0x03, 0x00, 0x04, 0x00, 0x14, // Sprite palettes 0, 1
+  0x08, 0x3A, 0x00, 0x02, 0x00, 0x20, 0x2C, 0x08, // Sprite palettes 2, 3
 ];
 
-//=========================================================
-// PPU memory
-//=========================================================
+// $10000 +----------------------------------------------------------+ $10000
+//        |                                                          |
+//        |                  Mirrors of $0000-$3FFF                  |
+//        |                                                          |
+//  $4000 +----------------------------------------------------------+ $4000
+//        |                  Mirrors of $3F00-$3F1F                  |
+//  $3F20 +----------------------------------+-----------------------+ $3F20
+//        |         Sprite palettes (4)      |                       |
+//  $3F10 +----------------------------------+  Palette RAM indexes  |
+//        |       Background palettes (4)    |                       |
+//  $3F00 +----------------------------------+-----------------------+ $3F00 (Universal background color)
+//        |                  Mirrors of $2000-$2EFF                  |
+//  $3000 +-------------------+--------------+-----------------------+ $3000
+//        | Attribute table 3 |              |                       |
+//  $2FC0 +-------------------+  Nametable 3 |                       |
+//        |                                  |                       |
+//  $2C00 +-------------------+--------------+                       |
+//        | Attribute table 2 |              |                       |
+//  $2BC0 +-------------------+  Nametable 2 |      Nametables       |
+//        |                                  |                       |
+//  $2800 +-------------------+--------------+   (2 KB on board      |
+//        | Attribute table 1 |              |   + additional 2 KB   |
+//  $27C0 +-------------------+  Nametable 1 |  on some cartridges)  |
+//        |                                  |                       |
+//  $2400 +-------------------+--------------+                       |
+//        | Attribute table 0 |              |                       |
+//  $23C0 +-------------------+  Nametable 0 |                       |
+//        |                                  |                       |
+//  $2000 +----------------------------------+-----------------------+ $2000
+//        |         Pattern table 1          |                       |
+//  $1000 +----------------------------------+   CHR RAM/ROM (8 KB)  |
+//        |         Pattern table 0          |                       |
+//  $0000 +----------------------------------+-----------------------+ $0000
 
 export default class PPUMemory {
 
+  //=========================================================
+  // Initialization
+  //=========================================================
+
   constructor() {
+    log.info('Initializing PPU memory');
     this.initPatterns();
-    this.initNamesAttrs();
+    this.initNametables();
     this.initPalettes();
   }
 
   connect() {
+    log.info('Connecting PPU memory');
   }
 
-  //=========================================================
-  // Power-up state initialization
-  //=========================================================
-
-  powerUp() {
+  reset() {
     log.info('Reseting PPU memory');
     this.resetPatterns();
-    this.resetNamesAttrs();
+    this.resetNametables();
     this.resetPaletts();
   }
 
   //=========================================================
-  // PPU memory access
+  // Memory access
   //=========================================================
 
   read(address) {
+    address = this.mapAddress(address);
     if (address < 0x2000) {
-      return this.readPattern(address);  // $0000-$1FFF
+      return this.readPattern(address);   // $0000-$1FFF
     } else if (address < 0x3F00) {
-      return this.readNameAttr(address); // $2000-$3EFF
+      return this.readNametable(address); // $2000-$3EFF
     }
-    return this.readPalette(address);    // $3F00-$3FFF
+    return this.readPalette(address);     // $3F00-$3FFF
   }
 
   write(address, value) {
     address = this.mapAddress(address);
     if (address < 0x2000) {
-      this.writePattern(address, value);  // $0000-$1FFF
+      this.writePattern(address, value);   // $0000-$1FFF
     } else if (address < 0x3F00) {
-      this.writeNameAttr(address, value); // $2000-$3EFF
+      this.writeNametable(address, value); // $2000-$3EFF
     } else {
-      this.writePalette(address, value);  // $3F00-$3FFF
+      this.writePalette(address, value);   // $3F00-$3FFF
     }
   }
 
   mapAddress(address) {
-    return address & 0x3FFF;
+    return address & 0x3FFF; // Mirroring of $0000-$3FFF in $4000-$FFFF
   }
 
   //=========================================================
-  // Patterns access ($0000-$1FFF)
+  // CHR RAM/ROM ($0000-$1FFF)
   //=========================================================
 
   initPatterns() {
     this.patternsMapping = new Uint32Array(8);
   }
 
-  remapPatterns() {
+  resetPatterns() {
+    this.patternsMapping.fill(0);
     if (this.mapper) {
-      if (this.mapper.chrRAM) {
-        this.patterns = this.mapper.chrRAM;
-        this.canWritePattern = true;
-      } else {
-        this.patterns = this.mapper.chrROM;
-        this.canWritePattern = false;
-      }
+      this.patterns = this.mapper.chrRAM || this.mapper.chrROM;
+      this.canWritePattern = this.mapper.chrRAM != null;
     } else {
       this.patterns = undefined;
     }
-  }
-
-  resetPatterns() {
-    this.patternsMapping.fill(0);
   }
 
   readPattern(address) {
@@ -103,59 +128,52 @@ export default class PPUMemory {
   }
 
   mapPatternsBank(srcBank, dstBank) {
-    this.patternsMapping[srcBank] = dstBank * 0x0400; // 1K bank
+    this.patternsMapping[srcBank] = dstBank * 0x0400; // 1 KB bank
   }
 
   //=========================================================
-  // Names/attributes access ($2000-$3EFF)
+  // Nametables ($2000-$3EFF)
   //=========================================================
 
-  initNamesAttrs() {
-    this.namesAttrs = new Uint8Array(0x1000); // Up to 4KB
-    this.namesAttrsMapping = new Uint32Array(4);
+  initNametables() {
+    this.nametables = new Uint8Array(0x1000); // 2 KB on board + additional 2 KB on some cartridges
+    this.nametablesMapping = new Uint32Array(4);
   }
 
-  remapNamesAttrs() {
-    this.defaultMirroring = this.mapper && this.mapper.mirroring;
+  resetNametables() {
+    this.nametables.fill(0);
+    this.setNametablesMirroring(this.mapper && this.mapper.mirroring || Mirroring.SINGLE_SCREEN_0);
   }
 
-  resetNamesAttrs() {
-    this.namesAttrs.fill(0);
-    this.setNamesAttrsMirroring(this.defaultMirroring);
+  readNametable(address) {
+    return this.nametables[this.mapNametableAddress(address)];
   }
 
-  readNameAttr(address) {
-    return this.namesAttrs[this.mapNameAttrAddres(address)];
+  writeNametable(address, value) {
+    this.nametables[this.mapNametableAddress(address)] = value;
   }
 
-  writeNameAttr(address, value) {
-    this.namesAttrs[this.mapNameAttrAddres(address)] = value;
+  mapNametableAddress(address) {
+    return this.nametablesMapping[(address & 0x0C00) >>> 10] | address & 0x03FF;
   }
 
-  mapNameAttrAddres(address) {
-    return this.namesAttrsMapping[(address & 0x0C00) >>> 10] | address & 0x03FF;
-  }
-
-  mapNamesAttrsAreas(areas) {
+  setNametablesMirroring(mirroring) {
+    const areas = Mirroring.getAreas(mirroring);
     for (let i = 0; i < 4; i++) {
-      this.namesAttrsMapping[i] = areas[i] * 0x0400;
+      this.nametablesMapping[i] = areas[i] * 0x0400;
     }
   }
 
-  setNamesAttrsMirroring(mirroring) {
-    this.mapNamesAttrsAreas(Mirroring.getAreas(mirroring));
-  }
-
   //=========================================================
-  // Palettes access ($3F00-$3FFF)
+  // Palette RAM indexes ($3F00-$3FFF)
   //=========================================================
 
   initPalettes() {
-    this.paletts = new Uint8Array(0x20); // 2 * 16B palette (background / sprites)
+    this.paletts = new Uint8Array(0x20); // 8 x 4B palettes (background / sprite)
   }
 
   resetPaletts() {
-    this.paletts.set(POWER_UP_PALETTES);
+    this.paletts.set(INITIAL_PALETTES);
   }
 
   readPalette(address) {
@@ -168,19 +186,9 @@ export default class PPUMemory {
 
   mapPaletteAddress(address) {
     if (address & 0x0003) {
-      return address & 0x001F; // Mirroring of [$3F00-$3F1F] in [$3F00-$3FFF]
+      return address & 0x001F; // Mirroring of $3F00-$3F1F in $3F00-$3FFF
     }
-    return address & 0x000F; // $3F10/$3F14/$3F18/$3F1C are mirrorors of $3F00/$3F04/$3F08$/3F0C
-  }
-
-  //=========================================================
-  // Mapper connection
-  //=========================================================
-
-  setMapper(mapper) {
-    this.mapper = mapper;
-    this.remapPatterns();
-    this.remapNamesAttrs();
+    return address & 0x000F; // $3F1{0,4,8,C} are mirrorors of $3F0{0,4,8,C}
   }
 
 }

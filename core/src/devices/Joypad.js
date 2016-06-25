@@ -9,11 +9,11 @@ export default class Joypad {
   }
 
   connect() {
-    log.info('Joypad connected');
+    log.info('Connecting joypad');
   }
 
   disconnect() {
-    log.info('Joypad disconnect');
+    log.info('Disconnecting joypad');
   }
 
   strobe() {

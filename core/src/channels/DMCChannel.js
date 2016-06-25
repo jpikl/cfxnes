@@ -12,7 +12,7 @@ export default class DMCChannel {
     this.cpuMemory = cpuMemory;
   }
 
-  powerUp() {
+  reset() {
     log.info('Reseting DMC channel');
     this.setEnabled(false);
     this.timerCycle = 0;         // Timer counter value

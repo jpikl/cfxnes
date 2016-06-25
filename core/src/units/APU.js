@@ -26,14 +26,14 @@ export default class APU {
   // Power-up state initialization
   //=========================================================
 
-  powerUp() {
+  reset() {
     log.info('Reseting APU');
     this.clearFrameIRQ();
-    this.pulseChannel1.powerUp();
-    this.pulseChannel2.powerUp();
-    this.triangleChannel.powerUp();
-    this.noiseChannel.powerUp();
-    this.dmcChannel.powerUp();
+    this.pulseChannel1.reset();
+    this.pulseChannel2.reset();
+    this.triangleChannel.reset();
+    this.noiseChannel.reset();
+    this.dmcChannel.reset();
     this.writeFrameCounter(0);
   }
 

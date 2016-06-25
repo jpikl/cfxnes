@@ -12,7 +12,7 @@ export default class DMA {
     this.cpuMemory = nes.cpuMemory;
   }
 
-  powerUp() {
+  reset() {
     log.info('Reseting DMA');
     this.cycle = TOTAL_DMA_CYCLES;
   }

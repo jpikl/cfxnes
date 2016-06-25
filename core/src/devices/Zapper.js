@@ -10,12 +10,12 @@ export default class Zapper {
   }
 
   connect(nes) {
-    log.info('Zapper connected');
+    log.info('Connecting zapper');
     this.ppu = nes.ppu;
   }
 
   disconnect() {
-    log.info('Zapper disconnected');
+    log.info('Disconnecting zapper');
     this.ppu = undefined;
   }
 

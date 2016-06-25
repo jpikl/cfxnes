@@ -6,9 +6,8 @@ export default class MMC1 extends Mapper {
   // Initialization
   //=========================================================
 
-  init(cartridge) {
-    super.init(cartridge);
-    // SNROM board detection (128 / 256 KB PRG ROM; 8 KB PRG RAM; 8 KB CHR RAM/ROM)
+  initState() {
+    // SNROM board detection (128/256 KB PRG ROM + 8 KB PRG RAM + 8 KB CHR RAM/ROM)
     this.snrom = (this.prgROMSize === 0x20000 || this.prgROMSize === 0x40000)
           && this.prgRAMSize === 0x2000
           && (this.chrROMSize === 0x2000 || this.chrRAMSize === 0x2000);
@@ -18,7 +17,7 @@ export default class MMC1 extends Mapper {
   // Reset
   //=========================================================
 
-  reset() {
+  resetState() {
     this.resetShiftRegister();
     this.resetBankRegisters();
     this.synchronizeMapping();
@@ -64,18 +63,14 @@ export default class MMC1 extends Mapper {
   }
 
   //=========================================================
-  // Reconfiguration
+  // Bank switching
   //=========================================================
 
   synchronizeMapping() {
     this.switchMirroring();
     this.switchPRGROMBanks();
     this.switchPRGRAMBank();
-    if (this.chrRAM) {
-      this.switchCHRRAMBanks();
-    } else {
-      this.switchCHRROMBanks();
-    }
+    this.switchCHRBanks();
   }
 
   switchMirroring() {
@@ -88,48 +83,38 @@ export default class MMC1 extends Mapper {
   }
 
   switchPRGROMBanks() {
-    // Bit 4 of CHR bank register has different usage when 8KB CHR RAM is present (SUROM and SXROM boards)
-    const base = this.chrRAM ? this.chrBankRegister1 & 0x10 : 0; // Selection of 256K area on 512K PRG ROM
+    // Bit 4 of CHR bank register has different usage when 8KB CHR RAM is present (SNROM, SOROM, SUROM and SXROM boards)
+    const base = this.chrRAM ? this.chrBankRegister1 & 0x10 : 0; // Selection of 256K area on 512K PRG ROM (won't affect SNROM/SOROM with max. 256KB PRG ROM)
     const offset = this.prgBankRegister & 0x0F; // 16K bank selection within 256K area
     switch (this.controllRegister & 0x0C) {
       case 0x0C:
-        this.mapPRGROMBank16K(0, base | offset); // Selected 16K PRG ROM bank
-        this.mapPRGROMBank16K(1, base | 0x0F);   // Last 16K PRG ROM bank
+        this.mapPRGROMBank16K(0, base | offset); // Select 16K PRG ROM bank at $8000
+        this.mapPRGROMBank16K(1, base | 0x0F);   // Map last 16K PRG ROM bank to $C000
         break;
       case 0x08:
-        this.mapPRGROMBank16K(0, base);          // First 16K PRG ROM bank
-        this.mapPRGROMBank16K(1, base | offset); // Selected 16K PRG ROM bank
+        this.mapPRGROMBank16K(0, base);          // Map first 16K PRG ROM bank to $8000
+        this.mapPRGROMBank16K(1, base | offset); // Select 16K PRG ROM bank at $C000
         break;
       default:
-        this.mapPRGROMBank32K(0, (base | offset) >>> 1); // Selected 32K PRG ROM
+        this.mapPRGROMBank32K(0, (base | offset) >>> 1); // Select 32K PRG ROM at $8000
         break;
     }
   }
 
   switchPRGRAMBank() {
-    // Bits 2 and 3 of CHR bank register have different usage when 8KB CHR RAM is present (SOROM, and SXROM boards)
-    this.mapPRGRAMBank8K(0, this.chrRAM ? this.chrBankRegister1 >>> 2 : 0); // Selected 8K PRG RAM bank
+    // Bits 2 and 3 of CHR bank register have different usage when 8KB CHR RAM is present (SNROM, SOROM, SUROM and SXROM boards)
+    this.mapPRGRAMBank8K(0, this.chrRAM ? this.chrBankRegister1 >>> 2 : 0); // Select 8K PRG RAM bank at $6000 (won't affect SNROM/SUROM with only 8KB PRG RAM)
     const enabled = (this.prgBankRegister & 0x10) === 0; // Ignored on MMC1A (iNES mapper 155)
     const enabledOnSNROM = (this.chrBankRegister1 & 0x10) === 0; // SNROM board also disables PRG RAM when bit 4 of CHR bank register is 1
     this.canReadPRGRAM = this.canWritePRGRAM = enabled && (!this.snrom || enabledOnSNROM);
   }
 
-  switchCHRROMBanks() {
+  switchCHRBanks() {
     if (this.controllRegister & 0x10) {
-      this.mapCHRROMBank4K(0, this.chrBankRegister1); // Selected lower 4K CHR ROM bank
-      this.mapCHRROMBank4K(1, this.chrBankRegister2); // Selected upper 4K CHR ROM bank
+      this.mapCHRBank4K(0, this.chrBankRegister1); // Select 4K CHR bank at $0000
+      this.mapCHRBank4K(1, this.chrBankRegister2); // Select 4K CHR bank at $1000
     } else {
-      this.mapCHRROMBank8K(0, this.chrBankRegister1 >>> 1); // Selected 8K CHR ROM bank
-    }
-  }
-
-  switchCHRRAMBanks() {
-    // SNROM, SOROM, SUROM and SXROM boards
-    if (this.controllRegister & 0x10) {
-      this.mapCHRRAMBank4K(0, this.chrBankRegister1); // Selected lower 4K CHR RAM bank
-      this.mapCHRRAMBank4K(1, this.chrBankRegister2); // Selected upper 4K CHR RAM bank
-    } else {
-      this.mapCHRRAMBank8K(0, 0); // The whole 8K CHR RAM
+      this.mapCHRBank8K(0, this.chrBankRegister1 >>> 1); // Select 8K CHR bank at $0000 (won't affect variants with 8K CHR RAM)
     }
   }
 

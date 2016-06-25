@@ -2,14 +2,14 @@ import Mapper from './Mapper';
 
 export default class CNROM extends Mapper {
 
-  reset() {
-    this.mapPRGROMBank16K(0, 0);  // First 16K PRG ROM bank
-    this.mapPRGROMBank16K(1, -1); // Last 16K PRG ROM bank (or mirror of the first one)
-    this.mapCHRROMBank8K(0, 0);   // First 8K CHR ROM bank
+  resetState() {
+    this.mapPRGROMBank16K(0, 0);  // Map first 16K PRG ROM bank to $8000
+    this.mapPRGROMBank16K(1, -1); // Map last 16K PRG ROM bank (or mirror the first one) to $C000
+    this.mapCHRBank8K(0, 0);      // Map first 8K CHR ROM bank to $0000
   }
 
   write(address, value) {
-    this.mapCHRROMBank8K(0, value); // Select 8K CHR ROM bank
+    this.mapCHRBank8K(0, value); // Select 8K CHR ROM bank at $0000
   }
 
 }

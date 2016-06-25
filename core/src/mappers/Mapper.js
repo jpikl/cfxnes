@@ -8,77 +8,62 @@ export default class Mapper {
   //=========================================================
 
   constructor(cartridge) {
-    this.init(cartridge);
+    log.info('Initializing mapper');
+    Object.assign(this, cartridge);
     this.initPRGRAM();
     this.initCHRRAM();
-  }
-
-  init(cartridge) {
-    this.sha1 = cartridge.sha1;
-    this.submapper = cartridge.submapper; // Not present on iNES ROMs
-    this.mirroring = cartridge.mirroring;
-    this.prgROMSize = cartridge.prgROMSize;
-    this.prgRAMSize = cartridge.prgRAMSize; // Not reliable information on iNES ROMs (should provide mapper itself)
-    this.prgRAMSizeBattery = cartridge.prgRAMSizeBattery; // Not present on iNES ROMs
-    this.chrROMSize = cartridge.chrROMSize;
-    this.chrRAMSize = cartridge.chrRAMSize;
-    this.chrRAMSizeBattery = cartridge.chrRAMSizeBattery; // Not present on iNES ROMs
-    this.prgROM = cartridge.prgROM;
-    this.chrROM = cartridge.chrROM;
-    this.hasPRGRAMRegisters = false; // Whether mapper registers are mapped in PRG RAM address space
-    this.canReadPRGRAM = true; // PRG RAM read protection
-    this.canWritePRGRAM = true; // PRG RAM write protection
+    this.initState();
   }
 
   connect(nes) {
+    log.info('Connecting mapper');
     this.cpu = nes.cpu;
     this.ppu = nes.ppu;
     this.cpuMemory = nes.cpuMemory;
     this.ppuMemory = nes.ppuMemory;
-    this.cpu.setMapper(this);
-    this.cpuMemory.setMapper(this);
-    this.ppuMemory.setMapper(this);
+    this.cpu.mapper = this;
+    this.ppu.mapper = this;
+    this.cpuMemory.mapper = this;
+    this.ppuMemory.mapper = this;
   }
 
   disconnect() {
-    this.ppuMemory.setMapper(undefined);
-    this.cpuMemory.setMapper(undefined);
-    this.cpu.setMapper(undefined);
+    log.info('Disconnecting mapper');
+    this.ppuMemory.mapper = undefined;
+    this.cpuMemory.maper = undefined;
+    this.ppu.mapper = undefined;
+    this.cpu.mapper = undefined;
     this.ppuMemory = undefined;
     this.cpuMemory = undefined;
     this.ppu = undefined;
     this.cpu = undefined;
   }
 
-  //=========================================================
-  // Reset
-  //=========================================================
-
-  powerUp() {
+  reset() {
     log.info('Resetting mapper');
     this.resetPRGRAM();
     this.resetCHRRAM();
-    this.reset();
-  }
-
-  reset() {
-    // For mapper to implement
+    this.resetState();
   }
 
   //=========================================================
-  // Inputs
+  // Callbacks
   //=========================================================
+
+  initState() {
+  }
+
+  resetState() {
+  }
 
   write() {
-    // For mapper to implement
   }
 
   tick() {
-    // For mapper to implement
   }
 
   //=========================================================
-  // PRG ROM mapping
+  // PRG ROM
   //=========================================================
 
   mapPRGROMBank32K(srcBank, dstBank) {
@@ -97,12 +82,15 @@ export default class Mapper {
   }
 
   //=========================================================
-  // PRG RAM mapping
+  // PRG RAM
   //=========================================================
 
   initPRGRAM() {
     if (this.prgRAMSize) {
       this.prgRAM = new Uint8Array(this.prgRAMSize);
+      this.canReadPRGRAM = true; // PRG RAM read protection
+      this.canWritePRGRAM = true; // PRG RAM write protection
+      this.hasPRGRAMRegisters = false; // Whether mapper registers are in PRG RAM address space
     }
   }
 
@@ -118,33 +106,8 @@ export default class Mapper {
   }
 
   //=========================================================
-  // CHR ROM mapping
+  // CHR ROM/RAM
   //=========================================================
-
-  mapCHRROMBank8K(srcBank, dstBank) {
-    this.mapCHRROMBank1K(srcBank * 8, dstBank * 8, 8);
-  }
-
-  mapCHRROMBank4K(srcBank, dstBank) {
-    this.mapCHRROMBank1K(srcBank * 4, dstBank * 4, 4);
-  }
-
-  mapCHRROMBank2K(srcBank, dstBank) {
-    this.mapCHRROMBank1K(srcBank * 2, dstBank * 2, 2);
-  }
-
-  mapCHRROMBank1K(srcBank, dstBank, count = 1) {
-    const maxBank = (this.chrROMSize - 1) >> 10;
-    for (let i = 0; i < count; i++) {
-      this.ppuMemory.mapPatternsBank(srcBank + i, (dstBank + i) & maxBank);
-    }
-  }
-
-  //=========================================================
-  // CHR RAM mapping
-  //=========================================================
-
-  // Note: Only known game using battery-backed CHR RAM is RacerMate Challenge II
 
   initCHRRAM() {
     if (this.chrRAMSize) {
@@ -158,31 +121,34 @@ export default class Mapper {
     }
   }
 
-  mapCHRRAMBank8K(srcBank, dstBank) {
-    this.mapCHRRAMBank1K(srcBank * 8, dstBank * 8, 8);
+  mapCHRBank8K(srcBank, dstBank) {
+    this.mapCHRBank1K(srcBank * 8, dstBank * 8, 8);
   }
 
-  mapCHRRAMBank4K(srcBank, dstBank) {
-    this.mapCHRRAMBank1K(srcBank * 4, dstBank * 4, 4);
+  mapCHRBank4K(srcBank, dstBank) {
+    this.mapCHRBank1K(srcBank * 4, dstBank * 4, 4);
   }
 
-  mapCHRRAMBank2K(srcBank, dstBank) {
-    this.mapCHRRAMBank1K(srcBank * 2, dstBank * 2, 2);
+  mapCHRBank2K(srcBank, dstBank) {
+    this.mapCHRBank1K(srcBank * 2, dstBank * 2, 2);
   }
 
-  mapCHRRAMBank1K(srcBank, dstBank, count = 1) {
-    const maxBank = (this.chrRAMSize - 1) >> 10;
+  mapCHRBank1K(srcBank, dstBank, count = 1) {
+    const chrSize = this.chrROMSize || this.chrRAMSize;
+    const maxBank = (chrSize - 1) >> 10;
     for (let i = 0; i < count; i++) {
       this.ppuMemory.mapPatternsBank(srcBank + i, (dstBank + i) & maxBank);
     }
   }
 
   //=========================================================
-  // Non-Volatile RAM
+  // Non-volatile part of CHR RAM
   //=========================================================
 
+  // Either there is battery-backed PRG RAM or battery-backed CHR RAM.
+  // Only known game using battery-backed CHR RAM is RacerMate Challenge II.
+
   getNVRAMSize() {
-    // No know NES game uses both battery-backed PRGRAM and CHRRAM
     return this.prgRAMSizeBattery || this.chrRAMSizeBattery;
   }
 
@@ -205,27 +171,23 @@ export default class Mapper {
   }
 
   //=========================================================
-  // Names / attribute tables mirroring
+  // Nametables mirroring
   //=========================================================
 
   setSingleScreenMirroring(area = 0) {
-    this.ppuMemory.setNamesAttrsMirroring(Mirroring.getSingleScreen(area));
+    this.ppuMemory.setNametablesMirroring(Mirroring.getSingleScreen(area));
   }
 
   setVerticalMirroring() {
-    this.ppuMemory.setNamesAttrsMirroring(Mirroring.VERTICAL);
+    this.ppuMemory.setNametablesMirroring(Mirroring.VERTICAL);
   }
 
   setHorizontalMirroring() {
-    this.ppuMemory.setNamesAttrsMirroring(Mirroring.HORIZONTAL);
+    this.ppuMemory.setNametablesMirroring(Mirroring.HORIZONTAL);
   }
 
   setFourScreenMirroring() {
-    this.ppuMemory.setNamesAttrsMirroring(Mirroring.FOUR_SCREEN);
-  }
-
-  setMirroring(area0, area1, area2, area3) {
-    this.ppuMemory.mapNamesAttrsAreas([area0, area1, area2, area3]);
+    this.ppuMemory.setNametablesMirroring(Mirroring.FOUR_SCREEN);
   }
 
 }

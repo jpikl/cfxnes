@@ -53,22 +53,22 @@ export default class CPU {
   // Power-up state initialization
   //=========================================================
 
-  powerUp() {
+  reset() {
     log.info('Reseting CPU');
     this.resetRegisters();
     this.resetVariables();
     this.resetMemory();
-    this.handleReset(); // Reset will appropriately initialize some CPU registers and $4015/$4017 registers (see bellow)
+    this.handleReset(); // Will appropriately initialize some CPU registers and $4015/$4017 registers (see bellow)
   }
 
   resetRegisters() {
-    this.programCounter = 0; // 16-bit (will be initialized to value at address 0xFFFC during following reset)
-    this.stackPointer = 0;   //  8-bit (will be set to 0x7D during following reset)
+    this.programCounter = 0; // 16-bit (will be initialized to value at address 0xFFFC during handleReset())
+    this.stackPointer = 0;   //  8-bit (will be set to 0x7D during handleReset())
     this.accumulator = 0;    //  8-bit
     this.registerX = 0;      //  8-bit
     this.registerY = 0;      //  8-bit
-    this.setStatus(0);       //  8-bit (will be initialized to 0x34 during following reset; actually, only bit 2 will be set,
-    //                                  because bits 4 and 5 are not physically stored in status register)
+    this.setStatus(0);       //  8-bit (will be initialized to 0x34 during handleReset(); actually, only bit 2 will be set,
+                             //         because bits 4 and 5 are not physically stored in status register)
   }
 
   resetVariables() {
@@ -88,7 +88,7 @@ export default class CPU {
     this.cpuMemory.write(0x0009, 0xEF);
     this.cpuMemory.write(0x000A, 0xDF);
     this.cpuMemory.write(0x000F, 0xBF);
-    // Writes to $4015 and $4017 are done during following reset
+    // Writes to $4015 and $4017 are done during handleReset()
   }
 
   //=========================================================
