@@ -1,5 +1,5 @@
-import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../constants';
-import log from '../log';
+import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../video/resolution';
+import log from '../common/log';
 
 export default class Zapper {
 

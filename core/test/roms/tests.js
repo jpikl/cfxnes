@@ -11,7 +11,7 @@ import path from 'path';
 import {assert, expect} from 'chai';
 import mkdirp from 'mkdirp';
 import NES from '../../src/NES';
-import {readCartridge} from '../../src/cartridge';
+import {readCartridge} from '../../src/data/cartridge';
 import * as nestest from './nestest/nestest';
 import * as instr_test from './instr_test/instr_test';
 import * as instr_timing from './instr_timing/instr_timing';
@@ -32,7 +32,7 @@ import * as holydiverbatman from './holydiverbatman/holydiverbatman';
 
 /* eslint-enable camelcase */
 
-describe('Validation ROMs', () => {
+describe('roms', () => {
   validate(nestest);
   validate(instr_test);
   validate(instr_timing);

@@ -4,7 +4,7 @@
 import {expect} from 'chai';
 import Joypad from '../../src/devices/Joypad';
 
-describe('Joypad', () => {
+describe('devices/Joypad', () => {
   const nes = {};
   let joypad;
 

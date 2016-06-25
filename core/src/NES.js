@@ -1,9 +1,14 @@
-import {RESET} from './constants';
-import {Region} from './enums';
-import {createMapper} from './mappers';
-import {APU, CPU, DMA, PPU, CPUMemory, PPUMemory} from './units';
-import {packColor, BLACK_COLOR} from './palettes';
-import log from './log';
+import CPU from './proc/CPU';
+import APU from './audio/APU';
+import PPU from './video/PPU';
+import DMA from './memory/DMA';
+import CPUMemory from './memory/CPUMemory';
+import PPUMemory from './memory/PPUMemory';
+import {RESET} from './proc/interrupts';
+import {createMapper} from './memory/mappers';
+import {packColor, BLACK_COLOR} from './video/colors';
+import Region from './common/Region';
+import log from './common/log';
 
 export default class NES {
 
@@ -104,7 +109,7 @@ export default class NES {
   }
 
   //=========================================================
-  // Non-Volatile RAM
+  // Non-volatile RAM
   //=========================================================
 
   getNVRAMSize() {

@@ -4,7 +4,7 @@
 import {expect} from 'chai';
 import Zapper from '../../src/devices/Zapper';
 
-describe('Zapper', () => {
+describe('devices/Zapper', () => {
   const nes = {ppu: {isBrightFramePixel(x, y) { return x > y; }}};
   let zapper;
 
