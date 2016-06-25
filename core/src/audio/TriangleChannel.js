@@ -13,7 +13,7 @@ export default class TriangleChannel {
     this.setEnabled(false);
     this.timerCycle = 0;    // Timer counter value
     this.timerPeriod = 0;   // Timer counter reset value
-    this.dutyPosition = 0;  // Output waveform position (never being reseted)
+    this.dutyPosition = 0;  // Output waveform position
     this.linearCounter = 0; // Linear counter value
     this.writeLinearCounter(0);
     this.writeTimer(0);
@@ -28,7 +28,7 @@ export default class TriangleChannel {
   }
 
   //=========================================================
-  // Register writing
+  // Writing
   //=========================================================
 
   writeLinearCounter(value) {
@@ -42,7 +42,7 @@ export default class TriangleChannel {
   }
 
   writeLengthCounter(value) {
-    this.timerPeriod = (this.timerPeriod & 0x0FF) | (value & 0x7) << 8;   // Higher 3 bits of timer
+    this.timerPeriod = (this.timerPeriod & 0x0FF) | (value & 0x7) << 8; // Higher 3 bits of timer
     if (this.enabled) {
       this.lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3]; // Length counter update
     }
@@ -71,7 +71,7 @@ export default class TriangleChannel {
   }
 
   //=========================================================
-  // Linear counter
+  // Update
   //=========================================================
 
   updateLinearCounter() {
@@ -85,10 +85,6 @@ export default class TriangleChannel {
     }
   }
 
-  //=========================================================
-  // Length counter
-  //=========================================================
-
   updateLengthCounter() {
     if (this.lengthCounter > 0 && !this.lengthCounterHalt) {
       this.lengthCounter--;
@@ -96,7 +92,7 @@ export default class TriangleChannel {
   }
 
   //=========================================================
-  // Output value
+  // Output
   //=========================================================
 
   getOutputValue() {

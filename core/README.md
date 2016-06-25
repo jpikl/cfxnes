@@ -1,8 +1,8 @@
 # CFxNES Core
 
-Collection of JavaScript classes that forms core of the [CFxNES emulator](../README.md). The core can be independently used in browser or in Node.js environment.
+Collection of JavaScript components that forms core of the [CFxNES emulator](../README.md). The core can be independently used in browser or in Node.js environment.
 
-When using components from CFxNES core, it is highly recommended to compile the result with the [closure compiler](https://github.com/google/closure-compiler) in `ADVANCED_OPTIMIZATIONS` mode to gain significant performance boost.
+When using components, it is highly recommended to compile the result with the [closure compiler](https://github.com/google/closure-compiler) in `ADVANCED_OPTIMIZATIONS` mode to gain the best performance.
 
 ## Initialization
 
@@ -12,25 +12,20 @@ import NES from './NES';
 const nes = new NES;
 ```
 
-NES constructor allows to pass different implementation of base components (CPU, PPU, APU, etc.). This is mainly used for their mocking/customization for various tests.
+NES constructor allows to pass custom implementation of any internal unit (CPU, PPU, APU, DMA, CPUMemory, PPUMemory). This is mainly used for their mocking/customization in tests.
 
 ``` javascript
-import BufferedOutputPPU from './units/special/BufferedOutputPPU';
-import DisabledAPU from './units/special/DisabledAPU';
-
-const ppu = new BufferedOutputPPU;
-const apu = new DisabledAPU;
-const nes = new NES({ppu, apu});
+const nes = new NES({cpu: customCPU});
 ```
 
 ### Loading of ROM images
 
-Core is capable of loading *iNES* and *NES 2.0* ROM images which can be supplied as `Array`, `ArrayBuffer`, `Uint8Array` or as a file system path (when running in Node.js).
+ROM images can be load from `Array`, `ArrayBuffer`, `Uint8Array` or from a file system path when running in Node.js. Supported formats are *iNES* and *NES 2.0*.
 
 ``` javascript
-import {createCartridge, readCartridge} from './cartridge';
+import {createCartridge, readCartridge} from './data/cartridge';
 
-const cartridge1 = createCartridge([...]); // From buffer
+const cartridge1 = createCartridge([ /* data */ ]); // From buffer
 const cartridge2 = readCartridge('./data/rom.nes'); // From filesystem
 
 nes.insertCartridge(cartridge1);
@@ -42,39 +37,39 @@ Video output is rendered into provided `Uint32Array`. Color of each pixel is enc
 
 ``` javascript
 const videoBuffer = new Uint32Array(256 * 240); // Screen resolution
-while(running) {
+while (running) {
     nes.renderFrame(videoBuffer);
     // Display output buffer
-    // Add delay to run loop at speed of 60 FPS (NTSC) / 50 FPS (PAL)
+    // Add delay to run loop at speed of 60 FPS (NTSC) or 50 FPS (PAL)
 }
 ```
 
 ### Audio Output
 
-Audio samples are automatically recorded into internal `Float32Array`. This buffer should be periodically read and send to an audio device (for example, through Web Audio).
+Audio samples are automatically recorded into internal `Float32Array`. This buffer should be periodically read and send to a sound card.
 
 Buffer underflow/overflow is automatically managed by dynamical adjustment of sampling rate.
 
 ``` javascript
-nes.initAudioRecording(4096); // 4K audio buffer
-nes.startAudioRecording(44100); // 44.1 KHz sampling rate
+nes.setAudioBufferSize(4096); // 4 KB audio buffer
+nes.setAudioSampleRate(44100); // 44.1 KHz sampling rate
+nes.setAudioEnabled(true); // Initially disabled
 
 function audioCallback() {
     const audioBuffer = nes.readAudioBuffer();
-    // Supply audio samples to audio device
+    // Supply audio samples to sound card
 }
 
 // Rendering loop
-
-nes.stopAudioRecording();
 ```
 
 ### Input devices
 
-Core can emulate standard NES controller (joypad) and Zapper.
+Standard NES controller (joypad) and Zapper are supported.
 
 ``` javascript
-import {Joypad, Zapper} from './devices'
+import Joypad from './devices/Joypad';
+import Zapper from './devices/Zapper';
 
 const joypad = new Joypad;
 nes.setInputDevice(1, joypad); // Port 1
@@ -92,10 +87,10 @@ Run unit tests:
 
     gulp test-base
 
-Run tests for various [validation ROMS](http://wiki.nesdev.com/w/index.php/Emulator_tests):
+Run tests for [validation ROMs](http://wiki.nesdev.com/w/index.php/Emulator_tests):
 
     gulp test-roms
 
-Run everything:
+Run all:
 
     gulp test

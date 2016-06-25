@@ -1,10 +1,6 @@
 import log from '../common/log';
 
-const TOTAL_DMA_CYCLES = 0x200; // Total 512 CPU cycles for DMA transfer
-
-//=========================================================
-// Direct memory access
-//=========================================================
+const TOTAL_DMA_CYCLES = 512;
 
 export default class DMA {
 
@@ -19,7 +15,7 @@ export default class DMA {
 
   writeAddress(address) {
     this.cycle = 0;
-    this.baseAddress = address << 8; // Source memory address (multiplied by 0x100)
+    this.baseAddress = address << 8; // Source address multiplied by 0x100
   }
 
   tick() {

@@ -27,7 +27,7 @@ export default class NoiseChannel {
   }
 
   //=========================================================
-  // Register writing
+  // Writing
   //=========================================================
 
   writeEnvelope(value) {
@@ -70,7 +70,7 @@ export default class NoiseChannel {
   }
 
   //=========================================================
-  // Shift register
+  // Update
   //=========================================================
 
   updateShiftRegister() {
@@ -78,10 +78,6 @@ export default class NoiseChannel {
     const feedbackValue = (this.shiftRegister & 1) ^ ((this.shiftRegister >>> feedbackPosition) & 1);
     this.shiftRegister = (this.shiftRegister >>> 1) | (feedbackValue << 14);
   }
-
-  //=========================================================
-  // Envelope
-  //=========================================================
 
   updateEnvelope() {
     if (this.envelopeReset) {
@@ -100,10 +96,6 @@ export default class NoiseChannel {
     }
   }
 
-  //=========================================================
-  // Length counter
-  //=========================================================
-
   updateLengthCounter() {
     if (this.lengthCounter > 0 && !this.lengthCounterHalt) {
       this.lengthCounter--;
@@ -111,7 +103,7 @@ export default class NoiseChannel {
   }
 
   //=========================================================
-  // Output value
+  // Output
   //=========================================================
 
   getOutputValue() {

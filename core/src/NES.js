@@ -179,20 +179,16 @@ export default class NES {
   // Audio output
   //=========================================================
 
-  initAudioRecording(bufferSize) {
-    this.apu.initRecording(bufferSize);
+  setAudioEnabled(enabled) {
+    this.apu.setRecordingEnabled(enabled);
   }
 
-  startAudioRecording(sampleRate) {
-    this.apu.startRecording(sampleRate);
+  setAudioBufferSize(size) {
+    this.apu.setBufferSize(size);
   }
 
-  stopAudioRecording() {
-    this.apu.stopRecording();
-  }
-
-  isAudioRecording() {
-    return this.apu.isRecording();
+  setAudioSampleRate(rate) {
+    this.apu.setSampleRate(rate);
   }
 
   readAudioBuffer() {

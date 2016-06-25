@@ -10,12 +10,12 @@ const DUTY_WAVEFORMS = [
 
 export default class PulseChannel {
 
-  constructor(channelId) {
-    this.channelId = channelId;
+  constructor(id) {
+    this.id = id;
   }
 
   reset() {
-    log.info(`Reseting pulse channel ${this.channelId}`);
+    log.info(`Reseting pulse channel #${this.id}`);
     this.setEnabled(false);
     this.timerCycle = 0;     // Timer counter value
     this.timerPeriod = 0;    // Timer counter reset value
@@ -36,7 +36,7 @@ export default class PulseChannel {
   }
 
   //=========================================================
-  // Register writing
+  // Writing
   //=========================================================
 
   writeDutyEnvelope(value) {
@@ -61,7 +61,7 @@ export default class PulseChannel {
   }
 
   writeLengthCounter(value) {
-    this.timerPeriod = (this.timerPeriod & 0x0FF) | (value & 0x7) << 8;   // Higher 3 bits of timer
+    this.timerPeriod = (this.timerPeriod & 0x0FF) | (value & 0x7) << 8; // Higher 3 bits of timer
     if (this.enabled) {
       this.lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3]; // Length counter update
     }
@@ -90,7 +90,7 @@ export default class PulseChannel {
   }
 
   //=========================================================
-  // Envelope
+  // Update
   //=========================================================
 
   updateEnvelope() {
@@ -110,19 +110,11 @@ export default class PulseChannel {
     }
   }
 
-  //=========================================================
-  // Length counter
-  //=========================================================
-
   updateLengthCounter() {
     if (this.lengthCounter > 0 && !this.lengthCounterHalt) {
       this.lengthCounter--;
     }
   }
-
-  //=========================================================
-  // Sweep
-  //=========================================================
 
   updateSweep() {
     if (this.sweepCycle > 0) {
@@ -142,10 +134,8 @@ export default class PulseChannel {
   getSweep() {
     const sweep = this.timerPeriod >>> this.sweepShift;
     if (this.sweepNegate) {
-      if (this.channelId === 1) {
-        return ~sweep; // Square channel 1 use one's complement instead of the expected two's complement
-      }
-      return -sweep;
+      // Square channel 1 uses one's complement instead of the expected two's complement
+      return this.id === 1 ? ~sweep : -sweep;
     }
     return sweep;
   }
@@ -155,7 +145,7 @@ export default class PulseChannel {
   }
 
   //=========================================================
-  // Output value
+  // Output
   //=========================================================
 
   getOutputValue() {
