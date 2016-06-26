@@ -11,6 +11,7 @@ const DUTY_WAVEFORMS = [
 export default class PulseChannel {
 
   constructor(id) {
+    log.info(`Initializing pulse channel #${id}`);
     this.id = id;
   }
 
@@ -61,7 +62,7 @@ export default class PulseChannel {
   }
 
   writeLengthCounter(value) {
-    this.timerPeriod = (this.timerPeriod & 0x0FF) | (value & 0x7) << 8; // Higher 3 bits of timer
+    this.timerPeriod = (this.timerPeriod & 0x0FF) | ((value & 0x7) << 8); // Higher 3 bits of timer
     if (this.enabled) {
       this.lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3]; // Length counter update
     }

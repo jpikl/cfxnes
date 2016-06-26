@@ -113,7 +113,7 @@ describe('data/inesParser (iNES input)', () => {
       0x4E, 0x45, 0x53, 0x1A,
       prgROMUnits & 0xFF,
       chrROMUnits & 0xFF,
-      (mapperId << 4) & 0xF0 | fourScreenMode << 3 | hasTrainer << 2 | hasPRGRAMBattery << 1 | verticalMirroring << 0,
+      ((mapperId << 4) & 0xF0) | (fourScreenMode << 3) | (hasTrainer << 2) | (hasPRGRAMBattery << 1) | (verticalMirroring << 0),
       mapperId & 0xF0,
       prgRAMUnits & 0xFF,
       palRegion & 0x01,

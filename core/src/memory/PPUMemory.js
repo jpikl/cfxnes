@@ -59,6 +59,10 @@ export default class PPUMemory {
     log.info('Connecting PPU memory');
   }
 
+  //=========================================================
+  // Reset
+  //=========================================================
+
   reset() {
     log.info('Reseting PPU memory');
     this.resetPatterns();
@@ -124,7 +128,7 @@ export default class PPUMemory {
   }
 
   mapPatternAddress(address) {
-    return this.patternsMapping[(address & 0x1C00) >>> 10] | address & 0x03FF;
+    return this.patternsMapping[(address & 0x1C00) >>> 10] | (address & 0x03FF);
   }
 
   mapPatternsBank(srcBank, dstBank) {
@@ -142,7 +146,7 @@ export default class PPUMemory {
 
   resetNametables() {
     this.nametables.fill(0);
-    this.setNametablesMirroring(this.mapper && this.mapper.mirroring || Mirroring.SINGLE_SCREEN_0);
+    this.setNametablesMirroring((this.mapper && this.mapper.mirroring) || Mirroring.SINGLE_SCREEN_0);
   }
 
   readNametable(address) {
@@ -154,7 +158,7 @@ export default class PPUMemory {
   }
 
   mapNametableAddress(address) {
-    return this.nametablesMapping[(address & 0x0C00) >>> 10] | address & 0x03FF;
+    return this.nametablesMapping[(address & 0x0C00) >>> 10] | (address & 0x03FF);
   }
 
   setNametablesMirroring(mirroring) {

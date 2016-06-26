@@ -8,6 +8,10 @@ const DUTY_WAVEFORM = [
 
 export default class TriangleChannel {
 
+  constructor() {
+    log.info('Initializing triangle channel');
+  }
+
   reset() {
     log.info('Reseting triangle channel');
     this.setEnabled(false);
@@ -42,7 +46,7 @@ export default class TriangleChannel {
   }
 
   writeLengthCounter(value) {
-    this.timerPeriod = (this.timerPeriod & 0x0FF) | (value & 0x7) << 8; // Higher 3 bits of timer
+    this.timerPeriod = (this.timerPeriod & 0x0FF) | ((value & 0x7) << 8); // Higher 3 bits of timer
     if (this.enabled) {
       this.lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3]; // Length counter update
     }

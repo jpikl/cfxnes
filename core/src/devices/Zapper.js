@@ -23,7 +23,7 @@ export default class Zapper {
   }
 
   read() {
-    return this.triggerPressed << 4 | !this.isLightDetected() << 3;
+    return (this.triggerPressed << 4) | (!this.isLightDetected() << 3);
   }
 
   isLightDetected() {

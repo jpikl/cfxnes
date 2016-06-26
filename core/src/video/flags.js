@@ -2,6 +2,8 @@
 // PPU cycle flags
 //=========================================================
 
+// http://wiki.nesdev.com/w/images/d/d1/Ntsc_timing.png
+
 export const Flag = {
   RENDER: 1 << 1,     // Rendering cycle
   FETCH_NT: 1 << 2,   // Cycle where nametable byte is fetched
@@ -84,10 +86,10 @@ for (let i = 0; i < cycleFlags.length; i++) {
   if ((i & 0x7) === 7) {
     cycleFlags[i] |= (i <= 256 || i >= 321) ? Flag.FETCH_BGH : Flag.FETCH_SPH;
   }
-  if ((i & 0x7) === 0 && i >= 8 && i <= 256 || i === 328 || i === 336) {
+  if (((i & 0x7) === 0 && i >= 8 && i <= 256) || i === 328 || i === 336) {
     cycleFlags[i] |= Flag.INC_CX;
   }
-  if ((i & 0x7) === 1 && i >= 9 && i <= 257 || i === 329 || i === 337) {
+  if (((i & 0x7) === 1 && i >= 9 && i <= 257) || i === 329 || i === 337) {
     cycleFlags[i] |= Flag.COPY_BG;
   }
   if ((i >= 1 && i <= 256) || (i >= 321 && i <= 336)) {

@@ -45,6 +45,10 @@ export default class CPUMemory {
     this.dma = nes.dma;
   }
 
+  //=========================================================
+  // Reset
+  //=========================================================
+
   reset() {
     log.info('Reseting CPU memory');
     this.resetRAM();
@@ -181,11 +185,21 @@ export default class CPUMemory {
   // Input devices
   //=========================================================
 
-  setInputDevice(port, device) {
+  connectInputDevice(port, device) {
+    log.info(`Connecting device #${port} to CPU memory`);
     this.inputDevices[port] = device;
   }
 
-  getInputDevice(port) {
+  disconnectInputDevice(port) {
+    const device = this.inputDevices[port];
+    if (device) {
+      log.info(`Disconnecting device #${port} from CPU memory`);
+      device.disconnect();
+      this.inputDevices[port] = null;
+    }
+  }
+
+  getConnectedInputDevice(port) {
     return this.inputDevices[port];
   }
 
@@ -252,7 +266,7 @@ export default class CPUMemory {
   }
 
   mapPRGRAMAddress(address) {
-    return this.prgRAMMapping | address & 0x1FFF;
+    return this.prgRAMMapping | (address & 0x1FFF);
   }
 
   mapPRGRAMBank(srcBank, dstBank) {
@@ -281,7 +295,7 @@ export default class CPUMemory {
   }
 
   mapPRGROMAddress(address) {
-    return this.prgROMMapping[(address & 0x6000) >>> 13] | address & 0x1FFF;
+    return this.prgROMMapping[(address & 0x6000) >>> 13] | (address & 0x1FFF);
   }
 
   mapPRGROMBank(srcBank, dstBank) {

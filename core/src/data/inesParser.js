@@ -39,7 +39,7 @@ function parse(data) {
   let prgROMUnits = data[4];
   let chrROMUnits = data[5];
   let region, mirroring;
-  let mapperId = data[7] & 0xF0 | (data[6] >>> 4);
+  let mapperId = (data[7] & 0xF0) | (data[6] >>> 4);
   let submapperId;
   let prgRAMSize, prgRAMSizeBattery;
   let chrRAMSize, chrRAMSizeBattery;

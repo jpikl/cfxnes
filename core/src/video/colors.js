@@ -1,18 +1,18 @@
 import {detectEndianness} from '../common/utils';
 
-const littleEndian = detectEndianness() === 'LE';
+const le = detectEndianness() === 'LE';
 
-export const packColor = littleEndian ? packColorLE : packColorBE;
-export const unpackColor = littleEndian ? unpackColorLE : unpackColorBE;
+export const packColor = le ? packColorLE : packColorBE;
+export const unpackColor = le ? unpackColorLE : unpackColorBE;
 
 export const BLACK_COLOR = packColor(0, 0, 0);
 
 export function packColorLE(r, g, b, a = 0xFF) {
-  return (a << 24 | b << 16 | g << 8 | r) >>> 0; // Convert to 32-bit unsigned integer
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0; // Convert to 32-bit unsigned integer
 }
 
 export function packColorBE(r, g, b, a = 0xFF) {
-  return (r << 24 | g << 16 | b << 8 | a) >>> 0; // Convert to 32-bit unsigned integer
+  return ((r << 24) | (g << 16) | (b << 8) | a) >>> 0; // Convert to 32-bit unsigned integer
 }
 
 export function unpackColorLE(c) {

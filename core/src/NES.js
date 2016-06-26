@@ -51,10 +51,19 @@ export default class NES {
   }
 
   //=========================================================
+  // Execution
+  //=========================================================
+
+  step() {
+    this.cpu.step();
+  }
+
+  //=========================================================
   // Buttons
   //=========================================================
 
   pressPower() {
+    log.info('Power button pressed');
     this.updateRegionParams();
     if (this.cartridge) {
       this.resetUnits();
@@ -62,6 +71,7 @@ export default class NES {
   }
 
   pressReset() {
+    log.info('Reset button pressed');
     this.cpu.activateInterrupt(RESET);
   }
 
@@ -70,18 +80,15 @@ export default class NES {
   //=========================================================
 
   setInputDevice(port, device) {
-    const prevDevice = this.getInputDevice(port);
-    if (prevDevice) {
-      prevDevice.disconnect();
-    }
-    this.cpuMemory.setInputDevice(port, device);
+    this.cpuMemory.disconnectInputDevice(port);
     if (device) {
+      this.cpuMemory.connectInputDevice(port, device);
       device.connect(this);
     }
   }
 
   getInputDevice(port) {
-    return this.cpuMemory.getInputDevice(port);
+    return this.cpuMemory.getConnectedInputDevice(port);
   }
 
   //=========================================================
@@ -90,6 +97,7 @@ export default class NES {
 
   insertCartridge(cartridge) {
     this.removeCartridge();
+    log.info('Inserting cartridge');
     this.cartridge = cartridge;
     this.mapper = createMapper(cartridge);
     this.mapper.connect(this);
@@ -97,11 +105,14 @@ export default class NES {
   }
 
   removeCartridge() {
+    if (this.cartridge) {
+      log.info('Removing current cartridge');
+      this.cartridge = null;
+    }
     if (this.mapper) {
       this.mapper.disconnect();
+      this.mapper = null;
     }
-    this.mapper = null;
-    this.cartridge = null;
   }
 
   getCartridge() {
@@ -153,7 +164,7 @@ export default class NES {
   }
 
   //=========================================================
-  // Video output - debugging
+  // Video output (debug}
   //=========================================================
 
   renderDebugFrame(buffer) {
@@ -170,9 +181,7 @@ export default class NES {
   }
 
   renderEmptyDebugFrame(buffer) {
-    for (let i = 0; i < buffer.length; i++) {
-      buffer[i] = BLACK_COLOR;
-    }
+    buffer.fill(BLACK_COLOR);
   }
 
   //=========================================================
@@ -180,7 +189,7 @@ export default class NES {
   //=========================================================
 
   setAudioEnabled(enabled) {
-    this.apu.setRecordingEnabled(enabled);
+    this.apu.setOutputEnabled(enabled);
   }
 
   setAudioBufferSize(size) {
@@ -204,14 +213,6 @@ export default class NES {
   }
 
   //=========================================================
-  // Emulation
-  //=========================================================
-
-  step() {
-    this.cpu.step();
-  }
-
-  //=========================================================
   // Configuration
   //=========================================================
 
@@ -225,11 +226,14 @@ export default class NES {
   }
 
   getRegion() {
-    return this.region || this.cartridge && this.cartridge.region || Region.NTSC;
+    return this.region || (this.cartridge && this.cartridge.region) || Region.NTSC;
   }
 
   updateRegionParams() {
-    const params = Region.getParams(this.getRegion());
+    log.info('Updating region parameters');
+    const region = this.getRegion();
+    const params = Region.getParams(region);
+    log.info(`Detected region: "${region}"`);
     this.ppu.setRegionParams(params);
     this.apu.setRegionParams(params);
   }

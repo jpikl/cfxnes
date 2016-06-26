@@ -15,11 +15,17 @@ const IRQ_ADDRESS = 0xFFFE;
 
 export default class CPU {
 
+  //=========================================================
+  // Initialization
+  //=========================================================
+
   constructor() {
+    log.info('Initializing CPU');
     this.initOperations();
   }
 
   connect(nes) {
+    log.info('Connecting CPU');
     this.cpuMemory = nes.cpuMemory;
     this.ppu = nes.ppu;
     this.apu = nes.apu;
@@ -27,7 +33,7 @@ export default class CPU {
   }
 
   //=========================================================
-  // Power-up state initialization
+  // Reset
   //=========================================================
 
   reset() {
@@ -191,14 +197,14 @@ export default class CPU {
     const highAddress = (address + 1) & 0xFFFF;
     const lowByte = this.readByte(address);
     const highByte = this.readByte(highAddress);
-    return highByte << 8 | lowByte;
+    return (highByte << 8) | lowByte;
   }
 
   readWordFromSamePage(address) {
-    const highAddress = address & 0xFF00 | (address + 1) & 0x00FF;
+    const highAddress = (address & 0xFF00) | ((address + 1) & 0x00FF);
     const lowByte = this.readByte(address);
     const highByte = this.readByte(highAddress);
-    return highByte << 8 | lowByte;
+    return (highByte << 8) | lowByte;
   }
 
   writeByte(address, value) {
@@ -237,7 +243,7 @@ export default class CPU {
   }
 
   popWord() {
-    return this.popByte() | this.popByte() << 8;
+    return this.popByte() | (this.popByte() << 8);
   }
 
   //=========================================================
@@ -249,13 +255,13 @@ export default class CPU {
   // - bit 5 is written on stack as 1 during PHP/BRK instructions and IRQ/NMI
 
   getStatus() {
-    return this.carryFlag         // S[0] - carry bit of the last operation
-       | this.zeroFlag << 1       // S[1] - whether result of the last operation was zero
-       | this.interruptFlag << 2  // S[2] - whether IRQs are disabled (this does not affect NMI/reset)
-       | this.decimalFlag << 3    // S[3] - NES CPU actually does not use this flag, but it's stored in status register and modified by CLD/SED instructions
-       | 1 << 5                   // S[5] - allways 1, see comment above
-       | this.overflowFlag << 6   // S[6] - wheter result of the last operation caused overflow
-       | this.negativeFlag << 7;  // S[7] - wheter result of the last operation was negative number (bit 7 of the result was 1)
+    return this.carryFlag          // S[0] - carry bit of the last operation
+       | (this.zeroFlag << 1)       // S[1] - whether result of the last operation was zero
+       | (this.interruptFlag << 2)  // S[2] - whether IRQs are disabled (this does not affect NMI/reset)
+       | (this.decimalFlag << 3)    // S[3] - NES CPU actually does not use this flag, but it's stored in status register and modified by CLD/SED instructions
+       | (1 << 5)                   // S[5] - allways 1, see comment above
+       | (this.overflowFlag << 6)   // S[6] - wheter result of the last operation caused overflow
+       | (this.negativeFlag << 7);  // S[7] - wheter result of the last operation was negative number (bit 7 of the result was 1)
   }
 
   setStatus(value) {
@@ -862,13 +868,13 @@ export default class CPU {
   rotateLeft(value, transferCarry) {
     const carry = transferCarry & this.carryFlag;
     this.carryFlag = value >>> 7;
-    return (value << 1 | carry) & 0xFF;
+    return ((value << 1) | carry) & 0xFF;
   }
 
   rotateRight(value, transferCarry) {
     const carry = (transferCarry & this.carryFlag) << 7;
     this.carryFlag = value & 1;
-    return value >>> 1 | carry;
+    return (value >>> 1) | carry;
   }
 
   updateZeroAndNegativeFlag(value) {

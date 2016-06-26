@@ -107,12 +107,12 @@ export default class MMC3 extends Mapper {
   //=========================================================
 
   switchDoubleCHRROMBanks(target) {
-    const source = (this.bankSelect & 0x80) >>> 6 | this.bankSelect & 0x01; // S[1,0] = C[7,0]
+    const source = ((this.bankSelect & 0x80) >>> 6) | (this.bankSelect & 0x01); // S[1,0] = C[7,0]
     this.mapCHRBank2K(source, target >>> 1);
   }
 
   switchSingleCHRROMBanks(target) {
-    const source = (~this.bankSelect & 0x80) >>> 5 | (this.bankSelect - 2) & 0x03; // S[2,1,0] = (C-2)[!7,1,0]
+    const source = ((~this.bankSelect & 0x80) >>> 5) | ((this.bankSelect - 2) & 0x03); // S[2,1,0] = (C-2)[!7,1,0]
     this.mapCHRBank1K(source, target);
   }
 

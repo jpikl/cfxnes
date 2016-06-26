@@ -4,7 +4,12 @@ const TOTAL_DMA_CYCLES = 512;
 
 export default class DMA {
 
+  constructor() {
+    log.info('Initializing DMA');
+  }
+
   connect(nes) {
+    log.info('Connecting DMA');
     this.cpuMemory = nes.cpuMemory;
   }
 

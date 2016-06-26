@@ -1,4 +1,5 @@
 import log from '../common/log';
+import {formatSize} from '../common/utils';
 import {IRQ_APU} from '../proc/interrupts';
 import PulseChannel from './PulseChannel';
 import TriangleChannel from './TriangleChannel';
@@ -19,7 +20,7 @@ export default class APU {
     this.noiseChannel = new NoiseChannel;
     this.dmcChannel = new DMCChannel;
     this.channelVolumes = [1, 1, 1, 1, 1];
-    this.setRecordingEnabled(false);
+    this.setOutputEnabled(false);
   }
 
   connect(nes) {
@@ -58,6 +59,7 @@ export default class APU {
   //=========================================================
 
   setRegionParams(params) {
+    log.info('Setting APU region parameters');
     this.frameCounterMax4 = params.frameCounterMax4; // 4-step frame counter
     this.frameCounterMax5 = params.frameCounterMax5; // 5-step frame counter
     this.cpuFrequency = params.cpuFrequency;
@@ -175,6 +177,7 @@ export default class APU {
   //=========================================================
 
   setChannelVolume(id, volume) {
+    log.info(`Setting APU channel #${id} volume to ${volume}`);
     this.channelVolumes[id] = volume;
   }
 
@@ -202,12 +205,12 @@ export default class APU {
 
   getStatus() {
     return (this.pulseChannel1.lengthCounter > 0)
-       | (this.pulseChannel2.lengthCounter > 0) << 1
-       | (this.triangleChannel.lengthCounter > 0) << 2
-       | (this.noiseChannel.lengthCounter > 0) << 3
-       | (this.dmcChannel.sampleRemainingLength > 0) << 4
-       | (this.frameIrqActive) << 6
-       | (this.dmcChannel.irqActive) << 7;
+       | ((this.pulseChannel2.lengthCounter > 0) << 1)
+       | ((this.triangleChannel.lengthCounter > 0) << 2)
+       | ((this.noiseChannel.lengthCounter > 0) << 3)
+       | ((this.dmcChannel.sampleRemainingLength > 0) << 4)
+       | ((this.frameIrqActive) << 6)
+       | ((this.dmcChannel.irqActive) << 7);
   }
 
   //=========================================================
@@ -233,7 +236,7 @@ export default class APU {
     this.triangleChannel.tick();
     this.noiseChannel.tick();
     this.dmcChannel.tick();
-    if (this.recordingEnabled) {
+    if (this.outputEnabled) {
       this.recordOutputValue();
     }
   }
@@ -307,7 +310,7 @@ export default class APU {
     const pulse1Value = this.channelVolumes[0] * this.pulseChannel1.getOutputValue();
     const pulse2value = this.channelVolumes[1] * this.pulseChannel2.getOutputValue();
     if (pulse1Value || pulse2value) {
-      return 95.88 / (8128 / (pulse1Value + pulse2value) + 100);
+      return 95.88 / ((8128 / (pulse1Value + pulse2value)) + 100);
     }
     return 0;
   }
@@ -317,7 +320,7 @@ export default class APU {
     const noiseValue = this.channelVolumes[3] * this.noiseChannel.getOutputValue();
     const dmcValue = this.channelVolumes[4] * this.dmcChannel.getOutputValue();
     if (triangleValue || noiseValue || dmcValue) {
-      return 159.79 / (1 / (triangleValue / 8227 + noiseValue / 12241 + dmcValue / 22638) + 100);
+      return 159.79 / ((1 / ((triangleValue / 8227) + (noiseValue / 12241) + (dmcValue / 22638))) + 100);
     }
     return 0;
   }
@@ -326,11 +329,13 @@ export default class APU {
   // Recording
   //=========================================================
 
-  setRecordingEnabled(enabled) {
-    this.recordingEnabled = enabled;
+  setOutputEnabled(enabled) {
+    log.info(`APU output ${enabled ? 'on' : 'off'}`);
+    this.outputEnabled = enabled;
   }
 
   setBufferSize(size) {
+    log.info(`Setting APU buffer size to ${formatSize(size)}`);
     this.bufferSize = size;                     // Size of output and record buffer
     this.lastPosition = size - 1;               // Last position in the output/record buffer
     this.recordBuffer = new Float32Array(size); // Buffer to store recorded audio samples
@@ -341,6 +346,7 @@ export default class APU {
   }
 
   setSampleRate(rate) {
+    log.info(`Setting APU sampling rate to ${rate} Hz`);
     this.sampleRate = rate;        // How often are samples taken (samples per second)
     this.sampleRateAdjustment = 0; // Sample rate adjustment per 1 output value (buffer underflow/overflow protection)
   }
@@ -384,7 +390,7 @@ export default class APU {
 
   computeSamplingRateAdjustment() {
     // Our goal is to have right now about 50% of data in buffer
-    const percentageDifference = 0.5 - this.recordPosition / this.bufferSize; // Difference from the expected value
+    const percentageDifference = 0.5 - (this.recordPosition / this.bufferSize); // Difference from the expected value
     this.sampleRateAdjustment = 100 * percentageDifference / this.bufferSize; // Adjustment per 1 output value in buffer
   }
 

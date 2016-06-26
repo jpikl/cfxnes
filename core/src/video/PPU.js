@@ -8,17 +8,23 @@ import Sprite from './Sprite';
 
 export default class PPU {
 
+  //=========================================================
+  // Initialization
+  //=========================================================
+
   constructor() {
+    log.info('Initializing PPU');
     this.colorEmphasis = 0; // Color palette BGR emphasis bits
   }
 
   connect(nes) {
+    log.info('Connecting PPU');
     this.cpu = nes.cpu;
     this.ppuMemory = nes.ppuMemory;
   }
 
   //=========================================================
-  // Power-up state initialization
+  // Reset
   //=========================================================
 
   reset() {
@@ -30,7 +36,7 @@ export default class PPU {
 
   resetOAM() {
     this.primaryOAM = new Uint8Array(0x100); // Sprite data - 256B (64 x 4B sprites)
-    this.secondaryOAM = new Array(8);      // Sprite data for rendered scanline (up to 8 sprites)
+    this.secondaryOAM = new Array(8);        // Sprite data for rendered scanline (up to 8 sprites)
     for (let i = 0; i < this.secondaryOAM.length; i++) {
       this.secondaryOAM[i] = new Sprite;
     }
@@ -77,16 +83,18 @@ export default class PPU {
   //=========================================================
 
   setRegionParams(params) {
+    log.info('Setting PPU region parameters');
     this.clipTopBottom = params.ppuClipTopBottom;
   }
 
   setPalette(palette) {
+    log.info('Setting PPU palette');
     this.createPaletteVariants(palette);
     this.updatePalette();
   }
 
   //=========================================================
-  // Color palette generation
+  // Color palette
   //=========================================================
 
   createPaletteVariants(basePalette) {
@@ -110,7 +118,7 @@ export default class PPU {
   writeControl(value) {
     const nmiEnabledOld = this.nmiEnabled;
     this.setControl(value);
-    this.tempAddress = (this.tempAddress & 0xF3FF) | (value & 0x03) << 10; // T[11,10] = C[1,0]
+    this.tempAddress = (this.tempAddress & 0xF3FF) | ((value & 0x03) << 10); // T[11,10] = C[1,0]
     if (this.vblankFlag && !nmiEnabledOld && this.nmiEnabled && !(this.cycleFlags & Flag.VB_END)) {
       this.nmiDelay = 1; // Generate NMI after next instruction when its enabled (from 0 to 1) during VBlank
     }
@@ -148,21 +156,21 @@ export default class PPU {
 
   readStatus() {
     const value = this.getStatus();
-    this.vblankFlag = 0;  // Cleared by reading status
+    this.vblankFlag = 0; // Cleared by reading status
     this.writeToogle = 0; // Cleared by reading status
     if (this.cycleFlags & Flag.VB_START) {
       this.vblankSuppressed = true; // Reading just before VBlank disables VBlank flag setting
     }
     if (this.cycleFlags & Flag.VB_START2) {
-      this.nmiSuppressed = true;    // Reading just before VBlank and 2 cycles after disables NMI generation
+      this.nmiSuppressed = true; // Reading just before VBlank and 2 cycles after disables NMI generation
     }
     return value;
   }
 
   getStatus() {
-    return this.spriteOverflow << 5  // S[5]
-       | this.spriteZeroHit << 6     // S[6]
-       | this.vblankFlag << 7;       // S[7]
+    return (this.spriteOverflow << 5) // S[5]
+       | (this.spriteZeroHit << 6)    // S[6]
+       | (this.vblankFlag << 7);      // S[7]
   }
 
   setStatus(value) {
@@ -330,7 +338,7 @@ export default class PPU {
     if (y < this.scanline - 5 || y >= this.scanline) {
       return false; // Screen luminance decreases in time
     }
-    const [r, g, b] = unpackColor(this.frameBuffer[y * VIDEO_WIDTH + x]);
+    const [r, g, b] = unpackColor(this.frameBuffer[(y * VIDEO_WIDTH) + x]);
     return r > 0x12 || g > 0x12 || b > 0x12;
   }
 
@@ -339,7 +347,7 @@ export default class PPU {
   }
 
   setFramePixelOnPosition(x, y, color) {
-    this.frameBuffer[y * VIDEO_WIDTH + x] = this.palette[color & 0x3F]; // Only 64 colors
+    this.frameBuffer[(y * VIDEO_WIDTH) + x] = this.palette[color & 0x3F]; // Only 64 colors
   }
 
   clearFramePixel() {
@@ -384,7 +392,7 @@ export default class PPU {
   }
 
   //=========================================================
-  // Scanline / cycle update
+  // Scanline/cycle update
   //=========================================================
 
   incrementCycle() {
@@ -504,15 +512,15 @@ export default class PPU {
           this.spriteZeroHit = 1;
         }
         if (sprite.inFront) {
-          return spriteColorAddress;   // The sprite has priority over the background
+          return spriteColorAddress; // The sprite has priority over the background
         }
       }
-      return backgroundColorAddress;   // Only the background is visible or it has priority over the sprite
+      return backgroundColorAddress; // Only the background is visible or it has priority over the sprite
     }
     if (spriteColorAddress & 0x03) {
-      return spriteColorAddress;       // Only the sprite is visible
+      return spriteColorAddress;     // Only the sprite is visible
     }
-    return 0;                          // Use backdrop color
+    return 0;                        // Use backdrop color
   }
 
   //=========================================================
@@ -555,9 +563,27 @@ export default class PPU {
   // 2x2 area number can be constructed as YX
   //   Y = bit 1 of YYYYY
   //   X = bit 1 of XXXXX
+  //
+  //                                          [BBBBBBBB] - Next tile's pattern data,
+  //                                          [BBBBBBBB] - 2 bits per pixel
+  //                                           ||||||||
+  //                                           vvvvvvvv
+  //       Serial-to-parallel - [AAAAAAAA] <- [BBBBBBBB] - Parallel-to-serial
+  //          shift registers - [AAAAAAAA] <- [BBBBBBBB] - shift registers
+  //                             vvvvvvvv
+  //                             ||||||||           [Sprites 0..7]----+
+  //                             ||||||||                             |
+  // [fine_x selects a bit]---->[  Mux   ]-------------------->[Priority mux]----->[Pixel]
+  //                             ||||||||
+  //                             ^^^^^^^^
+  //                            [PPPPPPPP] <- [1-bit latch]
+  //                            [PPPPPPPP] <- [1-bit latch]
+  //                                                ^
+  //                                                |
+  //                     [2-bit Palette Attribute for next tile (from attribute table)]
 
   fetchNametable() {
-    this.addressBus = 0x2000 | this.vramAddress & 0x0FFF;
+    this.addressBus = 0x2000 | (this.vramAddress & 0x0FFF);
     const patternNumer = this.ppuMemory.readNametable(this.addressBus); // Nametable byte fetch
     const patternAddress = this.bgPatternTableAddress + (patternNumer << 4);
     const fineYScroll = (this.vramAddress >>> 12) & 0x07;
@@ -565,11 +591,11 @@ export default class PPU {
   }
 
   fetchAttribute() {
-    const attributeTableAddress = 0x23C0 | this.vramAddress & 0x0C00;
-    const attributeNumber = (this.vramAddress >>> 4) & 0x38 | (this.vramAddress >>> 2) & 0x07;
+    const attributeTableAddress = 0x23C0 | (this.vramAddress & 0x0C00);
+    const attributeNumber = ((this.vramAddress >>> 4) & 0x38) | ((this.vramAddress >>> 2) & 0x07);
     this.addressBus = attributeTableAddress + attributeNumber;
     const attribute = this.ppuMemory.readNametable(this.addressBus); // Attribute byte fetch
-    const areaNumber = (this.vramAddress >>> 4) & 0x04 | this.vramAddress & 0x02;
+    const areaNumber = ((this.vramAddress >>> 4) & 0x04) | (this.vramAddress & 0x02);
     const paletteNumber = (attribute >>> areaNumber) & 0x03;
     this.paletteLatchNext0 = paletteNumber & 1;
     this.paletteLatchNext1 = (paletteNumber >>> 1) & 1;
@@ -671,7 +697,7 @@ export default class PPU {
       sprite.x = this.primaryOAM[address + 3];
       sprite.zeroSprite = address === 0;
       sprite.horizontalFlip = attributes & 0x40;
-      sprite.paletteNumber = 0x10 | (attributes & 0x03) << 2;
+      sprite.paletteNumber = 0x10 | ((attributes & 0x03) << 2);
       sprite.inFront = (attributes & 0x20) === 0;
 
       const patternAddress = patternTableAddress + (patternNumber << 4);
@@ -759,7 +785,7 @@ export default class PPU {
       const baseY = tileY << 3;
       for (let tileX = 0; tileX < 32; tileX++) {
         const baseX = tileX << 3;
-        const address = ((tileX & 0x10) << 4 | tileY << 4 | tileX & 0x0F) << 4;
+        const address = (((tileX & 0x10) << 4) | (tileY << 4) | (tileX & 0x0F)) << 4;
         this.renderPatternTile(baseX, baseY, address);
       }
     }
@@ -783,7 +809,7 @@ export default class PPU {
 
   renderPalettes() {
     for (let tileY = 0; tileY < 4; tileY++) {
-      const baseY = 128 + tileY * 28;
+      const baseY = (tileY * 28) + 128;
       for (let tileX = 0; tileX < 8; tileX++) {
         const baseX = tileX << 5;
         const color = this.ppuMemory.readPalette((tileY << 3) | tileX);

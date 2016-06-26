@@ -24,9 +24,13 @@ export function formatSize(size) {
     return size + ' B';
   }
   if (Math.abs(size) < 1024 * 1024) {
-    return ~~(size / 1024) + ' KB';
+    return roundSize(size / 1024) + ' KB';
   }
-  return ~~(size / (1024 * 1024)) + ' MB';
+  return roundSize(size / (1024 * 1024)) + ' MB';
+}
+
+function roundSize(number) {
+  return (~~(1000 * number)) / 1000;
 }
 
 export function roundUpToPow2(number) {

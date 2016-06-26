@@ -3,7 +3,12 @@ import log from '../common/log';
 
 export default class DMCChannel {
 
+  constructor() {
+    log.info('Initializing DMC channel');
+  }
+
   connect(nes) {
+    log.info('Connecting DMC channel');
     this.cpu = nes.cpu;
     this.cpuMemory = nes.cpuMemory;
   }
@@ -59,7 +64,7 @@ export default class DMCChannel {
   }
 
   writeSampleLength(value) {
-    this.sampleLength = (value & 0xFF) << 4 | 0x01; // Length is constructed as LLLL.LLLL0001 where LLLLLLLL are bits of written value
+    this.sampleLength = ((value & 0xFF) << 4) | 0x01; // Length is constructed as LLLL.LLLL0001 where LLLLLLLL are bits of written value
   }
 
   //=========================================================

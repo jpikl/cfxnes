@@ -1,5 +1,6 @@
 import Mirroring from '../../common/Mirroring';
 import log from '../../common/log';
+import {formatSize} from '../../common/utils';
 
 export default class Mapper {
 
@@ -38,6 +39,10 @@ export default class Mapper {
     this.ppu = undefined;
     this.cpu = undefined;
   }
+
+  //=========================================================
+  // Reset
+  //=========================================================
 
   reset() {
     log.info('Resetting mapper');
@@ -154,9 +159,11 @@ export default class Mapper {
 
   getNVRAM() {
     if (this.prgRAMSizeBattery) {
+      log.info('Reading ${formatSize(prgRAMSizeBattery)} battery-backed PRG RAM');
       return this.prgRAM.subarray(0, this.prgRAMSizeBattery);
     }
     if (this.chrRAMSizeBattery) {
+      log.info('Reading ${formatSize(chrRAMSizeBattery)} battery-backed CHR RAM');
       return this.chrRAM.subarray(0, this.chrRAMSizeBattery);
     }
     return null;
@@ -164,8 +171,10 @@ export default class Mapper {
 
   setNVRAM(data) {
     if (this.prgRAMSizeBattery) {
+      log.info(`Copying ${formatSize(data.length)} of data to ${formatSize(this.prgRAMSizeBattery)} battery-backed PRG RAM`);
       this.prgRAM.set(data.subarray(0, this.prgRAMSizeBattery));
     } else if (this.chrRAMSizeBattery) {
+      log.info(`Copying ${formatSize(data.length)} of data to ${formatSize(this.chrRAMSizeBattery)} battery-backed CHR RAM`);
       this.chrRAM.set(data.subarray(0, this.chrRAMSizeBattery));
     }
   }

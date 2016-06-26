@@ -3,6 +3,10 @@ import {LENGTH_COUNTER_VALUES} from './common';
 
 export default class NoiseChannel {
 
+  constructor() {
+    log.info('Initializing noise channel');
+  }
+
   reset() {
     log.info('Reseting noise channel');
     this.setEnabled(false);
