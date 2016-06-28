@@ -6,6 +6,12 @@ import {packColor, unpackColor} from '../../src/video/colors';
 import * as module from '../../src/video/palettes';
 
 describe('video/palettes', () => {
+  it('should create default palette when no ID is specified', () => {
+    const palette = module.createPalette();
+    expect(palette).to.be.an('uint32array');
+    expect(palette).to.have.lengthOf(64);
+  });
+
   it('should create palette for valid ID', () => {
     const ids = [
       'asq-real-a',
@@ -26,7 +32,6 @@ describe('video/palettes', () => {
   });
 
   it('should throw error for invalid ID', () => {
-    expect(() => module.createPalette()).to.throw(Error);
     expect(() => module.createPalette('x')).to.throw(Error);
   });
 

@@ -32,7 +32,7 @@ export default class Joypad {
 
 }
 
-// Buttons - Must be specified using string key (closure compiler issue)
+// Buttons - must be specified using string key (closure compiler issue)
 Joypad['A'] = 0;
 Joypad['B'] = 1;
 Joypad['SELECT'] = 2;

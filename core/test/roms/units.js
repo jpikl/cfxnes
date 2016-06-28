@@ -1,6 +1,6 @@
 import fs from 'fs';
 import {PNG} from 'node-png';
-import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../../src/video/resolution';
+import {VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_BUFFER_SIZE} from '../../src/video/constants';
 import {unpackColor} from '../../src/video/colors';
 import {createPalette} from '../../src/video/palettes';
 import APU from '../../src/audio/APU';
@@ -13,8 +13,8 @@ export class MemoryOutputPPU extends PPU {
 
   connect(nes) {
     super.connect(nes);
-    this.setPalette(createPalette('fceux'));
-    this.setFrameBuffer(new Uint32Array(VIDEO_WIDTH * VIDEO_HEIGHT));
+    this.setBasePalette(createPalette());
+    this.setFrameBuffer(new Uint32Array(VIDEO_BUFFER_SIZE));
   }
 
   writeFrameToFile(file) {

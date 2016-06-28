@@ -185,21 +185,12 @@ export default class CPUMemory {
   // Input devices
   //=========================================================
 
-  connectInputDevice(port, device) {
-    log.info(`Connecting device #${port} to CPU memory`);
+  setInputDevice(port, device) {
+    log.info(`${device != null ? 'Setting' : 'Clearing'} device connected to CPU memory on port #${port}`);
     this.inputDevices[port] = device;
   }
 
-  disconnectInputDevice(port) {
-    const device = this.inputDevices[port];
-    if (device) {
-      log.info(`Disconnecting device #${port} from CPU memory`);
-      device.disconnect();
-      this.inputDevices[port] = null;
-    }
-  }
-
-  getConnectedInputDevice(port) {
+  getInputDevice(port) {
     return this.inputDevices[port];
   }
 

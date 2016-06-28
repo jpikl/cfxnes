@@ -1,6 +1,6 @@
 import {NMI} from '../proc/interrupts';
 import log from '../common/log';
-import {VIDEO_WIDTH} from './resolution';
+import {VIDEO_WIDTH} from './constants';
 import {unpackColor, BLACK_COLOR} from './colors';
 import {createPaletteVariant} from './palettes';
 import {Flag, getCycleFlags} from './flags';
@@ -14,6 +14,7 @@ export default class PPU {
 
   constructor() {
     log.info('Initializing PPU');
+    this.basePalette = null;
     this.colorEmphasis = 0; // Color palette BGR emphasis bits
   }
 
@@ -87,23 +88,28 @@ export default class PPU {
     this.clipTopBottom = params.ppuClipTopBottom;
   }
 
-  setPalette(palette) {
-    log.info('Setting PPU palette');
-    this.createPaletteVariants(palette);
+  setBasePalette(basePalette) {
+    log.info('Setting PPU base palette');
+    this.basePalette = basePalette;
+    this.createPaletteVariants();
     this.updatePalette();
+  }
+
+  getBasePalette() {
+    return this.basePalette;
   }
 
   //=========================================================
   // Color palette
   //=========================================================
 
-  createPaletteVariants(basePalette) {
+  createPaletteVariants() {
     this.paletteVariants = new Array(8); // Palette for each combination of colors emphasis bits: BGR
     for (let colorEmphasis = 0; colorEmphasis < this.paletteVariants.length; colorEmphasis++) {
       const rRatio = colorEmphasis & 6 ? 0.75 : 1.0; // Dim red when green or blue is emphasized
       const gRatio = colorEmphasis & 5 ? 0.75 : 1.0; // Dim green when red or blue is emphasized
       const bRatio = colorEmphasis & 3 ? 0.75 : 1.0; // Dim blue when red or green is emphasized
-      this.paletteVariants[colorEmphasis] = createPaletteVariant(basePalette, rRatio, gRatio, bRatio);
+      this.paletteVariants[colorEmphasis] = createPaletteVariant(this.basePalette, rRatio, gRatio, bRatio);
     }
   }
 

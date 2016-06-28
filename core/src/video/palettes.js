@@ -27,7 +27,7 @@ const palettes = {
   'nestopia-yuv': nestopia_yuv,
 };
 
-export function createPalette(id) {
+export function createPalette(id = 'fceux') {
   log.info(`Creating "${id}" palette`);
   const base64 = palettes[id];
   if (base64) {

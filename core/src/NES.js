@@ -16,6 +16,7 @@ export default class NES {
     log.info('Initializing NES');
     this.initUnits(units);
     this.connectUnits();
+    this.updateRegionParams();
   }
 
   //=========================================================
@@ -51,27 +52,63 @@ export default class NES {
   }
 
   //=========================================================
-  // Execution
+  // Region
   //=========================================================
 
-  step() {
-    this.cpu.step();
+  setRegion(region) {
+    this.region = region;
+    this.updateRegionParams();
+  }
+
+  getRegion() {
+    return this.region || (this.cartridge && this.cartridge.region) || Region.NTSC;
+  }
+
+  updateRegionParams() {
+    log.info('Updating region parameters');
+    const region = this.getRegion();
+    const params = Region.getParams(region);
+    log.info(`Detected region: "${region}"`);
+    this.ppu.setRegionParams(params);
+    this.apu.setRegionParams(params);
   }
 
   //=========================================================
-  // Buttons
+  // Cartridge
   //=========================================================
 
-  pressPower() {
-    log.info('Power button pressed');
-    this.updateRegionParams();
+  setCartridge(cartridge) {
+    if (this.cartridge) {
+      log.info('Removing current cartridge');
+      this.mapper.disconnect();
+      this.mapper = null;
+      this.cartridge = null;
+    }
+    if (cartridge) {
+      log.info('Inserting cartridge');
+      this.cartridge = cartridge;
+      this.mapper = createMapper(cartridge);
+      this.mapper.connect(this);
+      this.updateRegionParams();
+      this.hardReset();
+    }
+  }
+
+  getCartridge() {
+    return this.cartridge || null;
+  }
+
+  //=========================================================
+  // Reset
+  //=========================================================
+
+  hardReset() {
     if (this.cartridge) {
       this.resetUnits();
     }
   }
 
-  pressReset() {
-    log.info('Reset button pressed');
+  softReset() {
     this.cpu.activateInterrupt(RESET);
   }
 
@@ -80,66 +117,31 @@ export default class NES {
   //=========================================================
 
   setInputDevice(port, device) {
-    this.cpuMemory.disconnectInputDevice(port);
+    const prevDevice = this.cpuMemory.getInputDevice(port);
+    if (prevDevice) {
+      prevDevice.disconnect();
+    }
+    this.cpuMemory.setInputDevice(port, device);
     if (device) {
-      this.cpuMemory.connectInputDevice(port, device);
       device.connect(this);
     }
   }
 
   getInputDevice(port) {
-    return this.cpuMemory.getConnectedInputDevice(port);
-  }
-
-  //=========================================================
-  // Cartridge
-  //=========================================================
-
-  insertCartridge(cartridge) {
-    this.removeCartridge();
-    log.info('Inserting cartridge');
-    this.cartridge = cartridge;
-    this.mapper = createMapper(cartridge);
-    this.mapper.connect(this);
-    this.pressPower();
-  }
-
-  removeCartridge() {
-    if (this.cartridge) {
-      log.info('Removing current cartridge');
-      this.cartridge = null;
-    }
-    if (this.mapper) {
-      this.mapper.disconnect();
-      this.mapper = null;
-    }
-  }
-
-  getCartridge() {
-    return this.cartridge;
-  }
-
-  //=========================================================
-  // Non-volatile RAM
-  //=========================================================
-
-  getNVRAMSize() {
-    return this.mapper ? this.mapper.getNVRAMSize() : 0;
-  }
-
-  getNVRAM() {
-    return this.mapper ? this.mapper.getNVRAM() : null;
-  }
-
-  setNVRAM(data) {
-    if (this.mapper) {
-      this.mapper.setNVRAM(data);
-    }
+    return this.cpuMemory.getInputDevice(port);
   }
 
   //=========================================================
   // Video output
   //=========================================================
+
+  setPalette(palette) {
+    this.ppu.setBasePalette(palette);
+  }
+
+  getPalette() {
+    return this.ppu.getBasePalette();
+  }
 
   renderFrame(buffer) {
     if (this.cartridge) {
@@ -162,10 +164,6 @@ export default class NES {
       buffer[i] = packColor(color, color, color);
     }
   }
-
-  //=========================================================
-  // Video output (debug}
-  //=========================================================
 
   renderDebugFrame(buffer) {
     if (this.cartridge) {
@@ -192,16 +190,24 @@ export default class NES {
     this.apu.setOutputEnabled(enabled);
   }
 
+  isAudioEnabled() {
+    return this.apu.isOutputEnabled();
+  }
+
   setAudioBufferSize(size) {
     this.apu.setBufferSize(size);
+  }
+
+  getAudioBufferSize() {
+    return this.apu.getBufferSize();
   }
 
   setAudioSampleRate(rate) {
     this.apu.setSampleRate(rate);
   }
 
-  readAudioBuffer() {
-    return this.apu.readOutputBuffer();
+  getAudioSampleRate() {
+    return this.apu.getSampleRate();
   }
 
   setAudioChannelVolume(id, volume) {
@@ -212,30 +218,26 @@ export default class NES {
     return this.apu.getChannelVolume(id);
   }
 
+  readAudioBuffer() {
+    return this.apu.readOutputBuffer();
+  }
+
   //=========================================================
-  // Configuration
+  // Non-volatile RAM
   //=========================================================
 
-  setPalette(palette) {
-    this.ppu.setPalette(palette);
+  getNVRAMSize() {
+    return this.mapper ? this.mapper.getNVRAMSize() : 0;
   }
 
-  setRegion(region) {
-    this.region = region;
-    this.updateRegionParams();
+  getNVRAM() {
+    return this.mapper ? this.mapper.getNVRAM() : null;
   }
 
-  getRegion() {
-    return this.region || (this.cartridge && this.cartridge.region) || Region.NTSC;
-  }
-
-  updateRegionParams() {
-    log.info('Updating region parameters');
-    const region = this.getRegion();
-    const params = Region.getParams(region);
-    log.info(`Detected region: "${region}"`);
-    this.ppu.setRegionParams(params);
-    this.apu.setRegionParams(params);
+  setNVRAM(data) {
+    if (this.mapper) {
+      this.mapper.setNVRAM(data);
+    }
   }
 
 }

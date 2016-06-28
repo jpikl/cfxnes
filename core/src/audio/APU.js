@@ -6,6 +6,13 @@ import TriangleChannel from './TriangleChannel';
 import NoiseChannel from './NoiseChannel';
 import DMCChannel from './DMCChannel';
 
+// Channel IDs
+const PULSE_1 = 0;
+const PULSE_2 = 1;
+const TRIANGLE = 2;
+const NOISE = 3;
+const DMC = 4;
+
 export default class APU {
 
   //=========================================================
@@ -44,16 +51,6 @@ export default class APU {
     this.writeFrameCounter(0);
   }
 
-  activateFrameIRQ() {
-    this.frameIrqActive = true;
-    this.cpu.activateInterrupt(IRQ_APU);
-  }
-
-  clearFrameIRQ() {
-    this.frameIrqActive = false;
-    this.cpu.clearInterrupt(IRQ_APU);
-  }
-
   //=========================================================
   // Configuration
   //=========================================================
@@ -65,6 +62,49 @@ export default class APU {
     this.cpuFrequency = params.cpuFrequency;
     this.noiseChannel.setRegionParams(params);
     this.dmcChannel.setRegionParams(params);
+  }
+
+  setOutputEnabled(enabled) {
+    log.info(`APU output ${enabled ? 'on' : 'off'}`);
+    this.outputEnabled = enabled;
+  }
+
+  isOutputEnabled() {
+    return this.outputEnabled;
+  }
+
+  setBufferSize(size) {
+    log.info(`Setting APU buffer size to ${formatSize(size)}`);
+    this.bufferSize = size;                     // Size of output and record buffer
+    this.lastPosition = size - 1;               // Last position in the output/record buffer
+    this.recordBuffer = new Float32Array(size); // Buffer to store recorded audio samples
+    this.recordPosition = -1;                   // Buffer position of the last recorded sample
+    this.recordCycle = 0;                       // CPU cycle counter
+    this.outputBuffer = new Float32Array(size); // Buffer with cached audio samples to be send to sound card
+    this.outputBufferFull = false;              // Wheter the output buffer is full
+  }
+
+  getBufferSize() {
+    return this.bufferSize;
+  }
+
+  setSampleRate(rate) {
+    log.info(`Setting APU sampling rate to ${rate} Hz`);
+    this.sampleRate = rate;        // How often are samples taken (samples per second)
+    this.sampleRateAdjustment = 0; // Sample rate adjustment per 1 output value (buffer underflow/overflow protection)
+  }
+
+  getSampleRate() {
+    return this.sampleRate;
+  }
+
+  setChannelVolume(id, volume) {
+    log.info(`Setting volume of APU channel #${id} to ${volume}`);
+    this.channelVolumes[id] = volume;
+  }
+
+  getChannelVolume(id) {
+    return this.channelVolumes[id];
   }
 
   //=========================================================
@@ -94,6 +134,16 @@ export default class APU {
       return this.frameCounterMax5[this.frameStep];
     }
     return this.frameCounterMax4[this.frameStep];
+  }
+
+  activateFrameIRQ() {
+    this.frameIrqActive = true;
+    this.cpu.activateInterrupt(IRQ_APU);
+  }
+
+  clearFrameIRQ() {
+    this.frameIrqActive = false;
+    this.cpu.clearInterrupt(IRQ_APU);
   }
 
   //=========================================================
@@ -170,19 +220,6 @@ export default class APU {
 
   writeDMCSampleLength(value) {
     this.dmcChannel.writeSampleLength(value);
-  }
-
-  //=========================================================
-  // Channel volumes
-  //=========================================================
-
-  setChannelVolume(id, volume) {
-    log.info(`Setting APU channel #${id} volume to ${volume}`);
-    this.channelVolumes[id] = volume;
-  }
-
-  getChannelVolume(id) {
-    return this.channelVolumes[id];
   }
 
   //=========================================================
@@ -307,8 +344,8 @@ export default class APU {
   }
 
   getPulseOutputValue() {
-    const pulse1Value = this.channelVolumes[0] * this.pulseChannel1.getOutputValue();
-    const pulse2value = this.channelVolumes[1] * this.pulseChannel2.getOutputValue();
+    const pulse1Value = this.channelVolumes[PULSE_1] * this.pulseChannel1.getOutputValue();
+    const pulse2value = this.channelVolumes[PULSE_2] * this.pulseChannel2.getOutputValue();
     if (pulse1Value || pulse2value) {
       return 95.88 / ((8128 / (pulse1Value + pulse2value)) + 100);
     }
@@ -316,9 +353,9 @@ export default class APU {
   }
 
   getTriangleNoiseDMCOutputValue() {
-    const triangleValue = this.channelVolumes[2] * this.triangleChannel.getOutputValue();
-    const noiseValue = this.channelVolumes[3] * this.noiseChannel.getOutputValue();
-    const dmcValue = this.channelVolumes[4] * this.dmcChannel.getOutputValue();
+    const triangleValue = this.channelVolumes[TRIANGLE] * this.triangleChannel.getOutputValue();
+    const noiseValue = this.channelVolumes[NOISE] * this.noiseChannel.getOutputValue();
+    const dmcValue = this.channelVolumes[DMC] * this.dmcChannel.getOutputValue();
     if (triangleValue || noiseValue || dmcValue) {
       return 159.79 / ((1 / ((triangleValue / 8227) + (noiseValue / 12241) + (dmcValue / 22638))) + 100);
     }
@@ -328,28 +365,6 @@ export default class APU {
   //=========================================================
   // Recording
   //=========================================================
-
-  setOutputEnabled(enabled) {
-    log.info(`APU output ${enabled ? 'on' : 'off'}`);
-    this.outputEnabled = enabled;
-  }
-
-  setBufferSize(size) {
-    log.info(`Setting APU buffer size to ${formatSize(size)}`);
-    this.bufferSize = size;                     // Size of output and record buffer
-    this.lastPosition = size - 1;               // Last position in the output/record buffer
-    this.recordBuffer = new Float32Array(size); // Buffer to store recorded audio samples
-    this.recordPosition = -1;                   // Buffer position of the last recorded sample
-    this.recordCycle = 0;                       // CPU cycle counter
-    this.outputBuffer = new Float32Array(size); // Buffer with cached audio samples to be send to sound card
-    this.outputBufferFull = false;              // Wheter the output buffer is full
-  }
-
-  setSampleRate(rate) {
-    log.info(`Setting APU sampling rate to ${rate} Hz`);
-    this.sampleRate = rate;        // How often are samples taken (samples per second)
-    this.sampleRateAdjustment = 0; // Sample rate adjustment per 1 output value (buffer underflow/overflow protection)
-  }
 
   recordOutputValue() {
     const position = ~~(this.recordCycle++ * this.sampleRate / this.cpuFrequency);
@@ -395,3 +410,10 @@ export default class APU {
   }
 
 }
+
+// Channel IDs - must be specified using string key (closure compiler issue)
+APU['PULSE_1'] = PULSE_1;
+APU['PULSE_2'] = PULSE_2;
+APU['TRIANGLE'] = TRIANGLE;
+APU['NOISE'] = NOISE;
+APU['DMC'] = DMC;

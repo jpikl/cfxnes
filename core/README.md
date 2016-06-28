@@ -1,8 +1,8 @@
 # CFxNES Core
 
-Collection of JavaScript components that forms core of the [CFxNES emulator](../README.md). The core can be independently used in browser or in Node.js environment.
+Collection of JS components that form core of the [CFxNES emulator](../README.md). The core can be independently used in browser or in Node.js environment.
 
-When using components, it is highly recommended to compile the result with the [closure compiler](https://github.com/google/closure-compiler) in `ADVANCED_OPTIMIZATIONS` mode to gain the best performance.
+When using these components, it is highly recommended to compile your code with the [closure compiler](https://github.com/google/closure-compiler) in `ADVANCED_OPTIMIZATIONS` mode to gain the best performance.
 
 ## Initialization
 
@@ -18,25 +18,34 @@ NES constructor allows to pass custom implementation of any internal unit (CPU, 
 const nes = new NES({cpu: customCPU});
 ```
 
-### Loading of ROM images
+### ROM images
 
-ROM images can be load from `Array`, `ArrayBuffer`, `Uint8Array` or from a file system path when running in Node.js. Supported formats are *iNES* and *NES 2.0*.
+ROM images can be loaded from `Array`, `ArrayBuffer`, `Uint8Array` or from a file system path when running in Node.js. Supported formats are *iNES* and *NES 2.0*.
 
 ``` javascript
 import {createCartridge, readCartridge} from './data/cartridge';
 
-const cartridge1 = createCartridge([ /* data */ ]); // From buffer
-const cartridge2 = readCartridge('./data/rom.nes'); // From filesystem
+// From buffer
+const cartridge1 = createCartridge([ /* data */ ]);
+nes.setCartridge(cartridge1);
 
-nes.insertCartridge(cartridge1);
+// From filesystem
+const cartridge2 = readCartridge('./data/rom.nes');
+nes.setCartridge(cartridge2);
 ```
 
 ### Rendering loop
 
-Video output is rendered into provided `Uint32Array`. Color of each pixel is encoded as 32-bit unsigned integer in RGBA format.
+Video output is rendered into provided `Uint32Array(256 * 240)` buffer. Color of each pixel is encoded as 32-bit unsigned integer in RGBA format. Their values are generated using using provided `Uint32Array(64)` palette.
 
 ``` javascript
-const videoBuffer = new Uint32Array(256 * 240); // Screen resolution
+import {VIDEO_BUFFER_SIZE} from './video/constants';
+import {createPalette} from './video/palettes';
+
+const palette = createPalette('fceux'); // Returns predefined palette
+nes.setPalette(palette);
+
+const videoBuffer = new Uint32Array(VIDEO_BUFFER_SIZE);
 while (running) {
     nes.renderFrame(videoBuffer);
     // Display output buffer
@@ -65,32 +74,32 @@ function audioCallback() {
 
 ### Input devices
 
-Standard NES controller (joypad) and Zapper are supported.
+Supported devices are standard NES controller (joypad) and Zapper.
 
 ``` javascript
 import Joypad from './devices/Joypad';
 import Zapper from './devices/Zapper';
 
 const joypad = new Joypad;
-nes.setInputDevice(1, joypad); // Port 1
+nes.setInputDevice(1, joypad); // Port #1
 joypad.setButtonPressed(Joypad.START, true);
 
 const zapper = new Zapper;
-nes.setInputDevice(2, zapper); // Port 2
+nes.setInputDevice(2, zapper); // Port #2
 zapper.setBeamPosition(128, 120);
 zapper.setTriggerPressed(true);
 ```
 
 ## Tests
 
-Run unit tests:
+Unit tests:
 
     gulp test-base
 
-Run tests for [validation ROMs](http://wiki.nesdev.com/w/index.php/Emulator_tests):
+Tests for [validation ROMs](http://wiki.nesdev.com/w/index.php/Emulator_tests):
 
     gulp test-roms
 
-Run all:
+All tests:
 
     gulp test

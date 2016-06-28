@@ -73,12 +73,12 @@ function execute(test) {
   // Setup emulator
   const cartridge = readCartridge(test.file);
   const nes = new NES(test.init());
-  nes.insertCartridge(cartridge);
+  nes.setCartridge(cartridge);
 
   // Prepare context
   const number = test.number;
   const context = {
-    number, assert, expect, fail, power, reset, step, nes,
+    number, assert, expect, fail, hardReset, softReset, step, nes,
     readByte, readString, screenshot, blargg, getPath, getOutputPath,
   };
 
@@ -98,17 +98,17 @@ function execute(test) {
     assert(false, message);
   }
 
-  function power() {
-    nes.pressPower();
+  function hardReset() {
+    nes.hardReset();
   }
 
-  function reset() {
-    nes.pressReset();
+  function softReset() {
+    nes.softReset();
   }
 
   function step(count = 1) {
     for (let i = 0; i < count; i++) {
-      nes.step();
+      nes.cpu.step();
     }
   }
 
@@ -173,7 +173,7 @@ function execute(test) {
     let result = run();
     if (result === RESULT_RESET) {
       step(200000); // Reset needs to be done at least after 100 msec (~122880 cpu ticks)
-      reset();
+      softReset();
       result = run();
     }
 
