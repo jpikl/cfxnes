@@ -72,6 +72,10 @@ function parse(data) {
     region = data[9] & 0x01 ? Region.PAL : Region.NTSC;
   }
 
+  if (prgROMUnits === 0) {
+    throw new Error('Invalid header: 0 PRG ROM units');
+  }
+
   const prgROMStart = 16 + (data[6] & 0x04 ? 512 : 0); // Skip optional 512B trainer
   const prgROMSize = prgROMUnits * 0x4000; // N x 16KB
   const prgROMEnd = prgROMStart + prgROMSize;

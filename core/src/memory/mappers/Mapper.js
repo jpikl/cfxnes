@@ -147,7 +147,7 @@ export default class Mapper {
   }
 
   //=========================================================
-  // Non-volatile part of CHR RAM
+  // Non-volatile part of PRG/CHR RAM
   //=========================================================
 
   // Either there is battery-backed PRG RAM or battery-backed CHR RAM.
@@ -159,11 +159,11 @@ export default class Mapper {
 
   getNVRAM() {
     if (this.prgRAMSizeBattery) {
-      log.info('Reading ${formatSize(prgRAMSizeBattery)} battery-backed PRG RAM');
+      log.info(`Reading ${formatSize(this.prgRAMSizeBattery)} battery-backed PRG RAM`);
       return this.prgRAM.subarray(0, this.prgRAMSizeBattery);
     }
     if (this.chrRAMSizeBattery) {
-      log.info('Reading ${formatSize(chrRAMSizeBattery)} battery-backed CHR RAM');
+      log.info(`Reading ${formatSize(this.chrRAMSizeBattery)} battery-backed CHR RAM`);
       return this.chrRAM.subarray(0, this.chrRAMSizeBattery);
     }
     return null;
@@ -171,10 +171,10 @@ export default class Mapper {
 
   setNVRAM(data) {
     if (this.prgRAMSizeBattery) {
-      log.info(`Copying ${formatSize(data.length)} of data to ${formatSize(this.prgRAMSizeBattery)} battery-backed PRG RAM`);
+      log.info(`Copying ${formatSize(data.length)} data to ${formatSize(this.prgRAMSizeBattery)} battery-backed PRG RAM`);
       this.prgRAM.set(data.subarray(0, this.prgRAMSizeBattery));
     } else if (this.chrRAMSizeBattery) {
-      log.info(`Copying ${formatSize(data.length)} of data to ${formatSize(this.chrRAMSizeBattery)} battery-backed CHR RAM`);
+      log.info(`Copying ${formatSize(data.length)} data to ${formatSize(this.chrRAMSizeBattery)} battery-backed CHR RAM`);
       this.chrRAM.set(data.subarray(0, this.chrRAMSizeBattery));
     }
   }

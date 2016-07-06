@@ -5,9 +5,14 @@ import {expect} from 'chai';
 import Mirroring from '../../src/common/Mirroring';
 import Region from '../../src/common/Region';
 import inesParser from '../../src/data/inesParser';
+import {createINES as create} from './utils';
 
 describe('data/inesParser (iNES input)', () => {
   const parse = inesParser.parse;
+
+  function test(params = {}) {
+    return parse(create(params));
+  }
 
   it('should accept valid input', () => {
     expect(test()).to.be.an('object');
@@ -18,6 +23,10 @@ describe('data/inesParser (iNES input)', () => {
     expect(() => parse(create().subarray(0, 4))).to.throw(Error);
     expect(() => parse(create().subarray(0, 16))).to.throw(Error);
     expect(() => parse(create().subarray(0, 20))).to.throw(Error);
+  });
+
+  it('should throw error for zero PRG RAM', () => {
+    expect(() => test({prgROMUnits: 0})).to.throw(Error);
   });
 
   it('should read PRG ROM size', () => {
@@ -100,30 +109,4 @@ describe('data/inesParser (iNES input)', () => {
   it('should not read subbmapper', () => {
     expect(test().submapper).to.be.undefined;
   });
-
-  function test(params = {}) {
-    return parse(create(params));
-  }
-
-  function create({prgROMUnits = 1, prgRAMUnits = 0, chrROMUnits = 1,
-                   hasPRGRAMBattery = false, hasTrainer = false,
-                   verticalMirroring = false, fourScreenMode = false,
-                   palRegion = false, mapperId = 0}) {
-    const header = [
-      0x4E, 0x45, 0x53, 0x1A,
-      prgROMUnits & 0xFF,
-      chrROMUnits & 0xFF,
-      ((mapperId << 4) & 0xF0) | (fourScreenMode << 3) | (hasTrainer << 2) | (hasPRGRAMBattery << 1) | (verticalMirroring << 0),
-      mapperId & 0xF0,
-      prgRAMUnits & 0xFF,
-      palRegion & 0x01,
-      0, 0, 0, 0, 0, 0,
-    ];
-
-    const trainer = new Uint8Array(hasTrainer ? 512 : 0).fill(0);
-    const prgROM = new Uint8Array(prgROMUnits * 0x4000).fill(1);
-    const chrROM = new Uint8Array(chrROMUnits * 0x2000).fill(2);
-
-    return new Uint8Array([...header, ...trainer, ...prgROM, ...chrROM]);
-  }
 });
