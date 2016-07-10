@@ -36,9 +36,17 @@ export default class Zapper {
     this.triggerPressed = pressed;
   }
 
+  isTriggerPressed() {
+    return this.triggerPressed;
+  }
+
   setBeamPosition(x, y) {
     this.beamX = x;
     this.beamY = y;
+  }
+
+  getBeamPosition() {
+    return [this.beamX, this.beamY];
   }
 
 }

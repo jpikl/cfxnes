@@ -8,6 +8,13 @@ describe('devices/Joypad', () => {
   const nes = {};
   let joypad;
 
+  const buttons = [
+    Joypad.A, Joypad.B,
+    Joypad.SELECT, Joypad.START,
+    Joypad.UP, Joypad.DOWN,
+    Joypad.LEFT, Joypad.RIGHT,
+  ];
+
   beforeEach(() => {
     joypad = new Joypad;
     joypad.connect(nes);
@@ -17,31 +24,36 @@ describe('devices/Joypad', () => {
     joypad.disconnect(nes);
   });
 
-  it('should read state', () => {
+  for (const button of buttons) {
+    it(`should get/set button #${button} pressed`, () => {
+      expect(joypad.isButtonPressed(button)).to.be.false;
+      joypad.setButtonPressed(button, true);
+      expect(joypad.isButtonPressed(button)).to.be.true;
+    });
+  }
+
+  it('should read correct initial state', () => {
     expect(read()).to.deep.equal(state());
+  });
+
+  for (let i = 0; i < buttons.length; i++) {
+    it(`should read correct state when button #${buttons[i]} is pressed`, () => {
+      joypad.setButtonPressed(buttons[i], true);
+      expect(read()).to.deep.equal(state(i));
+    });
+  }
+
+  it('read the same state repeatedly', () => {
     joypad.setButtonPressed(Joypad.A, true);
-    expect(read()).to.deep.equal(state([0]));
-    joypad.setButtonPressed(Joypad.B, true);
-    expect(read()).to.deep.equal(state([0, 1]));
-    joypad.setButtonPressed(Joypad.SELECT, true);
-    expect(read()).to.deep.equal(state([0, 1, 2]));
-    joypad.setButtonPressed(Joypad.START, true);
-    expect(read()).to.deep.equal(state([0, 1, 2, 3]));
-    joypad.setButtonPressed(Joypad.UP, true);
-    expect(read()).to.deep.equal(state([0, 1, 2, 3, 4]));
-    joypad.setButtonPressed(Joypad.DOWN, true);
-    expect(read()).to.deep.equal(state([0, 1, 2, 3, 4, 5]));
-    joypad.setButtonPressed(Joypad.LEFT, true);
-    expect(read()).to.deep.equal(state([0, 1, 2, 3, 4, 5, 6]));
-    joypad.setButtonPressed(Joypad.RIGHT, true);
-    expect(read()).to.deep.equal(state([0, 1, 2, 3, 4, 5, 6, 7]));
+    expect(read()).to.deep.equal(state(0));
+    expect(read()).to.deep.equal(state(0));
   });
 
   it('should strobe to reset read position', () => {
     joypad.setButtonPressed(Joypad.A, true);
-    expect(read(10)).to.deep.equal(state([0], 10));
+    expect(read(10)).to.deep.equal(state(0, 10));
     joypad.strobe();
-    expect(read(10)).to.deep.equal(state([0], 10));
+    expect(read(10)).to.deep.equal(state(0, 10));
   });
 
   function read(length = 24) {
@@ -52,10 +64,13 @@ describe('devices/Joypad', () => {
     return result;
   }
 
-  function state(activePositions = [], length = 24) {
-    const result = new Array(length);
-    for (let i = 0; i < length; i++) {
-      result[i] = ~~(i === 19 || activePositions.indexOf(i) >= 0);
+  function state(activePosition, length = 24) {
+    const result = new Array(length).fill(0);
+    if (activePosition != null) {
+      result[activePosition] = 1;
+    }
+    if (length > 19) {
+      result[19] = 1;
     }
     return result;
   }

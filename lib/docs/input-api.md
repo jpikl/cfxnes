@@ -10,7 +10,7 @@
 
 ## Devices
 
-CFxNES is currently able to emulate the following NES controllers:
+CFxNES can emulate the following NES controllers:
 - `'joypad'` - Joypad (standard NES controller)
 - `'zapper'` - Zapper (beam gun)
 
@@ -33,7 +33,7 @@ Source refers to a *real* input device that is used to emulate one ore more NES 
 - `'mouse'` - Mouse
 - `'gamepad'` - Gamepad
 
-The value `'gamepad'` means *any connected gamepad*. Use `'gamepadN'` (where *N* is a [gamepad index](https://w3c.github.io/gamepad/#gamepad-interface))  to address a specific gamepad (`'gamepad0'`, `'gamepad1'`, etc.).
+Unlike mouse or keyboard, there could be multiple gamepads connected. A specific gamepad must be always addressed using its [index](https://w3c.github.io/gamepad/#gamepad-interface) (`'gamepad0'`, `'gamepad1'`, etc.).
 
 Input of any source can be expressed as a string `'<source>.<name>'`:
 - `<source>` - the source
@@ -43,8 +43,8 @@ Input of any source can be expressed as a string `'<source>.<name>'`:
 
 - `'keyboard.ctrl'` - Ctrl key.
 - `'mouse.left'` - Left mouse button.
-- `'gamepad.x'` - X button of any gamepad.
 - `'gamepad0'.start` - Start button of gamepad #0.
+- `'gamepad1'.x` - X button of gamepad #1.
 
 One or more *source inputs* can be mapped to *device input* using the [mapInputs()](#user-content-mapinputsdeviceinput-sourceinputs) method.
 

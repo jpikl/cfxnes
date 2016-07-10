@@ -40,3 +40,9 @@ export function roundUpToPow2(number) {
   }
   return result;
 }
+
+export function assert(condition, message = 'Invalid parameter') {
+  if (!condition) {
+    throw new Error(message);
+  }
+}

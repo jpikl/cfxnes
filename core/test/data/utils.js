@@ -4,7 +4,7 @@ import Region from '../../src/common/Region';
 export function createINES({prgROMUnits = 1, prgRAMUnits = 0, chrROMUnits = 1,
                      hasPRGRAMBattery = false, hasTrainer = false,
                      verticalMirroring = false, fourScreenMode = false,
-                     palRegion = false, mapperId = 0}) {
+                     palRegion = false, mapperId = 0} = {}) {
   const header = [
     0x4E, 0x45, 0x53, 0x1A,
     prgROMUnits & 0xFF,
@@ -27,7 +27,7 @@ export function createNES2({prgROMUnits = 1, prgRAMUnits = 0, prgRAMUnitsBattery
                             chrROMUnits = 1, chrRAMUnits = 0, chrRAMUnitsBattery = 0,
                             hasPRGRAMBattery = false, hasTrainer = false,
                             verticalMirroring = false, fourScreenMode = false, palRegion = false,
-                            mapperId = 0, submapperId = 0}) {
+                            mapperId = 0, submapperId = 0} = {}) {
   const header = [
     0x4E, 0x45, 0x53, 0x1A,
     prgROMUnits & 0xFF,
@@ -49,10 +49,10 @@ export function createNES2({prgROMUnits = 1, prgRAMUnits = 0, prgRAMUnitsBattery
   return new Uint8Array([...header, ...trainer, ...prgROM, ...chrROM]);
 }
 
-export function createCartridge({sha1, mapper = 0, submapper,
+export function createCartridge({sha1, mapper = 'NROM', submapper,
                                  region = Region.NTSC, mirroring = Mirroring.HORIZONTAL,
                                  prgROMSize = 0x4000, prgRAMSize = 0, prgRAMSizeBattery = 0,
-                                 chrROMSize = 0, chrRAMSize = 0, chrRAMSizeBattery = 0}) {
+                                 chrROMSize = 0, chrRAMSize = 0, chrRAMSizeBattery = 0} = {}) {
   const prgROM = new Uint8Array(prgROMSize);
   const chrROM = new Uint8Array(prgROMSize);
 

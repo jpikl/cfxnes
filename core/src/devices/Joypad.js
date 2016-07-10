@@ -30,6 +30,10 @@ export default class Joypad {
     this.buttonStates[button] = pressed ? 1 : 0;
   }
 
+  isButtonPressed(button) {
+    return this.buttonStates[button] === 1;
+  }
+
 }
 
 // Buttons - must be specified using string key (closure compiler issue)

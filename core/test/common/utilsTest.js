@@ -40,4 +40,9 @@ describe('common/utils', () => {
     expect(module.roundUpToPow2(513)).to.equal(1024);
     expect(module.roundUpToPow2(1024)).to.equal(1024);
   });
+
+  it('should assert condition', () => {
+    expect(() => module.assert(false)).to.throw(Error);
+    expect(() => module.assert(false, 'msg')).to.throw('msg');
+  });
 });
