@@ -9,7 +9,7 @@
 
 ## ROM Images
 
-CFxNES is able to load [iNES](http://wiki.nesdev.com/w/index.php/INES) and [NES 2.0](http://wiki.nesdev.com/w/index.php/NES_2.0) ROM images. 
+CFxNES is able to load [iNES](http://wiki.nesdev.com/w/index.php/INES) and [NES 2.0](http://wiki.nesdev.com/w/index.php/NES_2.0) ROM images.
 
 It is also possible to load ZIP archive containing ROM image. The first file with `.nes` extension found in ZIP archive will be always loaded. This feature requires an [external dependency](api.md#user-content-external-dependencies).
 
@@ -48,7 +48,7 @@ Returns whether a ROM image is currently loaded.
 
 Non-volatile RAM (NVRAM) is a memory that is usually battery-backed and serves as a place for game saves. NVRAM is only used by some games (e.g., The Legend of Zelda or Final Fantasy).
 
-Use [getNVRAM](#user-content-getnvram), [setNVRAM](#user-content-setnvram) for direct NVRAM manipulation. 
+Use [getNVRAM](#user-content-getnvram), [setNVRAM](#user-content-setnvram) for direct NVRAM manipulation.
 
 Use [loadNVRAM](#user-content-loadnvram), [saveNVRAM](#user-content-savenvram) to persist NVRAM in IndexedDB. NVRAMs of various games are differentiated using SHA-1 checksums of their ROM images. To be able to compute SHA-1, an [external dependency](api.md#user-content-external-dependencies) is required.
 
@@ -56,7 +56,7 @@ Use [loadNVRAM](#user-content-loadnvram), [saveNVRAM](#user-content-savenvram) t
 ``` javascript
 cfxnes.saveNVRAM() // Persist game saves of the currently running game
     .then(() => cfxnes.loadROM(arrayBuffer)) // Load a different game
-    .then(() => cfxnes.loadNVRAM()) // Restore its game saves 
+    .then(() => cfxnes.loadNVRAM()) // Restore its game saves
 ```
 
 #### .getNVRAMSize()
@@ -119,11 +119,11 @@ Sets values of the specified configuration options.
 
 - **options**: `object` - the configuration options
 
-#### .resetOptions(...options)
+#### .resetOptions(...names)
 
 Resets the specified configuration options to their default value.
 
-- **options**: `...string`  - one or more names of options to reset; omit to reset all options
+- **names**: `...string`  - one or more names of options to reset; omit to reset all options
 
 #### .loadOptions()
 
