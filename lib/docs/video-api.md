@@ -50,6 +50,7 @@ Returns the `canvas` element currently used for rendering.
 #### .setVideoRenderer(renderer)
 
 Sets the rendering back-end. The `'canvas'` renderer is used as fallback in case of unsupported renderer.
+**It is not possible to change renderer for a canvas once it's context was initialized.**
 
 - **renderer**: [`VideoRenderer`](#user-content-videorenderer) - the renderer
 
@@ -127,7 +128,7 @@ Returns the current type of full screen mode.
 
 #### VideoRenderer
 
-- `'canvas'` - Rendering using the standard Canvas API. It is used as fallback when WebGL is not available.
+- `'canvas'` - Rendering using the Canvas API. It is used as fallback when WebGL is not available.
 - `'webgl'` - Rendering using WebGL. It reduces CPU usage and possible screen tearing artifacts. WebGL is typically faster than the `'canvas'` renderer, but this highly depends on browser, OS, graphic card driver, etc.
 
 #### VideoPalette
