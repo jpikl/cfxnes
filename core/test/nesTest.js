@@ -148,11 +148,11 @@ describe('NES (no cartridge)', () => {
     expect(nes.readAudioBuffer()).to.be.deep.equal(new Float32Array(4096));
   });
 
-  it('returns zero NVRAM size', () => {
+  it('gets zero NVRAM size', () => {
     expect(nes.getNVRAMSize()).to.be.equal(0);
   });
 
-  it('returns null NVRAM', () => {
+  it('gets null NVRAM', () => {
     expect(nes.getNVRAM()).to.be.null;
   });
 
@@ -241,7 +241,7 @@ describe('NES (cartridge set)', () => {
     expect(nes.readAudioBuffer()).to.not.deep.equal(new Float32Array(4096).fill(0.5));
   });
 
-  it('returns NVRAM size', () => {
+  it('gets NVRAM size', () => {
     expect(nes.getNVRAMSize()).to.be.equal(0x2000);
   });
 
