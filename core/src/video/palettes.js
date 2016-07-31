@@ -27,13 +27,13 @@ const palettes = {
   'nestopia-yuv': nestopia_yuv,
 };
 
-export function createPalette(id = 'fceux') {
-  log.info(`Creating "${id}" palette`);
-  const base64 = palettes[id];
+export function createPalette(name = 'fceux') {
+  log.info(`Creating "${name}" palette`);
+  const base64 = palettes[name];
   if (base64) {
     return decodePalette(base64);
   }
-  throw new Error(`Unknown palette "${id}"`);
+  throw new Error(`Unknown palette "${name}"`);
 }
 
 function decodePalette(base64) {

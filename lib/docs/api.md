@@ -44,7 +44,6 @@ The following are **optional dependencies** which are not part of the CFxNES lib
 | Name | Description | Impact |
 |------|-------------|--------|
 | sha1 | Any SHA-1 implementation `Uint8Array ⇒ string` ([js-sha1](https://github.com/emn178/js-sha1) is recommended). | Internally used to differentiate between ROM images. Emulator will be able to persist game saves. |
-| screenfull | [screenfull.js](https://github.com/sindresorhus/screenfull.js/) (v3.0.0 or compatible). | Emulator will support full screen mode. |
 | JSZip | [JSZip](https://github.com/Stuk/jszip) (v2.6.0 or compatible). | Emulator will be able to load zipped ROM images. |
 
 ## Static properties

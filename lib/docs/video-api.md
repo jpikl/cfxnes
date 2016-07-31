@@ -15,7 +15,7 @@
 | videoPalette | [`VideoPalette`](#user-content-videopalette) | `'fceux'` | Palette used for generating RGB color values. |
 | videoScale | `number` | `1.0` | Canvas resolution multiplier. Value must be larger than `0`. Non-integer value might cause visual artifacts due to upscaling. The base resolution is 256x240. |
 | videoSmooting | `boolean` | `false` | Enables smoothing effect for upscaled canvas resolution. |
-| videoDebugging | `boolean` | `false` | Enables additional video output (content of pattern tables and background/sprite palettes) to be displayed on canvas. This will also double width of the canvas. |
+| videoDebug | `boolean` | `false` | Enables additional video output (content of pattern tables and background/sprite palettes) to be displayed on canvas. This will also double width of the canvas. |
 | fullscreenType | [`FullscreenType`](#user-content-fullscreentype) | `'maximized'` | Type of full screen mode. |
 
 *Example:*
@@ -27,7 +27,7 @@ new CFxNES({
   videoPalette: 'fceux',
   videoScale: 1.0,
   videoSmooting: false,
-  videoDebugging: false,
+  videoDebug: false,
   fullscreenType: 'maximized'
 });
 ```
@@ -96,21 +96,29 @@ Returns whether smoothing effect is currently enabled.
 
 - **returns**: `boolean` - `true` if smoothing is enabled; `false` otherwise
 
-#### .setVideoDebugging(debugging)
+#### .setVideoDebug(debug)
 
-Enables/disables additional debugging output to be displayed on canvas.
+Enables/disables additional debug output to be displayed on canvas.
 
-- **debugging**: `boolean` - `true` to enable debugging output; `false` to disable
+- **debug**: `boolean` - `true` to enable debug output; `false` to disable
 
-#### .isVideoDebugging()
+#### .isVideoDebug()
 
-Returns whether debugging output is currently enabled.
+Returns whether debug output is currently enabled.
 
-- **returns**: `boolean` - `true` if debugging output is enabled; `false` otherwise
+- **returns**: `boolean` - `true` if debug output is enabled; `false` otherwise
 
 #### .enterFullscreen()
 
 Switches to full screen mode. It's recommended to wrap `canvas` element in extra `div` to make full screen working properly.
+
+- **returns**: `Promise` - promise resolved when full screen is entered
+
+#### .exitFullscreen()
+
+Exits full screen mode.
+
+- **returns**: `Promise` - promise resolved when full screen is exited
 
 #### .setFullscreenType(type)
 

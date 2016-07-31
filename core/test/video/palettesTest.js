@@ -13,7 +13,7 @@ describe('video/palettes', () => {
   });
 
   it('should create palette for valid ID', () => {
-    const ids = [
+    const names = [
       'asq-real-a',
       'asq-real-b',
       'bmf-fin-r2',
@@ -24,8 +24,8 @@ describe('video/palettes', () => {
       'nestopia-rgb',
       'nestopia-yuv',
     ];
-    for (const id of ids) {
-      const palette = module.createPalette(id);
+    for (const name of names) {
+      const palette = module.createPalette(name);
       expect(palette).to.be.an('uint32array');
       expect(palette).to.have.lengthOf(64);
     }

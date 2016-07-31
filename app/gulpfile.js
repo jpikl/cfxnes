@@ -36,7 +36,6 @@ gulp.task('libs', () => {
     './node_modules/promise-polyfill/promise.min.js',
     './node_modules/js-sha1/build/sha1.min.js',
     './node_modules/jszip/dist/jszip.min.js',
-    './node_modules/screenfull/dist/screenfull.js',
     './node_modules/jquery/dist/jquery.min.js',
     './node_modules/jquery.browser/dist/jquery.browser.min.js',
     './node_modules/bootstrap/dist/js/bootstrap.min.js',

@@ -1,4 +1,4 @@
-/* global CFxNES, sha1, JSZip, screenfull */
+/* global CFxNES, sha1, JSZip */
 /* eslint-disable no-unused-vars */
 
 //=========================================================
@@ -7,7 +7,7 @@
 
 CFxNES.setLogLevel('info');
 
-const cfxnes = new CFxNES({sha1, JSZip, screenfull});
+const cfxnes = new CFxNES({sha1, JSZip});
 
 //=========================================================
 // App state
@@ -76,7 +76,7 @@ function formatError(error) {
     return `Error: ${error.message}`; // Error
   }
   if (error.status) {
-    return `Error: Unable to download file (${error.status} - ${error.statusText}).`; // XMLHttpRequest
+    return `Error: Unable to download file (${error.status} ${error.statusText}).`; // XMLHttpRequest
   }
   if (error.status === 0) {
     return 'Error: Unable to connect to the server.'; // XMLHttpRequest

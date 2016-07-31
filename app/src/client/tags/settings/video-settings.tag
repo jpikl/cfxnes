@@ -6,7 +6,7 @@
   </div>
   <div class="video-settings">
     <div riot-tag="input-checkbox" name="video-smoothing" label="Enable smoothing"></div>
-    <div riot-tag="input-checkbox" name="video-debugging" label="Show patterns and paletts"></div>
+    <div riot-tag="input-checkbox" name="video-debug" label="Show patterns and paletts"></div>
     <div riot-tag="input-checkbox" name="video-webgl" label="Use WebGL for rendering"></div>
     <div riot-tag="input-checkbox" name="fps-visible" label="Show FPS"></div>
   </div>
@@ -36,7 +36,7 @@
       this.tags['video-palette'].setValue(cfxnes.getVideoPalette());
       this.tags['fullscreen-mode'].setValue(cfxnes.getFullscreenType());
       this.tags['video-smoothing'].setValue(cfxnes.isVideoSmoothing());
-      this.tags['video-debugging'].setValue(cfxnes.isVideoDebugging());
+      this.tags['video-debug'].setValue(cfxnes.isVideoDebug());
       this.tags['video-webgl'].setValue(cfxnes.getVideoRenderer() === 'webgl');
       this.tags['fps-visible'].setValue(app.fpsVisible);
     });
@@ -46,7 +46,7 @@
       this.tags['video-palette'].on('change', value => cfxnes.setVideoPalette(value));
       this.tags['fullscreen-mode'].on('change', value => cfxnes.setFullscreenType(value));
       this.tags['video-smoothing'].on('change', value => cfxnes.setVideoSmoothing(value));
-      this.tags['video-debugging'].on('change', value => cfxnes.setVideoDebugging(value));
+      this.tags['video-debug'].on('change', value => cfxnes.setVideoDebug(value));
       this.tags['video-webgl'].setEnabled(cfxnes.isVideoRendererSupported('webgl'));
       this.tags['video-webgl'].on('change', value => cfxnes.setVideoRenderer(value ? 'webgl' : 'canvas'));
       this.tags['fps-visible'].on('change', value => (app.fpsVisible = value));

@@ -51,7 +51,6 @@
     "object-assign-polyfill": "^0.1.0",
     "promise-polyfill": "^4.0.3",
     "riot": "^2.4.1",
-    "screenfull": "^3.0.0",
     "yargs": "^4.4.0"
   }
 }

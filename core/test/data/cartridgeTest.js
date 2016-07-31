@@ -79,7 +79,7 @@ describe('data/cartridge', () => {
     expect(cartridge1).to.deep.equal(cartridge2);
   });
 
-  it('should read cartridge from file (JSZip, sha1)', () => {
+  it('should read cartridge from zipped file and compute SHA-1', () => {
     const cartridge1 = readCartridge('./test/roms/nestest/nestest.zip', {JSZip, sha1});
     const cartridge2 = createCartridge(zipData, {JSZip, sha1});
     expect(cartridge1).to.deep.equal(cartridge2);
