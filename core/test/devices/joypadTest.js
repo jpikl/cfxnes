@@ -25,31 +25,38 @@ describe('devices/Joypad', () => {
   });
 
   for (const button of buttons) {
-    it(`should get/set button #${button} pressed`, () => {
+    it(`has button #${button} not pressed by default`, () => {
       expect(joypad.isButtonPressed(button)).to.be.false;
-      joypad.setButtonPressed(button, true);
-      expect(joypad.isButtonPressed(button)).to.be.true;
     });
   }
 
-  it('should read correct initial state', () => {
+  for (const button of buttons) {
+    it(`sets/gets button #${button} state`, () => {
+      joypad.setButtonPressed(button, true);
+      expect(joypad.isButtonPressed(button)).to.be.true;
+      joypad.setButtonPressed(button, false);
+      expect(joypad.isButtonPressed(button)).to.be.false;
+    });
+  }
+
+  it('reads correct initial state', () => {
     expect(read()).to.deep.equal(state());
   });
 
   for (let i = 0; i < buttons.length; i++) {
-    it(`should read correct state when button #${buttons[i]} is pressed`, () => {
+    it(`reads correct state when button #${buttons[i]} is pressed`, () => {
       joypad.setButtonPressed(buttons[i], true);
       expect(read()).to.deep.equal(state(i));
     });
   }
 
-  it('read the same state repeatedly', () => {
+  it('reads the same state repeatedly', () => {
     joypad.setButtonPressed(Joypad.A, true);
     expect(read()).to.deep.equal(state(0));
     expect(read()).to.deep.equal(state(0));
   });
 
-  it('should strobe to reset read position', () => {
+  it('strobes to reset read position', () => {
     joypad.setButtonPressed(Joypad.A, true);
     expect(read(10)).to.deep.equal(state(0, 10));
     joypad.strobe();

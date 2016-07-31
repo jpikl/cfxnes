@@ -5,24 +5,25 @@ import {expect} from 'chai';
 import {createMapper} from '../../src/memory/mappers';
 
 describe('memory/mappers', () => {
-  it('should create mapper for valid ID', () => {
-    const ids = [
-      'AOROM',
-      'BNROM',
-      'CNROM',
-      'ColorDreams',
-      'MMC1',
-      'MMC3',
-      'NINA-001',
-      'NROM',
-      'UNROM',
-    ];
-    for (const id of ids) {
-      expect(createMapper({mapper: id})).to.be.an('object');
-    }
-  });
+  const mappers = [
+    'AOROM',
+    'BNROM',
+    'CNROM',
+    'ColorDreams',
+    'MMC1',
+    'MMC3',
+    'NINA-001',
+    'NROM',
+    'UNROM',
+  ];
 
-  it('should throw error for invalid ID', () => {
+  for (const mapper of mappers) {
+    it(`creates ${mapper} mapper`, () => {
+      expect(createMapper({mapper})).to.be.an('object');
+    });
+  }
+
+  it('throws error for an unknown mapper name', () => {
     expect(() => createMapper({})).to.throw(Error);
     expect(() => createMapper({mapper: 'x'})).to.throw(Error);
   });

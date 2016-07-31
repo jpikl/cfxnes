@@ -61,12 +61,16 @@ export default class NES {
   }
 
   getRegion() {
+    return this.region || null;
+  }
+
+  getUsedRegion() {
     return this.region || (this.cartridge && this.cartridge.region) || Region.NTSC;
   }
 
   updateRegionParams() {
     log.info('Updating region parameters');
-    const region = this.getRegion();
+    const region = this.getUsedRegion();
     const params = Region.getParams(region);
     log.info(`Detected region: "${region}"`);
     this.ppu.setRegionParams(params);

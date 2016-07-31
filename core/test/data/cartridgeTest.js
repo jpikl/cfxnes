@@ -16,13 +16,13 @@ describe('data/cartridge', () => {
     zipData = new Uint8Array(fs.readFileSync('./test/roms/nestest/nestest.zip'));
   });
 
-  it('should accept valid data type', () => {
+  it('acceppts valid data type', () => {
     expect(createCartridge(romData)).to.be.an('object'); // Uint8Array
     expect(createCartridge(romData.buffer)).to.be.an('object'); // ArrayBuffer
     expect(createCartridge([...romData])).to.be.an('object'); // Array
   });
 
-  it('should throw error for invalid data type', () => {
+  it('throws error for invalid data type', () => {
     expect(() => createCartridge()).to.throw(Error);
     expect(() => createCartridge(null)).to.throw(Error);
     expect(() => createCartridge(1)).to.throw(Error);
@@ -31,7 +31,7 @@ describe('data/cartridge', () => {
     expect(() => createCartridge({})).to.throw(Error);
   });
 
-  it('should create cartridge from valid data format', () => {
+  it('creates cartridge from valid data format', () => {
     const cartridge = createCartridge(romData);
     expect(cartridge).to.be.an('object');
     expect(cartridge.mapper).to.be.equal('NROM');
@@ -48,32 +48,32 @@ describe('data/cartridge', () => {
     expect(cartridge.chrROM.length).to.be.equal(0x2000);
   });
 
-  it('should throw error for invalid data format', () => {
+  it('throws error for invalid data format', () => {
     expect(() => createCartridge(new Uint8Array(100))).to.throw(Error);
   });
 
-  it('should compute SHA-1', () => {
+  it('computes SHA-1', () => {
     const cartridge = createCartridge(romData);
     expect(cartridge.sha1).to.be.equal('4131307f0f69f2a5c54b7d438328c5b2a5ed0820');
   });
 
-  it('should fail to unzip ROM image when JSZip is missing', () => {
+  it('fails to unzip ROM image when JSZip is not provided', () => {
     expect(() => createCartridge(zipData)).to.throw(Error);
   });
 
-  it('should unzip ROM image when JSZip is present', () => {
+  it('unzips ROM image when JSZip is provided', () => {
     const cartridge1 = createCartridge(zipData, JSZip);
     const cartridge2 = createCartridge(romData);
     expect(cartridge1).to.deep.equal(cartridge2);
   });
 
-  it('should read cartridge from file', () => {
+  it('reads cartridge from file', () => {
     const cartridge1 = readCartridge('./test/roms/nestest/nestest.nes');
     const cartridge2 = createCartridge(romData);
     expect(cartridge1).to.deep.equal(cartridge2);
   });
 
-  it('should read cartridge from zipped file', () => {
+  it('reads cartridge from zipped file', () => {
     const cartridge1 = readCartridge('./test/roms/nestest/nestest.zip', JSZip);
     const cartridge2 = createCartridge(zipData, JSZip);
     expect(cartridge1).to.deep.equal(cartridge2);

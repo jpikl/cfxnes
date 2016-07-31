@@ -7,13 +7,13 @@ import Region from '../../src/common/Region';
 describe('common/Region', () => {
   const regions = [Region.NTSC, Region.PAL];
 
-  it('should have string values', () => {
+  it('has string values', () => {
     for (const region of regions) {
       expect(region).to.be.a('string');
     }
   });
 
-  it('should have parameters', () => {
+  it('provides parameters for each value', () => {
     for (const region of regions) {
       const params = Region.getParams(region);
       expect(params).to.be.an('object');
@@ -22,6 +22,9 @@ describe('common/Region', () => {
         'frameCounterMax5', 'noiseChannelTimerPeriods', 'dmcChannelTimerPeriods',
       ]);
     }
+  });
+
+  it('throws error when getting parameters for an unknown value', () => {
     expect(() => Region.getParams('x')).to.throw(Error);
   });
 });

@@ -22,11 +22,11 @@ const mappers = {
 };
 
 export function createMapper(cartridge) {
-  const id = cartridge.mapper;
-  log.info(`Creating "${id}" mapper`);
-  const clazz = mappers[id];
-  if (clazz) {
-    return new clazz(cartridge);
+  const name = cartridge.mapper;
+  log.info(`Creating "${name}" mapper`);
+  const Mapper = mappers[name];
+  if (Mapper) {
+    return new Mapper(cartridge);
   }
-  throw new Error(`Unkown mapper "${id}"`);
+  throw new Error(`Unkown mapper "${name}"`);
 }

@@ -6,36 +6,37 @@ import {packColor, unpackColor} from '../../src/video/colors';
 import * as module from '../../src/video/palettes';
 
 describe('video/palettes', () => {
-  it('should create default palette when no ID is specified', () => {
+  const names = [
+    'asq-real-a',
+    'asq-real-b',
+    'bmf-fin-r2',
+    'bmf-fin-r3',
+    'fceu-13',
+    'fceu-15',
+    'fceux',
+    'nestopia-rgb',
+    'nestopia-yuv',
+  ];
+
+  it('creates default palette when no name is specified', () => {
     const palette = module.createPalette();
     expect(palette).to.be.an('uint32array');
     expect(palette).to.have.lengthOf(64);
   });
 
-  it('should create palette for valid ID', () => {
-    const names = [
-      'asq-real-a',
-      'asq-real-b',
-      'bmf-fin-r2',
-      'bmf-fin-r3',
-      'fceu-13',
-      'fceu-15',
-      'fceux',
-      'nestopia-rgb',
-      'nestopia-yuv',
-    ];
-    for (const name of names) {
+  for (const name of names) {
+    it(`creates ${name} palette`, () => {
       const palette = module.createPalette(name);
       expect(palette).to.be.an('uint32array');
       expect(palette).to.have.lengthOf(64);
-    }
-  });
+    });
+  }
 
-  it('should throw error for invalid ID', () => {
+  it('throws error for invalid palette name', () => {
     expect(() => module.createPalette('x')).to.throw(Error);
   });
 
-  it('should create palette variant', () => {
+  it('creates palette variant', () => {
     const palette = new Uint32Array(64);
     palette[0] = packColor(96, 128, 196);
     palette[59] = packColor(96, 128, 196);

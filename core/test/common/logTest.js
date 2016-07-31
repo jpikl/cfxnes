@@ -26,37 +26,37 @@ describe('common/log', () => {
     log.setLevel('warn');
   });
 
-  it('should forward error calls', () => {
+  it('forwards error calls', () => {
     log.error('message1', 'message2');
     expect(console.error).to.have.been.calledOnce;
     expect(console.error).to.have.been.calledWith('message1', 'message2');
   });
 
-  it('should forward warn calls', () => {
+  it('forwards warn calls', () => {
     log.warn('message1', 'message2');
     expect(console.warn).to.have.been.calledOnce;
     expect(console.warn).to.have.been.calledWith('message1', 'message2');
   });
 
-  it('should forward info calls', () => {
+  it('forwards info calls', () => {
     log.info('message1', 'message2');
     expect(console.info).to.have.been.calledOnce;
     expect(console.info).to.have.been.calledWith('message1', 'message2');
   });
 
-  it('should log nothing for "off" level', () => {
+  it('logs nothing for "off" level', () => {
     testLevel('off', 0, 0, 0);
   });
 
-  it('should log errors for "error" level', () => {
+  it('logs errors for "error" level', () => {
     testLevel('error', 1, 0, 0);
   });
 
-  it('should log errors, warnings for "warn" level', () => {
+  it('logs errors, warnings for "warn" level', () => {
     testLevel('warn', 1, 1, 0);
   });
 
-  it('should log errors, warnings, infos for "info" level', () => {
+  it('logs errors, warnings, infos for "info" level', () => {
     testLevel('info', 1, 1, 1);
   });
 
