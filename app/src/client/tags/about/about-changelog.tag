@@ -7,7 +7,7 @@
     <li>Fixed sprite zero hit detection.</li>
     <li>Fixed sprite overflow flag clearing.</li>
     <li>Added option to set volume of each audio channel.</li>
-    <li>Checksums are computed using SHA-1 (previously MD5) from PRGRAM + CHRRAM (previously only PRGRAM).</li>
+    <li>Checksums are computed using SHA-1 from PRG RAM and CHR RAM.</li>
   </ul>
   <h3>0.4.0 - 2015-11-29</h3>
   <ul>

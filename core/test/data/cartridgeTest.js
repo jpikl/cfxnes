@@ -4,7 +4,6 @@
 import fs from 'fs';
 import {expect} from 'chai';
 import JSZip from 'jszip';
-import sha1 from 'js-sha1';
 import Mirroring from '../../src/common/Mirroring';
 import Region from '../../src/common/Region';
 import {readCartridge, createCartridge} from '../../src/data/cartridge';
@@ -53,13 +52,8 @@ describe('data/cartridge', () => {
     expect(() => createCartridge(new Uint8Array(100))).to.throw(Error);
   });
 
-  it('should not compute SHA-1 when its implementation is missing', () => {
+  it('should compute SHA-1', () => {
     const cartridge = createCartridge(romData);
-    expect(cartridge.sha1).to.be.undefined;
-  });
-
-  it('should compute SHA-1 when its implementation is present', () => {
-    const cartridge = createCartridge(romData, {sha1});
     expect(cartridge.sha1).to.be.equal('4131307f0f69f2a5c54b7d438328c5b2a5ed0820');
   });
 
@@ -68,7 +62,7 @@ describe('data/cartridge', () => {
   });
 
   it('should unzip ROM image when JSZip is present', () => {
-    const cartridge1 = createCartridge(zipData, {JSZip});
+    const cartridge1 = createCartridge(zipData, JSZip);
     const cartridge2 = createCartridge(romData);
     expect(cartridge1).to.deep.equal(cartridge2);
   });
@@ -79,9 +73,9 @@ describe('data/cartridge', () => {
     expect(cartridge1).to.deep.equal(cartridge2);
   });
 
-  it('should read cartridge from zipped file and compute SHA-1', () => {
-    const cartridge1 = readCartridge('./test/roms/nestest/nestest.zip', {JSZip, sha1});
-    const cartridge2 = createCartridge(zipData, {JSZip, sha1});
+  it('should read cartridge from zipped file', () => {
+    const cartridge1 = readCartridge('./test/roms/nestest/nestest.zip', JSZip);
+    const cartridge2 = createCartridge(zipData, JSZip);
     expect(cartridge1).to.deep.equal(cartridge2);
   });
 });

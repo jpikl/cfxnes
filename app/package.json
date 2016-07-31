@@ -42,14 +42,11 @@
     "gulp-uglify": "^1.5.3",
     "jquery": "^2.2.3",
     "jquery.browser": "0.1.0",
-    "js-sha1": "^0.3.0",
     "jszip": "^2.6.0",
     "less-plugin-autoprefix": "^1.5.1",
     "less-plugin-clean-css": "^1.5.1",
     "merge2": "^1.0.2",
     "mkdirp": "^0.5.1",
-    "object-assign-polyfill": "^0.1.0",
-    "promise-polyfill": "^4.0.3",
     "riot": "^2.4.1",
     "yargs": "^4.4.0"
   }

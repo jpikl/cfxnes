@@ -50,7 +50,7 @@ Non-volatile RAM (NVRAM) is a memory that is usually battery-backed and serves a
 
 Use [getNVRAM](#user-content-getnvram), [setNVRAM](#user-content-setnvram) for direct NVRAM manipulation.
 
-Use [loadNVRAM](#user-content-loadnvram), [saveNVRAM](#user-content-savenvram) to persist NVRAM in IndexedDB. NVRAMs of various games are differentiated using SHA-1 checksums of their ROM images. To be able to compute SHA-1, an [external dependency](api.md#user-content-external-dependencies) is required.
+Use [loadNVRAM](#user-content-loadnvram), [saveNVRAM](#user-content-savenvram) to persist NVRAM in IndexedDB. NVRAMs of various games are differentiated using SHA-1 checksums of their ROM images.
 
 *Example:*
 ``` javascript

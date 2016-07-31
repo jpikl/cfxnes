@@ -1,4 +1,4 @@
-/* global CFxNES, sha1, JSZip */
+/* global CFxNES */
 /* eslint-disable no-unused-vars */
 
 //=========================================================
@@ -7,7 +7,7 @@
 
 CFxNES.setLogLevel('info');
 
-const cfxnes = new CFxNES({sha1, JSZip});
+const cfxnes = new CFxNES;
 
 //=========================================================
 // App state

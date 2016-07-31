@@ -1,16 +1,17 @@
 import log from '../common/log';
 import {formatSize} from '../common/utils';
 import inesParser from './inesParser';
+import sha1 from './sha1';
 
 const parsers = [inesParser];
 
-export function readCartridge(path, libs) {
+export function readCartridge(path, JSZip) {
   log.info(`Reading cartridge from file "${path}"`);
   const data = require('fs').readFileSync(path); // eslint-disable-line import/newline-after-import
-  return createCartridge(new Uint8Array(data), libs);
+  return createCartridge(new Uint8Array(data), JSZip);
 }
 
-export function createCartridge(data, {JSZip, sha1} = {}) {
+export function createCartridge(data, JSZip) {
   log.info('Creating cartridge from array');
 
   if (data instanceof Array || data instanceof ArrayBuffer) {
@@ -28,7 +29,7 @@ export function createCartridge(data, {JSZip, sha1} = {}) {
     if (parser.supports(data)) {
       log.info(`Using "${parser.name}" parser`);
       const cartridge = parser.parse(data);
-      computeSHA1(cartridge, sha1);
+      computeSHA1(cartridge);
       printInfo(cartridge);
       return cartridge;
     }
@@ -56,16 +57,14 @@ function unzip(data, JSZip) {
   return files[0].asUint8Array();
 }
 
-function computeSHA1(cartridge, sha1) {
-  if (sha1) {
-    log.info('Computing SHA-1');
-    const buffer = new Uint8Array(cartridge.prgROMSize + cartridge.chrROMSize);
-    buffer.set(cartridge.prgROM);
-    if (cartridge.chrROM) {
-      buffer.set(cartridge.chrROM, cartridge.prgROMSize);
-    }
-    cartridge.sha1 = sha1(buffer);
+function computeSHA1(cartridge) {
+  log.info('Computing SHA-1');
+  const buffer = new Uint8Array(cartridge.prgROMSize + cartridge.chrROMSize);
+  buffer.set(cartridge.prgROM);
+  if (cartridge.chrROM) {
+    buffer.set(cartridge.chrROM, cartridge.prgROMSize);
   }
+  cartridge.sha1 = sha1(buffer);
 }
 
 function printInfo(cartridge) {

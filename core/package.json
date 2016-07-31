@@ -26,7 +26,6 @@
     "gulp": "gulpjs/gulp#4.0",
     "gulp-eslint": "^2.0.0",
     "gulp-mocha": "^2.2.0",
-    "js-sha1": "^0.3.0",
     "jszip": "^2.6.0",
     "mkdirp": "^0.5.1",
     "mocha": "^2.5.3",
