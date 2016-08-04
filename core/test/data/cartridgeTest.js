@@ -12,9 +12,13 @@ describe('data/cartridge', () => {
   let romData, zipData;
 
   before(() => {
-    romData = new Uint8Array(fs.readFileSync('./test/roms/nestest/nestest.nes'));
-    zipData = new Uint8Array(fs.readFileSync('./test/roms/nestest/nestest.zip'));
+    romData = readROMFile('nestest/nestest.nes');
+    zipData = readROMFile('nestest/nestest.zip');
   });
+
+  function readROMFile(name) {
+    return new Uint8Array(fs.readFileSync(`./test/roms/${name}`));
+  }
 
   it('acceppts valid data type', () => {
     expect(createCartridge(romData)).to.be.an('object'); // Uint8Array
@@ -23,12 +27,12 @@ describe('data/cartridge', () => {
   });
 
   it('throws error for invalid data type', () => {
-    expect(() => createCartridge()).to.throw(Error);
-    expect(() => createCartridge(null)).to.throw(Error);
-    expect(() => createCartridge(1)).to.throw(Error);
-    expect(() => createCartridge(true)).to.throw(Error);
-    expect(() => createCartridge('x')).to.throw(Error);
-    expect(() => createCartridge({})).to.throw(Error);
+    expect(() => createCartridge()).to.throw('Invalid data type');
+    expect(() => createCartridge(null)).to.throw('Invalid data type');
+    expect(() => createCartridge(1)).to.throw('Invalid data type');
+    expect(() => createCartridge(true)).to.throw('Invalid data type');
+    expect(() => createCartridge('x')).to.throw('Invalid data type');
+    expect(() => createCartridge({})).to.throw('Invalid data type');
   });
 
   it('creates cartridge from valid data format', () => {
@@ -49,7 +53,7 @@ describe('data/cartridge', () => {
   });
 
   it('throws error for invalid data format', () => {
-    expect(() => createCartridge(new Uint8Array(100))).to.throw(Error);
+    expect(() => createCartridge(new Uint8Array(100))).to.throw('Unsupported data format');
   });
 
   it('computes SHA-1', () => {
@@ -58,7 +62,11 @@ describe('data/cartridge', () => {
   });
 
   it('fails to unzip ROM image when JSZip is not provided', () => {
-    expect(() => createCartridge(zipData)).to.throw(Error);
+    expect(() => createCartridge(zipData)).to.throw('Unable to extract ROM image: JSZip is not available');
+  });
+
+  it('fails to unzip ROM image when it is not present in ZIP archive', () => {
+    expect(() => createCartridge(readROMFile('norom.zip'), JSZip)).to.throw('ZIP archive does not contain ".nes" ROM image');
   });
 
   it('unzips ROM image when JSZip is provided', () => {

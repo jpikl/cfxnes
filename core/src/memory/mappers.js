@@ -23,10 +23,10 @@ const mappers = {
 
 export function createMapper(cartridge) {
   const name = cartridge.mapper;
-  log.info(`Creating "${name}" mapper`);
   const Mapper = mappers[name];
   if (Mapper) {
+    log.info(`Creating "${name}" mapper`);
     return new Mapper(cartridge);
   }
-  throw new Error(`Unkown mapper "${name}"`);
+  throw new Error('Invalid mapper');
 }

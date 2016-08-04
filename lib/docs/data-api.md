@@ -73,7 +73,7 @@ Returns NVRAM data of the currently running game.
 
 #### .setNVRAM(data)
 
-Sets NVRAM data for the currently running game. The behavior of this method is undefined if NVRAM is unavailable or has different size then the provided data.
+Sets NVRAM data for the currently running game. The provided data must have the same size as the NVRAM.
 
 - **data**: `Uint8Array` - the data
 

@@ -45,10 +45,16 @@ describe('common/utils', () => {
 
   it('does nothing when asserting positive condition', () => {
     assert(true);
+    assert('x');
   });
 
   it('throws error when asserting negative condition', () => {
     expect(() => assert(false)).to.throw(Error);
+    expect(() => assert('')).to.throw(Error);
+  });
+
+  it('throws error with correct message when asserting negative condition', () => {
+    expect(() => assert(false)).to.throw('Invalid parameter');
     expect(() => assert(false, 'msg')).to.throw('msg');
   });
 });

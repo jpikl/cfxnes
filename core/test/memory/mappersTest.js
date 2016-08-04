@@ -23,8 +23,8 @@ describe('memory/mappers', () => {
     });
   }
 
-  it('throws error for an unknown mapper name', () => {
-    expect(() => createMapper({})).to.throw(Error);
-    expect(() => createMapper({mapper: 'x'})).to.throw(Error);
+  it('throws error when creating invalid mapper', () => {
+    expect(() => createMapper({})).to.throw('Invalid mapper');
+    expect(() => createMapper({mapper: 'x'})).to.throw('Invalid mapper');
   });
 });

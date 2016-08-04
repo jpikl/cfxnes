@@ -3,7 +3,7 @@
 
 import {expect} from 'chai';
 import {packColor, unpackColor} from '../../src/video/colors';
-import * as module from '../../src/video/palettes';
+import {isPaletteName, createPalette, createPaletteVariant} from '../../src/video/palettes';
 
 describe('video/palettes', () => {
   const names = [
@@ -18,22 +18,27 @@ describe('video/palettes', () => {
     'nestopia-yuv',
   ];
 
+  it('validates palette name', () => {
+    expect(isPaletteName('x')).to.be.false;
+    expect(isPaletteName('fceux')).to.be.true;
+  });
+
   it('creates default palette when no name is specified', () => {
-    const palette = module.createPalette();
+    const palette = createPalette();
     expect(palette).to.be.an('uint32array');
     expect(palette).to.have.lengthOf(64);
   });
 
   for (const name of names) {
     it(`creates ${name} palette`, () => {
-      const palette = module.createPalette(name);
+      const palette = createPalette(name);
       expect(palette).to.be.an('uint32array');
       expect(palette).to.have.lengthOf(64);
     });
   }
 
-  it('throws error for invalid palette name', () => {
-    expect(() => module.createPalette('x')).to.throw(Error);
+  it('throws error when creating invalid palette', () => {
+    expect(() => createPalette('x')).to.throw('Invalid palette');
   });
 
   it('creates palette variant', () => {
@@ -41,7 +46,7 @@ describe('video/palettes', () => {
     palette[0] = packColor(96, 128, 196);
     palette[59] = packColor(96, 128, 196);
 
-    const paletteVariant = module.createPaletteVariant(palette, 0.5, 0.7, 0.9);
+    const paletteVariant = createPaletteVariant(palette, 0.5, 0.7, 0.9);
     const color0 = unpackColor(paletteVariant[0]);
     const color59 = unpackColor(paletteVariant[59]);
 

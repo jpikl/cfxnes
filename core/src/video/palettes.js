@@ -27,17 +27,20 @@ const palettes = {
   'nestopia-yuv': nestopia_yuv,
 };
 
+export function isPaletteName(name) {
+  return name in palettes;
+}
+
 export function createPalette(name = 'fceux') {
-  log.info(`Creating "${name}" palette`);
   const base64 = palettes[name];
   if (base64) {
+    log.info(`Creating "${name}" palette`);
     return decodePalette(base64);
   }
-  throw new Error(`Unknown palette "${name}"`);
+  throw new Error('Invalid palette');
 }
 
 function decodePalette(base64) {
-  log.info('Decoding palette data');
   const data = decodeBase64(base64);
   if (data.length !== PALETTE_LENGTH * 3) {
     throw new Error(`Palette data does not contain ${PALETTE_LENGTH} entries`);

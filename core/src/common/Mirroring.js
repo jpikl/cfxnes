@@ -21,7 +21,7 @@ function getAreas(mirroring) {
   if (area) {
     return area;
   }
-  throw new Error(`Unknown mirroring ${mirroring}`);
+  throw new Error('Invalid mirroring');
 }
 
 function getSingleScreen(index) {

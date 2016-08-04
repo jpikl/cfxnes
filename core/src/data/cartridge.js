@@ -17,7 +17,7 @@ export function createCartridge(data, JSZip) {
   if (data instanceof Array || data instanceof ArrayBuffer) {
     data = new Uint8Array(data);
   } else if (!(data instanceof Uint8Array)) {
-    throw new Error('Unsupported data type');
+    throw new Error('Invalid data type');
   }
 
   if (hasZipSignature(data)) {

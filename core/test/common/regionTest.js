@@ -24,7 +24,8 @@ describe('common/Region', () => {
     }
   });
 
-  it('throws error when getting parameters for an unknown value', () => {
-    expect(() => Region.getParams('x')).to.throw(Error);
+  it('throws error when getting parameters for invalid value', () => {
+    expect(() => Region.getParams()).to.throw('Invalid region');
+    expect(() => Region.getParams('x')).to.throw('Invalid region');
   });
 });

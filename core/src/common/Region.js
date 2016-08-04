@@ -25,7 +25,7 @@ function getParams(region) {
   switch (region) {
     case NTSC: return ntscParams;
     case PAL: return palParams;
-    default: throw new Error(`Unknown region ${region}`);
+    default: throw new Error('Invalid region');
   }
 }
 

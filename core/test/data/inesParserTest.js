@@ -19,14 +19,14 @@ describe('data/inesParser (iNES input)', () => {
   });
 
   it('throws error for invalid input', () => {
-    expect(() => parse(new Uint8Array(100))).to.throw(Error);
-    expect(() => parse(create().subarray(0, 4))).to.throw(Error);
-    expect(() => parse(create().subarray(0, 16))).to.throw(Error);
-    expect(() => parse(create().subarray(0, 20))).to.throw(Error);
+    expect(() => parse(new Uint8Array(100))).to.throw('Incorrect signature');
+    expect(() => parse(create().subarray(0, 4))).to.throw('Input is too short');
+    expect(() => parse(create().subarray(0, 16))).to.throw('Input is too short');
+    expect(() => parse(create().subarray(0, 20))).to.throw('Input is too short');
   });
 
   it('throws error for zero PRG RAM', () => {
-    expect(() => test({prgROMUnits: 0})).to.throw(Error);
+    expect(() => test({prgROMUnits: 0})).to.throw('Invalid header: 0 PRG ROM units');
   });
 
   it('reads PRG ROM size', () => {

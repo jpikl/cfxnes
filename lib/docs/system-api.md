@@ -10,15 +10,15 @@
 
 | Name | Type | Default | Description |
 |------|------|----------|-------------|
-| speed | `number` | `1.0` | Emulation speed multiplier. Value must be larger than `0`. |
 | region | [`Region`](#user-content-region) | `'auto'` | Emulated region of NES. |
+| speed | `number` | `1.0` | Emulation speed multiplier. Value must be larger than `0`. |
 
 *Example:*
 
 ``` javascript
 new CFxNES({
-  speed: 1.0,
   region: 'auto',
+  speed: 1.0,
 });
 ```
 
@@ -33,15 +33,15 @@ Starts the emulator. In case there is no ROM image loaded, the emulator will dis
 
 Stops the emulator.
 
-#### .step()
-
-Forces the emulator to render one frame. Useful when you need just to refresh video output without starting the emulator.
-
 #### .isRunning()
 
 Returns whether the emulator is running.
 
 - **returns**: `boolean` - `true` if emulator is running; `false` otherwise
+
+#### .step()
+
+Forces the emulator to render one frame. Useful when you need just to refresh video output without starting the emulator.
 
 #### .hardReset()
 
@@ -51,17 +51,11 @@ Does hard reset. Equivalent to pressing NES *power* button.
 
 Does soft reset. Equivalent to pressing NES *reset* button.
 
-#### .getSpeed()
+#### .setRegion(region)
 
-Returns the current emulation speed multiplier.
+Sets the emulated region of NES.
 
-- **returns**: `number` - the speed multiplier
-
-#### .setSpeed(speed)
-
-Sets the emulation speed multiplier.
-
-- **speed**: `number` - the speed multiplier
+- **region**: [`Region`](#user-content-region) - the region
 
 #### .getRegion()
 
@@ -69,11 +63,17 @@ Returns the current emulated region of NES.
 
 - **returns**: [`Region`](#user-content-region) - the region
 
-#### .setRegion(region)
+#### .setSpeed(speed)
 
-Sets the emulated region of NES.
+Sets the emulation speed multiplier.
 
-- **region**: [`Region`](#user-content-region) - the region
+- **speed**: `number` - the speed multiplier
+
+#### .getSpeed()
+
+Returns the current emulation speed multiplier.
+
+- **returns**: `number` - the speed multiplier
 
 #### .getFPS()
 
