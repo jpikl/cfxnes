@@ -22,8 +22,14 @@ describe('common/log', () => {
     console.info.restore();
   });
 
-  afterEach(() => {
+  after(() => {
     log.setLevel('warn');
+  });
+
+  it('sets/gets log level', () => {
+    expect(log.getLevel()).not.to.be.equal('off');
+    log.setLevel('off');
+    expect(log.getLevel()).to.be.equal('off');
   });
 
   it('forwards error calls', () => {

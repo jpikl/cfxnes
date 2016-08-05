@@ -12,10 +12,20 @@ const levels = {
   'info': INFO,
 };
 
-let level = WARN;
+let level, levelName;
+
+setLevel('warn');
 
 function setLevel(name) {
-  level = levels[name] || OFF;
+  if (!(name in levels)) {
+    throw new Error('Invalid log level');
+  }
+  levelName = name;
+  level = levels[name];
+}
+
+function getLevel() {
+  return levelName;
 }
 
 function info(...args) {
@@ -36,4 +46,4 @@ function error(...args) {
   }
 }
 
-export default {setLevel, info, warn, error};
+export default {setLevel, getLevel, info, warn, error};
