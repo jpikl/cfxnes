@@ -11,13 +11,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - Option to set volume of each audio channel.
+- Warning messages for disabled JavaScript and unsupported browser.
 
 ### Changed
 - New library API.
-- Dropped IE 11 support.
 - Checksums are computed using SHA-1 from PRG RAM and CHR RAM.
 - js-md5 and screenfull.js dependencies are no longer needed.
 - Video scale can be any real number > 0.
+- Dropped support for Internet Explorer 11.
 
 ## [0.4.0] - 2015-11-29
 ### Fixed

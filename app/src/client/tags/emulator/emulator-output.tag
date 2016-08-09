@@ -1,8 +1,6 @@
 <emulator-output class="emulator-output">
   <div class="canvas-wrapper">
-    <canvas name="canvas">
-      Your browser does not support canvas.
-    </canvas>
+    <canvas name="canvas"></canvas>
     <img class="drag-effect" src="images/cartridge-insert.svg">
     <loader-indicator show={ loading } inverse="true"></loader-indicator>
   </div>

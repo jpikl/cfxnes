@@ -14,10 +14,9 @@
     const channels = ['master', 'pulse1', 'pulse2', 'triangle', 'noise', 'dmc'];
 
     this.updateEnablement = () => {
-      const supported = cfxnes.isAudioSupported();
       const enabled = cfxnes.isAudioEnabled();
       for (const name in this.tags) {
-        this.tags[name].setEnabled(supported && (enabled || name === 'audio-enabled'));
+        this.tags[name].setEnabled(enabled || name === 'audio-enabled');
       }
     };
 

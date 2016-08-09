@@ -27,8 +27,12 @@
     let toolbar;
 
     this.setToolbar = name => {
-      if (toolbar) toolbar.unmount(true);
-      toolbar = riot.mount('#toolbar', `${name}-toolbar`)[0];
+      if (toolbar) {
+        toolbar.unmount(true);
+      }
+      if (cfxnes) {
+        toolbar = riot.mount('#toolbar', `${name}-toolbar`)[0];
+      }
     };
 
     this.on('mount', () => app.on('route', this.setToolbar));

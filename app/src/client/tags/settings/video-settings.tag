@@ -47,7 +47,6 @@
       this.tags['fullscreen-mode'].on('change', value => cfxnes.setFullscreenType(value));
       this.tags['video-smoothing'].on('change', value => cfxnes.setVideoSmoothing(value));
       this.tags['video-debug'].on('change', value => cfxnes.setVideoDebug(value));
-      this.tags['video-webgl'].setEnabled(cfxnes.isVideoRendererSupported('webgl'));
       this.tags['video-webgl'].on('change', value => cfxnes.setVideoRenderer(value ? 'webgl' : 'canvas'));
       this.tags['fps-visible'].on('change', value => (app.fpsVisible = value));
     });

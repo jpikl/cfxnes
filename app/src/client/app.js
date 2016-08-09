@@ -7,7 +7,13 @@
 
 CFxNES.setLogLevel('info');
 
-const cfxnes = new CFxNES;
+let cfxnes;
+
+try {
+  cfxnes = new CFxNES;
+} catch (error) {
+  logError(error);
+}
 
 //=========================================================
 // App state
@@ -15,26 +21,36 @@ const cfxnes = new CFxNES;
 
 const app = riot.observable({
   init() {
-    app.fpsVisible = localStorage.getItem('fpsVisible') !== 'false';
-    app.controlsVisible = localStorage.getItem('controlsVisible') !== 'false';
+    app.fpsVisible = localStorage.fpsVisible !== 'false';
+    app.controlsVisible = localStorage.controlsVisible !== 'false';
     app.controlsOpened = true;
-    cfxnes.loadOptions();
+    if (cfxnes) {
+      cfxnes.loadOptions();
+    }
   },
   reset() {
     app.fpsVisible = true;
     app.controlsVisible = true;
     app.controlsOpened = true;
-    cfxnes.resetOptions();
+    if (cfxnes) {
+      cfxnes.resetOptions();
+    }
   },
   save() {
-    localStorage.setItem('fpsVisible', app.fpsVisible ? 'true' : 'false');
-    localStorage.setItem('controlsVisible', app.controlsVisible ? 'true' : 'false');
-    cfxnes.saveOptions();
-    cfxnes.saveNVRAM().catch(logError);
+    localStorage.fpsVisible = app.fpsVisible ? 'true' : 'false';
+    localStorage.controlsVisible = app.controlsVisible ? 'true' : 'false';
+    if (cfxnes) {
+      cfxnes.saveOptions();
+      cfxnes.saveNVRAM().catch(logError);
+    }
   },
 });
 
-app.init();
+try {
+  app.init();
+} catch (error) {
+  logError(error);
+}
 
 //=========================================================
 // State persistence

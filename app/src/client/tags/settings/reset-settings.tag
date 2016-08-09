@@ -5,7 +5,7 @@
   </div>
   <div>
     <progress-button name="delete-data" title="Delete game data" icon="trash-o"></progress-button>
-    <p>Delete data of all games that support saving (for example
+    <p>Delete data of games that support saving (for example
         <em>The Legend of Zelda</em> or <em>Final Fantasy</em>).</p>
   </div>
   <script type="babel">

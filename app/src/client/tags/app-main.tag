@@ -6,7 +6,12 @@
     let view;
 
     this.setView = name => {
-      if (view) view.unmount(true);
+      if (view) {
+        view.unmount(true);
+      }
+      if (!cfxnes && (name === 'emulator' || name === 'settings')) {
+        name = 'error';
+      }
       view = riot.mount('#view', `${name}-view`)[0];
     };
 

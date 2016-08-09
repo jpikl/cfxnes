@@ -15,6 +15,7 @@ nav {
 main {
   display: table-row;
   height: 100%;
+
   .main-content {
     display: table-cell;
     padding-top: 15px;
@@ -24,4 +25,19 @@ main {
 
 h1 {
   margin-bottom: 30px;
+}
+
+noscript .alert {
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  transform: translate(0, -50%);
+  font-size: 1.5em;
+  text-align: center;
+
+  @media (min-width: @screen-sm-min) {
+    width: auto;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }

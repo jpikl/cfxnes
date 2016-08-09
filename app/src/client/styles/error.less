@@ -1,0 +1,13 @@
+.error .alert {
+  width: 100%;
+
+  @media (min-width: @screen-sm-min) {
+    display: inline-block;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    min-width: 0.75 * @screen-sm-min;
+  }
+}

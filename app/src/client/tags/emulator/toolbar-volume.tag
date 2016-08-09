@@ -1,10 +1,10 @@
 <toolbar-volume dropdown="dropdown" class="btn-group dropdown">
-  <button type="button" class="btn btn-default navbar-btn dropdown-toggle { disabled: !supported }" title="Volume" data-toggle="dropdown">
+  <button type="button" class="btn btn-default navbar-btn dropdown-toggle" title="Volume" data-toggle="dropdown">
     <span class="icon-stack volume-icon">
       <i if={ volume > 0.5 } class="icon-stack-1x icon icon-volume-up"></i>
       <i if={ volume > 0 && volume <= 0.5 } class="icon-stack-1x icon icon-volume-down"></i>
       <i if={ volume == 0 } class="icon-stack-1x icon icon-volume-off"></i>
-      <i if={ !enabled || !supported } class="icon-stack-1x icon icon-ban"></i>
+      <i if={ !enabled } class="icon-stack-1x icon icon-ban"></i>
     </span>
   </button>
   <div name="dropdown" class="dropdown-menu volume-dropdown">
@@ -12,8 +12,6 @@
     <input type="text" name="slider">
   </div>
   <script type="babel">
-    this.supported = cfxnes.isAudioSupported();
-
     this.toggleEnabled = () => {
       cfxnes.setAudioEnabled(!cfxnes.isAudioEnabled());
       $(this.slider).slider('toggle');
