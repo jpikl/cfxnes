@@ -60,12 +60,6 @@ Returns the currently used rendering back-end.
 
 - **returns**: [`VideoRenderer`](#user-content-videorenderer) - the renderer
 
-#### .isVideoRendererSupported(renderer)
-
-Returns whether a renderer is supported. The method will always return `true` for the `'canvas'` renderer.
-
-- **returns**: `boolean` - `true` if the specified render is supported; `false` otherwise
-
 #### .setVideoScale(scale)
 
 Sets the canvas resolution multiplier.

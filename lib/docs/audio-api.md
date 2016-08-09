@@ -30,24 +30,18 @@ new CFxNES({
     // Master volume (0.5 when omitted)
     master: 0.5,
     // Separate volume for each audio channel (1.0 when a channel is omitted)
-    pulse1: 1.0, pulse2: 1.0,  triangle: 1.0, noise: 1.0, dmc: 1.0 
+    pulse1: 1.0, pulse2: 1.0, triangle: 1.0, noise: 1.0, dmc: 1.0
   },
 });
 ```
 
 ## Methods
 
-#### .isAudioSupported()
-
-Returns whether audio playback is supported by the current browser.
-
-- **returns**: `boolean` - `true` if audio is supported; `false` otherwise 
-
 #### .setAudioEnabled(enabled)
 
 Enables/disables audio output.
 
-- **enabled**: `boolean` - `true` to enable audio output; `false` to disable 
+- **enabled**: `boolean` - `true` to enable audio output; `false` to disable
 
 #### .isAudioEnabled()
 
@@ -60,14 +54,14 @@ Returns whether audio output is currently enabled.
 Sets volume of the specified channel.
 
 - **channel**: [`AudioChannel`](#user-content-audiochannel) - the channel; omit to set the master volume
-- **volume**: `number` - the volume 
+- **volume**: `number` - the volume
 
 #### .getAudioVolume([channel])
 
 Returns current volume of the specified channel.
 
 - **channel**: [`AudioChannel`](#user-content-audiochannel) - the channel; omit to get the master volume
-- **returns**: `number` - the volume 
+- **returns**: `number` - the volume
 
 ## Enumerations
 
