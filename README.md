@@ -15,7 +15,7 @@ See LICENSE.txt for more details.
 - Loading of zipped ROM images.
 - Supported mappers: NROM, MMC1, MMC3, UNCOM, CNROM, AOROM, BNROM, NINA-001, Color Dreams.
 - Persistence of battery-backed RAM (game saves) in IndexedDB.
-- Rendering using WebGL (with canvas API as fallback).
+- Rendering using WebGL.
 - Full screen mode.
 - Sound emulation using Web Audio.
 - Zapper emulation using mouse.
