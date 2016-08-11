@@ -25,9 +25,10 @@ See LICENSE.txt for more details.
 
 ## Supported Browsers
 
-- Chrome >= 44
-- Firefox >= 40
-- Edge >= 12
+- Chrome >= 49
+- Firefox >= 47
+- Edge >= 13
+- Opera >= 38
 
 ## Known Issues
 

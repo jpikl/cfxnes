@@ -42,6 +42,7 @@
     "karma-firefox-launcher": "^1.0.0",
     "karma-mocha": "^1.0.1",
     "karma-mocha-reporter": "^2.0.3",
+    "karma-opera-launcher": "^1.0.0",
     "karma-webdriver-launcher": "^1.0.4",
     "mkdirp": "^0.5.1",
     "mocha": "^2.5.3",
