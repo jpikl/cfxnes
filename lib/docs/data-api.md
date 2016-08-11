@@ -31,7 +31,7 @@ Loads ROM image from the specified source. If the emulator is already running, t
 | Source type   | Meaning |
 |---------------|---------|
 | `string`      | URL of a ROM image. |
-| `File`        | File containing ROM image. |
+| `Blob`        | Blob containing ROM image. |
 | `Array`, `ArrayBuffer`, `Uint8Array` | Buffer containing ROM image. |
 
 #### .unloadROM()
