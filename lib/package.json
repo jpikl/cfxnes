@@ -25,6 +25,7 @@
     "chai": "^3.5.0",
     "chai-as-promised": "^5.3.0",
     "closurecompiler": "^1.5.3",
+    "del": "^2.2.2",
     "eslint": "^2.11.0",
     "eslint-plugin-import": "^1.8.1",
     "gulp": "gulpjs/gulp#4.0",

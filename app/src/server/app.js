@@ -4,7 +4,7 @@ import morgan from 'morgan';
 import * as roms from './roms';
 
 const app = express();
-const dev = app.get('env') === 'development';
+const dev = app.get('env') === 'dev';
 
 app.use(morgan(dev ? 'dev' : 'common'));
 app.use('/', express.static(path.join(__dirname, 'static')));

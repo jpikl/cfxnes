@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const browser = require('browser-sync').create();
+const del = require('del');
 const babel = require('gulp-babel');
 const concat = require('gulp-concat');
 const gulp = require('gulp');
@@ -24,9 +25,10 @@ const yargs = require('yargs');
 const argv = yargs
   .usage('Usage: gulp command [options]')
   .command('build', 'Build application')
-  .command('start', 'Start server (browser-sync enabled)')
-  .command('dev', 'Build application + start server + watch sources')
+  .command('start', 'Start server with browser-sync')
+  .command('dev', 'Build app + start server + browser-sync + watch sources')
   .command('lint', 'Run linter')
+  .command('clean', 'Delete generated files')
   .option('d', {
     desc: 'Build debug version of application',
     alias: 'debug',
@@ -39,11 +41,13 @@ const argv = yargs
   })
   .example('gulp build', 'Build application (optimized version)')
   .example('gulp build -d', 'Build application (debug version)')
-  .example('gulp start', 'Start server (browser-sync enabled)')
+  .example('node dist/app.js', 'Start server at http://localhost:5000')
+  .example('gulp start', 'Start server with browser-sync at http://localhost:3000')
   .example('gulp dev', 'Build optimized application + start server + watch sources')
   .example('gulp dev -d', 'Build debug application + start server + watch sources')
   .example('gulp lint', 'Run linter')
-  .epilogue('Note: Library needs to be build separately before building the application')
+  .example('gulp clean', 'Delete generated files')
+  .epilogue('Library needs to be build separately before building the application.')
   .argv;
 
 //=========================================================
@@ -168,7 +172,7 @@ gulp.task('watch', () => {
 gulp.task('start', () => {
   const options = {
     env: {
-      NODE_ENV: 'development',
+      NODE_ENV: 'dev',
       NODE_PATH: path.join(__dirname, 'node_modules'),
     },
     path: './dist/app.js',
@@ -202,4 +206,12 @@ gulp.task('lint', () => {
   return gulp.src(['./gulpfile.js', './{src,test}/**/*.{js,tag}'])
     .pipe(eslint())
     .pipe(eslint.format());
+});
+
+//=========================================================
+// Clean
+//=========================================================
+
+gulp.task('clean', () => {
+  return del(['dist']);
 });

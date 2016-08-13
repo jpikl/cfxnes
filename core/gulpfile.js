@@ -9,7 +9,7 @@ require('babel-core/register');
 // Arguments
 //=========================================================
 
-const filesChoices = ['all', 'mod', 'roms'];
+const filesChoices = ['all', 'src', 'roms'];
 
 const argv = yargs
   .command('lint', 'Run linter')
@@ -28,7 +28,7 @@ const argv = yargs
   })
   .example('gulp lint', 'Run linter')
   .example('gulp test', 'Run all tests')
-  .example('gulp test -f mod', 'Run tests for source modules')
+  .example('gulp test -f src', 'Run tests for source files')
   .example('gulp test -f roms', 'Run tests for validation ROMs')
   .example('gulp test -g cpu', 'Run tests with "cpu" in their title')
   .argv;
@@ -66,7 +66,7 @@ gulp.task('test', () => {
   const romFiles = 'test/roms/tests.js';
 
   let files;
-  if (argv.files === 'mod') {
+  if (argv.files === 'src') {
     files = [allFiles, '!' + romFiles];
   } else if (argv.files === 'roms') {
     files = [romFiles];
