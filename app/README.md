@@ -4,17 +4,11 @@ Web application build on top of the [CFxNES Lib](../lib).
 
 Live demo is available at [cfxnes.herokuapp.com](http://cfxnes.herokuapp.com)
 
-## Building and Running
+## Building
 
-1) [Build the library](../lib/README.md#user-content-building).
+Run `gulp` to see available task and their options.
 
-2) Build the application.
-
-    gulp build
-
-3) Run the application at <http://localhost:5000>.
-
-    node dist/app.js
+*Note:* [Library](../lib) needs to be build separately before building the application.
 
 ## Library
 

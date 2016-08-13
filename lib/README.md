@@ -21,28 +21,22 @@ A minimal example that will download and execute ROM image:
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CFxNES Example</title>
-    <script src="http://cfxnes.herokuapp.com/cfxnes.js"></script>
+  <title>CFxNES Example</title>
+  <script src="http://cfxnes.herokuapp.com/cfxnes.js"></script>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <script>
-        const canvas = document.getElementById('canvas'); // Canvas used for rendering
-        const cfxnes = new CFxNES({videoOuput: canvas});  // Initialization
-        cfxnes.loadROM('rom.nes')       // Download ROM image from relative URL
-            .then(() => cfxnes.start()) // Success, start the emulator
-            .catch(alert);              // Something went wrong
-    </script>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas'); // Canvas used for rendering
+    const cfxnes = new CFxNES({videoOuput: canvas});  // Initialization
+    cfxnes.loadROM('rom.nes')     // Download ROM image from relative URL
+      .then(() => cfxnes.start()) // Success, start the emulator
+      .catch(alert);              // Something went wrong
+  </script>
 </body>
 </html>
 ```
 
 ## Building
 
-Optimized minified version `dist/cfxnes.js`:
-
-    gulp build
-
-Debug version `dist/cfxnes.debug.js`:
-
-    gulp build -d
+Run `gulp` to see available task and their options.

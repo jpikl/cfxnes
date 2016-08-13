@@ -22,9 +22,38 @@ const yargs = require('yargs');
 //=========================================================
 
 const argv = yargs
-  .boolean('d').alias('d', 'debug')
-  .boolean('a').alias('a', 'analytics')
+  .usage('Usage: gulp command [options]')
+  .command('build', 'Build application')
+  .command('start', 'Start server (browser-sync enabled)')
+  .command('dev', 'Build application + start server + watch sources')
+  .command('lint', 'Run linter')
+  .option('d', {
+    desc: 'Build debug version of application',
+    alias: 'debug',
+    type: 'boolean',
+  })
+  .option('a', {
+    desc: 'Insert Google Analytics code during build',
+    alias: 'analytics',
+    type: 'boolean',
+  })
+  .example('gulp build', 'Build application (optimized version)')
+  .example('gulp build -d', 'Build application (debug version)')
+  .example('gulp start', 'Start server (browser-sync enabled)')
+  .example('gulp dev', 'Build optimized application + start server + watch sources')
+  .example('gulp dev -d', 'Build debug application + start server + watch sources')
+  .example('gulp lint', 'Run linter')
+  .epilogue('Note: Library needs to be build separately before building the application')
   .argv;
+
+//=========================================================
+// Help
+//=========================================================
+
+gulp.task('default', done => {
+  yargs.showHelp();
+  done();
+});
 
 //=========================================================
 // Client
@@ -160,7 +189,13 @@ gulp.task('restart', () => {
 });
 
 //=========================================================
-// Linter
+// Develop
+//=========================================================
+
+gulp.task('dev', gulp.series('build', 'symlinks', gulp.parallel('watch', 'start')));
+
+//=========================================================
+// Lint
 //=========================================================
 
 gulp.task('lint', () => {
@@ -168,9 +203,3 @@ gulp.task('lint', () => {
     .pipe(eslint())
     .pipe(eslint.format());
 });
-
-//=========================================================
-// Default
-//=========================================================
-
-gulp.task('default', gulp.series('build', 'symlinks', gulp.parallel('watch', 'start')));

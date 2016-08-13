@@ -90,16 +90,6 @@ zapper.setBeamPosition(128, 120);
 zapper.setTriggerPressed(true);
 ```
 
-## Tests
+## Development
 
-Unit tests:
-
-    gulp test-base
-
-Tests for [validation ROMs](http://wiki.nesdev.com/w/index.php/Emulator_tests):
-
-    gulp test-roms
-
-All tests:
-
-    gulp test
+Run `gulp` to see available task and their options.
