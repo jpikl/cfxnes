@@ -14,14 +14,14 @@ Note: This example is for the upcoming version 0.5.0
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="http://cfxnes.herokuapp.com/cfxnes.js"></script>
+  <script src="cfxnes.js"></script>
 </head>
 <body>
   <canvas id="canvas"></canvas>
   <script>
     new CFxNES({
-      videOutput: document.getElementById('canvas'), // Canvas used for rendering
-      romSource: 'files/rom.nes'                     // Relative URL of a ROM image
+      videoOutput: document.getElementById('canvas'), // Canvas used for rendering
+      romSource: 'files/rom.nes'                      // Relative URL of a ROM image
     });
   </script>
 </body>
