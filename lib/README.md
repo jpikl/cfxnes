@@ -1,42 +1,37 @@
-# CFxNES Lib
+# CFxNES / lib
 
 JavaScript library for NES emulation in web browser.
 
-``` javascript
-const cfxnes = new CFxNES({videoOutput: canvas});
-cfxnes.loadROM(source).then(() => cfxnes.start());
-```
+## Documentation
 
-## API
+See [docs](docs/api.md) for API documentation.
 
-See [API documentation](docs/api.md).
+#### Minimal Example
 
-## Example
-
-**Note: This example is for the upcoming version 0.5.0**
-
-A minimal example that will download and execute ROM image:
+Note: This example is for the upcoming version 0.5.0
 
 ``` html
 <!DOCTYPE html>
 <html>
 <head>
-  <title>CFxNES Example</title>
   <script src="http://cfxnes.herokuapp.com/cfxnes.js"></script>
 </head>
 <body>
   <canvas id="canvas"></canvas>
   <script>
-    const canvas = document.getElementById('canvas'); // Canvas used for rendering
-    const cfxnes = new CFxNES({videoOuput: canvas});  // Initialization
-    cfxnes.loadROM('rom.nes')     // Download ROM image from relative URL
-      .then(() => cfxnes.start()) // Success, start the emulator
-      .catch(alert);              // Something went wrong
+    new CFxNES({
+      videOutput: document.getElementById('canvas'), // Canvas used for rendering
+      romSource: 'files/rom.nes'                     // Relative URL of a ROM image
+    });
   </script>
 </body>
 </html>
 ```
 
 ## Building
+
+Run `gulp build` to build the library.
+
+## Development
 
 Run `gulp` to see available task and their options.

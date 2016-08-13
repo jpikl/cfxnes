@@ -25,10 +25,10 @@ See LICENSE.txt for more details.
 
 ## Supported Browsers
 
-- Chrome >= 49
-- Firefox >= 47
-- Edge >= 13
-- Opera >= 38
+- Chrome 49+
+- Firefox 47+
+- Edge 13+
+- Opera 38+
 
 ## Known Issues
 
@@ -41,4 +41,4 @@ See LICENSE.txt for more details.
 
 - [Core](core) - core components of the emulator.
 - [Lib](lib) - library for NES emulation in web browser.
-- [App](app) - web application build on top of the library.
+- [App](app) - web application built on top of the library.

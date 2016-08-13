@@ -1,10 +1,17 @@
-# CFxNES Core
+# CFxNES / core
 
 Collection of JS components that form core of the [CFxNES emulator](../README.md). The core can be independently used in browser or in Node.js environment.
 
-When using these components, it is highly recommended to compile your code with the [closure compiler](https://github.com/google/closure-compiler) in `ADVANCED_OPTIMIZATIONS` mode to gain the best performance.
+For better performance, components can be compiled with [closure compiler](https://github.com/google/closure-compiler) in `ADVANCED_OPTIMIZATIONS` mode.
 
-## Initialization
+## Development
+
+Run `gulp` to see available task and their options.
+
+
+## Usage
+
+### Initialization
 
 ``` javascript
 import NES from './NES';
@@ -20,7 +27,7 @@ const nes = new NES({cpu: customCPU});
 
 ### ROM images
 
-ROM images can be loaded from `Array`, `ArrayBuffer`, `Uint8Array` or from a file system path when running in Node.js. Supported formats are *iNES* and *NES 2.0*.
+ROM images can be loaded from `Array`, `ArrayBuffer`, `Uint8Array` or from a file system path when running in Node.js. Supported formats are **iNES** and **NES 2.0**.
 
 ``` javascript
 import {createCartridge, readCartridge} from './data/cartridge';
@@ -36,7 +43,7 @@ nes.setCartridge(cartridge2);
 
 ### Rendering loop
 
-Video output is rendered into provided `Uint32Array(256 * 240)` buffer. Color of each pixel is encoded as 32-bit unsigned integer in RGBA format. Their values are generated using using provided `Uint32Array(64)` palette.
+Video output is rendered into provided `Uint32Array(256 * 240)` buffer. Color of each pixel is encoded as 32-bit unsigned integer in RGBA format. Their values are generated using using specified `Uint32Array(64)` palette.
 
 ``` javascript
 import {VIDEO_BUFFER_SIZE} from './video/constants';
@@ -55,12 +62,10 @@ while (running) {
 
 ### Audio Output
 
-Audio samples are automatically recorded into internal `Float32Array`. This buffer should be periodically read and send to a sound card.
-
-Buffer underflow/overflow is automatically managed by dynamical adjustment of sampling rate.
+Audio samples are automatically recorded into internal `Float32Array`. This buffer should be periodically read and send to a sound card. Buffer underflow/overflow is automatically managed by dynamical adjustment of sampling rate.
 
 ``` javascript
-nes.setAudioBufferSize(4096); // 4 KB audio buffer
+nes.setAudioBufferSize(4096); // 4K audio buffer
 nes.setAudioSampleRate(44100); // 44.1 KHz sampling rate
 nes.setAudioEnabled(true); // Initially disabled
 
@@ -74,22 +79,18 @@ function audioCallback() {
 
 ### Input devices
 
-Supported devices are standard NES controller (joypad) and Zapper.
-
 ``` javascript
 import Joypad from './devices/Joypad';
 import Zapper from './devices/Zapper';
 
+// Standard NES controller
 const joypad = new Joypad;
 nes.setInputDevice(1, joypad); // Port #1
 joypad.setButtonPressed(Joypad.START, true);
 
+// Zapper
 const zapper = new Zapper;
 nes.setInputDevice(2, zapper); // Port #2
 zapper.setBeamPosition(128, 120);
 zapper.setTriggerPressed(true);
 ```
-
-## Development
-
-Run `gulp` to see available task and their options.

@@ -1,17 +1,22 @@
-# CFxNES App
+# CFxNES / app
 
-Web application build on top of the [CFxNES Lib](../lib).
+Web application built on top of the [CFxNES library](../lib).
 
-Live demo is available at [cfxnes.herokuapp.com](http://cfxnes.herokuapp.com)
+A live demo is running at [cfxnes.herokuapp.com](http://cfxnes.herokuapp.com)
 
 ## Building
 
+Build the [library](../lib) first, then run `gulp build`.
+
+## Running
+
+`node dist/app.js` will start the application at [localhost:5000](http://localhost:5000)
+
+## Configuration
+
+Putting **.nes** files in the **dist/roms** directory will make them available in application.
+For custom thumbnails, add picture with the same name (e.g., **game.jpg** for **game.nes**). Supported formats are JPG, PNG and GIF.
+
+## Development
+
 Run `gulp` to see available task and their options.
-
-*Note:* [Library](../lib) needs to be build separately before building the application.
-
-## Library
-
-Server scans the `dist/roms` directory for any *.nes* ROM images which are then displayed on the *Library* page.
-
-If a picture with the same name as the ROM image is found, it will be used as its thumbnail. E.g., thumbnail for `rom_image.nes` should be named `rom_image.jpg`. Supported formats are *JPG*, *PNG* and *GIF*.
