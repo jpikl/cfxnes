@@ -17,11 +17,11 @@ Note: This example is for the upcoming version 0.5.0
   <script src="cfxnes.js"></script>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+  <canvas id="canvas-id"></canvas>
   <script>
     new CFxNES({
-      videoOutput: document.getElementById('canvas'), // Canvas used for rendering
-      romSource: 'files/rom.nes'                      // Relative URL of a ROM image
+      videoOutput: 'canvas-id', // ID of a canvas used for rendering
+      romSource: 'game.nes'     // Relative URL of a ROM image
     });
   </script>
 </body>
