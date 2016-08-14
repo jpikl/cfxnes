@@ -53,7 +53,7 @@
             return cfxnes.loadROM(source);
           }
           return $.get('/roms/' + gameId).then(data => {
-            return cfxnes.loadROM(data.fileURL);
+            return cfxnes.loadROM(data.file);
           });
         })
         .catch(error => {

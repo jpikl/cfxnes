@@ -1,7 +1,7 @@
 <game-tile class="game">
   <a href="#/emulator/{ game.id }">
     <i class="icon icon-play"></i>
-    <img src="{ game.thumbnailURL || 'images/cartridge.svg' }">
+    <img src="{ game.thumbnail || 'images/cartridge.svg' }">
     { game.name }
   </a>
   <script type="babel">

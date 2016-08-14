@@ -71,26 +71,28 @@ function scan() {
   romMap = {};
   fileMap = {};
 
-  for (const file of fs.readdirSync(romDir)) {
-    if (path.extname(file).toLowerCase() !== '.nes') {
+  for (const romFile of fs.readdirSync(romDir)) {
+    if (path.extname(romFile).toLowerCase() !== '.nes') {
       continue;
     }
 
-    const id = createId(file);
-    const name = createName(file);
-    const fileId = createFileId(file);
-    const fileURL = `/files/${fileId}`;
-    const thumbnail = findThumbnail(file);
-    const thumbnailId = thumbnail ? createFileId(thumbnail) : null;
-    const thumbnailURL = thumbnail ? `/files/${thumbnailId}` : null;
-    const rom = {id, name, fileURL, thumbnailURL};
+    const romName = sanitizeName(romFile);
+    fileMap[romName] = path.join(romDir, romFile);
+
+    const rom = {
+      id: makeId(romFile),
+      name: getBasename(romFile),
+      file: `/files/${romName}`,
+    };
 
     romList.push(rom);
-    romMap[id] = rom;
-    fileMap[fileId] = path.join(romDir, file);
+    romMap[rom.id] = rom;
 
-    if (thumbnail) {
-      fileMap[thumbnailId] = path.join(romDir, thumbnail);
+    const imageFile = findImage(romFile);
+    if (imageFile) {
+      const imageName = sanitizeName(imageFile);
+      fileMap[imageName] = path.join(romDir, imageFile);
+      rom.thumbnail = `/files/${imageName}`;
     }
   }
 
@@ -99,7 +101,7 @@ function scan() {
   console.log(`Found ${romList.length} ROMs`);
 }
 
-function createId(file) {
+function makeId(file) {
   return path.basename(file, path.extname(file))
          .replace(/[ _\-]+/g, ' ').trim()
          .replace(/[^a-zA-Z0-9 ]+/g, '')
@@ -107,7 +109,7 @@ function createId(file) {
          .toLowerCase();
 }
 
-function createFileId(file) {
+function sanitizeName(file) {
   const ext = path.extname(file);
   return path.basename(file, ext)
          .replace(/[ _\-]+/g, ' ').trim()
@@ -115,13 +117,13 @@ function createFileId(file) {
          .replace(/ +/g, '_') + ext;
 }
 
-function createName(file) {
+function getBasename(file) {
   return path.basename(file, path.extname(file)).trim();
 }
 
-function findThumbnail(file) {
+function findImage(romFile) {
   for (const ext of ['png', 'git', 'jpg', 'jpeg']) {
-    const imageFile = file.replace(/\.nes$/i, `.${ext}`);
+    const imageFile = romFile.replace(/\.nes$/i, `.${ext}`);
     if (fs.existsSync(path.join(romDir, imageFile))) {
       return imageFile;
     }
