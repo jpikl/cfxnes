@@ -10,28 +10,50 @@ BACKUP_FILE=cfxnes.zip
 TEMP_DIR=temp
 
 ###############################################################################
-# Default target
+# Help
 ###############################################################################
 
-all: debug_lib lib app
+help:
+	@echo "Make targets:"
+	@echo ""
+	@echo "  npm_install  Install npm packages"
+	@echo "  npm_check    Check for npm updates"
+	@echo "  npm_update   Update npm packages"
+	@echo ""
+	@echo "  lib          Build library"
+	@echo "  lib_dbg      Build library (debug version)"
+	@echo "  app          Build application"
+	@echo "  app_pro      Build application (production version)"
+	@echo ""
+	@echo "  backup       Backup project files"
+	@echo "  version      Update version in package.json"
+	@echo "  deploy       Deploy application to heroku git repo"
+	@echo "  release      Create release ZIP"
+	@echo "  tag          Tag current version in git"
+	@echo ""
+	@echo "  lint         Run linter"
+	@echo "  test         Run tests"
+	@echo ""
+	@echo "  clean        Delete generated files"
+	@echo "  clean_all    Delete generated files and downloaded npm packages"
 
 ###############################################################################
-# Dependency management
+# NPM
 ###############################################################################
 
-.PHONY: install_deps check_deps update_deps
+.PHONY: npm_install npm_check npm_update
 
-install_deps:
+npm_install:
 	cd core && npm install
 	cd lib && npm install
 	cd app && npm install
 
-check_deps:
+npm_check:
 	cd core && ncu
 	cd lib && ncu
 	cd app && ncu
 
-update_deps:
+npm_update:
 	cd core && ncu -a
 	cd lib && ncu -a
 	cd app && ncu -a
@@ -40,58 +62,44 @@ update_deps:
 # Build
 ###############################################################################
 
-.PHONY: all debug_lib lib app prod_app
-
-debug_lib:
-	cd lib && gulp build -d
+.PHONY: lib lib_dbg app app_pro
 
 lib:
 	cd lib && gulp build
 
+lib_dbg:
+	cd lib && gulp build -d
+
 app:
 	cd app && gulp build
 
-prod_app:
+app_pro:
 	cd app && gulp build -a
 
-###############################################################################
-# Development
-###############################################################################
-
-.PHONY: dev_lib dev_app run
-
-dev_lib:
-	cd lib && gulp -d
-
-dev_app:
-	cd app && gulp -d
-
-run:
-	node app/dist/app.js
 
 ###############################################################################
 # Release
 ###############################################################################
 
-.PHONY: version deploy backup release tag
+.PHONY: backup version deploy release tag
+
+backup: clean
+	zip -r $(BACKUP_FILE) . -x ".git/*" -x "*/node_modules/*"
+	mv $(BACKUP_FILE) $(BACKUP_DIR)
 
 version:
 	cd core && npm version $(VERSION); true
 	cd lib && npm version $(VERSION); true
 	cd app && npm version $(VERSION); true
 
-deploy: clean lib prod_app
+deploy: clean lib app_pro
 	mkdir -p $(DEPLOY_DIR)
 	rm -rf ./$(DEPLOY_DIR)/{node_modules,static,*.js,package.json}
 	cd app/dist && cp -r . ../../$(DEPLOY_DIR)
 	cp app/package.json $(DEPLOY_DIR)
 	cd $(DEPLOY_DIR) && npm install --production
 
-backup: clean
-	zip -r $(BACKUP_FILE) . -x ".git/*" -x "*/node_modules/*"
-	mv $(BACKUP_FILE) $(BACKUP_DIR)
-
-release: clean all
+release: clean lib_dbg lib app
 	mkdir $(TEMP_DIR)
 	cp lib/dist/* $(TEMP_DIR)
 	cp -r app/dist $(TEMP_DIR)/app
@@ -102,7 +110,7 @@ tag:
 	git tag -a v$(VERSION) -m "Version $(VERSION)"
 
 ###############################################################################
-# Tests
+# Test
 ###############################################################################
 
 .PHONY: lint test
@@ -117,7 +125,7 @@ test:
 	cd lib && gulp test
 
 ###############################################################################
-# Cleanup
+# Clean
 ###############################################################################
 
 .PHONY: clean clean_all
