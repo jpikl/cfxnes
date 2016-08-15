@@ -8,8 +8,9 @@
     <li>Fixed sprite overflow flag clearing.</li>
     <li>Added option to set volume of each audio channel.</li>
     <li>Added warning messages for disabled JavaScript and unsupported browser</li>
+    <li>Added audio support for Safari.</li>
+    <li>Removed support for Internet Explorer.</li>
     <li>Checksums are computed using SHA-1 from PRG RAM and CHR RAM.</li>
-    <li>Dropped support for Internet Explorer 11.</li>
   </ul>
   <h3>0.4.0 - 2015-11-29</h3>
   <ul>

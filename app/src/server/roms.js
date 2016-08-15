@@ -48,7 +48,7 @@ export function download(req, res) {
 
   const file = fileMap[name];
   if (file == null) {
-    res.status(404).send('File `${name}` not found.');
+    res.status(404).send(`File ${name} not found.`);
     return;
   }
 
