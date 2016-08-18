@@ -94,7 +94,7 @@ export default class NES {
       this.mapper = createMapper(cartridge);
       this.mapper.connect(this);
       this.updateRegionParams();
-      this.hardReset();
+      this.power();
     }
   }
 
@@ -106,13 +106,13 @@ export default class NES {
   // Reset
   //=========================================================
 
-  hardReset() {
+  power() {
     if (this.cartridge) {
       this.resetUnits();
     }
   }
 
-  softReset() {
+  reset() {
     this.cpu.activateInterrupt(RESET);
   }
 

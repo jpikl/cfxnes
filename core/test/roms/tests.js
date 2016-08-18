@@ -78,7 +78,7 @@ function execute(test) {
   // Prepare context
   const number = test.number;
   const context = {
-    number, assert, expect, fail, hardReset, softReset, step, nes,
+    number, assert, expect, fail, power, reset, step, nes,
     readByte, readString, screenshot, blargg, getPath, getOutputPath,
   };
 
@@ -98,12 +98,12 @@ function execute(test) {
     assert(false, message);
   }
 
-  function hardReset() {
-    nes.hardReset();
+  function power() {
+    nes.power();
   }
 
-  function softReset() {
-    nes.softReset();
+  function reset() {
+    nes.reset();
   }
 
   function step(count = 1) {
@@ -173,7 +173,7 @@ function execute(test) {
     let result = run();
     if (result === RESULT_RESET) {
       step(200000); // Reset needs to be done at least after 100 msec (~122880 cpu ticks)
-      softReset();
+      reset();
       result = run();
     }
 

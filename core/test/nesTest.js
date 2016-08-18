@@ -55,11 +55,11 @@ describe('NES (no cartridge)', () => {
   });
 
   it('does HW reset', () => {
-    nes.hardReset();
+    nes.power();
   });
 
   it('does SW reset', () => {
-    nes.softReset();
+    nes.reset();
   });
 
   for (const port of ports) {
@@ -204,11 +204,11 @@ describe('NES (cartridge set)', () => {
   });
 
   it('does HW reset', () => {
-    nes.hardReset();
+    nes.power();
   });
 
   it('does SW reset', () => {
-    nes.softReset();
+    nes.reset();
   });
 
   it('renders frame', () => {

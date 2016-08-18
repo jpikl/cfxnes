@@ -18,7 +18,7 @@ export function execute(test) {
   const verifiedLogFile = test.getPath('nestest.log');    // Verified log from Nintendulator (modified to match structure of CFxNES log)
 
   test.nes.cpu.openLog(currentLogFile);
-  test.hardReset();
+  test.power();
   test.step(8991);
   test.nes.cpu.closeLog();
 
