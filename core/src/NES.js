@@ -230,18 +230,8 @@ export default class NES {
   // Non-volatile RAM
   //=========================================================
 
-  getNVRAMSize() {
-    return this.mapper ? this.mapper.getNVRAMSize() : 0;
-  }
-
   getNVRAM() {
     return this.mapper ? this.mapper.getNVRAM() : null;
-  }
-
-  setNVRAM(data) {
-    if (this.mapper) {
-      this.mapper.setNVRAM(data);
-    }
   }
 
 }

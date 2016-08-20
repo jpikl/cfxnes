@@ -1,6 +1,5 @@
 import Mirroring from '../../common/Mirroring';
 import log from '../../common/log';
-import {formatSize} from '../../common/utils';
 
 export default class Mapper {
 
@@ -13,6 +12,7 @@ export default class Mapper {
     Object.assign(this, cartridge);
     this.initPRGRAM();
     this.initCHRRAM();
+    this.initNVRAM();
     this.initState();
   }
 
@@ -153,30 +153,18 @@ export default class Mapper {
   // Either there is battery-backed PRG RAM or battery-backed CHR RAM.
   // Only known game using battery-backed CHR RAM is RacerMate Challenge II.
 
-  getNVRAMSize() {
-    return this.prgRAMSizeBattery || this.chrRAMSizeBattery;
+  initNVRAM() {
+    if (this.prgRAMSizeBattery) {
+      this.nvram = this.prgRAM.subarray(0, this.prgRAMSizeBattery);
+    } else if (this.chrRAMSizeBattery) {
+      this.nvram = this.chrRAM.subarray(0, this.chrRAMSizeBattery);
+    } else {
+      this.nvram = null;
+    }
   }
 
   getNVRAM() {
-    if (this.prgRAMSizeBattery) {
-      log.info(`Reading ${formatSize(this.prgRAMSizeBattery)} battery-backed PRG RAM`);
-      return this.prgRAM.subarray(0, this.prgRAMSizeBattery);
-    }
-    if (this.chrRAMSizeBattery) {
-      log.info(`Reading ${formatSize(this.chrRAMSizeBattery)} battery-backed CHR RAM`);
-      return this.chrRAM.subarray(0, this.chrRAMSizeBattery);
-    }
-    return null;
-  }
-
-  setNVRAM(data) {
-    if (this.prgRAMSizeBattery) {
-      log.info(`Copying ${formatSize(data.length)} data to ${formatSize(this.prgRAMSizeBattery)} battery-backed PRG RAM`);
-      this.prgRAM.set(data.subarray(0, this.prgRAMSizeBattery));
-    } else if (this.chrRAMSizeBattery) {
-      log.info(`Copying ${formatSize(data.length)} data to ${formatSize(this.chrRAMSizeBattery)} battery-backed CHR RAM`);
-      this.chrRAM.set(data.subarray(0, this.chrRAMSizeBattery));
-    }
+    return this.nvram;
   }
 
   //=========================================================

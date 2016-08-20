@@ -148,27 +148,17 @@ describe('NES (no cartridge)', () => {
     expect(nes.readAudioBuffer()).to.be.deep.equal(new Float32Array(4096));
   });
 
-  it('gets zero NVRAM size', () => {
-    expect(nes.getNVRAMSize()).to.be.equal(0);
-  });
-
   it('gets null NVRAM', () => {
     expect(nes.getNVRAM()).to.be.null;
   });
-
-  it('sets NVRAM with no effect', () => {
-    nes.setNVRAM([]);
-  });
 });
 
-describe('NES (cartridge set)', () => {
+describe('NES (cartridge set, no NVRAM)', () => {
   let nes, cartridge, frameBuffer, palette, generateAudioOutput;
 
   before(() => {
     cartridge = readCartridge('./test/roms/nestest/nestest.nes');
     cartridge.region = Region.PAL;
-    cartridge.prgRAMSize = 0x4000;
-    cartridge.prgRAMSizeBattery = 0x2000;
     frameBuffer = new Uint32Array(256 * 240);
     palette = new Uint32Array(64);
     let audioOutput = 0.5;
@@ -241,15 +231,32 @@ describe('NES (cartridge set)', () => {
     expect(nes.readAudioBuffer()).to.not.deep.equal(new Float32Array(4096).fill(0.5));
   });
 
-  it('gets NVRAM size', () => {
-    expect(nes.getNVRAMSize()).to.be.equal(0x2000);
+  it('gets null NVRAM', () => {
+    expect(nes.getNVRAM()).to.be.null;
+  });
+});
+
+describe('NES (cartridge set, has NVRAM)', () => {
+  let nes, cartridge;
+
+  before(() => {
+    cartridge = readCartridge('./test/roms/nestest/nestest.nes');
+    cartridge.prgRAMSize = 0x4000;
+    cartridge.prgRAMSizeBattery = 0x2000;
   });
 
-  it('sets/gets NVRAM', () => {
-    const nvram = new Uint8Array(0x2000).fill(0xFF);
-    expect(nes.getNVRAM()).to.deep.equal(new Uint8Array(0x2000));
-    nes.setNVRAM(nvram);
-    expect(nes.getNVRAM()).to.be.not.equal(nvram);
-    expect(nes.getNVRAM()).to.deep.equal(nvram);
+  beforeEach(() => {
+    nes = new NES;
+    nes.setCartridge(cartridge);
+  });
+
+  it('gets NVRAM of correct type and size', () => {
+    expect(nes.getNVRAM()).to.be.an('uint8array');
+    expect(nes.getNVRAM()).to.have.lengthOf(0x2000);
+  });
+
+  it('gets the same NVRAM instance every time', () => {
+    const nvram = nes.getNVRAM();
+    expect(nes.getNVRAM()).to.be.equal(nvram);
   });
 });
