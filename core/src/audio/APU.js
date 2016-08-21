@@ -274,7 +274,7 @@ export default class APU {
     this.noiseChannel.tick();
     this.dmcChannel.tick();
     if (this.outputEnabled) {
-      this.recordOutputValue();
+      this.recordOutput();
     }
   }
 
@@ -339,34 +339,28 @@ export default class APU {
   // Output
   //=========================================================
 
-  getOutputValue() {
-    return this.getPulseOutputValue() + this.getTriangleNoiseDMCOutputValue();
-  }
-
-  getPulseOutputValue() {
-    const pulse1Value = this.channelVolumes[PULSE_1] * this.pulseChannel1.getOutputValue();
-    const pulse2value = this.channelVolumes[PULSE_2] * this.pulseChannel2.getOutputValue();
-    if (pulse1Value || pulse2value) {
-      return 95.88 / ((8128 / (pulse1Value + pulse2value)) + 100);
+  getOutput() {
+    const volumes = this.channelVolumes;
+    const pulse1 = volumes[PULSE_1] * this.pulseChannel1.getOutput();
+    const pulse2 = volumes[PULSE_2] * this.pulseChannel2.getOutput();
+    const triangle = volumes[TRIANGLE] * this.triangleChannel.getOutput();
+    const noise = volumes[NOISE] * this.noiseChannel.getOutput();
+    const dmc = volumes[DMC] * this.dmcChannel.getOutput();
+    let output = 0;
+    if (pulse1 || pulse2) {
+      output += 95.88 / ((8128 / (pulse1 + pulse2)) + 100);
     }
-    return 0;
-  }
-
-  getTriangleNoiseDMCOutputValue() {
-    const triangleValue = this.channelVolumes[TRIANGLE] * this.triangleChannel.getOutputValue();
-    const noiseValue = this.channelVolumes[NOISE] * this.noiseChannel.getOutputValue();
-    const dmcValue = this.channelVolumes[DMC] * this.dmcChannel.getOutputValue();
-    if (triangleValue || noiseValue || dmcValue) {
-      return 159.79 / ((1 / ((triangleValue / 8227) + (noiseValue / 12241) + (dmcValue / 22638))) + 100);
+    if (triangle || noise || dmc) {
+      output += 159.79 / ((1 / ((triangle / 8227) + (noise / 12241) + (dmc / 22638))) + 100);
     }
-    return 0;
+    return output;
   }
 
   //=========================================================
   // Recording
   //=========================================================
 
-  recordOutputValue() {
+  recordOutput() {
     const position = ~~(this.recordCycle++ * this.sampleRate / this.cpuFrequency);
     if (position > this.recordPosition) {
       this.fillRecordBuffer(position);
@@ -374,12 +368,12 @@ export default class APU {
   }
 
   fillRecordBuffer(position) {
-    const outputValue = this.getOutputValue();
+    const output = this.getOutput();
     if (position == null || position > this.lastPosition) {
       position = this.lastPosition;
     }
     while (this.recordPosition < position) {
-      this.recordBuffer[++this.recordPosition] = outputValue;
+      this.recordBuffer[++this.recordPosition] = output;
       this.sampleRate += this.sampleRateAdjustment;
     }
     if (this.recordPosition >= this.lastPosition && !this.outputBufferFull) {
@@ -398,12 +392,12 @@ export default class APU {
     if (!this.outputBufferFull) {
       this.fillRecordBuffer(); // Buffer underflow
     }
-    this.computeSamplingRateAdjustment();
+    this.adjustSampleRate();
     this.outputBufferFull = false;
     return this.outputBuffer;
   }
 
-  computeSamplingRateAdjustment() {
+  adjustSampleRate() {
     // Our goal is to have right now about 50% of data in buffer
     const percentageDifference = 0.5 - (this.recordPosition / this.bufferSize); // Difference from the expected value
     this.sampleRateAdjustment = 100 * percentageDifference / this.bufferSize; // Adjustment per 1 output value in buffer

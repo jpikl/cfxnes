@@ -99,7 +99,7 @@ export default class TriangleChannel {
   // Output
   //=========================================================
 
-  getOutputValue() {
+  getOutput() {
     return DUTY_WAVEFORM[this.dutyPosition]; // Silencing channel does not change output value
   }
 

@@ -149,7 +149,7 @@ export default class PulseChannel {
   // Output
   //=========================================================
 
-  getOutputValue() {
+  getOutput() {
     if (this.lengthCounter && this.isTimerPeriodValid()) {
       const volume = this.useConstantVolume ? this.constantVolume : this.envelopeVolume;
       return volume * DUTY_WAVEFORMS[this.dutySelection][this.dutyPosition];

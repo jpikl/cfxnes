@@ -56,7 +56,7 @@ export default class DMCChannel {
   }
 
   writeOutputLevel(value) {
-    this.outputValue = value & 0x7F; // Direct output level
+    this.output = value & 0x7F; // Direct output level
   }
 
   writeSampleAddress(value) {
@@ -88,7 +88,7 @@ export default class DMCChannel {
   updateSample() {
     this.updateSampleBuffer();
     this.updateShiftRegister();
-    this.updateOutputValue();
+    this.updateOutput();
   }
 
   updateSampleBuffer() {
@@ -121,15 +121,15 @@ export default class DMCChannel {
     }
   }
 
-  updateOutputValue() {
+  updateOutput() {
     // Update output value from bit 0 of the shift register
     if (this.shiftRegister !== null) {
       if (this.shiftRegister & 1) {
-        if (this.outputValue <= 125) {
-          this.outputValue += 2; // Max. value is 127
+        if (this.output <= 125) {
+          this.output += 2; // Max. value is 127
         }
-      } else if (this.outputValue >= 2) {
-        this.outputValue -= 2; // Min. value is 0
+      } else if (this.output >= 2) {
+        this.output -= 2; // Min. value is 0
       }
       this.shiftRegister >>>= 1;
     }
@@ -139,8 +139,8 @@ export default class DMCChannel {
   // Output
   //=========================================================
 
-  getOutputValue() {
-    return this.outputValue;
+  getOutput() {
+    return this.output;
   }
 
 }

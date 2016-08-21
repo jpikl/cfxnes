@@ -215,7 +215,7 @@ describe('NES (cartridge set, no NVRAM)', () => {
     nes.setAudioBufferSize(4096);
     nes.setAudioSampleRate(44100);
     nes.setAudioEnabled(false);
-    nes.apu.getOutputValue = generateAudioOutput;
+    nes.apu.getOutput = generateAudioOutput;
     nes.setPalette(palette);
     nes.renderFrame(frameBuffer);
     expect(nes.readAudioBuffer()).to.deep.equal(new Float32Array(4096).fill(0.5));
@@ -225,7 +225,7 @@ describe('NES (cartridge set, no NVRAM)', () => {
     nes.setAudioBufferSize(4096);
     nes.setAudioSampleRate(44100);
     nes.setAudioEnabled(true);
-    nes.apu.getOutputValue = generateAudioOutput;
+    nes.apu.getOutput = generateAudioOutput;
     nes.setPalette(palette);
     nes.renderFrame(frameBuffer);
     expect(nes.readAudioBuffer()).to.not.deep.equal(new Float32Array(4096).fill(0.5));

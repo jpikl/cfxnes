@@ -110,7 +110,7 @@ export default class NoiseChannel {
   // Output
   //=========================================================
 
-  getOutputValue() {
+  getOutput() {
     if (this.lengthCounter && !(this.shiftRegister & 1)) {
       return this.useConstantVolume ? this.constantVolume : this.envelopeVolume;
     }

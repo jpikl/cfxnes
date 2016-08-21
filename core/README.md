@@ -67,7 +67,7 @@ Audio samples are automatically recorded into internal `Float32Array`. This buff
 ``` javascript
 nes.setAudioBufferSize(4096); // 4K audio buffer
 nes.setAudioSampleRate(44100); // 44.1 KHz sampling rate
-nes.setAudioEnabled(true); // Initially disabled
+nes.setAudioEnabled(true); // Disabled by default
 
 function audioCallback() {
     const audioBuffer = nes.readAudioBuffer();
