@@ -14,11 +14,11 @@
     };
 
     this.on('mount', () => {
-      cfxnes.setVideoOutput(this.canvas);
+      video.output = this.canvas;
     });
 
     this.on('unmount', () => {
-      cfxnes.setVideoOutput(null);
+      video.output = null;
     });
   </script>
 </emulator-output>

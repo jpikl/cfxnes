@@ -1,81 +1,59 @@
-/* global CFxNES */
-/* eslint-disable no-unused-vars */
+/* eslint-disable no-unused-vars, prefer-const */
 
-//=========================================================
-// CFxNES setup
-//=========================================================
+cfxnes.logLevel = 'info';
 
-CFxNES.setLogLevel('info');
-
-let cfxnes;
+let nes, video, fullscreen, audio, volume,
+  rom, nvram, devices, inputs, options;
 
 try {
-  cfxnes = new CFxNES;
+  nes = cfxnes();
+  ({video, fullscreen, audio, audio: {volume},
+    rom, nvram, devices, inputs, options} = nes);
+  options.load();
 } catch (error) {
   logError(error);
 }
 
-//=========================================================
-// App state
-//=========================================================
-
-const app = riot.observable({
-  init() {
-    app.fpsVisible = localStorage.fpsVisible !== 'false';
-    app.controlsVisible = localStorage.controlsVisible !== 'false';
-    app.controlsOpened = true;
-    if (cfxnes) {
-      cfxnes.loadOptions();
-    }
-  },
-  reset() {
-    app.fpsVisible = true;
-    app.controlsVisible = true;
-    app.controlsOpened = true;
-    if (cfxnes) {
-      cfxnes.resetOptions();
-    }
-  },
-  save() {
-    localStorage.fpsVisible = app.fpsVisible ? 'true' : 'false';
-    localStorage.controlsVisible = app.controlsVisible ? 'true' : 'false';
-    if (cfxnes) {
-      cfxnes.saveOptions();
-      cfxnes.saveNVRAM().catch(logError);
-    }
-  },
-});
+let fpsVisible = true;
+let controlsVisible = true;
+let controlsOpened = true;
+let lastGameId = null;
+let autoPaused = false;
+let gameFilter = '';
+let settingsPanel;
+let viewParam;
 
 try {
-  app.init();
+  const {state} = localStorage;
+  if (state) {
+    ({fpsVisible = true, controlsVisible = true} = JSON.parse(state));
+  }
 } catch (error) {
   logError(error);
 }
 
-//=========================================================
-// State persistence
-//=========================================================
+const bus = riot.observable({});
 
-$(window).on('beforeunload', app.save);
-setInterval(app.save, 60 * 1000);
-
-//=========================================================
-// RiotJS setup
-//=========================================================
+if (nes) {
+  $(window).on('beforeunload', save);
+  setInterval(save, 60 * 1000);
+}
 
 $(document).ready(() => {
   riot.mount('*');
   riot.route((view, param) => {
-    app.view = view || 'emulator';
-    app.viewParam = param;
-    app.trigger('route', app.view, app.viewParam);
+    view = view || 'emulator';
+    viewParam = param;
+    bus.trigger('route', view, param);
   });
   riot.route.start(true); // start + exec
 });
 
-//=========================================================
-// Utilities
-//=========================================================
+function save() {
+  localStorage.state = JSON.stringify({fpsVisible, controlsVisible});
+  nes.options.save();
+  nes.nvram.save().catch(logError);
+}
 
 function eachTag(tags, callback) {
   if (tags != null) {

@@ -19,7 +19,7 @@
   </div>
   <script type="babel">
     this.on('update', () => {
-      this.tags['controls-visible'].setValue(app.controlsVisible);
+      this.tags['controls-visible'].setValue(controlsVisible);
       this.tags['device-setup'].forEach(ds => ds.update());
     });
 
@@ -30,8 +30,8 @@
       this.tags['restore-controls'].on('change', this.update);
       this.tags['connected-gamepads'].on('change', this.update);
       this.tags['controls-visible'].on('change', value => {
-        app.controlsVisible = value;
-        app.controlsOpened = value;
+        controlsVisible = value;
+        controlsOpened = value;
       });
     });
   </script>

@@ -14,46 +14,48 @@
     let output;
 
     this.resume = gameId => {
-      if (gameId && gameId !== app.gameId) {
+      if (gameId && gameId !== lastGameId) {
         this.load(gameId);
-      } else if (app.autoPaused) {
+      } else if (autoPaused) {
         this.start();
-      } else if (cfxnes.isROMLoaded()) {
-        cfxnes.step(); // To refresh the output
+      } else if (rom.loaded) {
+        nes.step(); // To refresh the output
       }
     };
 
     this.suspend = () => {
-      app.autoPaused = cfxnes.isRunning();
+      autoPaused = nes.running;
       this.stop();
     };
 
     this.start = () => {
-      cfxnes.start();
-      app.trigger('start');
+      nes.start();
+      bus.trigger('start');
     };
 
     this.stop = () => {
-      cfxnes.stop();
-      app.trigger('stop');
+      nes.stop();
+      bus.trigger('stop');
     };
 
     this.load = source => {
-      const gameId = typeof source === 'string' ? source : null;
-      if (gameId) {
+      let gameId = null;
+
+      if (typeof source === 'string') {
+        gameId = source;
         this.stop();
         output.showLoading();
         message.hide();
       }
 
-      cfxnes.saveNVRAM()
+      nvram.save()
         .catch(logError)
         .then(() => {
           if (!gameId) {
-            return cfxnes.loadROM(source);
+            return rom.load(source);
           }
           return $.get('/roms/' + gameId).then(data => {
-            return cfxnes.loadROM(data.file);
+            return rom.load(data.file);
           });
         })
         .catch(error => {
@@ -62,10 +64,10 @@
           throw error;
         })
         .then(() => {
-          return cfxnes.loadNVRAM().catch(logError);
+          return nvram.load().catch(logError);
         })
         .then(() => {
-          app.gameId = gameId;
+          lastGameId = gameId;
           output.hideLoading();
           message.hide();
           this.start();
@@ -79,7 +81,7 @@
 
       message = this.tags['message-panel'];
       output = this.tags['dnd-wrapper'].tags['emulator-output'];
-      output.on('mount', () => this.resume(app.viewParam));
+      output.on('mount', () => this.resume(viewParam));
     });
 
     this.on('unmount', this.suspend);

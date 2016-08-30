@@ -1,6 +1,6 @@
-# CFxNES / app
+# cfxnes / app
 
-Web application built on top of the [CFxNES library](../lib).
+Web application built on top of the [cfxnes library](../lib).
 
 A live demo is running at [cfxnes.herokuapp.com](http://cfxnes.herokuapp.com)
 

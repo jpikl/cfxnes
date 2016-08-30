@@ -18,7 +18,7 @@
     this.desktop = $.browser.desktop;
 
     this.setFilter = filter => {
-      this.filter = app.gameFilter = filter;
+      this.filter = gameFilter = filter;
     };
 
     this.applyFilter = () => {
@@ -28,7 +28,7 @@
       });
     };
 
-    this.setFilter(app.viewParam || app.gameFilter || '');
+    this.setFilter(viewParam || gameFilter || '');
 
     this.on('mount', () => {
       const message = this.tags['message-panel'];

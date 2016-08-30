@@ -13,13 +13,13 @@
   </div>
   <script type="babel">
     this.toggleEnabled = () => {
-      cfxnes.setAudioEnabled(!cfxnes.isAudioEnabled());
+      audio.enabled = !audio.enabled;
       $(this.slider).slider('toggle');
     };
 
     this.on('update', () => {
-      this.enabled = cfxnes.isAudioEnabled();
-      this.volume = cfxnes.getAudioVolume();
+      this.enabled = audio.enabled;
+      this.volume = volume.master;
     });
 
     this.on('mount', () => {
@@ -39,11 +39,11 @@
         orientation: 'vertical',
         reversed: true,
         selection: 'after',
-        enabled: cfxnes.isAudioEnabled(),
-        value: cfxnes.getAudioVolume(),
+        enabled: audio.enabled,
+        value: volume.master,
         formatter: value => ~~(100 * value) + '%',
       }).on('change', event => {
-        cfxnes.setAudioVolume(event.value.newValue);
+        volume.master = event.value.newValue;
         this.update();
       });
     });

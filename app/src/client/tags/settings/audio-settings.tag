@@ -14,25 +14,24 @@
     const channels = ['master', 'pulse1', 'pulse2', 'triangle', 'noise', 'dmc'];
 
     this.updateEnablement = () => {
-      const enabled = cfxnes.isAudioEnabled();
       for (const name in this.tags) {
-        this.tags[name].setEnabled(enabled || name === 'audio-enabled');
+        this.tags[name].setEnabled(audio.enabled || name === 'audio-enabled');
       }
     };
 
     this.on('update', () => {
-      this.tags['audio-enabled'].setValue(cfxnes.isAudioEnabled());
+      this.tags['audio-enabled'].setValue(audio.enabled);
       for (const channel of channels) {
-        this.tags[`${channel}-volume`].setValue(cfxnes.getAudioVolume(channel));
+        this.tags[`${channel}-volume`].setValue(volume[channel]);
       }
       this.updateEnablement();
     });
 
     this.on('mount', () => {
-      this.tags['audio-enabled'].on('change', value => cfxnes.setAudioEnabled(value));
+      this.tags['audio-enabled'].on('change', value => { audio.enabled = value; });
       this.tags['audio-enabled'].on('mount change', this.updateEnablement);
       for (const channel of channels) {
-        this.tags[`${channel}-volume`].on('change', value => cfxnes.setAudioVolume(channel, value));
+        this.tags[`${channel}-volume`].on('change', value => { volume[channel] = value; });
       }
     });
   </script>

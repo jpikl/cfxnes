@@ -3,13 +3,13 @@
     this.on('update', () => {
       if (opts.checkPort) {
         const [port, device] = opts.input.split('.');
-        if (cfxnes.getInputDevice(parseInt(port)) !== device) {
+        if (devices[parseInt(port)] !== device) {
           this.root.innerHTML = '--';
           return;
         }
       }
 
-      this.root.innerHTML = cfxnes.getMappedInputs(opts.input).map(input => {
+      this.root.innerHTML = inputs.get(opts.input).map(input => {
         const [source, name] = input.split('.');
 
         let result = name.split('-')

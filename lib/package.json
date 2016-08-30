@@ -1,7 +1,7 @@
 {
   "name": "cfxnes-lib",
   "version": "0.4.0",
-  "description": "CFxNES library",
+  "description": "cfxnes library",
   "license": "MIT",
   "private": true,
   "keywords": [
@@ -32,6 +32,7 @@
     "gulp-eslint": "^3.0.1",
     "gulp-if": "^2.0.1",
     "gulp-rename": "^1.2.2",
+    "gulp-replace": "^0.5.4",
     "ip": "^1.1.3",
     "jszip": "^2.6.1",
     "karma": "^1.2.0",
@@ -44,6 +45,7 @@
     "karma-mocha-reporter": "^2.1.0",
     "karma-opera-launcher": "^1.0.0",
     "karma-webdriver-launcher": "^1.0.4",
+    "merge-stream": "^1.0.0",
     "mkdirp": "^0.5.1",
     "mocha": "^3.0.2",
     "watchify": "^3.7.0",

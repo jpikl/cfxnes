@@ -1,7 +1,7 @@
 <reset-settings class="reset-settings">
   <div>
     <progress-button name="reset-settings" title="Reset settings" icon="cog"></progress-button>
-    <p>Reset CFxNES settings to defaults.</p>
+    <p>Reset cfxnes settings to defaults.</p>
   </div>
   <div>
     <progress-button name="delete-data" title="Delete game data" icon="trash-o"></progress-button>
@@ -12,14 +12,17 @@
     this.on('mount', () => {
       this.tags['reset-settings'].on('click', function() {
         this.setProgress('Reseting settings...');
-        app.reset();
+        fpsVisible = true;
+        controlsVisible = true;
+        controlsOpened = true;
+        options.reset();
         this.setSuccess('Done');
       });
 
       this.tags['delete-data'].on('click', function() {
         if (confirm('Delete stored data of all games?')) {
           this.setProgress('Deleting data...');
-          cfxnes.deleteNVRAMs().then(() => {
+          nvram.deleteAll().then(() => {
             this.setSuccess('Done');
           }, error => {
             logError(error);

@@ -1,33 +1,29 @@
 <toolbar-size class="btn-group">
-  <button name="scaleMinus" class="btn btn-default navbar-btn { disabled: isMinScale }" title="Decrease scale" onclick={ decreaseScale }>
+  <button name="scaleMinus" class="btn btn-default navbar-btn { disabled: !canDecrease }" title="Decrease scale" onclick={ decrease }>
     <i class="icon icon-search-minus"></i>
   </button>
-  <button name="scalePlus" class="btn btn-default navbar-btn { disabled: isMaxScale }" title="Increase scale" onclick={ increaseScale }>
+  <button name="scalePlus" class="btn btn-default navbar-btn { disabled: !canIncrease }" title="Increase scale" onclick={ increase }>
     <i class="icon icon-search-plus"></i>
   </button>
-  <button class="btn btn-default navbar-btn" title="Fullscreen" onclick={ enterFullscreen }>
+  <button class="btn btn-default navbar-btn" title="Fullscreen" onclick={ fullscreen.enter }>
     <i class="icon icon-arrows-alt"></i>
   </button>
   <script type="babel">
-    this.decreaseScale = () => {
-      if (!this.isMinScale) {
-        cfxnes.setVideoScale(cfxnes.getVideoScale() - 1);
+    this.decrease = () => {
+      if (this.canDecrease) {
+        video.scale--;
       }
     };
 
-    this.increaseScale = () => {
-      if (!this.isMaxScale) {
-        cfxnes.setVideoScale(cfxnes.getVideoScale() + 1);
+    this.increase = () => {
+      if (this.canIncrease) {
+        video.scale++;
       }
-    };
-
-    this.enterFullscreen = () => {
-      cfxnes.enterFullscreen();
     };
 
     this.on('update', () => {
-      this.isMinScale = cfxnes.getVideoScale() <= 1;
-      this.isMaxScale = cfxnes.getVideoScale() >= ~~cfxnes.getMaxVideoScale();
+      this.canDecrease = video.scale > 1;
+      this.canIncrease = video.scale < ~~video.maxScale;
     });
   </script>
 </toolbar-size>

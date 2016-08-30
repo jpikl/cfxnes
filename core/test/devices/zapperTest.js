@@ -21,7 +21,7 @@ describe('devices/Zapper', () => {
     expect(zapper.isTriggerPressed()).to.be.false;
   });
 
-  it('sets/gets trigger state', () => {
+  it('changes trigger state', () => {
     zapper.setTriggerPressed(true);
     expect(zapper.isTriggerPressed()).to.be.true;
     zapper.setTriggerPressed(false);
@@ -32,7 +32,7 @@ describe('devices/Zapper', () => {
     expect(zapper.getBeamPosition()).to.deep.equal([-1, -1]);
   });
 
-  it('sets/gets beam position', () => {
+  it('changes beam position', () => {
     zapper.setBeamPosition(10, 20);
     expect(zapper.getBeamPosition()).to.deep.equal([10, 20]);
   });

@@ -15,7 +15,7 @@ export function init() {
 
 export function execute(test) {
   const currentLogFile = test.getOutputPath('nestest.log'); // This is what we will compare with the verified log
-  const verifiedLogFile = test.getPath('nestest.log');    // Verified log from Nintendulator (modified to match structure of CFxNES log)
+  const verifiedLogFile = test.getPath('nestest.log');    // Verified log from Nintendulator (modified to match structure of cfxnes log)
 
   test.nes.cpu.openLog(currentLogFile);
   test.power();
@@ -29,7 +29,7 @@ export function execute(test) {
     test.expect(currentLog).to.be.equal(verifiedLog);
   } catch (error) {
     // The default error message contains whole log which is completely unreadable and useless
-    test.fail(`CFxNES log differs from Nintendulator log.
+    test.fail(`cfxnes log differs from Nintendulator log.
         Run 'vimdiff ${currentLogFile} ${verifiedLogFile}' to compare differences.`);
   }
 }

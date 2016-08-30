@@ -4,7 +4,7 @@
   </p>
   <script type="babel">
     this.restore = () => {
-      cfxnes.resetOptions('inputDevices', 'inputMapping');
+      options.reset('devices', 'inputs');
       this.trigger('change');
     };
   </script>

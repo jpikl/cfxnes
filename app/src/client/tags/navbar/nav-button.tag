@@ -20,11 +20,11 @@
             + '    <div class="tooltip-inner"></div>'
             + '</div>',
       });
-      app.on('route', onViewChange);
+      bus.on('route', onViewChange);
     });
 
     this.on('unmount', () => {
-      app.off('route', onViewChange);
+      bus.off('route', onViewChange);
     });
   </script>
 </nav-button>

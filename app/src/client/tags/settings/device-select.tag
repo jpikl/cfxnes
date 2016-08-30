@@ -15,12 +15,12 @@
       if (value === 'none') {
         value = null;
       }
-      cfxnes.setInputDevice(opts.port, value);
+      devices[opts.port] = value;
       this.trigger('change', value);
     };
 
     this.on('update', () => {
-      this.value = cfxnes.getInputDevice(opts.port);
+      this.value = devices[opts.port];
     });
   </script>
 </device-select>

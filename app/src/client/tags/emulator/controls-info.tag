@@ -15,10 +15,10 @@
     <tr riot-tag="controls-row" input="2.zapper.trigger" label="Zapper"></tr>
   </table>
   <script type="babel">
-    this.opened = app.controlsOpened && app.controlsVisible;
+    this.opened = controlsOpened && controlsVisible;
 
     this.close = () => {
-      this.opened = app.controlsOpened = false;
+      this.opened = controlsOpened = false;
     };
   </script>
 </controls-info>

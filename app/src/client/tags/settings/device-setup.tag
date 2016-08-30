@@ -17,7 +17,7 @@
     this.port = parseInt(opts.port);
 
     this.on('update', () => {
-      this.device = cfxnes.getInputDevice(this.port);
+      this.device = devices[this.port];
     });
 
     this.on('mount', () => {

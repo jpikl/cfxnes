@@ -18,11 +18,11 @@
     </div>
   </div>
   <script type="babel">
-    this.panelId = (app.viewParam || app.settingsPanel || 'emulation') + '-settings';
+    this.panelId = (viewParam || settingsPanel || 'emulation') + '-settings';
 
     this.on('mount', () => {
       this.tags['panel-group'].on('open', panelId => {
-        app.settingsPanel = panelId.substring(0, panelId.indexOf('-'));
+        settingsPanel = panelId.substring(0, panelId.indexOf('-'));
       });
     });
   </script>

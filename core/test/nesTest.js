@@ -31,7 +31,7 @@ describe('NES (no cartridge)', () => {
   });
 
   for (const region of regions) {
-    it('sets/gets ' + (region ? `${region} region` : 'region autodetection'), () => {
+    it('changes region to ' + (region || 'autodetection'), () => {
       nes.setRegion(region);
       expect(nes.getRegion()).to.equal(region);
     });
@@ -49,7 +49,7 @@ describe('NES (no cartridge)', () => {
     expect(nes.getCartridge()).to.be.null;
   });
 
-  it('sets/gets cartridge', () => {
+  it('inserts cartridge', () => {
     nes.setCartridge(cartridge);
     expect(nes.getCartridge()).to.be.equal(cartridge);
   });
@@ -69,14 +69,14 @@ describe('NES (no cartridge)', () => {
   }
 
   for (const port of ports) {
-    it(`sets/gets device on port #${port}`, () => {
+    it(`sets device on port #${port}`, () => {
       nes.setInputDevice(port, joypad);
       expect(nes.getInputDevice(port)).to.be.equal(joypad);
     });
   }
 
   for (const port of ports) {
-    it(`sets/gets no device on port #${port}`, () => {
+    it(`removes device on port #${port}`, () => {
       nes.setInputDevice(port, joypad);
       nes.setInputDevice(port, null);
       expect(nes.getInputDevice(port)).to.be.null;
@@ -87,7 +87,7 @@ describe('NES (no cartridge)', () => {
     expect(nes.getPalette()).to.be.null;
   });
 
-  it('sets/gets palette', () => {
+  it('changes palette', () => {
     nes.setPalette(palette);
     expect(nes.getPalette()).to.be.equal(palette);
   });
@@ -115,7 +115,7 @@ describe('NES (no cartridge)', () => {
     expect(nes.getAudioBufferSize()).to.be.undefined;
   });
 
-  it('sets/gets audio buffer size', () => {
+  it('changes audio buffer size', () => {
     nes.setAudioBufferSize(4096);
     expect(nes.getAudioBufferSize()).to.be.equal(4096);
   });
@@ -124,7 +124,7 @@ describe('NES (no cartridge)', () => {
     expect(nes.getAudioSampleRate()).to.be.undefined;
   });
 
-  it('sets/gets audio sampling rate', () => {
+  it('changes audio sampling rate', () => {
     nes.setAudioSampleRate(44100);
     expect(nes.getAudioSampleRate()).to.be.equal(44100);
   });
@@ -136,7 +136,7 @@ describe('NES (no cartridge)', () => {
   }
 
   for (const id of channelIds) {
-    it(`sets/gets audio channel #${id} volume`, () => {
+    it(`changes audio channel #${id} volume`, () => {
       nes.setAudioChannelVolume(id, 0.5);
       expect(nes.getAudioChannelVolume(id)).to.be.equal(0.5);
     });
@@ -148,7 +148,7 @@ describe('NES (no cartridge)', () => {
     expect(nes.readAudioBuffer()).to.be.deep.equal(new Float32Array(4096));
   });
 
-  it('gets null NVRAM', () => {
+  it('returns null NVRAM', () => {
     expect(nes.getNVRAM()).to.be.null;
   });
 });
@@ -188,7 +188,7 @@ describe('NES (cartridge set, no NVRAM)', () => {
     expect(nes.getCartridge()).to.be.an('object');
   });
 
-  it('sets/gets no cartridge', () => {
+  it('removes cartridge', () => {
     nes.setCartridge(null);
     expect(nes.getCartridge()).to.be.null;
   });
@@ -231,7 +231,7 @@ describe('NES (cartridge set, no NVRAM)', () => {
     expect(nes.readAudioBuffer()).to.not.deep.equal(new Float32Array(4096).fill(0.5));
   });
 
-  it('gets null NVRAM', () => {
+  it('returns null NVRAM', () => {
     expect(nes.getNVRAM()).to.be.null;
   });
 });
@@ -250,12 +250,12 @@ describe('NES (cartridge set, has NVRAM)', () => {
     nes.setCartridge(cartridge);
   });
 
-  it('gets NVRAM of correct type and size', () => {
+  it('returns NVRAM of correct type and size', () => {
     expect(nes.getNVRAM()).to.be.an('uint8array');
     expect(nes.getNVRAM()).to.have.lengthOf(0x2000);
   });
 
-  it('gets the same NVRAM instance every time', () => {
+  it('returns the same NVRAM instance every time', () => {
     const nvram = nes.getNVRAM();
     expect(nes.getNVRAM()).to.be.equal(nvram);
   });

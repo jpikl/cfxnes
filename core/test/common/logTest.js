@@ -26,7 +26,7 @@ describe('common/log', () => {
     log.setLevel('warn');
   });
 
-  it('sets/gets log level', () => {
+  it('changes log level', () => {
     expect(log.getLevel()).not.to.be.equal('off');
     log.setLevel('off');
     expect(log.getLevel()).to.be.equal('off');

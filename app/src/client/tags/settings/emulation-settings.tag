@@ -9,13 +9,13 @@
     ];
 
     this.on('update', () => {
-      this.tags['region'].setValue(cfxnes.getRegion());
-      this.tags['speed'].setValue(cfxnes.getSpeed());
+      this.tags['region'].setValue(nes.region);
+      this.tags['speed'].setValue(nes.speed);
     });
 
     this.on('mount', () => {
-      this.tags['region'].on('change', value => cfxnes.setRegion(value));
-      this.tags['speed'].on('change', value => cfxnes.setSpeed(value));
+      this.tags['region'].on('change', value => { nes.region = value; });
+      this.tags['speed'].on('change', value => { nes.speed = value; });
     });
   </script>
 </emulation-settings>

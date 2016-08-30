@@ -9,13 +9,13 @@
       if (view) {
         view.unmount(true);
       }
-      if (!cfxnes && (name === 'emulator' || name === 'settings')) {
+      if (!nes && (name === 'emulator' || name === 'settings')) {
         name = 'error';
       }
       view = riot.mount('#view', `${name}-view`)[0];
     };
 
-    this.on('mount', () => app.on('route', this.setView));
-    this.on('unmount', () => app.off('route', this.setView));
+    this.on('mount', () => bus.on('route', this.setView));
+    this.on('unmount', () => bus.off('route', this.setView));
   </script>
 </app-main>

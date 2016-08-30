@@ -43,15 +43,15 @@
       const index = target.attr('data-index');
       const port = target.attr('data-port');
 
-      cfxnes.setInputDevice(port, 'joypad');
-      cfxnes.mapInputs(`${port}.joypad.a`, `gamepad${index}.a`);
-      cfxnes.mapInputs(`${port}.joypad.b`, `gamepad${index}.b`);
-      cfxnes.mapInputs(`${port}.joypad.start`, `gamepad${index}.start`);
-      cfxnes.mapInputs(`${port}.joypad.select`, `gamepad${index}.back`);
-      cfxnes.mapInputs(`${port}.joypad.up`, `gamepad${index}.dpad-up`);
-      cfxnes.mapInputs(`${port}.joypad.down`, `gamepad${index}.dpad-down`);
-      cfxnes.mapInputs(`${port}.joypad.left`, `gamepad${index}.dpad-left`);
-      cfxnes.mapInputs(`${port}.joypad.right`, `gamepad${index}.dpad-right`);
+      devices[port] = 'joypad';
+      inputs.map(`${port}.joypad.a`, `gamepad${index}.a`);
+      inputs.map(`${port}.joypad.b`, `gamepad${index}.b`);
+      inputs.map(`${port}.joypad.start`, `gamepad${index}.start`);
+      inputs.map(`${port}.joypad.select`, `gamepad${index}.back`);
+      inputs.map(`${port}.joypad.up`, `gamepad${index}.dpad-up`);
+      inputs.map(`${port}.joypad.down`, `gamepad${index}.dpad-down`);
+      inputs.map(`${port}.joypad.left`, `gamepad${index}.dpad-left`);
+      inputs.map(`${port}.joypad.right`, `gamepad${index}.dpad-right`);
 
       this.trigger('change');
     };

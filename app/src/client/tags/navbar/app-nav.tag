@@ -8,7 +8,7 @@
         <span class="icon-bar"></span>
       </button>
       <a class="navbar-brand" href="#/emulator">
-        <img src="images/logo.svg"> CFxNES
+        <img src="images/logo.svg"> cfxnes
       </a>
     </div>
     <div class="navbar-collapse collapse">
@@ -30,12 +30,12 @@
       if (toolbar) {
         toolbar.unmount(true);
       }
-      if (cfxnes) {
+      if (nes) {
         toolbar = riot.mount('#toolbar', `${name}-toolbar`)[0];
       }
     };
 
-    this.on('mount', () => app.on('route', this.setToolbar));
-    this.on('unmount', () => app.off('route', this.setToolbar));
+    this.on('mount', () => bus.on('route', this.setToolbar));
+    this.on('unmount', () => bus.off('route', this.setToolbar));
   </script>
 </app-nav>

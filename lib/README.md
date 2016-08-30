@@ -1,4 +1,4 @@
-# CFxNES / lib
+# cfxnes / lib
 
 JavaScript library for NES emulation in web browser.
 
@@ -17,12 +17,9 @@ Note: This example is for the upcoming version 0.5.0
   <script src="cfxnes.js"></script>
 </head>
 <body>
-  <canvas id="canvas-id"></canvas>
+  <canvas id="cfxnes"></canvas> <!-- Used for rendering -->
   <script>
-    new CFxNES({
-      videoOutput: 'canvas-id', // ID of a canvas used for rendering
-      romSource: 'game.nes'     // Relative URL of a ROM image
-    });
+    cfxnes({rom: 'game.nes'}); // Relative URL of a ROM image to load
   </script>
 </body>
 </html>

@@ -31,7 +31,7 @@ describe('devices/Joypad', () => {
   }
 
   for (const button of buttons) {
-    it(`sets/gets button #${button} state`, () => {
+    it(`changes button #${button} state`, () => {
       joypad.setButtonPressed(button, true);
       expect(joypad.isButtonPressed(button)).to.be.true;
       joypad.setButtonPressed(button, false);

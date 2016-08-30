@@ -6,17 +6,8 @@
   "plugins": [
     "riot"
   ],
-  "globals": {
-    "$": true,
-    "app": true,
-    "cfxnes": true,
-    "eachTag": true,
-    "formatError": true,
-    "logError": true,
-    "opts": true,
-    "riot": true
-  },
   "rules": {
-    "no-invalid-this": "off"
+    "no-invalid-this": "off",
+    "no-undef": "off"
   }
 }

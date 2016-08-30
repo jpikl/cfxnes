@@ -11,11 +11,11 @@
   <script type="babel">
     this.changeInput = () => {
       const modal = $('#record-input-modal').modal('show');
-      cfxnes.recordInput(input => {
+      inputs.record(input => {
         modal.modal('hide');
         if (input !== 'keyboard.escape') {
-          cfxnes.unmapInputs(opts.input, input);
-          cfxnes.mapInputs(opts.input, input);
+          inputs.unmap(opts.input, input);
+          inputs.map(opts.input, input);
           this.trigger('change');
         }
       });

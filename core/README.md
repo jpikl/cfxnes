@@ -1,6 +1,6 @@
-# CFxNES / core
+# cfxnes / core
 
-Collection of JS components that form core of the [CFxNES emulator](../README.md). The core can be independently used in browser or in Node.js environment.
+Collection of JS components that form core of the [cfxnes emulator](../README.md). The core can be independently used in browser or in Node.js environment.
 
 For better performance, components can be compiled with [closure compiler](https://github.com/google/closure-compiler) in `ADVANCED_OPTIMIZATIONS` mode.
 
@@ -25,7 +25,7 @@ NES constructor allows to pass custom implementation of any internal unit (CPU, 
 const nes = new NES({cpu: customCPU});
 ```
 
-### ROM images
+### ROM Images
 
 ROM images can be loaded from `Array`, `ArrayBuffer`, `Uint8Array` or from a file system path when running in Node.js. Supported formats are **iNES** and **NES 2.0**.
 
@@ -41,7 +41,7 @@ const cartridge2 = readCartridge('./data/rom.nes');
 nes.setCartridge(cartridge2);
 ```
 
-### Rendering loop
+### Rendering Loop
 
 Video output is rendered into provided `Uint32Array(256 * 240)` buffer. Color of each pixel is encoded as 32-bit unsigned integer in RGBA format. Their values are generated using using specified `Uint32Array(64)` palette.
 
@@ -77,7 +77,7 @@ function audioCallback() {
 // Rendering loop
 ```
 
-### Input devices
+### Input Devices
 
 ``` javascript
 import Joypad from './devices/Joypad';

@@ -1,7 +1,7 @@
 {
   "name": "cfxnes-app",
   "version": "0.4.0",
-  "description": "CFxNES emulator",
+  "description": "cfxnes emulator",
   "license": "MIT",
   "private": true,
   "keywords": [

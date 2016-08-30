@@ -1,8 +1,8 @@
 <video-settings>
   <div class="video-settings">
-    <div riot-tag="input-number" name="video-scale" label="Output scale" min="1" max={ maxVideoScale }></div>
+    <div riot-tag="input-number" name="video-scale" label="Output scale" min="1" max={ video.maxScale }></div>
     <div riot-tag="input-select" name="video-palette" label="Color palette" options={ videoPalettes }></div>
-    <div riot-tag="input-select" name="fullscreen-mode" label="Type of full screen mode" options={ fullscreenTypes }></div>
+    <div riot-tag="input-select" name="fullscreen-type" label="Type of full screen mode" options={ fullscreenTypes }></div>
   </div>
   <div class="video-settings">
     <div riot-tag="input-checkbox" name="video-smoothing" label="Enable smoothing"></div>
@@ -11,8 +11,6 @@
     <div riot-tag="input-checkbox" name="fps-visible" label="Show FPS"></div>
   </div>
   <script type="babel">
-    this.maxVideoScale = ~~cfxnes.getMaxVideoScale();
-
     this.videoPalettes = [
       {value: 'asq-real-a', label: 'ASQ (reality A)'},
       {value: 'asq-real-b', label: 'ASQ (reality B)'},
@@ -32,23 +30,23 @@
     ];
 
     this.on('update', () => {
-      this.tags['video-scale'].setValue(cfxnes.getVideoScale());
-      this.tags['video-palette'].setValue(cfxnes.getVideoPalette());
-      this.tags['fullscreen-mode'].setValue(cfxnes.getFullscreenType());
-      this.tags['video-smoothing'].setValue(cfxnes.isVideoSmoothing());
-      this.tags['video-debug'].setValue(cfxnes.isVideoDebug());
-      this.tags['video-webgl'].setValue(cfxnes.getVideoRenderer() === 'webgl');
-      this.tags['fps-visible'].setValue(app.fpsVisible);
+      this.tags['video-scale'].setValue(video.scale);
+      this.tags['video-palette'].setValue(video.palette);
+      this.tags['fullscreen-type'].setValue(fullscreen.type);
+      this.tags['video-smoothing'].setValue(video.smoothing);
+      this.tags['video-debug'].setValue(video.debug);
+      this.tags['video-webgl'].setValue(video.renderer === 'webgl');
+      this.tags['fps-visible'].setValue(fpsVisible);
     });
 
     this.on('mount', () => {
-      this.tags['video-scale'].on('change', value => cfxnes.setVideoScale(value));
-      this.tags['video-palette'].on('change', value => cfxnes.setVideoPalette(value));
-      this.tags['fullscreen-mode'].on('change', value => cfxnes.setFullscreenType(value));
-      this.tags['video-smoothing'].on('change', value => cfxnes.setVideoSmoothing(value));
-      this.tags['video-debug'].on('change', value => cfxnes.setVideoDebug(value));
-      this.tags['video-webgl'].on('change', value => cfxnes.setVideoRenderer(value ? 'webgl' : 'canvas'));
-      this.tags['fps-visible'].on('change', value => (app.fpsVisible = value));
+      this.tags['video-scale'].on('change', value => { video.scale = value; });
+      this.tags['video-palette'].on('change', value => { video.palette = value; });
+      this.tags['fullscreen-type'].on('change', value => { fullscreen.type = value; });
+      this.tags['video-smoothing'].on('change', value => { video.smoothing = value; });
+      this.tags['video-debug'].on('change', value => { video.debug = value; });
+      this.tags['video-webgl'].on('change', value => { video.renderer = value ? 'webgl' : 'canvas'; });
+      this.tags['fps-visible'].on('change', value => { fpsVisible = value; });
     });
   </script>
 </video-settings>
