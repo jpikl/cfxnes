@@ -1,4 +1,4 @@
-# CFxNES API
+# cfxnes API
 
 **Note: This documentation is for the upcoming version 0.5.0**
 

@@ -8,14 +8,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Delayed IRQ response after CLI/SEI/PLP (*Break Time* is now playable).
 - Sprite zero hit detection.
 - Sprite overflow flag clearing.
+- Disabled audio in Safari.
 
 ### Added
 - Option to set volume of each audio channel.
-- Warning messages for disabled JavaScript and unsupported browser.
-- Audio support for Safari.
-
-### Removed
-- Support for Internet Explorer.
+- Warning message when JavaScript is disabled.
 
 ### Changed
 - New library API.
