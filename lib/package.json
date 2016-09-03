@@ -24,6 +24,7 @@
     "browserify": "^13.1.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.3.0",
+    "core-js": "^2.4.1",
     "del": "^2.2.2",
     "eslint": "^3.3.0",
     "eslint-plugin-import": "^1.13.0",

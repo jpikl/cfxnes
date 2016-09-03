@@ -7,7 +7,7 @@
     <div riot-tag="collapse-panel" panel-id="video-settings" label="Video" icon="desktop">
       <video-settings></video-settings>
     </div>
-    <div riot-tag="collapse-panel" panel-id="audio-settings" label="Audio" icon="music">
+    <div if={ audio } riot-tag="collapse-panel" panel-id="audio-settings" label="Audio" icon="music">
       <audio-settings></audio-settings>
     </div>
     <div riot-tag="collapse-panel" panel-id="controls-settings" label="Controls" icon="gamepad">

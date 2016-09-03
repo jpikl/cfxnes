@@ -9,9 +9,6 @@
       if (view) {
         view.unmount(true);
       }
-      if (!nes && (name === 'emulator' || name === 'settings')) {
-        name = 'error';
-      }
       view = riot.mount('#view', `${name}-view`)[0];
     };
 

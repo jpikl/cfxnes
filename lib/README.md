@@ -25,6 +25,16 @@ Note: This example is for the upcoming version 0.5.0
 </html>
 ```
 
+#### Supported Browsers
+
+- Chrome 49+
+- Firefox 47+
+- IE 11, Edge 12+
+- Opera 38+
+- Safari 9+
+
+IE 11, Edge 12 and Safari 9 need polyfill for some ES6 feautues ([core-js shim](https://github.com/zloirock/core-js) recommended).
+
 ## Building
 
 Run `gulp build` to build the library.

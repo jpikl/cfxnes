@@ -30,9 +30,7 @@
       if (toolbar) {
         toolbar.unmount(true);
       }
-      if (nes) {
-        toolbar = riot.mount('#toolbar', `${name}-toolbar`)[0];
-      }
+      toolbar = riot.mount('#toolbar', `${name}-toolbar`)[0];
     };
 
     this.on('mount', () => bus.on('route', this.setToolbar));

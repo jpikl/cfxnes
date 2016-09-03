@@ -2,17 +2,10 @@
 
 cfxnes.logLevel = 'info';
 
-let nes, video, fullscreen, audio, volume,
-  rom, nvram, devices, inputs, options;
-
-try {
-  nes = cfxnes();
-  ({video, fullscreen, audio, audio: {volume},
-    rom, nvram, devices, inputs, options} = nes);
-  options.load();
-} catch (error) {
-  logError(error);
-}
+const nes = cfxnes();
+const {video, fullscreen, audio, rom, nvram, devices, inputs, options} = nes;
+const {volume} = audio || {};
+const bus = riot.observable({});
 
 let fpsVisible = true;
 let controlsVisible = true;
@@ -24,20 +17,15 @@ let settingsPanel;
 let viewParam;
 
 try {
-  const {state} = localStorage;
-  if (state) {
-    ({fpsVisible = true, controlsVisible = true} = JSON.parse(state));
-  }
+  options.load();
+  const state = JSON.parse(localStorage.state || '{}');
+  ({fpsVisible = true, controlsVisible = true} = state);
 } catch (error) {
   logError(error);
 }
 
-const bus = riot.observable({});
-
-if (nes) {
-  $(window).on('beforeunload', save);
-  setInterval(save, 60 * 1000);
-}
+$(window).on('beforeunload', save);
+setInterval(save, 60 * 1000);
 
 $(document).ready(() => {
   riot.mount('*');
@@ -50,7 +38,8 @@ $(document).ready(() => {
 });
 
 function save() {
-  localStorage.state = JSON.stringify({fpsVisible, controlsVisible});
+  const state = {fpsVisible, controlsVisible};
+  localStorage.state = JSON.stringify(state);
   nes.options.save();
   nes.nvram.save().catch(logError);
 }

@@ -11,28 +11,30 @@
     <div riot-tag="input-slider" name="dmc-volume" label="DMC Channel" min="0" orientation="vertical" max="1" step="0.01" format="%"></div>
   </div>
   <script type="babel">
-    const channels = ['master', 'pulse1', 'pulse2', 'triangle', 'noise', 'dmc'];
+    if (audio) {
+      const channels = ['master', 'pulse1', 'pulse2', 'triangle', 'noise', 'dmc'];
 
-    this.updateEnablement = () => {
-      for (const name in this.tags) {
-        this.tags[name].setEnabled(audio.enabled || name === 'audio-enabled');
-      }
-    };
+      this.updateEnablement = () => {
+        for (const name in this.tags) {
+          this.tags[name].setEnabled(audio.enabled || name === 'audio-enabled');
+        }
+      };
 
-    this.on('update', () => {
-      this.tags['audio-enabled'].setValue(audio.enabled);
-      for (const channel of channels) {
-        this.tags[`${channel}-volume`].setValue(volume[channel]);
-      }
-      this.updateEnablement();
-    });
+      this.on('update', () => {
+        this.tags['audio-enabled'].setValue(audio.enabled);
+        for (const channel of channels) {
+          this.tags[`${channel}-volume`].setValue(volume[channel]);
+        }
+        this.updateEnablement();
+      });
 
-    this.on('mount', () => {
-      this.tags['audio-enabled'].on('change', value => { audio.enabled = value; });
-      this.tags['audio-enabled'].on('mount change', this.updateEnablement);
-      for (const channel of channels) {
-        this.tags[`${channel}-volume`].on('change', value => { volume[channel] = value; });
-      }
-    });
+      this.on('mount', () => {
+        this.tags['audio-enabled'].on('change', value => { audio.enabled = value; });
+        this.tags['audio-enabled'].on('mount change', this.updateEnablement);
+        for (const channel of channels) {
+          this.tags[`${channel}-volume`].on('change', value => { volume[channel] = value; });
+        }
+      });
+    }
   </script>
 </audio-settings>

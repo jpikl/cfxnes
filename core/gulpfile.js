@@ -75,5 +75,5 @@ gulp.task('test', () => {
   }
 
   return gulp.src(files)
-    .pipe(mocha({timeout: 60000, grep: argv.grep}));
+    .pipe(mocha({timeout: 5000, grep: argv.grep}));
 });

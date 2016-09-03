@@ -65,12 +65,13 @@ gulp.task('default', done => {
 
 gulp.task('libs', () => {
   const sources = [
-    './node_modules/jszip/dist/jszip.min.js',
-    './node_modules/jquery/dist/jquery.min.js',
-    './node_modules/jquery.browser/dist/jquery.browser.min.js',
-    './node_modules/bootstrap/dist/js/bootstrap.min.js',
-    './node_modules/bootstrap-slider/dist/bootstrap-slider.min.js',
-    './node_modules/riot/riot.min.js',
+    './node_modules/core-js/client/' + (argv.debug ? 'shim.js' : 'shim.min.js'),
+    './node_modules/jszip/dist/' + (argv.debug ? 'jszip.js' : 'jszip.min.js'),
+    './node_modules/jquery/dist/' + (argv.debug ? 'jquery.js' : 'jquery.min.js'),
+    './node_modules/jquery.browser/dist/' + (argv.debug ? 'jquery.browser.js' : 'jquery.browser.min.js'),
+    './node_modules/bootstrap/dist/js/' + (argv.debug ? 'bootstrap.js' : 'bootstrap.min.js'),
+    './node_modules/bootstrap-slider/dist/' + (argv.debug ? 'bootstrap-slider.js' : 'bootstrap-slider.min.js'),
+    './node_modules/riot/' + (argv.debug ? 'riot.js' : 'riot.min.js'),
   ];
   return gulp.src(sources)
     .pipe(concat('libs.js'))

@@ -32,7 +32,8 @@ import * as holydiverbatman from './holydiverbatman/holydiverbatman';
 
 /* eslint-enable camelcase */
 
-describe('roms', () => {
+describe('roms', function() {
+  this.timeout(60000); // eslint-disable-line no-invalid-this
   validate(nestest);
   validate(instr_test);
   validate(instr_timing);
