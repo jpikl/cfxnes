@@ -2,7 +2,7 @@
   <div class="video-settings">
     <div riot-tag="input-number" name="video-scale" label="Output scale" min="1" max={ video.maxScale }></div>
     <div riot-tag="input-select" name="video-palette" label="Color palette" options={ videoPalettes }></div>
-    <div riot-tag="input-select" name="fullscreen-type" label="Type of full screen mode" options={ fullscreenTypes }></div>
+    <div riot-tag="input-select" name="fullscreen-type" label="Type of fullscreen mode" options={ fullscreenTypes }></div>
   </div>
   <div class="video-settings">
     <div riot-tag="input-checkbox" name="video-smoothing" label="Enable smoothing"></div>

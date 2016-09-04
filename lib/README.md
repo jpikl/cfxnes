@@ -4,7 +4,7 @@ JavaScript library for NES emulation in web browser.
 
 ## Documentation
 
-See [docs](docs/api.md) for API documentation.
+See [cfxnes API](api.md).
 
 #### Minimal Example
 

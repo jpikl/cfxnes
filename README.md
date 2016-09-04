@@ -18,7 +18,7 @@ See LICENSE.txt for more details.
 - ROM images can be loaded from ZIP archive.
 - Persistence of battery-backed RAM (game saves) in IndexedDB.
 - Rendering using WebGL (with canvas API fallback).
-- Full screen mode.
+- Fullscreen mode.
 - Sound emulation using Web Audio.
 - Zapper emulation using mouse.
 - Gamepad support.
