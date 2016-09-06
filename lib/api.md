@@ -151,7 +151,7 @@ Supported ROM image formats are [iNES](http://wiki.nesdev.com/w/index.php/INES) 
 cfxnes({JSZip});
 ```
 
-A ROM image can be loaded in two ways:
+ROM image can be loaded in two ways:
 
 1. Use `rom` initialization option. This will load ROM image from the specified source and then automatically starts execution. All loading errors will be logged using `console.error`.
 2. Call `nes.rom.load()` method. This allows more precise control over the loading process.
@@ -346,9 +346,231 @@ fullscreen.enter().then(() => {
 
 ## nes.audio
 
+Audio settings module.
+
+The `nes.audio` property is `null` when the browser does not support Web Audio (currently only IE 11 and older).
+
+#### Properties
+
+| Name | Type | Writable | Default | Description |
+|------|------|----------|---------|-------------|
+| enabled | `boolean` | yes | true | `true` when audio output is enabled, `false` otherwise. |
+| volume | `object` | no || Audio volume configuration. |
+| volume.master | `number` | yes | `0.5` | Master volume. |
+| volume.pulse1 | `number` | yes | `1` | Volume of pulse #1 channel. |
+| volume.pulse2 | `number` | yes | `1` | Volume of pulse #2 channel. |
+| volume.triangle | `number` | yes | `1` | Volume of triangle channel. |
+| volume.noise | `number` | yes | `1` | Volume of noise channel. |
+| volume.dmc | `number` | yes | `1` | Volume of DMC channel. |
+
+``` javascript
+const nes = cfxnes();
+const {audio} = nes;
+
+if (audio) {
+  audio.enabled = false; // Disable audio
+  audio.volume.master = 1; // Maximize the overall volume
+  audio.volume.dmc = 0; // Mute the DMC channel
+} else {
+  console.log('Web Audio not supported!');
+}
+```
+
 ## nes.devices
+
+Module that allows to set up input devices.
+
+NES has 2 input ports, each of them can be assigned a device through numeric property. Allowed values are:
+- `'joypad'` - Standard NES controller
+- `'zapper'` - Zapper (beam gun)
+- `null` - No device
+
+#### Properties
+
+| Number | Type | Writable | Default | Description |
+|------|------|----------|---------|-------------|
+| 1 | `string` | yes | `'joypad'` | Device connected to the port #1. |
+| 2 | `string` | yes | `'zapper'` | Device connected to the port #2. |
+
+``` javascript
+const nes = cfxnes();
+const {devices} = nes;
+
+devices[1] = 'zapper'; // Set zapper on port #1
+devices[2] = null; // Make port #2 empty
+```
 
 ## nes.inputs
 
+Module that allows to set up input controls.
+
+There are 2 kinds of input devices:
+
+1. The ones being emulated (see `nes.devices` section). We will refer to them as **devices**.
+2. The real ones (keyboard, mouse, gamepad, etc.). We will refer to them as **sources**.
+
+Input of any **device** can be expressed as a string `'<port>.<device>.<name>'`:
+- `<port>` - the port number (`1` or `2`)
+- `<device>` - the device (`'joypad'` or `'zapper'`)
+- `<name>` - name of the input
+
+Input of any **source** can be expressed as a string `'<source>.<name>'`:
+- `<source>` - the source (`'keyboard'`, `'mouse'`, `'gamepad0'`, `'gamepad1'`, ...)
+- `<name>` - name of the input
+
+Examples:
+
+- `'1.joypad.start'` - Start button of a joypad connected to the port #1.
+- `'2.zapper.trigger'` - Trigger button of a zapper connected to the port #2.
+- `'keyboard.ctrl'` - Ctrl key.
+- `'mouse.left'` - Left mouse button.
+- `'gamepad0'.start` - Start button of gamepad #0.
+- `'gamepad1'.x` - X button of gamepad #1.
+
+#### Methods
+
+| Signature | Description |
+|-----------|--------------|
+| map(devInput,&nbsp;srcInputs) | Maps device input to one or more source inputs. `srcInputs` can be either an input or array of inputs. |
+| unmap(...inputs) | Removes mapping for the specified inputs. Calling the method without any argument will remove mapping of all inputs. |
+| get(input) | Returns array of device/source inputs mapped to their counterpart. |
+| record(callback) | Registers a callback function that will be called when the next source input is received. The callback is immediately dropped after its use. Typical use of this method is to let users customize key bindings. |
+
+``` javascript
+const nes = cfxnes();
+const {inputs} = nes;
+
+inputs.map('1.joypad.a', 'keyboard.z'); // Map 'Z' key to 'A button' of joypad on port #1
+inputs.map('1.joypad.a', 'keyboard.y'); // Map 'Y' key to the same device input as before
+inputs.map('1.joypad.a', ['keyboard.z', 'keyboard.y']); // It can be simplified to just one call
+
+inputs.get('1.joypad.a'); // Returns ['keyboard.z', 'keyboard.y']
+inputs.get('keyboard.z'); // Returns ['1.joypad.a']
+
+inputs.unmap('keyboard.z'); // Remove mapping for the 'Y' key
+inputs.get('1.joypad.a'); // Returns ['keyboard.z']
+
+inputs.unmap(); // Remove mapping of all inputs
+inputs.get('1.joypad.a'); // Returns []
+
+// We can let user to customize controls
+const devInput = '1.joypad.a';
+showUserMessage('Press any key or button...');
+inputs.record(srcInput => {
+  inputs.unmap(devInput, srcInput); // Remove the previous mapping
+  inputs.map(devInput, srcInput); // Add new mapping
+  hideUserMessage();
+})
+```
+
+#### Joypad Inputs
+
+| Input | Name |
+|------|-------|
+| A, B buttons | `'a'`, `'b'` |
+| Start, Select buttons | `'start'`, `'select'` |
+| D-pad buttons | `'left'`, `'right'`, `'up'`, `'down'` |
+
+#### Zapper Inputs
+
+| Input | Name |
+|------|-------|
+| Trigger | `'trigger'` |
+| Beam position | *It is permanently mapped to mouse cursor position.* |
+
+#### Keyboard Inputs
+
+| Input | Name |
+|------|-------|
+| Character&nbsp;keys&nbsp;(letters) | `'a'`, `'b'`, ..., `'z'` |
+| Character&nbsp;keys&nbsp;(numbers) | `'0'`, `'1'`, ..., `'9'` |
+| Character&nbsp;keys&nbsp;(special) | `'space'`, `','`, `'.'`, `'/'`, `';'`, `'\''`, `'\\'`, `'['`, `']'`, `'``'`, `'-'`, `'='` |
+| Function keys | `'f1'`, `'f2'`, ..., `'f12'` |
+| Modifier keys | `'shift'`, `'ctrl'`, `'alt'` |
+| Navigation keys | `'left'`, `'up'`, `'right'`, `'down'`, `'tab'`, `'home'`, `'end'`, `'page-up'`, `'page-down'` |
+| System keys | `'escape'`, `'pause'` |
+| Editing keys | `'enter'`, `'backspace'`, `'insert'`, `'delete'` |
+| Lock keys |  `'caps-lock'`, `'num-lock'`, `'scroll-lock'` |
+| Numeric keypad |  `'numpad-0'`, `'numpad-1'`, ..., `'numpad-9'`, `'add'`, `'subtract'`, `'multiply'`, `'divide'`, `'decimal-point'` |
+
+#### Mouse Inputs
+
+| Input | Name |
+|------|-------|
+| Left, middle, right button | `'left'`, `'middle'`, `'right'` |
+
+#### Gamepad Inputs
+
+The set of inputs that are received from a gamepad depends on whether browser is able to recognize gamepad layout. If the gamepad is correctly recognized, the [standard layout](https://w3c.github.io/gamepad/#remapping) is used. Otherwise the *generic layout* is used as fallback.
+
+##### Standard Gamepad Layout
+
+![standard layout](https://upload.wikimedia.org/wikipedia/commons/2/2c/360_controller.svg)
+
+| Input | Name |
+|------|-------|
+| A, B, X, Y buttons | `'a'`, `'b'`, `'x'`, `'y'` |
+| Back, Start, Guide buttons | `'back'`, `'start'`, `'guide'` |
+| D-pad | `'dpad-up'`, `'dpad-down'`, `'dpad-left'`, `'dpad-right'` |
+| Triggers | `'left-trigger'`, `'right-trigger'` |
+| Bumpers | `'left-bumper'`, `'right-bumper'` |
+| Sticks (buttons) | `'left-stick'`, `'right-stick'` |
+| Sticks (axes) | `'left-stick-x'`, `'left-stick-y'`, `'right-stick-x'`, `'right-stick-y'`|
+
+To specify axis direction, `'+'` or `'-'` must be appended (e.g., `'left-stick-x-'`, `'left-stick-x+'`).
+
+##### Generic Gamepad Layout
+
+| Input | Name |
+|------|-------|
+| Buttons | `'button-0'`, `'button-1'`, ... |
+| Axes | `'axis-0'`, `'axis-1'`, ... |
+
+To specify axis direction, `'+'` or `'-'` must be appended (e.g., `'axis-0-'`, `'axis-0+'`).
+
 ## nes.options
 
+Module that provides access to all configuration options.
+
+The structure of configuration options corresponds to structure of initialization options (see `cfxnes` function description) with exception of `rom`, `JSZip`, `video.output` that are ignored.
+
+| Signature | Description |
+|-----------|--------------|
+| get() | Returns all options and their values. |
+| set(options) | Sets values of the specified options. |
+| reset(...names) | Resets specified options to their default values. Calling the method without any argument will reset all options. |
+| save() | Saves all options and their values to local storage. |
+| load() | Loads saved options from local storage. The method does nothing if there are no options to load. |
+| delete() | Deletes saved options from local storage. |
+
+``` javascript
+const nes = cfxnes();
+const {options} = nes;
+
+// Query options
+nes.speed = 2;
+nes.audio.enabled = true;
+options.get().speed; // 2
+options.get().audio.enabled ; // true
+
+// Set options
+options.set({
+  speed = 1.5,
+  audio: {enabled: false},
+});
+nes.speed; // 1.5
+nes.audio.enabled; // false
+
+// Reset options
+options.reset('audio'); // Reset all audio options
+options.reset('audio.enabled'); // Reset a specific audio option
+options.reset('region', 'speed'); // Reset multiple options
+options.reset(); // Reset all options
+nes.speed; // 1
+nes.audio.enabled; // true
+
+// Save/load/delete options in local storage
+options.save();
+options.load();
+options.delete();
+```
