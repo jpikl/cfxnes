@@ -431,34 +431,46 @@ Examples:
 
 | Signature | Description |
 |-----------|--------------|
-| map(devInput,&nbsp;srcInputs) | Maps device input to one or more source inputs. `srcInputs` can be either an input or array of inputs. |
-| unmap(...inputs) | Removes mapping for the specified inputs. Calling the method without any argument will remove mapping of all inputs. |
-| get(input) | Returns array of device/source inputs mapped to their counterpart. |
+| set(mapping) | Sets new mapping of inputs. |
+| set(devInput,&nbsp;srcInputs) | Maps device input to one or more source inputs. `srcInputs` can be either an input or array of inputs. |
+| get() | Returns mapping of all inputs. |
+| get(input) | Returns maping for a specific input. |
+| delete(...inputs) | Deletes mapping for the specified inputs. Calling the method without any argument will delete mapping of all inputs. |
 | record(callback) | Registers a callback function that will be called when the next source input is received. The callback is immediately dropped after its use. Typical use of this method is to let users customize key bindings. |
 
 ``` javascript
 const nes = cfxnes();
 const {inputs} = nes;
 
-inputs.map('1.joypad.a', 'keyboard.z'); // Map 'Z' key to 'A button' of joypad on port #1
-inputs.map('1.joypad.a', 'keyboard.y'); // Map 'Y' key to the same device input as before
-inputs.map('1.joypad.a', ['keyboard.z', 'keyboard.y']); // It can be simplified to just one call
+// Map inputs
+inputs.set('1.joypad.a', 'keyboard.z'); // 1) Map 'A button' of joypad on port #1 to 'Z' key
+inputs.set('1.joypad.a', 'keyboard.y'); // 2) Map the same input to 'Y' key
+inputs.set('1.joypad.a', ['keyboard.z', 'keyboard.y']); // 1) and 2) using one call
 
+// Override existing mapping with a new one
+inputs.set({
+  '1.joypad.a': ['keyboard.z', 'keyboard.y'],
+  '1.joypad.b': 'keyboard.x',
+});
+
+// Query mapping
 inputs.get('1.joypad.a'); // Returns ['keyboard.z', 'keyboard.y']
 inputs.get('keyboard.z'); // Returns ['1.joypad.a']
+inputs.get(); // Returns {'1.joypad.a': ['keyboard.z', 'keyboard.y'], '1.joypad.b': ['keyboard.x']}
 
-inputs.unmap('keyboard.z'); // Remove mapping for the 'Y' key
-inputs.get('1.joypad.a'); // Returns ['keyboard.z']
-
-inputs.unmap(); // Remove mapping of all inputs
-inputs.get('1.joypad.a'); // Returns []
+// Delete mapping
+inputs.get('1.joypad.a');    // Returns ['keyboard.z', 'keyboard.y']
+inputs.delete('keyboard.z'); // Delete mapping for the 'Y' key
+inputs.get('1.joypad.a');    // Returns ['keyboard.z']
+inputs.delete();             // Delete mapping of all inputs
+inputs.get('1.joypad.a');    // Returns []
 
 // We can let user to customize controls
 const devInput = '1.joypad.a';
 showUserMessage('Press any key or button...');
 inputs.record(srcInput => {
-  inputs.unmap(devInput, srcInput); // Remove the previous mapping
-  inputs.map(devInput, srcInput); // Add new mapping
+  inputs.delete(devInput, srcInput); // Delete previous mapping of inputs
+  inputs.set(devInput, srcInput); // Map inputs
   hideUserMessage();
 })
 ```

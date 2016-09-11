@@ -54,7 +54,7 @@ describe('common/utils', () => {
   });
 
   it('throws error with correct message when asserting negative condition', () => {
-    expect(() => assert(false)).to.throw('Invalid parameter');
+    expect(() => assert(false)).to.throw('Invalid argument');
     expect(() => assert(false, 'msg')).to.throw('msg');
   });
 });

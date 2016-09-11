@@ -14,8 +14,8 @@
       inputs.record(input => {
         modal.modal('hide');
         if (input !== 'keyboard.escape') {
-          inputs.unmap(opts.input, input);
-          inputs.map(opts.input, input);
+          inputs.delete(opts.input, input);
+          inputs.set(opts.input, input);
           this.trigger('change');
         }
       });

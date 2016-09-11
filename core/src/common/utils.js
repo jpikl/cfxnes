@@ -41,7 +41,7 @@ export function roundUpToPow2(number) {
   return result;
 }
 
-export function assert(condition, message = 'Invalid parameter') {
+export function assert(condition, message = 'Invalid argument') {
   if (!condition) {
     throw new Error(message);
   }

@@ -44,14 +44,14 @@
       const port = target.attr('data-port');
 
       devices[port] = 'joypad';
-      inputs.map(`${port}.joypad.a`, `gamepad${index}.a`);
-      inputs.map(`${port}.joypad.b`, `gamepad${index}.b`);
-      inputs.map(`${port}.joypad.start`, `gamepad${index}.start`);
-      inputs.map(`${port}.joypad.select`, `gamepad${index}.back`);
-      inputs.map(`${port}.joypad.up`, `gamepad${index}.dpad-up`);
-      inputs.map(`${port}.joypad.down`, `gamepad${index}.dpad-down`);
-      inputs.map(`${port}.joypad.left`, `gamepad${index}.dpad-left`);
-      inputs.map(`${port}.joypad.right`, `gamepad${index}.dpad-right`);
+      inputs.set(`${port}.joypad.a`, `gamepad${index}.a`);
+      inputs.set(`${port}.joypad.b`, `gamepad${index}.b`);
+      inputs.set(`${port}.joypad.start`, `gamepad${index}.start`);
+      inputs.set(`${port}.joypad.select`, `gamepad${index}.back`);
+      inputs.set(`${port}.joypad.up`, `gamepad${index}.dpad-up`);
+      inputs.set(`${port}.joypad.down`, `gamepad${index}.dpad-down`);
+      inputs.set(`${port}.joypad.left`, `gamepad${index}.dpad-left`);
+      inputs.set(`${port}.joypad.right`, `gamepad${index}.dpad-right`);
 
       this.trigger('change');
     };
