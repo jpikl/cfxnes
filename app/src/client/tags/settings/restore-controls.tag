@@ -4,7 +4,9 @@
   </p>
   <script type="babel">
     this.restore = () => {
-      options.reset('devices', 'inputs');
+      devices[1] = defaultDevice1;
+      devices[2] = defaultDevice2;
+      inputs.set(defaultInputs);
       this.trigger('change');
     };
   </script>

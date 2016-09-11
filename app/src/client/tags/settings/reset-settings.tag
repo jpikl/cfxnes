@@ -15,7 +15,7 @@
         fpsVisible = true;
         controlsVisible = true;
         controlsOpened = true;
-        options.reset();
+        config.set(defaultConfig);
         this.setSuccess('Done');
       });
 

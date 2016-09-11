@@ -3,9 +3,14 @@
 cfxnes.logLevel = 'info';
 
 const nes = cfxnes();
-const {video, fullscreen, audio, rom, nvram, devices, inputs, options} = nes;
+const {video, fullscreen, audio, rom, nvram, devices, inputs, config} = nes;
 const {volume} = audio || {};
 const bus = riot.observable({});
+
+const defaultConfig = config.get();
+const defaultDevice1 = devices[1];
+const defaultDevice2 = devices[2];
+const defaultInputs = inputs.get();
 
 let fpsVisible = true;
 let controlsVisible = true;
@@ -17,9 +22,7 @@ let settingsPanel;
 let viewParam;
 
 try {
-  options.load();
-  const state = JSON.parse(localStorage.state || '{}');
-  ({fpsVisible = true, controlsVisible = true} = state);
+  load();
 } catch (error) {
   logError(error);
 }
@@ -37,11 +40,17 @@ $(document).ready(() => {
   riot.route.start(true); // start + exec
 });
 
+function load() {
+  const state = JSON.parse(localStorage.state || '{}');
+  if (state) {
+    config.set(state);
+    ({fpsVisible = true, controlsVisible = true} = state);
+  }
+}
+
 function save() {
-  const state = {fpsVisible, controlsVisible};
-  localStorage.state = JSON.stringify(state);
-  nes.options.save();
-  nes.nvram.save().catch(logError);
+  const state = Object.assign({fpsVisible, controlsVisible}, config.get());
+  localStorage.config = JSON.stringify(state);
 }
 
 function eachTag(tags, callback) {
