@@ -11,7 +11,7 @@ Note: This documentation is for the upcoming version 0.5.0
 - [nes.audio](#user-content-nesaudio)
 - [nes.devices](#user-content-nesdevices)
 - [nes.inputs](#user-content-nesinputs)
-- [nes.options](#user-content-nesoptions)
+- [nes.config](#user-content-nesconfig)
 
 ## cfxnes([options])
 
@@ -540,9 +540,9 @@ To specify axis direction, `'+'` or `'-'` must be appended (e.g., `'left-stick-x
 
 To specify axis direction, `'+'` or `'-'` must be appended (e.g., `'axis-0-'`, `'axis-0+'`).
 
-## nes.options
+## nes.config
 
-Module that provides access to all configuration options.
+Module that provides access to emulator configuration.
 
 The structure of configuration options corresponds to structure of initialization options (see `cfxnes` function description) with exception of `rom`, `JSZip`, `video.output` that are ignored.
 
@@ -550,39 +550,21 @@ The structure of configuration options corresponds to structure of initializatio
 |-----------|--------------|
 | get() | Returns all options and their values. |
 | set(options) | Sets values of the specified options. |
-| reset(...names) | Resets specified options to their default values. Calling the method without any argument will reset all options. |
-| save() | Saves all options and their values to local storage. |
-| load() | Loads saved options from local storage. The method does nothing if there are no options to load. |
-| delete() | Deletes saved options from local storage. |
 
 ``` javascript
 const nes = cfxnes();
-const {options} = nes;
+const {config} = nes;
 
-// Query options
-nes.speed = 2;
+// Get current configuration
+nes.speed = 1;
 nes.audio.enabled = true;
-options.get().speed; // 2
-options.get().audio.enabled ; // true
+const options = config.get();
+options.speed; // 1
+options.audio.enabled; // true
 
-// Set options
-options.set({
-  speed = 1.5,
-  audio: {enabled: false},
-});
-nes.speed; // 1.5
-nes.audio.enabled; // false
-
-// Reset options
-options.reset('audio'); // Reset all audio options
-options.reset('audio.enabled'); // Reset a specific audio option
-options.reset('region', 'speed'); // Reset multiple options
-options.reset(); // Reset all options
+// Restore configuration
+nes.speed = 2;
+nes.audio.enabled = false;
+config.set(options);
 nes.speed; // 1
 nes.audio.enabled; // true
-
-// Save/load/delete options in local storage
-options.save();
-options.load();
-options.delete();
-```
