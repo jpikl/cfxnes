@@ -1,4 +1,3 @@
-const fs = require('fs');
 const path = require('path');
 const browser = require('browser-sync').create();
 const del = require('del');
@@ -9,7 +8,6 @@ const server = require('gulp-develop-server');
 const eslint = require('gulp-eslint');
 const gulpif = require('gulp-if');
 const less = require('gulp-less');
-const replace = require('gulp-replace');
 const riot = require('gulp-riot');
 const uglify = require('gulp-uglify');
 const Autoprefix = require('less-plugin-autoprefix');
@@ -43,7 +41,7 @@ const argv = yargs
   .example('gulp build -d', 'Build application (debug version)')
   .example('node dist/app.js', 'Start server at http://localhost:5000')
   .example('gulp start', 'Start server with browser-sync at http://localhost:3000')
-  .example('gulp dev', 'Build optimized application + start server + watch sources')
+  .example('gulp dev', 'Build application + start server + watch sources')
   .example('gulp dev -d', 'Build debug application + start server + watch sources')
   .example('gulp lint', 'Run linter')
   .example('gulp clean', 'Delete generated files')
@@ -107,8 +105,6 @@ gulp.task('styles', () => {
 
 gulp.task('pages', () => {
   return gulp.src('./src/client/index.html')
-    .pipe(replace('<!-- Google Analytics -->',
-      argv.analytics ? fs.readFileSync('./src/client/ga.html', 'utf8') : ''))
     .pipe(gulp.dest('./dist/static/'));
 });
 

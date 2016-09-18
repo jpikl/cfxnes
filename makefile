@@ -23,7 +23,6 @@ help:
 	@echo "  lib          Build library"
 	@echo "  lib_dbg      Build library (debug version)"
 	@echo "  app          Build application"
-	@echo "  app_pro      Build application (production version)"
 	@echo ""
 	@echo "  backup       Backup project files"
 	@echo "  version      Update version in package.json"
@@ -62,7 +61,7 @@ npm_update:
 # Build
 ###############################################################################
 
-.PHONY: lib lib_dbg app app_pro
+.PHONY: lib lib_dbg app
 
 lib:
 	cd lib && gulp build
@@ -72,9 +71,6 @@ lib_dbg:
 
 app:
 	cd app && gulp build
-
-app_pro:
-	cd app && gulp build -a
 
 
 ###############################################################################
@@ -92,7 +88,7 @@ version:
 	cd lib && npm version $(VERSION); true
 	cd app && npm version $(VERSION); true
 
-deploy: clean lib app_pro
+deploy: clean lib app
 	mkdir -p $(DEPLOY_DIR)
 	rm -rf ./$(DEPLOY_DIR)/{node_modules,static,*.js,package.json}
 	cd app/dist && cp -r . ../../$(DEPLOY_DIR)
