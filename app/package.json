@@ -34,6 +34,7 @@
     "font-awesome": "^4.6.3",
     "gulp": "gulpjs/gulp#4.0",
     "gulp-babel": "^6.1.2",
+    "gulp-browserify": "^0.5.1",
     "gulp-concat": "^2.6.0",
     "gulp-develop-server": "^0.5.2",
     "gulp-eslint": "^3.0.1",

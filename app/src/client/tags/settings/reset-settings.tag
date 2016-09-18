@@ -15,14 +15,14 @@
         fpsVisible = true;
         controlsVisible = true;
         controlsOpened = true;
-        config.set(defaultConfig);
+        config.set(defaults);
         this.setSuccess('Done');
       });
 
       this.tags['delete-data'].on('click', function() {
         if (confirm('Delete stored data of all games?')) {
           this.setProgress('Deleting data...');
-          nvram.deleteAll().then(() => {
+          clearNVRAM().then(() => {
             this.setSuccess('Done');
           }, error => {
             logError(error);

@@ -79,22 +79,11 @@ nes = cfxnes({
 | version | `string` | no |  | cfxnes version. |
 | logLevel | `string` | yes | `'warn'` | Verbosity of logging for all emulator instances.<br>`'off'` - Logging is disabled.<br>`'error'` - Log errors.<br>`'warn'` - Log errors and warnings.<br>`'info'` - Log errors, warnings and info messages. |
 
-#### Methods
-
-| Signature | Returns | Description |
-|-----------|---------|-------------|
-| close() |`Promise` | Releases resources allocated by all emulator instances. |
-
 ``` javascript
 cfxnes.version; // '0.4.0', '1.0.0', '1.2.1', etc.
 
 cfxnes.logLevel = 'off'; // Disable logging
 cfxnes.logLevel = 'info'; // Log everything
-
-// Release resources
-cfxnes.close().then(() => {
-  console.log('done');
-})
 
 ```
 
@@ -102,7 +91,7 @@ cfxnes.close().then(() => {
 
 Emulator instance returned by the `cfxnes` function.
 
-It defines basic (execution-related) properties/methods and aggregates various submodules (`rom`, `nvram`, `video`, `fullscreen`, `audio`, `devices`, `inputs`).
+It defines basic (execution-related) properties/methods and aggregates various submodules (`rom`, `video`, `fullscreen`, `audio`, `devices`, `inputs`).
 
 #### Properties
 
@@ -112,6 +101,7 @@ It defines basic (execution-related) properties/methods and aggregates various s
 | fps  | `number` | no || Number of frames per second of running emulator. |
 | region | `string` | yes | `'auto'` | Emulated NES region.<br>`'auto'` - Automatic region detection (not very reliable).<br>`'ntsc'` - NTSC region (60 FPS).<br>`'pal'` - PAL region (50 FPS). |
 | speed | `number` | yes | `1` | Emulation speed multiplier. It must be larger than 0. |
+| nvram | `Uint8Array` | no | null | Provides access to NVRAM. NVRAM (Non-Volatile RAM) is a memory that is usually battery-backed and serves as a place for game saves. NVRAM is only used by some games (e.g., The Legend of Zelda or Final Fantasy). The property is `null` when NVRAM is not avaialable. |
 
 #### Methods
 
@@ -139,6 +129,10 @@ nes.step() // Render one frame
 
 nes.power(); // HW reset
 nes.reset(); // SW reset
+
+if (nvram.data) {
+  nvram.data.fill(0); // Clear NVRAM of the currently running game
+}
 ```
 
 ## nes.rom
@@ -203,46 +197,6 @@ rom.load('roms/game.nes').then(() => {
 // Load ROM image from memory or blob
 var data = receiveData(); // Uint8Array, ArrayBuffer, Array, Blob
 rom.load(data).then(/* ... */);
-```
-
-## nes.nvram
-
-Module that provides access to NVRAM.
-
-NVRAM (Non-Volatile RAM) is a memory that is usually battery-backed and serves as a place for game saves. NVRAM is only used by some games (e.g., The Legend of Zelda or Final Fantasy).
-
-#### Properties
-
-| Name | Type | Writable | Default | Description |
-|------|------|----------|---------|-------------|
-| data | `Uint8Array` | no | `null` | Typed array that provides direct access to NVRAM data. The property is `null` when NVRAM is not avaialable. |
-
-#### Methods
-
-| Signature | Returns | Description |
-|-----------|---------|-------------|
-| load() | `Promise` | Loads NVRAM of the currently running game from IndexedDB. The method does nothing when there are no data to load or the NVRAM is not available. |
-| save() | `Promise` | Stores NVRAM of the currently running game into IndexedDB. The method does nothing when the NVRAM is not available. |
-| deleteAll() | `Promise` | Deletes all NVRAMs stored in IndexedDB. |
-
-``` javascript
-const nes = cfxnes();
-const {rom, nvram} = nes;
-
-nvram.save()                    // Persist NVRAM of the currently running game
-  .then(() => rom.load(source)) // Load a different game
-  .then(() => nvram.load())     // Restore its NVRAM
-  .catch(error => {
-    console.error('Oops!', error);
-  });
-
-// Clear NVRAM of the currently running game
-if (nvram.data) {
-  nvram.data.fill(0);
-}
-
-// Delete all stored NVRAMs.
-nvram.deleteAll();
 ```
 
 ## nes.video
@@ -434,7 +388,7 @@ Examples:
 | set(mapping) | Sets new mapping of inputs. |
 | set(devInput,&nbsp;srcInputs) | Maps device input to one or more source inputs. `srcInputs` can be either an input or array of inputs. |
 | get() | Returns mapping of all inputs. |
-| get(input) | Returns maping for a specific input. |
+| get(input) | Returns mapping for a specific input. |
 | delete(...inputs) | Deletes mapping for the specified inputs. Calling the method without any argument will delete mapping of all inputs. |
 | record(callback) | Registers a callback function that will be called when the next source input is received. The callback is immediately dropped after its use. Typical use of this method is to let users customize key bindings. |
 

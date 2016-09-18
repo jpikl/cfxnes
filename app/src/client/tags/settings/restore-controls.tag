@@ -4,9 +4,8 @@
   </p>
   <script type="babel">
     this.restore = () => {
-      devices[1] = defaultDevice1;
-      devices[2] = defaultDevice2;
-      inputs.set(defaultInputs);
+      Object.assign(devices, defaults.devices);
+      inputs.set(defaults.inputs);
       this.trigger('change');
     };
   </script>

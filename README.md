@@ -39,7 +39,7 @@ See LICENSE.txt for more details.
 - Poor performance in IE, Edge.
 - Very poor performance on mobile devices.
 - Occasional graphical glitches in games using MMC3 mapper.
-- See [list of broken games](docs/broken-games.md).
+- See [list of broken games](broken-games.md).
 
 ## Project Structure
 

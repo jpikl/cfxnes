@@ -3,14 +3,10 @@
 cfxnes.logLevel = 'info';
 
 const nes = cfxnes();
-const {video, fullscreen, audio, rom, nvram, devices, inputs, config} = nes;
+const {video, fullscreen, audio, rom, devices, inputs, config} = nes;
 const {volume} = audio || {};
+const defaults = config.get();
 const bus = riot.observable({});
-
-const defaultConfig = config.get();
-const defaultDevice1 = devices[1];
-const defaultDevice2 = devices[2];
-const defaultInputs = inputs.get();
 
 let fpsVisible = true;
 let controlsVisible = true;
@@ -42,15 +38,31 @@ $(document).ready(() => {
 
 function load() {
   const state = JSON.parse(localStorage.state || '{}');
-  if (state) {
-    config.set(state);
-    ({fpsVisible = true, controlsVisible = true} = state);
-  }
+  ({fpsVisible = true, controlsVisible = true} = state);
+  config.set(state);
 }
 
 function save() {
   const state = Object.assign({fpsVisible, controlsVisible}, config.get());
-  localStorage.config = JSON.stringify(state);
+  localStorage.state = JSON.stringify(state);
+  saveNVRAM();
+}
+
+function loadNVRAM() {
+  if (nes.nvram) {
+    return getNVRAM(rom.sha1)
+      .then(data => data && nes.nvram.set(data))
+      .catch(logError);
+  }
+  return Promise.resolve();
+}
+
+function saveNVRAM() {
+  if (nes.nvram) {
+    return putNVRAM(rom.sha1, nes.nvram)
+      .catch(logError);
+  }
+  return Promise.resolve();
 }
 
 function eachTag(tags, callback) {

@@ -1,9 +1,6 @@
-import log from '../../../core/src/common/log';
-
-const DB_NAME = 'cfxnes.db';
+const DB_NAME = 'cfxnes';
 const DB_VERSION = 1;
 
-const {indexedDB} = window;
 let dbPromise;
 
 //=========================================================
@@ -21,7 +18,7 @@ function doWithDB(callback) {
 
 function openDB() {
   return new Promise((resolve, reject) => {
-    log.info(`Opening database ${DB_NAME} (version: ${DB_VERSION})`);
+    console.info(`Opening database ${DB_NAME} (version: ${DB_VERSION})`);
     const request = indexedDB.open(DB_NAME, DB_VERSION);
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
@@ -31,16 +28,16 @@ function openDB() {
 }
 
 function upgrageDB(request, oldVersion, newVersion) {
-  log.info(`Upgrading database ${DB_NAME} from version ${oldVersion} to ${newVersion}`);
+  console.info(`Upgrading database ${DB_NAME} from version ${oldVersion} to ${newVersion}`);
   request.result.createObjectStore('nvram', {keyPath: 'sha1'});
 }
 
-export function closeDB() {
+function closeDB() {
   if (dbPromise == null) {
     return Promise.resolve();
   }
   return dbPromise.then(db => {
-    log.info(`Closing database ${DB_NAME}`);
+    console.info(`Closing database ${DB_NAME}`);
     db.close();
     dbPromise = null;
   });
@@ -50,9 +47,9 @@ function doWithClosedDB(callback) {
   return closeDB().then(() => new Promise(callback));
 }
 
-export function deleteDB() {
+function deleteDB() {
   return doWithClosedDB((resolve, reject) => {
-    log.info(`Deleting database ${DB_NAME}`);
+    console.info(`Deleting database ${DB_NAME}`);
     const request = indexedDB.deleteDatabase(DB_NAME);
     request.onsuccess = () => resolve();
     request.onerror = () => reject(request.error);
@@ -65,7 +62,7 @@ export function deleteDB() {
 //=========================================================
 
 function getNVRAM(sha1) {
-  log.info('Getting NVRAM from DB store');
+  console.info(`Getting NVRAM from DB store for ${sha1}`);
   return doWithDB((db, resolve, reject) => {
     const transaction = db.transaction('nvram', 'readonly');
     const store = transaction.objectStore('nvram');
@@ -79,18 +76,18 @@ function getNVRAM(sha1) {
 }
 
 function putNVRAM(sha1, data) {
-  log.info('Putting NVRAM to DB store');
+  console.info(`Putting NVRAM to DB store for ${sha1}`);
   return doWithDB((db, resolve, reject) => {
     const transaction = db.transaction('nvram', 'readwrite');
     const store = transaction.objectStore('nvram');
-    const request = store.put({'sha1': sha1, 'data': data});
+    const request = store.put({sha1, data});
     request.onsuccess = () => resolve();
     request.onerror = () => reject(request.error);
   });
 }
 
 function clearNVRAM() {
-  log.info('Clearing NVRAM DB store');
+  console.info('Clearing NVRAM DB store');
   return doWithDB((db, resolve, reject) => {
     const transaction = db.transaction('nvram', 'readwrite');
     const store = transaction.objectStore('nvram');
@@ -100,4 +97,4 @@ function clearNVRAM() {
   });
 }
 
-export const nvramStore = {get: getNVRAM, put: putNVRAM, clear: clearNVRAM};
+// export const nvramStore = {get: getNVRAM, put: putNVRAM, clear: clearNVRAM};

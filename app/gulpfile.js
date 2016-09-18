@@ -77,7 +77,7 @@ gulp.task('libs', () => {
 });
 
 gulp.task('scripts', () => {
-  const app = gulp.src('./src/client/app.js').pipe(babel());
+  const app = gulp.src('./src/client/{db,app}.js').pipe(babel());
   const tags = gulp.src('./src/client/tags/**/*.tag').pipe(riot());
   return merge(app, tags)
     .pipe(gulpif(!argv.debug, uglify()))

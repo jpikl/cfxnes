@@ -48,8 +48,7 @@
         message.hide();
       }
 
-      nvram.save()
-        .catch(logError)
+      saveNVRAM()
         .then(() => {
           if (!gameId) {
             return rom.load(source);
@@ -63,9 +62,7 @@
           message.showError(formatError(error));
           throw error;
         })
-        .then(() => {
-          return nvram.load().catch(logError);
-        })
+        .then(loadNVRAM)
         .then(() => {
           lastGameId = gameId;
           output.hideLoading();
