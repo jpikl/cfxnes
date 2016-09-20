@@ -75,7 +75,7 @@ export default class PPU {
     this.oddFrame = false;         // Whether odd frame is being rendered
     this.spriteCount = 0;          // Total number of sprites on current scanline
     this.spriteNumber = 0;         // Number of currently fetched sprite
-    this.spriteCache = new Array(261);         // Preprocessed sprite data for current scanline (cycle -> sprite rendered on this cycle)
+    this.spriteCache = new Array(261);           // Preprocessed sprite data for current scanline (cycle -> sprite rendered on this cycle)
     this.spritePixelCache = new Uint8Array(261); // Prerendered sprite pixels for current scanline (cycle -> sprite pixel rendered on this cycle)
   }
 

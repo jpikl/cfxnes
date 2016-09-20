@@ -223,7 +223,7 @@ export default class NES {
   }
 
   readAudioBuffer() {
-    return this.apu.readOutputBuffer();
+    return this.apu.readBuffer();
   }
 
   //=========================================================

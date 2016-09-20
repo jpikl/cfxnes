@@ -55,7 +55,6 @@ export default class CPU {
   }
 
   resetVariables() {
-    this.cycle = 0;            // Number of CPU cycles after power / reset
     this.activeInterrupts = 0; // Bitmap of active interrupts (each type of interrupt has its own bit)
     this.halted = false;       // Whether KIL opcode was readed
   }
@@ -109,7 +108,6 @@ export default class CPU {
   }
 
   handleReset() {
-    this.cycle = 0;
     this.writeByte(0x4015, 0x00);                       // Disable all APU channels immediatelly
     this.writeByte(0x4017, this.apu.frameCounterLast);  // Zero on power up, last written frame counter value otherwise
     this.stackPointer = (this.stackPointer - 3) & 0xFF; // Unlike IRQ/NMI, writing on stack does not modify CPU memory, so we just decrement the stack pointer 3 times
@@ -298,7 +296,6 @@ export default class CPU {
     this.ppu.tick();
     this.ppu.tick();
     this.apu.tick(); // Same rate as CPU
-    this.cycle++;
   }
 
   //=========================================================

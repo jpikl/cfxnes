@@ -75,12 +75,11 @@ export default class APU {
 
   setBufferSize(size) {
     log.info(`Setting APU buffer size to ${formatSize(size)}`);
-    this.bufferSize = size;                     // Size of output and record buffer
-    this.lastPosition = size - 1;               // Last position in the output/record buffer
-    this.recordBuffer = new Float32Array(size); // Buffer to store recorded audio samples
-    this.recordPosition = -1;                   // Buffer position of the last recorded sample
-    this.recordCycle = 0;                       // CPU cycle counter
-    this.outputBuffer = new Float32Array(size); // Buffer with cached audio samples to be send to sound card
+    this.bufferSize = size;                     // Size of record and output buffer
+    this.bufferPosition = 0;                    // Position of the next sample in buffer
+    this.bufferIncrement = 0;                   // Sum of increments for the next buffer position
+    this.recordBuffer = new Float32Array(size); // Buffer where audio samples are being stored
+    this.outputBuffer = new Float32Array(size); // Buffer with audio samples ready to output
     this.outputBufferFull = false;              // Wheter the output buffer is full
   }
 
@@ -91,7 +90,7 @@ export default class APU {
   setSampleRate(rate) {
     log.info(`Setting APU sampling rate to ${rate} Hz`);
     this.sampleRate = rate;        // How often are samples taken (samples per second)
-    this.sampleRateAdjustment = 0; // Sample rate adjustment per 1 output value (buffer underflow/overflow protection)
+    this.sampleRateAdjustment = 0; // Sample rate adjustment per 1 output value (buffer underflow/overflow prevention)
   }
 
   getSampleRate() {
@@ -361,36 +360,35 @@ export default class APU {
   //=========================================================
 
   recordOutput() {
-    const position = ~~(this.recordCycle++ * this.sampleRate / this.cpuFrequency);
-    if (position > this.recordPosition) {
-      this.fillRecordBuffer(position);
+    this.bufferIncrement += this.sampleRate / this.cpuFrequency;
+    if (this.bufferIncrement >= 1) {
+      let increment = ~~this.bufferIncrement;
+      this.bufferIncrement -= increment;
+      const output = this.getOutput();
+      while (increment--) {
+        if (this.bufferPosition === this.bufferSize) {
+          if (this.outputBufferFull) {
+            break; // Buffer overflow
+          }
+          this.swapBuffers();
+        }
+        this.recordBuffer[this.bufferPosition++] = output;
+        this.sampleRate += this.sampleRateAdjustment;
+      }
     }
   }
 
-  fillRecordBuffer(position) {
-    const output = this.getOutput();
-    if (position == null || position > this.lastPosition) {
-      position = this.lastPosition;
-    }
-    while (this.recordPosition < position) {
-      this.recordBuffer[++this.recordPosition] = output;
-      this.sampleRate += this.sampleRateAdjustment;
-    }
-    if (this.recordPosition >= this.lastPosition && !this.outputBufferFull) {
-      this.swapOutputBuffer();
-    }
-  }
-
-  swapOutputBuffer() {
-    [this.outputBuffer, this.recordBuffer] = [this.recordBuffer, this.outputBuffer];
+  swapBuffers() {
+    [this.recordBuffer, this.outputBuffer] = [this.outputBuffer, this.recordBuffer];
     this.outputBufferFull = true;
-    this.recordPosition = -1;
-    this.recordCycle = 0;
+    this.bufferPosition = 0;
   }
 
-  readOutputBuffer() {
+  readBuffer() {
     if (!this.outputBufferFull) {
-      this.fillRecordBuffer(); // Buffer underflow
+      const output = this.getOutput();
+      this.recordBuffer.fill(output, this.bufferPosition); // Buffer underflow
+      this.swapBuffers();
     }
     this.adjustSampleRate();
     this.outputBufferFull = false;
@@ -399,7 +397,7 @@ export default class APU {
 
   adjustSampleRate() {
     // Our goal is to have right now about 50% of data in buffer
-    const percentageDifference = 0.5 - (this.recordPosition / this.bufferSize); // Difference from the expected value
+    const percentageDifference = 0.5 - (this.bufferPosition / this.bufferSize); // Difference from the expected value
     this.sampleRateAdjustment = 100 * percentageDifference / this.bufferSize; // Adjustment per 1 output value in buffer
   }
 
