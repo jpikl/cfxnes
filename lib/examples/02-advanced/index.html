@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>cfxnes advanced example</title>
+  <script src="cfxnes.js"></script>
+</head>
+<style type="text/css">
+  body {
+    text-align: center;
+  }
+  input {
+    display: none;
+  }
+</style>
+<body>
+  <div>
+    <canvas id="cfxnes"></canvas>
+  </div>
+  <div>
+    <input id="file-input" type="file">
+    <button onclick="fileInput.click()">Open ROM</button>
+    <button onclick="nes.start()">Start</button>
+    <button onclick="nes.stop()">Stop</button>
+    <button onclick="nes.power()">Power</button>
+    <button onclick="nes.reset()">Reset</button>
+  </div>
+  <div id="fps"></div>
+  <script>
+    var nes = cfxnes({video: {scale: 2}});
+    var fileInput = document.getElementById('file-input');
+    var fps = document.getElementById('fps');
+
+    fileInput.onchange = function(event) {
+      var file = event.target.files[0];
+      if (file) {
+        nes.rom.load(file).then(nes.start);
+      }
+    };
+
+    setInterval(function() {
+      fps.innerHTML = nes.running ? ('FPS: ' + ~~nes.fps) : '';
+    }, 500);
+  </script>
+</body>
+</html>

@@ -4,7 +4,8 @@ JavaScript library for NES emulation in web browser.
 
 ## Documentation
 
-See [cfxnes API](api.md).
+- [API documentation](api.md)
+- [Examples](examples)
 
 #### Minimal Example
 
@@ -33,7 +34,7 @@ Note: This example is for the upcoming version 0.5.0
 - Opera 38+
 - Safari 9+
 
-IE 11, Edge 12 and Safari 9 need polyfill for some ES6 feautues ([core-js shim](https://github.com/zloirock/core-js) recommended).
+IE 11, Edge 12 and Safari 9 need polyfill for some ES6 feautues ([core-js shim](https://github.com/zloirock/core-js) is recommended).
 
 ## Building
 

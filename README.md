@@ -6,7 +6,7 @@ JavaScript NES emulator and emulation library.
 
 :video_game: Try out [cfxnes online](http://cfxnes.herokuapp.com).
 
-:information_source: See [how to use cfxnes as a library](lib).
+:information_source: [How to use cfxnes as a library](lib).
 
 The source code is licensed under the MIT License.
 See LICENSE.txt for more details.
