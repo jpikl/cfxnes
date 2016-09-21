@@ -5,7 +5,6 @@ Note: This documentation is for the upcoming version 0.5.0
 - [cfxnes](#user-content-cfxnesoptions)
 - [nes](#user-content-nes)
 - [nes.rom](#user-content-nesrom)
-- [nes.nvram](#user-content-nesnvram)
 - [nes.video](#user-content-nesvideo)
 - [nes.fullscreen](#user-content-nesfullscreen)
 - [nes.audio](#user-content-nesaudio)

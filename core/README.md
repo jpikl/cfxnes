@@ -36,33 +36,33 @@ import {createCartridge, readCartridge} from './data/cartridge';
 const cartridge1 = createCartridge([ /* data */ ]);
 nes.setCartridge(cartridge1);
 
-// From filesystem
+// From file system
 const cartridge2 = readCartridge('./data/rom.nes');
 nes.setCartridge(cartridge2);
 ```
 
 ### Rendering Loop
 
-Video output is rendered into provided `Uint32Array(256 * 240)` buffer. Color of each pixel is encoded as 32-bit unsigned integer in RGBA format. Their values are generated using using specified `Uint32Array(64)` palette.
+Video output is rendered into provided `Uint32Array(256 * 240)` buffer. Color of each pixel is encoded as 32-bit unsigned integer in RGBA format. Their values are generated using specified `Uint32Array(64)` palette.
 
 ``` javascript
 import {VIDEO_BUFFER_SIZE} from './video/constants';
 import {createPalette} from './video/palettes';
 
-const palette = createPalette('fceux'); // Returns predefined palette
+const palette = createPalette('fceux'); // Predefined palette
 nes.setPalette(palette);
 
 const videoBuffer = new Uint32Array(VIDEO_BUFFER_SIZE);
 while (running) {
     nes.renderFrame(videoBuffer);
-    // Display output buffer
+    // Display video buffer
     // Add delay to run loop at speed of 60 FPS (NTSC) or 50 FPS (PAL)
 }
 ```
 
 ### Audio Output
 
-Audio samples are automatically recorded into internal `Float32Array`. This buffer should be periodically read and send to a sound card. Buffer underflow/overflow is automatically managed by dynamical adjustment of sampling rate.
+Audio samples are automatically stored into internal `Float32Array`. This buffer should be periodically read and sent to sound card. To prevent buffer underflow/overflow, the initial sampling rate is being continuously adjusted.
 
 ``` javascript
 nes.setAudioBufferSize(4096); // 4K audio buffer
