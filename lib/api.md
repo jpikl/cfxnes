@@ -1,7 +1,5 @@
 # cfxnes API
 
-Note: This documentation is for the upcoming version 0.5.0
-
 - [cfxnes](#user-content-cfxnesoptions)
 - [nes](#user-content-nes)
 - [nes.rom](#user-content-nesrom)
@@ -21,10 +19,10 @@ Function that returns new emulator instance.
 ``` javascript
 let nes;
 
-// No options specified.
+// No options specified
 nes = cfxnes();
 
-// All options and their default values.
+// All options and their default values
 nes = cfxnes({
   region: 'auto',
   speed: 1,
@@ -90,7 +88,7 @@ cfxnes.logLevel = 'info'; // Log everything
 
 Emulator instance returned by the `cfxnes` function.
 
-It defines basic (execution-related) properties/methods and aggregates various submodules (`rom`, `video`, `fullscreen`, `audio`, `devices`, `inputs`).
+It defines basic properties/methods and aggregates various submodules (rom, video, fullscreen, audio, devices, inputs).
 
 #### Properties
 
@@ -138,7 +136,7 @@ if (nvram.data) {
 
 Module that can load ROM images into emulator.
 
-Supported ROM image formats are [iNES](http://wiki.nesdev.com/w/index.php/INES) and [NES 2.0](http://wiki.nesdev.com/w/index.php/NES_2.0). cfxnes can also load zipped ROM image when [JSZip library](https://github.com/Stuk/jszip) (2.6.0 or compatible) is present. JSZip can be provided either through global variable `window.JSZip` or using `JSZip` initialization option.
+Supported ROM image formats are [iNES](http://wiki.nesdev.com/w/index.php/INES) and [NES 2.0](http://wiki.nesdev.com/w/index.php/NES_2.0). Cfxnes can also load zipped ROM image when [JSZip library](https://github.com/Stuk/jszip) (2.6.0 or compatible) is present. JSZip can be provided either through global variable `window.JSZip` or using `JSZip` initialization option.
 
 ``` javascript
 cfxnes({JSZip});
@@ -146,14 +144,14 @@ cfxnes({JSZip});
 
 ROM image can be loaded in two ways:
 
-1. Use `rom` initialization option. This will load ROM image from the specified source and then automatically starts execution. All loading errors will be logged using `console.error`.
-2. Call `nes.rom.load()` method. This allows more precise control over the loading process.
+1. Use the `rom` initialization option. This will load ROM image from the specified source and then automatically starts execution. All loading errors will be logged using `console.error`.
+2. Call the `nes.rom.load()` method. This allows more precise control over the loading process.
 
 ``` javascript
-// 1. Use 'rom' initialization option
+// 1. Use the 'rom' initialization option
 const nes = cfxnes({rom: source});
 
-// 2. Call nes.rom.load() method
+// 2. Call the nes.rom.load() method
 nes.rom.load(source)
   .then(() => {/* handle success */})
   .catch(error => {/* handle error */})
@@ -166,14 +164,14 @@ The source can be `Uint8Array`, `ArrayBuffer`, `Array`, `Blob` or `string`. Stri
 | Name | Type | Writable | Default | Description |
 |------|------|----------|---------|-------------|
 | loaded | `boolean` | no | `false` | `true` when a ROM image is loaded, `false` otherwise.  |
-| sha1  | `string` | no | `null` | SHA-1 of the loaded ROM image, `null` otherwise. |
+| sha1  | `string` | no | `null` | SHA-1 of loaded ROM image, `null` otherwise. |
 
 #### Methods
 
 | Signature | Returns | Description |
 |-----------|---------|-------------|
 | load(source) | `Promise` | Loads ROM image from the specified source. |
-| unload() || Unloads the current ROM image. |
+| unload() || Unloads loaded ROM image. |
 
 
 ``` javascript
@@ -186,8 +184,8 @@ rom.sha1; // null
 // Load ROM image from relative URL
 rom.load('roms/game.nes').then(() => {
   rom.loaded; // true
-  rom.sha1; // SHA-1 of the loaded ROM
-  rom.unload(); // Unload the ROM
+  rom.sha1; // SHA-1 of the loaded image
+  rom.unload(); // Unload the image
   rom.loaded; // false;
 }).catch(error => {
   console.error('Oops!', error);
@@ -205,38 +203,38 @@ Display settings module.
 Cfxnes requires a `canvas` element to render its video output. The canvas can be specified in several ways:
 
 1. Create canvas element with `cfxnes` ID. It will be automatically used during cfxnes initialization.
-2. Use `video.output` initialization option.
-3. Use `nes.video.output` property.
+2. Use the `video.output` initialization option.
+3. Use the `nes.video.output` property.
 
 ``` html
 <canvas id="cfxnes"><canvas>
 <script>
   const canvas = document.getElementById('cfxnes');
 
-  // 1. There is canvas element with 'cfxnes' ID.
+  // 1. There is a canvas element with 'cfxnes' ID.
   let nes = cfxnes();
   nes.video.output === canvas; // true
 
-  // 2. Use 'video.output' initialization option.
+  // 2. Use the 'video.output' initialization option.
   nes = cfxnes({
     video: {output: canvas}
   });
 
-  // 3. Use 'nes.video.output' property
+  // 3. Use the 'nes.video.output' property
   nes.video.output = canvas;
 </script>
 ```
 
 In case there is no ROM image loaded, running emulator will display white noise as its video output.
 
-Once the output is set it is not possible to change `renderer`. To change renderer, you need to use a different canvas with unitialized context (see example bellow).
+Once the output is set, it is not possible to change value of the `renderer` property. To change renderer, you need to use a different canvas with uninitialized context (see example bellow).
 
 #### Properties
 
 | Name | Type | Writable | Default | Description |
 |------|------|----------|---------|-------------|
 | output | `HTMLCanvasElement` | yes | `null` | Canvas element used to render emulator video output. The property can be set to `null` to disable rendering. |
-| renderer | `string` | yes | `'webgl'` | Rendering back-end.<br>`'canvas'` - Rendering using Canvas API. It is used as fallback when WebGL is not available.<br>`'webgl'` - Rendering using WebGL. WebGL is typically faster than the `'canvas'` renderer, but this highly depends on browser, OS, graphic card driver, etc. |
+| renderer | `string` | yes | `'webgl'` | Rendering back-end.<br>`'canvas'` - Renderer using Canvas API. It is used as fallback when WebGL is not available.<br>`'webgl'` - Renderer using WebGL. It should be faster than the `'canvas'` renderer, but this highly depends on browser, OS, graphic card driver, etc. |
 | palette | `string` | yes | `'fceux'` | Palette used for generating RGB color values. Allowed values are:<br>`'asq-real-a'`, `'asq-real-b'`,<br>`'bmf-fin-r2'`, `'bmf-fin-r3'`,<br>`'fceu-13'`, `'fceu-15'`, `'fceux'`,<br>`'nestopia-rgb'`, `'nestopia-yuv'`<br>See [FCEUX documentation](http://www.fceux.com/web/help/fceux.html?PaletteOptions.html) for their description. |
 | scale | `number` | yes | `1` | Canvas resolution multiplier. It must be larger than 0. Non-integer value might cause visual artifacts due to upscaling. The base resolution is 256x240.
 | maxScale | `number` | no || The largest value of the `scale` property that does not cause canvas to overgrow `window.innerWidth`, `window.innerHeight`. |
@@ -247,32 +245,31 @@ Once the output is set it is not possible to change `renderer`. To change render
 const nes = cfxnes();
 const {video} = nes;
 
-
 video.renderer = 'webgl'; // Renderer can be only changed before the output is set
-video.output = document.getElementById('canvas-id'); // Set output
+video.output = document.getElementById('canvas'); // Set output
 video.palette = 'nestopia-rgb'; // Set palette
 video.scale = video.maxScale; // Set scale to max. value
 video.smoothing = true; // Enable smoothing
-video.debug = true; // Enable debug ouput
+video.debug = true; // Enable debug output
 
-// To change renderer, we need a different canvas with unitialized context
-video.output = null; // Disconnect the current canvas
+// To change renderer, we need a different canvas with uninitialized context
+video.output = null; // Disconnect the currently used canvas
 video.renderer = 'canvas'; // Change the renderer
-video.output = document.getElementById('another-canvas-id'); // Use a differnt canvas
+video.output = document.getElementById('canvas-2'); // Use a different canvas
 ```
 
 ## nes.fullscreen
 
 Fullscreen module.
 
-It's recommended to wrap used `canvas` element in extra `div` to make fullscreen working properly.
+It is recommended to wrap used `canvas` element in extra `div` to make fullscreen working properly.
 
 #### Properties
 
 | Name | Type | Writable | Default | Description |
 |------|------|----------|---------|-------------|
-| is | `boolean` | no | false | `true` when the emulator is in fullscreen mode, `false` otherwise. |
-| type | `string` | yes | `'maximized'` | Type of fullscreen mode.<br>`'maximized'` - Maximizes the output resolution while keeping its original aspect ratio.<br>`'normalized'` - Same as the `'maximazed'` type, but the output resolution is integer multiple of the base resolution 256x240. This should reduce visual artifacts caused by resolution upscaling.<br>`'stretched'` - Output is stretched to fill the whole screen (both horizontally and vertically). The original aspect ratio is not preserved.|
+| is | `boolean` | no | false | `true` when emulator is in fullscreen mode, `false` otherwise. |
+| type | `string` | yes | `'maximized'` | Type of fullscreen mode.<br>`'maximized'` - Maximizes output resolution while keeping its original aspect ratio.<br>`'normalized'` - Same as the `'maximazed'` type, but output resolution is integer multiple of the base resolution 256x240. This should reduce visual artifacts caused by resolution upscaling.<br>`'stretched'` - Output is stretched to fill the whole screen (both horizontally and vertically). The original aspect ratio is not preserved.|
 
 #### Methods
 
@@ -301,7 +298,7 @@ fullscreen.enter().then(() => {
 
 Audio settings module.
 
-The `nes.audio` property is `null` when the browser does not support Web Audio (currently only IE 11 and older).
+The `nes.audio` property is `null` when browser does not support Web Audio (currently only IE 11 and older).
 
 #### Properties
 
@@ -334,16 +331,16 @@ if (audio) {
 Module that allows to set up input devices.
 
 NES has 2 input ports, each of them can be assigned a device through numeric property. Allowed values are:
-- `'joypad'` - Standard NES controller
-- `'zapper'` - Zapper (beam gun)
-- `null` - No device
+- `'joypad'` - Standard NES controller.
+- `'zapper'` - Zapper (beam gun).
+- `null` - No device.
 
 #### Properties
 
 | Number | Type | Writable | Default | Description |
 |------|------|----------|---------|-------------|
-| 1 | `string` | yes | `'joypad'` | Device connected to the port #1. |
-| 2 | `string` | yes | `'zapper'` | Device connected to the port #2. |
+| 1 | `string` | yes | `'joypad'` | Device connected to port #1. |
+| 2 | `string` | yes | `'zapper'` | Device connected to port #2. |
 
 ``` javascript
 const nes = cfxnes();
@@ -359,22 +356,22 @@ Module that allows to set up input controls.
 
 There are 2 kinds of input devices:
 
-1. The ones being emulated (see `nes.devices` section). We will refer to them as **devices**.
-2. The real ones (keyboard, mouse, gamepad, etc.). We will refer to them as **sources**.
+1. The ones being emulated (see `nes.devices` section). We refer to them as **devices**.
+2. The real ones (keyboard, mouse, gamepad, etc.). We refer to them as **sources**.
 
 Input of any **device** can be expressed as a string `'<port>.<device>.<name>'`:
-- `<port>` - the port number (`1` or `2`)
-- `<device>` - the device (`'joypad'` or `'zapper'`)
+- `<port>` - port (`1` or `2`)
+- `<device>` - device (`'joypad'` or `'zapper'`)
 - `<name>` - name of the input
 
 Input of any **source** can be expressed as a string `'<source>.<name>'`:
-- `<source>` - the source (`'keyboard'`, `'mouse'`, `'gamepad0'`, `'gamepad1'`, ...)
+- `<source>` - source (`'keyboard'`, `'mouse'`, `'gamepad0'`, `'gamepad1'`, ...)
 - `<name>` - name of the input
 
 Examples:
 
-- `'1.joypad.start'` - Start button of a joypad connected to the port #1.
-- `'2.zapper.trigger'` - Trigger button of a zapper connected to the port #2.
+- `'1.joypad.start'` - Start button of a joypad connected to port #1.
+- `'2.zapper.trigger'` - Trigger button of a zapper connected to port #2.
 - `'keyboard.ctrl'` - Ctrl key.
 - `'mouse.left'` - Left mouse button.
 - `'gamepad0'.start` - Start button of gamepad #0.
@@ -398,9 +395,9 @@ const {inputs} = nes;
 // Map inputs
 inputs.set('1.joypad.a', 'keyboard.z'); // 1) Map 'A button' of joypad on port #1 to 'Z' key
 inputs.set('1.joypad.a', 'keyboard.y'); // 2) Map the same input to 'Y' key
-inputs.set('1.joypad.a', ['keyboard.z', 'keyboard.y']); // 1) and 2) using one call
+inputs.set('1.joypad.a', ['keyboard.z', 'keyboard.y']); // 1) and 2) in one call
 
-// Override existing mapping with a new one
+// Override the current mapping with a new one
 inputs.set({
   '1.joypad.a': ['keyboard.z', 'keyboard.y'],
   '1.joypad.b': 'keyboard.x',
@@ -413,16 +410,16 @@ inputs.get(); // Returns {'1.joypad.a': ['keyboard.z', 'keyboard.y'], '1.joypad.
 
 // Delete mapping
 inputs.get('1.joypad.a');    // Returns ['keyboard.z', 'keyboard.y']
-inputs.delete('keyboard.z'); // Delete mapping for the 'Y' key
+inputs.delete('keyboard.y'); // Delete mapping for the 'Y' key
 inputs.get('1.joypad.a');    // Returns ['keyboard.z']
 inputs.delete();             // Delete mapping of all inputs
 inputs.get('1.joypad.a');    // Returns []
 
-// We can let user to customize controls
+// Let user to customize key bindings
 const devInput = '1.joypad.a';
-showUserMessage('Press any key or button...');
+showUserMessage('Press key or button...');
 inputs.record(srcInput => {
-  inputs.delete(devInput, srcInput); // Delete previous mapping of inputs
+  inputs.delete(devInput, srcInput); // Delete previous mapping for each input
   inputs.set(devInput, srcInput); // Map inputs
   hideUserMessage();
 })
@@ -508,16 +505,9 @@ The structure of configuration options corresponds to structure of initializatio
 const nes = cfxnes();
 const {config} = nes;
 
-// Get current configuration
-nes.speed = 1;
-nes.audio.enabled = true;
-const options = config.get();
-options.speed; // 1
-options.audio.enabled; // true
+const defaults = config.get(); // Get the default configuration
 
-// Restore configuration
-nes.speed = 2;
-nes.audio.enabled = false;
-config.set(options);
-nes.speed; // 1
-nes.audio.enabled; // true
+// User might have changed configuration
+
+config.set(defaults); // Restore the default configuration
+config.set({region: defaults.region}) // Restore only a specific part of configuration

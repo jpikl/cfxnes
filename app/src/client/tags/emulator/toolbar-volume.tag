@@ -13,7 +13,7 @@
   </div>
   <script type="babel">
     if (audio) {
-        this.toggleEnabled = () => {
+      this.toggleEnabled = () => {
         audio.enabled = !audio.enabled;
         $(this.slider).slider('toggle');
       };

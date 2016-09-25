@@ -22,6 +22,7 @@
     "morgan": "^1.7.0"
   },
   "devDependencies": {
+    "babel-core": "^6.14.0",
     "babel-preset-es2015-riot": "^1.1.0",
     "bootstrap": "^3.3.7",
     "bootstrap-slider": "^9.2.0",

@@ -9,8 +9,6 @@ JavaScript library for NES emulation in web browser.
 
 #### Minimal Example
 
-Note: This example is for the upcoming version 0.5.0
-
 ``` html
 <!DOCTYPE html>
 <html>
@@ -20,7 +18,7 @@ Note: This example is for the upcoming version 0.5.0
 <body>
   <canvas id="cfxnes"></canvas> <!-- Used for rendering -->
   <script>
-    cfxnes({rom: 'game.nes'}); // Relative URL of a ROM image to load
+    cfxnes({rom: 'game.nes'}); // URL of a ROM image to load
   </script>
 </body>
 </html>
@@ -34,7 +32,7 @@ Note: This example is for the upcoming version 0.5.0
 - Opera 38+
 - Safari 9+
 
-IE 11, Edge 12 and Safari 9 need polyfill for some ES6 feautues ([core-js shim](https://github.com/zloirock/core-js) is recommended).
+IE 11, Edge 12 and Safari 9 need polyfill for some ES6 features ([core-js shim](https://github.com/zloirock/core-js) is recommended).
 
 ## Building
 
@@ -42,4 +40,4 @@ Run `gulp build` to build the library.
 
 ## Development
 
-Run `gulp` to see available task and their options.
+Run `gulp` to see available tasks and their options.

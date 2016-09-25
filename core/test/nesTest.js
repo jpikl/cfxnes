@@ -256,7 +256,6 @@ describe('NES (cartridge set, has NVRAM)', () => {
   });
 
   it('returns the same NVRAM instance every time', () => {
-    const nvram = nes.getNVRAM();
-    expect(nes.getNVRAM()).to.be.equal(nvram);
+    expect(nes.getNVRAM()).to.be.equal(nes.getNVRAM());
   });
 });

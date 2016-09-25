@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 const DB_NAME = 'cfxnes';
 const DB_VERSION = 1;
 

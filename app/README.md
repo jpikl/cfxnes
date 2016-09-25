@@ -19,4 +19,4 @@ For custom thumbnails, add picture with the same name (e.g., **game.jpg** for **
 
 ## Development
 
-Run `gulp` to see available task and their options.
+Run `gulp` to see available tasks and their options.

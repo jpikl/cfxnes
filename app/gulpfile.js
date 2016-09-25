@@ -24,7 +24,7 @@ const argv = yargs
   .usage('Usage: gulp command [options]')
   .command('build', 'Build application')
   .command('start', 'Start server with browser-sync')
-  .command('dev', 'Build app + start server + browser-sync + watch sources')
+  .command('dev', 'Build app + start server with browser-sync + watch sources')
   .command('lint', 'Run linter')
   .command('clean', 'Delete generated files')
   .option('d', {
@@ -32,12 +32,7 @@ const argv = yargs
     alias: 'debug',
     type: 'boolean',
   })
-  .option('a', {
-    desc: 'Insert Google Analytics code during build',
-    alias: 'analytics',
-    type: 'boolean',
-  })
-  .example('gulp build', 'Build application (optimized version)')
+  .example('gulp build', 'Build application')
   .example('gulp build -d', 'Build application (debug version)')
   .example('node dist/app.js', 'Start server at http://localhost:5000')
   .example('gulp start', 'Start server with browser-sync at http://localhost:3000')

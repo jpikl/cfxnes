@@ -6,7 +6,7 @@ For better performance, components can be compiled with [closure compiler](https
 
 ## Development
 
-Run `gulp` to see available task and their options.
+Run `gulp` to see available tasks and their options.
 
 
 ## Usage
@@ -27,7 +27,7 @@ const nes = new NES({cpu: customCPU});
 
 ### ROM Images
 
-ROM images can be loaded from `Array`, `ArrayBuffer`, `Uint8Array` or from a file system path when running in Node.js. Supported formats are **iNES** and **NES 2.0**.
+ROM image can be loaded from `Array`, `ArrayBuffer`, `Uint8Array` or from a file system path when running in Node.js. Supported formats are **iNES** and **NES 2.0**.
 
 ``` javascript
 import {createCartridge, readCartridge} from './data/cartridge';
