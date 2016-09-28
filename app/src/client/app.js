@@ -7,6 +7,7 @@ const {video, fullscreen, audio, rom, devices, inputs, config} = nes;
 const {volume} = audio || {};
 const defaults = config.get();
 const bus = riot.observable({});
+const maxVideoScale = ~~Math.min(screen.width / 256, screen.height / 240);
 
 let fpsVisible = true;
 let controlsVisible = true;

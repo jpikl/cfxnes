@@ -237,7 +237,6 @@ Once the output is set, it is not possible to change value of the `renderer` pro
 | renderer | `string` | yes | `'webgl'` | Rendering back-end.<br>`'canvas'` - Renderer using Canvas API. It is used as fallback when WebGL is not available.<br>`'webgl'` - Renderer using WebGL. It should be faster than the `'canvas'` renderer, but this highly depends on browser, OS, graphic card driver, etc. |
 | palette | `string` | yes | `'fceux'` | Palette used for generating RGB color values. Allowed values are:<br>`'asq-real-a'`, `'asq-real-b'`,<br>`'bmf-fin-r2'`, `'bmf-fin-r3'`,<br>`'fceu-13'`, `'fceu-15'`, `'fceux'`,<br>`'nestopia-rgb'`, `'nestopia-yuv'`<br>See [FCEUX documentation](http://www.fceux.com/web/help/fceux.html?PaletteOptions.html) for their description. |
 | scale | `number` | yes | `1` | Canvas resolution multiplier. It must be larger than 0. Non-integer value might cause visual artifacts due to upscaling. The base resolution is 256x240.
-| maxScale | `number` | no || The largest value of the `scale` property that does not cause canvas to overgrow `window.innerWidth`, `window.innerHeight`. |
 | smoothing | `boolean` | yes | `false` | Enables smoothing effect for upscaled canvas resolution. |
 | debug | `boolean` | yes | `false` | Enables additional video output (content of pattern tables and background/sprite palettes) to be rendered on canvas. This will also double width of the canvas. |
 
@@ -248,7 +247,7 @@ const {video} = nes;
 video.renderer = 'webgl'; // Renderer can be only changed before the output is set
 video.output = document.getElementById('canvas'); // Set output
 video.palette = 'nestopia-rgb'; // Set palette
-video.scale = video.maxScale; // Set scale to max. value
+video.scale = 2; // Set 2x resolution scale
 video.smoothing = true; // Enable smoothing
 video.debug = true; // Enable debug output
 

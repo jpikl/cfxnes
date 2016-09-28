@@ -23,7 +23,7 @@
 
     this.on('update', () => {
       this.canDecrease = video.scale > 1;
-      this.canIncrease = video.scale < ~~video.maxScale;
+      this.canIncrease = video.scale < maxVideoScale;
     });
   </script>
 </toolbar-size>

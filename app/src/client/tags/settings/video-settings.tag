@@ -1,6 +1,6 @@
 <video-settings>
   <div class="video-settings">
-    <div riot-tag="input-number" name="video-scale" label="Output scale" min="1" max={ video.maxScale }></div>
+    <div riot-tag="input-number" name="video-scale" label="Output scale" min="1" max={ maxVideoScale }></div>
     <div riot-tag="input-select" name="video-palette" label="Color palette" options={ videoPalettes }></div>
     <div riot-tag="input-select" name="fullscreen-type" label="Type of fullscreen mode" options={ fullscreenTypes }></div>
   </div>
@@ -40,7 +40,7 @@
     });
 
     this.on('mount', () => {
-      this.tags['video-scale'].on('change', value => { video.scale = value; });
+      this.tags['video-scale'].on('change', value => { video.scale = parseInt(value); });
       this.tags['video-palette'].on('change', value => { video.palette = value; });
       this.tags['fullscreen-type'].on('change', value => { fullscreen.type = value; });
       this.tags['video-smoothing'].on('change', value => { video.smoothing = value; });
