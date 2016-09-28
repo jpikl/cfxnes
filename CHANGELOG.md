@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
-## ## [0.5.0] - 2016-09-29
+## [0.5.0] - 2016-09-29
 ### Fixed
 - MMC3 mapper alternate behavior.
 - Delayed IRQ response after CLI/SEI/PLP (*Break Time* is now playable).
@@ -79,6 +79,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Complete rewrite from CoffeeScript to ECMAScript 6.
 
 [unreleased]: https://github.com/jpikl/cfxnes/compare/v0.4.0...HEAD
+[0.5.0]: https://github.com/jpikl/cfxnes/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/jpikl/cfxnes/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/jpikl/cfxnes/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/jpikl/cfxnes/compare/v0.1.0...v0.2.0
