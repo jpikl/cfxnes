@@ -40,20 +40,28 @@
 
     this.mapGamepad = event => {
       const target = $(event.target);
-      const index = target.attr('data-index');
       const port = target.attr('data-port');
+      const index = target.attr('data-index');
 
       devices[port] = 'joypad';
-      inputs.set(`${port}.joypad.a`, `gamepad${index}.a`);
-      inputs.set(`${port}.joypad.b`, `gamepad${index}.b`);
-      inputs.set(`${port}.joypad.start`, `gamepad${index}.start`);
-      inputs.set(`${port}.joypad.select`, `gamepad${index}.back`);
-      inputs.set(`${port}.joypad.up`, `gamepad${index}.dpad-up`);
-      inputs.set(`${port}.joypad.down`, `gamepad${index}.dpad-down`);
-      inputs.set(`${port}.joypad.left`, `gamepad${index}.dpad-left`);
-      inputs.set(`${port}.joypad.right`, `gamepad${index}.dpad-right`);
+
+      mapGamepadInput(port, 'a', index, 'a');
+      mapGamepadInput(port, 'b', index, 'b');
+      mapGamepadInput(port, 'start', index, 'start');
+      mapGamepadInput(port, 'select', index, 'back');
+      mapGamepadInput(port, 'up', index, 'dpad-up');
+      mapGamepadInput(port, 'down', index, 'dpad-down');
+      mapGamepadInput(port, 'left', index, 'dpad-left');
+      mapGamepadInput(port, 'right', index, 'dpad-right');
 
       this.trigger('change');
     };
+
+    function mapGamepadInput(joyPort, joyInput, gpIndex, gpInput) {
+      const devInput = `${joyPort}.joypad.${joyInput}`;
+      const srcInput = `gamepad${gpIndex}.${gpInput}`;
+      inputs.delete(devInput, srcInput);
+      inputs.set(devInput, srcInput);
+    }
   </script>
 </connected-gamepads>
