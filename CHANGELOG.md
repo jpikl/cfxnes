@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
+
+## ## [0.5.0] - 2016-09-29
 ### Fixed
 - MMC3 mapper alternate behavior.
 - Delayed IRQ response after CLI/SEI/PLP (*Break Time* is now playable).
@@ -12,7 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - Option to set volume of each audio channel.
-- Warning message when JavaScript is disabled.
+- Warning message for disabled JavaScript.
 
 ### Changed
 - New library API.

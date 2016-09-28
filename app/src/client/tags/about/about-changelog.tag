@@ -1,15 +1,14 @@
 <about-changelog>
   <h2>Change Log</h2>
-  <h3>Unreleased</h3>
+  <h3>0.5.0 - 2016-09-29</h3>
   <ul>
     <li>Fixed MMC3 mapper alternate behavior.</li>
     <li>Fixed delayed IRQ response after CLI/SEI/PLP (<i>Break Time</i> is now playable).</li>
     <li>Fixed sprite zero hit detection.</li>
     <li>Fixed sprite overflow flag clearing.</li>
+    <li>Fixed disabled audio in Safari.</li>
     <li>Added option to set volume of each audio channel.</li>
-    <li>Added warning messages for disabled JavaScript and unsupported browser</li>
-    <li>Added audio support for Safari.</li>
-    <li>Removed support for Internet Explorer.</li>
+    <li>Added warning message for disabled JavaScript.</li>
     <li>Checksums are computed using SHA-1 from PRG RAM and CHR RAM.</li>
   </ul>
   <h3>0.4.0 - 2015-11-29</h3>
