@@ -2,14 +2,7 @@
 
 Collection of JS components that form core of the [cfxnes emulator](../README.md). The core can be independently used in browser or in Node.js environment.
 
-For better performance, components can be compiled with [closure compiler](https://github.com/google/closure-compiler) in `ADVANCED_OPTIMIZATIONS` mode.
-
-## Development
-
-Run `gulp` to see available tasks and their options.
-
-
-## Usage
+For better performance, components can be compiled with [closure compiler](https://github.com/google/closure-compiler) in `ADVANCED` optimization mode.
 
 ### Initialization
 

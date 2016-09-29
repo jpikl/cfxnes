@@ -2,12 +2,20 @@
 
 JavaScript library for NES emulation in web browser.
 
-## Documentation
-
-- [API documentation](api.md)
+- [API](api.md)
 - [Examples](examples)
 
-#### Minimal Example
+### Supported Browsers
+
+- Chrome 49+
+- Firefox 47+
+- IE 11, Edge 12+
+- Opera 38+
+- Safari 9+
+
+IE 11, Edge 12 and Safari 9 need polyfill for some ES6 features ([core-js shim](https://github.com/zloirock/core-js) is recommended).
+
+### Example
 
 ``` html
 <!DOCTYPE html>
@@ -24,20 +32,6 @@ JavaScript library for NES emulation in web browser.
 </html>
 ```
 
-#### Supported Browsers
+### Building
 
-- Chrome 49+
-- Firefox 47+
-- IE 11, Edge 12+
-- Opera 38+
-- Safari 9+
-
-IE 11, Edge 12 and Safari 9 need polyfill for some ES6 features ([core-js shim](https://github.com/zloirock/core-js) is recommended).
-
-## Building
-
-Run `gulp build` to build the library.
-
-## Development
-
-Run `gulp` to see available tasks and their options.
+Run `npm run build` to build the library.

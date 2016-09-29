@@ -1,11 +1,9 @@
 const path = require('path');
 const browser = require('browser-sync').create();
-const del = require('del');
 const babel = require('gulp-babel');
 const concat = require('gulp-concat');
 const gulp = require('gulp');
 const server = require('gulp-develop-server');
-const eslint = require('gulp-eslint');
 const gulpif = require('gulp-if');
 const less = require('gulp-less');
 const riot = require('gulp-riot');
@@ -25,8 +23,6 @@ const argv = yargs
   .command('build', 'Build application')
   .command('start', 'Start server with browser-sync')
   .command('dev', 'Build app + start server with browser-sync + watch sources')
-  .command('lint', 'Run linter')
-  .command('clean', 'Delete generated files')
   .option('d', {
     desc: 'Build debug version of application',
     alias: 'debug',
@@ -38,8 +34,6 @@ const argv = yargs
   .example('gulp start', 'Start server with browser-sync at http://localhost:3000')
   .example('gulp dev', 'Build application + start server + watch sources')
   .example('gulp dev -d', 'Build debug application + start server + watch sources')
-  .example('gulp lint', 'Run linter')
-  .example('gulp clean', 'Delete generated files')
   .epilogue('Library needs to be build separately before building the application.')
   .argv;
 
@@ -189,21 +183,3 @@ gulp.task('restart', () => {
 //=========================================================
 
 gulp.task('dev', gulp.series('build', 'symlinks', gulp.parallel('watch', 'start')));
-
-//=========================================================
-// Lint
-//=========================================================
-
-gulp.task('lint', () => {
-  return gulp.src(['./gulpfile.js', './{src,test}/**/*.{js,tag}'])
-    .pipe(eslint())
-    .pipe(eslint.format());
-});
-
-//=========================================================
-// Clean
-//=========================================================
-
-gulp.task('clean', () => {
-  return del(['dist']);
-});

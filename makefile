@@ -16,9 +16,7 @@ TEMP_DIR=temp
 help:
 	@echo "Make targets:"
 	@echo ""
-	@echo "  npm_install  Install npm packages"
-	@echo "  npm_check    Check for npm updates"
-	@echo "  npm_update   Update npm packages"
+	@echo "  install      Install npm packages"
 	@echo ""
 	@echo "  lib          Build library"
 	@echo "  lib_dbg      Build library (debug version)"
@@ -40,22 +38,12 @@ help:
 # NPM
 ###############################################################################
 
-.PHONY: npm_install npm_check npm_update
+.PHONY: install
 
-npm_install:
+install:
 	cd core && npm install
 	cd lib && npm install
 	cd app && npm install
-
-npm_check:
-	cd core && ncu
-	cd lib && ncu
-	cd app && ncu
-
-npm_update:
-	cd core && ncu -a
-	cd lib && ncu -a
-	cd app && ncu -a
 
 ###############################################################################
 # Build
@@ -64,10 +52,10 @@ npm_update:
 .PHONY: lib lib_dbg app
 
 lib:
-	cd lib && gulp build
+	cd lib && npm run build
 
 lib_dbg:
-	cd lib && gulp build -d
+	cd lib && npm run build:debug
 
 app:
 	cd app && gulp build
@@ -112,13 +100,13 @@ tag:
 .PHONY: lint test
 
 lint:
-	cd core && gulp lint
-	cd lib && gulp lint
-	cd app && gulp lint
+	cd core && npm run lint
+	cd lib && npm run lint
+	cd app && npm run lint
 
 test:
-	cd core && gulp test
-	cd lib && gulp test
+	cd core && npm test
+	cd lib && npm test
 
 ###############################################################################
 # Clean

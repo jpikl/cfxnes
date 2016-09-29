@@ -17,6 +17,10 @@
     "type": "git",
     "url": "https://github.com/jpikl/cfxnes"
   },
+  "scripts": {
+    "lint": "eslint src test",
+    "clean": "rm -rf dist"
+  },
   "dependencies": {
     "express": "^4.14.0",
     "morgan": "^1.7.0"
@@ -28,7 +32,6 @@
     "bootstrap-slider": "^9.2.0",
     "browser-sync": "^2.16.0",
     "core-js": "^2.4.1",
-    "del": "^2.2.2",
     "eslint": "^3.5.0",
     "eslint-plugin-import": "^1.15.0",
     "eslint-plugin-riot": "^0.1.6",
@@ -38,7 +41,6 @@
     "gulp-browserify": "^0.5.1",
     "gulp-concat": "^2.6.0",
     "gulp-develop-server": "^0.5.2",
-    "gulp-eslint": "^3.0.1",
     "gulp-if": "^2.0.1",
     "gulp-less": "^3.1.0",
     "gulp-riot": "^0.5.5",
