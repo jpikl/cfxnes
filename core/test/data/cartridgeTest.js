@@ -3,7 +3,6 @@
 
 import fs from 'fs';
 import {expect} from 'chai';
-import JSZip from 'jszip';
 import Mirroring from '../../src/common/Mirroring';
 import Region from '../../src/common/Region';
 import {readCartridge, createCartridge} from '../../src/data/cartridge';
@@ -12,27 +11,17 @@ describe('data/cartridge', () => {
   let romData, zipData;
 
   before(() => {
-    romData = readROMFile('nestest/nestest.nes');
-    zipData = readROMFile('nestest/nestest.zip');
+    romData = new Uint8Array(fs.readFileSync('./test/roms/nestest/nestest.nes'));
   });
 
-  function readROMFile(name) {
-    return new Uint8Array(fs.readFileSync(`./test/roms/${name}`));
-  }
-
   it('acceppts valid data type', () => {
-    expect(createCartridge(romData)).to.be.an('object'); // Uint8Array
-    expect(createCartridge(romData.buffer)).to.be.an('object'); // ArrayBuffer
-    expect(createCartridge([...romData])).to.be.an('object'); // Array
+    expect(createCartridge(romData)).to.be.an('object');
   });
 
   it('throws error for invalid data type', () => {
     expect(() => createCartridge()).to.throw('Invalid data type');
     expect(() => createCartridge(null)).to.throw('Invalid data type');
-    expect(() => createCartridge(1)).to.throw('Invalid data type');
-    expect(() => createCartridge(true)).to.throw('Invalid data type');
     expect(() => createCartridge('x')).to.throw('Invalid data type');
-    expect(() => createCartridge({})).to.throw('Invalid data type');
   });
 
   it('creates cartridge from valid data format', () => {
@@ -61,29 +50,9 @@ describe('data/cartridge', () => {
     expect(cartridge.sha1).to.be.equal('4131307f0f69f2a5c54b7d438328c5b2a5ed0820');
   });
 
-  it('fails to unzip ROM image when JSZip is not provided', () => {
-    expect(() => createCartridge(zipData)).to.throw('Unable to extract ROM image: JSZip is not available');
-  });
-
-  it('fails to unzip ROM image when it is not present in ZIP archive', () => {
-    expect(() => createCartridge(readROMFile('norom.zip'), JSZip)).to.throw('ZIP archive does not contain ".nes" ROM image');
-  });
-
-  it('unzips ROM image when JSZip is provided', () => {
-    const cartridge1 = createCartridge(zipData, JSZip);
-    const cartridge2 = createCartridge(romData);
-    expect(cartridge1).to.deep.equal(cartridge2);
-  });
-
   it('reads cartridge from file', () => {
     const cartridge1 = readCartridge('./test/roms/nestest/nestest.nes');
     const cartridge2 = createCartridge(romData);
-    expect(cartridge1).to.deep.equal(cartridge2);
-  });
-
-  it('reads cartridge from zipped file', () => {
-    const cartridge1 = readCartridge('./test/roms/nestest/nestest.zip', JSZip);
-    const cartridge2 = createCartridge(zipData, JSZip);
     expect(cartridge1).to.deep.equal(cartridge2);
   });
 });

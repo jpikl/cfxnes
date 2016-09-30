@@ -20,13 +20,13 @@ const nes = new NES({cpu: customCPU});
 
 ### ROM Images
 
-ROM image can be loaded from `Array`, `ArrayBuffer`, `Uint8Array` or from a file system path when running in Node.js. Supported formats are **iNES** and **NES 2.0**.
+ROM image can be loaded from `Uint8Array` or from a file system path when running in Node.js. Supported formats are **iNES** and **NES 2.0**.
 
 ``` javascript
 import {createCartridge, readCartridge} from './data/cartridge';
 
 // From buffer
-const cartridge1 = createCartridge([ /* data */ ]);
+const cartridge1 = createCartridge(uint8Array);
 nes.setCartridge(cartridge1);
 
 // From file system

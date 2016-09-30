@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
+### Changed
+- Library uses JSZip 3.x.x for unzipping.
 
 ## [0.5.0] - 2016-09-29
 ### Fixed

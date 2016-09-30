@@ -29,8 +29,6 @@
     "chai": "^3.5.0",
     "eslint": "^3.5.0",
     "eslint-plugin-import": "^1.15.0",
-    "jszip": "^2.6.1",
-    "mkdirp": "^0.5.1",
     "mocha": "^3.0.2",
     "node-png": "^0.4.3",
     "sinon": "^1.17.6",

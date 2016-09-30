@@ -136,7 +136,7 @@ if (nvram.data) {
 
 Module that can load ROM images into emulator.
 
-Supported ROM image formats are [iNES](http://wiki.nesdev.com/w/index.php/INES) and [NES 2.0](http://wiki.nesdev.com/w/index.php/NES_2.0). Cfxnes can also load zipped ROM image when [JSZip library](https://github.com/Stuk/jszip) (2.6.0 or compatible) is present. JSZip can be provided either through global variable `window.JSZip` or using `JSZip` initialization option.
+Supported ROM image formats are [iNES](http://wiki.nesdev.com/w/index.php/INES) and [NES 2.0](http://wiki.nesdev.com/w/index.php/NES_2.0). Cfxnes can also load zipped ROM image when [JSZip library](https://github.com/Stuk/jszip) (^2.6.1) is present. JSZip can be provided either through global variable `window.JSZip` or using `JSZip` initialization option.
 
 ``` javascript
 cfxnes({JSZip});
