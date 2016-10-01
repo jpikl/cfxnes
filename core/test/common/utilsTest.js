@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-/* eslint-disable no-unused-expressions */
-
 import os from 'os';
 import {expect} from 'chai';
 import {detectEndianness, decodeBase64, formatSize, roundUpToPow2, assert} from '../../src/common/utils';

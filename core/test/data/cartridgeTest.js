@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-/* eslint-disable no-sparse-arrays, no-unused-expressions */
-
 import fs from 'fs';
 import {expect} from 'chai';
 import Mirroring from '../../src/common/Mirroring';
@@ -8,7 +5,7 @@ import Region from '../../src/common/Region';
 import {readCartridge, createCartridge} from '../../src/data/cartridge';
 
 describe('data/cartridge', () => {
-  let romData, zipData;
+  let romData;
 
   before(() => {
     romData = new Uint8Array(fs.readFileSync('./test/roms/nestest/nestest.nes'));

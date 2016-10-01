@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-/* eslint-disable no-unused-expressions */
-
 import fs from 'fs';
 import {expect} from 'chai';
 import csha1 from '../../src/data/sha1';

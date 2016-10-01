@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-/* eslint-disable no-sparse-arrays, no-unused-expressions */
-
 import {expect} from 'chai';
 import {packColor, unpackColor} from '../../src/video/colors';
 import {isPaletteName, createPalette, createPaletteVariant} from '../../src/video/palettes';

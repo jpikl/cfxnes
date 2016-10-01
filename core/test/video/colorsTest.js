@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-/* eslint-disable no-sparse-arrays, no-unused-expressions */
-
 import {expect} from 'chai';
 import * as module from '../../src/video/colors';
 

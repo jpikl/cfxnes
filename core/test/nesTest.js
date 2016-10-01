@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-/* eslint-disable no-sparse-arrays, no-unused-expressions */
-
 import {expect} from 'chai';
 import NES from '../src/NES';
 import APU from '../src/audio/APU';

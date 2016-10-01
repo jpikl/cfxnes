@@ -1,5 +1,4 @@
-/* eslint-env mocha */
-/* eslint-disable no-unused-expressions, no-console */
+/* eslint-disable no-console */
 
 import chai, {expect} from 'chai';
 import sinon from 'sinon';

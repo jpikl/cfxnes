@@ -1,0 +1,11 @@
+{
+  "env": {
+    "node": true,
+    "mocha": true
+  },
+  "rules": {
+    "no-invalid-this": "off",
+    "no-sparse-arrays": "off",
+    "no-unused-expressions": "off"
+  }
+}

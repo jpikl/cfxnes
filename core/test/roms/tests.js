@@ -3,7 +3,6 @@
 // Source: http://wiki.nesdev.com/w/index.php/Emulator_tests
 //=============================================================================
 
-/* eslint-env mocha */
 /* eslint-disable camelcase */
 
 import fs from 'fs';
@@ -33,7 +32,7 @@ import * as holydiverbatman from './holydiverbatman/holydiverbatman';
 /* eslint-enable camelcase */
 
 describe('roms', function() {
-  this.timeout(60000); // eslint-disable-line no-invalid-this
+  this.timeout(60000);
   validate(nestest);
   validate(instr_test);
   validate(instr_timing);

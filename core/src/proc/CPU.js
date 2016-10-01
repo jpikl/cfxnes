@@ -1,5 +1,3 @@
-/* eslint-disable new-cap */
-
 import log from '../common/log';
 import {RESET, NMI} from './interrupts';
 import Operation from './Operation';
@@ -740,6 +738,8 @@ export default class CPU {
   // Hybrid instructions
   //=========================================================
 
+  /* eslint-disable new-cap */
+
   DCP(address) {
     this.compareRegisterAndOperand(this.accumulator, this.DEC(address));
   }
@@ -792,6 +792,8 @@ export default class CPU {
     this.stackPointer = this.accumulator & this.registerX;
     this.SHA(address);
   }
+
+  /* eslint-enable new-cap */
 
   //=========================================================
   // Instruction helpers

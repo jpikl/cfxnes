@@ -27,6 +27,8 @@ const palettes = {
   'nestopia-yuv': nestopia_yuv,
 };
 
+/* eslint-enable camelcase */
+
 export function isPaletteName(name) {
   return name in palettes;
 }

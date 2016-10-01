@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-/* eslint-disable no-unused-expressions */
-
 import {expect} from 'chai';
 import DMA from '../../src/memory/DMA';
 
