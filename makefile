@@ -5,7 +5,6 @@
 VERSION=0.5.0
 RELEASE_FILE=cfxnes-$(VERSION).zip
 DEPLOY_DIR=../cfxnes-heroku
-BACKUP_DIR=~/Dropbox/Backup/projects
 BACKUP_FILE=cfxnes.zip
 TEMP_DIR=temp
 
