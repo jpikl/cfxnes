@@ -94,7 +94,7 @@ It defines basic properties/methods and aggregates various submodules (rom, vide
 
 | Name | Type | Writable | Default | Description |
 |------|------|----------|---------|-------------|
-| running | `number` | no | `false` | `true` when emulator is running, `false` otherwise. |
+| running | `boolean` | no | `false` | `true` when emulator is running, `false` otherwise. |
 | fps  | `number` | no || Number of frames per second of running emulator. |
 | region | `string` | yes | `'auto'` | Emulated NES region.<br>`'auto'` - Automatic region detection (not very reliable).<br>`'ntsc'` - NTSC region (60 FPS).<br>`'pal'` - PAL region (50 FPS). |
 | speed | `number` | yes | `1` | Emulation speed multiplier. It must be larger than 0. |
