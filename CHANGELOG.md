@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased][unreleased]
 ### Changed
 - Library uses JSZip 3.x.x for unzipping.
+- Library video.smoothing property replaced by video.filter.
 
 ## [0.5.0] - 2016-09-29
 ### Fixed
@@ -80,7 +81,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.1.0 - 2015-04-26
 - Complete rewrite from CoffeeScript to ECMAScript 6.
 
-[unreleased]: https://github.com/jpikl/cfxnes/compare/v0.4.0...HEAD
+[unreleased]: https://github.com/jpikl/cfxnes/compare/v0.5.0...HEAD
 [0.5.0]: https://github.com/jpikl/cfxnes/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/jpikl/cfxnes/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/jpikl/cfxnes/compare/v0.2.0...v0.3.0

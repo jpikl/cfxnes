@@ -33,7 +33,7 @@ nes = cfxnes({
     renderer: 'webgl',
     scale: 1,
     palette: 'fceux',
-    smoothing: false,
+    filter: 'nearest',
     debug: false,
   },
   fullscreen: {
@@ -136,7 +136,7 @@ if (nvram.data) {
 
 Module that can load ROM images into emulator.
 
-Supported ROM image formats are [iNES](http://wiki.nesdev.com/w/index.php/INES) and [NES 2.0](http://wiki.nesdev.com/w/index.php/NES_2.0). Cfxnes can also load zipped ROM image when [JSZip library](https://github.com/Stuk/jszip) (^2.6.1) is present. JSZip can be provided either through global variable `window.JSZip` or using `JSZip` initialization option.
+Supported ROM image formats are [iNES](http://wiki.nesdev.com/w/index.php/INES) and [NES 2.0](http://wiki.nesdev.com/w/index.php/NES_2.0). Cfxnes can also load zipped ROM image when [JSZip library](https://github.com/Stuk/jszip) (^3.1.0) is present. JSZip can be provided either through global variable `window.JSZip` or using `JSZip` initialization option.
 
 ``` javascript
 cfxnes({JSZip});
@@ -237,7 +237,7 @@ Once the output is set, it is not possible to change value of the `renderer` pro
 | renderer | `string` | yes | `'webgl'` | Rendering back-end.<br>`'canvas'` - Renderer using Canvas API. It is used as fallback when WebGL is not available.<br>`'webgl'` - Renderer using WebGL. It should be faster than the `'canvas'` renderer, but this highly depends on browser, OS, graphic card driver, etc. |
 | palette | `string` | yes | `'fceux'` | Palette used for generating RGB color values. Allowed values are:<br>`'asq-real-a'`, `'asq-real-b'`,<br>`'bmf-fin-r2'`, `'bmf-fin-r3'`,<br>`'fceu-13'`, `'fceu-15'`, `'fceux'`,<br>`'nestopia-rgb'`, `'nestopia-yuv'`<br>See [FCEUX documentation](http://www.fceux.com/web/help/fceux.html?PaletteOptions.html) for their description. |
 | scale | `number` | yes | `1` | Canvas resolution multiplier. It must be larger than 0. Non-integer value might cause visual artifacts due to upscaling. The base resolution is 256x240.
-| smoothing | `boolean` | yes | `false` | Enables smoothing effect for upscaled canvas resolution. |
+| filter | `string` | yes | `'nearest'` | Filter used during upscaling.<br> `'nearest'`  - Nearest-neighbor interpolation.<br> `'linear'`  - Linear interpolation. |
 | debug | `boolean` | yes | `false` | Enables additional video output (content of pattern tables and background/sprite palettes) to be rendered on canvas. This will also double width of the canvas. |
 
 ``` javascript
@@ -268,7 +268,7 @@ It is recommended to wrap used `canvas` element in extra `div` to make fullscree
 | Name | Type | Writable | Default | Description |
 |------|------|----------|---------|-------------|
 | is | `boolean` | no | false | `true` when emulator is in fullscreen mode, `false` otherwise. |
-| type | `string` | yes | `'maximized'` | Type of fullscreen mode.<br>`'maximized'` - Maximizes output resolution while keeping its original aspect ratio.<br>`'normalized'` - Same as the `'maximazed'` type, but output resolution is integer multiple of the base resolution 256x240. This should reduce visual artifacts caused by resolution upscaling.<br>`'stretched'` - Output is stretched to fill the whole screen (both horizontally and vertically). The original aspect ratio is not preserved.|
+| type | `string` | yes | `'maximized'` | Type of fullscreen mode.<br>`'maximized'` - Maximizes output resolution while keeping its original aspect ratio.<br>`'normalized'` - Same as the `'maximazed'` type, but output resolution is integer multiple of the base resolution 256x240. This should reduce visual artifacts caused by upscaling.<br>`'stretched'` - Output is stretched to fill the whole screen (both horizontally and vertically). The original aspect ratio is not preserved.|
 
 #### Methods
 
