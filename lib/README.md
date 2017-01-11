@@ -2,7 +2,7 @@
 
 JavaScript library for NES emulation in web browser.
 
-- [API](api.md)
+- [API](API.md)
 - [Examples](examples)
 
 ### Supported Browsers
