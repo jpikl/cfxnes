@@ -2,7 +2,7 @@
 # Configuration
 ###############################################################################
 
-VERSION=0.5.0
+VERSION=0.6.0
 RELEASE_FILE=cfxnes-$(VERSION).zip
 DEPLOY_DIR=../cfxnes-heroku
 BACKUP_FILE=cfxnes.zip
