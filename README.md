@@ -43,6 +43,6 @@ See [LICENSE.txt](LICENSE.txt) for more details.
 
 ## Project Structure
 
-- [core](core) - core components of the emulator
+- [core](core) - core components of the emulator/library
 - [lib](lib) - library for NES emulation in web browser
 - [app](app) - web application built on top of the library

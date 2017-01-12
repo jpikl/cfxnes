@@ -1,7 +1,7 @@
 {
   "name": "cfxnes-app",
   "version": "0.6.0",
-  "description": "cfxnes emulator",
+  "description": "NES emulator",
   "license": "MIT",
   "private": true,
   "keywords": [
@@ -17,6 +17,9 @@
     "type": "git",
     "url": "https://github.com/jpikl/cfxnes"
   },
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "lint": "eslint src test",
     "clean": "rm -rf dist"

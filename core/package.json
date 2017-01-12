@@ -1,7 +1,7 @@
 {
   "name": "cfxnes-core",
   "version": "0.6.0",
-  "description": "cfxnes core",
+  "description": "Core of the cfxnes emulator/library",
   "license": "MIT",
   "private": true,
   "keywords": [
@@ -17,6 +17,10 @@
     "type": "git",
     "url": "https://github.com/jpikl/cfxnes"
   },
+  "files": [
+    "src/",
+    "tools/"
+  ],
   "scripts": {
     "lint": "eslint src test || true",
     "test": "mocha --recursive --compilers js:babel-register || true",
