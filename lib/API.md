@@ -248,7 +248,7 @@ video.renderer = 'webgl'; // Renderer can be only changed before the output is s
 video.output = document.getElementById('canvas'); // Set output
 video.palette = 'nestopia-rgb'; // Set palette
 video.scale = 2; // Set 2x resolution scale
-video.smoothing = true; // Enable smoothing
+video.filter = 'linear'; // Linear interpolation
 video.debug = true; // Enable debug output
 
 // To change renderer, we need a different canvas with uninitialized context
