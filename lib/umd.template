@@ -1,0 +1,16 @@
+;(function(root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define('cfxnes', [], function() {
+      return factory({}).cfxnes;
+    });
+  } else if (typeof module === 'object' && module.exports) {
+    module.exports = factory({}).cfxnes;
+  } else {
+    factory(root);
+  }
+}(this, function(root) {
+  // Compiler output [start]
+  %output%
+  // Compiler output [end]
+  return root;
+}.bind(this)));

@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
+### Fixed
+- Library AMD export
+
 ### Changed
 - Library uses JSZip 3.x.x for unzipping.
 - Library video.smoothing property replaced by video.filter.

@@ -32,6 +32,19 @@ IE 11, Edge 12 and Safari 9 need polyfill for some ES6 features ([core-js shim](
 </html>
 ```
 
+### Importing
+
+``` javascript
+// AMD
+define(['cfxnes'], function(cfxnes) {/* ... */});
+
+// CommonJS
+const cfxnes = require('cfxnes');
+
+// Global variable
+window.cfxnes;
+```
+
 ### Building
 
 Run `npm run build` to build the library.

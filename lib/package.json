@@ -24,8 +24,8 @@
   "main": "dist/cfxnes.js",
   "scripts": {
     "dev": "npm run watch:debug",
-    "build": "java -jar node_modules/google-closure-compiler/compiler.jar --compilation_level=ADVANCED --language_in=ECMASCRIPT6_STRICT --language_out=ECMASCRIPT5_STRICT --output_wrapper='(function(){%output%}.call(this));' --assume_function_wrapper --formatting=SINGLE_QUOTES --externs=externs/JSZip.js --externs=externs/w3c_gamepad.js --js='src/**.js' --js='../core/src/**.js' --js_output_file=dist/cfxnes.js",
-    "build:debug": "java -jar node_modules/google-closure-compiler/compiler.jar --compilation_level=SIMPLE --language_in=ECMASCRIPT6_STRICT --language_out=ECMASCRIPT5_STRICT --output_wrapper='(function(){%output%}.call(this));' --assume_function_wrapper --formatting=SINGLE_QUOTES --formatting=PRETTY_PRINT --formatting=PRINT_INPUT_DELIMITER --externs=externs/JSZip.js --externs=externs/w3c_gamepad.js --js='src/**.js' --js='../core/src/**.js' --js_output_file=dist/cfxnes.debug.js",
+    "build": "java -jar node_modules/google-closure-compiler/compiler.jar --compilation_level=ADVANCED --language_in=ECMASCRIPT6_STRICT --language_out=ECMASCRIPT5_STRICT --rewrite_polyfills=false --output_wrapper_file=umd.template --assume_function_wrapper --formatting=SINGLE_QUOTES --externs=externs/JSZip.js --externs=externs/w3c_gamepad.js --js='src/**.js' --js='../core/src/**.js' --js_output_file=dist/cfxnes.js",
+    "build:debug": "java -jar node_modules/google-closure-compiler/compiler.jar --compilation_level=SIMPLE --language_in=ECMASCRIPT6_STRICT --language_out=ECMASCRIPT5_STRICT --rewrite_polyfills=false --output_wrapper_file=umd.template --assume_function_wrapper --formatting=SINGLE_QUOTES --formatting=PRETTY_PRINT --formatting=PRINT_INPUT_DELIMITER --externs=externs/JSZip.js --externs=externs/w3c_gamepad.js --js='src/**.js' --js='../core/src/**.js' --js_output_file=dist/cfxnes.debug.js",
     "watch": "watch 'npm run build' src ../core/src",
     "watch:debug": "watch 'npm run build:debug' src ../core/src",
     "lint": "eslint src test || true",
