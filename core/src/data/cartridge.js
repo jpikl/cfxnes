@@ -7,7 +7,7 @@ const parsers = [inesParser];
 
 export function readCartridge(path) {
   log.info(`Reading ROM image from file "${path}"`);
-  const data = require('fs').readFileSync(path); // eslint-disable-line import/newline-after-import
+  const data = require('fs').readFileSync(path);
   return createCartridge(new Uint8Array(data));
 }
 

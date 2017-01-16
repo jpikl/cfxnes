@@ -219,11 +219,11 @@ export default class CPUMemory {
   // Expansion ROM ($4020-$5FFF)
   //=========================================================
 
-  readEXROM() {
+  readEXROM(address) { // eslint-disable-line no-unused-vars
     return 0; // Not implemented
   }
 
-  writeEXROM() {
+  writeEXROM(address, value) { // eslint-disable-line no-unused-vars
     // Not implemented
   }
 

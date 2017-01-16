@@ -5,7 +5,7 @@ const SHIFT = [24, 16, 8, 0];
 // Based on source code of js-sha1 v3.0 (https://github.com/emn178/js-sha1)
 
 export default function sha1(data) {
-  const length = data.length;
+  const {length} = data;
   const blocks = new Array(17);
 
   let block = 0;

@@ -76,7 +76,7 @@ function execute(test) {
   nes.setCartridge(cartridge);
 
   // Prepare context
-  const number = test.number;
+  const {number} = test;
   const context = {
     number, assert, expect, fail, power, reset, step, nes,
     readByte, readString, screenshot, blargg, getPath, getOutputPath,

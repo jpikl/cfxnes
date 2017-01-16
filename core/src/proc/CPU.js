@@ -778,12 +778,12 @@ export default class CPU {
 
   ALR(address) {
     this.AND(address);
-    this.LSR();
+    this.LSR(null);
   }
 
   ARR(address) {
     this.AND(address);
-    this.ROR();
+    this.ROR(null);
     this.carryFlag = (this.accumulator >>> 6) & 1;
     this.overflowFlag = ((this.accumulator >>> 5) & 1) ^ this.carryFlag;
   }

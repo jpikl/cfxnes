@@ -5,7 +5,7 @@ import inesParser from '../../src/data/inesParser';
 import {createNES2 as create} from './utils';
 
 describe('data/inesParser (NES 2.0 input)', () => {
-  const parse = inesParser.parse;
+  const {parse} = inesParser;
 
   function test(params = {}) {
     return parse(create(params));

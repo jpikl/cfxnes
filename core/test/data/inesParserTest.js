@@ -5,7 +5,7 @@ import inesParser from '../../src/data/inesParser';
 import {createINES as create} from './utils';
 
 describe('data/inesParser (iNES input)', () => {
-  const parse = inesParser.parse;
+  const {parse} = inesParser;
 
   function test(params = {}) {
     return parse(create(params));
