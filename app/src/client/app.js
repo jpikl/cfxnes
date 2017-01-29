@@ -40,7 +40,7 @@ $(document).ready(() => {
 function load() {
   const state = JSON.parse(localStorage.state || '{}');
   ({fpsVisible = true, controlsVisible = true} = state);
-  config.set(state);
+  config.use(state);
 }
 
 function save() {
