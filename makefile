@@ -51,10 +51,10 @@ install:
 .PHONY: lib lib_dbg app
 
 lib:
-	cd lib && npm run build
+	cd lib && npm -s run build
 
 lib_dbg:
-	cd lib && npm run build:debug
+	cd lib && npm -s run build:debug
 
 app:
 	cd app && gulp build
@@ -71,9 +71,9 @@ backup: clean
 	mv $(BACKUP_FILE) $(BACKUP_DIR)
 
 version:
-	cd core && npm version $(VERSION); true
-	cd lib && npm version $(VERSION); true
-	cd app && npm version $(VERSION); true
+	cd core && npm -s version $(VERSION); true
+	cd lib && npm -s version $(VERSION); true
+	cd app && npm -s version $(VERSION); true
 
 deploy: clean lib app
 	mkdir -p $(DEPLOY_DIR)
@@ -99,13 +99,13 @@ tag:
 .PHONY: lint test
 
 lint:
-	cd core && npm run lint
-	cd lib && npm run lint
-	cd app && npm run lint
+	cd core && npm -s run lint
+	cd lib && npm -s run lint
+	cd app && npm -s run lint
 
 test:
-	cd core && npm test
-	cd lib && npm test
+	cd core && npm -s test
+	cd lib && npm -s test
 
 ###############################################################################
 # Clean
