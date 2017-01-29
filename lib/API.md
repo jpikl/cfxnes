@@ -88,8 +88,6 @@ cfxnes.logLevel = 'info'; // Log everything
 
 Emulator instance returned by the `cfxnes` function.
 
-It defines basic properties/methods and aggregates various submodules (rom, video, fullscreen, audio, devices, inputs).
-
 #### Properties
 
 | Name | Type | Writable | Default | Description |
@@ -99,6 +97,13 @@ It defines basic properties/methods and aggregates various submodules (rom, vide
 | region | `string` | yes | `'auto'` | Emulated NES region.<br>`'auto'` - Automatic region detection (not very reliable).<br>`'ntsc'` - NTSC region (60 FPS).<br>`'pal'` - PAL region (50 FPS). |
 | speed | `number` | yes | `1` | Emulation speed multiplier. It must be larger than 0. |
 | nvram | `Uint8Array` | no | null | Provides access to NVRAM. NVRAM (Non-Volatile RAM) is a memory that is usually battery-backed and serves as a place for game saves. NVRAM is only used by some games (e.g., The Legend of Zelda or Final Fantasy). The property is `null` when NVRAM is not avaialable. |
+| rom |  `object` | no | | [ROM module](#user-content-nesrom)  |
+| video |  `object` | no | | [Video module](#user-content-nesvideo)  |
+| fullscreen |  `object` | no | | [Fullscreen module](#user-content-nesfullscreen)  |
+| audio |  `object` | no | | [Audio module](#user-content-nesaudio)  |
+| devices |  `object` | no | | [Devices module](#user-content-nesdevices)  |
+| inputs |  `object` | no | | [Inputs module](#user-content-nesinputs)  |
+| config |  `object` | no | | [Configuration module](#user-content-nesconfig)  |
 
 #### Methods
 
@@ -121,8 +126,6 @@ nes.start(); // Start emulator
 nes.running; // true
 nes.stop(); // Stop emulator
 nes.running; // false
-
-nes.step() // Render one frame
 
 nes.power(); // HW reset
 nes.reset(); // SW reset
@@ -493,20 +496,17 @@ To specify axis direction, `'+'` or `'-'` must be appended (e.g., `'axis-0-'`, `
 
 Module that provides access to emulator configuration.
 
-The structure of configuration options corresponds to structure of initialization options (see `cfxnes` function description) with exception of `rom`, `JSZip`, `video.output` that are ignored.
+The structure of configuration options corresponds to structure of initialization options (see [cfxnes](#user-content-cfxnesoptions)) with exception of `rom`, `JSZip`, `video.output` that are ignored.
 
 | Signature | Description |
 |-----------|--------------|
 | get() | Returns all options and their values. |
-| set(options) | Sets values of the specified options. |
+| use(options) | Applies values of specified options. |
 
 ``` javascript
 const nes = cfxnes();
 const {config} = nes;
 
-const defaults = config.get(); // Get the default configuration
-
-// User might have changed configuration
-
-config.set(defaults); // Restore the default configuration
-config.set({region: defaults.region}) // Restore only a specific part of configuration
+const defaults = config.get(); // Get default configuration
+config.use({region: 'pal'});   // Update configuration
+config.use(defaults);          // Restore default configuration
