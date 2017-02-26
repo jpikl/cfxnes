@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 
+import {toString} from './utils';
+
 const OFF = 0;
 const ERROR = 1;
 const WARN = 2;
@@ -18,7 +20,7 @@ setLevel('warn');
 
 function setLevel(name) {
   if (!(name in levels)) {
-    throw new Error('Invalid log level');
+    throw new Error('Invalid log level: ' + toString(name));
   }
   levelName = name;
   level = levels[name];

@@ -35,7 +35,7 @@ describe('video/palettes', () => {
   }
 
   it('throws error when creating invalid palette', () => {
-    expect(() => createPalette('x')).to.throw('Invalid palette');
+    expect(() => createPalette('x')).to.throw('Invalid palette: "x"');
   });
 
   it('creates palette variant', () => {

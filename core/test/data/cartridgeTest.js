@@ -11,17 +11,17 @@ describe('data/cartridge', () => {
     romData = new Uint8Array(fs.readFileSync('./test/roms/nestest/nestest.nes'));
   });
 
-  it('acceppts valid data type', () => {
+  it('acceppts valid ROM image', () => {
     expect(createCartridge(romData)).to.be.an('object');
   });
 
-  it('throws error for invalid data type', () => {
-    expect(() => createCartridge()).to.throw('Invalid data type');
-    expect(() => createCartridge(null)).to.throw('Invalid data type');
-    expect(() => createCartridge('x')).to.throw('Invalid data type');
+  it('throws error for invalid ROM image', () => {
+    expect(() => createCartridge()).to.throw('Invalid ROM image: undefined');
+    expect(() => createCartridge(null)).to.throw('Invalid ROM image: null');
+    expect(() => createCartridge('x')).to.throw('Invalid ROM image: "x"');
   });
 
-  it('creates cartridge from valid data format', () => {
+  it('creates cartridge from valid ROM image', () => {
     const cartridge = createCartridge(romData);
     expect(cartridge).to.be.an('object');
     expect(cartridge.mapper).to.be.equal('NROM');
@@ -38,8 +38,8 @@ describe('data/cartridge', () => {
     expect(cartridge.chrROM.length).to.be.equal(0x2000);
   });
 
-  it('throws error for invalid data format', () => {
-    expect(() => createCartridge(new Uint8Array(100))).to.throw('Unsupported data format');
+  it('throws error for invalid ROM image format', () => {
+    expect(() => createCartridge(new Uint8Array(100))).to.throw('Unknown ROM image format');
   });
 
   it('computes SHA-1', () => {

@@ -1,5 +1,5 @@
 import log from '../common/log';
-import {assert, formatSize} from '../common/utils';
+import {formatSize, toString} from '../common/utils';
 import inesParser from './inesParser';
 import sha1 from './sha1';
 
@@ -13,8 +13,9 @@ export function readCartridge(path) {
 
 export function createCartridge(data) {
   log.info('Creating cartridge from ROM image');
-  assert(data instanceof Uint8Array, 'Invalid data type');
-
+  if (!(data instanceof Uint8Array)) {
+    throw new Error('Invalid ROM image: ' + toString(data));
+  }
   log.info(`Parsing ${formatSize(data.length)} of data`);
   for (const parser of parsers) {
     if (parser.supports(data)) {
@@ -26,7 +27,7 @@ export function createCartridge(data) {
     }
   }
 
-  throw new Error('Unsupported data format');
+  throw new Error('Unknown ROM image format');
 }
 
 function computeSHA1(cartridge) {

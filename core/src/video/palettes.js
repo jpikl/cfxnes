@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 
-import {decodeBase64} from '../common/utils';
+import {decodeBase64, toString} from '../common/utils';
 import log from '../common/log';
 import asq_real_a from './palettes/asq_real_a';
 import asq_real_b from './palettes/asq_real_b';
@@ -39,7 +39,7 @@ export function createPalette(name = 'fceux') {
     log.info(`Creating "${name}" palette`);
     return decodePalette(base64);
   }
-  throw new Error('Invalid palette');
+  throw new Error('Invalid palette: ' + toString(name));
 }
 
 function decodePalette(base64) {

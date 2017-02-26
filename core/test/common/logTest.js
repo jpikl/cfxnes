@@ -25,6 +25,11 @@ describe('common/log', () => {
     log.setLevel('warn');
   });
 
+  it('throws error when setting invalid log level', () => {
+    expect(() => log.setLevel()).to.throw('Invalid log level: undefined');
+    expect(() => log.setLevel('x')).to.throw('Invalid log level: "x"');
+  });
+
   it('changes log level', () => {
     expect(log.getLevel()).not.to.be.equal('off');
     log.setLevel('off');

@@ -1,3 +1,4 @@
+import {toString} from '../common/utils';
 import log from '../common/log';
 import AOROM from './mappers/AOROM';
 import BNROM from './mappers/BNROM';
@@ -28,5 +29,5 @@ export function createMapper(cartridge) {
     log.info(`Creating "${name}" mapper`);
     return new Mapper(cartridge);
   }
-  throw new Error('Invalid mapper');
+  throw new Error('Invalid mapper: ' + toString(name));
 }

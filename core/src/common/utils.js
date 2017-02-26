@@ -1,5 +1,7 @@
 /* eslint-env browser */
 
+const MAX_TO_STRING_LENGTH = 80;
+
 export function detectEndianness() {
   const u16 = new Uint16Array([0x1234]);
   const u8 = new Uint8Array(u16.buffer);
@@ -41,8 +43,26 @@ export function roundUpToPow2(number) {
   return result;
 }
 
-export function assert(condition, message = 'Invalid argument') {
-  if (!condition) {
-    throw new Error(message);
+export function toString(value) {
+  const type = typeof value;
+  if (type === 'string') {
+    if (value.length > MAX_TO_STRING_LENGTH) {
+      return `"${value.substr(0, MAX_TO_STRING_LENGTH)}..."`;
+    }
+    return `"${value}"`;
   }
+  if (type === 'function') {
+    const constructorName = value.constructor.name;
+    const {name} = value;
+    return name ? `${constructorName}(${name})` : constructorName;
+  }
+  if (value && type === 'object') {
+    const constructorName = value.constructor.name;
+    if (constructorName === 'Object') {
+      return constructorName;
+    }
+    const {length} = value;
+    return length != null ? `${constructorName}(${length})` : constructorName;
+  }
+  return String(value);
 }

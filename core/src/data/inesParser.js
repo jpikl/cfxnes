@@ -1,6 +1,7 @@
 import Mirroring from '../common/Mirroring';
 import Region from '../common/Region';
 import log from '../common/log';
+import {formatSize} from '../common/utils';
 
 const name = 'iNES / NES 2.0';
 
@@ -33,7 +34,7 @@ function parse(data) {
     throw new Error('Incorrect signature');
   }
   if (data.length < 16) {
-    throw new Error('Input is too short');
+    throw new Error('Input is too short: expected at least 16 B but got ' + formatSize(data.length));
   }
 
   let prgROMUnits = data[4];
@@ -92,7 +93,7 @@ function parse(data) {
   const submapper = submappers[mapper + '_' + submapperId];
 
   if (data.length < chrROMEnd) {
-    throw new Error('Input is too short');
+    throw new Error(`Input is too short: expected at least ${formatSize(chrROMEnd)} but got ${formatSize(data.length)}`);
   }
 
   const prgROM = data.subarray(prgROMStart, prgROMEnd);

@@ -1,3 +1,5 @@
+import {toString} from './utils';
+
 const SINGLE_SCREEN_0 = 'SS0';
 const SINGLE_SCREEN_1 = 'SS1';
 const SINGLE_SCREEN_2 = 'SS2';
@@ -21,7 +23,7 @@ function getAreas(mirroring) {
   if (area) {
     return area;
   }
-  throw new Error('Invalid mirroring');
+  throw new Error('Invalid mirroring: ' + toString(mirroring));
 }
 
 function getSingleScreen(index) {

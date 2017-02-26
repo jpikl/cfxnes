@@ -33,7 +33,7 @@ describe('common/Mirroring', () => {
   });
 
   it('throws error when getting area for invalid value', () => {
-    expect(() => Mirroring.getAreas()).to.throw('Invalid mirroring');
-    expect(() => Mirroring.getAreas('x')).to.throw('Invalid mirroring');
+    expect(() => Mirroring.getAreas()).to.throw('Invalid mirroring: undefined');
+    expect(() => Mirroring.getAreas('x')).to.throw('Invalid mirroring: "x"');
   });
 });

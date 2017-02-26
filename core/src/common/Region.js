@@ -1,3 +1,5 @@
+import {toString} from './utils';
+
 const NTSC = 'NTSC';
 const PAL = 'PAL';
 
@@ -25,7 +27,7 @@ function getParams(region) {
   switch (region) {
     case NTSC: return ntscParams;
     case PAL: return palParams;
-    default: throw new Error('Invalid region');
+    default: throw new Error('Invalid region: ' + toString(region));
   }
 }
 

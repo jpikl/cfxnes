@@ -22,7 +22,7 @@ describe('common/Region', () => {
   });
 
   it('throws error when getting parameters for invalid value', () => {
-    expect(() => Region.getParams()).to.throw('Invalid region');
-    expect(() => Region.getParams('x')).to.throw('Invalid region');
+    expect(() => Region.getParams()).to.throw('Invalid region: undefined');
+    expect(() => Region.getParams('x')).to.throw('Invalid region: "x"');
   });
 });

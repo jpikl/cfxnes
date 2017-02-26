@@ -21,7 +21,7 @@ describe('memory/mappers', () => {
   }
 
   it('throws error when creating invalid mapper', () => {
-    expect(() => createMapper({})).to.throw('Invalid mapper');
-    expect(() => createMapper({mapper: 'x'})).to.throw('Invalid mapper');
+    expect(() => createMapper({})).to.throw('Invalid mapper: undefined');
+    expect(() => createMapper({mapper: 'x'})).to.throw('Invalid mapper: "x"');
   });
 });

@@ -1,6 +1,12 @@
 import os from 'os';
 import {expect} from 'chai';
-import {detectEndianness, decodeBase64, formatSize, roundUpToPow2, assert} from '../../src/common/utils';
+import {
+  detectEndianness,
+  decodeBase64,
+  formatSize,
+  roundUpToPow2,
+  toString,
+} from '../../src/common/utils';
 
 describe('common/utils', () => {
   it('detects endianness', () => {
@@ -40,18 +46,16 @@ describe('common/utils', () => {
     expect(roundUpToPow2(1024)).to.equal(1024);
   });
 
-  it('does nothing when asserting positive condition', () => {
-    assert(true);
-    assert('x');
-  });
-
-  it('throws error when asserting negative condition', () => {
-    expect(() => assert(false)).to.throw(Error);
-    expect(() => assert('')).to.throw(Error);
-  });
-
-  it('throws error with correct message when asserting negative condition', () => {
-    expect(() => assert(false)).to.throw('Invalid argument');
-    expect(() => assert(false, 'msg')).to.throw('msg');
+  it('converts value to string', () => {
+    expect(toString(undefined)).to.be.equal('undefined');
+    expect(toString(null)).to.be.equal('null');
+    expect(toString(123)).to.be.equal('123');
+    expect(toString('abc')).to.be.equal('"abc"');
+    expect(toString('a'.repeat(100))).to.be.equal(`"${'a'.repeat(80)}..."`);
+    expect(toString(() => {})).to.be.equal('Function');
+    expect(toString(function foo() {})).to.be.equal('Function(foo)'); // eslint-disable-line prefer-arrow-callback
+    expect(toString({})).to.be.equal('Object');
+    expect(toString(Uint8Array.of(1, 2, 3))).to.be.equal('Uint8Array(3)');
+    expect(toString(Symbol('bar'))).to.be.equal('Symbol(bar)');
   });
 });
