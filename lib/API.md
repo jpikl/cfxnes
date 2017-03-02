@@ -14,7 +14,7 @@
 
 Function that returns new emulator instance.
 
-**options** - initialization options. See the following documentation sections for their description.
+**options** - initialization options. See the following documentation sections for their description. Options with `undefined` value will be ignored.
 
 ``` javascript
 let nes;
