@@ -1,5 +1,9 @@
 # cfxnes API
 
+*This file contains API for the upcoming version 0.6.0*.
+
+*API for version 0.5.0 [can be found here](https://github.com/jpikl/cfxnes/blob/v0.5.0/lib/api.md)*.
+
 - [cfxnes](#user-content-cfxnesoptions)
 - [nes](#user-content-nes)
 - [nes.rom](#user-content-nesrom)
