@@ -60,8 +60,9 @@
     function mapGamepadInput(joyPort, joyInput, gpIndex, gpInput) {
       const devInput = `${joyPort}.joypad.${joyInput}`;
       const srcInput = `gamepad${gpIndex}.${gpInput}`;
-      inputs.delete(devInput, srcInput);
-      inputs.set(devInput, srcInput);
+      inputs.map.delete(devInput);
+      inputs.map.delete(srcInput);
+      inputs.map.set(devInput, srcInput);
     }
   </script>
 </connected-gamepads>

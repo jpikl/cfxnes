@@ -9,7 +9,7 @@
         }
       }
 
-      this.root.innerHTML = inputs.get(opts.input).map(input => {
+      this.root.innerHTML = inputs.map.get(opts.input).map(input => {
         const [source, name] = input.split('.');
 
         let result = name.split('-')

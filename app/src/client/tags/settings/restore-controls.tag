@@ -5,7 +5,7 @@
   <script type="babel">
     this.restore = () => {
       Object.assign(devices, defaults.devices);
-      inputs.set(defaults.inputs);
+      nes.config.use({inputs: defaults.inputs});
       this.trigger('change');
     };
   </script>

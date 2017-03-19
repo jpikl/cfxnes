@@ -101,13 +101,13 @@ Emulator instance returned by the `cfxnes` function.
 | region | `string` | yes | `'auto'` | Emulated NES region.<br>`'auto'` - Automatic region detection (not very reliable).<br>`'ntsc'` - NTSC region (60 FPS).<br>`'pal'` - PAL region (50 FPS). |
 | speed | `number` | yes | `1` | Emulation speed multiplier. It must be larger than 0. |
 | nvram | `Uint8Array` | no | null | Provides access to NVRAM. NVRAM (Non-Volatile RAM) is a memory that is usually battery-backed and serves as a place for game saves. NVRAM is only used by some games (e.g., The Legend of Zelda or Final Fantasy). The property is `null` when NVRAM is not avaialable. |
-| rom |  `object` | no | | [ROM module](#user-content-nesrom)  |
-| video |  `object` | no | | [Video module](#user-content-nesvideo)  |
-| fullscreen |  `object` | no | | [Fullscreen module](#user-content-nesfullscreen)  |
-| audio |  `object` | no | | [Audio module](#user-content-nesaudio)  |
-| devices |  `object` | no | | [Devices module](#user-content-nesdevices)  |
-| inputs |  `object` | no | | [Inputs module](#user-content-nesinputs)  |
-| config |  `object` | no | | [Configuration module](#user-content-nesconfig)  |
+| rom | `object` | no | | [ROM module](#user-content-nesrom) |
+| video | `object` | no | | [Video module](#user-content-nesvideo) |
+| fullscreen | `object` | no | | [Fullscreen module](#user-content-nesfullscreen) |
+| audio | `object` | no | | [Audio module](#user-content-nesaudio) |
+| devices | `object` | no | | [Devices module](#user-content-nesdevices) |
+| inputs | `object` | no | | [Inputs module](#user-content-nesinputs) |
+| config | `object` | no | | [Configuration module](#user-content-nesconfig) |
 
 #### Methods
 
@@ -383,50 +383,48 @@ Examples:
 - `'gamepad0'.start` - Start button of gamepad #0.
 - `'gamepad1'.x` - X button of gamepad #1.
 
+#### Properties
+
+| Name | Type | Writable | Description |
+|------|------|----------|-------------|
+| state |  `object` | no | Submodule that holds state of all inputs.<br> - For buttons, the state is `boolean`. <br> - For `'{1,2}.zapper.beam'`, the state is an array of 2 numbers `[x, y]` (beam cordinates). |
+| map | `object` | no | Submodule that holds mapping between inputs. |
+
 #### Methods
 
 | Signature | Description |
 |-----------|--------------|
-| set(mapping) | Sets new mapping of inputs. |
-| set(devInput,&nbsp;srcInputs) | Maps device input to one or more source inputs. `srcInputs` can be either an input or array of inputs. |
-| get() | Returns mapping of all inputs. |
-| get(input) | Returns mapping for a specific input. |
-| delete(...inputs) | Deletes mapping for the specified inputs. Calling the method without any argument will delete mapping of all inputs. |
-| record(callback) | Registers a callback function that will be called when the next source input is received. The callback is immediately dropped after its use. Typical use of this method is to let users customize key bindings. |
+| state.get(devInput) | Returns state of a device input. |
+| state.set(devInput, state) | Sets state of a device input.|
+| map.get(input) | Returns mapping of an input. |
+| map.set(devInput,&nbsp;srcInput) | Sets mapping between source and device input. |
+| map.delete(input) | Deletes mapping of an input. |
+| record(callback) | Registers callback function that will be called when the next source input is received. The callback is immediately dropped after its use. Typical use of this method is to let users customize key bindings. |
 
 ``` javascript
 const nes = cfxnes();
 const {inputs} = nes;
 
-// Map inputs
-inputs.set('1.joypad.a', 'keyboard.z'); // 1) Map 'A button' of joypad on port #1 to 'Z' key
-inputs.set('1.joypad.a', 'keyboard.y'); // 2) Map the same input to 'Y' key
-inputs.set('1.joypad.a', ['keyboard.z', 'keyboard.y']); // 1) and 2) in one call
+// State
+inputs.state.set('1.joypad.a', true); // Press 'A button' of joypad #1
+inputs.state.get('1.joypad.a'); // Returns true
 
-// Override the current mapping with a new one
-inputs.set({
-  '1.joypad.a': ['keyboard.z', 'keyboard.y'],
-  '1.joypad.b': 'keyboard.x',
-});
+// Mapping
+inputs.map.delete('1.joypad.a'); // Delete mapping of a device input
+inputs.map.get('1.joypad.a'); // Returns []
+inputs.map.set('1.joypad.a', 'keyboard.z'); // Map 'A button' of joypad #1 to 'Z' key
+inputs.map.set('1.joypad.a', 'keyboard.y'); // Map the same input to 'Y' key
+inputs.map.get('1.joypad.a'); // Returns ['keyboard.z', 'keyboard.y']
+inputs.map.delete('keyboard.z'); // Delete mapping of a source input
+inputs.map.get('1.joypad.a'); // Returns ['keyboard.y']
 
-// Query mapping
-inputs.get('1.joypad.a'); // Returns ['keyboard.z', 'keyboard.y']
-inputs.get('keyboard.z'); // Returns ['1.joypad.a']
-inputs.get(); // Returns {'1.joypad.a': ['keyboard.z', 'keyboard.y'], '1.joypad.b': ['keyboard.x']}
-
-// Delete mapping
-inputs.get('1.joypad.a');    // Returns ['keyboard.z', 'keyboard.y']
-inputs.delete('keyboard.y'); // Delete mapping for the 'Y' key
-inputs.get('1.joypad.a');    // Returns ['keyboard.z']
-inputs.delete();             // Delete mapping of all inputs
-inputs.get('1.joypad.a');    // Returns []
-
-// Let user to customize key bindings
+// Interactive rebinding
 const devInput = '1.joypad.a';
 showUserMessage('Press key or button...');
 inputs.record(srcInput => {
-  inputs.delete(devInput, srcInput); // Delete previous mapping for each input
-  inputs.set(devInput, srcInput); // Map inputs
+  inputs.map.delete(devInput); // Delete previous mapping for each input
+  inputs.map.delete(srcInput);
+  inputs.map.set(devInput, srcInput); // Set new mapping
   hideUserMessage();
 })
 ```

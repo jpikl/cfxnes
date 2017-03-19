@@ -6,11 +6,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Library AMD export.
 
+### Added
+- API to access state of device inputs.
+
 ### Changed
 - Switched to JSZip 3.
 - *Smothing* configuration option renamed to *Filter*.
 - `video.smoothing` property replaced by `video.filter`.
 - `config.set` method renamed to `config.use`.
+- `input.*` mapping methods moved to `input.map` submodule. They have now different semantics.
 - Configuration options with `undefined` value are ignored.
 
 ## [0.5.0] - 2016-09-29
