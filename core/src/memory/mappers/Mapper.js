@@ -1,5 +1,4 @@
-import Mirroring from '../../common/Mirroring';
-import log from '../../common/log';
+import {log, Mirroring} from '../../common';
 
 export default class Mapper {
 
@@ -172,7 +171,7 @@ export default class Mapper {
   //=========================================================
 
   setSingleScreenMirroring(area = 0) {
-    this.ppuMemory.setNametablesMirroring(Mirroring.getSingleScreen(area));
+    this.ppuMemory.setNametablesMirroring(Mirroring.getSingle(area));
   }
 
   setVerticalMirroring() {

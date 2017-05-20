@@ -1,4 +1,4 @@
-import {detectEndianness} from '../common/utils';
+import {detectEndianness} from '../common';
 
 const le = detectEndianness() === 'LE';
 

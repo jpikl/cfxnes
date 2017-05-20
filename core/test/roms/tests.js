@@ -7,27 +7,29 @@
 
 import fs from 'fs';
 import path from 'path';
-import {assert, expect} from 'chai';
 import mkdirp from 'mkdirp';
+import {assert, expect} from 'chai';
+
 import NES from '../../src/NES';
-import {readCartridge} from '../../src/data/cartridge';
-import * as nestest from './nestest/nestest';
-import * as instr_test from './instr_test/instr_test';
-import * as instr_timing from './instr_timing/instr_timing';
-import * as instr_misc from './instr_misc/instr_misc';
-import * as cpu_reset from './cpu_reset/cpu_reset';
-import * as cpu_interrupts from './cpu_interrupts/cpu_interrupts';
-import * as ppu_tests from './ppu_tests/ppu_tests';
-import * as ppu_vbl_nmi from './ppu_vbl_nmi/ppu_vbl_nmi';
-import * as ppu_sprite_hit from './ppu_sprite_hit/ppu_sprite_hit';
-import * as ppu_sprite_overflow from './ppu_sprite_overflow/ppu_sprite_overflow';
-import * as oam_read from './oam_read/oam_read';
-import * as oam_stress from './oam_stress/oam_stress';
-import * as apu_reset from './apu_reset/apu_reset';
-import * as apu_test from './apu_test/apu_test';
-import * as mmc3_test from './mmc3_test/mmc3_test';
-import * as bntest from './bntest/bntest';
-import * as holydiverbatman from './holydiverbatman/holydiverbatman';
+import {readCartridge} from '../../src/cartridge';
+
+import * as nestest from './nestest';
+import * as instr_test from './instr_test';
+import * as instr_timing from './instr_timing';
+import * as instr_misc from './instr_misc';
+import * as cpu_reset from './cpu_reset';
+import * as cpu_interrupts from './cpu_interrupts';
+import * as ppu_tests from './ppu_tests';
+import * as ppu_vbl_nmi from './ppu_vbl_nmi';
+import * as ppu_sprite_hit from './ppu_sprite_hit';
+import * as ppu_sprite_overflow from './ppu_sprite_overflow';
+import * as oam_read from './oam_read';
+import * as oam_stress from './oam_stress';
+import * as apu_reset from './apu_reset';
+import * as apu_test from './apu_test';
+import * as mmc3_test from './mmc3_test';
+import * as bntest from './bntest';
+import * as holydiverbatman from './holydiverbatman';
 
 /* eslint-enable camelcase */
 
@@ -122,7 +124,7 @@ function execute(test) {
     while ((value = readByte(address++)) !== 0) {
       data.push(value);
     }
-    String.fromCharCode.apply(null, data);
+    return String.fromCharCode.apply(null, data);
   }
 
   function screenshot(file) {

@@ -1,9 +1,9 @@
+import {log} from '../common';
 import {NMI} from '../proc/interrupts';
-import log from '../common/log';
-import {VIDEO_WIDTH} from './constants';
+import {VIDEO_WIDTH} from './params';
 import {unpackColor, BLACK_COLOR} from './colors';
 import {createPaletteVariant} from './palettes';
-import {Flag, getCycleFlags} from './flags';
+import * as Flag from './flags';
 import Sprite from './Sprite';
 
 export default class PPU {
@@ -409,7 +409,7 @@ export default class PPU {
     if (this.cycle > 340) {
       this.incrementScanline();
     }
-    this.cycleFlags = getCycleFlags(this.scanline, this.cycle); // Update flags for the new scanline/cycle
+    this.cycleFlags = Flag.compute(this.scanline, this.cycle); // Update flags for the new scanline/cycle
   }
 
   incrementScanline() {

@@ -23,7 +23,7 @@ const nes = new NES({cpu: customCPU});
 ROM image can be loaded from `Uint8Array` or from a file system path when running in Node.js. Supported formats are **iNES** and **NES 2.0**.
 
 ``` javascript
-import {createCartridge, readCartridge} from './data/cartridge';
+import {createCartridge, readCartridge} from './cartridge';
 
 // From buffer
 const cartridge1 = createCartridge(uint8Array);
@@ -39,8 +39,7 @@ nes.setCartridge(cartridge2);
 Video output is rendered into provided `Uint32Array(256 * 240)` buffer. Color of each pixel is encoded as 32-bit unsigned integer in RGBA format. Their values are generated using specified `Uint32Array(64)` palette.
 
 ``` javascript
-import {VIDEO_BUFFER_SIZE} from './video/constants';
-import {createPalette} from './video/palettes';
+import {createPalette, VIDEO_BUFFER_SIZE} from './video';
 
 const palette = createPalette('fceux'); // Predefined palette
 nes.setPalette(palette);
@@ -73,13 +72,12 @@ function audioCallback() {
 ### Input Devices
 
 ``` javascript
-import Joypad from './devices/Joypad';
-import Zapper from './devices/Zapper';
+import {Button, Joypad, Zapper} from './devices';
 
 // Standard NES controller
 const joypad = new Joypad;
 nes.setInputDevice(1, joypad); // Port #1
-joypad.setButtonPressed(Joypad.START, true);
+joypad.setButtonPressed(Button.START, true);
 
 // Zapper
 const zapper = new Zapper;

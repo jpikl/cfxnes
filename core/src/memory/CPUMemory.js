@@ -1,4 +1,4 @@
-import log from '../common/log';
+import {log} from '../common';
 
 // $10000 +------------------------+-------------------+ $10000
 //        |   Upper PRG ROM bank   |                   |

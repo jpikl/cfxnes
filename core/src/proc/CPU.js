@@ -1,4 +1,4 @@
-import log from '../common/log';
+import {log} from '../common';
 import {RESET, NMI} from './interrupts';
 import Operation from './Operation';
 

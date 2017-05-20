@@ -1,5 +1,4 @@
-import Mirroring from '../common/Mirroring';
-import log from '../common/log';
+import {log, Mirroring} from '../common';
 
 const INITIAL_PALETTES = [
   0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D, // Background palettes 0, 1
@@ -146,7 +145,7 @@ export default class PPUMemory {
 
   resetNametables() {
     this.nametables.fill(0);
-    this.setNametablesMirroring((this.mapper && this.mapper.mirroring) || Mirroring.SINGLE_SCREEN_0);
+    this.setNametablesMirroring((this.mapper && this.mapper.mirroring) || Mirroring.SCREEN_0);
   }
 
   readNametable(address) {

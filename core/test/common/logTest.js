@@ -3,7 +3,7 @@
 import chai, {expect} from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import log from '../../src/common/log';
+import {setLevel, getLevel, info, warn, error} from '../../src/common/log';
 
 chai.use(sinonChai);
 
@@ -12,7 +12,7 @@ describe('common/log', () => {
     sinon.stub(console, 'error');
     sinon.stub(console, 'warn');
     sinon.stub(console, 'info');
-    log.setLevel('info');
+    setLevel('info');
   });
 
   afterEach(() => {
@@ -22,34 +22,34 @@ describe('common/log', () => {
   });
 
   after(() => {
-    log.setLevel('warn');
+    setLevel('warn');
   });
 
   it('throws error when setting invalid log level', () => {
-    expect(() => log.setLevel()).to.throw('Invalid log level: undefined');
-    expect(() => log.setLevel('x')).to.throw('Invalid log level: "x"');
+    expect(() => setLevel()).to.throw('Invalid log level: undefined');
+    expect(() => setLevel('x')).to.throw('Invalid log level: "x"');
   });
 
   it('changes log level', () => {
-    expect(log.getLevel()).not.to.be.equal('off');
-    log.setLevel('off');
-    expect(log.getLevel()).to.be.equal('off');
+    expect(getLevel()).not.to.be.equal('off');
+    setLevel('off');
+    expect(getLevel()).to.be.equal('off');
   });
 
   it('forwards error calls', () => {
-    log.error('message1', 'message2');
+    error('message1', 'message2');
     expect(console.error).to.have.been.calledOnce;
     expect(console.error).to.have.been.calledWith('message1', 'message2');
   });
 
   it('forwards warn calls', () => {
-    log.warn('message1', 'message2');
+    warn('message1', 'message2');
     expect(console.warn).to.have.been.calledOnce;
     expect(console.warn).to.have.been.calledWith('message1', 'message2');
   });
 
   it('forwards info calls', () => {
-    log.info('message1', 'message2');
+    info('message1', 'message2');
     expect(console.info).to.have.been.calledOnce;
     expect(console.info).to.have.been.calledWith('message1', 'message2');
   });
@@ -71,10 +71,10 @@ describe('common/log', () => {
   });
 
   function testLevel(level, errors, warnings, infos) {
-    log.setLevel(level);
-    log.error('message');
-    log.warn('message');
-    log.info('message');
+    setLevel(level);
+    error('message');
+    warn('message');
+    info('message');
     expect(console.error).to.have.callCount(errors);
     expect(console.warn).to.have.callCount(warnings);
     expect(console.info).to.have.callCount(infos);

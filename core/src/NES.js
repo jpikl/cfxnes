@@ -1,14 +1,8 @@
-import CPU from './proc/CPU';
-import APU from './audio/APU';
-import PPU from './video/PPU';
-import DMA from './memory/DMA';
-import CPUMemory from './memory/CPUMemory';
-import PPUMemory from './memory/PPUMemory';
-import {RESET} from './proc/interrupts';
-import {createMapper} from './memory/mappers';
-import {packColor, BLACK_COLOR} from './video/colors';
-import Region from './common/Region';
-import log from './common/log';
+import {log, Region} from './common';
+import {CPUMemory, PPUMemory, DMA, createMapper} from './memory';
+import {PPU, packColor, BLACK_COLOR} from './video';
+import {CPU, Interrupt} from './proc';
+import {APU} from './audio';
 
 export default class NES {
 
@@ -113,7 +107,7 @@ export default class NES {
   }
 
   reset() {
-    this.cpu.activateInterrupt(RESET);
+    this.cpu.activateInterrupt(Interrupt.RESET);
   }
 
   //=========================================================
@@ -214,12 +208,12 @@ export default class NES {
     return this.apu.getSampleRate();
   }
 
-  setAudioChannelVolume(id, volume) {
-    this.apu.setChannelVolume(id, volume);
+  setAudioVolume(channel, volume) {
+    this.apu.setVolume(channel, volume);
   }
 
-  getAudioChannelVolume(id) {
-    return this.apu.getChannelVolume(id);
+  getAudioVolume(channel) {
+    return this.apu.getVolume(channel);
   }
 
   readAudioBuffer() {

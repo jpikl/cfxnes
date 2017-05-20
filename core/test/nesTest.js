@@ -1,15 +1,15 @@
 import {expect} from 'chai';
 import NES from '../src/NES';
-import APU from '../src/audio/APU';
-import Region from '../src/common/Region';
-import Joypad from '../src/devices/Joypad';
-import {readCartridge} from '../src/data/cartridge';
+import {Region} from '../src/common';
+import {Channel} from '../src/audio';
+import {Joypad} from '../src/devices';
+import {readCartridge} from '../src/cartridge';
 
 describe('NES (no cartridge)', () => {
   let nes, cartridge, joypad, frameBuffer, palette;
 
   const regions = [null, Region.PAL, Region.NTSC];
-  const channelIds = [APU.PULSE_1, APU.PULSE_2, APU.TRIANGLE, APU.NOISE, APU.DMC];
+  const channels = [Channel.PULSE_1, Channel.PULSE_2, Channel.TRIANGLE, Channel.NOISE, Channel.DMC];
   const ports = [1, 2];
 
   before(() => {
@@ -126,16 +126,16 @@ describe('NES (no cartridge)', () => {
     expect(nes.getAudioSampleRate()).to.be.equal(44100);
   });
 
-  for (const id of channelIds) {
-    it(`has 100% audio channel #${id} volume by default`, () => {
-      expect(nes.getAudioChannelVolume(id)).to.be.equal(1);
+  for (const channel of channels) {
+    it(`has 100% audio channel #${channel} volume by default`, () => {
+      expect(nes.getAudioVolume(channel)).to.be.equal(1);
     });
   }
 
-  for (const id of channelIds) {
-    it(`changes audio channel #${id} volume`, () => {
-      nes.setAudioChannelVolume(id, 0.5);
-      expect(nes.getAudioChannelVolume(id)).to.be.equal(0.5);
+  for (const channel of channels) {
+    it(`changes audio channel #${channel} volume`, () => {
+      nes.setAudioVolume(channel, 0.5);
+      expect(nes.getAudioVolume(channel)).to.be.equal(0.5);
     });
   }
 

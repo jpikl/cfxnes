@@ -1,4 +1,15 @@
-import log from '../common/log';
+import {log} from '../common';
+
+export const Button = {
+  A: 0,
+  B: 1,
+  SELECT: 2,
+  START: 3,
+  UP: 4,
+  DOWN: 5,
+  LEFT: 6,
+  RIGHT: 7,
+};
 
 export default class Joypad {
 
@@ -35,13 +46,3 @@ export default class Joypad {
   }
 
 }
-
-// Buttons - must be specified using string key (closure compiler issue)
-Joypad['A'] = 0;
-Joypad['B'] = 1;
-Joypad['SELECT'] = 2;
-Joypad['START'] = 3;
-Joypad['UP'] = 4;
-Joypad['DOWN'] = 5;
-Joypad['LEFT'] = 6;
-Joypad['RIGHT'] = 7;

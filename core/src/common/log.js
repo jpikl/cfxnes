@@ -18,7 +18,7 @@ let level, levelName;
 
 setLevel('warn');
 
-function setLevel(name) {
+export function setLevel(name) {
   if (!(name in levels)) {
     throw new Error('Invalid log level: ' + toString(name));
   }
@@ -26,26 +26,24 @@ function setLevel(name) {
   level = levels[name];
 }
 
-function getLevel() {
+export function getLevel() {
   return levelName;
 }
 
-function info(...args) {
+export function info(...args) {
   if (level >= INFO) {
     console.info(...args);
   }
 }
 
-function warn(...args) {
+export function warn(...args) {
   if (level >= WARN) {
     console.warn(...args);
   }
 }
 
-function error(...args) {
+export function error(...args) {
   if (level >= ERROR) {
     console.error(...args);
   }
 }
-
-export default {setLevel, getLevel, info, warn, error};

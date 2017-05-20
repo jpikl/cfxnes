@@ -189,7 +189,7 @@ rom.loaded; // false
 rom.sha1; // null
 
 // Load ROM image from relative URL
-rom.load('roms/game.nes').then(() => {
+rom.load('data/game.nes').then(() => {
   rom.loaded; // true
   rom.sha1; // SHA-1 of the loaded image
   rom.unload(); // Unload the image
@@ -199,7 +199,7 @@ rom.load('roms/game.nes').then(() => {
 })
 
 // Load ROM image from memory or blob
-var data = receiveData(); // Uint8Array, ArrayBuffer, Array, Blob
+var data = getData(); // Uint8Array, ArrayBuffer, Array, Blob
 rom.load(data).then(/* ... */);
 ```
 
@@ -387,7 +387,7 @@ Examples:
 
 | Name | Type | Writable | Description |
 |------|------|----------|-------------|
-| state |  `object` | no | Submodule that holds state of all inputs.<br> - For buttons, the state is `boolean`. <br> - For `'{1,2}.zapper.beam'`, the state is an array of 2 numbers `[x, y]` (beam cordinates). |
+| state |  `object` | no | Submodule that holds state of all inputs.<br> - For buttons, the state is `boolean`. <br> - For `'{1,2}.zapper.beam'`, the state is array of 2 numbers `[x, y]` (beam cordinates). |
 | map | `object` | no | Submodule that holds mapping between inputs. |
 
 #### Methods

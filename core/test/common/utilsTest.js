@@ -1,5 +1,6 @@
 import os from 'os';
 import {expect} from 'chai';
+
 import {
   detectEndianness,
   decodeBase64,

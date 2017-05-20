@@ -1,11 +1,8 @@
 import fs from 'fs';
 import {PNG} from 'node-png';
-import {VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_BUFFER_SIZE} from '../../src/video/constants';
-import {unpackColor} from '../../src/video/colors';
-import {createPalette} from '../../src/video/palettes';
-import APU from '../../src/audio/APU';
-import CPU from '../../src/proc/CPU';
-import PPU from '../../src/video/PPU';
+import {APU} from '../../src/audio';
+import {CPU} from '../../src/proc';
+import {PPU, unpackColor, createPalette, VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_BUFFER_SIZE} from '../../src/video';
 
 export {CPU, PPU, APU};
 

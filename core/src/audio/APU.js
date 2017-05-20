@@ -1,17 +1,14 @@
-import log from '../common/log';
-import {formatSize} from '../common/utils';
+import {log, formatSize} from '../common';
 import {IRQ_APU} from '../proc/interrupts';
-import PulseChannel from './PulseChannel';
-import TriangleChannel from './TriangleChannel';
-import NoiseChannel from './NoiseChannel';
-import DMCChannel from './DMCChannel';
+import {Pulse, Triangle, Noise, DMC} from './channels';
 
-// Channel IDs
-const PULSE_1 = 0;
-const PULSE_2 = 1;
-const TRIANGLE = 2;
-const NOISE = 3;
-const DMC = 4;
+export const Channel = {
+  PULSE_1: 0,
+  PULSE_2: 1,
+  TRIANGLE: 2,
+  NOISE: 3,
+  DMC: 4,
+};
 
 export default class APU {
 
@@ -21,19 +18,19 @@ export default class APU {
 
   constructor() {
     log.info('Initializing APU');
-    this.pulseChannel1 = new PulseChannel(1);
-    this.pulseChannel2 = new PulseChannel(2);
-    this.triangleChannel = new TriangleChannel;
-    this.noiseChannel = new NoiseChannel;
-    this.dmcChannel = new DMCChannel;
-    this.channelVolumes = [1, 1, 1, 1, 1];
+    this.pulse1 = new Pulse(1);
+    this.pulse2 = new Pulse(2);
+    this.triangle = new Triangle;
+    this.noise = new Noise;
+    this.dmc = new DMC;
+    this.volumes = [1, 1, 1, 1, 1];
     this.setOutputEnabled(false);
   }
 
   connect(nes) {
     log.info('Connecting APU');
     this.cpu = nes.cpu;
-    this.dmcChannel.connect(nes);
+    this.dmc.connect(nes);
   }
 
   //=========================================================
@@ -43,11 +40,11 @@ export default class APU {
   reset() {
     log.info('Reseting APU');
     this.clearFrameIRQ();
-    this.pulseChannel1.reset();
-    this.pulseChannel2.reset();
-    this.triangleChannel.reset();
-    this.noiseChannel.reset();
-    this.dmcChannel.reset();
+    this.pulse1.reset();
+    this.pulse2.reset();
+    this.triangle.reset();
+    this.noise.reset();
+    this.dmc.reset();
     this.writeFrameCounter(0);
   }
 
@@ -60,8 +57,8 @@ export default class APU {
     this.frameCounterMax4 = params.frameCounterMax4; // 4-step frame counter
     this.frameCounterMax5 = params.frameCounterMax5; // 5-step frame counter
     this.cpuFrequency = params.cpuFrequency;
-    this.noiseChannel.setRegionParams(params);
-    this.dmcChannel.setRegionParams(params);
+    this.noise.setRegionParams(params);
+    this.dmc.setRegionParams(params);
   }
 
   setOutputEnabled(enabled) {
@@ -97,13 +94,13 @@ export default class APU {
     return this.sampleRate;
   }
 
-  setChannelVolume(id, volume) {
-    log.info(`Setting volume of APU channel #${id} to ${volume}`);
-    this.channelVolumes[id] = volume;
+  setVolume(channel, volume) {
+    log.info(`Setting volume of APU channel #${channel} to ${volume}`);
+    this.volumes[channel] = volume;
   }
 
-  getChannelVolume(id) {
-    return this.channelVolumes[id];
+  getVolume(channel) {
+    return this.volumes[channel];
   }
 
   //=========================================================
@@ -150,23 +147,23 @@ export default class APU {
   //=========================================================
 
   writePulseDutyEnvelope(id, value) {
-    this.getPulseChannel(id).writeDutyEnvelope(value);
+    this.getPulse(id).writeDutyEnvelope(value);
   }
 
   writePulseSweep(id, value) {
-    this.getPulseChannel(id).writeSweep(value);
+    this.getPulse(id).writeSweep(value);
   }
 
   writePulseTimer(id, value) {
-    this.getPulseChannel(id).writeTimer(value);
+    this.getPulse(id).writeTimer(value);
   }
 
   writePulseLengthCounter(id, value) {
-    this.getPulseChannel(id).writeLengthCounter(value);
+    this.getPulse(id).writeLengthCounter(value);
   }
 
-  getPulseChannel(id) {
-    return (id === 1) ? this.pulseChannel1 : this.pulseChannel2;
+  getPulse(id) {
+    return (id === 1) ? this.pulse1 : this.pulse2;
   }
 
   //=========================================================
@@ -174,15 +171,15 @@ export default class APU {
   //=========================================================
 
   writeTriangleLinearCounter(value) {
-    this.triangleChannel.writeLinearCounter(value);
+    this.triangle.writeLinearCounter(value);
   }
 
   writeTriangleTimer(value) {
-    this.triangleChannel.writeTimer(value);
+    this.triangle.writeTimer(value);
   }
 
   writeTriangleLengthCounter(value) {
-    this.triangleChannel.writeLengthCounter(value);
+    this.triangle.writeLengthCounter(value);
   }
 
   //=========================================================
@@ -190,15 +187,15 @@ export default class APU {
   //=========================================================
 
   writeNoiseEnvelope(value) {
-    this.noiseChannel.writeEnvelope(value);
+    this.noise.writeEnvelope(value);
   }
 
   writeNoiseTimer(value) {
-    this.noiseChannel.writeTimer(value);
+    this.noise.writeTimer(value);
   }
 
   writeNoiseLengthCounter(value) {
-    this.noiseChannel.writeLengthCounter(value);
+    this.noise.writeLengthCounter(value);
   }
 
   //=========================================================
@@ -206,19 +203,19 @@ export default class APU {
   //=========================================================
 
   writeDMCFlagsTimer(value) {
-    this.dmcChannel.writeFlagsTimer(value);
+    this.dmc.writeFlagsTimer(value);
   }
 
   writeDMCOutputLevel(value) {
-    this.dmcChannel.writeOutputLevel(value);
+    this.dmc.writeOutputLevel(value);
   }
 
   writeDMCSampleAddress(value) {
-    this.dmcChannel.writeSampleAddress(value);
+    this.dmc.writeSampleAddress(value);
   }
 
   writeDMCSampleLength(value) {
-    this.dmcChannel.writeSampleLength(value);
+    this.dmc.writeSampleLength(value);
   }
 
   //=========================================================
@@ -226,11 +223,11 @@ export default class APU {
   //=========================================================
 
   writeStatus(value) {
-    this.pulseChannel1.setEnabled((value & 0x01) !== 0);
-    this.pulseChannel2.setEnabled((value & 0x02) !== 0);
-    this.triangleChannel.setEnabled((value & 0x04) !== 0);
-    this.noiseChannel.setEnabled((value & 0x08) !== 0);
-    this.dmcChannel.setEnabled((value & 0x10) !== 0);
+    this.pulse1.setEnabled((value & 0x01) !== 0);
+    this.pulse2.setEnabled((value & 0x02) !== 0);
+    this.triangle.setEnabled((value & 0x04) !== 0);
+    this.noise.setEnabled((value & 0x08) !== 0);
+    this.dmc.setEnabled((value & 0x10) !== 0);
   }
 
   readStatus() {
@@ -240,13 +237,13 @@ export default class APU {
   }
 
   getStatus() {
-    return (this.pulseChannel1.lengthCounter > 0)
-       | ((this.pulseChannel2.lengthCounter > 0) << 1)
-       | ((this.triangleChannel.lengthCounter > 0) << 2)
-       | ((this.noiseChannel.lengthCounter > 0) << 3)
-       | ((this.dmcChannel.sampleRemainingLength > 0) << 4)
+    return (this.pulse1.lengthCounter > 0)
+       | ((this.pulse2.lengthCounter > 0) << 1)
+       | ((this.triangle.lengthCounter > 0) << 2)
+       | ((this.noise.lengthCounter > 0) << 3)
+       | ((this.dmc.sampleRemainingLength > 0) << 4)
        | ((this.frameIrqActive) << 6)
-       | ((this.dmcChannel.irqActive) << 7);
+       | ((this.dmc.irqActive) << 7);
   }
 
   //=========================================================
@@ -254,11 +251,11 @@ export default class APU {
   //=========================================================
 
   isBlockingCPU() {
-    return this.dmcChannel.memoryAccessCycles > 0;
+    return this.dmc.memoryAccessCycles > 0;
   }
 
   isBlockingDMA() {
-    return this.dmcChannel.memoryAccessCycles > 2;
+    return this.dmc.memoryAccessCycles > 2;
   }
 
   //=========================================================
@@ -267,11 +264,11 @@ export default class APU {
 
   tick() {
     this.tickFrameCounter();
-    this.pulseChannel1.tick();
-    this.pulseChannel2.tick();
-    this.triangleChannel.tick();
-    this.noiseChannel.tick();
-    this.dmcChannel.tick();
+    this.pulse1.tick();
+    this.pulse2.tick();
+    this.triangle.tick();
+    this.noise.tick();
+    this.dmc.tick();
     if (this.outputEnabled) {
       this.recordOutput();
     }
@@ -315,17 +312,17 @@ export default class APU {
   }
 
   tickQuarterFrame() {
-    this.pulseChannel1.tickQuarterFrame();
-    this.pulseChannel2.tickQuarterFrame();
-    this.triangleChannel.tickQuarterFrame();
-    this.noiseChannel.tickQuarterFrame();
+    this.pulse1.tickQuarterFrame();
+    this.pulse2.tickQuarterFrame();
+    this.triangle.tickQuarterFrame();
+    this.noise.tickQuarterFrame();
   }
 
   tickHalfFrame() {
-    this.pulseChannel1.tickHalfFrame();
-    this.pulseChannel2.tickHalfFrame();
-    this.triangleChannel.tickHalfFrame();
-    this.noiseChannel.tickHalfFrame();
+    this.pulse1.tickHalfFrame();
+    this.pulse2.tickHalfFrame();
+    this.triangle.tickHalfFrame();
+    this.noise.tickHalfFrame();
   }
 
   tickFrameIRQ() {
@@ -339,12 +336,12 @@ export default class APU {
   //=========================================================
 
   getOutput() {
-    const volumes = this.channelVolumes;
-    const pulse1 = volumes[PULSE_1] * this.pulseChannel1.getOutput();
-    const pulse2 = volumes[PULSE_2] * this.pulseChannel2.getOutput();
-    const triangle = volumes[TRIANGLE] * this.triangleChannel.getOutput();
-    const noise = volumes[NOISE] * this.noiseChannel.getOutput();
-    const dmc = volumes[DMC] * this.dmcChannel.getOutput();
+    const {volumes} = this;
+    const pulse1 = volumes[Channel.PULSE_1] * this.pulse1.getOutput();
+    const pulse2 = volumes[Channel.PULSE_2] * this.pulse2.getOutput();
+    const triangle = volumes[Channel.TRIANGLE] * this.triangle.getOutput();
+    const noise = volumes[Channel.NOISE] * this.noise.getOutput();
+    const dmc = volumes[Channel.DMC] * this.dmc.getOutput();
     let output = 0;
     if (pulse1 || pulse2) {
       output += 95.88 / ((8128 / (pulse1 + pulse2)) + 100);
@@ -402,10 +399,3 @@ export default class APU {
   }
 
 }
-
-// Channel IDs - must be specified using string key (closure compiler issue)
-APU['PULSE_1'] = PULSE_1;
-APU['PULSE_2'] = PULSE_2;
-APU['TRIANGLE'] = TRIANGLE;
-APU['NOISE'] = NOISE;
-APU['DMC'] = DMC;
