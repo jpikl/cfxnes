@@ -143,40 +143,32 @@ export default class NES {
 
   renderFrame(buffer) {
     if (this.cartridge) {
-      this.renderNormalFrame(buffer);
+      this.ppu.setFrameBuffer(buffer);
+      while (!this.ppu.isFrameAvailable()) {
+        this.cpu.step();
+      }
+    } else {
+      this.renderWhiteNoise(buffer);
+    }
+  }
+
+  renderDebugFrame(buffer) {
+    if (this.cartridge) {
+      this.ppu.setFrameBuffer(buffer);
+      this.ppu.renderDebugFrame();
     } else {
       this.renderEmptyFrame(buffer);
     }
   }
 
-  renderNormalFrame(buffer) {
-    this.ppu.setFrameBuffer(buffer);
-    while (!this.ppu.isFrameAvailable()) {
-      this.cpu.step();
-    }
-  }
-
-  renderEmptyFrame(buffer) {
+  renderWhiteNoise(buffer) {
     for (let i = 0; i < buffer.length; i++) {
       const color = ~~(0xFF * Math.random());
       buffer[i] = packColor(color, color, color);
     }
   }
 
-  renderDebugFrame(buffer) {
-    if (this.cartridge) {
-      this.renderNormalDebugFrame(buffer);
-    } else {
-      this.renderEmptyDebugFrame(buffer);
-    }
-  }
-
-  renderNormalDebugFrame(buffer) {
-    this.ppu.setFrameBuffer(buffer);
-    this.ppu.renderDebugFrame();
-  }
-
-  renderEmptyDebugFrame(buffer) {
+  renderEmptyFrame(buffer) {
     buffer.fill(BLACK_COLOR);
   }
 

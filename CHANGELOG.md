@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - API to access state of device inputs.
+- API to clear canvas.
 
 ### Changed
 - Switched to JSZip 3.

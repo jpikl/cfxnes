@@ -247,6 +247,12 @@ Once the output is set, it is not possible to change value of the `renderer` pro
 | filter | `string` | yes | `'nearest'` | Filter used during upscaling.<br> `'nearest'`  - Nearest-neighbor interpolation.<br> `'linear'`  - Linear interpolation. |
 | debug | `boolean` | yes | `false` | Enables additional video output (content of pattern tables and background/sprite palettes) to be rendered on canvas. This will also double width of the canvas. |
 
+#### Methods
+
+| Signature | Returns | Description |
+|-----------|---------|-------------|
+| clear() | `void` | Clears canvas. |
+
 ``` javascript
 const nes = cfxnes();
 const {video} = nes;
