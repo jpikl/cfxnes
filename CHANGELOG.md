@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased][unreleased]
 ### Fixed
 - Library AMD export.
+- `mouseup` events are no longer being blocked by running emulator.
 
 ### Added
 - API to access state of device inputs.
