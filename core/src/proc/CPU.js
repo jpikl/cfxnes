@@ -49,7 +49,7 @@ export default class CPU {
     this.registerX = 0;      //  8-bit
     this.registerY = 0;      //  8-bit
     this.setStatus(0);       //  8-bit (will be initialized to 0x34 during handleReset(); actually, only bit 2 will be set,
-                             //         because bits 4 and 5 are not physically stored in status register)
+    //                           because bits 4 and 5 are not physically stored in status register)
   }
 
   resetVariables() {

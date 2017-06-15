@@ -25,8 +25,8 @@ export class MemoryOutputPPU extends PPU {
         png.data[dstPos++] = 255;
       }
       png.pack()
-         .pipe(fs.createWriteStream(file))
-         .on('finish', resolve);
+        .pipe(fs.createWriteStream(file))
+        .on('finish', resolve);
     });
   }
 

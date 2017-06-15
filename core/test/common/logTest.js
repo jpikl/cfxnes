@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 
-import chai, {expect} from 'chai';
+import {expect, use} from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import {setLevel, getLevel, info, warn, error} from '../../src/common/log';
 
-chai.use(sinonChai);
+use(sinonChai);
 
 describe('common/log', () => {
   beforeEach(() => {
