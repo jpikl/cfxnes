@@ -40,7 +40,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - **Complete API overhaul**.
 - Checksums are computed using SHA-1 from PRG RAM and CHR RAM.
-- Multiple cfxnes instaces share the same `AudioContext`.
+- Multiple cfxnes instances share the same `AudioContext`.
 - js-md5 and screenfull.js dependencies are no longer needed.
 - `video.scale` can be any real number > 0.
 
@@ -56,7 +56,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - New color palettes: ASQ, BMF, FCEU(X), Nestopia.
 - Multiple types of fullscreen mode.
 - API for configuration and NVRAM persistance.
-- API for setting loggging level.
+- API for setting logging level.
 
 ### Changed
 - API uses Promises for asynchronous operations.

@@ -14,7 +14,7 @@ See [LICENSE.txt](LICENSE.txt) for more details.
 ## Features
 
 - Supported ROM images: iNES, NES 2.0.
-- Supported mappers: NROM, MMC1, MMC3, UNCOM, CNROM, AOROM, BNROM, NINA-001, Color Dreams.
+- Supported mappers: NROM, MMC1, MMC3, UNROM, CNROM, AOROM, BNROM, NINA-001, Color Dreams.
 - ROM images can be loaded from ZIP archive.
 - Persistence of battery-backed RAM (game saves) in IndexedDB.
 - Rendering using WebGL (with canvas API fallback).

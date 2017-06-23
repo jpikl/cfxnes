@@ -100,7 +100,7 @@ Emulator instance returned by the `cfxnes` function.
 | fps  | `number` | no || Number of frames per second of running emulator. |
 | region | `string` | yes | `'auto'` | Emulated NES region.<br>`'auto'` - Automatic region detection (not very reliable).<br>`'ntsc'` - NTSC region (60 FPS).<br>`'pal'` - PAL region (50 FPS). |
 | speed | `number` | yes | `1` | Emulation speed multiplier. It must be larger than 0. |
-| nvram | `Uint8Array` | no | null | Provides access to NVRAM. NVRAM (Non-Volatile RAM) is a memory that is usually battery-backed and serves as a place for game saves. NVRAM is only used by some games (e.g., The Legend of Zelda or Final Fantasy). The property is `null` when NVRAM is not avaialable. |
+| nvram | `Uint8Array` | no | null | Provides access to NVRAM. NVRAM (Non-Volatile RAM) is a memory that is usually battery-backed and serves as a place for game saves. NVRAM is only used by some games (e.g., The Legend of Zelda or Final Fantasy). The property is `null` when NVRAM is not available. |
 | rom | `object` | no | | [ROM module](#user-content-nesrom) |
 | video | `object` | no | | [Video module](#user-content-nesvideo) |
 | fullscreen | `object` | no | | [Fullscreen module](#user-content-nesfullscreen) |
@@ -281,7 +281,7 @@ It is recommended to wrap used `canvas` element in extra `div` to make fullscree
 | Name | Type | Writable | Default | Description |
 |------|------|----------|---------|-------------|
 | is | `boolean` | no | false | `true` when emulator is in fullscreen mode, `false` otherwise. |
-| type | `string` | yes | `'maximized'` | Type of fullscreen mode.<br>`'maximized'` - Maximizes output resolution while keeping its original aspect ratio.<br>`'normalized'` - Same as the `'maximazed'` type, but output resolution is integer multiple of the base resolution 256x240. This should reduce visual artifacts caused by upscaling.<br>`'stretched'` - Output is stretched to fill the whole screen (both horizontally and vertically). The original aspect ratio is not preserved.|
+| type | `string` | yes | `'maximized'` | Type of fullscreen mode.<br>`'maximized'` - Maximizes output resolution while keeping its original aspect ratio.<br>`'normalized'` - Same as the `'maximized'` type, but output resolution is integer multiple of the base resolution 256x240. This should reduce visual artifacts caused by upscaling.<br>`'stretched'` - Output is stretched to fill the whole screen (both horizontally and vertically). The original aspect ratio is not preserved.|
 
 #### Methods
 
@@ -393,7 +393,7 @@ Examples:
 
 | Name | Type | Writable | Description |
 |------|------|----------|-------------|
-| state |  `object` | no | Submodule that holds state of all inputs.<br> - For buttons, the state is `boolean`. <br> - For `'{1,2}.zapper.beam'`, the state is array of 2 numbers `[x, y]` (beam cordinates). |
+| state |  `object` | no | Submodule that holds state of all inputs.<br> - For buttons, the state is `boolean`. <br> - For `'{1,2}.zapper.beam'`, the state is array of 2 numbers `[x, y]` (beam coordinates). |
 | map | `object` | no | Submodule that holds mapping between inputs. |
 
 #### Methods

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased][unreleased]
 ### Changed
-- *Smothing* video option replaced by *Filter*.
+- *Smoothing* video option replaced by *Filter*.
 
 ## [0.5.0] - 2016-09-29
 ### Fixed
