@@ -1,14 +1,26 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-Changes related to the [cfxnes library](lib) and are kept in a [separate changelog](lib/CHANGELOG.md).
+All notable changes to the cfxnes library will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased][unreleased]
+### Fixed
+- Library AMD export.
+- Blocked `mouseup` events by running emulator.
+
+### Added
+- `input.state` submodule for accessing state of device inputs.
+- `video.clear()` method for clearing canvas.
+
 ### Changed
-- *Smothing* video option replaced by *Filter*.
+- Better error messages.
+- Required JSZip version is >= 3.0.0.
+- Initialization options with `undefined` value are ignored.
+- `video.smoothing` property replaced by `video.filter`.
+- `config.set()` method renamed to `config.use()`.
+- `input.*` mapping methods replaced by `input.map` submodule.
 
 ## [0.5.0] - 2016-09-29
 ### Fixed
@@ -19,11 +31,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Disabled audio in Safari.
 
 ### Added
-- Option to set independent volume of each audio channel.
-- Warning message for disabled JavaScript.
+- Support for setting independent volume of each audio channel through `audio.volume` property.
+- Support for Blob as a ROM source.
+
+### Removed
+- API for configuration and NVRAM persistance.
 
 ### Changed
+- **Complete API overhaul**.
 - Checksums are computed using SHA-1 from PRG RAM and CHR RAM.
+- Multiple cfxnes instaces share the same `AudioContext`.
+- js-md5 and screenfull.js dependencies are no longer needed.
+- `video.scale` can be any real number > 0.
 
 ## [0.4.0] - 2015-11-29
 ### Fixed
@@ -31,33 +50,28 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Size of PRG/CHR RAM read from ROM images (iNES / NES 2.0).
 - MMC1 mapper implementation (PRG RAM protection, PRG ROM mapping).
 - MMC3 mapper implementation (PRG RAM protection, CHR ROM mapping).
-- Crash during attempt to load invalid configuration.
 
 ### Added
 - Support for BNROM, NINA-001 and Color Dreams mappers.
 - New color palettes: ASQ, BMF, FCEU(X), Nestopia.
 - Multiple types of fullscreen mode.
-- Option to reset configuration.
-- Option to delete saved NVRAM data.
+- API for configuration and NVRAM persistance.
+- API for setting loggging level.
 
 ### Changed
-- *Game Library* renamed to *Library*.
-- Only a single reload when multiple files are changed in library directory.
+- API uses Promises for asynchronous operations.
 - Non-volatile RAM is stored in IndexedDB.
-- Vector graphics used where possible.
 - Default audio volume is 50%.
 
 ## [0.3.0] - 2015-08-09
 ### Fixed
 - Mouse cursor detection for Zapper.
-- SVG images scaling in Internet Explorer.
 
 ### Added
 - Gamepad support.
 
 ### Changed
-- Complete UI rewrite in Riot.js.
-- *TV system* option renamed to *Region*.
+- Library can be loaded as AMD or CommonJS module.
 - Input files with size over 10MB are rejected.
 
 ## [0.2.0] - 2015-05-18
@@ -67,12 +81,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Added
 - Support for loading of zipped `.nes` files.
-- Drag 'n' drop visual effect.
-- Option to hide FPS counter.
-- Favicon.
 
 ### Changed
-- UI optimization for small screens.
+- js-md5 and screenfull.js are optional dependencies.
 
 ## 0.1.0 - 2015-04-26
 - Initial version.
