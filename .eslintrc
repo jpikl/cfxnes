@@ -49,7 +49,7 @@
     "import/no-mutable-exports": "error",
     "import/no-named-as-default": "error",
     "import/no-named-default": "error",
-    "import/no-unassigned-import": "error",
+    "import/no-unassigned-import": ["error", {"allow": ["**/*.css"]}],
     "import/no-unresolved": "error",
     "import/no-webpack-loader-syntax": "error",
     "import/order": "warn",
