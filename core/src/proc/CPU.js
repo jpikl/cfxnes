@@ -691,7 +691,8 @@ export default class CPU {
     this.moveProgramCounter(1);             // BRK is 2 byte instruction (skip the unused byte)
     this.pushWord(this.programCounter);
     this.pushByte(this.getStatus() | 0x10); // Push status with bit 4 on (break command flag)
-    this.irqDisabled = this.interruptFlag = 1; // Immediate change to IRQ disablement
+    this.irqDisabled = 1;   // Immediate change to IRQ disablement
+    this.interruptFlag = 1; // Immediate change to IRQ disablement
     this.programCounter = this.readWord(this.activeInterrupts & NMI ? NMI_ADDRESS : IRQ_ADDRESS); // Active NMI hijacks BRK
   }
 

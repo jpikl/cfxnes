@@ -344,13 +344,13 @@ Module that allows to set up input devices.
 
 NES has 2 input ports, each of them can be assigned a device through numeric property. Allowed values are:
 - `'joypad'` - Standard NES controller.
-- `'zapper'` - Zapper (beam gun).
+- `'zapper'` - NES Zapper (beam gun).
 - `null` - No device.
 
 #### Properties
 
 | Number | Type | Writable | Default | Description |
-|------|------|----------|---------|-------------|
+|--------|------|----------|---------|-------------|
 | 1 | `string` | yes | `'joypad'` | Device connected to port #1. |
 | 2 | `string` | yes | `'zapper'` | Device connected to port #2. |
 

@@ -10,7 +10,8 @@ describe('memory/DMA', () => {
   };
 
   beforeEach(() => {
-    reads = writes = 0;
+    reads = 0;
+    writes = 0;
     dma = new DMA;
     dma.connect({cpuMemory});
     dma.reset();

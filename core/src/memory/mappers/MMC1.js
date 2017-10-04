@@ -106,7 +106,9 @@ export default class MMC1 extends Mapper {
     this.mapPRGRAMBank8K(0, this.chrRAM ? this.chrBankRegister1 >>> 2 : 0); // Select 8K PRG RAM bank at $6000 (won't affect SNROM/SUROM with only 8KB PRG RAM)
     const enabled = (this.prgBankRegister & 0x10) === 0; // Ignored on MMC1A (iNES mapper 155)
     const enabledOnSNROM = (this.chrBankRegister1 & 0x10) === 0; // SNROM board also disables PRG RAM when bit 4 of CHR bank register is 1
-    this.canReadPRGRAM = this.canWritePRGRAM = enabled && (!this.snrom || enabledOnSNROM);
+    const canAccessPRGRAM = enabled && (!this.snrom || enabledOnSNROM);
+    this.canReadPRGRAM = canAccessPRGRAM;
+    this.canWritePRGRAM = canAccessPRGRAM;
   }
 
   switchCHRBanks() {
