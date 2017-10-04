@@ -35,6 +35,7 @@
     "eqeqeq": ["error", "smart"],
     "for-direction": "error",
     "func-call-spacing": "warn",
+    "function-paren-newline": ["warn", "consistent"],
     "generator-star-spacing": "warn",
     "import/default": "error",
     "import/export": "error",
@@ -54,8 +55,13 @@
     "import/no-webpack-loader-syntax": "error",
     "import/order": "warn",
     "import/unambiguous": "error",
-    "indent": ["warn", 2, {"SwitchCase": 1, "ObjectExpression": "first", "FunctionDeclaration": {"parameters": "first"}}],
-    "jsx-quotes": "warn",
+    "indent": ["warn", 2, {
+      "SwitchCase": 1,
+      "ObjectExpression": "first",
+      "FunctionDeclaration": {"parameters": "first"},
+      "ignoredNodes": ["JSXAttribute", "JSXSpreadAttribute"]
+    }],
+    "jsx-quotes": ["warn", "prefer-double"],
     "key-spacing": "warn",
     "keyword-spacing": "warn",
     "linebreak-style": "warn",
