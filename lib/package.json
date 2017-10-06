@@ -28,7 +28,7 @@
     "build:debug": "node build.js --debug",
     "watch": "watch 'npm run build' src ../core/src",
     "watch:debug": "watch 'npm run build:debug' src ../core/src",
-    "lint": "eslint src test",
+    "lint": "eslint --report-unused-disable-directives src test \"*.js\"",
     "test:src": "karma start --browsers=Chromium --target=src --no-polyfills",
     "test:lib": "karma start --browsers=Chromium --target=lib --no-polyfills",
     "test:lib:debug": "karma start --browsers=Chromium --target=debug-lib --no-polyfills",

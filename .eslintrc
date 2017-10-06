@@ -9,10 +9,6 @@
   "plugins": [
     "import"
   ],
-  "settings": {
-    "html/indent": "+2",
-    "html/report-bad-indent": "warn"
-  },
   "rules": {
     "array-bracket-spacing": "warn",
     "array-callback-return": "error",

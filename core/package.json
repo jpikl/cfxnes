@@ -22,7 +22,7 @@
     "tools/"
   ],
   "scripts": {
-    "lint": "eslint src test",
+    "lint": "eslint --report-unused-disable-directives src test bin/pal2js",
     "test": "mocha --recursive --compilers js:babel-register",
     "test:base": "mocha --compilers js:babel-register 'test/{,!(roms)}/*Test.js'",
     "test:roms": "mocha --compilers js:babel-register 'test/roms/tests.js'"

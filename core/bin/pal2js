@@ -1,27 +1,30 @@
 #!/bin/node
 
+/* eslint-env node */
+/* eslint-disable import/unambiguous */
+
 const fs = require('fs');
 const path = require('path');
 
-const executable = path.basename(process.argv[1]);
-const inputFile = process.argv[2];
-const outputFile = process.argv[3];
-const print = console.log;
+const {argv, stdout} = process;
+const executable = path.basename(argv[1]);
+const inputFile = argv[2];
+const outputFile = argv[3];
 
 if (!inputFile) {
-  print('Usage: %s input-file [output-file]', executable);
-  print('Converts palette in .pal format to base64 string wrapped in ES6 module.');
+  stdout.write(`Usage: ${executable} input-file [output-file]\n`);
+  stdout.write('Converts palette in .pal format to base64 string wrapped in ES6 module.\n');
   process.exit(0);
 }
 
 const input = fs.readFileSync(inputFile);
-const output = outputFile ? fs.createWriteStream(outputFile) : process.stdout;
+const output = outputFile ? fs.createWriteStream(outputFile) : stdout;
 
 output.write('// Converted from ' + path.basename(inputFile) + ' using ' + executable + '\n');
 output.write('export default \'');
 output.write(input.toString('base64'));
 output.write('\';\n');
 
-if (output !== process.stdout) {
+if (output !== stdout) {
   output.end();
 }
