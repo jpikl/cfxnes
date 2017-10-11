@@ -1,0 +1,10 @@
+@import "../../common/TooltipMixins";
+
+.gamepad-map-button {
+  @mixin tooltip-container;
+  @mixin tooltip-hover-trigger;
+}
+
+.gamepad-map-button + .gamepad-map-button {
+  margin-left: 0.3rem;
+}

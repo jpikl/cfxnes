@@ -1,0 +1,149 @@
+@import "../../styles/common";
+@import "../../styles/themes";
+@import "./TooltipMixins";
+
+.button {
+  position: relative;
+  overflow: visible; /* Fixes tooltips visibility in IE */
+  font-size: 1.4rem;
+  line-height: 2rem;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+
+    & .fa {
+      pointer-events: none; /* Inner elements ignore :disabled state */
+    }
+  }
+
+  &:active,
+  &.active {
+    z-index: 1;
+  }
+
+  &:hover:not(:disabled) {
+    z-index: 2;
+  }
+
+  &:focus {
+    z-index: 3;
+    outline: none;
+  }
+
+  &::-moz-focus-inner {
+    border: 0;
+  }
+
+  &.default,
+  &.primary {
+    padding: 0.6rem 1.2rem;
+    border-style: solid;
+    border-width: 0.1rem;
+    border-radius: 0.4rem;
+
+    &:active,
+    &.active {
+      box-shadow: inset 0 0.3rem 0.5rem rgba(0, 0, 0, 0.125);
+    }
+
+    &:focus::after {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 3;
+      border-radius: 0.4rem;
+      content: "";
+    }
+  }
+
+  &.borderless {
+    padding: 0.2rem 0.3rem; /* To expand :focus border. */
+    margin: -0.2rem; /* To compensate padding. */
+    line-height: 1;
+    color: inherit;
+    background: none;
+    border: none;
+    border-radius: 0.2rem;
+    opacity: 0.75;
+
+    &:disabled {
+      opacity: 0.5;
+    }
+
+    &:not(:disabled):hover {
+      opacity: 1;
+    }
+
+    &:not([tabindex=-1]):focus {
+      opacity: 1;
+    }
+  }
+
+  @mixin tooltip-hover-trigger;
+  @mixin tooltip-container;
+}
+
+@each $theme in $themes {
+  .$theme .button {
+    &.default {
+      color: var(--$(theme)-button-color);
+      background: var(--$(theme)-button-background);
+      border-color: var(--$(theme)-button-border-color);
+
+      &:disabled,
+      &:disabled:hover {
+        color: var(--$(theme)-button-color-disabled);
+        background: var(--$(theme)-button-background-disabled);
+        border-color: var(--$(theme)-button-border-color-disabled);
+      }
+
+      &:hover {
+        background: var(--$(theme)-button-background-hover);
+        border-color: var(--$(theme)-button-border-color-hover);
+      }
+
+      &:active,
+      &.active {
+        background: var(--$(theme)-button-background-active);
+        border-color: var(--$(theme)-button-border-color-active);
+      }
+    }
+
+    &.primary {
+      color: var(--$(theme)-button-primary-color);
+      background: var(--$(theme)-button-primary-background);
+      border-color: var(--$(theme)-button-primary-border-color);
+
+      &:disabled,
+      &:disabled:hover {
+        color: var(--$(theme)-button-primary-color-disabled);
+        background: var(--$(theme)-button-primary-background-disabled);
+        border-color: var(--$(theme)-button-primary-border-color-disabled);
+      }
+
+      &:hover {
+        background: var(--$(theme)-button-primary-background-hover);
+        border-color: var(--$(theme)-button-primary-border-color-hover);
+      }
+
+      &:active,
+      &.active {
+        background: var(--$(theme)-button-primary-background-active);
+        border-color: var(--$(theme)-button-primary-border-color-active);
+      }
+    }
+
+    &.default:focus::after,
+    &.primary:focus::after {
+      box-shadow: var(--focus-box-shadow) var(--$(theme)-focus-color);
+    }
+
+    &.borderless:focus {
+      color: var(--$(theme)-focus-color);
+      box-shadow: var(--focus-box-shadow) var(--$(theme)-focus-color);
+    }
+  }
+}

@@ -1,0 +1,19 @@
+noscript {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: block;
+  text-align: center;
+
+  & p {
+    display: inline-block;
+    padding: 3rem;
+    margin: 5rem auto;
+    font-size: 200%;
+    color: #245269;
+    background: #d9edf7;
+    border: 0.1rem solid #bce8f1;
+    border-radius: 1rem;
+  }
+}

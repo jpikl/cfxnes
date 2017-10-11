@@ -1,0 +1,22 @@
+@import "../../styles/common";
+
+.about-section {
+  max-width: 60rem;
+  padding: 1rem;
+  margin: 0 auto;
+}
+
+.about-logo {
+  display: block;
+  max-height: 30rem;
+  margin: 0 auto;
+}
+
+@media (--lg-screen-or-bigger) {
+  .about-section {
+    display: inline-block;
+    width: 50%;
+    max-width: none;
+    vertical-align: top;
+  }
+}

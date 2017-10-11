@@ -1,0 +1,65 @@
+@import "../../styles/common";
+@import "../../styles/themes";
+@import "./TooltipMixins";
+
+.checkbox {
+  display: inline-block;
+  width: 1.6rem;
+  height: 1.6rem;
+  cursor: default;
+
+  @mixin tooltip-container;
+  @mixin tooltip-hover-trigger;
+}
+
+.checkbox-input {
+  position: absolute;
+  margin: 0;
+  opacity: 0;
+}
+
+.checkbox-box {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  border-style: solid;
+  border-width: 0.1rem;
+  border-radius: 0.3rem;
+}
+
+.checkbox-input:checked + .checkbox-box::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-family: FontAwesome;
+  font-size: 1rem;
+  content: "\f00c";
+  transform: translate(-50%, -50%);
+}
+
+.checkbox-label {
+  margin-left: 1rem;
+}
+
+@each $theme in $themes {
+  .$theme {
+    & .checkbox-box {
+      background: var(--$(theme)-checkbox-background);
+      border-color: var(--$(theme)-checkbox-border-color);
+    }
+
+    & .checkbox-input:--focus-like + .checkbox-box {
+      box-shadow: var(--focus-box-shadow-lg) var(--$(theme)-focus-color);
+    }
+
+    & .checkbox-input:checked + .checkbox-box {
+      background: var(--$(theme)-checkbox-background-checked);
+      border-color: var(--$(theme)-checkbox-border-color-checked);
+    }
+
+    & .checkbox-input:checked + .checkbox-box::before {
+      color: var(--$(theme)-checkbox-color-checked);
+    }
+  }
+}

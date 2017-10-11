@@ -1,0 +1,18 @@
+@import "../../styles/themes";
+
+.popup {
+  position: absolute;
+  z-index: 20;
+  padding: 1rem;
+  border-style: solid;
+  border-width: 0.1rem;
+  border-radius: 0.4rem;
+}
+
+@each $theme in $themes {
+  .$theme .popup {
+    background: var(--$(theme)-popup-background);
+    border-color: var(--$(theme)-popup-border-color);
+    box-shadow: 0 0.6rem 1.2rem var(--$(theme)-shadow-color);
+  }
+}

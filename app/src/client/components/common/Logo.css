@@ -1,0 +1,7 @@
+@import "../../styles/themes";
+
+@each $theme in $themes {
+  .$theme .logo {
+    filter: var(--$(theme)-logo-filter);
+  }
+}

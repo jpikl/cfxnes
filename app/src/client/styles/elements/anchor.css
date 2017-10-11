@@ -1,0 +1,30 @@
+@import "../themes";
+
+a {
+  padding: 0.2rem; /* To expand :focus border. */
+  margin: -0.2rem; /* To compensate padding. */
+  text-decoration: none;
+  border-radius: 0.2rem;
+  outline: none;
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
+}
+
+@each $theme in $themes {
+  .$theme a {
+    color: var(--$(theme)-anchor-color);
+
+    &:hover,
+    &:focus {
+      color: var(--$(theme)-anchor-color-hover);
+    }
+
+    &:focus {
+      box-shadow: var(--focus-box-shadow) var(--$(theme)-focus-color);
+    }
+  }
+}
+

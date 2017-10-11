@@ -1,0 +1,43 @@
+@import "../../styles/common";
+@import "../../styles/themes";
+
+.message {
+  display: flex;
+  padding: 1.5rem;
+  border-style: solid;
+  border-width: 0.1rem;
+  border-radius: 0.4rem;
+  align-items: flex-start;
+}
+
+.message-body {
+  flex-grow: 1;
+
+  & a {
+    font-weight: 700;
+  }
+
+  & > :--heading:first-child {
+    margin-top: 0;
+  }
+}
+
+.message-close {
+  position: relative;
+  bottom: 0.2rem;
+  left: 0.2rem;
+}
+
+@each $theme in $themes {
+  @each $type in (info, error) {
+    .$theme .message.$type {
+      color: var(--$(theme)-message-$(type)-color);
+      background: var(--$(theme)-message-$(type)-background);
+      border-color: var(--$(theme)-message-$(type)-border-color);
+
+      & a {
+        color: var(--$(theme)-message-$(type)-anchor-color);
+      }
+    }
+  }
+}

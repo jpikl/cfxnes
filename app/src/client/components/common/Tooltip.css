@@ -1,0 +1,125 @@
+@import "../../styles/themes";
+@import "./TooltipMixins";
+
+:root {
+  --tooltip-triangle-size: 1rem;
+  --tooltip-triangle-space: 0.4rem;
+  --tooltip-triangle-position: calc(var(--tooltip-triangle-space) - var(--tooltip-triangle-size));
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 30;
+  display: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 1.3rem;
+  white-space: nowrap;
+  pointer-events: none;
+  border-radius: 0.5rem;
+
+  &::before {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: var(--tooltip-triangle-size) solid transparent;
+    content: "";
+  }
+
+  &.top,
+  &.top::before,
+  &.bottom,
+  &.bottom::before {
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
+
+  &.left,
+  &.left::before,
+  &.right,
+  &.right::before {
+    top: 50%;
+    transform: translate(0, -50%);
+  }
+
+  &.left,
+  &.right {
+    padding-bottom: 0.3rem; /* Fixes weird Firefox issue - text isn't correctly centered vertically */
+  }
+
+  &.top {
+    bottom: 100%;
+    margin-bottom: var(--tooltip-triangle-size);
+  }
+
+  &.top::before {
+    bottom: var(--tooltip-triangle-position);
+    border-bottom-width: 0;
+  }
+
+  &.bottom {
+    top: 100%;
+    margin-top: var(--tooltip-triangle-size);
+  }
+
+  &.bottom::before {
+    top: var(--tooltip-triangle-position);
+    border-top-width: 0;
+  }
+
+  &.right {
+    left: 100%;
+    margin-left: var(--tooltip-triangle-size);
+  }
+
+  &.right::before {
+    left: var(--tooltip-triangle-position);
+    border-left-width: 0;
+  }
+
+  &.left {
+    right: 100%;
+    margin-right: var(--tooltip-triangle-size);
+  }
+
+  &.left::before {
+    right: var(--tooltip-triangle-position);
+    border-right-width: 0;
+  }
+}
+
+.tooltip-container {
+  display: inline-flex;
+
+  &.hover-trigger {
+    @mixin tooltip-hover-trigger;
+  }
+
+  &.active-trigger {
+    @mixin tooltip-hover-trigger;
+  }
+
+  @mixin tooltip-container;
+}
+
+@each $theme in $themes {
+  .$theme .tooltip {
+    color: var(--$(theme)-tooltip-color);
+    background: var(--$(theme)-tooltip-background);
+
+    &.top::before {
+      border-top-color: var(--$(theme)-tooltip-background);
+    }
+
+    &.bottom::before {
+      border-bottom-color: var(--$(theme)-tooltip-background);
+    }
+
+    &.right::before {
+      border-right-color: var(--$(theme)-tooltip-background);
+    }
+
+    &.left::before {
+      border-left-color: var(--$(theme)-tooltip-background);
+    }
+  }
+}

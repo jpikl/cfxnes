@@ -1,0 +1,20 @@
+.combo-box {
+  position: relative;
+  display: inline-block;
+}
+
+.combo-box-select {
+  width: 100%;
+  appearance: none;
+
+  &::-ms-expand {
+    display: none;
+  }
+}
+
+.combo-box-caret {
+  position: absolute;
+  top: 0.8rem;
+  right: 1rem;
+  pointer-events: none;
+}

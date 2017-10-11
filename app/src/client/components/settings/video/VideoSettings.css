@@ -1,0 +1,24 @@
+@import "../../../styles/common";
+
+.video-fields-2 .video-debug-field {
+  margin-top: 2rem;
+}
+
+@media (--sm-screen-or-smaller) {
+  .video-fields-1 {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (--md-screen-or-bigger) {
+  .video-fields-1,
+  .video-fields-2 {
+    display: inline-block;
+    width: 50%;
+    vertical-align: top;
+  }
+
+  .video-fields-2 {
+    padding-left: 2rem;
+  }
+}

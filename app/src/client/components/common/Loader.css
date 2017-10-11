@@ -1,0 +1,13 @@
+.loader {
+  &.inverse {
+    color: white;
+  }
+
+  & > * {
+    vertical-align: middle;
+  }
+}
+
+.loader-text {
+  margin-left: 1rem;
+}

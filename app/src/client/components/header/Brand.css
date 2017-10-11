@@ -1,0 +1,64 @@
+@import "../../styles/common";
+@import "../../styles/themes";
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.brand-link {
+  padding: 0.5rem 1.5rem;
+  margin: 0;
+  border-radius: 0;
+}
+
+.brand-logo,
+.brand-title {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.brand-logo {
+  width: 4.2rem;
+  margin-right: 1rem;
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: normal;
+}
+
+.brand-collapser {
+  margin-right: 0.5rem;
+  margin-left: auto;
+}
+
+@media (--sm-screen-or-smaller) {
+  .header:not(.collapsed) .brand {
+    border-bottom-style: solid;
+    border-bottom-width: 0.1rem;
+  }
+}
+
+@media (--md-screen-or-bigger) {
+  .brand-collapser {
+    display: none;
+  }
+}
+
+@each $theme in $themes {
+  .$theme {
+    & .brand {
+      border-bottom-color: var(--$(theme)-header-background-active);
+    }
+
+    & .brand-link:focus {
+      box-shadow: inset var(--focus-box-shadow) var(--$(theme)-focus-color);
+    }
+
+    & .brand-title {
+      color: var(--$(theme)-header-color);
+    }
+  }
+}

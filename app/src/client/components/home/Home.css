@@ -1,0 +1,37 @@
+@import "../../styles/themes";
+@import "../common/MainVariables";
+
+:root {
+  --home-padding: calc(2 * var(--main-padding));
+}
+
+.home {
+  position: relative;
+  padding: var(--home-padding);
+  text-align: center;
+}
+
+.home-heading {
+  font-size: 4.5rem;
+  font-weight: bold;
+}
+
+.home-logo {
+  max-height: 20rem;
+}
+
+.home-nav {
+  margin-top: 3rem;
+}
+
+.home-theme-switch {
+  position: absolute;
+  top: var(--home-padding);
+  right: var(--home-padding);
+}
+
+@each $theme in $themes {
+  .$theme .home-heading {
+    color: var(--$(theme)-logo-color);
+  }
+}

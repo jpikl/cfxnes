@@ -1,0 +1,21 @@
+@import "../../../styles/common";
+
+@media (--xs-screen) {
+  .controls + .controls {
+    margin-top: 2rem;
+  }
+}
+
+@media (--sm-screen-or-bigger) {
+  .controls {
+    display: inline-block;
+    width: 50%;
+    padding-right: 1rem;
+    vertical-align: top;
+
+    & + .controls {
+      padding-right: 0;
+      padding-left: 1rem;
+    }
+  }
+}

@@ -1,0 +1,11 @@
+@custom-media --xs-screen            screen and (width < 576px);
+@custom-media --sm-screen-or-bigger  screen and (width >= 576px);
+@custom-media --sm-screen            screen and (width >= 576px) and (width < 768px);
+@custom-media --sm-screen-or-smaller screen and (width < 768px);
+@custom-media --md-screen-or-bigger  screen and (width >= 768px);
+@custom-media --md-screen            screen and (width >= 768px) and (width < 992px);
+@custom-media --md-screen-or-smaller screen and (width < 992px);
+@custom-media --lg-screen-or-bigger  screen and (width >= 992px);
+@custom-media --lg-screen            screen and (width >= 992px) amd (width < 1200px);
+@custom-media --lg-screen-or-smaller screen and (width < 1200px);
+@custom-media --xl-screen            screen and (width >= 1200px);

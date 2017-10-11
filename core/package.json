@@ -23,9 +23,9 @@
   ],
   "scripts": {
     "lint": "eslint --report-unused-disable-directives src test bin/pal2js",
-    "test": "mocha --recursive --compilers js:babel-register",
-    "test:base": "mocha --compilers js:babel-register 'test/{,!(roms)}/*Test.js'",
-    "test:roms": "mocha --compilers js:babel-register 'test/roms/tests.js'"
+    "test": "mocha --recursive --require babel-register",
+    "test:base": "mocha --require babel-register 'test/{,!(roms)}/*Test.js'",
+    "test:roms": "mocha ---require babel-register 'test/roms/tests.js'"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

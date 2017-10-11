@@ -1,0 +1,3 @@
+.run-toggle .fa {
+  width: 0.9em; /* custom width instead of using .fw which makes the button too wide */
+}

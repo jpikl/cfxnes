@@ -1,0 +1,12 @@
+@import "../../../styles/themes";
+
+.fps-counter {
+  display: inline-block;
+  padding: 0 1rem;
+}
+
+@each $theme in $themes {
+  .$theme .fps-counter {
+    color: var(--$(theme)-header-color);
+  }
+}

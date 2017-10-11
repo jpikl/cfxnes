@@ -1,0 +1,13 @@
+@import "../../styles/common";
+
+@media (--sm-screen-or-smaller) {
+  .header.collapsed .nav {
+    display: none;
+  }
+}
+
+@media (--sm-screen-or-bigger) {
+  .nav {
+    display: inline-block;
+  }
+}

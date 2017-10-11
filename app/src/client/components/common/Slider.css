@@ -1,0 +1,88 @@
+@import "./RangeInputVariables";
+@import "./TooltipMixins";
+
+:root {
+  --slider-height: var(--range-input-height);
+  --slider-vertical-width: var(--slider-height);
+  --slider-vertical-height: 15rem;
+  --slider-vertical-origin: calc(0.5 * var(--slider-vertical-height));
+  --slider-meter-space: 6rem;
+  --slider-meter-translation: calc(1.2 * var(--slider-height));
+  --slider-decorations-padding: calc(0.5 * var(--range-input-thumb-size));
+}
+
+.slider {
+  position: relative;
+  display: inline-block;
+  padding: 0;
+
+  &.horizontal {
+    height: var(--slider-height);
+
+    &.marked {
+      padding-bottom: var(--slider-meter-space);
+    }
+  }
+
+  &.vertical {
+    width: var(--slider-vertical-width);
+    height: var(--slider-vertical-height);
+
+    &.marked {
+      padding-right: var(--slider-meter-space);
+    }
+  }
+
+  @mixin tooltip-hover-trigger;
+  @mixin tooltip-active-trigger;
+}
+
+.slider-input {
+  @nest .slider.horizontal & {
+    width: 100%;
+  }
+
+  @nest .slider.vertical & {
+    width: var(--slider-vertical-height);
+    transform: rotate(-90deg);
+    transform-origin: var(--slider-vertical-origin) var(--slider-vertical-origin);
+  }
+}
+
+.slider-decorations {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+
+  @nest .slider.horizontal & {
+    padding: 0 var(--slider-decorations-padding);
+  }
+
+  @nest .slider.vertical & {
+    padding: var(--slider-decorations-padding) 0;
+  }
+}
+
+.slider-meter {
+  position: relative;
+
+  &.meter.horizontal {
+    top: var(--slider-meter-translation);
+    width: 100%;
+  }
+
+  &.meter.vertical {
+    left: var(--slider-meter-translation);
+    height: 100%;
+  }
+}
+
+.slider-tooltip-container {
+  width: 100%;
+  height: 100%;
+
+  @mixin tooltip-container;
+}

@@ -1,0 +1,14 @@
+@import "../../styles/themes";
+
+.app {
+  display: flex;
+  height: 100%;
+  overflow-x: hidden; /* Some tooltips overflow and cause horizontal srollbars to appear */
+  flex-direction: column;
+}
+
+@each $theme in $themes {
+  .$theme.app {
+    color: var(--$(theme)-app-color);
+  }
+}

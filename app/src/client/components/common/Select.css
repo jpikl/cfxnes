@@ -1,0 +1,12 @@
+@import "../../styles/common";
+@import "../../styles/themes";
+@import "./InputMixins";
+
+@mixin text-like-input .select;
+
+@each $theme in $themes {
+  .$theme .select:--focus-like:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 var(--$(theme)-app-color);
+  }
+}

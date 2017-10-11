@@ -1,0 +1,20 @@
+@import "../../styles/themes";
+@import "./MainVariables";
+
+.main {
+  padding: var(--main-padding);
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
+.main-content {
+  max-width: 86.4rem;
+  padding: 0;
+  margin: 0 auto;
+}
+
+@each $theme in $themes {
+  .$theme .main {
+    background: var(--$(theme)-main-background);
+  }
+}

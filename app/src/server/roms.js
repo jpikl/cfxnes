@@ -1,30 +1,24 @@
 import fs from 'fs';
 import path from 'path';
+import {Router} from 'express';
 
-const romDir = path.join(__dirname, 'roms');
+let romDir;
 let romList = [];
 let romMap = {};
 let fileMap = {};
 let scanTimer;
 
-//=========================================================
-// API
-//=========================================================
+const BASE_URL = '/api/roms';
+const FILES_URL = `${BASE_URL}/files`;
 
-export function start() {
-  if (!fs.existsSync(romDir)) {
-    fs.mkdirSync(romDir);
-  }
-  fs.watch(romDir, refresh);
-  refresh();
-}
+export const router = new Router;
 
-export function list(req, res) {
+router.get(BASE_URL, (req, res) => {
   res.json(romList);
-}
+});
 
-export function get(req, res) {
-  const id = req.params.id;
+router.get(`${BASE_URL}/:id`, (req, res) => {
+  const {id} = req.params;
   if (id == null) {
     res.status(400).send('Missing ROM ID.');
     return;
@@ -37,10 +31,10 @@ export function get(req, res) {
   }
 
   res.json(rom);
-}
+});
 
-export function download(req, res) {
-  const name = req.params.name;
+router.get(`${FILES_URL}/:name`, (req, res) => {
+  const {name} = req.params;
   if (name == null) {
     res.status(400).send('Missing filename.');
     return;
@@ -53,13 +47,18 @@ export function download(req, res) {
   }
 
   res.download(file, name);
+});
+
+export function watch(dir) {
+  romDir = dir;
+  if (!fs.existsSync(romDir)) {
+    fs.mkdirSync(romDir);
+  }
+  fs.watch(romDir, scheduleScan);
+  scheduleScan();
 }
 
-//=========================================================
-// Scanning
-//=========================================================
-
-function refresh() {
+function scheduleScan() {
   clearTimeout(scanTimer);
   scanTimer = setTimeout(scan, 1000);
 }
@@ -82,7 +81,7 @@ function scan() {
     const rom = {
       id: makeId(romFile),
       name: getBasename(romFile),
-      file: `/files/${romName}`,
+      file: `${FILES_URL}/${romName}`,
     };
 
     romList.push(rom);
@@ -92,7 +91,7 @@ function scan() {
     if (imageFile) {
       const imageName = sanitizeName(imageFile);
       fileMap[imageName] = path.join(romDir, imageFile);
-      rom.thumbnail = `/files/${imageName}`;
+      rom.thumbnail = `${FILES_URL}/${imageName}`;
     }
   }
 
@@ -103,18 +102,18 @@ function scan() {
 
 function makeId(file) {
   return path.basename(file, path.extname(file))
-         .replace(/[ _\-]+/g, ' ').trim()
-         .replace(/[^a-zA-Z0-9 ]+/g, '')
-         .replace(/ +/g, '-')
-         .toLowerCase();
+    .replace(/[ _-]+/g, ' ').trim()
+    .replace(/[^a-zA-Z0-9 ]+/g, '')
+    .replace(/ +/g, '-')
+    .toLowerCase();
 }
 
 function sanitizeName(file) {
   const ext = path.extname(file);
   return path.basename(file, ext)
-         .replace(/[ _\-]+/g, ' ').trim()
-         .replace(/[^a-zA-Z0-9 ]+/g, '')
-         .replace(/ +/g, '_') + ext;
+    .replace(/[ _-]+/g, ' ').trim()
+    .replace(/[^a-zA-Z0-9 ]+/g, '')
+    .replace(/ +/g, '_') + ext;
 }
 
 function getBasename(file) {

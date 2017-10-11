@@ -1,0 +1,14 @@
+.info {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: baseline;
+}
+
+.info-icon {
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.info-content {
+  flex-grow: 1;
+}

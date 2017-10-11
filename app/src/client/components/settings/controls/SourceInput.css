@@ -1,0 +1,38 @@
+@import "../../../styles/themes";
+
+.source-input {
+  display: inline-block;
+  padding: 0 0.5rem;
+  margin: 0.2rem;
+  white-space: nowrap;
+  border-style: solid;
+  border-width: 0.1rem;
+  border-radius: 0.2rem;
+}
+
+.source-input-icon {
+  margin-right: 0.4rem;
+}
+
+.source-input-remove.button {
+  margin-left: 0.2rem;
+}
+
+.source-input-unset {
+  display: inline-block;
+  margin: 0.3rem;
+}
+
+@each $theme in $themes {
+  .$theme .source-input {
+    background: var(--$(theme)-button-background);
+    border-color: var(--$(theme)-button-border-color);
+  }
+
+  @each $type in (info, error) {
+    .$theme .$type .source-input {
+      background: none;
+      border-color: color(var(--$(theme)-message-$(type)-color) alpha(33%));
+    }
+  }
+}

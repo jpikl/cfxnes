@@ -2,7 +2,7 @@
 
 JavaScript NES emulator and emulation library.
 
-![cfxnes logo](app/src/client/images/logo.png)
+![cfxnes logo](logo.png)
 
 :video_game: Try out [cfxnes online](https://cfxnes.herokuapp.com).
 

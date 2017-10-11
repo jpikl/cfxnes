@@ -1,0 +1,198 @@
+@import "../../styles/common";
+@import "../../styles/themes";
+@import "./RangeInputVariables";
+
+.input[type=range] {
+  height: var(--range-input-height);
+  padding: 0; /* Clear padding in IE */
+  margin: 0;
+  font-size: 1rem; /* Fix font size in IE, Edge */
+  background: transparent;
+  appearance: none;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:--focus-like {
+    border-radius: 0.4rem;
+  }
+
+  /********** Chrome **********/
+
+  /* No support for filled track styling. */
+
+  &::-webkit-slider-runnable-track {
+    height: var(--range-input-track-height);
+    border-radius: var(--range-input-track-border-radius);
+  }
+
+  &::-webkit-slider-thumb {
+    width: var(--range-input-thumb-size);
+    height: var(--range-input-thumb-size);
+    margin-top: calc(0.5 * (var(--range-input-track-height) - var(--range-input-thumb-size)));
+    border-radius: 50%;
+    transition: 0.1s;
+    appearance: none;
+  }
+
+  &:not(:disabled)::-webkit-slider-thumb:active {
+    width: var(--range-input-thumb-size-active);
+    height: var(--range-input-thumb-size-active);
+    margin-top: calc(0.5 * (var(--range-input-track-height) - var(--range-input-thumb-size-active)));
+  }
+
+  /********** Firefox **********/
+
+  /* No support for thumb animation. */
+
+  &::-moz-range-track {
+    height: var(--range-input-track-height);
+    border-radius: var(--range-input-track-border-radius);
+  }
+
+  &::-moz-range-thumb {
+    width: var(--range-input-thumb-size);
+    height: var(--range-input-thumb-size);
+    border: none;
+    border-radius: 50%;
+  }
+
+  &:not(:disabled)::-moz-range-thumb:active {
+    width: var(--range-input-thumb-size-active);
+    height: var(--range-input-thumb-size-active);
+  }
+
+  &.filled::-moz-range-progress {
+    background: var(--$(theme)-slider-thumb-background);
+    border-style: solid;
+    border-width: 0.1rem;
+    border-radius: var(--range-input-track-border-radius);
+  }
+
+  &::-moz-focus-outer {
+    border: 0;
+  }
+
+  /********** IE, Edge **********/
+
+  /* No support for thumb animation.
+     Thumb resizing is buggy, so we rather disable it.
+     Some webkit properties are being applied and need to be overriden with !important. */
+
+  &::-ms-track {
+    height: var(--range-input-track-height);
+    color: transparent; /* Hide markings in IE */
+    border: none;
+    border-radius: var(--range-input-track-border-radius);
+  }
+
+  &::-ms-thumb {
+    width: var(--range-input-thumb-size);
+    height: var(--range-input-thumb-size);
+    margin-top: 0 !important;
+    border: none; /* Remove border in IE */
+    border-radius: 50%;
+  }
+
+  &:not(:disabled)::-ms-thumb:active {
+    width: var(--range-input-thumb-size) !important;
+    height: var(--range-input-thumb-size) !important;
+    margin-top: 0 !important;
+  }
+
+  &::-ms-fill-lower {
+    display: none;
+  }
+
+  &.filled::-ms-fill-lower {
+    display: block;
+    border-radius: var(--range-input-track-border-radius);
+  }
+
+  &::-ms-tooltip {
+    display: none;
+  }
+}
+
+@each $theme in $themes {
+  .$theme .input[type=range] {
+    &:--focus-like {
+      box-shadow: var(--focus-box-shadow) var(--$(theme)-focus-color);
+    }
+
+    /********** Chrome **********/
+
+    /* No support for filled track styling. */
+
+    &::-webkit-slider-runnable-track {
+      background: var(--$(theme)-slider-track-background);
+    }
+
+    &:disabled::-webkit-slider-runnable-track {
+      background: var(--$(theme)-slider-track-background-disabled);
+    }
+
+    &::-webkit-slider-thumb {
+      background: var(--$(theme)-slider-thumb-background);
+    }
+
+    &:disabled::-webkit-slider-thumb {
+      background: var(--$(theme)-slider-thumb-background-disabled);
+    }
+
+    /********** Firefox **********/
+
+    &::-moz-range-track {
+      background: var(--$(theme)-slider-track-background);
+    }
+
+    &:disabled::-moz-range-track {
+      background: var(--$(theme)-slider-track-background-disabled);
+    }
+
+    &::-moz-range-thumb {
+      background: var(--$(theme)-slider-thumb-background);
+    }
+
+    &:disabled::-moz-range-thumb {
+      background: var(--$(theme)-slider-thumb-background-disabled);
+    }
+
+    &.filled::-moz-range-progress {
+      background: var(--$(theme)-slider-thumb-background);
+      border-color: var(--$(theme)-slider-thumb-background);
+    }
+
+    &.filled:disabled::-moz-range-progress {
+      background: var(--$(theme)-slider-thumb-background-disabled);
+      border-color: var(--$(theme)-slider-thumb-background-disabled);
+    }
+
+    /********** IE, Edge **********/
+
+    &::-ms-track {
+      background: var(--$(theme)-slider-track-background);
+    }
+
+    &:disabled::-ms-track {
+      background: var(--$(theme)-slider-track-background-disabled);
+    }
+
+    &::-ms-thumb {
+      background: var(--$(theme)-slider-thumb-background);
+    }
+
+    &:disabled::-ms-thumb {
+      background: var(--$(theme)-slider-thumb-background-disabled);
+    }
+
+    &.filled::-ms-fill-lower {
+      background: var(--$(theme)-slider-thumb-background);
+    }
+
+    &.filled:disabled::-ms-fill-lower {
+      background: var(--$(theme)-slider-thumb-background-disabled);
+    }
+  }
+}

@@ -1,0 +1,56 @@
+@import "../../styles/themes";
+
+:root {
+  --rom-margin: 0.4rem;
+  --rom-padding: 0.4rem;
+  --rom-thumbnail-width: 12.8rem;
+  --rom-thumbnail-height: 12.8rem;
+}
+
+.rom {
+  display: inline-block;
+  width: calc(var(--rom-thumbnail-width) + 2 * var(--rom-padding));
+  padding: var(--rom-padding);
+  margin: var(--rom-margin);
+  text-align: center;
+  vertical-align: top;
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+
+    & .rom-thumbnail::after {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      font-family: FontAwesome;
+      font-size: 300%;
+      line-height: 3em;
+      content: "\f04b";
+    }
+
+    & .rom-thumbnail-img {
+      opacity: 0.5;
+    }
+  }
+}
+
+.rom-thumbnail {
+  position: relative;
+  width: var(--rom-thumbnail-width);
+  height: var(--rom-thumbnail-height);
+  margin-bottom: var(--rom-padding);
+}
+
+.rom-thumbnail-img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+@each $theme in $themes {
+  .$theme .rom {
+    color: var(--$(theme)-app-color);
+  }
+}

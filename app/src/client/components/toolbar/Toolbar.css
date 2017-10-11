@@ -1,0 +1,35 @@
+@import "../../styles/common";
+@import "../../styles/themes";
+
+.toolbar {
+  display: flex;
+  padding: 0 0.5rem;
+  flex-wrap: wrap;
+  flex-grow: 1;
+  align-items: center;
+
+  & > * {
+    margin: 0.5rem 0.2rem;
+  }
+
+  & > .toolbar-theme-switch {
+    margin-left: auto;
+  }
+}
+
+@media (--sm-screen-or-smaller) {
+  .toolbar {
+    border-top-style: solid;
+    border-top-width: 0.1rem;
+  }
+
+  .header.collapsed .toolbar {
+    display: none;
+  }
+}
+
+@each $theme in $themes {
+  .$theme .toolbar {
+    border-top-color: var(--$(theme)-header-background-active);
+  }
+}

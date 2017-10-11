@@ -1,0 +1,3 @@
+@import "./InputMixins";
+
+@mixin text-like-input .input[type=search];

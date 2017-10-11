@@ -1,0 +1,38 @@
+@import "../../styles/common";
+@import "../../styles/themes";
+
+@define-mixin text-like-input $selector {
+  $(selector) {
+    padding: 0.6rem 1.2rem;
+    font-size: inherit;
+    border-style: solid;
+    border-width: 0.1rem;
+    border-radius: 0.4rem;
+
+    &:--focus-like {
+      outline: none;
+    }
+  }
+
+  @each $theme in $themes {
+    .$theme $(selector) {
+      color: var(--$(theme)-app-color);
+      background-color: var(--$(theme)-input-background);
+      border-color: var(--$(theme)-input-border-color);
+      box-shadow: inset var(--focus-box-shadow) var(--$(theme)-input-shadow-color);
+
+      &:disabled {
+        color: var(--$(theme)-input-disabled-color);
+        background: var(--$(theme)-input-disabled-background);
+      }
+
+      &:--focus-like {
+        box-shadow: inset var(--focus-box-shadow) var(--$(theme)-input-shadow-color), var(--focus-box-shadow) var(--$(theme)-focus-color);
+      }
+
+      &::placeholder {
+        color: var(--$(theme)-input-placeholder-color);
+      }
+    }
+  }
+}

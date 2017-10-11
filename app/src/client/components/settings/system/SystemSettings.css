@@ -1,0 +1,7 @@
+@import "../../../styles/common";
+
+@media (--md-screen-or-bigger) {
+  .system-settings .field {
+    width: 50%;
+  }
+}

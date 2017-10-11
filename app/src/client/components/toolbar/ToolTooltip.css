@@ -1,0 +1,6 @@
+.tool-tooltip-label + .tool-tooltip-shortcut {
+  display: block;
+  font-size: 90%;
+  line-height: 1.2;
+  opacity: 0.7;
+}

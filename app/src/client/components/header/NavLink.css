@@ -1,0 +1,75 @@
+@import "../../styles/common";
+@import "../../styles/themes";
+@import "../common/TooltipMixins";
+
+.nav-link {
+  display: block;
+  padding: 0.9rem 1.5rem;
+  margin: 0;
+  border-radius: 0;
+
+  &,
+  &:hover,
+  &:focus {
+    text-decoration: none;
+  }
+}
+
+.nav-link-icon.fa {
+  padding: 0.4rem 0;
+  vertical-align: middle;
+}
+
+.nav-link-label {
+  margin-left: 0.8rem;
+  vertical-align: middle;
+}
+
+@media (--sm-screen-or-bigger) {
+  .nav-link {
+    display: inline-block;
+  }
+}
+
+@media (--sm-screen) {
+  .nav-link {
+    padding: 1.15rem 1.5rem;
+  }
+}
+
+@media (--md-screen-or-bigger) {
+  .nav-link {
+    padding: 1.5rem;
+  }
+}
+
+@media (--md-screen) {
+  .nav-link {
+    @mixin tooltip-container;
+    @mixin tooltip-hover-trigger;
+  }
+
+  .nav-link-label {
+    display: none;
+  }
+}
+
+@each $theme in $themes {
+  .$theme .nav-link {
+    color: var(--$(theme)-header-color);
+
+    &:hover,
+    &.active {
+      color: var(--$(theme)-header-color-active);
+    }
+
+    &.active {
+      background: var(--$(theme)-header-background-active);
+    }
+
+    &:focus {
+      color: var(--$(theme)-header-color);
+      box-shadow: inset var(--focus-box-shadow) var(--$(theme)-focus-color);
+    }
+  }
+}

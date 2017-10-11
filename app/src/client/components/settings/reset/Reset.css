@@ -1,0 +1,31 @@
+@import "../../../styles/common";
+
+@media (--sm-screen-or-smaller) {
+  .reset + .reset {
+    margin-top: 2rem;
+  }
+
+  .reset-description {
+    padding-top: 1rem;
+  }
+}
+
+@media (--md-screen-or-bigger) {
+  .reset {
+    display: table-row;
+  }
+
+  .reset-action,
+  .reset-description {
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+  .reset-action .button {
+    width: 20rem;
+  }
+
+  .reset-description {
+    padding: 1rem 0 1rem 2rem;
+  }
+}

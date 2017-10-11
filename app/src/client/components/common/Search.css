@@ -1,0 +1,37 @@
+.search {
+  position: relative;
+  display: inline-block;
+  width: 200px;
+}
+
+.search-input.input {
+  width: 100%;
+  padding-right: 3rem;
+  padding-left: 3rem;
+  appearance: textfield;
+
+  &::-webkit-search-decoration,
+  &::-webkit-search-cancel-button,
+  &::-webkit-search-results-button,
+  &::-webkit-search-results-decoration {
+    display: none;
+  }
+
+  &::-ms-clear {
+    display: none;
+  }
+}
+
+.search-icon {
+  position: absolute;
+  top: 0.8rem;
+  left: 1rem;
+  padding: 0 0.1rem;
+  opacity: 0.5;
+}
+
+.search-clear {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.75rem;
+}

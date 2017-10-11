@@ -13,7 +13,7 @@ JavaScript library for NES emulation in web browser.
 - Opera 38+
 - Safari 9+
 
-IE 11, Edge 12 and Safari 9 need polyfill for some ES6 features ([core-js shim](https://github.com/zloirock/core-js) is recommended).
+IE 11 and Safari 9 need [polyfill for some ES6 features](polyfills.js).
 
 ### Example
 

@@ -1,0 +1,7 @@
+:root {
+  --range-input-height: 2rem;
+  --range-input-track-height: 0.4rem;
+  --range-input-track-border-radius: calc(0.5 * var(--range-input-track-height));
+  --range-input-thumb-size: 1.6rem;
+  --range-input-thumb-size-active: calc(1.2 * var(--range-input-thumb-size));
+}

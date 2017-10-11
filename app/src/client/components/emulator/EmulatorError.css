@@ -1,0 +1,16 @@
+@import "../../styles/common";
+@import "../common/MainVariables";
+
+.emulator-error {
+  margin-bottom: var(--main-padding);
+}
+
+@media (--md-screen-or-bigger) {
+  .emulator-error {
+    position: absolute;
+    top: var(--main-padding);
+    right: 25%;
+    left: 25%;
+    z-index: 2;
+  }
+}

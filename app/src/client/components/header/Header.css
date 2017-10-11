@@ -1,0 +1,34 @@
+@import "../../styles/common";
+@import "../../styles/themes";
+
+.header {
+  flex-shrink: 0;
+}
+
+@media (--sm-screen) {
+  .header-help-nav {
+    float: right;
+  }
+}
+
+@media (--md-screen-or-bigger) {
+  .header {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+  }
+
+  .header-main-nav {
+    margin-right: 1rem;
+  }
+
+  .header-help-nav {
+    order: 1;
+  }
+}
+
+@each $theme in $themes {
+  .$theme .header {
+    background: var(--$(theme)-header-background);
+  }
+}

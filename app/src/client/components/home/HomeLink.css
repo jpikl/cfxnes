@@ -1,0 +1,20 @@
+.home-link {
+  display: inline-block;
+  width: 12rem;
+  padding: 1rem 0;
+  margin: 2rem;
+  text-align: center;
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+
+    & .home-link-label {
+      text-decoration: underline;
+    }
+  }
+}
+
+.home-link-label {
+  white-space: nowrap;
+}

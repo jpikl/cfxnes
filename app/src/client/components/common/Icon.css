@@ -1,0 +1,11 @@
+.fa-space-before {
+  margin-left: 0.3em;
+}
+
+.fa-space-after {
+  margin-right: 0.3em;
+}
+
+.fa:not(.fa-spin) {
+  animation: none; /* IE11 workaround for https://github.com/FortAwesome/Font-Awesome/issues/7572 */
+}

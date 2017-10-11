@@ -1,0 +1,77 @@
+@import "../../styles/common";
+@import "../../styles/themes";
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  display: block;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.modal {
+  position: fixed;
+  top: 33%;
+  left: 50%;
+  display: inline-block;
+  min-width: 20rem;
+  border-style: solid;
+  border-width: 0.1rem;
+  border-radius: 0.5rem;
+  transform: translate(-50%, -50%);
+}
+
+.modal-header,
+.modal-body,
+.modal-footer {
+  padding: 1rem;
+}
+
+.modal-header {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+}
+
+.modal-title {
+  margin: 0;
+  font-weight: bold;
+  flex-grow: 1;
+}
+
+@media (--xs-screen) {
+  .modal-footer .button {
+    width: 100%;
+
+    & + .button {
+      margin-top: 0.5rem;
+    }
+  }
+}
+
+@media (--sm-screen-or-bigger) {
+  .modal-footer {
+    text-align: right;
+
+    & .button + .button {
+      margin-left: 0.5rem;
+    }
+  }
+}
+
+@each $theme in $themes {
+  .$theme {
+    & .modal {
+      background: var(--$(theme)-modal-background);
+      border-color: var(--$(theme)-modal-border-color);
+      box-shadow: 0 0.6rem 1.2rem var(--$(theme)-shadow-color);
+    }
+
+    & .modal-title {
+      color: var(--$(theme)-modal-header-title-color);
+    }
+  }
+}

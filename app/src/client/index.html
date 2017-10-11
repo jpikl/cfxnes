@@ -1,23 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <base href="/">
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="JavaScript NES emulator.">
-  <meta name="keywords" content="NES,emulator,JavaScript">
+  <meta name="keywords" content="NES,Nintendo,emulator,JavaScript">
   <title>cfxnes - NES emulator</title>
-  <link rel="icon" type="image/png" href="images/favicon.png">
-  <link rel="stylesheet" type="text/css" href="app.css">
-  <script src="libs.js"></script>
-  <script src="cfxnes.js"></script>
-  <script src="app.js"></script>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="bundle.css">
 </head>
 <body>
-  <nav riot-tag="app-nav"></nav>
-  <main riot-tag="app-main"></main>
+  <div id="root"></div>
   <noscript>
-    <p class="alert alert-info">To use cfxnes, please enable JavaScript.</p>
+    <p>To use cfxnes, please enable JavaScript.</p>
   </noscript>
+  <script src="bundle.js"></script>
 </body>
 </html>

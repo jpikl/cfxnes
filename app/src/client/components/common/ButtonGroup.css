@@ -1,0 +1,18 @@
+.button-group {
+  display: inline-block;
+
+  & > .button {
+    &:not(:first-of-type),
+    &:not(:first-of-type):focus::after {
+      margin-left: -0.1rem;
+      border-bottom-left-radius: 0;
+      border-top-left-radius: 0;
+    }
+
+    &:not(:last-of-type),
+    &:not(:last-of-type):focus::after {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+}

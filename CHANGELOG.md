@@ -7,8 +7,24 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased][unreleased]
+### Added
+- Home screen.
+- Keyboard shortcuts.
+- Light and dark theme.
+- Option to bind multiple keys/buttons to the same input.
+
 ### Changed
+- Complete UI rewrite in React/Redux.
 - *Smoothing* video option replaced by *Filter*.
+- *Joypad* device renamed to *Controller*.
+- Cleaner URL paths without hash mark `#`.
+- Active settings panel is part of URL.
+- Active library item no longer disappears from URL.
+- Controls info panel displays devices and key bindings for both ports.
+- Closing controls info panel will toggle corresponding configuration option.
+- Library is no longer being reinitialized every time it is displayed.
+- Better (more responsive) header UI.
+- Better confirmation dialogs.
 
 ## [0.5.0] - 2016-09-29
 ### Fixed

@@ -1,0 +1,32 @@
+.number-select {
+  position: relative;
+  display: inline-block;
+}
+
+.number-select-input.input {
+  width: 100%;
+  padding-right: 5rem;
+  appearance: textfield;
+
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
+  &::-ms-clear {
+    display: none;
+  }
+}
+
+.number-select-minus,
+.number-select-plus {
+  position: absolute;
+  top: 0.8rem;
+}
+
+.number-select-minus {
+  right: 3rem;
+}
+
+.number-select-plus {
+  right: 1rem;
+}

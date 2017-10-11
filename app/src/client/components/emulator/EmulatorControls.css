@@ -1,0 +1,19 @@
+@import "../../styles/common";
+@import "../common/MainVariables";
+
+.emulator-controls {
+  margin-bottom: var(--main-padding);
+}
+
+.emulator-controls-title {
+  margin-bottom: 2rem;
+}
+
+@media (--md-screen-or-bigger) {
+  .emulator-controls {
+    position: absolute;
+    top: var(--main-padding);
+    left: var(--main-padding);
+    z-index: 1;
+  }
+}

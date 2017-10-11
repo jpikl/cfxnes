@@ -1,0 +1,99 @@
+@import "../../styles/common";
+@import "../../styles/themes";
+@import "./TooltipMixins";
+
+:root {
+  --switch-height: 2rem;
+  --switch-padding: 0.1rem;
+  --switch-hor-space: 0.2rem;
+  --switch-width: calc(2 * var(--switch-height) + var(--switch-hor-space));
+  --switch-handle-size: calc(var(--switch-height) - 2 * var(--switch-padding));
+  --switch-handle-indent: calc(var(--switch-width) - var(--switch-padding) - var(--switch-handle-size));
+  --switch-icon-font-size: 1rem;
+  --switch-icon-top: 0.3rem;
+  --switch-icon-indent: 0.5rem;
+}
+
+.switch {
+  display: inline-block;
+  width: var(--switch-width);
+  height: var(--switch-height);
+  cursor: default;
+  flex-shrink: 0;
+
+  @mixin tooltip-container;
+  @mixin tooltip-hover-trigger;
+}
+
+.switch-input {
+  position: absolute;
+  margin: 0;
+  opacity: 0;
+}
+
+.switch-slider {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(0.5 * var(--switch-height));
+
+  &::before {
+    position: absolute;
+    top: var(--switch-padding);
+    left: var(--switch-padding);
+    width: var(--switch-handle-size);
+    height: var(--switch-handle-size);
+    border-radius: 50%;
+    content: "";
+    transition: 0.2s;
+  }
+
+  &::after {
+    position: absolute;
+    top: var(--switch-icon-top);
+    right: var(--switch-icon-indent);
+    font-family: FontAwesome;
+    font-size: var(--switch-icon-font-size);
+    cursor: pointer;
+    content: "\f00d";
+  }
+}
+
+.switch-input:checked + .switch-slider::before {
+  left: var(--switch-handle-indent);
+}
+
+.switch-input:checked + .switch-slider::after {
+  right: auto;
+  left: var(--switch-icon-indent);
+  content: "\f00c";
+}
+
+@each $theme in $themes {
+  .$theme {
+    & .switch-slider {
+      background: var(--$(theme)-switch-background-off);
+
+      &::before {
+        background: var(--$(theme)-switch-thumb-background);
+      }
+
+      &::after {
+        color: var(--$(theme)-switch-icon-color-off);
+      }
+    }
+
+    & .switch-input:--focus-like ~ .switch-slider {
+      box-shadow: var(--focus-box-shadow-lg) var(--$(theme)-focus-color);
+    }
+
+    & .switch-input:checked + .switch-slider {
+      background: var(--$(theme)-switch-background-on);
+    }
+
+    & .switch-input:checked + .switch-slider::after {
+      color: var(--$(theme)-switch-icon-color-on);
+    }
+  }
+}

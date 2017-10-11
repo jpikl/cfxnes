@@ -1,0 +1,20 @@
+.controls-inputs-row {
+  display: table-row;
+
+  & > * {
+    display: table-cell;
+  }
+}
+
+.source-inputs {
+  min-width: 12rem;
+  padding-right: 0.3rem;
+}
+
+.source-input-unset {
+  padding-right: 0.5rem;
+}
+
+.source-input-add {
+  padding-left: 0.5rem;
+}

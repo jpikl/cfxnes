@@ -1,0 +1,21 @@
+@define-mixin tooltip-hover-trigger {
+  &:hover .tooltip {
+    display: block;
+  }
+}
+
+@define-mixin tooltip-hover-hidden {
+  &:hover .tooltip {
+    display: none;
+  }
+}
+
+@define-mixin tooltip-active-trigger {
+  &:active .tooltip {
+    display: block;
+  }
+}
+
+@define-mixin tooltip-container {
+  position: relative;
+}

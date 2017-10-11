@@ -1,0 +1,60 @@
+@import "../../styles/themes";
+
+:root {
+  --panel-border-width: 0.1rem;
+  --panel-border-radius: 0.4rem;
+}
+
+.panel {
+  border-style: solid;
+  border-width: var(--panel-border-width);
+  border-radius: var(--panel-border-radius);
+
+  &.collapsed .panel-body {
+    display: none;
+  }
+
+  & + .panel {
+    margin-top: 1rem;
+  }
+}
+
+.panel-header {
+  padding: 1rem 1.5rem;
+  border-top-right-radius: var(--panel-border-radius);
+  border-top-left-radius: var(--panel-border-radius);
+}
+
+.panel-title {
+  margin: 0;
+  font-size: 1.6rem;
+
+  & a {
+    padding: 0.3rem; /* To expand :focus border. */
+    margin: -0.3rem; /* To compensate padding. */
+    color: inherit !important;
+  }
+}
+
+.panel-body {
+  padding: 2rem;
+  border-top-style: solid;
+  border-top-width: var(--panel-border-width);
+}
+
+@each $theme in $themes {
+  .$theme {
+    & .panel {
+      background: var(--$(theme)-panel-background);
+      border-color: var(--$(theme)-panel-border-color);
+    }
+
+    & .panel-header {
+      background: var(--$(theme)-panel-header-background);
+    }
+
+    & .panel-body {
+      border-top-color: var(--$(theme)-panel-border-color);
+    }
+  }
+}

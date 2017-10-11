@@ -1,0 +1,18 @@
+@import "../../../styles/common";
+
+.audio-volume-field {
+  display: inline-flex;
+  width: calc(100% / 6);
+  align-items: center;
+}
+
+.audio-volume-field-label {
+  padding: 0 0.5rem;
+  text-align: center;
+}
+
+@media (--xs-screen) {
+  .audio-volume-field-label {
+    writing-mode: vertical-rl;
+  }
+}
