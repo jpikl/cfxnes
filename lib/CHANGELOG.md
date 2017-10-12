@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - Better error messages.
-- Required JSZip version is >= 3.0.0.
+- Required JSZip version is ^3.1.0.
 - Initialization options with `undefined` value are ignored.
 - `video.smoothing` property replaced by `video.filter`.
 - `config.set()` method renamed to `config.use()`.
