@@ -1,5 +1,5 @@
 /* eslint-env node */
 /* eslint-disable import/unambiguous */
 
-exports.processConfig = require('./processConfig');
+exports.mergeConfig = require('./mergeConfig');
 exports.getLibFile = require('./getLibFile');

@@ -6,7 +6,7 @@ const ip = require('ip');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const {processConfig, getLibFile} = require('../utils');
+const {mergeConfig, getLibFile} = require('../utils');
 
 module.exports = (env = {}) => {
   const resolvePath = path.resolve.bind(path, __dirname);
@@ -24,13 +24,13 @@ module.exports = (env = {}) => {
   }
 
   const devConfig = {
-    logLevel: 'info',
-    reduxLoggerEnabled: true,
-    reduxDevToolsEnabled: true,
+    logLevel: 'warn',
+    reduxLoggerEnabled: false,
+    reduxDevToolsEnabled: false,
   };
 
   if (!env.production && env.configured) {
-    processConfig(devConfig, resolvePath('dev.config.js'));
+    mergeConfig(devConfig, resolvePath('dev.config.js'));
   }
 
   const productionEntry = [
