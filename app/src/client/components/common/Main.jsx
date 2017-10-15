@@ -9,7 +9,7 @@ const Main = ({className, wrapContent, refMain, children, ...attrs}) => {
   const props = {className: classNames('main', className), ref: refMain, ...attrs};
   const content = wrapContent ? <div className="main-content">{children}</div> : children;
   return React.createElement(type, props, content);
-}
+};
 
 Main.propTypes = {
   className: PropTypes.string,

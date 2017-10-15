@@ -1,3 +1,5 @@
+/* global require */
+
 import {log} from '../common';
 import create from './create';
 

@@ -1,6 +1,3 @@
-/* eslint-env node */
-/* eslint-disable import/unambiguous */
-
 const fs = require('fs');
 const path = require('path');
 

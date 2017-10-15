@@ -1,7 +1,4 @@
-#!/bin/node
-
-/* eslint-env node */
-/* eslint-disable import/unambiguous */
+#!/usr/bin/env node
 
 const fs = require('fs');
 const path = require('path');

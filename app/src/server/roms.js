@@ -64,7 +64,7 @@ function scheduleScan() {
 }
 
 function scan() {
-  console.log(`Scanning "${romDir}" directory`);
+  process.stdout.write(`Scanning "${romDir}" directory\n`);
 
   romList = [];
   romMap = {};
@@ -97,7 +97,7 @@ function scan() {
 
   romList.sort(compare);
 
-  console.log(`Found ${romList.length} ROMs`);
+  process.stdout.write(`Found ${romList.length} ROMs\n`);
 }
 
 function makeId(file) {

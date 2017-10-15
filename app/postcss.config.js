@@ -1,6 +1,3 @@
-/* eslint-env node */
-/* eslint-disable import/unambiguous */
-
 const advancedVariablesPlugin = require('postcss-advanced-variables');
 const cssnextPlugin = require('postcss-cssnext');
 const importPlugin = require('postcss-import');

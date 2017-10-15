@@ -1,6 +1,3 @@
-/* eslint-env node */
-/* eslint-disable import/unambiguous */
-
 module.exports = {
   plugins: [
     'stylelint-order',

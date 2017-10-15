@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+/* global console */
 
 import {toString} from './utils';
 

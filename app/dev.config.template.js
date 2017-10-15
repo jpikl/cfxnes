@@ -1,6 +1,3 @@
-/* eslint-env node */
-/* eslint-disable import/unambiguous */
-
 //
 // Additional configuration that is loaded when running webpack
 // in development mode through the "npm run dev" command.

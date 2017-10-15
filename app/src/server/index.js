@@ -17,7 +17,7 @@ app.use(fallback('index.html', {root}));
 
 app.use((error, req, res, next) => { // eslint-disable-line no-unused-vars
   if (dev) {
-    console.log(error.stack);
+    process.stderr.write(error.stack, '\n');
   }
   res.sendStatus(500);
 });

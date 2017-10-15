@@ -1,4 +1,4 @@
-/* eslint-env browser */
+/* global window, Buffer */
 
 const MAX_TO_STRING_LENGTH = 80;
 

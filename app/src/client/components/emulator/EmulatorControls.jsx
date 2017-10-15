@@ -20,7 +20,7 @@ const EmulatorControls = ({controls, onClose}) => {
 };
 
 EmulatorControls.propTypes = {
-  controls: controlsPropType.isRequired, // eslint-disable-line react/no-typos
+  controls: controlsPropType.isRequired,
   onClose: PropTypes.func.isRequired,
 };
 
