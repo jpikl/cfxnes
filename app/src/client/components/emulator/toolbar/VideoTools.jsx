@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {MIN_VIDEO_SCALE, MAX_VIDEO_SCALE, isExplorerOrEdge} from '../../../common';
+import {MIN_VIDEO_SCALE, MAX_VIDEO_SCALE, isMsExplorer, isMsEdge} from '../../../common';
 import {KeyCode} from '../../../keyboard';
 import {ButtonGroup} from '../../common';
 import {ToolButton} from '../../toolbar';
@@ -12,7 +12,7 @@ const VideoTools = ({scale, onScaleDecrease, onScaleIncrease, onFullscreenToggle
     <ToolButton icon="search-plus" label="Decrease scale" keyCode={KeyCode.PLUS}
                 disabled={scale >= MAX_VIDEO_SCALE} onClick={onScaleIncrease}/>
     <ToolButton icon="arrows-alt" label="Fullscreen"
-                keyCode={isExplorerOrEdge() ? null : KeyCode.M} // Switching fullscreen using keydown event is bugged in IE, Edge
+                keyCode={isMsExplorer() || isMsEdge() ? null : KeyCode.M} // Switching fullscreen using keydown event is bugged in IE, Edge
                 onClick={onFullscreenToggle}/>
   </ButtonGroup>
 );

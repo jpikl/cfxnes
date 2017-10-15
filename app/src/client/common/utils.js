@@ -5,9 +5,10 @@ export function getUniqueId() {
   return `id-${id}-${idCounter++}`;
 }
 
-export function isExplorerOrEdge() {
-  const ua = navigator.userAgent;
-  return ua.indexOf('MSIE ') >= 0
-    || ua.indexOf('Trident/') >= 0
-    || ua.indexOf('Edge/') >= 0;
+export function isMsExplorer() {
+  return navigator.userAgent.indexOf('Trident/') >= 0;
+}
+
+export function isMsEdge() {
+  return navigator.userAgent.indexOf('Edge/') >= 0;
 }
