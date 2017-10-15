@@ -78,5 +78,5 @@ function getFunctionName(fn) {
   if (matchResult && matchResult[1]) {
     return matchResult[1];
   }
-  return '?';
+  return '';
 }

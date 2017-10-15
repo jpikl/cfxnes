@@ -10,11 +10,12 @@ const libFiles = [
 
 function getLibFile(options = {}) {
   const {productionOnly = true, verbose = false} = options;
-  const {stdout} = process;
+  const {stdout, stderr} = process;
   const log = verbose ? stdout.write.bind(stdout) : () => {};
+  const logError = stderr.write.bind(stderr);
 
   log('\n********************************************************************************\n');
-  log('\nLooking for cfxnes library files...\n\n');
+  log('\nLooking for cfxnes.js...\n\n');
 
   const result = libFiles
     .filter(({production}) => !productionOnly || production)
@@ -28,16 +29,17 @@ function getLibFile(options = {}) {
     .map(({file}) => file)[0];
 
   log('\n');
-  log(result ? `Using ${result}` : 'Found none :(');
-  log('\n');
 
-  if (!result && productionOnly) {
-    log('\nUse the following commands to build the library first:\n');
-    log(`    cd ${path.relative('.', libDir)}\n`);
-    log('    npm run build\n');
+  if (result) {
+    log(`Using ${result}\n\n`);
+  } else {
+    logError('Unable to find cfxnes.js\n\n');
+    logError('Use the following commands to build the library first:\n');
+    logError(`    cd ${path.relative('.', libDir)}\n`);
+    logError('    npm run build\n\n');
   }
 
-  log('\n********************************************************************************\n\n');
+  log('********************************************************************************\n\n');
 
   return result;
 }

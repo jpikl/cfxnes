@@ -1,7 +1,7 @@
 {
-  "name": "cfxnes",
+  "name": "cfxnes-lib",
   "version": "0.6.0",
-  "description": "Library for NES emulation",
+  "description": "Library for NES emulation in web browser",
   "license": "MIT",
   "private": true,
   "keywords": [
@@ -19,7 +19,11 @@
   },
   "files": [
     "dist/",
-    "API.md"
+    "examples/",
+    "API.md",
+    "CHANGELOG.md",
+    "README.md",
+    "polyfills.js"
   ],
   "main": "dist/cfxnes.js",
   "scripts": {

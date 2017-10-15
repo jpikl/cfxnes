@@ -1,8 +1,5 @@
+
 /.vscode/
 /roms/
 /temp/
 /*.zip
-/*/dist/
-/*/node_modules/
-/*/test/**/out/
-npm-debug.log

@@ -1,7 +1,7 @@
 {
   "name": "cfxnes-core",
   "version": "0.6.0",
-  "description": "Core of the cfxnes emulator/library",
+  "description": "Core of the cfxnes emulator",
   "license": "MIT",
   "private": true,
   "keywords": [
@@ -18,24 +18,28 @@
     "url": "https://github.com/jpikl/cfxnes"
   },
   "files": [
+    "bin/",
     "src/",
-    "tools/"
+    "README.md"
   ],
   "scripts": {
-    "lint": "eslint --report-unused-disable-directives src test bin/pal2js",
+    "lint": "eslint --report-unused-disable-directives src test 'bin/*'",
     "test": "mocha --recursive --require babel-register",
     "test:base": "mocha --require babel-register 'test/{,!(roms)}/*Test.js'",
-    "test:roms": "mocha ---require babel-register 'test/roms/tests.js'"
+    "test:roms": "mocha ---require babel-register 'test/roms/tests.js'",
+    "clean": "rimraf 'test/roms/*/out'"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
+    "babel-register": "^6.26.0",
     "chai": "^4.1.2",
     "eslint": "^4.8.0",
     "eslint-plugin-import": "^2.7.0",
     "mkdirp": "^0.5.1",
     "mocha": "^4.0.0",
     "node-png": "^0.4.3",
+    "rimraf": "^2.6.2",
     "sinon": "^4.0.1",
     "sinon-chai": "^2.14.0"
   }

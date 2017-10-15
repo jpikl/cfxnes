@@ -46,3 +46,4 @@ See [LICENSE.txt](LICENSE.txt) for more details.
 - [core](core) - core of the emulator
 - [lib](lib) - emulation library
 - [app](app) - web application
+- [utils](utils) - helper functions
