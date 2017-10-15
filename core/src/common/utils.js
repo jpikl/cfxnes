@@ -52,12 +52,12 @@ export function toString(value) {
     return `"${value}"`;
   }
   if (type === 'function') {
-    const constructorName = value.constructor.name;
-    const {name} = value;
+    const constructorName = getFunctionName(value.constructor);
+    const name = getFunctionName(value);
     return name ? `${constructorName}(${name})` : constructorName;
   }
   if (value && type === 'object') {
-    const constructorName = value.constructor.name;
+    const constructorName = getFunctionName(value.constructor);
     if (constructorName === 'Object') {
       return constructorName;
     }
@@ -65,4 +65,18 @@ export function toString(value) {
     return length != null ? `${constructorName}(${length})` : constructorName;
   }
   return String(value);
+}
+
+const functionNameRegexp = /function ([^(]+)/;
+
+function getFunctionName(fn) {
+  if (fn.name) {
+    return fn.name;
+  }
+  // IE does not support the 'name' property
+  const matchResult = fn.toString().match(functionNameRegexp);
+  if (matchResult && matchResult[1]) {
+    return matchResult[1];
+  }
+  return '?';
 }
