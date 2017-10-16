@@ -3,7 +3,7 @@
 import React from 'react';
 import {render} from 'react-dom';
 import {AppContainer} from 'react-hot-loader';
-import {autoSaveNVRAM} from './nvram';
+import {saveNVRAM} from './nvram';
 import Root from './Root';
 import './index.css';
 
@@ -14,8 +14,10 @@ function renderRoot() {
 }
 
 renderRoot();
-autoSaveNVRAM();
 
 if (__DEVELOPMENT__ && module.hot) {
   module.hot.accept('./Root', renderRoot);
 }
+
+setInterval(saveNVRAM, 60000);
+addEventListener('beforeunload', () => { saveNVRAM(); });

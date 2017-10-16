@@ -2,7 +2,7 @@ import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import {withRouter} from 'react-router';
-import {getEmulatorPath, getLibraryPath, getSettingsPath, getAboutPath} from '../../routes';
+import {EMULATOR_PATH, LIBRARY_PATH, SETTINGS_PATH, ABOUT_PATH} from '../../routes';
 import Brand from './Brand';
 import Nav from './Nav';
 import NavLink from './NavLink';
@@ -34,12 +34,12 @@ class Header extends PureComponent {
       <header className={classNames('header', {collapsed})}>
         <Brand collapsed={collapsed} onCollapsedChange={this.handleCollapsedChange}/>
         <Nav className="header-main-nav">
-          <NavLink to={getEmulatorPath()} icon="gamepad" label="Emulator"/>
-          <NavLink to={getLibraryPath()} icon="book" label="Library"/>
-          <NavLink to={getSettingsPath()} icon="cog" label="Settings"/>
+          <NavLink to={EMULATOR_PATH} icon="gamepad" label="Emulator"/>
+          <NavLink to={LIBRARY_PATH} icon="book" label="Library"/>
+          <NavLink to={SETTINGS_PATH} icon="cog" label="Settings"/>
         </Nav>
         <Nav className="header-help-nav">
-          <NavLink to={getAboutPath()} icon="question-circle" label="About"/>
+          <NavLink to={ABOUT_PATH} icon="question-circle" label="About"/>
         </Nav>
         {children}
       </header>

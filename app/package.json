@@ -60,7 +60,6 @@
     "font-awesome": "^4.7.0",
     "ip": "^1.1.5",
     "jszip": "^3.1.4",
-    "lodash-es": "^4.17.4",
     "morgan": "^1.9.0",
     "nodemon": "^1.12.1",
     "npm-run-all": "^4.1.1",

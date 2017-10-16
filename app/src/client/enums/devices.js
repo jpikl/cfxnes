@@ -1,4 +1,4 @@
-import capitalize from 'lodash-es/capitalize';
+import {capitalize} from '../common';
 import {createOptions} from './common';
 
 export const NONE = 'none';

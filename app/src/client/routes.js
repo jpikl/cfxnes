@@ -1,24 +1,27 @@
-import partial from 'lodash-es/partial';
-
-const EMULATOR = 'emulator';
-const LIBRARY = 'library';
-const SETTINGS = 'settings';
-const ABOUT = 'about';
+export const EMULATOR = 'emulator';
+export const LIBRARY = 'library';
+export const SETTINGS = 'settings';
+export const ABOUT = 'about';
 
 export const ROM_ID = 'romId';
 export const ACTIVE_PANEL_ID = 'activePanelId';
 
-export const createPath = (...parts) => '/' + parts.join('/');
-export const createOptParam = name => `:${name}?`;
+const join = (...parts) => parts.join('/');
+const joinOptional = (path, param) => (param ? join(path, param) : path);
+const optional = param => `:${param}?`;
 
-export const getEmulatorPath = partial(createPath, EMULATOR);
-export const getLibraryPath = partial(createPath, LIBRARY);
-export const getSettingsPath = partial(createPath, SETTINGS);
-export const getAboutPath = partial(createPath, ABOUT);
+export const ROOT_PATH = '';
+export const EMULATOR_PATH = join(ROOT_PATH, EMULATOR);
+export const LIBRARY_PATH = join(ROOT_PATH, LIBRARY);
+export const SETTINGS_PATH = join(ROOT_PATH, SETTINGS);
+export const ABOUT_PATH = join(ROOT_PATH, ABOUT);
 
-export const ROOT_PATH = createPath();
-export const NON_ROOT_PATH = createPath('(.+)');
-export const EMULATOR_PATH = getEmulatorPath(createOptParam(ROM_ID));
-export const LIBRARY_PATH = getLibraryPath();
-export const SETTINGS_PATH = getSettingsPath(createOptParam(ACTIVE_PANEL_ID));
-export const ABOUT_PATH = getAboutPath();
+export const ROOT_EXPR = join(ROOT_PATH, '');
+export const NON_ROOT_EXPR = join(ROOT_PATH, '(.+)');
+export const EMULATOR_EXPR = join(EMULATOR_PATH, optional(ROM_ID));
+export const LIBRARY_EXPR = LIBRARY_PATH;
+export const SETTINGS_EXPR = join(SETTINGS_PATH, optional(ACTIVE_PANEL_ID));
+export const ABOUT_EXPR = ABOUT_PATH;
+
+export const getEmulatorPath = romId => joinOptional(EMULATOR_PATH, romId);
+export const getSettingsPath = activePanelId => joinOptional(SETTINGS_PATH, activePanelId);

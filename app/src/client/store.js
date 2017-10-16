@@ -1,7 +1,7 @@
 import {createStore, applyMiddleware} from 'redux';
 import thunk from 'redux-thunk';
 import promise from '@benmosher/redux-promise';
-import identity from 'lodash-es/identity';
+import {identity} from './common';
 import rootReducer, {selectSettingsValues} from './reducers';
 import {initSettings} from './actions';
 import {saveSettings} from './settings';

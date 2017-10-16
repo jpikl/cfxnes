@@ -1,4 +1,4 @@
-import capitalize from 'lodash-es/capitalize';
+import {capitalize} from '../common';
 
 export const KEYBOARD = 'keyboard';
 export const MOUSE = 'mouse';

@@ -1,5 +1,3 @@
-import flow from 'lodash-es/flow';
-import noop from 'lodash-es/noop';
 import {log, nes} from './common';
 import {nvramStore} from './database';
 
@@ -18,9 +16,4 @@ export function saveNVRAM() {
       .catch(error => log.error('Failed to save NVRAM', error));
   }
   return Promise.resolve();
-}
-
-export function autoSaveNVRAM() {
-  setInterval(saveNVRAM, 60000);
-  addEventListener('beforeunload', flow(saveNVRAM, noop));
 }

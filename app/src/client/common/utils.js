@@ -5,10 +5,18 @@ export function getUniqueId() {
   return `id-${id}-${idCounter++}`;
 }
 
-export function isMsExplorer() {
-  return navigator.userAgent.indexOf('Trident/') >= 0;
+export function debounce(callback, timeout) {
+  let id = null;
+  return () => {
+    clearTimeout(id);
+    id = setTimeout(callback, timeout);
+  };
 }
 
-export function isMsEdge() {
-  return navigator.userAgent.indexOf('Edge/') >= 0;
+export function capitalize(value) {
+  return value[0].toUpperCase() + value.substr(1);
+}
+
+export function identity(value) {
+  return value;
 }
