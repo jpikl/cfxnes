@@ -1,10 +1,12 @@
-# cfxnes / core
+# cfxnes (core)
 
-Collection of JS components that form core of the [cfxnes emulator](../README.md). The core can be independently used in browser or in Node.js environment.
+Core of the [cfxnes emulator](../README.md).
 
-For better performance, components can be compiled with [closure compiler](https://github.com/google/closure-compiler) in `ADVANCED` optimization mode.
+Its components can be used independently in browser or in Node.js environment.
 
-### Initialization
+For better performance, these components can be compiled with [closure compiler](https://github.com/google/closure-compiler) in `ADVANCED` optimization mode.
+
+## Initialization
 
 ``` javascript
 import NES from './NES';
@@ -18,7 +20,7 @@ NES constructor allows to pass custom implementation of any internal unit (CPU, 
 const nes = new NES({cpu: customCPU});
 ```
 
-### ROM Images
+## ROM Images
 
 ROM image can be loaded from `Uint8Array` or from a file system path when running in Node.js. Supported formats are **iNES** and **NES 2.0**.
 
@@ -34,7 +36,7 @@ const cartridge2 = readCartridge('./data/rom.nes');
 nes.setCartridge(cartridge2);
 ```
 
-### Rendering Loop
+## Rendering Loop
 
 Video output is rendered into provided `Uint32Array(256 * 240)` buffer. Color of each pixel is encoded as 32-bit unsigned integer in RGBA format. Their values are generated using specified `Uint32Array(64)` palette.
 
@@ -52,7 +54,7 @@ while (running) {
 }
 ```
 
-### Audio Output
+## Audio Output
 
 Audio samples are automatically stored into internal `Float32Array`. This buffer should be periodically read and sent to sound card. To prevent buffer underflow/overflow, the initial sampling rate is being continuously adjusted.
 
@@ -69,7 +71,7 @@ function audioCallback() {
 // Rendering loop
 ```
 
-### Input Devices
+## Input Devices
 
 ``` javascript
 import {Button, Joypad, Zapper} from './devices';
@@ -85,3 +87,17 @@ nes.setInputDevice(2, zapper); // Port #2
 zapper.setBeamPosition(128, 120);
 zapper.setTriggerPressed(true);
 ```
+
+## Development
+
+Use `npm run lint` to run linting.
+
+Use `npm run clean` to clean all generated files.
+
+## Testing
+
+Use `npm test` to run all tests.
+
+Use `npm run test:base` to run tests for source modules.
+
+Use `npm run test:roms` to run ROM-based tests.

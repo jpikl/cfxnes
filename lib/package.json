@@ -1,7 +1,7 @@
 {
   "name": "cfxnes-lib",
   "version": "0.6.0",
-  "description": "Library for NES emulation in web browser",
+  "description": "JavaScript library for NES emulation in web browser",
   "license": "MIT",
   "private": true,
   "keywords": [
@@ -27,11 +27,10 @@
   ],
   "main": "dist/cfxnes.js",
   "scripts": {
-    "dev": "npm run watch:debug",
+    "dev": "watch 'npm run build' src ../core/src",
+    "dev:debug": "watch 'npm run build:debug' src ../core/src",
     "build": "node build.js",
     "build:debug": "node build.js --debug",
-    "watch": "watch 'npm run build' src ../core/src",
-    "watch:debug": "watch 'npm run build:debug' src ../core/src",
     "lint": "eslint --report-unused-disable-directives src test \"*.js\"",
     "test": "karma start",
     "test:src": "karma start --target=src",

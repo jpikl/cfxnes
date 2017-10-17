@@ -1,11 +1,11 @@
-# cfxnes / lib
+# cfxnes (lib)
 
 JavaScript library for NES emulation in web browser.
 
 - [API](API.md)
 - [Examples](examples)
 
-### Supported Browsers
+## Supported Browsers
 
 - Chrome 49+
 - Firefox 47+
@@ -15,7 +15,7 @@ JavaScript library for NES emulation in web browser.
 
 IE 11 and Safari 9 need [polyfill for some ES6 features](polyfills.js).
 
-### Example
+## Example
 
 ``` html
 <!DOCTYPE html>
@@ -24,7 +24,7 @@ IE 11 and Safari 9 need [polyfill for some ES6 features](polyfills.js).
   <script src="cfxnes.js"></script>
 </head>
 <body>
-  <canvas id="cfxnes"></canvas> <!-- Used for rendering -->
+  <canvas id="cfxnes"></canvas> <!-- Rendering target -->
   <script>
     cfxnes({rom: 'game.nes'}); // URL of a ROM image to load
   </script>
@@ -32,7 +32,7 @@ IE 11 and Safari 9 need [polyfill for some ES6 features](polyfills.js).
 </html>
 ```
 
-### Importing
+## Importing
 
 ``` javascript
 // AMD
@@ -45,6 +45,30 @@ const cfxnes = require('cfxnes');
 window.cfxnes;
 ```
 
-### Building
+## Building
 
-Run `npm run build` to build the library.
+Use `npm run build` to build the library.
+
+Use `npm run build:debug` to build the library (debug version).
+
+## Development
+
+Use `npm run dev` to build the library in watch mode.
+
+Use `npm run dev:debug` to build the library (debug version) in watch mode.
+
+Use `npm run lint` to run linting.
+
+Use `npm run clean` to clean all generated files.
+
+## Testing
+
+Use `npm test` to run all tests.
+
+Use `npm run test:src` to run tests for source modules.
+
+Use `npm run test:lib` to run tests for built library.
+
+Use `npm run test:lib:debug` to run tests for built library (debug version).
+
+Running these commands for the first time will generate `karma.browser.js` configuration file that can be used to customize which browsers are used to run tests.
