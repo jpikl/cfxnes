@@ -73,7 +73,7 @@ nes = cfxnes({
 
 ```
 
-#### Properties
+### Properties
 
 | Name | Type | Writable | Default | Description |
 |------|------|----------|---------|-------------|
@@ -92,7 +92,7 @@ cfxnes.logLevel = 'info'; // Log everything
 
 Emulator instance returned by the `cfxnes` function.
 
-#### Properties
+### Properties
 
 | Name | Type | Writable | Default | Description |
 |------|------|----------|---------|-------------|
@@ -109,7 +109,7 @@ Emulator instance returned by the `cfxnes` function.
 | inputs | `object` | no | | [Inputs module](#user-content-nesinputs) |
 | config | `object` | no | | [Configuration module](#user-content-nesconfig) |
 
-#### Methods
+### Methods
 
 | Signature | Description |
 |-----------|-------------|
@@ -166,20 +166,19 @@ nes.rom.load(source)
 
 The source can be `Uint8Array`, `ArrayBuffer`, `Array`, `Blob` or `string`. String value is interpreted as URL of a ROM image.
 
-#### Properties
+### Properties
 
 | Name | Type | Writable | Default | Description |
 |------|------|----------|---------|-------------|
 | loaded | `boolean` | no | `false` | `true` when a ROM image is loaded, `false` otherwise.  |
 | sha1  | `string` | no | `null` | SHA-1 of loaded ROM image, `null` otherwise. |
 
-#### Methods
+### Methods
 
 | Signature | Returns | Description |
 |-----------|---------|-------------|
 | load(source) | `Promise` | Loads ROM image from the specified source. |
 | unload() || Unloads loaded ROM image. |
-
 
 ``` javascript
 const nes = cfxnes();
@@ -236,7 +235,7 @@ In case there is no ROM image loaded, running emulator will display white noise 
 
 Once the output is set, it is not possible to change value of the `renderer` property. To change renderer, you need to use a different canvas with uninitialized context (see example bellow).
 
-#### Properties
+### Properties
 
 | Name | Type | Writable | Default | Description |
 |------|------|----------|---------|-------------|
@@ -247,7 +246,7 @@ Once the output is set, it is not possible to change value of the `renderer` pro
 | filter | `string` | yes | `'nearest'` | Filter used during upscaling.<br> `'nearest'`  - Nearest-neighbor interpolation.<br> `'linear'`  - Linear interpolation. |
 | debug | `boolean` | yes | `false` | Enables additional video output (content of pattern tables and background/sprite palettes) to be rendered on canvas. This will also double width of the canvas. |
 
-#### Methods
+### Methods
 
 | Signature | Returns | Description |
 |-----------|---------|-------------|
@@ -276,14 +275,14 @@ Fullscreen module.
 
 It is recommended to wrap used `canvas` element in extra `div` to make fullscreen working properly.
 
-#### Properties
+### Properties
 
 | Name | Type | Writable | Default | Description |
 |------|------|----------|---------|-------------|
 | is | `boolean` | no | false | `true` when emulator is in fullscreen mode, `false` otherwise. |
 | type | `string` | yes | `'maximized'` | Type of fullscreen mode.<br>`'maximized'` - Maximizes output resolution while keeping its original aspect ratio.<br>`'normalized'` - Same as the `'maximized'` type, but output resolution is integer multiple of the base resolution 256x240. This should reduce visual artifacts caused by upscaling.<br>`'stretched'` - Output is stretched to fill the whole screen (both horizontally and vertically). The original aspect ratio is not preserved.|
 
-#### Methods
+### Methods
 
 | Signature | Returns | Description |
 |-----------|---------|-------------|
@@ -312,7 +311,7 @@ Audio settings module.
 
 The `nes.audio` property is `null` when browser does not support Web Audio (currently only IE 11 and older).
 
-#### Properties
+### Properties
 
 | Name | Type | Writable | Default | Description |
 |------|------|----------|---------|-------------|
@@ -343,11 +342,12 @@ if (audio) {
 Module that allows to set up input devices.
 
 NES has 2 input ports, each of them can be assigned a device through numeric property. Allowed values are:
+
 - `'joypad'` - Standard NES controller.
 - `'zapper'` - NES Zapper (beam gun).
 - `null` - No device.
 
-#### Properties
+### Properties
 
 | Number | Type | Writable | Default | Description |
 |--------|------|----------|---------|-------------|
@@ -372,11 +372,13 @@ There are 2 kinds of input devices:
 2. The real ones (keyboard, mouse, gamepad, etc.). We refer to them as **sources**.
 
 Input of any **device** can be expressed as a string `'<port>.<device>.<name>'`:
+
 - `<port>` - port (`1` or `2`)
 - `<device>` - device (`'joypad'` or `'zapper'`)
 - `<name>` - name of the input
 
 Input of any **source** can be expressed as a string `'<source>.<name>'`:
+
 - `<source>` - source (`'keyboard'`, `'mouse'`, `'gamepad0'`, `'gamepad1'`, ...)
 - `<name>` - name of the input
 
@@ -389,17 +391,17 @@ Examples:
 - `'gamepad0.start'` - Start button of gamepad #0.
 - `'gamepad1.x'` - X button of gamepad #1.
 
-#### Properties
+### Properties
 
 | Name | Type | Writable | Description |
 |------|------|----------|-------------|
 | state |  `object` | no | Submodule that holds state of all inputs.<br> - For buttons, the state is `boolean`. <br> - For `'{1,2}.zapper.beam'`, the state is array of 2 numbers `[x, y]` (beam coordinates). |
 | map | `object` | no | Submodule that holds mapping between inputs. |
 
-#### Methods
+### Methods
 
 | Signature | Description |
-|-----------|--------------|
+|-----------|-------------|
 | state.get(devInput) | Returns state of a device input. |
 | state.set(devInput, state) | Sets state of a device input.|
 | map.get(input) | Returns mapping of an input. |
@@ -435,25 +437,25 @@ inputs.record(srcInput => {
 })
 ```
 
-#### Joypad Inputs
+### Joypad Inputs
 
 | Input | Name |
-|------|-------|
+|-------|------|
 | A, B buttons | `'a'`, `'b'` |
 | Start, Select buttons | `'start'`, `'select'` |
 | D-pad buttons | `'left'`, `'right'`, `'up'`, `'down'` |
 
-#### Zapper Inputs
+### Zapper Inputs
 
 | Input | Name |
-|------|-------|
+|-------|------|
 | Trigger | `'trigger'` |
 | Beam position | *It is permanently mapped to mouse cursor position.* |
 
-#### Keyboard Inputs
+### Keyboard Inputs
 
 | Input | Name |
-|------|-------|
+|-------|------|
 | Character&nbsp;keys&nbsp;(letters) | `'a'`, `'b'`, ..., `'z'` |
 | Character&nbsp;keys&nbsp;(numbers) | `'0'`, `'1'`, ..., `'9'` |
 | Character&nbsp;keys&nbsp;(special) | `'space'`, `','`, `'.'`, `'/'`, `';'`, `'\''`, `'\\'`, `'['`, `']'`, `'``'`, `'-'`, `'='` |
@@ -465,22 +467,22 @@ inputs.record(srcInput => {
 | Lock keys |  `'caps-lock'`, `'num-lock'`, `'scroll-lock'` |
 | Numeric keypad |  `'numpad-0'`, `'numpad-1'`, ..., `'numpad-9'`, `'add'`, `'subtract'`, `'multiply'`, `'divide'`, `'decimal-point'` |
 
-#### Mouse Inputs
+### Mouse Inputs
 
 | Input | Name |
-|------|-------|
+|-------|------|
 | Left, middle, right button | `'left'`, `'middle'`, `'right'` |
 
-#### Gamepad Inputs
+### Gamepad Inputs
 
 The set of inputs that are received from a gamepad depends on whether browser is able to recognize gamepad layout. If the gamepad is correctly recognized, the [standard layout](https://w3c.github.io/gamepad/#remapping) is used. Otherwise the *generic layout* is used as fallback.
 
-##### Standard Gamepad Layout
+#### Standard Gamepad Layout
 
 ![standard layout](https://upload.wikimedia.org/wikipedia/commons/2/2c/360_controller.svg)
 
 | Input | Name |
-|------|-------|
+|-------|------|
 | A, B, X, Y buttons | `'a'`, `'b'`, `'x'`, `'y'` |
 | Back, Start, Guide buttons | `'back'`, `'start'`, `'guide'` |
 | D-pad | `'dpad-up'`, `'dpad-down'`, `'dpad-left'`, `'dpad-right'` |
@@ -491,10 +493,10 @@ The set of inputs that are received from a gamepad depends on whether browser is
 
 To specify axis direction, `'+'` or `'-'` must be appended (e.g., `'left-stick-x-'`, `'left-stick-x+'`).
 
-##### Generic Gamepad Layout
+#### Generic Gamepad Layout
 
 | Input | Name |
-|------|-------|
+|-------|------|
 | Buttons | `'button-0'`, `'button-1'`, ... |
 | Axes | `'axis-0'`, `'axis-1'`, ... |
 
@@ -507,7 +509,7 @@ Module that provides access to emulator configuration.
 The structure of configuration options corresponds to structure of initialization options (see [cfxnes](#user-content-cfxnesoptions)) with exception of `rom`, `JSZip`, `video.output` that are ignored.
 
 | Signature | Description |
-|-----------|--------------|
+|-----------|-------------|
 | get() | Returns all options and their values. |
 | use(options) | Applies values of specified options. |
 
