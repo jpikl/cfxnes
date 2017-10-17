@@ -42,7 +42,7 @@ const Slider = ({className, inputId, vertical, filled, disabled, min, max, step,
         {tooltipFormat && (
           <div className="slider-tooltip-container">
             <Tooltip placement={vertical ? 'right' : 'top'}
-                      position={getTooltipPosition(vertical, min, max, value)}>
+                     position={getTooltipPosition(vertical, min, max, value)}>
               {tooltipFormat(value)}
             </Tooltip>
           </div>

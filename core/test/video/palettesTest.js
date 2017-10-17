@@ -13,6 +13,8 @@ describe('video/palettes', () => {
     'fceux',
     'nestopia-rgb',
     'nestopia-yuv',
+    'sony-cxa2025as',
+    'unsaturated-v6',
   ];
 
   it('validates palette name', () => {

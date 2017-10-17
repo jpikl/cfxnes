@@ -12,6 +12,8 @@ import fceu_15 from './fceu_15';
 import fceux from './fceux';
 import nestopia_rgb from './nestopia_rgb';
 import nestopia_yuv from './nestopia_yuv';
+import sony_cxa2025as from './sony_cxa2025as';
+import unsaturated_v6 from './unsaturated_v6';
 
 const PALETTE_LENGTH = 64;
 
@@ -25,6 +27,8 @@ const palettes = {
   'fceux': fceux,
   'nestopia-rgb': nestopia_rgb,
   'nestopia-yuv': nestopia_yuv,
+  'sony-cxa2025as': sony_cxa2025as,
+  'unsaturated-v6': unsaturated_v6,
 };
 
 /* eslint-enable camelcase */

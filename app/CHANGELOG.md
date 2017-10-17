@@ -6,13 +6,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased][unreleased]
+
 ### Added
+
 - Home screen.
 - Keyboard shortcuts.
 - Light and dark theme.
 - Option to bind multiple keys/buttons to the same input.
+- New color palettes: SONY CXA2025AS US, Unsaturated V6.
 
 ### Changed
+
 - Complete UI rewrite in React/Redux.
 - *Smoothing* video option replaced by *Filter*.
 - *Joypad* device renamed to *Controller*.
@@ -26,7 +30,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Better confirmation dialogs.
 
 ## [0.5.0] - 2016-09-29
+
 ### Fixed
+
 - Delayed IRQ response after CLI/SEI/PLP (*Break Time* is now playable).
 - MMC3 mapper alternate behavior.
 - Sprite overflow flag clearing.
@@ -34,14 +40,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Disabled audio in Safari.
 
 ### Added
+
 - Option to set independent volume of each audio channel.
 - Warning message for disabled JavaScript.
 
 ### Changed
+
 - Checksums are computed using SHA-1 from PRG RAM and CHR RAM.
 
 ## [0.4.0] - 2015-11-29
+
 ### Fixed
+
 - Detection of NES 2.0 ROM image format.
 - Size of PRG/CHR RAM read from ROM images (iNES / NES 2.0).
 - MMC1 mapper implementation (PRG RAM protection, PRG ROM mapping).
@@ -49,6 +59,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Crash during attempt to load invalid configuration.
 
 ### Added
+
 - Support for BNROM, NINA-001 and Color Dreams mappers.
 - New color palettes: ASQ, BMF, FCEU(X), Nestopia.
 - Multiple types of fullscreen mode.
@@ -56,6 +67,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Option to delete saved NVRAM data.
 
 ### Changed
+
 - *Game Library* renamed to *Library*.
 - Only a single reload when multiple files are changed in library directory.
 - Non-volatile RAM is stored in IndexedDB.
@@ -63,33 +75,42 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Default audio volume is 50%.
 
 ## [0.3.0] - 2015-08-09
+
 ### Fixed
+
 - Mouse cursor detection for Zapper.
 - SVG images scaling in Internet Explorer.
 
 ### Added
+
 - Gamepad support.
 
 ### Changed
+
 - Complete UI rewrite in Riot.js.
 - *TV system* option renamed to *Region*.
 - Input files with size over 10MB are rejected.
 
 ## [0.2.0] - 2015-05-18
+
 ### Fixed
+
 - MMC3 mapper initial state (*SMB3* and *Shadow of the Ninja* are now playable).
 - Initialization in Internet Explorer.
 
 ## Added
+
 - Support for loading of zipped `.nes` files.
 - Drag 'n' drop visual effect.
 - Option to hide FPS counter.
 - Favicon.
 
 ### Changed
+
 - UI optimization for small screens.
 
 ## 0.1.0 - 2015-04-26
+
 - Initial version.
 
 [unreleased]: https://github.com/jpikl/cfxnes/compare/v0.5.0...HEAD

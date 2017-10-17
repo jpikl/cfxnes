@@ -242,7 +242,7 @@ Once the output is set, it is not possible to change value of the `renderer` pro
 |------|------|----------|---------|-------------|
 | output | `HTMLCanvasElement` | yes | `null` | Canvas element used to render emulator video output. The property can be set to `null` to disable rendering. |
 | renderer | `string` | yes | `'webgl'` | Rendering back-end.<br>`'canvas'` - Renderer using Canvas API. It is used as fallback when WebGL is not available.<br>`'webgl'` - Renderer using WebGL. It should be faster than the `'canvas'` renderer, but this highly depends on browser, OS, graphic card driver, etc. |
-| palette | `string` | yes | `'fceux'` | Palette used for generating RGB color values. Allowed values are:<br>`'asq-real-a'`, `'asq-real-b'`,<br>`'bmf-fin-r2'`, `'bmf-fin-r3'`,<br>`'fceu-13'`, `'fceu-15'`, `'fceux'`,<br>`'nestopia-rgb'`, `'nestopia-yuv'`<br>See [FCEUX documentation](http://www.fceux.com/web/help/fceux.html?PaletteOptions.html) for their description. |
+| palette | `string` | yes | `'fceux'` | Palette used for generating RGB color values. Allowed values are:<br>`'asq-real-a'`, `'asq-real-b'`, `'bmf-fin-r2'`, `'bmf-fin-r3'`, `'fceu-13'`, `'fceu-15'`, `'fceux'`, `'nestopia-rgb'`, `'nestopia-yuv'`, `'sony-cxa2025as'`, `'unsaturated-v6'`<br>See [FCEUX documentation](http://www.fceux.com/web/help/fceux.html?PaletteOptions.html) for their description. |
 | scale | `number` | yes | `1` | Canvas resolution multiplier. It must be larger than 0. Non-integer value might cause visual artifacts due to upscaling. The base resolution is 256x240.
 | filter | `string` | yes | `'nearest'` | Filter used during upscaling.<br> `'nearest'`  - Nearest-neighbor interpolation.<br> `'linear'`  - Linear interpolation. |
 | debug | `boolean` | yes | `false` | Enables additional video output (content of pattern tables and background/sprite palettes) to be rendered on canvas. This will also double width of the canvas. |
@@ -386,8 +386,8 @@ Examples:
 - `'2.zapper.trigger'` - Trigger button of a zapper connected to port #2.
 - `'keyboard.ctrl'` - Ctrl key.
 - `'mouse.left'` - Left mouse button.
-- `'gamepad0'.start` - Start button of gamepad #0.
-- `'gamepad1'.x` - X button of gamepad #1.
+- `'gamepad0.start'` - Start button of gamepad #0.
+- `'gamepad1.x'` - X button of gamepad #1.
 
 #### Properties
 
