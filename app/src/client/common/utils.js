@@ -1,8 +1,12 @@
-let idCounter = 0;
+export function noop() {
+}
 
-export function getUniqueId() {
-  const id = ~~(1000000 * Math.abs(Math.random()));
-  return `id-${id}-${idCounter++}`;
+export function identity(value) {
+  return value;
+}
+
+export function capitalize(value) {
+  return value[0].toUpperCase() + value.substr(1);
 }
 
 export function debounce(callback, timeout) {
@@ -13,10 +17,9 @@ export function debounce(callback, timeout) {
   };
 }
 
-export function capitalize(value) {
-  return value[0].toUpperCase() + value.substr(1);
-}
+let idCounter = 0;
 
-export function identity(value) {
-  return value;
+export function getUniqueId() {
+  const id = ~~(1000000 * Math.abs(Math.random()));
+  return `id-${id}-${idCounter++}`;
 }

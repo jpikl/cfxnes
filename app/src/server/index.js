@@ -1,27 +1,32 @@
 import path from 'path';
 import express from 'express';
-import fallback from 'express-history-api-fallback';
-import * as roms from './roms';
+import historyApiFallback from 'express-history-api-fallback';
+import {env, log} from './common';
+import {RomDB, createRomRouter} from './roms';
+
+const resolvePath = path.resolve.bind(path, __dirname);
+
+const staticDir = resolvePath('static');
+const romsDirName = 'roms';
+const romsDir = env.development
+  ? resolvePath('..', '..', '..', romsDirName)
+  : resolvePath(romsDirName);
 
 const app = express();
-const dev = app.get('env') === 'development'; // True when NODE_ENV is 'development' or unset
-const root = path.join(__dirname, 'static');
+const romDb = new RomDB(romsDir);
 
-if (dev) {
+if (env.development) {
   app.use(require('morgan')('dev'));
 }
 
-app.use('/', roms.router);
-app.use('/', express.static(root));
-app.use(fallback('index.html', {root}));
+app.use('/', createRomRouter(romDb));
+app.use('/', express.static(staticDir));
+app.use(historyApiFallback('index.html', {root: staticDir}));
 
 app.use((error, req, res, next) => { // eslint-disable-line no-unused-vars
-  if (dev) {
-    process.stderr.write(error.stack, '\n');
-  }
+  log.error(error.stack);
   res.sendStatus(500);
 });
 
 app.listen(process.env.PORT || 5000);
-
-roms.watch(path.join(__dirname, dev ? '../../../roms' : 'roms'));
+romDb.start();
