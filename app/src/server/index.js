@@ -1,21 +1,26 @@
 import path from 'path';
 import express from 'express';
 import historyApiFallback from 'express-history-api-fallback';
-import {env, log} from './common';
+import {log, LogLevel} from '../common';
 import {RomDB, createRomRouter} from './roms';
 
+const {NODE_ENV, LOG_LEVEL, ROMS_DIR, PORT} = process.env;
+
+const development = NODE_ENV !== 'production';
 const resolvePath = path.resolve.bind(path, __dirname);
+
+log.setLevel(LOG_LEVEL || development ? LogLevel.INFO : LogLevel.OFF);
 
 const staticDir = resolvePath('static');
 const romsDirName = 'roms';
-const romsDir = env.development
+const romsDir = ROMS_DIR || development
   ? resolvePath('..', '..', '..', romsDirName)
   : resolvePath(romsDirName);
 
 const app = express();
 const romDb = new RomDB(romsDir);
 
-if (env.development) {
+if (development) {
   app.use(require('morgan')('dev'));
 }
 
@@ -28,5 +33,5 @@ app.use((error, req, res, next) => { // eslint-disable-line no-unused-vars
   res.sendStatus(500);
 });
 
-app.listen(process.env.PORT || 5000);
+app.listen(PORT || 5000);
 romDb.start();

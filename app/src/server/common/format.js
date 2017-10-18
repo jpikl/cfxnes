@@ -4,8 +4,8 @@ const unsafeCharsRegExp = /[^a-zA-Z0-9 ]+/g;
 
 export function makeId(name) {
   return name
-    .replace(unsafeCharsRegExp, '')
     .replace(wordSeparatorsRegExp, ' ')
+    .replace(unsafeCharsRegExp, '')
     .trim()
     .replace(whiteSpacesRegExp, '-')
     .toLowerCase();
@@ -13,8 +13,8 @@ export function makeId(name) {
 
 export function sanitizeName(name) {
   return name
-    .replace(unsafeCharsRegExp, '')
     .replace(wordSeparatorsRegExp, ' ')
+    .replace(unsafeCharsRegExp, '')
     .trim()
     .replace(whiteSpacesRegExp, '_');
 }

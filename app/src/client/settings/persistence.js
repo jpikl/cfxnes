@@ -1,4 +1,4 @@
-import {debounce, log} from '../common';
+import {debounce, log} from '../../common';
 
 const STORAGE_KEY = 'settings';
 const SAVE_TIMEOUT = 1000;

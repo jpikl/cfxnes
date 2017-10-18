@@ -1,5 +1,4 @@
-export function noop() {
-}
+/* global setTimeout, clearTimeout */
 
 export function debounce(callback, timeout) {
   let id = null;

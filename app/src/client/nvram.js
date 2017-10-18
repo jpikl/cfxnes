@@ -1,4 +1,5 @@
-import {log, nes} from './common';
+import {log} from '../common';
+import {nes} from './common';
 import {nvramStore} from './database';
 
 export function loadNVRAM() {

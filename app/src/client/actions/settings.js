@@ -1,5 +1,6 @@
+import {log} from '../../common';
+import {nes} from '../common';
 import {defaultSettings, loadSettings, applySettingsToNes, copySettingsFromNes} from '../settings';
-import {nes, log} from '../common';
 
 import {
   SET_ACTIVE_SETTINGS_PANEL,

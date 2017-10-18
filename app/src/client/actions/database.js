@@ -1,4 +1,4 @@
-import {log} from '../common';
+import {log} from '../../common';
 import {nvramStore} from '../database';
 
 import {

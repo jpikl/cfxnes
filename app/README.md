@@ -10,9 +10,9 @@ Build the [cfxnes library](../lib) first.
 
 Use `npm run build` to build the whole application.
 
-Use `npm run build:client` to build only the client;
+Use `npm run build:client` to build only the client.
 
-Use `npm run build:server` to build only the server;
+Use `npm run build:server` to build only the server.
 
 ## Running
 
@@ -33,6 +33,10 @@ Use `npm run lint` to run linting.
 Use `npm run analyze` to record webpack statistics into `stats.json` file.
 
 Use `npm run clean` to clean all generated files.
+
+## Testing
+
+Use `npm test` to run all tests.
 
 ## Library
 

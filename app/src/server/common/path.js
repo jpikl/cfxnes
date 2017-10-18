@@ -1,8 +1,8 @@
 import path from 'path';
 import {sanitizeName} from './format';
 
-export function getSanitizedFileName(romFile) {
-  const extName = path.extname(romFile);
-  const baseName = path.basename(romFile, extName);
+export function getSanitizedFileName(file) {
+  const extName = path.extname(file);
+  const baseName = path.basename(file, extName);
   return sanitizeName(baseName) + extName;
 }

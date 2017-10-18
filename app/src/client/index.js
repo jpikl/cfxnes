@@ -3,9 +3,12 @@
 import React from 'react';
 import {render} from 'react-dom';
 import {AppContainer} from 'react-hot-loader';
+import {log} from '../common';
 import {saveNVRAM} from './nvram';
 import Root from './Root';
 import './index.css';
+
+log.setLevel(__LOG_LEVEL__);
 
 function renderRoot() {
   const reactElement = <AppContainer><Root/></AppContainer>;

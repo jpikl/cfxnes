@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import {debounce, log, getSanitizedFileName} from '../common';
+import {debounce, log} from '../../common';
+import {getSanitizedFileName} from '../common';
 import {ROMS_FILES_PATH} from '../routes';
 import {isRomFile, getRomId, getRomName, compareRomsByName, findRomThumbFile} from './utils';
 
@@ -28,6 +29,7 @@ export default class RomDB {
   start() {
     const {romsDir} = this;
     if (!fs.existsSync(romsDir)) {
+      log.info(`Creating "${romsDir} directory"`);
       fs.mkdirSync(romsDir);
     }
     fs.watch(romsDir, debounce(() => this.reload(), 1000));
