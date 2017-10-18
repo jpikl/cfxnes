@@ -71,4 +71,4 @@ Use `npm run test:lib` to run tests for built library.
 
 Use `npm run test:lib:debug` to run tests for built library (debug version).
 
-Running these commands for the first time will generate `karma.browser.js` configuration file that can be used to customize which browsers are used to run tests.
+Running one of these commands for the first time will generate `karma.browser.js` configuration file that can be used to customize which browsers are used to run tests.

@@ -1,4 +1,4 @@
 /dist/
 /node_modules/
-/dev.config.js
+/webpack.dev.js
 /stats.json

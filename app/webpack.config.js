@@ -27,7 +27,7 @@ module.exports = (env = {}) => {
   };
 
   if (!env.production && env.configured) {
-    mergeConfig(devConfig, resolvePath('dev.config.js'));
+    mergeConfig(devConfig, resolvePath('webpack.dev.js'));
   }
 
   const productionEntry = [

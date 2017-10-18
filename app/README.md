@@ -8,7 +8,11 @@ A live demo is at [cfxnes.herokuapp.com](http://cfxnes.herokuapp.com).
 
 Build the [cfxnes library](../lib) first.
 
-Use `npm run build` to build the application.
+Use `npm run build` to build the whole application.
+
+Use `npm run build:client` to build only the client;
+
+Use `npm run build:server` to build only the server;
 
 ## Running
 
@@ -16,9 +20,13 @@ Use `npm start` to start the application at [localhost:5000](http://localhost:50
 
 ## Development
 
-Use `npm run dev` to start the application in development mode.
+Use `npm run dev` to build and start the whole application in development mode.
 
-Running this command for the first time will generate `dev.config.js` configuration file that can be used to customize some development parameters.
+Use `npm run dev:server` to build client in development mode.
+
+Running one of these command for the first time will generate `webpack.dev.js` configuration file that can be used to customize some webpack development parameters.
+
+Use `npm run dev:server` to build and start server in development mode.
 
 Use `npm run lint` to run linting.
 
