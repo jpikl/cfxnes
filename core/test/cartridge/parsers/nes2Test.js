@@ -18,6 +18,10 @@ describe('cartridge/parsers/ines (NES 2.0 input)', () => {
     expect(() => parse(create().subarray(0, 20))).to.throw('Input is too short: expected at least 24.015 KB but got 20 B');
   });
 
+  it('detects correct version', () => {
+    expect(test().version).to.be.equal(2);
+  });
+
   it('throws error for zero PRG RAM', () => {
     expect(() => test({prgROMUnits: 0})).to.throw('Invalid header: 0 PRG ROM units');
   });

@@ -18,6 +18,16 @@ describe('cartridge/parsers/ines (iNES input)', () => {
     expect(() => parse(create().subarray(0, 20))).to.throw('Input is too short: expected at least 24.015 KB but got 20 B');
   });
 
+  it('detects correct version', () => {
+    // Bits (2, 3) of byte 7 are used to detect NES 2.0 format.
+    // The should be unused by regular iNES ROMs. However, some ROMs
+    // have them set to non-zero value. Unless these bits are equal
+    // to 10 (NES 2.0 indication), their value must be ignored.
+    expect(test({nes2DetectionBits: 0x0}).version).to.be.equal(1); // Bits = 00
+    expect(test({nes2DetectionBits: 0x1}).version).to.be.equal(1); // Bits = 01
+    expect(test({nes2DetectionBits: 0x3}).version).to.be.equal(1); // Bits = 11
+  });
+
   it('throws error for zero PRG RAM', () => {
     expect(() => test({prgROMUnits: 0})).to.throw('Invalid header: 0 PRG ROM units');
   });

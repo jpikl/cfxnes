@@ -3,13 +3,14 @@ import {Region, Mirroring} from '../../src/common';
 export function createINES({prgROMUnits = 1, prgRAMUnits = 0, chrROMUnits = 1,
                             hasPRGRAMBattery = false, hasTrainer = false,
                             verticalMirroring = false, fourScreenMode = false,
-                            palRegion = false, mapperId = 0} = {}) {
+                            palRegion = false, mapperId = 0,
+                            nes2DetectionBits = 0} = {}) {
   const header = [
     0x4E, 0x45, 0x53, 0x1A,
     prgROMUnits & 0xFF,
     chrROMUnits & 0xFF,
     ((mapperId << 4) & 0xF0) | (fourScreenMode << 3) | (hasTrainer << 2) | (hasPRGRAMBattery << 1) | (verticalMirroring << 0),
-    mapperId & 0xF0,
+    mapperId & 0xF0 | (nes2DetectionBits << 2),
     prgRAMUnits & 0xFF,
     palRegion & 0x01,
     0, 0, 0, 0, 0, 0,

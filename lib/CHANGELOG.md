@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Library AMD export.
 - Blocked `mouseup` events by running emulator.
+- Error when loading certain iNES ROMs (*Donkey Kong 3*) due to being detected as NES 2.0.
 
 ### Added
 

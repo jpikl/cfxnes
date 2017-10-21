@@ -34,6 +34,7 @@ export function parse(data) {
     throw new Error('Input is too short: expected at least 16 B but got ' + formatSize(data.length));
   }
 
+  let version;
   let prgROMUnits = data[4];
   let chrROMUnits = data[5];
   let region, mirroring;
@@ -50,8 +51,9 @@ export function parse(data) {
     mirroring = Mirroring.HORIZONTAL;
   }
 
-  if (data[7] & 0x08) {
+  if ((data[7] & 0x0C) === 0x08) {
     log.info('Detected NES 2.0 format');
+    version = 2;
     mapperId |= (data[8] & 0x0F) << 8; // Extra 4 bits for mapper
     submapperId = (data[8] & 0xF0) >>> 4;
     prgROMUnits |= (data[9] & 0x0F) << 8; // Extra 4 bits for PRG ROM size
@@ -63,6 +65,7 @@ export function parse(data) {
     region = data[12] & 0x01 ? Region.PAL : Region.NTSC;
   } else {
     log.info('Detected iNES format');
+    version = 1;
     prgRAMSize = (data[8] || 1) * 0x2000; // N x 8KB (at least 1 unit - iNES format backward compatibility)
     prgRAMSizeBattery = data[6] & 0x02 ? prgRAMSize : 0;
     chrRAMSize = chrROMUnits ? 0 : 0x2000; // Exclusive with CHR ROM
@@ -97,7 +100,7 @@ export function parse(data) {
   const chrROM = chrROMSize ? data.subarray(chrROMStart, chrROMEnd) : undefined;
 
   return {
-    mirroring, region, mapper, submapper,
+    version, mirroring, region, mapper, submapper,
     prgROMSize, prgROM, prgRAMSize, prgRAMSizeBattery,
     chrROMSize, chrROM, chrRAMSize, chrRAMSizeBattery,
   };
