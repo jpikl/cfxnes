@@ -1,50 +1,33 @@
-/* eslint-disable no-console */
 /* global console */
 
 import {toString} from './utils';
+import logLevels, {OFF} from './logLevels';
 
-const OFF = 0;
-const ERROR = 1;
-const WARN = 2;
-const INFO = 3;
+const methodNames = logLevels.filter(level => level !== OFF);
+const noop = () => {};
 
-const levels = {
-  'off': OFF,
-  'error': ERROR,
-  'warn': WARN,
-  'info': INFO,
-};
+export class Log {
 
-let level, levelName;
-
-setLevel('warn');
-
-export function setLevel(name) {
-  if (!(name in levels)) {
-    throw new Error('Invalid log level: ' + toString(name));
+  constructor(output) {
+    this.methods = methodNames.map(name => output[name].bind(output));
+    this.setLevel(OFF);
   }
-  levelName = name;
-  level = levels[name];
-}
 
-export function getLevel() {
-  return levelName;
-}
-
-export function info(...args) {
-  if (level >= INFO) {
-    console.info(...args);
+  setLevel(level) {
+    if (logLevels.indexOf(level) < 0) {
+      throw new Error('Invalid log level: ' + toString(level));
+    }
+    this.level = level;
+    for (let i = 0; i < methodNames.length; i++) {
+      const enabled = methodNames.indexOf(level, i) >= i;
+      this[methodNames[i]] = enabled ? this.methods[i] : noop;
+    }
   }
+
+  getLevel() {
+    return this.level;
+  }
+
 }
 
-export function warn(...args) {
-  if (level >= WARN) {
-    console.warn(...args);
-  }
-}
-
-export function error(...args) {
-  if (level >= ERROR) {
-    console.error(...args);
-  }
-}
+export default new Log(console);

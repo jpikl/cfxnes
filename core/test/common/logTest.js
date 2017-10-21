@@ -1,82 +1,74 @@
 /* eslint-disable no-console */
 
-import {expect, use} from 'chai';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
-import {setLevel, getLevel, info, warn, error} from '../../src/common/log';
-
-use(sinonChai);
+import {expect} from 'chai';
+import {Log} from '../../src/common/log';
+import {OFF, ERROR, WARN, INFO} from '../../src/common/logLevels';
 
 describe('common/log', () => {
+  let log, infos, warns, errors;
+
   beforeEach(() => {
-    sinon.stub(console, 'error');
-    sinon.stub(console, 'warn');
-    sinon.stub(console, 'info');
-    setLevel('info');
+    infos = [];
+    warns = [];
+    errors = [];
+    log = new Log({
+      info(...args) { infos.push(args); },
+      warn(...args) { warns.push(args); },
+      error(...args) { errors.push(args); },
+    });
   });
 
-  afterEach(() => {
-    console.error.restore();
-    console.warn.restore();
-    console.info.restore();
-  });
-
-  after(() => {
-    setLevel('warn');
-  });
-
-  it('throws error when setting invalid log level', () => {
-    expect(() => setLevel()).to.throw('Invalid log level: undefined');
-    expect(() => setLevel('x')).to.throw('Invalid log level: "x"');
+  it('has "off" as default log level', () => {
+    expect(log.getLevel()).to.be.equal(OFF);
   });
 
   it('changes log level', () => {
-    expect(getLevel()).not.to.be.equal('off');
-    setLevel('off');
-    expect(getLevel()).to.be.equal('off');
+    log.setLevel(INFO);
+    expect(log.getLevel()).to.be.equal(INFO);
   });
 
-  it('forwards error calls', () => {
-    error('message1', 'message2');
-    expect(console.error).to.have.been.calledOnce;
-    expect(console.error).to.have.been.calledWith('message1', 'message2');
-  });
-
-  it('forwards warn calls', () => {
-    warn('message1', 'message2');
-    expect(console.warn).to.have.been.calledOnce;
-    expect(console.warn).to.have.been.calledWith('message1', 'message2');
-  });
-
-  it('forwards info calls', () => {
-    info('message1', 'message2');
-    expect(console.info).to.have.been.calledOnce;
-    expect(console.info).to.have.been.calledWith('message1', 'message2');
+  it('throws error when setting invalid log level', () => {
+    expect(() => log.setLevel()).to.throw('Invalid log level: undefined');
+    expect(() => log.setLevel('x')).to.throw('Invalid log level: "x"');
   });
 
   it('logs nothing for "off" level', () => {
-    testLevel('off', 0, 0, 0);
+    log.setLevel(OFF);
+    log.error('foo', 'bar');
+    log.warn('fooo', 'barr');
+    log.info('foooo', 'barrr');
+    expect(errors).to.deep.equal([]);
+    expect(warns).to.deep.equal([]);
+    expect(infos).to.deep.equal([]);
   });
 
   it('logs errors for "error" level', () => {
-    testLevel('error', 1, 0, 0);
+    log.setLevel(ERROR);
+    log.error('foo', 'bar');
+    log.warn('fooo', 'barr');
+    log.info('foooo', 'barrr');
+    expect(errors).to.deep.equal([['foo', 'bar']]);
+    expect(warns).to.deep.equal([]);
+    expect(infos).to.deep.equal([]);
   });
 
-  it('logs errors, warnings for "warn" level', () => {
-    testLevel('warn', 1, 1, 0);
+  it('logs errors and warnings for "warn" level', () => {
+    log.setLevel(WARN);
+    log.error('foo', 'bar');
+    log.warn('fooo', 'barr');
+    log.info('foooo', 'barrr');
+    expect(errors).to.deep.equal([['foo', 'bar']]);
+    expect(warns).to.deep.equal([['fooo', 'barr']]);
+    expect(infos).to.deep.equal([]);
   });
 
-  it('logs errors, warnings, infos for "info" level', () => {
-    testLevel('info', 1, 1, 1);
+  it('logs errors, warnings and infos for "info" level', () => {
+    log.setLevel(INFO);
+    log.error('foo', 'bar');
+    log.warn('fooo', 'barr');
+    log.info('foooo', 'barrr');
+    expect(errors).to.deep.equal([['foo', 'bar']]);
+    expect(warns).to.deep.equal([['fooo', 'barr']]);
+    expect(infos).to.deep.equal([['foooo', 'barrr']]);
   });
-
-  function testLevel(level, errors, warnings, infos) {
-    setLevel(level);
-    error('message');
-    warn('message');
-    info('message');
-    expect(console.error).to.have.callCount(errors);
-    expect(console.warn).to.have.callCount(warnings);
-    expect(console.info).to.have.callCount(infos);
-  }
 });

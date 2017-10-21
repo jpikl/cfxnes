@@ -1,8 +1,9 @@
-import * as log from './log';
-import * as Region from './regions';
+import * as LogLevel from './logLevels';
 import * as Mirroring from './mirrorings';
+import * as Region from './regions';
 
-export {log, Region, Mirroring};
+export {default as log} from './log';
+export {LogLevel, Mirroring, Region};
 
 export {
   detectEndianness,

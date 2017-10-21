@@ -1,5 +1,2 @@
-import * as LogLevel from './logLevels';
-
-export {LogLevel};
-export {default as log} from './log';
+export {log, LogLevel} from '../../../core/src/common'; // Reuse log module from core
 export * from './utils';
