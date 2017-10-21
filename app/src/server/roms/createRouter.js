@@ -37,7 +37,7 @@ export default function createRouter(romDb) {
       return;
     }
 
-    res.download(file, name);
+    res.sendFile(file);
   });
 
   return router;

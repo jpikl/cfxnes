@@ -10,7 +10,7 @@ log.setLevel(LOG_LEVEL || LogLevel.OFF);
 
 const resolvePath = path.resolve.bind(path, __dirname);
 const staticDir = resolvePath('static');
-const romsDir = ROMS_DIR || resolvePath('roms');
+const romsDir = ROMS_DIR ? path.resolve(ROMS_DIR) : resolvePath('roms');
 
 const app = express();
 const romDb = new RomDB(romsDir);
