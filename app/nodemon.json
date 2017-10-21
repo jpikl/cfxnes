@@ -1,0 +1,10 @@
+{
+  "verbose": true,
+  "exec": "babel-node src/server",
+  "watch": ["src/common", "src/server"],
+  "env": {
+    "LOG_LEVEL": "info",
+    "MORGAN_FORMAT": "dev",
+    "ROMS_DIR": "../roms"
+  }
+}

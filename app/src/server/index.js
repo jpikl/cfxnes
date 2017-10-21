@@ -4,24 +4,19 @@ import historyApiFallback from 'express-history-api-fallback';
 import {log, LogLevel} from '../common';
 import {RomDB, createRomRouter} from './roms';
 
-const {NODE_ENV, LOG_LEVEL, ROMS_DIR, PORT} = process.env;
+const {LOG_LEVEL, MORGAN_FORMAT, ROMS_DIR, PORT} = process.env;
 
-const development = NODE_ENV !== 'production';
+log.setLevel(LOG_LEVEL || LogLevel.OFF);
+
 const resolvePath = path.resolve.bind(path, __dirname);
-
-log.setLevel(LOG_LEVEL || development ? LogLevel.INFO : LogLevel.OFF);
-
 const staticDir = resolvePath('static');
-const romsDirName = 'roms';
-const romsDir = ROMS_DIR || development
-  ? resolvePath('..', '..', '..', romsDirName)
-  : resolvePath(romsDirName);
+const romsDir = ROMS_DIR || resolvePath('roms');
 
 const app = express();
 const romDb = new RomDB(romsDir);
 
-if (development) {
-  app.use(require('morgan')('dev'));
+if (MORGAN_FORMAT) {
+  app.use(require('morgan')(MORGAN_FORMAT));
 }
 
 app.use('/', createRomRouter(romDb));
