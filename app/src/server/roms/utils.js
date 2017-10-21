@@ -16,7 +16,8 @@ export function getRomId(romFile) {
 }
 
 export function getRomName(romFile) {
-  return path.basename(romFile).trim();
+  const extName = path.extname(romFile);
+  return path.basename(romFile, extName).trim();
 }
 
 export function compareRomsByName(rom1, rom2) {
