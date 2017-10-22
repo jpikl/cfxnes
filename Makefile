@@ -22,12 +22,12 @@ help:
 	@echo ""
 	@echo "	tag					Tag current version in git"
 	@echo "	version			Update version in package.json"
-	@echo "	deploy			 Deploy application"
+	@echo "	deploy			Deploy application"
 	@echo "	release			Create release"
-	@echo "	backup			 Backup project"
+	@echo "	backup			Backup project"
 	@echo ""
-	@echo "	lint				 Run linter"
-	@echo "	test				 Run tests"
+	@echo "	lint				Run linter"
+	@echo "	test				Run tests"
 	@echo ""
 	@echo "	clean				Delete generated files"
 	@echo "	clean_all		Delete generated files and installed npm packages"
@@ -85,8 +85,10 @@ release: clean lib_dbg app
 	cp lib/*.md lib/polyfills.js $(TEMP_DIR)/lib/
 	cp -r app/dist $(TEMP_DIR)/app
 	cp app/*.md $(TEMP_DIR)/app/
-	cp app/package.json $(TEMP_DIR)/app/
+	cp app/package{,-lock}.json $(TEMP_DIR)/app/
 	cp *.md *.txt logo.png $(TEMP_DIR)/
+	cd $(TEMP_DIR)/app && npm install --production
+	rm $(TEMP_DIR)/app/package{,-lock}.json
 	cd $(TEMP_DIR) && zip -r ../$(RELEASE_FILE) .
 
 backup: clean
@@ -107,7 +109,7 @@ lint:
 test:
 	cd core && npm -s test
 	cd lib && npm -s test
-  cd app && npm -s test
+	cd app && npm -s test
 
 ###############################################################################
 # Clean
