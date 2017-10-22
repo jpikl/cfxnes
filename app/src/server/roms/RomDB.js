@@ -7,11 +7,14 @@ import {isRomFile, getRomId, getRomName, compareRomsByName, findRomThumbFile} fr
 
 export default class RomDB {
 
-  constructor(romsDir) {
+  constructor(romsDir, options = {}) {
+    const {reloadDelay = 1000} = options;
     this.romsDir = romsDir;
     this.roms = [];
     this.romMap = {};
     this.fileMap = {};
+    this.delayedReload = debounce(() => this.reload(), reloadDelay);
+    this.reloadsCount = 0;
   }
 
   getRoms() {
@@ -27,18 +30,29 @@ export default class RomDB {
   }
 
   start() {
+    if (this.watcher) {
+      return;
+    }
     const {romsDir} = this;
     if (!fs.existsSync(romsDir)) {
       log.info(`Creating "${romsDir} directory"`);
       fs.mkdirSync(romsDir);
     }
-    fs.watch(romsDir, debounce(() => this.reload(), 1000));
+    this.watcher = fs.watch(romsDir, this.delayedReload);
     this.reload();
+  }
+
+  stop() {
+    if (this.watcher) {
+      this.watcher.close();
+      this.watcher = null;
+    }
   }
 
   reload() {
     const {romsDir} = this;
-    log.info(`Scanning "${romsDir}" directory`);
+    this.reloadsCount++;
+    log.info(`Reloading "${romsDir}" directory (#${this.reloadsCount})`);
 
     const roms = [];
     const romMap = {};

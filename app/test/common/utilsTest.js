@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 import {debounce} from '../../src/common/utils';
+import {asyncCall} from '../../../lib/test/utils';
 
 describe('common/utils', () => {
   it('debounces function call', done => {
@@ -10,22 +11,14 @@ describe('common/utils', () => {
     debouncedIncrement();
     expect(counter).to.be.equal(0);
 
-    setTimeout(() => {
-      try {
-        debouncedIncrement();
-        expect(counter).to.be.equal(0);
+    asyncCall(done, 5, () => {
+      debouncedIncrement();
+      expect(counter).to.be.equal(0);
 
-        setTimeout(() => {
-          try {
-            expect(counter).to.be.equal(1);
-            done();
-          } catch (error) {
-            done(error);
-          }
-        }, 20);
-      } catch (error) {
-        done(error);
-      }
-    }, 5);
+      asyncCall(done, 20, () => {
+        expect(counter).to.be.equal(1);
+        done();
+      })
+    });
   })
 });

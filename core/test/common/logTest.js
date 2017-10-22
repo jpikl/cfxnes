@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import {expect} from 'chai';
 import {Log} from '../../src/common/log';
 import {OFF, ERROR, WARN, INFO} from '../../src/common/logLevels';
