@@ -107,6 +107,7 @@ lint:
 test:
 	cd core && npm -s test
 	cd lib && npm -s test
+  cd app && npm -s test
 
 ###############################################################################
 # Clean

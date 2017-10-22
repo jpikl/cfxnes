@@ -77,7 +77,7 @@ export default class APU {
     this.bufferIncrement = 0;                   // Sum of increments for the next buffer position
     this.recordBuffer = new Float32Array(size); // Buffer where audio samples are being stored
     this.outputBuffer = new Float32Array(size); // Buffer with audio samples ready to output
-    this.outputBufferFull = false;              // Wheter the output buffer is full
+    this.outputBufferFull = false;              // Whether the output buffer is full
   }
 
   getBufferSize() {

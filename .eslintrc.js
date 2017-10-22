@@ -62,6 +62,7 @@ module.exports = {
     'key-spacing': 'warn',
     'keyword-spacing': 'warn',
     'linebreak-style': 'warn',
+    'lines-between-class-members': 'warn',
     'new-cap': ['warn', {'newIsCapExceptions': ['class', 'clazz']}],
     'nonblock-statement-body-position': 'error',
     'no-array-constructor': 'error',
