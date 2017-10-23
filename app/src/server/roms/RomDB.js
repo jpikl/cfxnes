@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import {debounce, log} from '../../common';
-import {getSanitizedFileName} from '../common';
 import {ROMS_FILES_PATH} from '../routes';
-import {isRomFile, getRomId, getRomName, compareRomsByName, findRomThumbFile} from './utils';
+import {isRomFile, getRomId, getRomName, compareRomsByName, findRomThumbFile, getPublicFileName} from './utils';
 
 export default class RomDB {
 
@@ -64,7 +63,7 @@ export default class RomDB {
       }
 
       const romFile = path.join(romsDir, romFileName);
-      const publicRomFileName = getSanitizedFileName(romFileName);
+      const publicRomFileName = getPublicFileName(romFileName);
       fileMap[publicRomFileName] = romFile;
 
       const rom = {
@@ -78,7 +77,7 @@ export default class RomDB {
 
       const thumbFile = findRomThumbFile(romFile);
       if (thumbFile) {
-        const publicThumbFileName = getSanitizedFileName(thumbFile);
+        const publicThumbFileName = getPublicFileName(thumbFile);
         fileMap[publicThumbFileName] = thumbFile;
         rom.thumbnail = `${ROMS_FILES_PATH}/${publicThumbFileName}`;
       }

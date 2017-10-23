@@ -32,7 +32,7 @@
     "analyze": "webpack -p --profile --json --env.production > stats.json",
     "start": "node dist",
     "lint": "run-p --continue-on-error lint:*",
-    "lint:js": "eslint --ext=.js,.jsx src \"*.js\"",
+    "lint:js": "eslint --ext=.js,.jsx src test \"*.js\"",
     "lint:css": "stylelint 'src/client/**/*.css'",
     "lint:css:fix": "stylelint --fix 'src/client/**/*.css'",
     "test": "mocha --recursive --require babel-register",

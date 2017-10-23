@@ -69,7 +69,7 @@ describe('server/roms/RomDB', () => {
     expect(romDB.reloadsCount).to.be.equal(1);
     romDB.reload();
     expect(romDB.reloadsCount).to.be.equal(2);
-  })
+  });
 
   it('starts/stops watching changes in directory', done => {
     expect(romDB.reloadsCount).to.be.equal(0);
@@ -77,13 +77,13 @@ describe('server/roms/RomDB', () => {
     expect(romDB.reloadsCount).to.be.equal(1);
     touch.sync(resolveFile('nestest.nes'));
 
-    recursiveAsyncCall(done, 20, [() => {
+    recursiveAsyncCall(done, 20, () => {
       expect(romDB.reloadsCount).to.be.equal(2);
       romDB.stop();
       touch.sync(resolveFile('nestest.nes'));
       expect(romDB.reloadsCount).to.be.equal(2);
     }, () => {
       expect(romDB.reloadsCount).to.be.equal(2);
-    }]);
+    });
   });
 });

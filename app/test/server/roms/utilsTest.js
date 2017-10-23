@@ -1,6 +1,6 @@
 import path from 'path';
 import {expect} from 'chai';
-import {isRomFile, getRomId, getRomName, compareRomsByName, findRomThumbFile} from '../../../src/server/roms/utils';
+import {isRomFile, getRomId, getRomName, compareRomsByName, findRomThumbFile, getPublicFileName} from '../../../src/server/roms/utils';
 
 describe('server/roms/utils', () => {
   const resolveFile = name => path.resolve(__dirname, name);
@@ -33,5 +33,9 @@ describe('server/roms/utils', () => {
   it('finds ROM thumbnail', () => {
     expect(findRomThumbFile(resolveFile('x.nes'))).to.be.null;
     expect(findRomThumbFile(resolveFile('nestest.nes'))).to.be.equal(resolveFile('nestest.jpg'));
-  })
+  });
+
+  it('returns public filename', () => {
+    expect(getPublicFileName('/path/to/dir/ New Test-File - X_.png')).to.be.equal('New_Test_File_X.png');
+  });
 });

@@ -18,7 +18,7 @@ describe('common/utils', () => {
       asyncCall(done, 20, () => {
         expect(counter).to.be.equal(1);
         done();
-      })
+      });
     });
-  })
+  });
 });

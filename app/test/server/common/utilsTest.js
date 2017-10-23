@@ -1,7 +1,7 @@
 import {expect} from 'chai';
-import {makeId, sanitizeName, removePrefix} from '../../../src/server/common/format';
+import {makeId, sanitizeName, removePrefix} from '../../../src/server/common/utils';
 
-describe('server/common/format', () => {
+describe('server/common/utils', () => {
   it('makes ID', () => {
     expect(makeId('  __-- Ab-Cd_Ef Gh+*/%  __--Ij  __--')).to.be.equal('ab-cd-ef-gh-ij');
   });
