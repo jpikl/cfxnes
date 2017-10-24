@@ -18,6 +18,14 @@ Use `npm run build:server` to build only the server.
 
 Use `npm start` to start the application at [localhost:5000](http://localhost:5000)
 
+## Configuration
+
+Configuration is loaded from the `dist/cfg.json` file if it exists.
+
+Configuration options can be also passed through environment variables (`fooBar` configuration option corresponds to `FOO_BAR` environment variable). Values passed through environment variables always take precedence.
+
+Default values are documented in [defaults.js](src/server/config/defaults.js).
+
 ## Development
 
 Use `npm run dev` to build and start the whole application in development mode.

@@ -34,7 +34,7 @@ export default class RomDB {
     }
     const {romsDir} = this;
     if (!fs.existsSync(romsDir)) {
-      log.info(`Creating "${romsDir} directory"`);
+      log.info(`Creating "${romsDir}" directory`);
       fs.mkdirSync(romsDir);
     }
     this.watcher = fs.watch(romsDir, this.delayedReload);

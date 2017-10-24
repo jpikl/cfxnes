@@ -4,7 +4,9 @@
   "watch": ["src/common", "src/server"],
   "env": {
     "LOG_LEVEL": "info",
-    "MORGAN_FORMAT": "dev",
-    "ROMS_DIR": "../roms"
+    "MORGAN_ENABLED": true,
+    "ROMS_PATH": "../roms",
+    "TLS_KEY_PATH": "./test/server/key.pem",
+    "TLS_CERT_PATH": "./test/server/cert.pem"
   }
 }

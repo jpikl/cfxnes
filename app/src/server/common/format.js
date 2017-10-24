@@ -18,18 +18,3 @@ export function sanitizeName(name) {
     .trim()
     .replace(whiteSpacesRegExp, '_');
 }
-
-export function removePrefix(value, prefix, caseInsensitive) {
-  let actualPrefix = value.substr(0, prefix.length);
-
-  if (caseInsensitive) {
-    actualPrefix = actualPrefix.toLowerCase();
-    prefix = prefix.toLowerCase();
-  }
-
-  if (actualPrefix === prefix) {
-    return value.substr(prefix.length);
-  }
-
-  return value;
-}
