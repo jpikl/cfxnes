@@ -62,7 +62,7 @@ export default class RomDB {
         continue;
       }
 
-      const romFile = path.join(romsDir, romFileName);
+      const romFile = path.resolve(romsDir, romFileName);
       const publicRomFileName = getPublicFileName(romFileName);
       fileMap[publicRomFileName] = romFile;
 
