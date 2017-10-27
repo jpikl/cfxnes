@@ -34,7 +34,6 @@
     "lint": "run-p --continue-on-error lint:*",
     "lint:js": "eslint --ext=.js,.jsx src test \"*.js\"",
     "lint:css": "stylelint 'src/client/**/*.css'",
-    "lint:css:fix": "stylelint --fix 'src/client/**/*.css'",
     "test": "mocha --recursive --require babel-register",
     "clean": "rimraf dist stats.json"
   },

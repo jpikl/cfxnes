@@ -90,14 +90,10 @@ zapper.setTriggerPressed(true);
 
 ## Development
 
-Use `npm run lint` to run linting.
-
-Use `npm run clean` to clean all generated files.
-
-## Testing
-
-Use `npm test` to run all tests.
-
-Use `npm run test:base` to run tests for source modules.
-
-Use `npm run test:roms` to run ROM-based tests.
+| `npm run <script>` | Description                                       |
+| ------------------ | ------------------------------------------------- |
+| `lint`             | Run linter.                                       |
+| `test`             | Run all tests.                                    |
+| `test:base`        | Run tests for source modules.                     |
+| `test:roms`        | Run tests that are using various validation ROMs. |
+| `clean`            | Clean all generated files.                        |
