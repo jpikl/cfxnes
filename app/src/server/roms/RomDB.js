@@ -34,7 +34,7 @@ export default class RomDB {
     }
     const {romsDir} = this;
     if (!fs.existsSync(romsDir)) {
-      log.info(`Creating "${romsDir}" directory`);
+      log.info('Creating "%s" directory', romsDir);
       fs.mkdirSync(romsDir);
     }
     this.watcher = fs.watch(romsDir, this.delayedReload);
@@ -51,7 +51,7 @@ export default class RomDB {
   reload() {
     const {romsDir} = this;
     this.reloadsCount++;
-    log.info(`Reloading "${romsDir}" directory (#${this.reloadsCount})`);
+    log.info('Reloading "%s" directory (#%d)', romsDir, this.reloadsCount);
 
     const roms = [];
     const romMap = {};
@@ -89,7 +89,7 @@ export default class RomDB {
     this.romMap = romMap;
     this.fileMap = fileMap;
 
-    log.info(`Found ${roms.length} ROMs`);
+    log.info('Found %d ROMs', roms.length);
   }
 
 }
