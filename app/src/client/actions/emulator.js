@@ -5,9 +5,10 @@ import {loadNVRAM, saveNVRAM} from '../nvram';
 import {
   START_ROM_LOAD,
   FINISH_ROM_LOAD,
-  CLEAR_ROM_LOAD_ERROR,
   SET_EMULATOR_RUNNING,
   SET_EMULATOR_SUSPENDED,
+  SET_EMULATOR_ERROR,
+  CLEAR_EMULATOR_ERROR,
 } from '../actionTypes';
 
 import {selectEmulator, selectLibrary} from '../reducers';
@@ -15,12 +16,16 @@ import {createAction} from './common';
 
 export function connectEmulator(canvas) {
   return (dispatch, getState) => {
-    nes.video.output = canvas;
-    const {suspended} = selectEmulator(getState());
-    if (suspended) {
-      dispatch(resumeEmulator());
-    } else if (nes.rom.loaded) {
-      nes.step(); // To refresh canvas
+    try {
+      nes.video.output = canvas;
+      const {suspended} = selectEmulator(getState());
+      if (suspended) {
+        dispatch(resumeEmulator());
+      } else if (nes.rom.loaded) {
+        nes.step(); // To refresh canvas
+      }
+    } catch (error) {
+      dispatch(setEmulatorError(error));
     }
   };
 }
@@ -65,7 +70,7 @@ export function resetEmulator() {
   return () => nes.reset();
 }
 
-export function fetchAndloadROM(romId) {
+export function fetchAndLoadROM(romId) {
   return executeROMLoad(romId, getState => {
     return fetchROM(romId, getState)
       .then(({file}) => nes.rom.load(file));
@@ -78,7 +83,7 @@ export function loadROM(source) {
 
 function executeROMLoad(romId, loader) {
   return (dispatch, getState) => {
-    dispatch(clearROMLoadError());
+    dispatch(clearEmulatorError());
     dispatch(stopEmulator());
     return saveNVRAM().then(() => {
       nes.rom.unload();
@@ -109,8 +114,12 @@ function fetchROM(romId, getState) {
   });
 }
 
-export function clearROMLoadError() {
-  return createAction(CLEAR_ROM_LOAD_ERROR);
+function setEmulatorError(error) {
+  return createAction(SET_EMULATOR_ERROR, error);
+}
+
+export function clearEmulatorError() {
+  return createAction(CLEAR_EMULATOR_ERROR);
 }
 
 export function toggleFullscreen() {

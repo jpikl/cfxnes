@@ -15,16 +15,16 @@ class Emulator extends PureComponent {
     romId: PropTypes.string,
     routeRomId: PropTypes.string,
     loadState: PropTypes.oneOf(ActionState.values).isRequired,
-    loadError: PropTypes.string.isRequired,
     controls: controlsPropType.isRequired,
     controlsVisible: PropTypes.bool.isRequired,
+    error: PropTypes.string.isRequired,
     onConnect: PropTypes.func.isRequired,
     onDisconnect: PropTypes.func.isRequired,
     onLoad: PropTypes.func.isRequired,
     onFetchAndLoad: PropTypes.func.isRequired,
     onRouteRedirect: PropTypes.func.isRequired,
-    onErrorClose: PropTypes.func.isRequired,
     onControlsClose: PropTypes.func.isRequired,
+    onErrorClose: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -106,7 +106,7 @@ class Emulator extends PureComponent {
 
   render() {
     const {dragOver} = this.state;
-    const {loadState, loadError, onErrorClose, controls, controlsVisible, onControlsClose} = this.props;
+    const {loadState, controls, controlsVisible, onControlsClose, error, onErrorClose} = this.props;
     const loading = loadState === ActionState.STARTED;
     const fullClassName = classNames('emulator', {'drag-over': dragOver});
 
@@ -115,8 +115,8 @@ class Emulator extends PureComponent {
         {controlsVisible && (
           <EmulatorControls controls={controls} onClose={onControlsClose}/>
         )}
-        {loadError && (
-          <EmulatorError message={loadError} onClose={onErrorClose}/>
+        {error && (
+          <EmulatorError message={error} onClose={onErrorClose}/>
         )}
         <EmulatorOutput loading={loading} refCanvas={this.setCanvas}/>
       </Main>

@@ -38,10 +38,6 @@ class VideoSettings extends PureComponent {
     onFpsVisibleChange: PropTypes.func.isRequired,
   };
 
-  handleVideoRendererChange = webgl => {
-    this.props.onVideoRendererChange(webgl ? VideoRenderer.WEBGL : VideoRenderer.CANVAS);
-  };
-
   handleVideoScaleChange = scale => {
     if (scale && scale >= MIN_VIDEO_SCALE && scale <= MAX_VIDEO_SCALE) {
       this.props.onVideoScaleChange(scale);
@@ -52,7 +48,7 @@ class VideoSettings extends PureComponent {
     const {
       active, videoRenderer, videoScale, videoPalette, videoFilter, videoDebug,
       fullscreenType, fpsVisible, onActivate, onVideoPaletteChange, onVideoFilterChange,
-      onVideoDebugChange, onFullscreenTypeChange, onFpsVisibleChange,
+      onVideoRendererChange, onVideoDebugChange, onFullscreenTypeChange, onFpsVisibleChange,
     } = this.props;
 
     return (
@@ -75,16 +71,16 @@ class VideoSettings extends PureComponent {
         </div>
         <div className="video-fields-2">
           <Field>
+            <Field.Label htmlFor={VIDEO_RENDERER}>Renderer</Field.Label>
+            <ComboBox selectId={VIDEO_RENDERER} options={VideoRenderer.options} value={videoRenderer} onChange={onVideoRendererChange}/>
+          </Field>
+          <Field>
             <Field.Label htmlFor={VIDEO_FILTER}>Filter</Field.Label>
             <ComboBox selectId={VIDEO_FILTER} options={VideoFilter.options} value={videoFilter} onChange={onVideoFilterChange}/>
           </Field>
           <Field className="video-debug-field" inline>
             <Switch inputId={VIDEO_DEBUG} value={videoDebug} onChange={onVideoDebugChange}/>
             <Field.Label htmlFor={VIDEO_DEBUG}>Enable debug output</Field.Label>
-          </Field>
-          <Field inline>
-            <Switch inputId={VIDEO_RENDERER} value={videoRenderer === VideoRenderer.WEBGL} onChange={this.handleVideoRendererChange}/>
-            <Field.Label htmlFor={VIDEO_RENDERER}>Use WebGL for rendering</Field.Label>
           </Field>
           <Field inline>
             <Switch inputId={FPS_VISIBLE} value={fpsVisible} onChange={onFpsVisibleChange}/>
