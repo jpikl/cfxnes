@@ -8,7 +8,7 @@ A live demo is at [cfxnes.herokuapp.com](http://cfxnes.herokuapp.com).
 
 Build the [cfxnes library](../lib) first.
 
-Run `npm run build` to build the application into the `dist` directory.
+Run `npm run build` to build the application into the **dist** directory.
 
 Run `npm start` to start the application at [localhost:5000](http://localhost:5000).
 

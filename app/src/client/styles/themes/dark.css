@@ -46,10 +46,10 @@
   --dark-message-error-background: #843534;
   --dark-message-error-border-color: #a94442;
   --dark-message-error-color: #ebccd1;
-  --dark-message-info-anchor-color: #dae9f1;
-  --dark-message-info-background: #245269;
-  --dark-message-info-border-color: #347798;
-  --dark-message-info-color: #b3d4e5;
+  --dark-message-info-anchor-color: #fffbe6;
+  --dark-message-info-background: #998100;
+  --dark-message-info-border-color: #bfa100;
+  --dark-message-info-color: #fff7cc;
   --dark-meter-line-color: #888;
   --dark-modal-background: #272822;
   --dark-modal-border-color: #414339;

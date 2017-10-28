@@ -76,7 +76,7 @@ nes = cfxnes({
 ### Properties
 
 | Name | Type | Writable | Default | Description |
-|------|------|----------|---------|-------------|
+| ---- | ---- | -------- | ------- | ----------- |
 | version | `string` | no |  | cfxnes version. |
 | logLevel | `string` | yes | `'warn'` | Verbosity of logging for all emulator instances.<br>`'off'` - Logging is disabled.<br>`'error'` - Log errors.<br>`'warn'` - Log errors and warnings.<br>`'info'` - Log errors, warnings and info messages. |
 
@@ -95,7 +95,7 @@ Emulator instance returned by the `cfxnes` function.
 ### Properties
 
 | Name | Type | Writable | Default | Description |
-|------|------|----------|---------|-------------|
+| ---- | ---- | -------- | ------- | ----------- |
 | running | `boolean` | no | `false` | `true` when emulator is running, `false` otherwise. |
 | fps  | `number` | no || Number of frames per second of running emulator. |
 | region | `string` | yes | `'auto'` | Emulated NES region.<br>`'auto'` - Automatic region detection (not very reliable).<br>`'ntsc'` - NTSC region (60 FPS).<br>`'pal'` - PAL region (50 FPS). |
@@ -112,7 +112,7 @@ Emulator instance returned by the `cfxnes` function.
 ### Methods
 
 | Signature | Description |
-|-----------|-------------|
+| --------- | ----------- |
 | start() | Starts emulator. |
 | stop() | Stops emulator. |
 | step() | Forces emulator to render one frame. |
@@ -169,14 +169,14 @@ The source can be `Uint8Array`, `ArrayBuffer`, `Array`, `Blob` or `string`. Stri
 ### Properties
 
 | Name | Type | Writable | Default | Description |
-|------|------|----------|---------|-------------|
+| ---- | ---- | -------- | ------- | ----------- |
 | loaded | `boolean` | no | `false` | `true` when a ROM image is loaded, `false` otherwise.  |
 | sha1  | `string` | no | `null` | SHA-1 of loaded ROM image, `null` otherwise. |
 
 ### Methods
 
 | Signature | Returns | Description |
-|-----------|---------|-------------|
+| --------- | ------- | ----------- |
 | load(source) | `Promise` | Loads ROM image from the specified source. |
 | unload() || Unloads loaded ROM image. |
 
@@ -238,7 +238,7 @@ Once the output is set, it is not possible to change value of the `renderer` pro
 ### Properties
 
 | Name | Type | Writable | Default | Description |
-|------|------|----------|---------|-------------|
+| ---- | ---- | -------- | ------- | ----------- |
 | output | `HTMLCanvasElement` | yes | `null` | Canvas element used to render emulator video output. The property can be set to `null` to disable rendering. |
 | renderer | `string` | yes | `'webgl'` | Rendering back-end.<br>`'canvas'` - Renderer using Canvas API. It is used as fallback when WebGL is not available.<br>`'webgl'` - Renderer using WebGL. It should be faster than the `'canvas'` renderer, but this highly depends on browser, OS, graphic card driver, etc. |
 | palette | `string` | yes | `'fceux'` | Palette used for generating RGB color values. Allowed values are:<br>`'asq-real-a'`, `'asq-real-b'`, `'bmf-fin-r2'`, `'bmf-fin-r3'`, `'fceu-13'`, `'fceu-15'`, `'fceux'`, `'nestopia-rgb'`, `'nestopia-yuv'`, `'sony-cxa2025as'`, `'unsaturated-v6'`<br>See [FCEUX documentation](http://www.fceux.com/web/help/fceux.html?PaletteOptions.html) for their description. |
@@ -249,7 +249,7 @@ Once the output is set, it is not possible to change value of the `renderer` pro
 ### Methods
 
 | Signature | Returns | Description |
-|-----------|---------|-------------|
+| --------- | ------- | ----------- |
 | clear() | `void` | Clears canvas. |
 
 ``` javascript
@@ -278,14 +278,14 @@ It is recommended to wrap used `canvas` element in extra `div` to make fullscree
 ### Properties
 
 | Name | Type | Writable | Default | Description |
-|------|------|----------|---------|-------------|
+| ---- | ---- | -------- | ------- | ----------- |
 | is | `boolean` | no | false | `true` when emulator is in fullscreen mode, `false` otherwise. |
 | type | `string` | yes | `'maximized'` | Type of fullscreen mode.<br>`'maximized'` - Maximizes output resolution while keeping its original aspect ratio.<br>`'normalized'` - Same as the `'maximized'` type, but output resolution is integer multiple of the base resolution 256x240. This should reduce visual artifacts caused by upscaling.<br>`'stretched'` - Output is stretched to fill the whole screen (both horizontally and vertically). The original aspect ratio is not preserved.|
 
 ### Methods
 
 | Signature | Returns | Description |
-|-----------|---------|-------------|
+| --------- | ------- | ----------- |
 | enter() | `Promise` | Switches to fullscreen mode. The method does nothing when fullscreen is on. |
 | exit() | `Promise` | Returns from fullscreen mode. The method does nothing when fullscreen is off. |
 
@@ -314,7 +314,7 @@ The `nes.audio` property is `null` when browser does not support Web Audio (curr
 ### Properties
 
 | Name | Type | Writable | Default | Description |
-|------|------|----------|---------|-------------|
+| ---- | ---- | -------- | ------- | ----------- |
 | enabled | `boolean` | yes | true | `true` when audio output is enabled, `false` otherwise. |
 | volume | `object` | no || Audio volume configuration. |
 | volume.master | `number` | yes | `0.5` | Master volume. |
@@ -350,7 +350,7 @@ NES has 2 input ports, each of them can be assigned a device through numeric pro
 ### Properties
 
 | Number | Type | Writable | Default | Description |
-|--------|------|----------|---------|-------------|
+| ------ | ---- | -------- | ------- | ----------- |
 | 1 | `string` | yes | `'joypad'` | Device connected to port #1. |
 | 2 | `string` | yes | `'zapper'` | Device connected to port #2. |
 
@@ -394,14 +394,14 @@ Examples:
 ### Properties
 
 | Name | Type | Writable | Description |
-|------|------|----------|-------------|
+| ---- | ---- | -------- | ----------- |
 | state |  `object` | no | Submodule that holds state of all inputs.<br> - For buttons, the state is `boolean`. <br> - For `'{1,2}.zapper.beam'`, the state is array of 2 numbers `[x, y]` (beam coordinates). |
 | map | `object` | no | Submodule that holds mapping between inputs. |
 
 ### Methods
 
 | Signature | Description |
-|-----------|-------------|
+| --------- | ----------- |
 | state.get(devInput) | Returns state of a device input. |
 | state.set(devInput, state) | Sets state of a device input.|
 | map.get(input) | Returns mapping of an input. |
@@ -440,7 +440,7 @@ inputs.record(srcInput => {
 ### Joypad Inputs
 
 | Input | Name |
-|-------|------|
+| ----- | ---- |
 | A, B buttons | `'a'`, `'b'` |
 | Start, Select buttons | `'start'`, `'select'` |
 | D-pad buttons | `'left'`, `'right'`, `'up'`, `'down'` |
@@ -448,14 +448,14 @@ inputs.record(srcInput => {
 ### Zapper Inputs
 
 | Input | Name |
-|-------|------|
+| ----- | ---- |
 | Trigger | `'trigger'` |
 | Beam position | *It is permanently mapped to mouse cursor position.* |
 
 ### Keyboard Inputs
 
 | Input | Name |
-|-------|------|
+| ----- | ---- |
 | Character&nbsp;keys&nbsp;(letters) | `'a'`, `'b'`, ..., `'z'` |
 | Character&nbsp;keys&nbsp;(numbers) | `'0'`, `'1'`, ..., `'9'` |
 | Character&nbsp;keys&nbsp;(special) | `'space'`, `','`, `'.'`, `'/'`, `';'`, `'\''`, `'\\'`, `'['`, `']'`, `'``'`, `'-'`, `'='` |
@@ -470,7 +470,7 @@ inputs.record(srcInput => {
 ### Mouse Inputs
 
 | Input | Name |
-|-------|------|
+| ----- | ---- |
 | Left, middle, right button | `'left'`, `'middle'`, `'right'` |
 
 ### Gamepad Inputs
@@ -482,7 +482,7 @@ The set of inputs that are received from a gamepad depends on whether browser is
 ![standard layout](https://upload.wikimedia.org/wikipedia/commons/2/2c/360_controller.svg)
 
 | Input | Name |
-|-------|------|
+| ----- | ---- |
 | A, B, X, Y buttons | `'a'`, `'b'`, `'x'`, `'y'` |
 | Back, Start, Guide buttons | `'back'`, `'start'`, `'guide'` |
 | D-pad | `'dpad-up'`, `'dpad-down'`, `'dpad-left'`, `'dpad-right'` |
@@ -496,7 +496,7 @@ To specify axis direction, `'+'` or `'-'` must be appended (e.g., `'left-stick-x
 #### Generic Gamepad Layout
 
 | Input | Name |
-|-------|------|
+| ----- | ---- |
 | Buttons | `'button-0'`, `'button-1'`, ... |
 | Axes | `'axis-0'`, `'axis-1'`, ... |
 
@@ -509,7 +509,7 @@ Module that provides access to emulator configuration.
 The structure of configuration options corresponds to structure of initialization options (see [cfxnes](#user-content-cfxnesoptions)) with exception of `rom`, `JSZip`, `video.output` that are ignored.
 
 | Signature | Description |
-|-----------|-------------|
+| --------- | ----------- |
 | get() | Returns all options and their values. |
 | use(options) | Applies values of specified options. |
 
