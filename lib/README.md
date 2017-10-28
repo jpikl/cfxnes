@@ -7,11 +7,11 @@ JavaScript library for NES emulation in web browser.
 
 ## Supported Browsers
 
-- Chrome 49+
-- Firefox 47+
-- IE 11, Edge 12+
-- Opera 38+
-- Safari 9+
+- Chrome (last 2 versions)
+- Firefox (last 2 versions)
+- Opera (last 2 versions)
+- IE 11, Edge >= 12
+- Safari >= 9
 
 IE 11 and Safari 9 need [polyfill for some ES6 features](polyfills.js).
 

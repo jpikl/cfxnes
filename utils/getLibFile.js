@@ -13,8 +13,9 @@ function getLibFile(options = {}) {
   const {stdout, stderr} = process;
   const log = verbose ? stdout.write.bind(stdout) : () => {};
   const logError = stderr.write.bind(stderr);
+  const separator = '-'.repeat(80);
 
-  log('\n********************************************************************************\n');
+  log(`\n${separator}\n`);
   log('\nLooking for cfxnes.js...\n\n');
 
   const result = libFiles
@@ -39,7 +40,7 @@ function getLibFile(options = {}) {
     logError('    npm run build\n\n');
   }
 
-  log('********************************************************************************\n\n');
+  log(`${separator}\n\n`);
 
   return result;
 }
