@@ -18,3 +18,10 @@ export function sanitizeName(name) {
     .trim()
     .replace(whiteSpacesRegExp, '_');
 }
+
+export function makeSeparator(char, length, title) {
+  const header = title ? `[${title}]` : '';
+  const diff = Math.max(0, ~~((length - header.length) / 2));
+  const part = char.repeat(diff);
+  return part + header + part;
+}
