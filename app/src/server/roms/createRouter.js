@@ -1,8 +1,8 @@
-import {Router} from 'express';
+import {Router as newRouter} from 'express';
 import {ROMS_PATH, ROMS_FILES_PATH} from '../routes';
 
 export default function createRouter(romDb) {
-  const router = new Router;
+  const router = newRouter();
 
   router.get(ROMS_PATH, (req, res) => {
     res.json(romDb.getRoms());
