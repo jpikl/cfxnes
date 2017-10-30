@@ -1,22 +1,20 @@
-import path from 'path';
 import http from 'http';
 import https from 'https';
 import {expect} from 'chai';
 import createServer from '../../src/server/createServer';
+import {TLS_KEY_PATH, TLS_CERT_PATH, getApp} from './fixtures';
 
 describe('server/createServer', () => {
-  const app = () => {};
-
   it('creates HTTP server', () => {
-    const server = createServer(app, {});
+    const server = createServer(getApp(), {});
     expect(server).to.be.instanceof(http.Server);
   });
 
   it('creates HTTPS server', () => {
-    const server = createServer(app, {
+    const server = createServer(getApp(), {
       tlsEnabled: true,
-      tlsKeyPath: path.resolve(__dirname, 'key.pem'),
-      tlsCertPath: path.resolve(__dirname, 'cert.pem'),
+      tlsKeyPath: TLS_KEY_PATH,
+      tlsCertPath: TLS_CERT_PATH,
     });
     expect(server).to.be.instanceof(https.Server);
   });

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {makeId, sanitizeName, removePrefix} from '../common';
+import {createId, sanitizeName, removePrefix} from '../common';
 
 const romExtName = '.nes';
 const thumbExtNames = ['.png', '.git', '.jpg', '.jpeg'];
@@ -12,7 +12,7 @@ export function isRomFile(file) {
 export function getRomId(romFile) {
   const extName = path.extname(romFile);
   const baseName = path.basename(romFile, extName);
-  return makeId(baseName);
+  return createId(baseName);
 }
 
 export function getRomName(romFile) {
@@ -46,5 +46,5 @@ export function findRomThumbFile(romFile) {
 export function getPublicFileName(file) {
   const extName = path.extname(file);
   const baseName = path.basename(file, extName);
-  return sanitizeName(baseName) + extName;
+  return sanitizeName(baseName) + extName.toLowerCase();
 }

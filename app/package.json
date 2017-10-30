@@ -49,6 +49,7 @@
     "babel-preset-stage-0": "^6.24.1",
     "babel-register": "^6.26.0",
     "chai": "^4.1.2",
+    "chai-http": "^3.0.0",
     "classnames": "^2.2.5",
     "constant-case": "^2.0.0",
     "copy-webpack-plugin": "^4.2.0",
@@ -97,6 +98,7 @@
     "whatwg-fetch": "^2.0.3"
   },
   "dependencies": {
+    "es6-error": "^4.0.2",
     "express": "^4.16.2",
     "express-history-api-fallback": "^2.2.1",
     "morgan": "^1.9.0"

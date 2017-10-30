@@ -1,12 +1,21 @@
 import express from 'express';
 import historyApiFallback from 'express-history-api-fallback';
 import {log} from '../common';
+import errorHandler from './errorHandler';
 import {createRomRouter} from './roms';
 
-export default function createApp(romDb, config) {
-  const {staticPath, morganEnabled, morganFormat} = config;
+export default function createApp(romDb, options) {
+  const {
+    staticPath = false,
+    morganEnabled = false,
+    morganFormat = false,
+  } = options;
 
-  log.info('Creating app');
+  log.info('Creating application');
+  log.info('  static path: %s', staticPath);
+  log.info('  morgan enabled: %s', morganEnabled);
+  log.info('  morgan format: %s', morganFormat);
+
   const app = express();
 
   if (morganEnabled) {
@@ -17,11 +26,7 @@ export default function createApp(romDb, config) {
   app.use('/', createRomRouter(romDb));
   app.use('/', express.static(staticPath));
   app.use(historyApiFallback('index.html', {root: staticPath}));
-
-  app.use((error, req, res, next) => { // eslint-disable-line no-unused-vars
-    log.error(error.stack);
-    res.sendStatus(500);
-  });
+  app.use(errorHandler);
 
   return app;
 }

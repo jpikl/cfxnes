@@ -1,10 +1,21 @@
 import fs from 'fs';
 import {log} from '../common';
 
-export default function createServer(app, config) {
-  const {http2Enabled, tlsEnabled, tlsKeyPath, tlsCertPath} = config;
+export default function createServer(app, options) {
+  const {
+    http2Enabled = false,
+    tlsEnabled = false,
+    tlsKeyPath,
+    tlsCertPath,
+  } = options;
 
-  const options = {
+  log.info('Creating server');
+  log.info('  HTTP2 enabled: %s', http2Enabled);
+  log.info('  TLS enabled: %s', tlsEnabled);
+  log.info('  TLS key path: %s', tlsKeyPath);
+  log.info('  TLS certificate path: %s', tlsCertPath);
+
+  const tlsOptions = {
     key: tlsEnabled ? fs.readFileSync(tlsKeyPath) : undefined,
     cert: tlsEnabled ? fs.readFileSync(tlsCertPath) : undefined,
   };
@@ -14,7 +25,7 @@ export default function createServer(app, config) {
 
     if (tlsEnabled) {
       log.info('Creating secure HTTP2');
-      return http2.createSecureServer(options, app);
+      return http2.createSecureServer(tlsOptions, app);
     }
 
     log.info('Creating HTTP2 server');
@@ -23,7 +34,7 @@ export default function createServer(app, config) {
 
   if (tlsEnabled) {
     log.info('Creating HTTPS server');
-    return require('https').createServer(options, app);
+    return require('https').createServer(tlsOptions, app);
   }
 
   log.info('Creating HTTP server');

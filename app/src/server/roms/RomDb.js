@@ -4,10 +4,15 @@ import {debounce, log} from '../../common';
 import {ROMS_FILES_PATH} from '../routes';
 import {isRomFile, getRomId, getRomName, compareRomsByName, findRomThumbFile, getPublicFileName} from './utils';
 
-export default class RomDB {
+export default class RomDb {
 
   constructor(romsDir, options = {}) {
     const {reloadDelay = 1000} = options;
+
+    log.info('Creating ROM database');
+    log.info('  directory: %s', romsDir);
+    log.info('  reload delay: %d', reloadDelay);
+
     this.romsDir = romsDir;
     this.roms = [];
     this.romMap = {};
