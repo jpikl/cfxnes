@@ -2,8 +2,6 @@ import fs from 'fs';
 import chai from 'chai';
 import {getServer} from './fixtures';
 
-export {recursiveAsyncCall} from '../../../lib/test/utils';
-
 export function createRequest() {
   return chai.request(getServer());
 }

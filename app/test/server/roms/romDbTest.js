@@ -1,7 +1,7 @@
 import touch from 'touch';
 import {expect} from 'chai';
 import RomDb from '../../../src/server/roms/RomDb';
-import {recursiveAsyncCall} from '../utils';
+import {recursiveAsyncCall} from '../../utils';
 import {NESTEST_ROM_PATH, NESTEST_THUMB_PATH, NESTRESS_ROM_PATH, ROMS_PATH, roms} from '../fixtures';
 
 describe('server/roms/RomDb', () => {

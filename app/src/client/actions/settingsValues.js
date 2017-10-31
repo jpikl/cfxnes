@@ -22,7 +22,7 @@ import {
   SET_CONTROLS_VISIBLE,
 } from '../actionTypes';
 
-import {createAction} from './common';
+import {createAction} from './utils';
 
 export function switchTheme() {
   return (dispatch, getState) => {

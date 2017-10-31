@@ -7,7 +7,7 @@ import {
   UNLOCK_SETTINGS_RESET,
 } from '../actionTypes';
 
-import {createReducer} from './common';
+import {createReducer} from './utils';
 import valuesReducer from './settingsValues';
 
 const initialState = {

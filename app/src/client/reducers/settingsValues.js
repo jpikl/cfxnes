@@ -17,7 +17,7 @@ import {
   SET_CONTROLS_VISIBLE,
 } from '../actionTypes';
 
-import {createReducer} from './common';
+import {createReducer} from './utils';
 
 const actionHandlers = {
   [SET_THEME]: (state, theme) => ({...state, theme}),

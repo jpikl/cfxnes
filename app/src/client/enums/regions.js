@@ -1,4 +1,4 @@
-import {createOptions} from './common';
+import {createOptions} from './utils';
 
 export const AUTO = 'auto';
 export const NTSC = 'ntsc';

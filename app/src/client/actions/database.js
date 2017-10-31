@@ -7,7 +7,7 @@ import {
   FINISH_NVRAMS_DELETION,
 } from '../actionTypes';
 
-import {createAction, UNLOCK_TIMEOUT} from './common';
+import {createAction, UNLOCK_TIMEOUT} from './utils';
 
 export function deleteNVRAMs() {
   return dispatch => {

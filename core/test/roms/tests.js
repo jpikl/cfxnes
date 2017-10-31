@@ -10,8 +10,7 @@ import path from 'path';
 import mkdirp from 'mkdirp';
 import {assert, expect} from 'chai';
 
-import NES from '../../src/NES';
-import {readCartridge} from '../../src/cartridge';
+import {NES, readCartridge} from '../../src';
 
 import * as nestest from './nestest';
 import * as instr_test from './instr_test';

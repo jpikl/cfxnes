@@ -1,5 +1,5 @@
 import {log} from '../../common';
-import {LENGTH_COUNTER_VALUES} from './common';
+import {LENGTH_COUNTER_VALUES} from './constants';
 
 export default class Noise {
 

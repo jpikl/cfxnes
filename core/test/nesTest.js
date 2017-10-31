@@ -1,9 +1,5 @@
 import {expect} from 'chai';
-import NES from '../src/NES';
-import {Region} from '../src/common';
-import {Channel} from '../src/audio';
-import {Joypad} from '../src/devices';
-import {readCartridge} from '../src/cartridge';
+import {NES, Region, Channel, Joypad, readCartridge} from '../src';
 
 describe('NES (no cartridge)', () => {
   let nes, cartridge, joypad, frameBuffer, palette;

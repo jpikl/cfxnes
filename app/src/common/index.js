@@ -1,2 +1,2 @@
-export {log, LogLevel} from '../../../core/src/common'; // Reuse log module from core
+export {log, LogLevel} from '../../../core/src/common';
 export * from './utils';

@@ -6,7 +6,7 @@ import {
   FINISH_LIBRARY_FETCH,
 } from '../actionTypes';
 
-import {createAction} from './common';
+import {createAction} from './utils';
 
 export function setLibraryFilter(filter) {
   return createAction(SET_LIBRARY_FILTER, filter);

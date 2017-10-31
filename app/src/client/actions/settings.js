@@ -9,7 +9,7 @@ import {
   UNLOCK_SETTINGS_RESET,
 } from '../actionTypes';
 
-import {createAction, UNLOCK_TIMEOUT} from './common';
+import {createAction, UNLOCK_TIMEOUT} from './utils';
 
 export function setActiveSettingsPanel(id) {
   return createAction(SET_ACTIVE_SETTINGS_PANEL, id);

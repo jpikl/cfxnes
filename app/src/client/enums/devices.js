@@ -1,5 +1,5 @@
 import {capitalize} from '../common';
-import {createOptions} from './common';
+import {createOptions} from './utils';
 
 export const NONE = 'none';
 export const JOYPAD = 'joypad';

@@ -31,7 +31,7 @@
     "dev:debug": "watch 'npm run build:debug' src ../core/src",
     "build": "node build.js",
     "build:debug": "node build.js --debug",
-    "lint": "eslint --report-unused-disable-directives src test \"*.js\"",
+    "lint": "eslint --report-unused-disable-directives src test '*.js'",
     "test": "karma start",
     "test:src": "karma start --target=src",
     "test:lib": "karma start --target=lib",

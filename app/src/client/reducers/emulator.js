@@ -8,7 +8,7 @@ import {
 } from '../actionTypes';
 
 import {ActionState} from '../enums';
-import {createReducer} from './common';
+import {createReducer} from './utils';
 
 const initialState = {
   romId: null,

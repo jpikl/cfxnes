@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {debounce} from '../../src/common/utils';
-import {asyncCall} from '../../../lib/test/utils';
+import {asyncCall} from '../utils';
 
 describe('common/utils', () => {
   it('debounces function call', done => {

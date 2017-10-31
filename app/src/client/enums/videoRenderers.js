@@ -1,4 +1,4 @@
-import {createOptions} from './common';
+import {createOptions} from './utils';
 
 export const CANVAS = 'canvas';
 export const WEBGL = 'webgl';

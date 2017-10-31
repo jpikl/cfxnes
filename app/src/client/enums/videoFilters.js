@@ -1,4 +1,4 @@
-import {createOptions} from './common';
+import {createOptions} from './utils';
 
 export const NEAREST = 'nearest';
 export const LINEAR = 'linear';

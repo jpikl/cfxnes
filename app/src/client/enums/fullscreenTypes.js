@@ -1,4 +1,4 @@
-import {createOptions} from './common';
+import {createOptions} from './utils';
 
 export const MAXIMIZED = 'maximized';
 export const NORMALIZED = 'normalized';

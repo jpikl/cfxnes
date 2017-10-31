@@ -1,4 +1,4 @@
-import {fetchJson} from './common';
+import {fetchJson} from './utils';
 
 const BASE_URL = '/api/roms';
 

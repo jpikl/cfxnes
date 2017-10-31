@@ -4,11 +4,15 @@ import {selectEmulator, selectSettingsValues} from '../../../reducers';
 
 import {
   loadROM,
-  resetEmulator, powerEmulator,
-  startEmulator, stopEmulator,
-  increaseVideoScale, decreaseVideoScale,
+  resetEmulator,
+  powerEmulator,
+  startEmulator,
+  stopEmulator,
+  increaseVideoScale,
+  decreaseVideoScale,
   toggleFullscreen,
-  setAudioVolume, setAudioEnabled,
+  setAudioVolume,
+  setAudioEnabled,
 } from '../../../actions';
 
 const mapStateToProps = state => {

@@ -1,4 +1,4 @@
-import {createOptions} from './common';
+import {createOptions} from './utils';
 
 export const ASQ_REAL_A = 'asq-real-a';
 export const ASQ_REAL_B = 'asq-real-b';

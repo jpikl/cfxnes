@@ -12,7 +12,7 @@ import {
 } from '../actionTypes';
 
 import {selectEmulator, selectLibrary} from '../reducers';
-import {createAction} from './common';
+import {createAction} from './utils';
 
 export function connectEmulator(canvas) {
   return (dispatch, getState) => {
