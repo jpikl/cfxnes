@@ -9,7 +9,7 @@ For better performance, these components can be compiled with [closure compiler]
 ## Initialization
 
 ``` javascript
-import NES from './NES';
+import {NES} from 'cfxnes-core';
 
 const nes = new NES;
 ```
@@ -25,7 +25,7 @@ const nes = new NES({cpu: customCPU});
 ROM image can be loaded from `Uint8Array` or from a file system path when running in Node.js. Supported formats are **iNES** and **NES 2.0**.
 
 ``` javascript
-import {createCartridge, readCartridge} from './cartridge';
+import {createCartridge, readCartridge} from 'cfxnes-core';
 
 // From buffer
 const cartridge1 = createCartridge(uint8Array);
@@ -41,7 +41,7 @@ nes.setCartridge(cartridge2);
 Video output is rendered into provided `Uint32Array(256 * 240)` buffer. Color of each pixel is encoded as 32-bit unsigned integer in RGBA format. Their values are generated using specified `Uint32Array(64)` palette.
 
 ``` javascript
-import {createPalette, VIDEO_BUFFER_SIZE} from './video';
+import {createPalette, VIDEO_BUFFER_SIZE} from 'cfxnes-core';
 
 const palette = createPalette('fceux'); // Predefined palette
 nes.setPalette(palette);
@@ -74,7 +74,7 @@ function audioCallback() {
 ## Input Devices
 
 ``` javascript
-import {Button, Joypad, Zapper} from './devices';
+import {Button, Joypad, Zapper} from 'cfxnes-core';
 
 // Standard NES controller
 const joypad = new Joypad;
