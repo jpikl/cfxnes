@@ -11,7 +11,7 @@ describe('ROMs API', () => {
         .then(response => {
           expect(response).to.have.status(200);
           expect(response).to.be.json;
-          expect(response.body).to.be.deep.equal(roms.all);
+          expect(response.body).to.deep.equal(roms.all);
         });
     });
   });

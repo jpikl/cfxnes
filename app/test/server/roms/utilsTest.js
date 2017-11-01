@@ -10,11 +10,11 @@ describe('server/roms/utils', () => {
   });
 
   it('returns ROM ID', () => {
-    expect(getRomId('/path/to/dir/ Test ROM-File_.nes')).to.be.equal('test-rom-file');
+    expect(getRomId('/path/to/dir/ Test ROM-File_.nes')).to.equal('test-rom-file');
   });
 
   it('returns ROM name', () => {
-    expect(getRomName('/path/to/dir/ Test ROM-File_.nes')).to.be.equal('Test ROM-File_');
+    expect(getRomName('/path/to/dir/ Test ROM-File_.nes')).to.equal('Test ROM-File_');
   });
 
   it('compares ROMs by name', () => {
@@ -29,10 +29,10 @@ describe('server/roms/utils', () => {
 
   it('finds ROM thumbnail', () => {
     expect(findRomThumbFile(NESTRESS_ROM_PATH)).to.be.null;
-    expect(findRomThumbFile(NESTEST_ROM_PATH)).to.be.equal(NESTEST_THUMB_PATH);
+    expect(findRomThumbFile(NESTEST_ROM_PATH)).to.equal(NESTEST_THUMB_PATH);
   });
 
   it('returns public filename', () => {
-    expect(getPublicFileName('/path/to/dir/ Test ROM-File_.PNG')).to.be.equal('Test_ROM_File.png');
+    expect(getPublicFileName('/path/to/dir/ Test ROM-File_.PNG')).to.equal('Test_ROM_File.png');
   });
 });

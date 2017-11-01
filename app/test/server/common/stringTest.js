@@ -13,9 +13,9 @@ describe('server/common/string', () => {
   });
 
   it('removes prefix', () => {
-    expect(removePrefix('foobar', 'bar')).to.be.equal('foobar');
-    expect(removePrefix('foobar', 'foo')).to.be.equal('bar');
-    expect(removePrefix('foobar', 'Foo')).to.be.equal('foobar');
-    expect(removePrefix('foobar', 'Foo', true)).to.be.equal('bar');
+    expect(removePrefix('foobar', 'bar')).to.equal('foobar');
+    expect(removePrefix('foobar', 'foo')).to.equal('bar');
+    expect(removePrefix('foobar', 'Foo')).to.equal('foobar');
+    expect(removePrefix('foobar', 'Foo', true)).to.equal('bar');
   });
 });

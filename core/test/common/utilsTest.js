@@ -11,17 +11,17 @@ import {
 
 describe('common/utils', () => {
   it('detects endianness', () => {
-    expect(detectEndianness()).to.be.equal(os.endianness());
+    expect(detectEndianness()).to.equal(os.endianness());
   });
 
   it('decodes base64 using Node.js buffer', () => {
-    expect(decodeBase64('YnVmZmVyLXJlc3VsdA==')).to.be.equal('buffer-result');
+    expect(decodeBase64('YnVmZmVyLXJlc3VsdA==')).to.equal('buffer-result');
   });
 
   it('decodes base64 using window.atob', () => {
     try {
       global.window = {atob: () => 'atob-result'};
-      expect(decodeBase64('YnVmZmVyLXJlc3VsdA==')).to.be.equal('atob-result');
+      expect(decodeBase64('YnVmZmVyLXJlc3VsdA==')).to.equal('atob-result');
     } finally {
       global.window = undefined;
     }
@@ -48,15 +48,15 @@ describe('common/utils', () => {
   });
 
   it('converts value to string', () => {
-    expect(toString(undefined)).to.be.equal('undefined');
-    expect(toString(null)).to.be.equal('null');
-    expect(toString(123)).to.be.equal('123');
-    expect(toString('abc')).to.be.equal('"abc"');
-    expect(toString('a'.repeat(100))).to.be.equal(`"${'a'.repeat(80)}..."`);
-    expect(toString(() => {})).to.be.equal('Function');
-    expect(toString(function foo() {})).to.be.equal('Function(foo)'); // eslint-disable-line prefer-arrow-callback
-    expect(toString({})).to.be.equal('Object');
-    expect(toString(Uint8Array.of(1, 2, 3))).to.be.equal('Uint8Array(3)');
-    expect(toString(Symbol('bar'))).to.be.equal('Symbol(bar)');
+    expect(toString(undefined)).to.equal('undefined');
+    expect(toString(null)).to.equal('null');
+    expect(toString(123)).to.equal('123');
+    expect(toString('abc')).to.equal('"abc"');
+    expect(toString('a'.repeat(100))).to.equal(`"${'a'.repeat(80)}..."`);
+    expect(toString(() => {})).to.equal('Function');
+    expect(toString(function foo() {})).to.equal('Function(foo)'); // eslint-disable-line prefer-arrow-callback
+    expect(toString({})).to.equal('Object');
+    expect(toString(Uint8Array.of(1, 2, 3))).to.equal('Uint8Array(3)');
+    expect(toString(Symbol('bar'))).to.equal('Symbol(bar)');
   });
 });

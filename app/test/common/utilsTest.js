@@ -9,14 +9,14 @@ describe('common/utils', () => {
     const debouncedIncrement = debounce(increment, 10);
 
     debouncedIncrement();
-    expect(counter).to.be.equal(0);
+    expect(counter).to.equal(0);
 
     asyncCall(done, 5, () => {
       debouncedIncrement();
-      expect(counter).to.be.equal(0);
+      expect(counter).to.equal(0);
 
       asyncCall(done, 20, () => {
-        expect(counter).to.be.equal(1);
+        expect(counter).to.equal(1);
         done();
       });
     });

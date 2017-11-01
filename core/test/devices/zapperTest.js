@@ -35,31 +35,31 @@ describe('devices/Zapper', () => {
   });
 
   it('reads correct initial state', () => {
-    expect(zapper.read()).to.be.equal(0x08);
+    expect(zapper.read()).to.equal(0x08);
   });
 
   it('reads correct state (light: off, trigger: off)', () => {
     zapper.setBeamPosition(0, 1);
     zapper.setTriggerPressed(false);
-    expect(zapper.read()).to.be.equal(0x08);
+    expect(zapper.read()).to.equal(0x08);
   });
 
   it('reads correct state (light: off, trigger: on)', () => {
     zapper.setBeamPosition(0, 1);
     zapper.setTriggerPressed(true);
-    expect(zapper.read()).to.be.equal(0x18);
+    expect(zapper.read()).to.equal(0x18);
   });
 
   it('reads correct state (light: on, trigger: off)', () => {
     zapper.setBeamPosition(2, 1);
     zapper.setTriggerPressed(false);
-    expect(zapper.read()).to.be.equal(0x00);
+    expect(zapper.read()).to.equal(0x00);
   });
 
   it('reads correct state (light: on, trigger: on)', () => {
     zapper.setBeamPosition(2, 1);
     zapper.setTriggerPressed(true);
-    expect(zapper.read()).to.be.equal(0x10);
+    expect(zapper.read()).to.equal(0x10);
   });
 
   it('strobes with no effect', () => {

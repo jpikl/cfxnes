@@ -9,7 +9,6 @@ describe('server/createApp', () => {
       morganEnabled: true,
       morganFormat: 'dev',
     });
-    expect(app).to.be.a('function');
-    expect(app).to.have.property('listen');
+    expect(app).to.be.a('function').with.property('listen');
   });
 });

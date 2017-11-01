@@ -20,15 +20,14 @@ describe('common/mirrorings', () => {
 
   it('has 4 single screen variants', () => {
     for (let i = 0; i < 4; i++) {
-      expect(getSingle(i)).to.be.equal(mirrorings[i]);
+      expect(getSingle(i)).to.equal(mirrorings[i]);
     }
   });
 
   it('provides area for each value', () => {
     for (const mirroring of mirrorings) {
       const areas = getAreas(mirroring);
-      expect(areas).to.be.an('array');
-      expect(areas).to.have.lengthOf(4);
+      expect(areas).to.be.an('array').with.lengthOf(4);
     }
   });
 

@@ -36,32 +36,32 @@ describe('server/roms/RomDb', () => {
   it('returns ROM file by its name', () => {
     romDb.reload();
     expect(romDb.getFile('x.nes')).to.be.undefined;
-    expect(romDb.getFile('NES_Test.nes')).to.be.equal(NESTEST_ROM_PATH);
-    expect(romDb.getFile('NES_Test.jpg')).to.be.equal(NESTEST_THUMB_PATH);
-    expect(romDb.getFile('NEStress.nes')).to.be.equal(NESTRESS_ROM_PATH);
+    expect(romDb.getFile('NES_Test.nes')).to.equal(NESTEST_ROM_PATH);
+    expect(romDb.getFile('NES_Test.jpg')).to.equal(NESTEST_THUMB_PATH);
+    expect(romDb.getFile('NEStress.nes')).to.equal(NESTRESS_ROM_PATH);
   });
 
   it('increments counter upon reload', () => {
-    expect(romDb.reloadsCount).to.be.equal(0);
+    expect(romDb.reloadsCount).to.equal(0);
     romDb.reload();
-    expect(romDb.reloadsCount).to.be.equal(1);
+    expect(romDb.reloadsCount).to.equal(1);
     romDb.reload();
-    expect(romDb.reloadsCount).to.be.equal(2);
+    expect(romDb.reloadsCount).to.equal(2);
   });
 
   it('starts/stops watching changes in directory', done => {
-    expect(romDb.reloadsCount).to.be.equal(0);
+    expect(romDb.reloadsCount).to.equal(0);
     romDb.start();
-    expect(romDb.reloadsCount).to.be.equal(1);
+    expect(romDb.reloadsCount).to.equal(1);
     touch.sync(NESTEST_ROM_PATH);
 
     recursiveAsyncCall(done, 20, () => {
-      expect(romDb.reloadsCount).to.be.equal(2);
+      expect(romDb.reloadsCount).to.equal(2);
       romDb.stop();
       touch.sync(NESTEST_ROM_PATH);
-      expect(romDb.reloadsCount).to.be.equal(2);
+      expect(romDb.reloadsCount).to.equal(2);
     }, () => {
-      expect(romDb.reloadsCount).to.be.equal(2);
+      expect(romDb.reloadsCount).to.equal(2);
     });
   });
 });

@@ -26,7 +26,7 @@ export function execute(test) {
   const verifiedLog = fs.readFileSync(verifiedLogFile, 'utf8');
 
   try {
-    test.expect(currentLog).to.be.equal(verifiedLog);
+    test.expect(currentLog).to.equal(verifiedLog);
   } catch (error) {
     // The default error message contains whole log which is completely unreadable and useless
     test.fail(`cfxnes log differs from Nintendulator log.

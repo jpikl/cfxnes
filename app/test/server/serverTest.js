@@ -12,7 +12,7 @@ function testGetRequest(url, contentType, content) {
     .then(response => {
       expect(response).to.have.status(200);
       expect(response).to.have.header('Content-Type', contentType);
-      expect(response.text).to.be.equal(content);
+      expect(response.text).to.equal(content);
     });
 }
 

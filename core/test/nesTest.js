@@ -44,7 +44,7 @@ describe('NES (no cartridge)', () => {
 
   it('inserts cartridge', () => {
     nes.setCartridge(cartridge);
-    expect(nes.getCartridge()).to.be.equal(cartridge);
+    expect(nes.getCartridge()).to.equal(cartridge);
   });
 
   it('does HW reset', () => {
@@ -64,7 +64,7 @@ describe('NES (no cartridge)', () => {
   for (const port of ports) {
     it(`sets device on port #${port}`, () => {
       nes.setInputDevice(port, joypad);
-      expect(nes.getInputDevice(port)).to.be.equal(joypad);
+      expect(nes.getInputDevice(port)).to.equal(joypad);
     });
   }
 
@@ -82,7 +82,7 @@ describe('NES (no cartridge)', () => {
 
   it('changes palette', () => {
     nes.setPalette(palette);
-    expect(nes.getPalette()).to.be.equal(palette);
+    expect(nes.getPalette()).to.equal(palette);
   });
 
   it('renders empty frame', () => {
@@ -110,7 +110,7 @@ describe('NES (no cartridge)', () => {
 
   it('changes audio buffer size', () => {
     nes.setAudioBufferSize(4096);
-    expect(nes.getAudioBufferSize()).to.be.equal(4096);
+    expect(nes.getAudioBufferSize()).to.equal(4096);
   });
 
   it('has undefined audio sampling rate by default', () => {
@@ -119,26 +119,26 @@ describe('NES (no cartridge)', () => {
 
   it('changes audio sampling rate', () => {
     nes.setAudioSampleRate(44100);
-    expect(nes.getAudioSampleRate()).to.be.equal(44100);
+    expect(nes.getAudioSampleRate()).to.equal(44100);
   });
 
   for (const channel of channels) {
     it(`has 100% audio channel #${channel} volume by default`, () => {
-      expect(nes.getAudioVolume(channel)).to.be.equal(1);
+      expect(nes.getAudioVolume(channel)).to.equal(1);
     });
   }
 
   for (const channel of channels) {
     it(`changes audio channel #${channel} volume`, () => {
       nes.setAudioVolume(channel, 0.5);
-      expect(nes.getAudioVolume(channel)).to.be.equal(0.5);
+      expect(nes.getAudioVolume(channel)).to.equal(0.5);
     });
   }
 
   it('reads empty audio buffer', () => {
     nes.setAudioBufferSize(4096);
     nes.setAudioSampleRate(44100);
-    expect(nes.readAudioBuffer()).to.be.deep.equal(new Float32Array(4096));
+    expect(nes.readAudioBuffer()).to.deep.equal(new Float32Array(4096));
   });
 
   it('returns null NVRAM', () => {
@@ -221,7 +221,7 @@ describe('NES (cartridge set, no NVRAM)', () => {
     nes.apu.getOutput = generateAudioOutput;
     nes.setPalette(palette);
     nes.renderFrame(frameBuffer);
-    expect(nes.readAudioBuffer()).to.not.deep.equal(new Float32Array(4096).fill(0.5));
+    expect(nes.readAudioBuffer()).not.to.deep.equal(new Float32Array(4096).fill(0.5));
   });
 
   it('returns null NVRAM', () => {
@@ -244,11 +244,10 @@ describe('NES (cartridge set, has NVRAM)', () => {
   });
 
   it('returns NVRAM of correct type and size', () => {
-    expect(nes.getNVRAM()).to.be.an('uint8array');
-    expect(nes.getNVRAM()).to.have.lengthOf(0x2000);
+    expect(nes.getNVRAM()).to.be.an('Uint8Array').with.lengthOf(0x2000);
   });
 
   it('returns the same NVRAM instance every time', () => {
-    expect(nes.getNVRAM()).to.be.equal(nes.getNVRAM());
+    expect(nes.getNVRAM()).to.equal(nes.getNVRAM());
   });
 });

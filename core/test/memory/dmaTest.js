@@ -33,8 +33,8 @@ describe('memory/DMA', () => {
       dma.tick();
       cycles++;
     }
-    expect(cycles).to.be.equal(512);
-    expect(reads).to.be.equal(256);
-    expect(writes).to.be.equal(256);
+    expect(cycles).to.equal(512);
+    expect(reads).to.equal(256);
+    expect(writes).to.equal(256);
   });
 });

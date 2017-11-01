@@ -17,12 +17,12 @@ describe('common/log', () => {
   });
 
   it('has "off" as default log level', () => {
-    expect(log.getLevel()).to.be.equal(OFF);
+    expect(log.getLevel()).to.equal(OFF);
   });
 
   it('changes log level', () => {
     log.setLevel(INFO);
-    expect(log.getLevel()).to.be.equal(INFO);
+    expect(log.getLevel()).to.equal(INFO);
   });
 
   it('throws error when setting invalid log level', () => {

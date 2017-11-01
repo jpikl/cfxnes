@@ -13,8 +13,7 @@ describe('common/regions', () => {
   it('provides parameters for each value', () => {
     for (const region of regions) {
       const params = getParams(region);
-      expect(params).to.be.an('object');
-      expect(params).to.include.keys([
+      expect(params).to.be.an('object').with.keys([
         'framesPerSecond', 'cpuFrequency', 'ppuClipTopBottom', 'frameCounterMax4',
         'frameCounterMax5', 'noiseChannelTimerPeriods', 'dmcChannelTimerPeriods',
       ]);

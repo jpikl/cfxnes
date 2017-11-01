@@ -19,7 +19,7 @@ describe('cartridge/parsers/ines (NES 2.0 input)', () => {
   });
 
   it('detects correct version', () => {
-    expect(test().version).to.be.equal(2);
+    expect(test().version).to.equal(2);
   });
 
   it('throws error for zero PRG RAM', () => {
@@ -27,9 +27,9 @@ describe('cartridge/parsers/ines (NES 2.0 input)', () => {
   });
 
   it('reads PRG ROM size', () => {
-    expect(test({prgROMUnits: 1}).prgROMSize).to.be.equal(0x4000);
-    expect(test({prgROMUnits: 2}).prgROMSize).to.be.equal(0x8000);
-    expect(test({prgROMUnits: 0x111}).prgROMSize).to.be.equal(0x444000);
+    expect(test({prgROMUnits: 1}).prgROMSize).to.equal(0x4000);
+    expect(test({prgROMUnits: 2}).prgROMSize).to.equal(0x8000);
+    expect(test({prgROMUnits: 0x111}).prgROMSize).to.equal(0x444000);
   });
 
   it('reads PRG ROM', () => {
@@ -38,31 +38,31 @@ describe('cartridge/parsers/ines (NES 2.0 input)', () => {
   });
 
   it('reads PRG RAM size', () => {
-    expect(test({prgRAMUnits: 0}).prgRAMSize).to.be.equal(0);
-    expect(test({prgRAMUnits: 1}).prgRAMSize).to.be.equal(0x80);
-    expect(test({prgRAMUnits: 2}).prgRAMSize).to.be.equal(0x100);
-    expect(test({prgRAMUnits: 14}).prgRAMSize).to.be.equal(0x100000);
+    expect(test({prgRAMUnits: 0}).prgRAMSize).to.equal(0);
+    expect(test({prgRAMUnits: 1}).prgRAMSize).to.equal(0x80);
+    expect(test({prgRAMUnits: 2}).prgRAMSize).to.equal(0x100);
+    expect(test({prgRAMUnits: 14}).prgRAMSize).to.equal(0x100000);
   });
 
   it('reads battery-backed PRG RAM size', () => {
-    expect(test({prgRAMUnitsBattery: 0}).prgRAMSizeBattery).to.be.equal(0);
-    expect(test({prgRAMUnitsBattery: 1}).prgRAMSizeBattery).to.be.equal(0x80);
-    expect(test({prgRAMUnitsBattery: 2}).prgRAMSizeBattery).to.be.equal(0x100);
-    expect(test({prgRAMUnitsBattery: 14}).prgRAMSizeBattery).to.be.equal(0x100000);
+    expect(test({prgRAMUnitsBattery: 0}).prgRAMSizeBattery).to.equal(0);
+    expect(test({prgRAMUnitsBattery: 1}).prgRAMSizeBattery).to.equal(0x80);
+    expect(test({prgRAMUnitsBattery: 2}).prgRAMSizeBattery).to.equal(0x100);
+    expect(test({prgRAMUnitsBattery: 14}).prgRAMSizeBattery).to.equal(0x100000);
   });
 
   it('reads total PRG RAM size', () => {
-    expect(test({prgRAMUnits: 0, prgRAMUnitsBattery: 0}).prgRAMSize).to.be.equal(0);
-    expect(test({prgRAMUnits: 0, prgRAMUnitsBattery: 1}).prgRAMSize).to.be.equal(0x80);
-    expect(test({prgRAMUnits: 2, prgRAMUnitsBattery: 0}).prgRAMSize).to.be.equal(0x100);
-    expect(test({prgRAMUnits: 3, prgRAMUnitsBattery: 4}).prgRAMSize).to.be.equal(0x600);
+    expect(test({prgRAMUnits: 0, prgRAMUnitsBattery: 0}).prgRAMSize).to.equal(0);
+    expect(test({prgRAMUnits: 0, prgRAMUnitsBattery: 1}).prgRAMSize).to.equal(0x80);
+    expect(test({prgRAMUnits: 2, prgRAMUnitsBattery: 0}).prgRAMSize).to.equal(0x100);
+    expect(test({prgRAMUnits: 3, prgRAMUnitsBattery: 4}).prgRAMSize).to.equal(0x600);
   });
 
   it('reads CHR ROM size', () => {
-    expect(test({chrROMUnits: 0}).chrROMSize).to.be.equal(0);
-    expect(test({chrROMUnits: 1}).chrROMSize).to.be.equal(0x2000);
-    expect(test({chrROMUnits: 2}).chrROMSize).to.be.equal(0x4000);
-    expect(test({chrROMUnits: 0x111}).chrROMSize).to.be.equal(0x222000);
+    expect(test({chrROMUnits: 0}).chrROMSize).to.equal(0);
+    expect(test({chrROMUnits: 1}).chrROMSize).to.equal(0x2000);
+    expect(test({chrROMUnits: 2}).chrROMSize).to.equal(0x4000);
+    expect(test({chrROMUnits: 0x111}).chrROMSize).to.equal(0x222000);
   });
 
   it('reads CHR ROM', () => {
@@ -72,24 +72,24 @@ describe('cartridge/parsers/ines (NES 2.0 input)', () => {
   });
 
   it('reads CHR RAM size', () => {
-    expect(test({chrRAMUnits: 0}).chrRAMSize).to.be.equal(0);
-    expect(test({chrRAMUnits: 1}).chrRAMSize).to.be.equal(0x80);
-    expect(test({chrRAMUnits: 2}).chrRAMSize).to.be.equal(0x100);
-    expect(test({chrRAMUnits: 14}).chrRAMSize).to.be.equal(0x100000);
+    expect(test({chrRAMUnits: 0}).chrRAMSize).to.equal(0);
+    expect(test({chrRAMUnits: 1}).chrRAMSize).to.equal(0x80);
+    expect(test({chrRAMUnits: 2}).chrRAMSize).to.equal(0x100);
+    expect(test({chrRAMUnits: 14}).chrRAMSize).to.equal(0x100000);
   });
 
   it('reads battery-backed CHR RAM size', () => {
-    expect(test({chrRAMUnitsBattery: 0}).chrRAMSizeBattery).to.be.equal(0);
-    expect(test({chrRAMUnitsBattery: 1}).chrRAMSizeBattery).to.be.equal(0x80);
-    expect(test({chrRAMUnitsBattery: 2}).chrRAMSizeBattery).to.be.equal(0x100);
-    expect(test({chrRAMUnitsBattery: 14}).chrRAMSizeBattery).to.be.equal(0x100000);
+    expect(test({chrRAMUnitsBattery: 0}).chrRAMSizeBattery).to.equal(0);
+    expect(test({chrRAMUnitsBattery: 1}).chrRAMSizeBattery).to.equal(0x80);
+    expect(test({chrRAMUnitsBattery: 2}).chrRAMSizeBattery).to.equal(0x100);
+    expect(test({chrRAMUnitsBattery: 14}).chrRAMSizeBattery).to.equal(0x100000);
   });
 
   it('reads total CHR RAM size', () => {
-    expect(test({chrRAMUnits: 0, chrRAMUnitsBattery: 0}).chrRAMSize).to.be.equal(0);
-    expect(test({chrRAMUnits: 0, chrRAMUnitsBattery: 1}).chrRAMSize).to.be.equal(0x80);
-    expect(test({chrRAMUnits: 2, chrRAMUnitsBattery: 0}).chrRAMSize).to.be.equal(0x100);
-    expect(test({chrRAMUnits: 3, chrRAMUnitsBattery: 4}).chrRAMSize).to.be.equal(0x600);
+    expect(test({chrRAMUnits: 0, chrRAMUnitsBattery: 0}).chrRAMSize).to.equal(0);
+    expect(test({chrRAMUnits: 0, chrRAMUnitsBattery: 1}).chrRAMSize).to.equal(0x80);
+    expect(test({chrRAMUnits: 2, chrRAMUnitsBattery: 0}).chrRAMSize).to.equal(0x100);
+    expect(test({chrRAMUnits: 3, chrRAMUnitsBattery: 4}).chrRAMSize).to.equal(0x600);
   });
 
   it('skips trainer', () => {
@@ -98,37 +98,37 @@ describe('cartridge/parsers/ines (NES 2.0 input)', () => {
   });
 
   it('reads mirroring', () => {
-    expect(test({fourScreenMode: false, verticalMirroring: false}).mirroring).to.be.equal(Mirroring.HORIZONTAL);
-    expect(test({fourScreenMode: false, verticalMirroring: true}).mirroring).to.be.equal(Mirroring.VERTICAL);
-    expect(test({fourScreenMode: true, verticalMirroring: false}).mirroring).to.be.equal(Mirroring.FOUR_SCREEN);
-    expect(test({fourScreenMode: true, verticalMirroring: true}).mirroring).to.be.equal(Mirroring.FOUR_SCREEN);
+    expect(test({fourScreenMode: false, verticalMirroring: false}).mirroring).to.equal(Mirroring.HORIZONTAL);
+    expect(test({fourScreenMode: false, verticalMirroring: true}).mirroring).to.equal(Mirroring.VERTICAL);
+    expect(test({fourScreenMode: true, verticalMirroring: false}).mirroring).to.equal(Mirroring.FOUR_SCREEN);
+    expect(test({fourScreenMode: true, verticalMirroring: true}).mirroring).to.equal(Mirroring.FOUR_SCREEN);
   });
 
   it('reads region', () => {
-    expect(test({palRegion: false}).region).to.be.equal(Region.NTSC);
-    expect(test({palRegion: true}).region).to.be.equal(Region.PAL);
+    expect(test({palRegion: false}).region).to.equal(Region.NTSC);
+    expect(test({palRegion: true}).region).to.equal(Region.PAL);
   });
 
   it('reads mapper', () => {
-    expect(test({mapperId: 0}).mapper).to.be.equal('NROM');
-    expect(test({mapperId: 1}).mapper).to.be.equal('MMC1');
-    expect(test({mapperId: 2}).mapper).to.be.equal('UNROM');
-    expect(test({mapperId: 3}).mapper).to.be.equal('CNROM');
-    expect(test({mapperId: 4}).mapper).to.be.equal('MMC3');
-    expect(test({mapperId: 7}).mapper).to.be.equal('AOROM');
-    expect(test({mapperId: 11}).mapper).to.be.equal('ColorDreams');
-    expect(test({mapperId: 34, chrROMUnits: 0}).mapper).to.be.equal('BNROM');
-    expect(test({mapperId: 34, chrROMUnits: 1}).mapper).to.be.equal('NINA-001');
+    expect(test({mapperId: 0}).mapper).to.equal('NROM');
+    expect(test({mapperId: 1}).mapper).to.equal('MMC1');
+    expect(test({mapperId: 2}).mapper).to.equal('UNROM');
+    expect(test({mapperId: 3}).mapper).to.equal('CNROM');
+    expect(test({mapperId: 4}).mapper).to.equal('MMC3');
+    expect(test({mapperId: 7}).mapper).to.equal('AOROM');
+    expect(test({mapperId: 11}).mapper).to.equal('ColorDreams');
+    expect(test({mapperId: 34, chrROMUnits: 0}).mapper).to.equal('BNROM');
+    expect(test({mapperId: 34, chrROMUnits: 1}).mapper).to.equal('NINA-001');
   });
 
   it('reads unknown mapper ID as string', () => {
-    expect(test({mapperId: 0xA81}).mapper).to.be.equal(String(0xA81));
+    expect(test({mapperId: 0xA81}).mapper).to.equal(String(0xA81));
   });
 
   it('reads submapper', () => {
-    expect(test({mapperId: 1, submapperId: 1}).submapper).to.be.equal('SUROM');
-    expect(test({mapperId: 1, submapperId: 2}).submapper).to.be.equal('SOROM');
-    expect(test({mapperId: 1, submapperId: 3}).submapper).to.be.equal('SXROM');
+    expect(test({mapperId: 1, submapperId: 1}).submapper).to.equal('SUROM');
+    expect(test({mapperId: 1, submapperId: 2}).submapper).to.equal('SOROM');
+    expect(test({mapperId: 1, submapperId: 3}).submapper).to.equal('SXROM');
   });
 
   it('does not read unknown submapper ID', () => {

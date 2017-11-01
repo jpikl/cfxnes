@@ -23,9 +23,9 @@ describe('cartridge/parsers/ines (iNES input)', () => {
     // The should be unused by regular iNES ROMs. However, some ROMs
     // have them set to non-zero value. Unless these bits are equal
     // to 10 (NES 2.0 indication), their value must be ignored.
-    expect(test({nes2DetectionBits: 0x0}).version).to.be.equal(1); // Bits = 00
-    expect(test({nes2DetectionBits: 0x1}).version).to.be.equal(1); // Bits = 01
-    expect(test({nes2DetectionBits: 0x3}).version).to.be.equal(1); // Bits = 11
+    expect(test({nes2DetectionBits: 0x0}).version).to.equal(1); // Bits = 00
+    expect(test({nes2DetectionBits: 0x1}).version).to.equal(1); // Bits = 01
+    expect(test({nes2DetectionBits: 0x3}).version).to.equal(1); // Bits = 11
   });
 
   it('throws error for zero PRG RAM', () => {
@@ -33,9 +33,9 @@ describe('cartridge/parsers/ines (iNES input)', () => {
   });
 
   it('reads PRG ROM size', () => {
-    expect(test({prgROMUnits: 1}).prgROMSize).to.be.equal(0x4000);
-    expect(test({prgROMUnits: 2}).prgROMSize).to.be.equal(0x8000);
-    expect(test({prgROMUnits: 0xFF}).prgROMSize).to.be.equal(0x3FC000);
+    expect(test({prgROMUnits: 1}).prgROMSize).to.equal(0x4000);
+    expect(test({prgROMUnits: 2}).prgROMSize).to.equal(0x8000);
+    expect(test({prgROMUnits: 0xFF}).prgROMSize).to.equal(0x3FC000);
   });
 
   it('reads PRG ROM', () => {
@@ -44,21 +44,21 @@ describe('cartridge/parsers/ines (iNES input)', () => {
   });
 
   it('reads PRG RAM size', () => {
-    expect(test({prgRAMUnits: 0}).prgRAMSize).to.be.equal(0x2000);
-    expect(test({prgRAMUnits: 1}).prgRAMSize).to.be.equal(0x2000);
-    expect(test({prgRAMUnits: 2}).prgRAMSize).to.be.equal(0x4000);
-    expect(test({prgRAMUnits: 0xFF}).prgRAMSize).to.be.equal(0x1FE000);
+    expect(test({prgRAMUnits: 0}).prgRAMSize).to.equal(0x2000);
+    expect(test({prgRAMUnits: 1}).prgRAMSize).to.equal(0x2000);
+    expect(test({prgRAMUnits: 2}).prgRAMSize).to.equal(0x4000);
+    expect(test({prgRAMUnits: 0xFF}).prgRAMSize).to.equal(0x1FE000);
   });
 
   it('reads battery-backed PRG RAM size as 0', () => {
-    expect(test().prgRAMSizeBattery).to.be.equal(0);
+    expect(test().prgRAMSizeBattery).to.equal(0);
   });
 
   it('reads CHR ROM size', () => {
-    expect(test({chrROMUnits: 0}).chrROMSize).to.be.equal(0);
-    expect(test({chrROMUnits: 1}).chrROMSize).to.be.equal(0x2000);
-    expect(test({chrROMUnits: 2}).chrROMSize).to.be.equal(0x4000);
-    expect(test({chrROMUnits: 0xFF}).chrROMSize).to.be.equal(0x1FE000);
+    expect(test({chrROMUnits: 0}).chrROMSize).to.equal(0);
+    expect(test({chrROMUnits: 1}).chrROMSize).to.equal(0x2000);
+    expect(test({chrROMUnits: 2}).chrROMSize).to.equal(0x4000);
+    expect(test({chrROMUnits: 0xFF}).chrROMSize).to.equal(0x1FE000);
   });
 
   it('reads CHR ROM', () => {
@@ -68,12 +68,12 @@ describe('cartridge/parsers/ines (iNES input)', () => {
   });
 
   it('reads CHR RAM size', () => {
-    expect(test({chrROMUnits: 0}).chrRAMSize).to.be.equal(0x2000);
-    expect(test({chrROMUnits: 1}).chrRAMSize).to.be.equal(0);
+    expect(test({chrROMUnits: 0}).chrRAMSize).to.equal(0x2000);
+    expect(test({chrROMUnits: 1}).chrRAMSize).to.equal(0);
   });
 
   it('reads battery-backed CHR RAM size as 0', () => {
-    expect(test().chrRAMSizeBattery).to.be.equal(0);
+    expect(test().chrRAMSizeBattery).to.equal(0);
   });
 
   it('skips trainer', () => {
@@ -82,31 +82,31 @@ describe('cartridge/parsers/ines (iNES input)', () => {
   });
 
   it('reads mirroring', () => {
-    expect(test({fourScreenMode: false, verticalMirroring: false}).mirroring).to.be.equal(Mirroring.HORIZONTAL);
-    expect(test({fourScreenMode: false, verticalMirroring: true}).mirroring).to.be.equal(Mirroring.VERTICAL);
-    expect(test({fourScreenMode: true, verticalMirroring: false}).mirroring).to.be.equal(Mirroring.FOUR_SCREEN);
-    expect(test({fourScreenMode: true, verticalMirroring: true}).mirroring).to.be.equal(Mirroring.FOUR_SCREEN);
+    expect(test({fourScreenMode: false, verticalMirroring: false}).mirroring).to.equal(Mirroring.HORIZONTAL);
+    expect(test({fourScreenMode: false, verticalMirroring: true}).mirroring).to.equal(Mirroring.VERTICAL);
+    expect(test({fourScreenMode: true, verticalMirroring: false}).mirroring).to.equal(Mirroring.FOUR_SCREEN);
+    expect(test({fourScreenMode: true, verticalMirroring: true}).mirroring).to.equal(Mirroring.FOUR_SCREEN);
   });
 
   it('reads region', () => {
-    expect(test({palRegion: false}).region).to.be.equal(Region.NTSC);
-    expect(test({palRegion: true}).region).to.be.equal(Region.PAL);
+    expect(test({palRegion: false}).region).to.equal(Region.NTSC);
+    expect(test({palRegion: true}).region).to.equal(Region.PAL);
   });
 
   it('reads mapper', () => {
-    expect(test({mapperId: 0}).mapper).to.be.equal('NROM');
-    expect(test({mapperId: 1}).mapper).to.be.equal('MMC1');
-    expect(test({mapperId: 2}).mapper).to.be.equal('UNROM');
-    expect(test({mapperId: 3}).mapper).to.be.equal('CNROM');
-    expect(test({mapperId: 4}).mapper).to.be.equal('MMC3');
-    expect(test({mapperId: 7}).mapper).to.be.equal('AOROM');
-    expect(test({mapperId: 11}).mapper).to.be.equal('ColorDreams');
-    expect(test({mapperId: 34, chrROMUnits: 0}).mapper).to.be.equal('BNROM');
-    expect(test({mapperId: 34, chrROMUnits: 1}).mapper).to.be.equal('NINA-001');
+    expect(test({mapperId: 0}).mapper).to.equal('NROM');
+    expect(test({mapperId: 1}).mapper).to.equal('MMC1');
+    expect(test({mapperId: 2}).mapper).to.equal('UNROM');
+    expect(test({mapperId: 3}).mapper).to.equal('CNROM');
+    expect(test({mapperId: 4}).mapper).to.equal('MMC3');
+    expect(test({mapperId: 7}).mapper).to.equal('AOROM');
+    expect(test({mapperId: 11}).mapper).to.equal('ColorDreams');
+    expect(test({mapperId: 34, chrROMUnits: 0}).mapper).to.equal('BNROM');
+    expect(test({mapperId: 34, chrROMUnits: 1}).mapper).to.equal('NINA-001');
   });
 
   it('reads unknown mapper ID as string', () => {
-    expect(test({mapperId: 0xFE}).mapper).to.be.equal(String(0xFE));
+    expect(test({mapperId: 0xFE}).mapper).to.equal(String(0xFE));
   });
 
   it('does not read subbmapper', () => {

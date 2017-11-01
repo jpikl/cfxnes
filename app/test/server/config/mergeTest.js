@@ -36,12 +36,12 @@ describe('server/config/merge', () => {
     expect(result.booleanValueY).to.be.true;
     expect(result.booleanValueZ).to.be.false;
 
-    expect(result.numberValueX).to.be.equal(2);
-    expect(result.numberValueY).to.be.equal(1);
-    expect(result.numberValueZ).to.be.equal(0);
+    expect(result.numberValueX).to.equal(2);
+    expect(result.numberValueY).to.equal(1);
+    expect(result.numberValueZ).to.equal(0);
 
-    expect(result.stringValueX).to.be.equal('c');
-    expect(result.stringValueY).to.be.equal('b');
-    expect(result.stringValueZ).to.be.equal('a');
+    expect(result.stringValueX).to.equal('c');
+    expect(result.stringValueY).to.equal('b');
+    expect(result.stringValueZ).to.equal('a');
   });
 });

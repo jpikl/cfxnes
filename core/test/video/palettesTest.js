@@ -24,15 +24,13 @@ describe('video/palettes', () => {
 
   it('creates default palette when no name is specified', () => {
     const palette = createPalette();
-    expect(palette).to.be.an('uint32array');
-    expect(palette).to.have.lengthOf(64);
+    expect(palette).to.be.an('Uint32Array').with.lengthOf(64);
   });
 
   for (const name of names) {
     it(`creates ${name} palette`, () => {
       const palette = createPalette(name);
-      expect(palette).to.be.an('uint32array');
-      expect(palette).to.have.lengthOf(64);
+      expect(palette).to.be.an('Uint32Array').with.lengthOf(64);
     });
   }
 
@@ -49,7 +47,7 @@ describe('video/palettes', () => {
     const color0 = unpackColor(paletteVariant[0]);
     const color59 = unpackColor(paletteVariant[59]);
 
-    expect(color0).to.be.deep.equal([0x30, 0x59, 0xB0, 0xFF]);
-    expect(color59).to.be.deep.equal([0x30, 0x59, 0xB0, 0xFF]);
+    expect(color0).to.deep.equal([0x30, 0x59, 0xB0, 0xFF]);
+    expect(color59).to.deep.equal([0x30, 0x59, 0xB0, 0xFF]);
   });
 });
