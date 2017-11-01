@@ -14,9 +14,18 @@ function fetchResource(url) {
     .then(response => {
       const {ok, status, statusText} = response;
       log.info(`Fetched ${url}: ${status} ${statusText}`);
-      if (!ok) {
-        throw new Error(`Failed to download data (${status} ${statusText})`);
+      if (ok) {
+        return response;
       }
-      return response;
+      return response.json()
+        .catch(error => {
+          log.error('Message retrieval from server response failed', error);
+        })
+        .then(({message}) => {
+          if (!message) {
+            message = `Failed to download data (${status} ${statusText})`;
+          }
+          throw new Error(message);
+        });
     });
 }
