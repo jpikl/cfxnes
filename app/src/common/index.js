@@ -1,2 +1,5 @@
-export {log, LogLevel} from '../../../core/src/common';
+import * as LogLevel from './logLevels';
+
 export * from './utils';
+export {default as log} from './log';
+export {LogLevel};

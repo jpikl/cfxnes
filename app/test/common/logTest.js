@@ -25,11 +25,6 @@ describe('common/log', () => {
     expect(log.getLevel()).to.equal(INFO);
   });
 
-  it('throws error when setting invalid log level', () => {
-    expect(() => log.setLevel()).to.throw('Invalid log level: undefined');
-    expect(() => log.setLevel('x')).to.throw('Invalid log level: "x"');
-  });
-
   it('logs nothing for "off" level', () => {
     log.setLevel(OFF);
     log.error('foo', 'bar');
@@ -56,7 +51,7 @@ describe('common/log', () => {
     log.warn('fooo', 'baar');
     log.info('foooo', 'baaar');
     expect(errors).to.deep.equal([['foo', 'bar']]);
-    expect(warns).to.deep.equal([['fooo']]);
+    expect(warns).to.deep.equal([['fooo', 'baar']]);
     expect(infos).to.deep.equal([]);
   });
 
@@ -66,7 +61,7 @@ describe('common/log', () => {
     log.warn('fooo', 'baar');
     log.info('foooo', 'baaar');
     expect(errors).to.deep.equal([['foo', 'bar']]);
-    expect(warns).to.deep.equal([['fooo']]);
-    expect(infos).to.deep.equal([['foooo']]);
+    expect(warns).to.deep.equal([['fooo', 'baar']]);
+    expect(infos).to.deep.equal([['foooo', 'baaar']]);
   });
 });

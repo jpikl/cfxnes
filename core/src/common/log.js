@@ -1,31 +1,56 @@
 /* global console */
 
 import {toString} from './utils';
-import logLevels, {OFF} from './logLevels';
+import {OFF, ERROR, WARN, INFO} from './logLevels';
 
-const methodNames = logLevels.filter(level => level !== OFF);
-const noop = () => {};
+const OFF_PRIORITY = 0;
+const ERROR_PRIORITY = 1;
+const WARN_PRIORITY = 2;
+const INFO_PRIORITY = 3;
+
+const priorities = {
+  [OFF]: OFF_PRIORITY,
+  [ERROR]: ERROR_PRIORITY,
+  [WARN]: WARN_PRIORITY,
+  [INFO]: INFO_PRIORITY,
+};
 
 export class Log {
 
   constructor(output) {
-    this.methods = methodNames.map(name => output[name].bind(output));
+    this.output = output;
     this.setLevel(OFF);
   }
 
   setLevel(level) {
-    if (logLevels.indexOf(level) < 0) {
+    const priority = priorities[level];
+    if (priority == null) {
       throw new Error('Invalid log level: ' + toString(level));
     }
+    this.priority = priority;
     this.level = level;
-    for (let i = 0; i < methodNames.length; i++) {
-      const enabled = methodNames.indexOf(level, i) >= i;
-      this[methodNames[i]] = enabled ? this.methods[i] : noop;
-    }
   }
 
   getLevel() {
     return this.level;
+  }
+
+  error(message, error) {
+    if (this.priority >= ERROR_PRIORITY) {
+      this.output[ERROR](message, error);
+    }
+  }
+
+  warn(message) {
+    if (this.priority >= WARN_PRIORITY) {
+      this.output[WARN](message);
+    }
+  }
+
+  info(message) {
+    if (this.priority >= INFO_PRIORITY) {
+      this.output[INFO](message);
+    }
   }
 
 }
