@@ -1,4 +1,4 @@
-import {toString} from './utils';
+import {describe} from './utils';
 
 export const SCREEN_0 = 'S0';
 export const SCREEN_1 = 'S1';
@@ -23,7 +23,7 @@ export function getAreas(mirroring) {
   if (area) {
     return area;
   }
-  throw new Error('Invalid mirroring: ' + toString(mirroring));
+  throw new Error('Invalid mirroring: ' + describe(mirroring));
 }
 
 export function getSingle(screen) {

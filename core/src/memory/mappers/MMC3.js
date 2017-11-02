@@ -2,6 +2,9 @@ import {Mirroring} from '../../common';
 import {IRQ_EXT} from '../../proc/interrupts';
 import Mapper from './Mapper';
 
+/**
+ * @extends Mapper
+ */
 export default class MMC3 extends Mapper {
 
   //=========================================================

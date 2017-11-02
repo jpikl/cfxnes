@@ -6,7 +6,7 @@ import {
   decodeBase64,
   formatSize,
   roundUpToPow2,
-  toString,
+  describe,
 } from '../../src/common/utils';
 
 describe('common/utils', () => {
@@ -47,16 +47,16 @@ describe('common/utils', () => {
     expect(roundUpToPow2(1024)).to.equal(1024);
   });
 
-  it('converts value to string', () => {
-    expect(toString(undefined)).to.equal('undefined');
-    expect(toString(null)).to.equal('null');
-    expect(toString(123)).to.equal('123');
-    expect(toString('abc')).to.equal('"abc"');
-    expect(toString('a'.repeat(100))).to.equal(`"${'a'.repeat(80)}..."`);
-    expect(toString(() => {})).to.equal('Function');
-    expect(toString(function foo() {})).to.equal('Function(foo)'); // eslint-disable-line prefer-arrow-callback
-    expect(toString({})).to.equal('Object');
-    expect(toString(Uint8Array.of(1, 2, 3))).to.equal('Uint8Array(3)');
-    expect(toString(Symbol('bar'))).to.equal('Symbol(bar)');
+  it('describes value', () => {
+    expect(describe(undefined)).to.equal('undefined');
+    expect(describe(null)).to.equal('null');
+    expect(describe(123)).to.equal('123');
+    expect(describe('abc')).to.equal('"abc"');
+    expect(describe('a'.repeat(100))).to.equal(`"${'a'.repeat(80)}..."`);
+    expect(describe(() => {})).to.equal('Function');
+    expect(describe(function foo() {})).to.equal('Function(foo)'); // eslint-disable-line prefer-arrow-callback
+    expect(describe({})).to.equal('Object');
+    expect(describe(Uint8Array.of(1, 2, 3))).to.equal('Uint8Array(3)');
+    expect(describe(Symbol('bar'))).to.equal('Symbol(bar)');
   });
 });

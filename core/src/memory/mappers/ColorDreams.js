@@ -1,5 +1,8 @@
 import Mapper from './Mapper';
 
+/**
+ * @extends Mapper
+ */
 export default class ColorDreams extends Mapper {
 
   resetState() {

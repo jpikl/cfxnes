@@ -10,5 +10,5 @@ export {
   decodeBase64,
   formatSize,
   roundUpToPow2,
-  toString,
+  describe,
 } from './utils';

@@ -60,7 +60,7 @@ export default class Mapper {
   resetState() {
   }
 
-  write() {
+  write(address, value) { // eslint-disable-line no-unused-vars
   }
 
   tick() {

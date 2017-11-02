@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 
-import {log, decodeBase64, toString} from '../../common';
+import {log, decodeBase64, describe} from '../../common';
 import {packColor, unpackColor} from '../colors';
 
 import asq_real_a from './asq_real_a';
@@ -43,7 +43,7 @@ export function createPalette(name = 'fceux') {
     log.info(`Creating "${name}" palette`);
     return decodePalette(base64);
   }
-  throw new Error('Invalid palette: ' + toString(name));
+  throw new Error('Invalid palette: ' + describe(name));
 }
 
 function decodePalette(base64) {

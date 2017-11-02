@@ -1,6 +1,6 @@
 /* global console */
 
-import {toString} from './utils';
+import {describe} from './utils';
 import {OFF, ERROR, WARN, INFO} from './logLevels';
 
 const OFF_PRIORITY = 0;
@@ -25,7 +25,7 @@ export class Log {
   setLevel(level) {
     const priority = priorities[level];
     if (priority == null) {
-      throw new Error('Invalid log level: ' + toString(level));
+      throw new Error('Invalid log level: ' + describe(level));
     }
     this.priority = priority;
     this.level = level;
@@ -35,7 +35,7 @@ export class Log {
     return this.level;
   }
 
-  error(message, error) {
+  error(message, error = undefined) {
     if (this.priority >= ERROR_PRIORITY) {
       this.output[ERROR](message, error);
     }

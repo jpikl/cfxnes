@@ -1,4 +1,4 @@
-import {toString} from './utils';
+import {describe} from './utils';
 
 export const NTSC = 'NTSC';
 export const PAL = 'PAL';
@@ -27,6 +27,6 @@ export function getParams(region) {
   switch (region) {
     case NTSC: return ntscParams;
     case PAL: return palParams;
-    default: throw new Error('Invalid region: ' + toString(region));
+    default: throw new Error('Invalid region: ' + describe(region));
   }
 }

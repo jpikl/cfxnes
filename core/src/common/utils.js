@@ -13,7 +13,7 @@ export function decodeBase64(input) {
     return window.atob(input);
   }
   if (typeof Buffer === 'function') {
-    return new Buffer(input, 'base64').toString('binary');
+    return Buffer.from(input, 'base64').toString('binary');
   }
   throw new Error('Unable to decode base64 string');
 }
@@ -43,7 +43,7 @@ export function roundUpToPow2(number) {
   return result;
 }
 
-export function toString(value) {
+export function describe(value) {
   const type = typeof value;
   if (type === 'string') {
     if (value.length > MAX_TO_STRING_LENGTH) {
