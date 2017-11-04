@@ -18,7 +18,7 @@ import {
   SET_AUDIO_VOLUME,
   SET_CONTROLS,
   SET_CONTROLS_DEVICE,
-  SET_CONTROLS_INPTUS,
+  SET_CONTROLS_INPUTS,
   SET_CONTROLS_VISIBLE,
 } from '../actionTypes';
 
@@ -160,7 +160,7 @@ function bindGamepadToJoypadButton(gamepadIndex, gamepadButton, joypadPort, joyp
 function refreshControlsInputs(dispatch) {
   for (const port of Port.values) {
     const inputs = copyInputsFromNes(nes, port);
-    dispatch(createAction(SET_CONTROLS_INPTUS, {port, inputs}));
+    dispatch(createAction(SET_CONTROLS_INPUTS, {port, inputs}));
   }
 }
 

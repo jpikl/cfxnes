@@ -1,14 +1,15 @@
 export {default as NES} from './NES';
-export {APU, Channel} from './audio';
+export {APU} from './audio';
 export {createCartridge, readCartridge} from './cartridge';
 export {Button, Joypad, Zapper} from './devices';
 export {CPUMemory, PPUMemory, DMA, createMapper} from './memory';
 export {CPU, Interrupt} from './proc';
 
 export {
+  log,
   LogLevel,
   Mirroring,
-  Region, log,
+  Region,
   detectEndianness,
   decodeBase64,
   formatSize,

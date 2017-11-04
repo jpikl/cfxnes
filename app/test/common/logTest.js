@@ -16,7 +16,7 @@ describe('common/log', () => {
     });
   });
 
-  it('has "off" as default log level', () => {
+  it('has "off" log level by default', () => {
     expect(log.getLevel()).to.equal(OFF);
   });
 

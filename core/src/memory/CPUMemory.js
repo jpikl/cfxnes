@@ -50,7 +50,7 @@ export default class CPUMemory {
   //=========================================================
 
   reset() {
-    log.info('Reseting CPU memory');
+    log.info('Resetting CPU memory');
     this.resetRAM();
     this.resetRegisters();
     this.resetPRGRAM();

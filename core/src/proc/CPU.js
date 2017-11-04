@@ -35,7 +35,7 @@ export default class CPU {
   //=========================================================
 
   reset() {
-    log.info('Reseting CPU');
+    log.info('Resetting CPU');
     this.resetRegisters();
     this.resetVariables();
     this.resetMemory();

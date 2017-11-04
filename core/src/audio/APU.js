@@ -2,14 +2,6 @@ import {log, formatSize} from '../common';
 import {IRQ_APU} from '../proc/interrupts';
 import {Pulse, Triangle, Noise, DMC} from './channels';
 
-export const Channel = {
-  PULSE_1: 0,
-  PULSE_2: 1,
-  TRIANGLE: 2,
-  NOISE: 3,
-  DMC: 4,
-};
-
 export default class APU {
 
   //=========================================================
@@ -23,7 +15,7 @@ export default class APU {
     this.triangle = new Triangle;
     this.noise = new Noise;
     this.dmc = new DMC;
-    this.volumes = [1, 1, 1, 1, 1];
+    this.channels = [this.pulse1, this.pulse2, this.triangle, this.noise, this.dmc];
     this.setOutputEnabled(false);
   }
 
@@ -38,7 +30,7 @@ export default class APU {
   //=========================================================
 
   reset() {
-    log.info('Reseting APU');
+    log.info('Resetting APU');
     this.clearFrameIRQ();
     this.pulse1.reset();
     this.pulse2.reset();
@@ -94,13 +86,13 @@ export default class APU {
     return this.sampleRate;
   }
 
-  setVolume(channel, volume) {
-    log.info(`Setting volume of APU channel #${channel} to ${volume}`);
-    this.volumes[channel] = volume;
+  setVolume(id, volume) {
+    log.info(`Setting volume of APU channel #${id} to ${volume}`);
+    this.channels[id].gain = volume;
   }
 
-  getVolume(channel) {
-    return this.volumes[channel];
+  getVolume(id) {
+    return this.channels[id].gain;
   }
 
   //=========================================================
@@ -112,7 +104,7 @@ export default class APU {
     this.frameFiveStepMode = (value & 0x80) !== 0; // 0 - mode 4 (4-step counter) / 1 - mode 5 (5-step counter)
     this.frameIrqDisabled = (value & 0x40) !== 0;  // IRQ generation is inhibited in mode 4
     this.frameStep = 0;                            // Step of the frame counter
-    this.frameCounterResetDelay = 4;               // Counter should be reseted after 3 or 4 CPU cycles
+    this.frameCounterResetDelay = 4;               // Counter should be reset after 3 or 4 CPU cycles
     if (this.frameCounter == null) {
       this.frameCounter = this.getFrameCounterMax(); // Frame counter first initialization
     }
@@ -336,12 +328,11 @@ export default class APU {
   //=========================================================
 
   getOutput() {
-    const {volumes} = this;
-    const pulse1 = volumes[Channel.PULSE_1] * this.pulse1.getOutput();
-    const pulse2 = volumes[Channel.PULSE_2] * this.pulse2.getOutput();
-    const triangle = volumes[Channel.TRIANGLE] * this.triangle.getOutput();
-    const noise = volumes[Channel.NOISE] * this.noise.getOutput();
-    const dmc = volumes[Channel.DMC] * this.dmc.getOutput();
+    const pulse1 = this.pulse1.getOutput();
+    const pulse2 = this.pulse2.getOutput();
+    const triangle = this.triangle.getOutput();
+    const noise = this.noise.getOutput();
+    const dmc = this.dmc.getOutput();
     let output = 0;
     if (pulse1 || pulse2) {
       output += 95.88 / ((8128 / (pulse1 + pulse2)) + 100);

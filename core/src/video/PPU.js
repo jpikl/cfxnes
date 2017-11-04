@@ -29,7 +29,7 @@ export default class PPU {
   //=========================================================
 
   reset() {
-    log.info('Reseting PPU');
+    log.info('Resetting PPU');
     this.resetOAM();
     this.resetRegisters();
     this.resetVariables();

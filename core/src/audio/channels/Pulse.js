@@ -13,10 +13,11 @@ export default class Pulse {
   constructor(id) {
     log.info(`Initializing pulse channel #${id}`);
     this.id = id;
+    this.gain = 1;
   }
 
   reset() {
-    log.info(`Reseting pulse channel #${this.id}`);
+    log.info(`Resetting pulse channel #${this.id}`);
     this.setEnabled(false);
     this.timerCycle = 0;     // Timer counter value
     this.timerPeriod = 0;    // Timer counter reset value
@@ -54,7 +55,7 @@ export default class Pulse {
     this.sweepPeriod = (value & 0x70) >>> 4;  // Period after which sweep is applied
     this.sweepNegate = (value & 0x08) !== 0;  // 0 - sweep is added to timer period / 1 - sweep is subtracted from timer period
     this.sweepShift = value & 0x07;           // Shift of timer period when computing sweep
-    this.sweepReset = true;                   // Sweep counter will be reseted
+    this.sweepReset = true;                   // Sweep counter will be reset
   }
 
   writeTimer(value) {
@@ -66,8 +67,8 @@ export default class Pulse {
     if (this.enabled) {
       this.lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3]; // Length counter update
     }
-    this.dutyPosition = 0;     // Output waveform position is reseted
-    this.envelopeReset = true; // Envelope and its divider will be reseted
+    this.dutyPosition = 0;     // Output waveform position is reset
+    this.envelopeReset = true; // Envelope and its divider will be reset
   }
 
   //=========================================================
@@ -152,7 +153,7 @@ export default class Pulse {
   getOutput() {
     if (this.lengthCounter && this.isTimerPeriodValid()) {
       const volume = this.useConstantVolume ? this.constantVolume : this.envelopeVolume;
-      return volume * DUTY_WAVEFORMS[this.dutySelection][this.dutyPosition];
+      return this.gain * volume * DUTY_WAVEFORMS[this.dutySelection][this.dutyPosition];
     }
     return 0;
   }

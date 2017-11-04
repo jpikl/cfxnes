@@ -1,1 +1,1 @@
-export {default as APU, Channel} from './APU';
+export {default as APU} from './APU';

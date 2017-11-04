@@ -1,11 +1,11 @@
 import {expect} from 'chai';
-import {NES, Region, Channel, Joypad, readCartridge} from '../src';
+import {NES, Region, Joypad, readCartridge} from '../src';
 
 describe('NES (no cartridge)', () => {
   let nes, cartridge, joypad, frameBuffer, palette;
 
   const regions = [null, Region.PAL, Region.NTSC];
-  const channels = [Channel.PULSE_1, Channel.PULSE_2, Channel.TRIANGLE, Channel.NOISE, Channel.DMC];
+  const channels = [0, 1, 2, 3, 4];
   const ports = [1, 2];
 
   before(() => {

@@ -5,6 +5,7 @@ export default class DMC {
 
   constructor() {
     log.info('Initializing DMC channel');
+    this.gain = 1;
   }
 
   connect(nes) {
@@ -14,7 +15,7 @@ export default class DMC {
   }
 
   reset() {
-    log.info('Reseting DMC channel');
+    log.info('Resetting DMC channel');
     this.setEnabled(false);
     this.timerCycle = 0;         // Timer counter value
     this.sampleBuffer = null;    // Buffered sample data from memory (null => data are not available)
@@ -113,7 +114,7 @@ export default class DMC {
   }
 
   updateShiftRegister() {
-    // Countinuous reload of buffer into shift register (even when the output is silenced)
+    // Continuous reload of buffer into shift register (even when the output is silenced)
     if (--this.shiftRegisterBits <= 0) {
       this.shiftRegisterBits = 8;
       this.shiftRegister = this.sampleBuffer;
@@ -140,7 +141,7 @@ export default class DMC {
   //=========================================================
 
   getOutput() {
-    return this.output;
+    return this.gain * this.output;
   }
 
 }

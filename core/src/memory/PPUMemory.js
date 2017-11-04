@@ -63,7 +63,7 @@ export default class PPUMemory {
   //=========================================================
 
   reset() {
-    log.info('Reseting PPU memory');
+    log.info('Resetting PPU memory');
     this.resetPatterns();
     this.resetNametables();
     this.resetPaletts();

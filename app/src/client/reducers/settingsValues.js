@@ -13,7 +13,7 @@ import {
   SET_AUDIO_VOLUME,
   SET_CONTROLS,
   SET_CONTROLS_DEVICE,
-  SET_CONTROLS_INPTUS,
+  SET_CONTROLS_INPUTS,
   SET_CONTROLS_VISIBLE,
 } from '../actionTypes';
 
@@ -41,7 +41,7 @@ const actionHandlers = {
     const {inputs} = controls[port];
     return {...state, controls: {...controls, [port]: {device, inputs}}};
   },
-  [SET_CONTROLS_INPTUS]: (state, {port, inputs}) => {
+  [SET_CONTROLS_INPUTS]: (state, {port, inputs}) => {
     const {controls} = state;
     const {device} = controls[port];
     return {...state, controls: {...controls, [port]: {device, inputs}}};

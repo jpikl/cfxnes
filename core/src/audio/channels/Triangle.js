@@ -10,10 +10,11 @@ export default class Triangle {
 
   constructor() {
     log.info('Initializing triangle channel');
+    this.gain = 1;
   }
 
   reset() {
-    log.info('Reseting triangle channel');
+    log.info('Resetting triangle channel');
     this.setEnabled(false);
     this.timerCycle = 0;    // Timer counter value
     this.timerPeriod = 0;   // Timer counter reset value
@@ -50,7 +51,7 @@ export default class Triangle {
     if (this.enabled) {
       this.lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3]; // Length counter update
     }
-    this.linearCounterReset = true; // Linear counter will be reseted
+    this.linearCounterReset = true; // Linear counter will be reset
   }
 
   //=========================================================
@@ -100,7 +101,7 @@ export default class Triangle {
   //=========================================================
 
   getOutput() {
-    return DUTY_WAVEFORM[this.dutyPosition]; // Silencing channel does not change output value
+    return this.gain * DUTY_WAVEFORM[this.dutyPosition]; // Silencing channel does not change output value
   }
 
 }

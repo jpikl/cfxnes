@@ -14,7 +14,7 @@ export default class DMA {
   }
 
   reset() {
-    log.info('Reseting DMA');
+    log.info('Resetting DMA');
     this.cycle = TOTAL_DMA_CYCLES;
   }
 

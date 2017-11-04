@@ -318,11 +318,11 @@ The `nes.audio` property is `null` when browser does not support Web Audio (curr
 | enabled | `boolean` | yes | true | `true` when audio output is enabled, `false` otherwise. |
 | volume | `object` | no || Audio volume configuration. |
 | volume.master | `number` | yes | `0.5` | Master volume. |
-| volume.pulse1 | `number` | yes | `1` | Volume of pulse #1 channel. |
-| volume.pulse2 | `number` | yes | `1` | Volume of pulse #2 channel. |
-| volume.triangle | `number` | yes | `1` | Volume of triangle channel. |
-| volume.noise | `number` | yes | `1` | Volume of noise channel. |
-| volume.dmc | `number` | yes | `1` | Volume of DMC channel. |
+| volume.pulse1 | `number` | yes | `1` | Pulse channel #1 volume. |
+| volume.pulse2 | `number` | yes | `1` | Pulse channel #2 volume. |
+| volume.triangle | `number` | yes | `1` | Triangle channel volume. |
+| volume.noise | `number` | yes | `1` | Noise channel volume. |
+| volume.dmc | `number` | yes | `1` | DMC channel volume. |
 
 ``` javascript
 const nes = cfxnes();

@@ -5,10 +5,11 @@ export default class Noise {
 
   constructor() {
     log.info('Initializing noise channel');
+    this.gain = 1;
   }
 
   reset() {
-    log.info('Reseting noise channel');
+    log.info('Resetting noise channel');
     this.setEnabled(false);
     this.timerCycle = 0;     // Timer counter value
     this.envelopeCycle = 0;  // Envelope divider counter
@@ -51,7 +52,7 @@ export default class Noise {
     if (this.enabled) {
       this.lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3]; // Length counter update
     }
-    this.envelopeReset = true; // Envelope and its divider will be reseted
+    this.envelopeReset = true; // Envelope and its divider will be reset
   }
 
   //=========================================================
@@ -112,7 +113,8 @@ export default class Noise {
 
   getOutput() {
     if (this.lengthCounter && !(this.shiftRegister & 1)) {
-      return this.useConstantVolume ? this.constantVolume : this.envelopeVolume;
+      const volume = this.useConstantVolume ? this.constantVolume : this.envelopeVolume;
+      return this.gain * volume;
     }
     return 0;
   }
