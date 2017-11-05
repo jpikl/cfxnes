@@ -4,7 +4,7 @@ import Operation from './Operation';
 
 // CPU operation flags
 const F_EXTRA_CYCLE = 1 << 0; // Operation has +1 cycle
-const F_DOUBLE_READ = 1 << 1; // Operation always does double read during "absolute X/Y" and "indirect Y" addresing modes
+const F_DOUBLE_READ = 1 << 1; // Operation always does double read during "absolute X/Y" and "indirect Y" addressing modes
 
 // Interrupt handler addresses
 const RESET_ADDRESS = 0xFFFC;
@@ -54,7 +54,7 @@ export default class CPU {
 
   resetVariables() {
     this.activeInterrupts = 0; // Bitmap of active interrupts (each type of interrupt has its own bit)
-    this.halted = false;       // Whether KIL opcode was readed
+    this.halted = false;       // Whether KIL opcode was read
   }
 
   resetMemory() {
@@ -106,7 +106,7 @@ export default class CPU {
   }
 
   handleReset() {
-    this.writeByte(0x4015, 0x00);                       // Disable all APU channels immediatelly
+    this.writeByte(0x4015, 0x00);                       // Disable all APU channels immediately
     this.writeByte(0x4017, this.apu.frameCounterLast);  // Zero on power up, last written frame counter value otherwise
     this.stackPointer = (this.stackPointer - 3) & 0xFF; // Unlike IRQ/NMI, writing on stack does not modify CPU memory, so we just decrement the stack pointer 3 times
     this.enterInterruptHandler(RESET_ADDRESS);
@@ -253,11 +253,11 @@ export default class CPU {
   getStatus() {
     return this.carryFlag          // S[0] - carry bit of the last operation
        | (this.zeroFlag << 1)       // S[1] - whether result of the last operation was zero
-       | (this.interruptFlag << 2)  // S[2] - whether IRQs are disabled (this does not affect NMI/reset)
+       | (this.interruptFlag << 2)  // S[2] - whether all IRQ are disabled (this does not affect NMI/reset)
        | (this.decimalFlag << 3)    // S[3] - NES CPU actually does not use this flag, but it's stored in status register and modified by CLD/SED instructions
-       | (1 << 5)                   // S[5] - allways 1, see comment above
-       | (this.overflowFlag << 6)   // S[6] - wheter result of the last operation caused overflow
-       | (this.negativeFlag << 7);  // S[7] - wheter result of the last operation was negative number (bit 7 of the result was 1)
+       | (1 << 5)                   // S[5] - always 1, see comment above
+       | (this.overflowFlag << 6)   // S[6] - whether result of the last operation caused overflow
+       | (this.negativeFlag << 7);  // S[7] - whether result of the last operation was negative number (bit 7 of the result was 1)
   }
 
   setStatus(value) {
@@ -712,7 +712,7 @@ export default class CPU {
   }
 
   SBC(address) {
-    this.addValueToAccumulator((this.readByte(address)) ^ 0xFF); // With internal carry incremment makes negative operand
+    this.addValueToAccumulator((this.readByte(address)) ^ 0xFF); // With internal carry increment makes negative operand
   }
 
   //=========================================================
@@ -746,7 +746,7 @@ export default class CPU {
   }
 
   ISB(address) {
-    this.addValueToAccumulator((this.INC(address)) ^ 0xFF); // With internal carry incremment makes negative operand
+    this.addValueToAccumulator((this.INC(address)) ^ 0xFF); // With internal carry increment makes negative operand
   }
 
   SLO(address) {

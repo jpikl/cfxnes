@@ -39,7 +39,7 @@ export default class MMC3 extends Mapper {
     this.irqLatch = 0;   // IRQ counter reload value
     this.irqReload = 0;  // IRQ counter reload flag
     this.irqEnabled = 0; // IRQ counter enable flag
-    this.irqDelay = 0;   // Delay befor checking A12 rising edge
+    this.irqDelay = 0;   // Delay before checking A12 rising edge
   }
 
   //=========================================================
@@ -161,7 +161,7 @@ export default class MMC3 extends Mapper {
   //
   // IRQ generation:
   // - Normal behavior    - checks whether IRQ is enabled and the counter is zero
-  // - Alternate behavior - additionaly checks that the counter was set to zero either by decrementation or reload
+  // - Alternate behavior - additionally checks that the counter was set to zero either by decrease or reload
 
   tick() {
     if (this.ppu.addressBus & 0x1000) {

@@ -36,7 +36,7 @@ export default class Noise {
   //=========================================================
 
   writeEnvelope(value) {
-    this.lengthCounterHalt = (value & 0x20) !== 0; // Disables length counter decrementation
+    this.lengthCounterHalt = (value & 0x20) !== 0; // Disables length counter decrease
     this.useConstantVolume = (value & 0x10) !== 0; // 0 - envelope volume is used / 1 - constant volume is used
     this.constantVolume = value & 0x0F;            // Constant volume value
     this.envelopeLoop = this.lengthCounterHalt;    // Envelope is looping (length counter hold alias)

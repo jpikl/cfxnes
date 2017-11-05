@@ -109,7 +109,7 @@ describe('cartridge/parsers/ines (iNES input)', () => {
     expect(test({mapperId: 0xFE}).mapper).to.equal(String(0xFE));
   });
 
-  it('does not read subbmapper', () => {
+  it('does not read submapper', () => {
     expect(test().submapper).to.be.undefined;
   });
 });

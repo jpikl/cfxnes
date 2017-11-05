@@ -37,7 +37,7 @@ export default class Triangle {
   //=========================================================
 
   writeLinearCounter(value) {
-    this.lengthCounterHalt = (value & 0x80) !== 0;      // Disables length counter decrementation
+    this.lengthCounterHalt = (value & 0x80) !== 0;      // Disables length counter decrease
     this.linearCounterMax = value & 0x7F;               // Linear counter initial value
     this.linearCounterControl = this.lengthCounterHalt; // Linear counter control flag (length counter halt alias)
   }

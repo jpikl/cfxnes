@@ -51,7 +51,7 @@ export default class PPU {
     this.tempAddress = 0;        // 15-bit 'Loopy T' register
     this.vramAddress = 0;        // 15-bit 'Loopy V' register
     this.vramReadBuffer = 0;     //  8-bit VRAM read buffer
-    this.writeToogle = 0;        //  1-bit 'Loopy W' register
+    this.writeToggle = 0;        //  1-bit 'Loopy W' register
     this.fineXScroll = 0;        //  3-bit 'Loopy X' register
     this.patternBuffer0 = 0;     // 16-bit pattern (bit 0) shift buffer
     this.patternBuffer1 = 0;     // 16-bit pattern (bit 1) shift buffer
@@ -70,13 +70,13 @@ export default class PPU {
     this.cycle = 0;                // Current cycle - from total 341 cycles per scanline (0..340)
     this.cycleFlags = 0;              // Flags for current cycle/scanline
     this.vblankSuppressed = false; // Whether to suppress VBlank flag setting
-    this.nmiSuppressed = false;    // Whether to supress NMI generation
+    this.nmiSuppressed = false;    // Whether to suppress NMI generation
     this.nmiDelay = 0;             // Number of cycles after which NMI is generated
     this.oddFrame = false;         // Whether odd frame is being rendered
     this.spriteCount = 0;          // Total number of sprites on current scanline
     this.spriteNumber = 0;         // Number of currently fetched sprite
-    this.spriteCache = new Array(261);           // Preprocessed sprite data for current scanline (cycle -> sprite rendered on this cycle)
-    this.spritePixelCache = new Uint8Array(261); // Prerendered sprite pixels for current scanline (cycle -> sprite pixel rendered on this cycle)
+    this.spriteCache = new Array(261);           // Pre-processed sprite data for current scanline (cycle -> sprite rendered on this cycle)
+    this.spritePixelCache = new Uint8Array(261); // Pre-rendered sprite pixels for current scanline (cycle -> sprite pixel rendered on this cycle)
   }
 
   //=========================================================
@@ -163,7 +163,7 @@ export default class PPU {
   readStatus() {
     const value = this.getStatus();
     this.vblankFlag = 0; // Cleared by reading status
-    this.writeToogle = 0; // Cleared by reading status
+    this.writeToggle = 0; // Cleared by reading status
     if (this.cycleFlags & Flag.VB_START) {
       this.vblankSuppressed = true; // Reading just before VBlank disables VBlank flag setting
     }
@@ -213,8 +213,8 @@ export default class PPU {
   //=========================================================
 
   writeAddress(address) {
-    this.writeToogle = !this.writeToogle;
-    if (this.writeToogle) {
+    this.writeToggle = !this.writeToggle;
+    if (this.writeToggle) {
       const addressHigh = (address & 0x3F) << 8;
       this.tempAddress = (this.tempAddress & 0x00FF) | addressHigh; // High bits [13-8] (bit 14 is cleared)
     } else {
@@ -227,7 +227,7 @@ export default class PPU {
   readData() {
     if ((this.vramAddress & 0x3F00) === 0x3F00) {
       const value = this.ppuMemory.read(this.vramAddress); // Immediate read inside the palette memory area
-      this.vramReadBuffer = this.ppuMemory.read(this.vramAddress & 0x2FFF); //  Buffer musn't be reloaded from palette address, but from underlying nametable address
+      this.vramReadBuffer = this.ppuMemory.read(this.vramAddress & 0x2FFF); //  Buffer must not be reloaded from palette address, but from underlying nametable address
       this.incrementAddress();
       return value;
     }
@@ -262,8 +262,8 @@ export default class PPU {
   // Fine X scroll (x pixel position within pattern) has its own register.
 
   writeScroll(value) {
-    this.writeToogle = !this.writeToogle;
-    if (this.writeToogle) { // 1st write (X scroll)
+    this.writeToggle = !this.writeToggle;
+    if (this.writeToggle) { // 1st write (X scroll)
       this.fineXScroll = value & 0x07;
       const coarseXScroll = value >>> 3;
       this.tempAddress = (this.tempAddress & 0xFFE0) | coarseXScroll;
@@ -421,7 +421,7 @@ export default class PPU {
     if (this.scanline <= 239) {
       this.clearSprites();
       if (this.scanline > 0) {
-        this.prerenderSprites(); // Sprites are not rendered on scanline 0
+        this.preRenderSprites(); // Sprites are not rendered on scanline 0
       }
     }
   }
@@ -553,7 +553,7 @@ export default class PPU {
   //      T = pattern table selection bit
   //   PPPP = pattern number
   //
-  // Each pattern is 16B long and consits from two 8x8 matricies.
+  // Each pattern is 16B long and consists from two 8x8 matrices.
   // Each 8x8 matrix contains 1 bit of CC (color number) for pattern pixels.
   //
   // Palette numbers PP are defined for 2x2 tile areas. These numbers
@@ -590,8 +590,8 @@ export default class PPU {
 
   fetchNametable() {
     this.addressBus = 0x2000 | (this.vramAddress & 0x0FFF);
-    const patternNumer = this.ppuMemory.readNametable(this.addressBus); // Nametable byte fetch
-    const patternAddress = this.bgPatternTableAddress + (patternNumer << 4);
+    const patternNumber = this.ppuMemory.readNametable(this.addressBus); // Nametable byte fetch
+    const patternAddress = this.bgPatternTableAddress + (patternNumber << 4);
     const fineYScroll = (this.vramAddress >>> 12) & 0x07;
     this.patternRowAddress = patternAddress + fineYScroll;
   }
@@ -655,7 +655,7 @@ export default class PPU {
   //
   // Byte 0 - y screen coordinate (decremented by 1, because rendering of fetched sprites is delayed)
   // Byte 1 - pattern number PPPP.PPPT (if 8x16 sprites are enabled, bit T selects the pattern table,
-  //          otherwise it is seleted by bit 4 of control register)
+  //          otherwise it is selected by bit 4 of control register)
   // Byte 2 - attributes VHP0.00CC
   //   V = vertical mirroring enabled
   //   H = horizontal mirroring enabled
@@ -739,7 +739,7 @@ export default class PPU {
     }
   }
 
-  prerenderSprites() {
+  preRenderSprites() {
     for (let i = 0; i < this.spriteCount; i++) {
       const sprite = this.secondaryOAM[i];
       for (let j = 0; j < 8; j++) {

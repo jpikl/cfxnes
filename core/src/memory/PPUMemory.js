@@ -66,7 +66,7 @@ export default class PPUMemory {
     log.info('Resetting PPU memory');
     this.resetPatterns();
     this.resetNametables();
-    this.resetPaletts();
+    this.resetPalettes();
   }
 
   //=========================================================
@@ -172,26 +172,26 @@ export default class PPUMemory {
   //=========================================================
 
   initPalettes() {
-    this.paletts = new Uint8Array(0x20); // 8 x 4B palettes (background / sprite)
+    this.palettes = new Uint8Array(0x20); // 8 x 4B palettes (background / sprite)
   }
 
-  resetPaletts() {
-    this.paletts.set(INITIAL_PALETTES);
+  resetPalettes() {
+    this.palettes.set(INITIAL_PALETTES);
   }
 
   readPalette(address) {
-    return this.paletts[this.mapPaletteAddress(address)];
+    return this.palettes[this.mapPaletteAddress(address)];
   }
 
   writePalette(address, value) {
-    this.paletts[this.mapPaletteAddress(address)] = value;
+    this.palettes[this.mapPaletteAddress(address)] = value;
   }
 
   mapPaletteAddress(address) {
     if (address & 0x0003) {
       return address & 0x001F; // Mirroring of $3F00-$3F1F in $3F00-$3FFF
     }
-    return address & 0x000F; // $3F1{0,4,8,C} are mirrorors of $3F0{0,4,8,C}
+    return address & 0x000F; // $3F1{0,4,8,C} are mirrors of $3F0{0,4,8,C}
   }
 
 }

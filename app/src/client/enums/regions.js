@@ -7,7 +7,7 @@ export const PAL = 'pal';
 export const values = [AUTO, NTSC, PAL];
 
 export const labels = {
-  [AUTO]: 'Autodetect',
+  [AUTO]: 'Auto-detect',
   [NTSC]: 'NTSC',
   [PAL]: 'PAL',
 };

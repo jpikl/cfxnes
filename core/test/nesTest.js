@@ -19,12 +19,12 @@ describe('NES (no cartridge)', () => {
     nes = new NES;
   });
 
-  it('has region autodetection set by default', () => {
+  it('has region auto-detection set by default', () => {
     expect(nes.getRegion()).to.be.null;
   });
 
   for (const region of regions) {
-    it('changes region to ' + (region || 'autodetection'), () => {
+    it('changes region to ' + (region || 'auto-detection'), () => {
       nes.setRegion(region);
       expect(nes.getRegion()).to.equal(region);
     });
@@ -32,7 +32,7 @@ describe('NES (no cartridge)', () => {
 
   for (const region of regions) {
     const usedRegion = region || Region.NTSC;
-    it(`uses ${usedRegion} region ` + (region ? `when ${region} is set` : 'when autodetection is enabled'), () => {
+    it(`uses ${usedRegion} region ` + (region ? `when ${region} is set` : 'when auto-detection is enabled'), () => {
       nes.setRegion(region);
       expect(nes.getUsedRegion()).to.equal(usedRegion);
     });
@@ -167,7 +167,7 @@ describe('NES (cartridge set, no NVRAM)', () => {
     nes.setCartridge(cartridge);
   });
 
-  it('uses region from cartridge when autodetection is enabled', () => {
+  it('uses region from cartridge when auto-detection is enabled', () => {
     nes.setRegion(null);
     expect(nes.getUsedRegion()).to.equal(Region.PAL);
   });
@@ -177,7 +177,7 @@ describe('NES (cartridge set, no NVRAM)', () => {
     expect(nes.getUsedRegion()).to.equal(Region.NTSC);
   });
 
-  it('has cartrdge', () => {
+  it('has cartridge', () => {
     expect(nes.getCartridge()).to.be.an('object');
   });
 
@@ -204,7 +204,7 @@ describe('NES (cartridge set, no NVRAM)', () => {
     nes.renderDebugFrame(frameBuffer);
   });
 
-  it('fills audio buffer with constant value when audio is diabled', () => {
+  it('fills audio buffer with constant value when audio is disabled', () => {
     nes.setAudioBufferSize(4096);
     nes.setAudioSampleRate(44100);
     nes.setAudioEnabled(false);

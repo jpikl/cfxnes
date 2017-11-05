@@ -32,7 +32,7 @@ export default class MMC1 extends Mapper {
   }
 
   resetBankRegisters() {
-    this.controllRegister = 0x0C; // 5-bit - mapper configuration
+    this.controlRegister = 0x0C;  // 5-bit - mapper configuration
     this.prgBankRegister = 0;     // 5-bit - selects lower/upper 16K PRG ROM bank within a 256K page
     this.chrBankRegister1 = 0;    // 5-bit - selects lower 4K CHR ROM bank
     this.chrBankRegister2 = 0;    // 5-bit - selects upper 4K CHR ROM bank
@@ -45,7 +45,7 @@ export default class MMC1 extends Mapper {
   write(address, value) {
     if (value & 0x80) {
       this.resetShiftRegister();
-      this.controllRegister = this.controllRegister | 0x0C;
+      this.controlRegister |= 0x0C;
     } else {
       this.shiftRegister |= (value & 1) << this.writesCount;
       if (++this.writesCount >= 5) {
@@ -58,7 +58,7 @@ export default class MMC1 extends Mapper {
 
   copyShiftRegister(address) {
     switch (address & 0xE000) {
-      case 0x8000: this.controllRegister = this.shiftRegister; break; // $8000-$9FFF (100X)
+      case 0x8000: this.controlRegister = this.shiftRegister; break; // $8000-$9FFF (100X)
       case 0xA000: this.chrBankRegister1 = this.shiftRegister; break; // $A000-$BFFF (101X)
       case 0xC000: this.chrBankRegister2 = this.shiftRegister; break; // $C000-$DFFF (110X)
       case 0xE000: this.prgBankRegister = this.shiftRegister; break;  // $E000-$FFFF (111X)
@@ -77,7 +77,7 @@ export default class MMC1 extends Mapper {
   }
 
   switchMirroring() {
-    switch (this.controllRegister & 0x03) {
+    switch (this.controlRegister & 0x03) {
       case 0: this.setSingleScreenMirroring(0); break;
       case 1: this.setSingleScreenMirroring(1); break;
       case 2: this.setVerticalMirroring(); break;
@@ -89,7 +89,7 @@ export default class MMC1 extends Mapper {
     // Bit 4 of CHR bank register has different usage when 8KB CHR RAM is present (SNROM, SOROM, SUROM and SXROM boards)
     const base = this.chrRAM ? this.chrBankRegister1 & 0x10 : 0; // Selection of 256K area on 512K PRG ROM (won't affect SNROM/SOROM with max. 256KB PRG ROM)
     const offset = this.prgBankRegister & 0x0F; // 16K bank selection within 256K area
-    switch (this.controllRegister & 0x0C) {
+    switch (this.controlRegister & 0x0C) {
       case 0x0C:
         this.mapPRGROMBank16K(0, base | offset); // Select 16K PRG ROM bank at $8000
         this.mapPRGROMBank16K(1, base | 0x0F);   // Map last 16K PRG ROM bank to $C000
@@ -115,7 +115,7 @@ export default class MMC1 extends Mapper {
   }
 
   switchCHRBanks() {
-    if (this.controllRegister & 0x10) {
+    if (this.controlRegister & 0x10) {
       this.mapCHRBank4K(0, this.chrBankRegister1); // Select 4K CHR bank at $0000
       this.mapCHRBank4K(1, this.chrBankRegister2); // Select 4K CHR bank at $1000
     } else {

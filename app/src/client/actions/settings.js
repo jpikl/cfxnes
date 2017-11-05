@@ -30,7 +30,7 @@ export function initSettings() {
       if (settings) {
         applySettingsToNes(nes, settings);
         dispatch(createAction(SET_SETTINGS_VALUES, {
-          ...defaultSettings,          // In case some app settings are mising
+          ...defaultSettings,          // In case some app settings are missing
           ...settings,                 // Copy app settings
           ...copySettingsFromNes(nes), // Copy NES settings
         }));

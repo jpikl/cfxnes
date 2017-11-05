@@ -1,4 +1,4 @@
-// Interupt flags
+// Interrupt flags
 export const RESET = 0x01;   // CPU reset
 export const NMI = 0x02;     // Non-maskable interrupt
 export const IRQ_APU = 0x04; // Interrupt caused by APU

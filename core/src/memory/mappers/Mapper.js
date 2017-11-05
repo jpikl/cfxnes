@@ -30,7 +30,7 @@ export default class Mapper {
   disconnect() {
     log.info('Disconnecting mapper');
     this.ppuMemory.mapper = undefined;
-    this.cpuMemory.maper = undefined;
+    this.cpuMemory.mapper = undefined;
     this.ppu.mapper = undefined;
     this.cpu.mapper = undefined;
     this.ppuMemory = undefined;
