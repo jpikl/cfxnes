@@ -18,7 +18,7 @@ const Home = ({theme, onThemeSwitch}) => (
       <HomeLink to={SETTINGS_PATH} icon="cog" label="Change settings"/>
       <HomeLink to={ABOUT_PATH} icon="question-circle" label="More info"/>
     </nav>
-    <Button className="home-theme-switch" borderless onClick={onThemeSwitch}>
+    <Button className="home-theme-switch" borderless onClick={onThemeSwitch} aria-hidden="true">
       <Icon name={Theme.getIcon(theme)} size="2x"/>
       <Tooltip placement="left">{Theme.getLabel(theme)}</Tooltip>
     </Button>

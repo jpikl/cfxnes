@@ -11,7 +11,8 @@ const Brand = ({collapsed, onCollapsedChange}) => (
       <Logo className="brand-logo"/>
       <h1 className="brand-title">cfxnes</h1>
     </Link>
-    <Button className="brand-collapser" active={!collapsed} onClick={onCollapsedChange}>
+    <Button className="brand-collapser" active={!collapsed}
+            onClick={onCollapsedChange} aria-hidden="true">
       <Icon name="bars"/>
       <Tooltip placement="left">Toggle</Tooltip>
     </Button>

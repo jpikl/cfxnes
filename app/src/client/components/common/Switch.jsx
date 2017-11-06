@@ -4,9 +4,9 @@ import classNames from 'classnames';
 import CheckboxInput from './CheckboxInput';
 import './Switch.css';
 
-const Switch = ({className, inputId, disabled, value, onChange, children, ...attrs}) => (
+const Switch = ({className, inputId, inputLabel, disabled, value, onChange, children, ...attrs}) => (
   <label className={classNames('switch', className)} {...attrs}>
-    <CheckboxInput className="switch-input" id={inputId}
+    <CheckboxInput className="switch-input" id={inputId} arial-label={inputLabel}
                    disabled={disabled} unStyled
                    value={value} onChange={onChange}/>
     <span className="switch-slider"/>
@@ -17,6 +17,7 @@ const Switch = ({className, inputId, disabled, value, onChange, children, ...att
 Switch.propTypes = {
   className: PropTypes.string,
   inputId: PropTypes.string,
+  inputLabel: PropTypes.string,
   disabled: PropTypes.bool,
   value: PropTypes.bool,
   onChange: PropTypes.func,
@@ -26,6 +27,7 @@ Switch.propTypes = {
 Switch.defaultProps = {
   className: null,
   inputId: null,
+  inputLabel: null,
   disabled: false,
   value: false,
   onChange: null,

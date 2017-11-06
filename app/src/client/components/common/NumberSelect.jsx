@@ -10,6 +10,8 @@ export default class NumberSelect extends PureComponent {
 
   static propTypes = {
     className: PropTypes.string,
+    inputId: PropTypes.string,
+    inputLabel: PropTypes.string,
     disabled: PropTypes.bool,
     min: PropTypes.number,
     max: PropTypes.number,
@@ -20,6 +22,8 @@ export default class NumberSelect extends PureComponent {
 
   static defaultProps = {
     className: null,
+    inputId: null,
+    inputLabel: null,
     disabled: false,
     min: null,
     max: null,
@@ -66,10 +70,11 @@ export default class NumberSelect extends PureComponent {
   }
 
   render() {
-    const {className, disabled, min, max, step, value, onChange, ...attrs} = this.props;
+    const {className, inputId, inputLabel, disabled, min, max, step, value, onChange, ...attrs} = this.props;
     return (
       <div className={classNames('number-select', className)} {...attrs}>
-        <NumberInput className="number-select-input" disabled={disabled}
+        <NumberInput className="number-select-input" id={inputId}
+                     disabled={disabled} aria-label={inputLabel}
                      min={min} max={max} value={value} onChange={onChange}/>
         {!disabled && this.renderMinusButton()}
         {!disabled && this.renderPlusButton()}

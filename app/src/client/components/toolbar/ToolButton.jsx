@@ -41,7 +41,7 @@ export default class ToolButton extends PureComponent {
   render() {
     const {icon, label, keyCode, ...attrs} = this.props;
     return (
-      <Button className="tool-button" {...attrs}>
+      <Button className="tool-button" {...attrs} aria-label={label}>
         <Icon name={icon}/>
         {(label || keyCode) && (
           <ToolTooltip placement="bottom" label={label} keyCode={keyCode}/>

@@ -9,7 +9,8 @@ const Toolbar = ({theme, onThemeSwitch, children}) => (
   <div className="toolbar">
     {children}
     <ToolButton className="toolbar-theme-switch" icon={Theme.getIcon(theme)}
-                label={Theme.getLabel(theme)} onClick={onThemeSwitch}/>
+                label={Theme.getLabel(theme)} onClick={onThemeSwitch}
+                aria-hidden="true"/>
   </div>
 );
 

@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import CheckboxInput from './CheckboxInput';
 import './Checkbox.css';
 
-const Checkbox = ({className, inputId, disabled, value, onChange, children, ...attrs}) => (
+const Checkbox = ({className, inputId, inputLabel, disabled, value, onChange, children, ...attrs}) => (
   <label className={classNames('checkbox', className)} {...attrs}>
     <CheckboxInput className="checkbox-input" id={inputId}
-                   disabled={disabled} unStyled
+                   aria-label={inputLabel} disabled={disabled} unStyled
                    value={value} onChange={onChange}/>
     <span className="checkbox-box"/>
     {children}
@@ -17,6 +17,7 @@ const Checkbox = ({className, inputId, disabled, value, onChange, children, ...a
 Checkbox.propTypes = {
   className: PropTypes.string,
   inputId: PropTypes.string,
+  inputLabel: PropTypes.string,
   disabled: PropTypes.bool,
   value: PropTypes.bool,
   onChange: PropTypes.func,
@@ -26,6 +27,7 @@ Checkbox.propTypes = {
 Checkbox.defaultProps = {
   className: null,
   inputId: null,
+  inputLabel: null,
   disabled: false,
   value: false,
   onChange: null,

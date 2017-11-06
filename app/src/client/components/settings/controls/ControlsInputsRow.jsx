@@ -46,7 +46,7 @@ export default class ControlsInputsRow extends PureComponent {
   renderAddButton() {
     return (
       <div className="source-input-add">
-        <Button borderless onClick={this.handleAdd}>
+        <Button borderless onClick={this.handleAdd} aria-label="Bind new input">
           <Icon name="plus-square"/>
           <Tooltip placement="right">Bind new input</Tooltip>
         </Button>

@@ -56,7 +56,7 @@ class VideoSettings extends PureComponent {
         <div className="video-fields-1">
           <Field>
             <Field.Label htmlFor={VIDEO_SCALE}>Output scale</Field.Label>
-            <NumberSelect id={VIDEO_SCALE} min={MIN_VIDEO_SCALE} max={MAX_VIDEO_SCALE}
+            <NumberSelect inputId={VIDEO_SCALE} min={MIN_VIDEO_SCALE} max={MAX_VIDEO_SCALE}
                           disabled={MIN_VIDEO_SCALE === MAX_VIDEO_SCALE}
                           value={videoScale} onChange={this.handleVideoScaleChange}/>
           </Field>

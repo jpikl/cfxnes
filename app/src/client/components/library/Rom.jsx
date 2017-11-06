@@ -8,7 +8,7 @@ import './Rom.css';
 const Rom = ({id, name, thumbnail}) => (
   <Link className="rom" to={getEmulatorPath(id)}>
     <div className="rom-thumbnail">
-      <img className="rom-thumbnail-img" src={thumbnail}/>
+      <img className="rom-thumbnail-img" src={thumbnail} alt={name + ' thumbnail'}/>
     </div>
     <span className="rom-name">{name}</span>
   </Link>

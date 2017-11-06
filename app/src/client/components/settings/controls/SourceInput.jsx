@@ -28,7 +28,8 @@ export default class SourceInput extends PureComponent {
   renderRemoveButton() {
     return (
       <Button className="source-input-remove" borderless
-              onClick={this.handleRemoveClick}>
+              onClick={this.handleRemoveClick}
+              aria-label="Remove input">
         <Icon name="trash"/>
         <Tooltip>Remove</Tooltip>
       </Button>

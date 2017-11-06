@@ -12,6 +12,7 @@ export default class Search extends PureComponent {
   static propTypes = {
     className: PropTypes.string,
     inputId: PropTypes.string,
+    inputLabel: PropTypes.string,
     refInput: PropTypes.func,
     disabled: PropTypes.bool,
     placeholder: PropTypes.string,
@@ -22,6 +23,7 @@ export default class Search extends PureComponent {
   static defaultProps = {
     className: null,
     inputId: null,
+    inputLabel: null,
     refInput: null,
     disabled: false,
     placeholder: null,
@@ -37,13 +39,13 @@ export default class Search extends PureComponent {
   };
 
   render() {
-    const {className, inputId, refInput, disabled, placeholder, value, onChange, ...attrs} = this.props;
+    const {className, inputId, inputLabel, refInput, disabled, placeholder, value, onChange, ...attrs} = this.props;
     const finalInputId = inputId || this.id || (this.id = getUniqueId());
     return (
       <div className={classNames('search', className)} {...attrs}>
         <Icon className="search-icon" name="search" title="Search" labelFor={finalInputId}/>
         <SearchInput className="search-input" id={finalInputId} refInput={refInput}
-                     disabled={disabled} placeholder={placeholder}
+                     disabled={disabled} placeholder={placeholder} aria-label={inputLabel}
                      value={value} onChange={onChange}/>
         {!disabled && value && (
           <Button className="search-clear" borderless tabIndex="-1"

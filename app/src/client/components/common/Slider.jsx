@@ -27,9 +27,12 @@ const getTooltipPosition = (vertical, min, max, value) => {
   return vertical ? 1 - ratio : ratio;
 };
 
-const Slider = ({className, inputId, vertical, filled, disabled, min, max, step, value, marksFormat, tooltipFormat, onChange, ...attrs}) => (
+const Slider = ({
+  className, inputId, inputLabel, vertical, filled, disabled, min, max,
+  step, value, marksFormat, tooltipFormat, onChange, ...attrs
+}) => (
   <div className={getClassName(className, vertical, marksFormat)} {...attrs}>
-    <RangeInput className="slider-input" id={inputId}
+    <RangeInput className="slider-input" id={inputId} aria-label={inputLabel}
                 disabled={disabled} filled={filled}
                 min={min} max={max} step={step}
                 value={value} onChange={onChange}/>
@@ -55,6 +58,7 @@ const Slider = ({className, inputId, vertical, filled, disabled, min, max, step,
 Slider.propTypes = {
   className: PropTypes.string,
   inputId: PropTypes.string,
+  inputLabel: PropTypes.string,
   vertical: PropTypes.bool,
   filled: PropTypes.bool,
   disabled: PropTypes.bool,
@@ -70,6 +74,7 @@ Slider.propTypes = {
 Slider.defaultProps = {
   className: null,
   inputId: null,
+  inputLabel: null,
   vertical: false,
   filled: false,
   disabled: false,

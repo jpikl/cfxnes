@@ -6,9 +6,10 @@ import Select from './Select';
 import {optionsPropType} from './propTypes';
 import './ComboBox.css';
 
-const ComboBox = ({className, selectId, disabled, options, value, onChange, ...attrs}) => (
+const ComboBox = ({className, selectId, selectLabel, disabled, options, value, onChange, ...attrs}) => (
   <div className={classNames('combo-box', className)} {...attrs}>
-    <Select className="combo-box-select" id={selectId} disabled={disabled}
+    <Select className="combo-box-select" id={selectId}
+            disabled={disabled} aria-label={selectLabel}
             options={options} value={value} onChange={onChange}/>
     {!disabled && <Icon className="combo-box-caret" name="caret-down"/>}
   </div>
@@ -17,6 +18,7 @@ const ComboBox = ({className, selectId, disabled, options, value, onChange, ...a
 ComboBox.propTypes = {
   className: PropTypes.string,
   selectId: PropTypes.string,
+  selectLabel: PropTypes.string,
   disabled: PropTypes.bool,
   options: optionsPropType.isRequired, // eslint-disable-line react/no-typos
   value: PropTypes.string,
@@ -26,6 +28,7 @@ ComboBox.propTypes = {
 ComboBox.defaultProps = {
   className: null,
   selectId: null,
+  selectLabel: null,
   disabled: false,
   value: null,
   onChange: null,
