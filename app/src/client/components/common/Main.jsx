@@ -7,6 +7,9 @@ import './Main.css';
 const Main = ({className, wrapContent, refMain, children, ...attrs}) => {
   const type = isMsExplorer() ? 'div' : 'main'; // IE does not know main element
   const props = {className: classNames('main', className), ref: refMain, ...attrs};
+  if (type !== 'main') {
+    props.role = 'main';
+  }
   const content = wrapContent ? <div className="main-content">{children}</div> : children;
   return React.createElement(type, props, content);
 };

@@ -93,7 +93,8 @@ export default class Modal extends PureComponent {
     const {className, onEscapeKeyDown, children, ...attrs} = this.props;
     return (
       <div className="modal-overlay">
-        <div className={classNames('modal', className)} ref={this.setModal} {...attrs}>
+        <div className={classNames('modal', className)} ref={this.setModal}
+             role="dialog" aria-modal="true" {...attrs}>
           {children}
         </div>
       </div>

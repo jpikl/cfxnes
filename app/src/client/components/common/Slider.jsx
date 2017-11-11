@@ -31,7 +31,8 @@ const Slider = ({
   className, inputId, inputLabel, vertical, filled, disabled, min, max,
   step, value, marksFormat, tooltipFormat, onChange, ...attrs
 }) => (
-  <div className={getClassName(className, vertical, marksFormat)} {...attrs}>
+  <div className={getClassName(className, vertical, marksFormat)} role="slider"
+       aria-valuenow={value} aria-valuemin={min} aria-valuemax={max} {...attrs}>
     <RangeInput className="slider-input" id={inputId} aria-label={inputLabel}
                 disabled={disabled} filled={filled}
                 min={min} max={max} step={step}

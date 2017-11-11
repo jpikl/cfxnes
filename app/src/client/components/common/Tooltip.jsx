@@ -17,7 +17,7 @@ function createStyle(placement, position) {
 }
 
 const Tooltip = ({className, placement, position, children, ...attrs}) => (
-  <span className={classNames('tooltip', className, placement)}
+  <span className={classNames('tooltip', className, placement)} role="tooltip"
         style={createStyle(placement, position)} {...attrs}>
     {children}
   </span>
