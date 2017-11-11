@@ -3,35 +3,28 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import './Field.css';
 
-const Field = ({className, inline, children, ...attrs}) => (
-  <div className={classNames('field', className, {inline})} {...attrs}>
+const Field = ({className, label, labelFor, children, ...attrs}) => (
+  <div className={classNames('field', className)} {...attrs}>
+    {label && (
+      <label className={classNames('field-label', className && `${className}-label`)} htmlFor={labelFor}>
+        {label}
+      </label>
+    )}
     {children}
   </div>
 );
 
 Field.propTypes = {
   className: PropTypes.string,
-  inline: PropTypes.bool,
+  label: PropTypes.string,
+  labelFor: PropTypes.string,
   children: PropTypes.node,
 };
 
 Field.defaultProps = {
   className: null,
-  inline: false,
-  children: null,
-};
-
-Field.Label = ({className, children, ...attrs}) => (
-  <label className={classNames('field-label', className)} {...attrs}>{children}</label>
-);
-
-Field.Label.propTypes = {
-  className: PropTypes.string,
-  children: PropTypes.node,
-};
-
-Field.Label.defaultProps = {
-  className: null,
+  label: null,
+  labelFor: null,
   children: null,
 };
 

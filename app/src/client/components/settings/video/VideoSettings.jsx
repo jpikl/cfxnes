@@ -12,10 +12,8 @@ export const VIDEO = 'video';
 const VIDEO_SCALE = 'video-scale';
 const VIDEO_PALETTE = 'video-palette';
 const VIDEO_FILTER = 'video-filter';
-const VIDEO_DEBUG = 'video-debug';
 const VIDEO_RENDERER = 'video-renderer';
 const FULLSCREEN_TYPE = 'fullscreen-type';
-const FPS_VISIBLE = 'fps-visible';
 
 class VideoSettings extends PureComponent {
 
@@ -54,37 +52,34 @@ class VideoSettings extends PureComponent {
     return (
       <SettingsPanel id={VIDEO} title="Video" icon="desktop" active={active} onActivate={onActivate}>
         <div className="video-fields-1">
-          <Field>
-            <Field.Label htmlFor={VIDEO_SCALE}>Output scale</Field.Label>
+          <Field label="Output scale" labelFor={VIDEO_SCALE}>
             <NumberSelect inputId={VIDEO_SCALE} min={MIN_VIDEO_SCALE} max={MAX_VIDEO_SCALE}
                           disabled={MIN_VIDEO_SCALE === MAX_VIDEO_SCALE}
                           value={videoScale} onChange={this.handleVideoScaleChange}/>
           </Field>
-          <Field>
-            <Field.Label htmlFor={VIDEO_PALETTE}>Color palette</Field.Label>
-            <ComboBox selectId={VIDEO_PALETTE} options={VideoPalette.options} value={videoPalette} onChange={onVideoPaletteChange}/>
+          <Field label="Color palette" labelFor={VIDEO_PALETTE}>
+            <ComboBox selectId={VIDEO_PALETTE} options={VideoPalette.options}
+                      value={videoPalette} onChange={onVideoPaletteChange}/>
           </Field>
-          <Field>
-            <Field.Label htmlFor={FULLSCREEN_TYPE}>Fullscreen mode</Field.Label>
-            <ComboBox selectId={FULLSCREEN_TYPE} options={FullscreenType.options} value={fullscreenType} onChange={onFullscreenTypeChange}/>
+          <Field label="Fullscreen mode" labelFor={FULLSCREEN_TYPE}>
+            <ComboBox selectId={FULLSCREEN_TYPE} options={FullscreenType.options}
+                      value={fullscreenType} onChange={onFullscreenTypeChange}/>
           </Field>
         </div>
         <div className="video-fields-2">
-          <Field>
-            <Field.Label htmlFor={VIDEO_RENDERER}>Renderer</Field.Label>
-            <ComboBox selectId={VIDEO_RENDERER} options={VideoRenderer.options} value={videoRenderer} onChange={onVideoRendererChange}/>
+          <Field label="Renderer" labelFor={VIDEO_RENDERER}>
+            <ComboBox selectId={VIDEO_RENDERER} options={VideoRenderer.options}
+                      value={videoRenderer} onChange={onVideoRendererChange}/>
+          </Field>
+          <Field label="Filter" labelFor={VIDEO_FILTER}>
+            <ComboBox selectId={VIDEO_FILTER} options={VideoFilter.options}
+                      value={videoFilter} onChange={onVideoFilterChange}/>
+          </Field>
+          <Field className="video-debug-field">
+            <Switch label="Enable debug output" value={videoDebug} onChange={onVideoDebugChange}/>
           </Field>
           <Field>
-            <Field.Label htmlFor={VIDEO_FILTER}>Filter</Field.Label>
-            <ComboBox selectId={VIDEO_FILTER} options={VideoFilter.options} value={videoFilter} onChange={onVideoFilterChange}/>
-          </Field>
-          <Field className="video-debug-field" inline>
-            <Switch inputId={VIDEO_DEBUG} value={videoDebug} onChange={onVideoDebugChange}/>
-            <Field.Label htmlFor={VIDEO_DEBUG}>Enable debug output</Field.Label>
-          </Field>
-          <Field inline>
-            <Switch inputId={FPS_VISIBLE} value={fpsVisible} onChange={onFpsVisibleChange}/>
-            <Field.Label htmlFor={FPS_VISIBLE}>Show FPS</Field.Label>
+            <Switch label="Show FPS" value={fpsVisible} onChange={onFpsVisibleChange}/>
           </Field>
         </div>
       </SettingsPanel>

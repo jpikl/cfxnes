@@ -24,8 +24,7 @@ export default class AudioVolumeField extends PureComponent {
     const label = AudioChannel.getLabel(channel);
 
     return (
-      <Field className="audio-volume-field">
-        <Field.Label className="audio-volume-field-label" htmlFor={inputId}>{label}</Field.Label>
+      <Field className="audio-volume-field" label={label} labelFor={inputId}>
         <PercentageSlider className="audio-volume-field-input"
                           inputId={inputId} vertical disabled={disabled}
                           value={value} onChange={this.handleChange}/>

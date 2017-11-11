@@ -9,8 +9,6 @@ import './AudioSettings.css';
 
 export const AUDIO = 'audio';
 
-const AUDIO_ENABLED = 'audio-enabled';
-
 class AudioSettings extends PureComponent {
 
   static propTypes = {
@@ -34,9 +32,8 @@ class AudioSettings extends PureComponent {
   renderEnabledField() {
     const {audioEnabled, onAudioEnabledChange} = this.props;
     return (
-      <Field className="audio-enabled-field" inline>
-        <Switch inputId={AUDIO_ENABLED} value={audioEnabled} onChange={onAudioEnabledChange}/>
-        <Field.Label htmlFor={AUDIO_ENABLED}>Enable audio</Field.Label>
+      <Field className="audio-enabled-field">
+        <Switch label="Enable audio" value={audioEnabled} onChange={onAudioEnabledChange}/>
       </Field>
     );
   }

@@ -3,10 +3,14 @@
 @import "./TooltipMixins";
 
 .checkbox {
-  display: inline-block;
-  width: 1.6rem;
-  height: 1.6rem;
+  display: inline-flex;
+  flex-flow: row nowrap;
+  align-items: stretch;
   cursor: default;
+
+  @nest .field & {
+    align-self: left;
+  }
 
   @mixin tooltip-container;
   @mixin tooltip-hover-trigger;
@@ -21,11 +25,12 @@
 .checkbox-box {
   position: relative;
   display: inline-block;
-  width: 100%;
-  height: 100%;
+  width: 1.6rem;
+  height: 1.6rem;
   border-style: solid;
   border-width: 0.1rem;
   border-radius: 0.3rem;
+  flex-shrink: 0;
 }
 
 .checkbox-input:checked + .checkbox-box::before {
@@ -40,6 +45,7 @@
 
 .checkbox-label {
   margin-left: 1rem;
+  font-weight: 700;
 }
 
 @each $theme in $themes {

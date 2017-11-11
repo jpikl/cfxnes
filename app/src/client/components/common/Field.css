@@ -3,11 +3,6 @@
   flex-direction: column;
   align-items: stretch;
 
-  &.inline {
-    flex-direction: row;
-    align-items: flex-start;
-  }
-
   & + .field {
     margin-top: 1rem;
   }
@@ -17,25 +12,4 @@
   max-width: 100%;
   margin: 0 0 0.5rem;
   font-weight: 700;
-
-  &:first-child {
-    margin-bottom: 0.5rem;
-  }
-
-  @nest * + & {
-    margin-top: 0.5rem;
-  }
-
-  @nest .field.inline & {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  @nest .field.inline &:first-child {
-    margin-right: 1rem;
-  }
-
-  @nest .field.inline * + & {
-    margin-left: 1rem;
-  }
 }

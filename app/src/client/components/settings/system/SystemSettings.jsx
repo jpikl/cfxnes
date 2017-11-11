@@ -18,12 +18,10 @@ function formatSpeed(value) {
 
 const SystemSettings = ({active, region, speed, onActivate, onRegionChange, onSpeedChange}) => (
   <SettingsPanel id={SYSTEM} title="System" icon="server" active={active} onActivate={onActivate}>
-    <Field>
-      <Field.Label htmlFor={REGION}>Region</Field.Label>
+    <Field label="Region" labelFor={REGION}>
       <ComboBox selectId={REGION} options={Region.options} value={region} onChange={onRegionChange}/>
     </Field>
-    <Field>
-      <Field.Label htmlFor={SPEED}>Emulation speed</Field.Label>
+    <Field label="Emulation speed" labelFor={SPEED}>
       <Slider inputId={SPEED} min={0.5} max={2} step={0.25} marksFormat={formatSpeed}
               value={speed} onChange={onSpeedChange}/>
     </Field>

@@ -8,7 +8,7 @@ const NavLink = ({to, icon, label}) => (
   <BaseNavLink to={to} className="nav-link">
     <Icon className="nav-link-icon" name={icon} size="lg"/>
     <span className="nav-link-label">{label}</span>
-    <Tooltip placement="bottom">{label}</Tooltip>
+    <Tooltip placement="bottom" aria-hidden="true">{label}</Tooltip>
   </BaseNavLink>
 );
 

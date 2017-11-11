@@ -9,8 +9,6 @@ import './ControlsSettings.css';
 
 export const CONTROLS = 'controls';
 
-const CONTROLS_VISIBLE = 'controls-visible';
-
 class ControlsSettings extends PureComponent {
 
   static propTypes = {
@@ -55,9 +53,8 @@ class ControlsSettings extends PureComponent {
           <LinkButton onClick={onControlsReset}>Restore default keyboard & mouse controls</LinkButton>
         </Info>
         <GamepadList onMap={onControlsGamepadMap}/>
-        <Field className="controls-visible-field" inline>
-          <Switch inputId={CONTROLS_VISIBLE} value={controlsVisible} onChange={onControlsVisibleChange}/>
-          <Field.Label htmlFor={CONTROLS_VISIBLE}>Show controls on emulator page</Field.Label>
+        <Field className="controls-visible-field">
+          <Switch label="Show controls on emulator page" value={controlsVisible} onChange={onControlsVisibleChange}/>
         </Field>
         {inputRequestVisible && (
           <Modal>

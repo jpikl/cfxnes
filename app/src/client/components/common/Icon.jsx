@@ -19,9 +19,9 @@ const Icon = ({className, name, size, fixedWidth, pulse, inverse, spin, spaceBef
     className,
   );
   if (labelFor) {
-    return <label className={fullClassName} htmlFor={labelFor} {...attrs}/>;
+    return <label className={fullClassName} htmlFor={labelFor} aria-hidden="true" {...attrs}/>;
   }
-  return <i className={fullClassName} {...attrs}/>;
+  return <i className={fullClassName} aria-hidden="true" {...attrs}/>;
 };
 
 Icon.propTypes = {

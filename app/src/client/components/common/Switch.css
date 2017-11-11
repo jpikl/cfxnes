@@ -15,11 +15,14 @@
 }
 
 .switch {
-  display: inline-block;
-  width: var(--switch-width);
-  height: var(--switch-height);
+  display: inline-flex;
+  flex-flow: row nowrap;
   cursor: default;
   flex-shrink: 0;
+
+  @nest .field & {
+    align-self: left;
+  }
 
   @mixin tooltip-container;
   @mixin tooltip-hover-trigger;
@@ -34,9 +37,10 @@
 .switch-slider {
   position: relative;
   display: inline-block;
-  width: 100%;
-  height: 100%;
+  width: var(--switch-width);
+  height: var(--switch-height);
   border-radius: calc(0.5 * var(--switch-height));
+  flex-shrink: 0;
 
   &::before {
     position: absolute;
@@ -68,6 +72,11 @@
   right: auto;
   left: var(--switch-icon-indent);
   content: "\f00c";
+}
+
+.switch-label {
+  margin-left: 1rem;
+  font-weight: 700;
 }
 
 @each $theme in $themes {
