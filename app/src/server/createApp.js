@@ -17,6 +17,7 @@ export default function createApp(romDb, options) {
   log.info('  morgan format: %s', morganFormat);
 
   const app = express();
+  app.disable('x-powered-by');
 
   if (morganEnabled) {
     const morgan = require('morgan');
