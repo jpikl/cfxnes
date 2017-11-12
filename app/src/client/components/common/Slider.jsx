@@ -31,14 +31,13 @@ const Slider = ({
   className, inputId, inputLabel, vertical, filled, disabled, min, max,
   step, value, marksFormat, tooltipFormat, onChange, ...attrs
 }) => (
-  <div className={getClassName(className, vertical, marksFormat)} role="slider"
-       aria-valuenow={value} aria-valuemin={min} aria-valuemax={max} {...attrs}>
+  <div className={getClassName(className, vertical, marksFormat)} {...attrs}>
     <RangeInput className="slider-input" id={inputId} aria-label={inputLabel}
                 disabled={disabled} filled={filled}
                 min={min} max={max} step={step}
                 value={value} onChange={onChange}/>
     {(marksFormat || tooltipFormat) && (
-      <div className="slider-decorations">
+      <div className="slider-decorations" aria-hidden="true">
         {marksFormat && (
           <Meter className="slider-meter" vertical={vertical}
                  marks={getMarks(min, max, step, marksFormat)}/>

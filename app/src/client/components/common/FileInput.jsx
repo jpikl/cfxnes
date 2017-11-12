@@ -35,8 +35,9 @@ export default class FileInput extends PureComponent {
   render() {
     const {className, hiddenProxy, onChange, ...attrs} = this.props;
     const fullClassName = classNames(className, {'hidden-proxy': hiddenProxy});
-    return <Input type={FILE} className={fullClassName}
+    return <Input type={FILE} className={fullClassName} aria-hidden={hiddenProxy}
                   onChange={this.handleChange} {...attrs}/>;
   }
 
 }
+

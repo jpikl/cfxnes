@@ -9,20 +9,17 @@ import './SystemSettings.css';
 
 export const SYSTEM = 'system';
 
-const REGION = 'region';
-const SPEED = 'speed';
-
 function formatSpeed(value) {
   return (value * 100) % 50 === 0 ? formatMultiplier(value) : null;
 }
 
 const SystemSettings = ({active, region, speed, onActivate, onRegionChange, onSpeedChange}) => (
   <SettingsPanel id={SYSTEM} title="System" icon="server" active={active} onActivate={onActivate}>
-    <Field label="Region" labelFor={REGION}>
-      <ComboBox selectId={REGION} options={Region.options} value={region} onChange={onRegionChange}/>
+    <Field label="Region" labelFor="region">
+      <ComboBox selectId="region" options={Region.options} value={region} onChange={onRegionChange}/>
     </Field>
-    <Field label="Emulation speed" labelFor={SPEED}>
-      <Slider inputId={SPEED} min={0.5} max={2} step={0.25} marksFormat={formatSpeed}
+    <Field label="Emulation speed" labelFor="speed">
+      <Slider inputId="speed" min={0.5} max={2} step={0.25} marksFormat={formatSpeed}
               value={speed} onChange={onSpeedChange}/>
     </Field>
   </SettingsPanel>

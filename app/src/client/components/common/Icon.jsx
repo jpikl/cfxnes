@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import './Icon.css';
 
-const Icon = ({className, name, size, fixedWidth, pulse, inverse, spin, spaceBefore, spaceAfter, labelFor, ...attrs}) => {
+const Icon = ({
+  className, name, size, fixedWidth, pulse, inverse,
+  spin, spaceBefore, spaceAfter, labelFor, ...attrs
+}) => {
   const fullClassName = classNames(
     'fa',
     `fa-${name}`,
@@ -19,7 +22,7 @@ const Icon = ({className, name, size, fixedWidth, pulse, inverse, spin, spaceBef
     className,
   );
   if (labelFor) {
-    return <label className={fullClassName} htmlFor={labelFor} aria-hidden="true" {...attrs}/>;
+    return <label className={fullClassName}htmlFor={labelFor} aria-hidden="true" {...attrs}/>;
   }
   return <i className={fullClassName} aria-hidden="true" {...attrs}/>;
 };

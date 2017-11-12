@@ -17,11 +17,13 @@ export default class GamepadMapButton extends PureComponent {
   };
 
   render() {
-    const {port} = this.props;
+    const {index, port} = this.props;
+    const labelId = `gamepad-map-button-label-${index}-${port}`;
     return (
-      <LinkButton className="gamepad-map-button" onClick={this.handleClick}>
-        <Icon name="wrench"/><sub>{port}</sub>
-        <Tooltip>Use this gamepad as controller {port}.</Tooltip>
+      <LinkButton className="gamepad-map-button" aria-labelledby={labelId}
+                  onClick={this.handleClick}>
+        <Icon name="wrench"/><sub aria-hidden="true">{port}</sub>
+        <Tooltip id={labelId}>Use this gamepad as controller {port}</Tooltip>
       </LinkButton>
     );
   }

@@ -33,9 +33,10 @@ export default class ButtonSelect extends PureComponent {
   }
 
   renderOption = ({label, value}) => {
+    const active = value === this.props.value;
     return (
-      <Button key={value} data-value={value}
-              primary={value === this.props.value}
+      <Button key={value} data-value={value} role="radio"
+              primary={active} aria-checked={active}
               onClick={this.handleValueChange}>
         {label}
       </Button>
@@ -45,7 +46,7 @@ export default class ButtonSelect extends PureComponent {
   render() {
     const {className, options, value, onChange, ...attrs} = this.props;
     return (
-      <ButtonGroup className={classNames('button-select', className)} {...attrs}>
+      <ButtonGroup className={classNames('button-select', className)} role="radiogroup" {...attrs}>
         {options.map(this.renderOption)}
       </ButtonGroup>
     );

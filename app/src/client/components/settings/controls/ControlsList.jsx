@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {keysValuePropType} from '../../common';
 import {Port} from '../../../enums';
 import Controls from './Controls';
+import './ControlsList.css';
 
 export const controlsPropType = keysValuePropType(Port.values, Controls.propTypes.controls);
 
@@ -31,9 +32,9 @@ export default class ControlsList extends PureComponent {
 
   render() {
     return (
-      <div className="controls-list">
+      <ul className="controls-list">
         {Port.values.map(this.renderControls)}
-      </div>
+      </ul>
     );
   }
 

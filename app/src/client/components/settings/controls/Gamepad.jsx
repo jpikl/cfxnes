@@ -41,7 +41,7 @@ export default class Gamepad extends PureComponent {
       : this.renderUnrecognizedLayoutInfo();
 
     return (
-      <Info className="gamepad" icon="gamepad">
+      <Info tag="li" className="gamepad" icon="gamepad">
         {index}: {id} {contentAfter}
       </Info>
     );

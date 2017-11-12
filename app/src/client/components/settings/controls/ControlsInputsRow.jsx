@@ -45,26 +45,26 @@ export default class ControlsInputsRow extends PureComponent {
 
   renderAddButton() {
     return (
-      <div className="source-input-add">
+      <dd className="source-input-add">
         <Button borderless onClick={this.handleAdd} aria-label="Bind new input">
           <Icon name="plus-square"/>
-          <Tooltip placement="right">Bind new input</Tooltip>
+          <Tooltip placement="right" aria-hidden="true">Bind new input</Tooltip>
         </Button>
-      </div>
+      </dd>
     );
   }
 
   render() {
     const {deviceInput, sourceInputs, onAdd} = this.props;
     return (
-      <div className="controls-inputs-row">
+      <dl className="controls-inputs-row">
         <DeviceInput input={deviceInput}/>
-        <div className="source-inputs">
+        <dd className="source-inputs">
           {sourceInputs.map(this.renderSourceInput)}
           {!sourceInputs.length && this.renderUnsetInput()}
-        </div>
+        </dd>
         {onAdd && this.renderAddButton()}
-      </div>
+      </dl>
     );
   }
 

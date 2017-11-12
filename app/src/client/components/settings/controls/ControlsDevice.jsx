@@ -21,26 +21,34 @@ export default class ControlsDevice extends PureComponent {
     onChange(port, device);
   }
 
-  renderDeviceSelect() {
-    const {device} = this.props;
-    return <ButtonSelect className="controls-device-select"
-                         options={Device.options} value={device}
-                         onChange={this.handleChange}/>;
+  renderReadOnly() {
+    const {port, device} = this.props;
+    return (
+      <dl className="controls-device">
+        <dt className="controls-device-port">Port {port}</dt>
+        <dd className="controls-device-device">{Device.getLabel(device)}</dd>
+      </dl>
+    );
   }
 
-  renderDeviceName() {
-    const {device} = this.props;
-    return <span> : {Device.getLabel(device)}</span>;
+  renderModifiable() {
+    const {port, device} = this.props;
+    const labelId = 'controls-device-label-' + port;
+    return (
+      <div className="controls-device">
+        <label className="controls-device-label" id={labelId}>
+          Port {port}
+        </label>
+        <ButtonSelect className="controls-device-select" aria-labelledby={labelId}
+                      options={Device.options} value={device}
+                      onChange={this.handleChange}/>
+      </div>
+    );
   }
 
   render() {
-    const {port, onChange} = this.props;
-    return (
-      <div className="controls-device">
-        <label className="controls-device-label">Port {port}</label>
-        {onChange ? this.renderDeviceSelect() : this.renderDeviceName()}
-      </div>
-    );
+    const {onChange} = this.props;
+    return onChange ? this.renderModifiable() : this.renderReadOnly();
   }
 
 }

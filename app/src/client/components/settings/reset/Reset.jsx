@@ -10,6 +10,7 @@ export default class Reset extends PureComponent {
     icon: PropTypes.string.isRequired,
     action: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
+    descriptionId: PropTypes.string.isRequired,
     confirmTitle: PropTypes.string.isRequired,
     confirmMessage: PropTypes.string.isRequired,
     progressMessage: PropTypes.string,
@@ -55,11 +56,11 @@ export default class Reset extends PureComponent {
   }
 
   renderButton() {
-    const {icon, state, action, progressMessage, failureMessage} = this.props;
+    const {icon, state, action, descriptionId, progressMessage, failureMessage} = this.props;
 
     if (state === ActionState.STARTED) {
       return (
-        <Button disabled>
+        <Button disabled aria-label={action} aria-describedby={descriptionId}>
           <Icon name="circle-o-notch" spin/> {progressMessage}
         </Button>
       );
@@ -67,7 +68,7 @@ export default class Reset extends PureComponent {
 
     if (state === ActionState.FAILURE) {
       return (
-        <Button disabled>
+        <Button disabled aria-label={action} aria-describedby={descriptionId}>
           <Icon name="exclamation-triangle"/> {failureMessage}
         </Button>
       );
@@ -75,14 +76,14 @@ export default class Reset extends PureComponent {
 
     if (state === ActionState.SUCCESS || state === true) {
       return (
-        <Button disabled>
+        <Button disabled aria-label={action} aria-describedby={descriptionId}>
           <Icon name="check"/> Done
         </Button>
       );
     }
 
     return (
-      <Button onClick={this.handleAction}>
+      <Button onClick={this.handleAction} aria-describedby={descriptionId}>
         <Icon name={icon}/> {action}
       </Button>
     );
@@ -90,12 +91,12 @@ export default class Reset extends PureComponent {
 
   render() {
     const {confirmVisible} = this.state;
-    const {description} = this.props;
+    const {description, descriptionId} = this.props;
 
     return (
       <div className="reset">
         <div className="reset-action">{this.renderButton()}</div>
-        <div className="reset-description">{description}</div>
+        <div className="reset-description" id={descriptionId}>{description}</div>
         <div>{confirmVisible && this.renderConfirm()}</div>
       </div>
     );

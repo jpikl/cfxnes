@@ -7,7 +7,7 @@ import './Brand.css';
 
 const Brand = ({collapsed, onCollapsedChange}) => (
   <div className="brand">
-    <Link className="brand-link" to={ROOT_PATH}>
+    <Link className="brand-link" to={ROOT_PATH} aria-label="Home page">
       <Logo className="brand-logo"/>
       <h1 className="brand-title">cfxnes</h1>
     </Link>

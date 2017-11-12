@@ -8,11 +8,11 @@ import './Controls.css';
 const Controls = ({port, controls, onDeviceChange, onInputAdd, onInputRemove}) => {
   const {device, inputs} = controls;
   return (
-    <div className="controls">
+    <li className="controls">
       <ControlsDevice port={port} device={device} onChange={onDeviceChange}/>
       <ControlsInputs port={port} device={device} inputs={inputs}
                       onAdd={onInputAdd} onRemove={onInputRemove}/>
-    </div>
+    </li>
   );
 };
 

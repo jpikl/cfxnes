@@ -4,15 +4,15 @@ import {KeyCode} from '../../keyboard';
 import {Tooltip} from '../common';
 import './ToolTooltip.css';
 
-const ToolTooltip = ({label, keyCode, ...attrs}) => (
+const ToolTooltip = ({label, labelId, keyCode, ...attrs}) => (
   <Tooltip className="tool-tooltip" {...attrs}>
     {label && (
-      <span className="tool-tooltip-label">
+      <span className="tool-tooltip-label" id={labelId}>
         {label}
       </span>
     )}
     {keyCode && (
-      <span className="tool-tooltip-shortcut">
+      <span className="tool-tooltip-shortcut" aria-hidden="true">
         Alt+{KeyCode.getName(keyCode)}
       </span>
     )}
@@ -21,11 +21,13 @@ const ToolTooltip = ({label, keyCode, ...attrs}) => (
 
 ToolTooltip.propTypes = {
   label: PropTypes.string,
+  labelId: PropTypes.string,
   keyCode: PropTypes.number,
 };
 
 ToolTooltip.defaultProps = {
   label: null,
+  labelId: null,
   keyCode: null,
 };
 

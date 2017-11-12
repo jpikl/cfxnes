@@ -9,7 +9,7 @@
 
 .tooltip {
   position: absolute;
-  z-index: 30;
+  z-index: 40;
   display: none;
   padding: 0.4rem 0.8rem;
   font-size: 1.3rem;

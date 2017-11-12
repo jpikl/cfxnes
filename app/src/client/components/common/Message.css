@@ -14,7 +14,7 @@
   flex-grow: 1;
 
   & a {
-    font-weight: 700;
+    font-weight: bold;
   }
 
   & > :--heading:first-child {

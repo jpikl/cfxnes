@@ -5,7 +5,7 @@ import './DeviceInput.css';
 
 const DeviceInput = ({input}) => {
   const name = Device.getInputLabel(input);
-  return <div className="device-input">{name}</div>;
+  return <dt className="device-input">{name}</dt>;
 };
 
 export const deviceInputPropType = PropTypes.shape({

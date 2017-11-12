@@ -2,3 +2,12 @@
   width: 100%;
   margin-bottom: 2.4rem;
 }
+
+.library-items {
+  padding: 0;
+  list-style: none;
+}
+
+.library-item {
+  display: inline-block;
+}

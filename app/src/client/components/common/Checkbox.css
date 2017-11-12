@@ -45,7 +45,7 @@
 
 .checkbox-label {
   margin-left: 1rem;
-  font-weight: 700;
+  font-weight: bold;
 }
 
 @each $theme in $themes {

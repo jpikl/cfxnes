@@ -20,7 +20,7 @@ export default class About extends PureComponent {
         <div className="about-section">
           <Logo className="about-logo"/>
         </div>
-        <div className="about-section">
+        <article className="about-section">
           <h1>cfxnes ({cfxnes.version})</h1>
           <p>JavaScript NES emulator and emulation library.</p>
           <p>The source code is available at <a href="https://github.com/jpikl/cfxnes">github</a> and licensed under the MIT License.</p>
@@ -29,7 +29,7 @@ export default class About extends PureComponent {
             ? <Changelog/>
             : <LinkButton onClick={this.handleShowChangelog}>Show change log</LinkButton>
           }
-        </div>
+        </article>
       </Main>
     );
   }

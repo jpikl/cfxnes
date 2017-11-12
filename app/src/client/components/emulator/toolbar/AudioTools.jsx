@@ -62,10 +62,12 @@ export default class AudioTools extends PureComponent {
     const {popupVisible} = this.state;
     return (
       <Button active={popupVisible} refButton={this.setButton}
-              onClick={this.handlePopupToggle} aria-label="Toggle volume popup">
+              aria-pressed={popupVisible}
+              aria-label="Toggle volume popup"
+              onClick={this.handlePopupToggle}>
         <Icon name={this.getVolumeIconName()} fixedWidth/>
         {!enabled && <Icon name="ban" size="2x" className="audio-volume-disable-icon"/>}
-        {!popupVisible && <Tooltip placement="bottom">Volume</Tooltip>}
+        {!popupVisible && <Tooltip placement="bottom" aria-hidden="true">Volume</Tooltip>}
       </Button>
     );
   }
@@ -75,7 +77,7 @@ export default class AudioTools extends PureComponent {
     return (
       <Popup className="audio-volume-popup" onBlur={this.handlePopupClose}>
         <Checkbox value={enabled} onChange={onEnabledChange} inputLabel="Audio enabled">
-          <ToolTooltip placement="right" keyCode={KeyCode.L}
+          <ToolTooltip placement="right" keyCode={KeyCode.L} aria-hidden="true"
                        label={enabled ? 'Enabled' : 'Muted'}/>
         </Checkbox>
         <PercentageSlider vertical disabled={!enabled} inputLabel="Audio volume"

@@ -9,12 +9,14 @@ export default class ToolButton extends PureComponent {
   static propTypes = {
     icon: PropTypes.string.isRequired,
     label: PropTypes.string,
+    labelId: PropTypes.string,
     keyCode: PropTypes.number,
     onClick: PropTypes.func,
   };
 
   static defaultProps = {
     label: null,
+    labelId: null,
     keyCode: null,
     onClick: null,
   };
@@ -39,12 +41,12 @@ export default class ToolButton extends PureComponent {
   };
 
   render() {
-    const {icon, label, keyCode, ...attrs} = this.props;
+    const {icon, label, labelId, keyCode, ...attrs} = this.props;
     return (
-      <Button className="tool-button" {...attrs} aria-label={label}>
+      <Button className="tool-button" aria-labelledby={labelId} {...attrs}>
         <Icon name={icon}/>
         {(label || keyCode) && (
-          <ToolTooltip placement="bottom" label={label} keyCode={keyCode}/>
+          <ToolTooltip placement="bottom" label={label} labelId={labelId} keyCode={keyCode}/>
         )}
       </Button>
     );

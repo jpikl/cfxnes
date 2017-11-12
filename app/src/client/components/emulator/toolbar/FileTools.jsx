@@ -27,7 +27,8 @@ export default class FileTools extends PureComponent {
   render() {
     return (
       <ButtonGroup className="file-tools">
-        <ToolButton icon="folder-open" label="Open ROM" keyCode={KeyCode.O} onClick={this.handleFileRequested}/>
+        <ToolButton icon="folder-open" label="Open ROM" labelId="open-rom-label"
+                    keyCode={KeyCode.O} onClick={this.handleFileRequested}/>
         <FileInput hiddenProxy refInput={this.setFileInput} onChange={this.handleFileChange}/>
       </ButtonGroup>
     );

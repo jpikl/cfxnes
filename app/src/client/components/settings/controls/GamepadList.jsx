@@ -31,7 +31,7 @@ export default class GamepadList extends PureComponent {
 
   renderUnsupportedMessage() {
     return (
-      <Info icon="gamepad">
+      <Info tag="li" icon="gamepad">
         Your browser does not support gamepad input.
       </Info>
     );
@@ -39,7 +39,7 @@ export default class GamepadList extends PureComponent {
 
   renderEmptyMessage() {
     return (
-      <Info icon="gamepad">
+      <Info tag="li" icon="gamepad">
         No gamepads seem to be connected.
         Plug in a gamepad and then press any of its buttons to activate it.
       </Info>
@@ -54,11 +54,11 @@ export default class GamepadList extends PureComponent {
   render() {
     const {timer, state: {gamepads}} = this;
     return (
-      <div className="gamepad-list">
+      <ul className="gamepad-list">
         {!timer && this.renderUnsupportedMessage()}
         {timer && !gamepads.length && this.renderEmptyMessage()}
         {gamepads.map(this.renderGamepad)}
-      </div>
+      </ul>
     );
   }
 

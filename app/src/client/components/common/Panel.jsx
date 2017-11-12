@@ -4,9 +4,9 @@ import classNames from 'classnames';
 import './Panel.css';
 
 const Panel = ({className, collapsed, children, ...attrs}) => (
-  <div className={classNames('panel', className, {collapsed})} {...attrs}>
+  <section className={classNames('panel', className, {collapsed})} {...attrs}>
     {children}
-  </div>
+  </section>
 );
 
 Panel.propTypes = {
@@ -22,9 +22,9 @@ Panel.defaultProps = {
 };
 
 Panel.Header = ({className, children, ...attrs}) => (
-  <div className={classNames('panel-header', className)} {...attrs}>
+  <h4 className={classNames('panel-header', className)} {...attrs}>
     {children}
-  </div>
+  </h4>
 );
 
 Panel.Header.propTypes = {
@@ -33,22 +33,6 @@ Panel.Header.propTypes = {
 };
 
 Panel.Header.defaultProps = {
-  className: null,
-  children: null,
-};
-
-Panel.Title = ({className, children, ...attrs}) => (
-  <h4 className={classNames('panel-title', className)} {...attrs}>
-    {children}
-  </h4>
-);
-
-Panel.Title.propTypes = {
-  className: PropTypes.string,
-  children: PropTypes.node,
-};
-
-Panel.Title.defaultProps = {
   className: null,
   children: null,
 };

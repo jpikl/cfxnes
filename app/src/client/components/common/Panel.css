@@ -21,13 +21,10 @@
 
 .panel-header {
   padding: 1rem 1.5rem;
-  border-top-right-radius: var(--panel-border-radius);
-  border-top-left-radius: var(--panel-border-radius);
-}
-
-.panel-title {
   margin: 0;
   font-size: 1.6rem;
+  border-top-right-radius: var(--panel-border-radius);
+  border-top-left-radius: var(--panel-border-radius);
 
   & a {
     padding: 0.3rem; /* To expand :focus border. */

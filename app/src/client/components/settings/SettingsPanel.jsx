@@ -25,16 +25,16 @@ export default class SettingsPanel extends PureComponent {
 
   render() {
     const {id, title, icon, active, children} = this.props;
+    const bodyId = id + '-body';
     return (
       <Panel className={classNames('settings-panel', `${id}-settings`)} collapsed={!active}>
         <Panel.Header>
-          <Panel.Title>
-            <LinkButton onClick={this.handleHeaderClick}>
-              <Icon name={icon} fixedWidth spaceAfter/>{title}
-            </LinkButton>
-          </Panel.Title>
+          <LinkButton onClick={this.handleHeaderClick}
+                      aria-expanded={active} aria-controls={bodyId}>
+            <Icon name={icon} fixedWidth spaceAfter/>{title}
+          </LinkButton>
         </Panel.Header>
-        <Panel.Body>
+        <Panel.Body id={bodyId}>
           {children}
         </Panel.Body>
       </Panel>

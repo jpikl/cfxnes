@@ -7,7 +7,7 @@ import './EmulatorOutput.css';
 const EmulatorOutput = ({loading, refCanvas}) => (
   <div className="emulator-output">
     <canvas className="emulator-canvas" ref={refCanvas}/>
-    <img className="emulator-cartridge" src={cartridgeInsertSvg} alt="NES cartridge"/>
+    <img className="emulator-cartridge" src={cartridgeInsertSvg} aria-hidden="true"/>
     {loading && (
       <Loader className="emulator-loader" inverse>Loading...</Loader>
     )}

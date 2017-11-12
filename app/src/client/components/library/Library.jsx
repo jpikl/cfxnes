@@ -29,7 +29,7 @@ class Library extends PureComponent {
   }
 
   initFilterInput = input => {
-    if (input && screen.width >= 992) { // Probably desktop
+    if (input && screen.width >= 992) { // Lazy desktop detection
       input.focus();
       input.select();
     }
@@ -58,13 +58,25 @@ class Library extends PureComponent {
   renderFilter() {
     const {filter, onFilterChange} = this.props;
     return <Search className="library-filter" refInput={this.initFilterInput}
-                   placeholder="Search games"
+                   placeholder="Search games" inputLabel="Filter"
                    value={filter} onChange={onFilterChange}/>;
   }
 
+  renderItem = item => {
+    return (
+      <li key={item.id} className="library-item">
+        <Rom {...item}/>
+      </li>
+    );
+  };
+
   renderItems() {
     const {visibleItems} = this.props;
-    return visibleItems.map(item => <Rom key={item.id} {...item}/>);
+    return (
+      <ul className="library-items">
+        {visibleItems.map(this.renderItem)}
+      </ul>
+    );
   }
 
   render() {

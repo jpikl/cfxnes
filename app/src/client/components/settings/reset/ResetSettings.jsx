@@ -12,6 +12,7 @@ const ResetSettings = ({active, settingsResetLocked, nvramsDeletionState, onActi
     <Reset icon="cog"
            action="Reset settings"
            description="Restore all settings to their default value."
+           descriptionId="reset-settings-description"
            confirmTitle="Reset settings?"
            confirmMessage="All settings will be restored to their default value."
            state={settingsResetLocked}
@@ -21,6 +22,7 @@ const ResetSettings = ({active, settingsResetLocked, nvramsDeletionState, onActi
            action="Delete game data"
            description={`Delete stored data of all games. This will only affect games
                          that support saving, like The Legend of Zelda or Final Fantasy.`}
+           descriptionId="delete-data-description"
            confirmTitle="Delete game data?"
            confirmMessage="Stored data of all games will be deleted."
            progressMessage="Deleting data..."
