@@ -64,7 +64,6 @@
   }
 
   &.filled::-moz-range-progress {
-    background: var(--$(theme)-slider-thumb-background);
     border-style: solid;
     border-width: 0.1rem;
     border-radius: var(--range-input-track-border-radius);
