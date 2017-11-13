@@ -12,6 +12,8 @@ function testGetRequest(url, contentType, content) {
     .then(response => {
       expect(response).to.have.status(200);
       expect(response).to.have.header('Content-Type', contentType);
+      expect(response).to.have.header('X-Content-Type-Options', 'nosniff');
+      expect(response).not.to.have.header('X-Powered-By');
       expect(response.text).to.equal(content);
     });
 }

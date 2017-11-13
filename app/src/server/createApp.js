@@ -17,7 +17,7 @@ export default function createApp(romDb, options) {
   log.info('  morgan format: %s', morganFormat);
 
   const app = express();
-  app.disable('x-powered-by');
+  app.use(configureHeaders);
 
   if (morganEnabled) {
     const morgan = require('morgan');
@@ -30,4 +30,10 @@ export default function createApp(romDb, options) {
   app.use(errorHandler);
 
   return app;
+}
+
+function configureHeaders(req, res, next) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.removeHeader('X-Powered-By');
+  next();
 }
