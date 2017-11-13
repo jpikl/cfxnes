@@ -24,7 +24,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 
 - Complete UI rewrite in React/Redux.
-- *Smoothing* video option replaced by *Filter*.
+- *WebGL rendering* video option replaced by *Renderer* select.
+- *Smoothing* video option replaced by *Filter* select.
 - *Joypad* device renamed to *Controller*.
 - Cleaner URL paths without hash mark `#`.
 - Active settings panel is part of URL.

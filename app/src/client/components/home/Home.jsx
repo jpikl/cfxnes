@@ -11,7 +11,7 @@ const Home = ({theme, onThemeSwitch}) => (
   <Main className="home">
     <Logo className="home-logo"/>
     <h1 className="home-heading">cfxnes</h1>
-    <p>A <abbr title="Nintendo Entertainment System">NES</abbr> emulator running in your web browser.</p>
+    <p>Javascript <abbr title="Nintendo Entertainment System">NES</abbr> emulator and emulation library.</p>
     <nav className="home-nav">
       <HomeLink to={EMULATOR_PATH} icon="gamepad" label="Play a game"/>
       <HomeLink to={LIBRARY_PATH} icon="book" label="Browse library"/>
