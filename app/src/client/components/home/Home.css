@@ -1,3 +1,4 @@
+@import "../../styles/common";
 @import "../../styles/themes";
 @import "../common/MainVariables";
 
@@ -28,6 +29,13 @@
   position: absolute;
   top: var(--home-padding);
   right: var(--home-padding);
+}
+
+@media (--xs-screen) {
+  .home-theme-switch {
+    top: var(--main-padding);
+    right: var(--main-padding);
+  }
 }
 
 @each $theme in $themes {

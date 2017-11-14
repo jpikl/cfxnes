@@ -94,7 +94,7 @@ module.exports = (env = {}) => {
     new webpack.IgnorePlugin(/^fs$/), // cfxnes.debug.js contains unused required('fs') call
     new CopyPlugin([
       {from: 'src/client/index.html'},
-      {from: 'src/client/images/favicon.png'},
+      {from: 'src/client/static'},
     ]),
   ];
 
