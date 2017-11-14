@@ -6,6 +6,15 @@ module.exports = {
     file: 'dist/index.js',
     format: 'cjs',
   },
-  external: ['fs', 'http', 'https', 'http2', 'path', 'express', 'express-history-api-fallback'],
+  external: [
+    'fs',
+    'http',
+    'https',
+    'http2',
+    'path',
+    'express',
+    'express-history-api-fallback',
+    'compression',
+  ],
   plugins: [nodeResolve({jsnext: true})],
 };

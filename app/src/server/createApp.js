@@ -1,4 +1,5 @@
 import express from 'express';
+import compression from 'compression';
 import historyApiFallback from 'express-history-api-fallback';
 import {log} from '../common';
 import errorHandler from './errorHandler';
@@ -17,6 +18,7 @@ export default function createApp(romDb, options) {
   log.info('  morgan format: %s', morganFormat);
 
   const app = express();
+  app.use(compression());
   app.use(configureHeaders);
 
   if (morganEnabled) {

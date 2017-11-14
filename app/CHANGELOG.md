@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - New color palettes: SONY CXA2025AS US, Unsaturated V6.
 - **Server:** Configuration through file or environment variables.
 - **Server:** HTTPS and (experimental) HTTP2 support.
+- **Server:** gzip Content-Encoding support.
 
 ### Changed
 

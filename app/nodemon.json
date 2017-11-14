@@ -3,6 +3,7 @@
   "exec": "babel-node src/server",
   "watch": ["src/common", "src/server"],
   "env": {
+    "DEBUG": "*",
     "LOG_LEVEL": "info",
     "MORGAN_ENABLED": true,
     "ROMS_PATH": "../roms",
