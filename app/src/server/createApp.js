@@ -20,6 +20,7 @@ export default function createApp(romDb, options) {
   const app = express();
   app.use(compression());
   app.use(configureHeaders);
+  app.use(redirectForwardedHttp);
 
   if (morganEnabled) {
     const morgan = require('morgan');
@@ -38,4 +39,13 @@ function configureHeaders(req, res, next) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.removeHeader('X-Powered-By');
   next();
+}
+
+function redirectForwardedHttp(req, res, next) {
+  const proto = req.headers['X-Forwarded-Proto'];
+  if (proto && proto !== 'https') {
+    res.redirect(302, 'https://' + req.hostname + req.originalUrl);
+  } else {
+    next();
+  }
 }
