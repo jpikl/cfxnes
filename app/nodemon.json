@@ -6,8 +6,6 @@
     "DEBUG": "*",
     "LOG_LEVEL": "info",
     "MORGAN_ENABLED": true,
-    "ROMS_PATH": "../roms",
-    "TLS_KEY_PATH": "./test/server/fixtures/data/key.pem",
-    "TLS_CERT_PATH": "./test/server/fixtures/data/cert.pem"
+    "ROMS_PATH": "../roms"
   }
 }

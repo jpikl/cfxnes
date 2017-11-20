@@ -1,11 +1,11 @@
-import createServer from '../../../src/server/createServer';
+import http from 'http';
 import getApp from './getApp';
 
 let server = null;
 
 export default function getServer() {
   if (server == null) {
-    server = createServer(getApp(), {});
+    server = http.createServer(getApp());
   }
   return server;
 }

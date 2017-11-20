@@ -9,8 +9,6 @@ module.exports = {
   external: [
     'fs',
     'http',
-    'https',
-    'http2',
     'path',
     'express',
     'express-history-api-fallback',

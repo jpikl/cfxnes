@@ -14,7 +14,7 @@ Run `npm start` to start the application at [localhost:5000](http://localhost:50
 
 ## Configuration
 
-Configuration is loaded from the **cfg.json** file.
+Configuration is loaded from the **config.json** file.
 
 Configuration options can be also passed through environment variables (`fooBar` configuration option corresponds to `FOO_BAR` environment variable).
 

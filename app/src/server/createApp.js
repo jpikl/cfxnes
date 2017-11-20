@@ -10,17 +10,28 @@ export default function createApp(romDb, options) {
     staticPath = false,
     morganEnabled = false,
     morganFormat = false,
+    trustProxy = false,
+    httpsRedirect = false,
   } = options;
 
   log.info('Creating application');
   log.info('  static path: %s', staticPath);
   log.info('  morgan enabled: %s', morganEnabled);
   log.info('  morgan format: %s', morganFormat);
+  log.info('  trust proxy: %s', trustProxy);
+  log.info('  https redirect: %s', httpsRedirect);
 
   const app = express();
+
+  app.disable('x-powered-by');
+  app.set('trust proxy', trustProxy);
+
   app.use(compression());
   app.use(configureHeaders);
-  app.use(redirectForwardedHttp);
+
+  if (httpsRedirect) {
+    app.use(doHttpsRedirect);
+  }
 
   if (morganEnabled) {
     const morgan = require('morgan');
@@ -37,14 +48,12 @@ export default function createApp(romDb, options) {
 
 function configureHeaders(req, res, next) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.removeHeader('X-Powered-By');
   next();
 }
 
-function redirectForwardedHttp(req, res, next) {
-  const proto = req.headers['X-Forwarded-Proto'];
-  if (proto && proto !== 'https') {
-    res.redirect(302, 'https://' + req.hostname + req.originalUrl);
+function doHttpsRedirect(req, res, next) {
+  if (!req.secure) {
+    res.redirect('https://' + req.hostname + req.originalUrl);
   } else {
     next();
   }
