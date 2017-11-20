@@ -15,8 +15,10 @@ class ControlsSettings extends PureComponent {
     active: PropTypes.bool.isRequired,
     controls: controlsPropType.isRequired,
     controlsVisible: PropTypes.bool.isRequired,
+    crosshairVisible: PropTypes.bool.isRequired,
     onActivate: PropTypes.func.isRequired,
     onControlsVisibleChange: PropTypes.func.isRequired,
+    onCrosshairVisibleChange: PropTypes.func.isRequired,
     onControlsDeviceChange: PropTypes.func.isRequired,
     onControlsInputAdd: PropTypes.func.isRequired,
     onControlsInputRemove: PropTypes.func.isRequired,
@@ -38,8 +40,8 @@ class ControlsSettings extends PureComponent {
   render() {
     const {inputRequestVisible} = this.state;
     const {
-      active, controls, controlsVisible, onActivate,
-      onControlsVisibleChange, onControlsDeviceChange,
+      active, controls, controlsVisible, crosshairVisible, onActivate,
+      onControlsVisibleChange, onCrosshairVisibleChange, onControlsDeviceChange,
       onControlsInputRemove, onControlsGamepadMap, onControlsReset,
     } = this.props;
 
@@ -49,12 +51,17 @@ class ControlsSettings extends PureComponent {
                       onDeviceChange={onControlsDeviceChange}
                       onInputAdd={this.handleInputAdd}
                       onInputRemove={onControlsInputRemove}/>
-        <Info className="controls-restore-defaults" icon="keyboard-o">
+        <Info className="separated-controls-field" icon="keyboard-o">
           <LinkButton onClick={onControlsReset}>Restore default keyboard & mouse controls</LinkButton>
         </Info>
         <GamepadList onMap={onControlsGamepadMap}/>
-        <Field className="controls-visible-field">
-          <Switch label="Show controls on emulator page" value={controlsVisible} onChange={onControlsVisibleChange}/>
+        <Field className="separated-controls-field">
+          <Switch label="Use crosshair cursor when Zapper is connected"
+                  value={crosshairVisible} onChange={onCrosshairVisibleChange}/>
+        </Field>
+        <Field>
+          <Switch label="Show controls on emulator page"
+                  value={controlsVisible} onChange={onControlsVisibleChange}/>
         </Field>
         {inputRequestVisible && (
           <Modal>

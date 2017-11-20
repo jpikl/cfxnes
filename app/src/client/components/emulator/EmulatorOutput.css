@@ -3,6 +3,10 @@
 .emulator-output {
   position: relative;
   align-self: center;
+
+  &.crosshair {
+    cursor: crosshair;
+  }
 }
 
 .emulator-canvas {

@@ -22,7 +22,7 @@ const Icon = ({
     className,
   );
   if (labelFor) {
-    return <label className={fullClassName}htmlFor={labelFor} aria-hidden="true" {...attrs}/>;
+    return <label className={fullClassName} htmlFor={labelFor} aria-hidden="true" {...attrs}/>;
   }
   return <i className={fullClassName} aria-hidden="true" {...attrs}/>;
 };

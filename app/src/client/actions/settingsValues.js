@@ -20,6 +20,7 @@ import {
   SET_CONTROLS_DEVICE,
   SET_CONTROLS_INPUTS,
   SET_CONTROLS_VISIBLE,
+  SET_CROSSHAIR_VISIBLE,
 } from '../actionTypes';
 
 import {createAction} from './utils';
@@ -166,4 +167,8 @@ function refreshControlsInputs(dispatch) {
 
 export function setControlsVisible(visible) {
   return createAction(SET_CONTROLS_VISIBLE, visible);
+}
+
+export function setCrosshairVisible(visible) {
+  return createAction(SET_CROSSHAIR_VISIBLE, visible);
 }

@@ -15,6 +15,7 @@ import {
   SET_CONTROLS_DEVICE,
   SET_CONTROLS_INPUTS,
   SET_CONTROLS_VISIBLE,
+  SET_CROSSHAIR_VISIBLE,
 } from '../actionTypes';
 
 import {createReducer} from './utils';
@@ -47,6 +48,7 @@ const actionHandlers = {
     return {...state, controls: {...controls, [port]: {device, inputs}}};
   },
   [SET_CONTROLS_VISIBLE]: (state, controlsVisible) => ({...state, controlsVisible}),
+  [SET_CROSSHAIR_VISIBLE]: (state, crosshairVisible) => ({...state, crosshairVisible}),
 };
 
 export default createReducer(actionHandlers);

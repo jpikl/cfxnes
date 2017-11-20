@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Home screen.
 - Keyboard shortcuts.
 - Light and dark theme.
+- Option to change mouse cursor to crosshair.
 - Option to bind multiple keys/buttons to the same input.
 - New color palettes: SONY CXA2025AS US, Unsaturated V6.
 - **Server:** Configuration through file or environment variables.

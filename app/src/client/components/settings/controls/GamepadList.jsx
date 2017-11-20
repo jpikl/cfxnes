@@ -17,6 +17,8 @@ export default class GamepadList extends PureComponent {
   componentDidMount() {
     if (navigator.getGamepads) {
       this.timer = setInterval(this.updateGamepads, 500);
+    } else {
+      this.timer = -1;
     }
   }
 
@@ -27,6 +29,14 @@ export default class GamepadList extends PureComponent {
   updateGamepads = () => {
     const gamepads = navigator.getGamepads();
     this.setState({gamepads: Array.from(gamepads).filter(Boolean)});
+  }
+
+  renderLoadingMessage() {
+    return (
+      <Info tag="li" icon="gamepad">
+        Detecting gamepad support...
+      </Info>
+    );
   }
 
   renderUnsupportedMessage() {
@@ -55,8 +65,9 @@ export default class GamepadList extends PureComponent {
     const {timer, state: {gamepads}} = this;
     return (
       <ul className="gamepad-list">
-        {!timer && this.renderUnsupportedMessage()}
-        {timer && !gamepads.length && this.renderEmptyMessage()}
+        {timer == null && this.renderLoadingMessage()}
+        {timer < 0 && this.renderUnsupportedMessage()}
+        {timer > 0 && !gamepads.length && this.renderEmptyMessage()}
         {gamepads.map(this.renderGamepad)}
       </ul>
     );

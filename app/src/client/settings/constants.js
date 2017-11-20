@@ -5,6 +5,7 @@ import {copySettingsFromNes} from './settings';
 export const defaultSettings = {
   theme: Theme.LIGHT,
   fpsVisible: true,
+  crosshairVisible: false,
   controlsVisible: true,
   ...copySettingsFromNes(nes),
 };

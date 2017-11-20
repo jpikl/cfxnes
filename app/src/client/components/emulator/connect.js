@@ -1,4 +1,5 @@
 import {connect} from 'react-redux';
+import {Port, Device} from '../../enums';
 import {ROM_ID, getEmulatorPath} from '../../routes';
 import {selectEmulator, selectSettingsValues} from '../../reducers';
 
@@ -15,7 +16,13 @@ const mapStateToProps = (state, props) => {
   const routeRomId = props.match.params[ROM_ID] || null;
   const {romId, loadState, error} = selectEmulator(state);
   const {controls, controlsVisible} = selectSettingsValues(state);
-  return {romId, routeRomId, loadState, controls, controlsVisible, error};
+
+  let crosshairVisible = false;
+  if (Port.values.some(port => controls[port].device === Device.ZAPPER)) {
+    ({crosshairVisible} = selectSettingsValues(state));
+  }
+
+  return {romId, routeRomId, loadState, controls, controlsVisible, crosshairVisible, error};
 };
 
 const mapDispatchToProps = (dispatch, props) => ({

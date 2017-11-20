@@ -17,6 +17,7 @@ class Emulator extends PureComponent {
     loadState: PropTypes.oneOf(ActionState.values).isRequired,
     controls: controlsPropType.isRequired,
     controlsVisible: PropTypes.bool.isRequired,
+    crosshairVisible: PropTypes.bool.isRequired,
     error: PropTypes.string.isRequired,
     onConnect: PropTypes.func.isRequired,
     onDisconnect: PropTypes.func.isRequired,
@@ -106,7 +107,7 @@ class Emulator extends PureComponent {
 
   render() {
     const {dragOver} = this.state;
-    const {loadState, controls, controlsVisible, onControlsClose, error, onErrorClose} = this.props;
+    const {loadState, controls, controlsVisible, onControlsClose, crosshairVisible, error, onErrorClose} = this.props;
     const loading = loadState === ActionState.STARTED;
     const fullClassName = classNames('emulator', {'drag-over': dragOver});
 
@@ -118,7 +119,7 @@ class Emulator extends PureComponent {
         {error && (
           <EmulatorError message={error} onClose={onErrorClose}/>
         )}
-        <EmulatorOutput loading={loading} refCanvas={this.setCanvas}/>
+        <EmulatorOutput loading={loading} crosshair={crosshairVisible} refCanvas={this.setCanvas}/>
       </Main>
     );
   }
