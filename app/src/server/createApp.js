@@ -27,7 +27,7 @@ export default function createApp(romDb, options) {
   app.set('trust proxy', trustProxy);
 
   app.use(compression());
-  app.use(configureHeaders);
+  app.use(setHeaders);
 
   if (httpsRedirect) {
     app.use(doHttpsRedirect);
@@ -46,7 +46,7 @@ export default function createApp(romDb, options) {
   return app;
 }
 
-function configureHeaders(req, res, next) {
+function setHeaders(req, res, next) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   next();
 }
