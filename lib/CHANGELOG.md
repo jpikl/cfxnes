@@ -5,11 +5,11 @@ All notable changes to the cfxnes library will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased][unreleased]
+## [0.5.0] - 2017-11-22
 
 ### Fixed
 
-- Library AMD export.
+- AMD export.
 - Blocked `mouseup` events by running emulator.
 - Error when loading certain iNES ROMs (*Donkey Kong 3*) due to being detected as NES 2.0.
 
@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 
 - Better error messages.
-- Required JSZip version is ^3.1.0.
+- Required JSZip version is `^3.1.0`.
 - Initialization options with `undefined` value are ignored.
 - `video.smoothing` property replaced by `video.filter`.
 - `config.set()` method renamed to `config.use()`.
@@ -112,7 +112,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Initial version.
 
-[unreleased]: https://github.com/jpikl/cfxnes/compare/v0.5.0...HEAD
+[unreleased]: https://github.com/jpikl/cfxnes/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/jpikl/cfxnes/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/jpikl/cfxnes/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/jpikl/cfxnes/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/jpikl/cfxnes/compare/v0.2.0...v0.3.0
