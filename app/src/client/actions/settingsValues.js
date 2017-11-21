@@ -144,8 +144,8 @@ export function bindGamepadToJoypad(index, port) {
     bindGamepadToJoypadButton(index, 'back', port, 'select');
     bindGamepadToJoypadButton(index, 'dpad-left', port, 'left');
     bindGamepadToJoypadButton(index, 'dpad-right', port, 'right');
-    bindGamepadToJoypadButton(index, 'dpad-down', port, 'up');
-    bindGamepadToJoypadButton(index, 'dpad-up', port, 'down');
+    bindGamepadToJoypadButton(index, 'dpad-down', port, 'down');
+    bindGamepadToJoypadButton(index, 'dpad-up', port, 'up');
     refreshControlsInputs(dispatch);
   };
 }

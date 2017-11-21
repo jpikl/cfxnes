@@ -4,6 +4,8 @@ import {Info} from '../../common';
 import Gamepad from './Gamepad';
 import './GamepadList.css';
 
+const supported = navigator.getGamepads != null;
+
 export default class GamepadList extends PureComponent {
 
   static propTypes = {
@@ -11,14 +13,12 @@ export default class GamepadList extends PureComponent {
   };
 
   state = {
-    gamepads: [],
+    gamepads: null,
   };
 
   componentDidMount() {
-    if (navigator.getGamepads) {
+    if (supported) {
       this.timer = setInterval(this.updateGamepads, 500);
-    } else {
-      this.timer = -1;
     }
   }
 
@@ -34,7 +34,7 @@ export default class GamepadList extends PureComponent {
   renderLoadingMessage() {
     return (
       <Info tag="li" icon="gamepad">
-        Detecting gamepad support...
+        Detecting connected gamepads...
       </Info>
     );
   }
@@ -42,7 +42,7 @@ export default class GamepadList extends PureComponent {
   renderUnsupportedMessage() {
     return (
       <Info tag="li" icon="gamepad">
-        Your browser does not support gamepad input.
+        Your browser does not support gamepads.
       </Info>
     );
   }
@@ -62,13 +62,13 @@ export default class GamepadList extends PureComponent {
   }
 
   render() {
-    const {timer, state: {gamepads}} = this;
+    const {state: {gamepads}} = this;
     return (
       <ul className="gamepad-list">
-        {timer == null && this.renderLoadingMessage()}
-        {timer < 0 && this.renderUnsupportedMessage()}
-        {timer > 0 && !gamepads.length && this.renderEmptyMessage()}
-        {gamepads.map(this.renderGamepad)}
+        {!supported && this.renderUnsupportedMessage()}
+        {supported && !gamepads && this.renderLoadingMessage()}
+        {gamepads && !gamepads.length && this.renderEmptyMessage()}
+        {gamepads && gamepads.map(this.renderGamepad)}
       </ul>
     );
   }

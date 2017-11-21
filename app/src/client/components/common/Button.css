@@ -38,6 +38,7 @@
   &.default,
   &.primary {
     padding: 0.6rem 1.2rem;
+    margin: 0; /* Safari adds extra margin */
     border-style: solid;
     border-width: 0.1rem;
     border-radius: 0.4rem;

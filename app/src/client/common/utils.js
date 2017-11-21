@@ -3,7 +3,7 @@ export function identity(value) {
 }
 
 export function capitalize(value) {
-  return value[0].toUpperCase() + value.substr(1);
+  return value && (value[0].toUpperCase() + value.substr(1));
 }
 
 let idCounter = 0;
