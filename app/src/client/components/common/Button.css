@@ -5,6 +5,7 @@
 .button {
   position: relative;
   overflow: visible; /* Fixes tooltips visibility in IE */
+  font-family: inherit;
   font-size: 1.4rem;
   line-height: 2rem;
   cursor: pointer;
@@ -32,6 +33,7 @@
   }
 
   &::-moz-focus-inner {
+    padding: 0;
     border: 0;
   }
 

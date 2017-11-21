@@ -4,6 +4,10 @@
 
 @mixin text-like-input .select;
 
+.select {
+  font-family: inherit;
+}
+
 @each $theme in $themes {
   .$theme .select:--focus-like:-moz-focusring {
     color: transparent;
