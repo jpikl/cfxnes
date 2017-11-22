@@ -29,7 +29,7 @@
   font-weight: normal;
 }
 
-.brand-collapser {
+.brand-collapser.button {
   margin-right: 0.5rem;
   margin-left: auto;
 }

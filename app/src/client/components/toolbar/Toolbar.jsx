@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {Theme} from '../../enums';
+import {ButtonGroup} from '../common'
 import ToolButton from './ToolButton';
 import connect from './connect';
 import './Toolbar.css';
@@ -8,9 +9,10 @@ import './Toolbar.css';
 const Toolbar = ({theme, onThemeSwitch, children}) => (
   <div className="toolbar">
     {children}
-    <ToolButton className="toolbar-theme-switch" icon={Theme.getIcon(theme)}
-                label={Theme.getLabel(theme)} onClick={onThemeSwitch}
-                aria-hidden="true"/>
+    <ButtonGroup className="common-tools">
+      <ToolButton icon={Theme.getIcon(theme)} label={Theme.getLabel(theme)}
+                  onClick={onThemeSwitch} aria-hidden="true"/>
+    </ButtonGroup>
   </div>
 );
 
