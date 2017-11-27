@@ -9,7 +9,9 @@ export default class MMC1 extends Mapper {
   // Initialization
   //=========================================================
 
-  initState() {
+  constructor(mapper) {
+    super(mapper);
+
     // SNROM board detection (128/256 KB PRG ROM + 8 KB PRG RAM + 8 KB CHR RAM/ROM)
     this.snrom = (this.prgROMSize === 0x20000 || this.prgROMSize === 0x40000)
           && this.prgRAMSize === 0x2000

@@ -11,7 +11,9 @@ export default class MMC3 extends Mapper {
   // Initialization
   //=========================================================
 
-  initState() {
+  constructor(mapper) {
+    super(mapper);
+
     // MMC3A and non-Sharp MMC3B - alternate (old) behavior
     // MMC3C and Sharp MMC3B     - normal (new) behavior
     this.alternateMode = false; // TODO detection for normal/alternate behavior

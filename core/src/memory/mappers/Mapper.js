@@ -8,35 +8,66 @@ export default class Mapper {
 
   constructor(cartridge) {
     log.info('Initializing mapper');
-    Object.assign(this, cartridge);
-    this.initPRGRAM();
-    this.initCHRRAM();
-    this.initNVRAM();
-    this.initState();
+
+    this.mirroring = cartridge.mirroring;
+    this.prgROM = cartridge.prgROM;
+    this.chrROM = cartridge.chrROM;
+    this.prgROMSize = cartridge.prgROMSize;
+    this.chrROMSize = cartridge.chrROMSize;
+
+    const {prgRAMSize, prgRAMSizeBattery} = cartridge;
+    this.prgRAM = prgRAMSize ? new Uint8Array(prgRAMSize) : null;
+    this.prgRAMSize = prgRAMSize;
+    this.prgRAMSizeBattery = prgRAMSizeBattery;
+    this.canReadPRGRAM = prgRAMSize > 0; // PRG RAM read protection
+    this.canWritePRGRAM = prgRAMSize > 0; // PRG RAM write protection
+    this.hasPRGRAMRegisters = false; // Whether registers are mapped in PRG RAM address space
+
+    const {chrRAMSize, chrRAMSizeBattery} = cartridge;
+    this.chrRAM = chrRAMSize ? new Uint8Array(chrRAMSize) : null;
+    this.chrRAMSize = chrRAMSize;
+    this.chrRAMSizeBattery = chrRAMSizeBattery;
+
+    // Either there is battery-backed PRG RAM or battery-backed CHR RAM.
+    // Only known game using battery-backed CHR RAM is RacerMate Challenge II.
+    if (prgRAMSizeBattery) {
+      this.nvram = this.prgRAM.subarray(0, prgRAMSizeBattery);
+    } else if (chrRAMSizeBattery) {
+      this.nvram = this.chrRAM.subarray(0, chrRAMSizeBattery);
+    } else {
+      this.nvram = null;
+    }
+
+    this.cpu = null;
+    this.ppu = null;
+    this.cpuMemory = null;
+    this.ppuMemory = null;
   }
 
   connect(nes) {
     log.info('Connecting mapper');
+
     this.cpu = nes.cpu;
     this.ppu = nes.ppu;
     this.cpuMemory = nes.cpuMemory;
     this.ppuMemory = nes.ppuMemory;
-    this.cpu.mapper = this;
-    this.ppu.mapper = this;
-    this.cpuMemory.mapper = this;
-    this.ppuMemory.mapper = this;
+
+    this.cpu.setMapper(this);
+    this.cpuMemory.setMapper(this);
+    this.ppuMemory.setMapper(this);
   }
 
   disconnect() {
     log.info('Disconnecting mapper');
-    this.ppuMemory.mapper = undefined;
-    this.cpuMemory.mapper = undefined;
-    this.ppu.mapper = undefined;
-    this.cpu.mapper = undefined;
-    this.ppuMemory = undefined;
-    this.cpuMemory = undefined;
-    this.ppu = undefined;
-    this.cpu = undefined;
+
+    this.ppuMemory.setMapper(null);
+    this.cpuMemory.setMapper(null);
+    this.cpu.setMapper(null);
+
+    this.ppuMemory = null;
+    this.cpuMemory = null;
+    this.ppu = null;
+    this.cpu = null;
   }
 
   //=========================================================
@@ -53,9 +84,6 @@ export default class Mapper {
   //=========================================================
   // Callbacks
   //=========================================================
-
-  initState() {
-  }
 
   resetState() {
   }
@@ -89,15 +117,6 @@ export default class Mapper {
   // PRG RAM
   //=========================================================
 
-  initPRGRAM() {
-    if (this.prgRAMSize) {
-      this.prgRAM = new Uint8Array(this.prgRAMSize);
-      this.canReadPRGRAM = true; // PRG RAM read protection
-      this.canWritePRGRAM = true; // PRG RAM write protection
-      this.hasPRGRAMRegisters = false; // Whether mapper registers are in PRG RAM address space
-    }
-  }
-
   resetPRGRAM() {
     if (this.prgRAM) {
       this.prgRAM.fill(0, this.prgRAMSizeBattery); // Keep battery-backed part of PRGRAM
@@ -112,12 +131,6 @@ export default class Mapper {
   //=========================================================
   // CHR ROM/RAM
   //=========================================================
-
-  initCHRRAM() {
-    if (this.chrRAMSize) {
-      this.chrRAM = new Uint8Array(this.chrRAMSize);
-    }
-  }
 
   resetCHRRAM() {
     if (this.chrRAM) {
@@ -148,19 +161,6 @@ export default class Mapper {
   //=========================================================
   // Non-volatile part of PRG/CHR RAM
   //=========================================================
-
-  // Either there is battery-backed PRG RAM or battery-backed CHR RAM.
-  // Only known game using battery-backed CHR RAM is RacerMate Challenge II.
-
-  initNVRAM() {
-    if (this.prgRAMSizeBattery) {
-      this.nvram = this.prgRAM.subarray(0, this.prgRAMSizeBattery);
-    } else if (this.chrRAMSizeBattery) {
-      this.nvram = this.chrRAM.subarray(0, this.chrRAMSizeBattery);
-    } else {
-      this.nvram = null;
-    }
-  }
 
   getNVRAM() {
     return this.nvram;

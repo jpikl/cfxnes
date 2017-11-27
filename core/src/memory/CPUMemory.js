@@ -32,10 +32,20 @@ export default class CPUMemory {
 
   constructor() {
     log.info('Initializing CPU memory');
-    this.initRAM();
-    this.initRegisters();
-    this.initPRGRAM();
-    this.initPRGROM();
+
+    this.ram = new Uint8Array(0x800); // 2KB of RAM mirrored in $0800-$1FFF
+    this.prgROM = null; // PRG ROM (will be loaded from mapper)
+    this.prgRAM = null; // PRG RAM (will be loaded from mapper)
+    this.prgROMMapping = new Uint32Array(4); // Base addresses of each 8K PRG ROM bank
+    this.prgRAMMapping = 0; // Base address of 8K PRG RAM bank
+
+    this.inputDevices = [null, null, null]; // Indices 1 and 2 are used as ports for devices
+    this.inputStrobe = 0; // Strobe counter
+
+    this.ppu = null;
+    this.apu = null;
+    this.dma = null;
+    this.mapper = null;
   }
 
   connect(nes) {
@@ -43,6 +53,12 @@ export default class CPUMemory {
     this.ppu = nes.ppu;
     this.apu = nes.apu;
     this.dma = nes.dma;
+  }
+
+  setMapper(mapper) {
+    this.mapper = mapper;
+    this.prgRAM = mapper && mapper.prgRAM;
+    this.prgROM = mapper && mapper.prgROM;
   }
 
   //=========================================================
@@ -92,10 +108,6 @@ export default class CPUMemory {
   // RAM ($0000-$1FFF)
   //=========================================================
 
-  initRAM() {
-    this.ram = new Uint8Array(0x800); // 2KB of RAM mirrored in $0800-$1FFF
-  }
-
   resetRAM() {
     this.ram.fill(0);
   }
@@ -115,11 +127,6 @@ export default class CPUMemory {
   //=========================================================
   // Registers ($2000-$401F)
   //=========================================================
-
-  initRegisters() {
-    this.inputDevices = [null, null, null]; // We use indexes 1 and 2 as ports
-    this.inputStrobe = 0;
-  }
 
   resetRegisters() {
     this.inputStrobe = 0;
@@ -231,12 +238,7 @@ export default class CPUMemory {
   // PRG RAM ($6000-$7FFF)
   //=========================================================
 
-  initPRGRAM() {
-    this.prgRAMMapping = 0;
-  }
-
   resetPRGRAM() {
-    this.prgRAM = this.mapper && this.mapper.prgRAM;
     this.prgRAMMapping = 0;
   }
 
@@ -268,12 +270,7 @@ export default class CPUMemory {
   // PRG ROM ($8000-$FFFF)
   //=========================================================
 
-  initPRGROM() {
-    this.prgROMMapping = new Uint32Array(4);
-  }
-
   resetPRGROM() {
-    this.prgROM = this.mapper && this.mapper.prgROM;
     this.prgROMMapping.fill(0);
   }
 

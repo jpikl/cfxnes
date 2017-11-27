@@ -30,6 +30,10 @@ export default class CPU {
     this.dma = nes.dma;
   }
 
+  setMapper(mapper) {
+    this.mapper = mapper;
+  }
+
   //=========================================================
   // Reset
   //=========================================================

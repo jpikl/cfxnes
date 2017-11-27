@@ -6,6 +6,9 @@ export default class DMA {
 
   constructor() {
     log.info('Initializing DMA');
+    this.cycle = 0; // DMA cycle counter
+    this.baseAddress = 0; // Base of DMA source address
+    this.cpuMemory = null;
   }
 
   connect(nes) {

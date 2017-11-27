@@ -5,7 +5,8 @@ import Mapper from './Mapper';
  */
 export default class NINA001 extends Mapper {
 
-  initState() {
+  constructor(mapper) {
+    super(mapper);
     this.hasPRGRAMRegisters = true; // Registers are mapped to PRG RAM address space
   }
 

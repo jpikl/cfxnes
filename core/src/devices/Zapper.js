@@ -7,6 +7,7 @@ export default class Zapper {
     this.triggerPressed = false;
     this.beamX = -1;
     this.beamY = -1;
+    this.ppu = null;
   }
 
   connect(nes) {
@@ -16,7 +17,7 @@ export default class Zapper {
 
   disconnect() {
     log.info('Disconnecting zapper');
-    this.ppu = undefined;
+    this.ppu = null;
   }
 
   strobe() {

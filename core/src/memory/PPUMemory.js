@@ -49,13 +49,21 @@ export default class PPUMemory {
 
   constructor() {
     log.info('Initializing PPU memory');
-    this.initPatterns();
-    this.initNametables();
-    this.initPalettes();
+
+    this.patterns = null; // Pattern tables (will be loaded from mapper)
+    this.patternsMapping = new Uint32Array(8); // Base addresses of each 1K pattern bank
+    this.canWritePattern = false; // Pattern write protection
+    this.nametables = new Uint8Array(0x1000); // Nametables (2 KB on board + additional 2 KB on some cartridges)
+    this.nametablesMapping = new Uint32Array(4); // Base address of each nametable
+    this.palettes = new Uint8Array(0x20); // 8 x 4B palettes (background / sprite)
+
+    this.mapper = null;
   }
 
-  connect() {
-    log.info('Connecting PPU memory');
+  setMapper(mapper) {
+    this.mapper = mapper;
+    this.patterns = mapper && (mapper.chrRAM || mapper.chrROM);
+    this.canWritePattern = mapper != null && mapper.chrRAM != null;
   }
 
   //=========================================================
@@ -102,18 +110,8 @@ export default class PPUMemory {
   // CHR RAM/ROM ($0000-$1FFF)
   //=========================================================
 
-  initPatterns() {
-    this.patternsMapping = new Uint32Array(8);
-  }
-
   resetPatterns() {
     this.patternsMapping.fill(0);
-    if (this.mapper) {
-      this.patterns = this.mapper.chrRAM || this.mapper.chrROM;
-      this.canWritePattern = this.mapper.chrRAM != null;
-    } else {
-      this.patterns = undefined;
-    }
   }
 
   readPattern(address) {
@@ -137,11 +135,6 @@ export default class PPUMemory {
   //=========================================================
   // Nametables ($2000-$3EFF)
   //=========================================================
-
-  initNametables() {
-    this.nametables = new Uint8Array(0x1000); // 2 KB on board + additional 2 KB on some cartridges
-    this.nametablesMapping = new Uint32Array(4);
-  }
 
   resetNametables() {
     this.nametables.fill(0);
@@ -170,10 +163,6 @@ export default class PPUMemory {
   //=========================================================
   // Palette RAM indexes ($3F00-$3FFF)
   //=========================================================
-
-  initPalettes() {
-    this.palettes = new Uint8Array(0x20); // 8 x 4B palettes (background / sprite)
-  }
 
   resetPalettes() {
     this.palettes.set(INITIAL_PALETTES);

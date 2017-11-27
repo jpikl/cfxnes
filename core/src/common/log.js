@@ -19,7 +19,8 @@ export class Log {
 
   constructor(output) {
     this.output = output;
-    this.setLevel(OFF);
+    this.priority = OFF_PRIORITY;
+    this.level = OFF;
   }
 
   setLevel(level) {

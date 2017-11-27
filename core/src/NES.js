@@ -8,7 +8,18 @@ export default class NES {
 
   constructor(units = {}) {
     log.info('Initializing NES');
-    this.initUnits(units);
+
+    this.cpu = units.cpu || new CPU;
+    this.ppu = units.ppu || new PPU;
+    this.apu = units.apu || new APU;
+    this.dma = units.dma || new DMA;
+    this.cpuMemory = units.cpuMemory || new CPUMemory;
+    this.ppuMemory = units.ppuMemory || new PPUMemory;
+
+    this.cartridge = null;
+    this.mapper = null;
+    this.region = null;
+
     this.connectUnits();
     this.updateRegionParams();
   }
@@ -17,22 +28,12 @@ export default class NES {
   // Units
   //=========================================================
 
-  initUnits(units) {
-    this.cpu = units.cpu || new CPU;
-    this.ppu = units.ppu || new PPU;
-    this.apu = units.apu || new APU;
-    this.dma = units.dma || new DMA;
-    this.cpuMemory = units.cpuMemory || new CPUMemory;
-    this.ppuMemory = units.ppuMemory || new PPUMemory;
-  }
-
   connectUnits() {
     this.cpu.connect(this);
     this.ppu.connect(this);
     this.apu.connect(this);
     this.dma.connect(this);
     this.cpuMemory.connect(this);
-    this.ppuMemory.connect(this);
   }
 
   resetUnits() {
@@ -55,7 +56,7 @@ export default class NES {
   }
 
   getRegion() {
-    return this.region || null;
+    return this.region;
   }
 
   getUsedRegion() {
@@ -66,6 +67,7 @@ export default class NES {
     log.info('Updating region parameters');
     const region = this.getUsedRegion();
     const params = Region.getParams(region);
+
     log.info(`Detected region: "${region}"`);
     this.ppu.setRegionParams(params);
     this.apu.setRegionParams(params);
@@ -93,7 +95,7 @@ export default class NES {
   }
 
   getCartridge() {
-    return this.cartridge || null;
+    return this.cartridge;
   }
 
   //=========================================================
@@ -115,9 +117,9 @@ export default class NES {
   //=========================================================
 
   setInputDevice(port, device) {
-    const prevDevice = this.cpuMemory.getInputDevice(port);
-    if (prevDevice) {
-      prevDevice.disconnect();
+    const oldDevice = this.cpuMemory.getInputDevice(port);
+    if (oldDevice) {
+      oldDevice.disconnect();
     }
     this.cpuMemory.setInputDevice(port, device);
     if (device) {
