@@ -1,17 +1,18 @@
 import {expect} from 'chai';
+import {Mapper} from '../../src';
 import {createMapper} from '../../src/memory/mappers';
 
 describe('memory/mappers', () => {
   const mappers = [
-    'AOROM',
-    'BNROM',
-    'CNROM',
-    'ColorDreams',
-    'MMC1',
-    'MMC3',
-    'NINA-001',
-    'NROM',
-    'UNROM',
+    Mapper.AOROM,
+    Mapper.BNROM,
+    Mapper.CNROM,
+    Mapper.COLOR_DREAMS,
+    Mapper.MMC1,
+    Mapper.MMC3,
+    Mapper.NINA_001,
+    Mapper.NROM,
+    Mapper.UNROM,
   ];
 
   for (const mapper of mappers) {

@@ -1,4 +1,4 @@
-import {log, describe} from '../../common';
+import {log, describe, Mapper as ID} from '../../common';
 
 import AOROM from './AOROM';
 import BNROM from './BNROM';
@@ -11,15 +11,15 @@ import NROM from './NROM';
 import UNROM from './UNROM';
 
 const mappers = {
-  'AOROM': AOROM,
-  'BNROM': BNROM,
-  'CNROM': CNROM,
-  'ColorDreams': ColorDreams,
-  'MMC1': MMC1,
-  'MMC3': MMC3,
-  'NINA-001': NINA001,
-  'NROM': NROM,
-  'UNROM': UNROM,
+  [ID.AOROM]: AOROM,
+  [ID.BNROM]: BNROM,
+  [ID.CNROM]: CNROM,
+  [ID.COLOR_DREAMS]: ColorDreams,
+  [ID.MMC1]: MMC1,
+  [ID.MMC3]: MMC3,
+  [ID.NINA_001]: NINA001,
+  [ID.NROM]: NROM,
+  [ID.UNROM]: UNROM,
 };
 
 export function createMapper(cartridge) {

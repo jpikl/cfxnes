@@ -1,23 +1,27 @@
-import {log, Region, Mirroring, formatSize} from '../../common';
+import {log, Region, Mirroring, Mapper, Submapper, formatSize} from '../../common';
 
 export const name = 'iNES / NES 2.0';
 
 const mappers = {
-  0: 'NROM',
-  1: 'MMC1',
-  2: 'UNROM',
-  3: 'CNROM',
-  4: 'MMC3',
-  7: 'AOROM',
-  11: 'ColorDreams',
-  34: 'BNROM', // NINA-001 uses the same ID
+  0: Mapper.NROM,
+  1: Mapper.MMC1,
+  2: Mapper.UNROM,
+  3: Mapper.CNROM,
+  4: Mapper.MMC3,
+  7: Mapper.AOROM,
+  11: Mapper.COLOR_DREAMS,
+  34: Mapper.BNROM, // NINA-001 uses the same ID
 };
 
 const submappers = {
-  'MMC1_1': 'SUROM',
-  'MMC1_2': 'SOROM',
-  'MMC1_3': 'SXROM',
+  [joinMapperIds(1, 1)]: Submapper.SUROM, // MMC1 submapper
+  [joinMapperIds(1, 2)]: Submapper.SOROM, // MMC1 submapper
+  [joinMapperIds(1, 3)]: Submapper.SXROM, // MMC1 submapper
 };
+
+function joinMapperIds(mapperId, submapperId) {
+  return (mapperId << 4) | submapperId;
+}
 
 export function supports(data) {
   return data[0] === 0x4E
@@ -86,11 +90,11 @@ export function parse(data) {
   const chrROMEnd = chrROMStart + chrROMSize;
 
   let mapper = mappers[mapperId] || mapperId.toString();
-  if (mapper === 'BNROM' && chrROMSize > 0) {
-    mapper = 'NINA-001'; // Uses the same ID as BNROM, but has CHR ROM instead of CHR RAM
+  if (mapper === Mapper.BNROM && chrROMSize > 0) {
+    mapper = Mapper.NINA_001; // Uses the same ID as BNROM, but has CHR ROM instead of CHR RAM
   }
 
-  const submapper = submappers[mapper + '_' + submapperId];
+  const submapper = submappers[joinMapperIds(mapperId, submapperId)];
 
   if (data.length < chrROMEnd) {
     throw new Error(`Input is too short: expected at least ${formatSize(chrROMEnd)} but got ${formatSize(data.length)}`);

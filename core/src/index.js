@@ -10,6 +10,8 @@ export {
   LogLevel,
   Mirroring,
   Region,
+  Mapper,
+  Submapper,
   detectEndianness,
   decodeBase64,
   formatSize,

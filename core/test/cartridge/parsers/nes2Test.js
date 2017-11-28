@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {Region, Mirroring} from '../../../src/common';
+import {Region, Mirroring, Mapper, Submapper} from '../../../src/common';
 import {parse} from '../../../src/cartridge/parsers/ines';
 import {createNES2 as create} from '../utils';
 
@@ -110,15 +110,15 @@ describe('cartridge/parsers/ines (NES 2.0 input)', () => {
   });
 
   it('reads mapper', () => {
-    expect(test({mapperId: 0}).mapper).to.equal('NROM');
-    expect(test({mapperId: 1}).mapper).to.equal('MMC1');
-    expect(test({mapperId: 2}).mapper).to.equal('UNROM');
-    expect(test({mapperId: 3}).mapper).to.equal('CNROM');
-    expect(test({mapperId: 4}).mapper).to.equal('MMC3');
-    expect(test({mapperId: 7}).mapper).to.equal('AOROM');
-    expect(test({mapperId: 11}).mapper).to.equal('ColorDreams');
-    expect(test({mapperId: 34, chrROMUnits: 0}).mapper).to.equal('BNROM');
-    expect(test({mapperId: 34, chrROMUnits: 1}).mapper).to.equal('NINA-001');
+    expect(test({mapperId: 0}).mapper).to.equal(Mapper.NROM);
+    expect(test({mapperId: 1}).mapper).to.equal(Mapper.MMC1);
+    expect(test({mapperId: 2}).mapper).to.equal(Mapper.UNROM);
+    expect(test({mapperId: 3}).mapper).to.equal(Mapper.CNROM);
+    expect(test({mapperId: 4}).mapper).to.equal(Mapper.MMC3);
+    expect(test({mapperId: 7}).mapper).to.equal(Mapper.AOROM);
+    expect(test({mapperId: 11}).mapper).to.equal(Mapper.COLOR_DREAMS);
+    expect(test({mapperId: 34, chrROMUnits: 0}).mapper).to.equal(Mapper.BNROM);
+    expect(test({mapperId: 34, chrROMUnits: 1}).mapper).to.equal(Mapper.NINA_001);
   });
 
   it('reads unknown mapper ID as string', () => {
@@ -126,9 +126,9 @@ describe('cartridge/parsers/ines (NES 2.0 input)', () => {
   });
 
   it('reads submapper', () => {
-    expect(test({mapperId: 1, submapperId: 1}).submapper).to.equal('SUROM');
-    expect(test({mapperId: 1, submapperId: 2}).submapper).to.equal('SOROM');
-    expect(test({mapperId: 1, submapperId: 3}).submapper).to.equal('SXROM');
+    expect(test({mapperId: 1, submapperId: 1}).submapper).to.equal(Submapper.SUROM);
+    expect(test({mapperId: 1, submapperId: 2}).submapper).to.equal(Submapper.SOROM);
+    expect(test({mapperId: 1, submapperId: 3}).submapper).to.equal(Submapper.SXROM);
   });
 
   it('does not read unknown submapper ID', () => {
