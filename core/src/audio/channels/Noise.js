@@ -5,26 +5,49 @@ export default class Noise {
 
   constructor() {
     log.info('Initializing noise channel');
-    this.gain = 1;
+
+    this.enabled = false; // Channel enablement
+    this.gain = 1;        // Output gain
+
+    this.timerMode = false;   // Noise generation mode
+    this.timerCycle = 0;      // Timer counter value
+    this.timerPeriod = 0;     // Timer counter reset value
+    this.timerPeriods = null; // Array of possible timerPeriod values (values depend on region)
+
+    this.lengthCounter = 0;         // Length counter value
+    this.lengthCounterHalt = false; // Disables length counter decrease
+
+    this.useConstantVolume = false; // Whether constant instead of envelope volume is used
+    this.constantVolume = 0;        // Constant volume value
+
+    this.envelopeReset = false; // Envelope cycle/volume reset request
+    this.envelopeCycle = 0;     // Envelope divider counter
+    this.envelopeVolume = 0;    // Envelope volume value
+    this.envelopeLoop = false;  // Envelope looping flag (alias for lengthCounterHalt)
+    this.envelopePeriod = 0;    // Envelope duration period (alias for constantVolume)
+
+    this.shiftRegister = 0; // Shift register for random noise generation
   }
 
   reset() {
     log.info('Resetting noise channel');
+
+    this.timerCycle = 0;
+    this.envelopeCycle = 0;
+    this.envelopeVolume = 0;
+    this.shiftRegister = 1;  // Must be 1 on reset
+
     this.setEnabled(false);
-    this.timerCycle = 0;     // Timer counter value
-    this.envelopeCycle = 0;  // Envelope divider counter
-    this.envelopeVolume = 0; // Envelope volume value
-    this.shiftRegister = 1;  // Shift register for random noise generation (must be 1 on start)
     this.writeEnvelope(0);
     this.writeTimer(0);
     this.writeLengthCounter(0);
   }
 
   setEnabled(enabled) {
-    this.enabled = enabled;
-    if (!this.enabled) {
+    if (!enabled) {
       this.lengthCounter = 0; // Disabling channel resets length counter
     }
+    this.enabled = enabled;
   }
 
   setRegionParams(params) {
@@ -36,23 +59,23 @@ export default class Noise {
   //=========================================================
 
   writeEnvelope(value) {
-    this.lengthCounterHalt = (value & 0x20) !== 0; // Disables length counter decrease
-    this.useConstantVolume = (value & 0x10) !== 0; // 0 - envelope volume is used / 1 - constant volume is used
-    this.constantVolume = value & 0x0F;            // Constant volume value
-    this.envelopeLoop = this.lengthCounterHalt;    // Envelope is looping (length counter hold alias)
-    this.envelopePeriod = this.constantVolume;     // Envelope duration period (constant volume alias)
+    this.lengthCounterHalt = (value & 0x20) !== 0;
+    this.useConstantVolume = (value & 0x10) !== 0;
+    this.constantVolume = value & 0x0F;
+    this.envelopeLoop = this.lengthCounterHalt; // Alias for lengthCounterHalt
+    this.envelopePeriod = this.constantVolume;  // Alias for constantVolume
   }
 
   writeTimer(value) {
-    this.timerMode = (value & 0x80) !== 0;              // Noise generation mode
-    this.timerPeriod = this.timerPeriods[value & 0x0F]; // Timer counter reset value
+    this.timerMode = (value & 0x80) !== 0;
+    this.timerPeriod = this.timerPeriods[value & 0x0F];
   }
 
   writeLengthCounter(value) {
     if (this.enabled) {
-      this.lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3]; // Length counter update
+      this.lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3];
     }
-    this.envelopeReset = true; // Envelope and its divider will be reset
+    this.envelopeReset = true;
   }
 
   //=========================================================

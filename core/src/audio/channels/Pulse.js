@@ -12,18 +12,47 @@ export default class Pulse {
 
   constructor(id) {
     log.info(`Initializing pulse channel #${id}`);
-    this.id = id;
-    this.gain = 1;
+
+    this.id = id;         // Pulse channel ID
+    this.enabled = false; // Channel enablement
+    this.gain = 1;        // Output gain
+
+    this.timerCycle = 0;  // Timer counter value
+    this.timerPeriod = 0; // Timer counter reset value
+
+    this.lengthCounter = 0;         // Length counter value
+    this.lengthCounterHalt = false; // Disables length counter decrease
+
+    this.useConstantVolume = false; // Whether constant instead of envelope volume is used
+    this.constantVolume = 0;        // Constant volume value
+
+    this.envelopeReset = false; // Envelope cycle/volume reset request
+    this.envelopeCycle = 0;     // Envelope divider counter
+    this.envelopeVolume = 0;    // Envelope volume value
+    this.envelopeLoop = false;  // Envelope looping flag (alias for lengthCounterHalt)
+    this.envelopePeriod = 0;    // Envelope duration period (alias for constantVolume)
+
+    this.sweepEnabled = false; // Sweep enablement
+    this.sweepCycle = 0;       // Sweep counter
+    this.sweepReset = false;   // Sweep counter reset request
+    this.sweepNegate = false;  // Whether sweep is subtracted from timer period (instead of added to)
+    this.sweepPeriod = 0;      // Period after which sweep is applied
+    this.sweepShift = 0;       // Shift of timer period when computing sweep
+
+    this.dutyPosition = 0;  // Output waveform position
+    this.dutySelection = 0; // Selects output waveform
   }
 
   reset() {
     log.info(`Resetting pulse channel #${this.id}`);
+
+    this.timerCycle = 0;
+    this.timerPeriod = 0;
+    this.envelopeCycle = 0;
+    this.envelopeVolume = 0;
+    this.sweepCycle = 0;
+
     this.setEnabled(false);
-    this.timerCycle = 0;     // Timer counter value
-    this.timerPeriod = 0;    // Timer counter reset value
-    this.envelopeCycle = 0;  // Envelope divider counter
-    this.envelopeVolume = 0; // Envelope volume value
-    this.sweepCycle = 0;     // Sweep counter
     this.writeDutyEnvelope(0);
     this.writeSweep(0);
     this.writeTimer(0);
@@ -31,10 +60,10 @@ export default class Pulse {
   }
 
   setEnabled(enabled) {
-    this.enabled = enabled;
-    if (!this.enabled) {
+    if (!enabled) {
       this.lengthCounter = 0; // Disabling channel resets length counter
     }
+    this.enabled = enabled;
   }
 
   //=========================================================
@@ -42,20 +71,20 @@ export default class Pulse {
   //=========================================================
 
   writeDutyEnvelope(value) {
-    this.dutySelection = (value & 0xC0) >>> 6;     // Selects output waveform
-    this.lengthCounterHalt = (value & 0x20) !== 0; // Disables length counter decrease
-    this.useConstantVolume = (value & 0x10) !== 0; // 0 - envelope volume is used / 1 - constant volume is used
-    this.constantVolume = value & 0x0F;            // Constant volume value
-    this.envelopeLoop = this.lengthCounterHalt;    // Envelope is looping (length counter hold alias)
-    this.envelopePeriod = this.constantVolume;     // Envelope duration period (constant volume alias)
+    this.dutySelection = (value & 0xC0) >>> 6;
+    this.lengthCounterHalt = (value & 0x20) !== 0;
+    this.useConstantVolume = (value & 0x10) !== 0;
+    this.constantVolume = value & 0x0F;
+    this.envelopeLoop = this.lengthCounterHalt; // Alias for lengthCounterHalt
+    this.envelopePeriod = this.constantVolume;  // Alias for constantVolume
   }
 
   writeSweep(value) {
-    this.sweepEnabled = (value & 0x80) !== 0; // Sweeping enabled
-    this.sweepPeriod = (value & 0x70) >>> 4;  // Period after which sweep is applied
-    this.sweepNegate = (value & 0x08) !== 0;  // 0 - sweep is added to timer period / 1 - sweep is subtracted from timer period
-    this.sweepShift = value & 0x07;           // Shift of timer period when computing sweep
-    this.sweepReset = true;                   // Sweep counter will be reset
+    this.sweepEnabled = (value & 0x80) !== 0;
+    this.sweepPeriod = (value & 0x70) >>> 4;
+    this.sweepNegate = (value & 0x08) !== 0;
+    this.sweepShift = value & 0x07;
+    this.sweepReset = true;
   }
 
   writeTimer(value) {
@@ -63,12 +92,12 @@ export default class Pulse {
   }
 
   writeLengthCounter(value) {
-    this.timerPeriod = (this.timerPeriod & 0x0FF) | ((value & 0x7) << 8); // Higher 3 bits of timer
     if (this.enabled) {
-      this.lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3]; // Length counter update
+      this.lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3];
     }
-    this.dutyPosition = 0;     // Output waveform position is reset
-    this.envelopeReset = true; // Envelope and its divider will be reset
+    this.timerPeriod = (this.timerPeriod & 0x0FF) | ((value & 0x7) << 8); // Higher 3 bits of timer
+    this.dutyPosition = 0;
+    this.envelopeReset = true;
   }
 
   //=========================================================
@@ -136,7 +165,7 @@ export default class Pulse {
   getSweep() {
     const sweep = this.timerPeriod >>> this.sweepShift;
     if (this.sweepNegate) {
-      // Square channel 1 uses one's complement instead of the expected two's complement
+      // Pulse channel 1 uses one's complement instead of the expected two's complement
       return this.id === 1 ? ~sweep : -sweep;
     }
     return sweep;

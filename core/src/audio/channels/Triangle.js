@@ -10,26 +10,43 @@ export default class Triangle {
 
   constructor() {
     log.info('Initializing triangle channel');
-    this.gain = 1;
+
+    this.enabled = false; // Channel enablement
+    this.gain = 1;        // Output gain
+
+    this.timerCycle = 0;    // Timer counter value
+    this.timerPeriod = 0;   // Timer counter reset value
+
+    this.lengthCounter = 0;         // Length counter value
+    this.lengthCounterHalt = false; // Disables length counter decrease
+
+    this.linearCounter = 0;            // Linear counter value
+    this.linearCounterMax = 0;         // Linear counter reset value
+    this.linearCounterControl = false; // Linear counter control flag (alias for lengthCounterHalt)
+    this.linearCounterReset = false;   // Linear counter reset request
+
+    this.dutyPosition = 15; // Output waveform position (15 => initial duty value is 0)
   }
 
   reset() {
     log.info('Resetting triangle channel');
+
+    this.timerCycle = 0;
+    this.timerPeriod = 0;
+    this.dutyPosition = 0;
+    this.linearCounter = 0;
+
     this.setEnabled(false);
-    this.timerCycle = 0;    // Timer counter value
-    this.timerPeriod = 0;   // Timer counter reset value
-    this.dutyPosition = 0;  // Output waveform position
-    this.linearCounter = 0; // Linear counter value
     this.writeLinearCounter(0);
     this.writeTimer(0);
     this.writeLengthCounter(0);
   }
 
   setEnabled(enabled) {
-    this.enabled = enabled;
-    if (!this.enabled) {
+    if (!enabled) {
       this.lengthCounter = 0; // Disabling channel resets length counter
     }
+    this.enabled = enabled;
   }
 
   //=========================================================
@@ -37,9 +54,9 @@ export default class Triangle {
   //=========================================================
 
   writeLinearCounter(value) {
-    this.lengthCounterHalt = (value & 0x80) !== 0;      // Disables length counter decrease
-    this.linearCounterMax = value & 0x7F;               // Linear counter initial value
-    this.linearCounterControl = this.lengthCounterHalt; // Linear counter control flag (length counter halt alias)
+    this.lengthCounterHalt = (value & 0x80) !== 0;
+    this.linearCounterMax = value & 0x7F;
+    this.linearCounterControl = this.lengthCounterHalt; // Alias for lengthCounterHalt
   }
 
   writeTimer(value) {
@@ -47,11 +64,11 @@ export default class Triangle {
   }
 
   writeLengthCounter(value) {
-    this.timerPeriod = (this.timerPeriod & 0x0FF) | ((value & 0x7) << 8); // Higher 3 bits of timer
     if (this.enabled) {
-      this.lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3]; // Length counter update
+      this.lengthCounter = LENGTH_COUNTER_VALUES[(value & 0xF8) >>> 3];
     }
-    this.linearCounterReset = true; // Linear counter will be reset
+    this.timerPeriod = (this.timerPeriod & 0x0FF) | ((value & 0x7) << 8); // Higher 3 bits of timer
+    this.linearCounterReset = true;
   }
 
   //=========================================================

@@ -10,13 +10,37 @@ export default class APU {
 
   constructor() {
     log.info('Initializing APU');
+
     this.pulse1 = new Pulse(1);
     this.pulse2 = new Pulse(2);
     this.triangle = new Triangle;
     this.noise = new Noise;
     this.dmc = new DMC;
     this.channels = [this.pulse1, this.pulse2, this.triangle, this.noise, this.dmc];
-    this.setOutputEnabled(false);
+
+    this.frameCounter = -1;          // Frame counter (negative value = uninitialized)
+    this.frameCounterMax4 = null;    // Array of reset values for 4-step frame counter
+    this.frameCounterMax5 = null;    // Array of reset values for 5-step frame counter
+    this.frameCounterResetDelay = 0; // Number of CPU cycles before frame counter reset
+    this.frameCounterLast = 0;       // Last value written to frame counter register (used by CPU during reset)
+    this.frameFiveStepMode = false;  // Whether 5-step frame counter is used instead of 4-step one
+    this.frameStep = 0;              // Step of frame counter
+    this.frameIrqActive = false;     // Whether frame IRQ is active
+    this.frameIrqDisabled = false;   // Whether frame IRQ generation is inhibited
+
+    this.outputEnabled = false;    // Whether output is being generated
+    this.cpuFrequency = 0;         // CPU frequency (depends on region)
+    this.sampleRate = 0;           // How often are samples taken (samples per second [Hz])
+    this.sampleRateAdjustment = 0; // Sample rate adjustment per 1 output value (buffer underflow/overflow prevention)
+
+    this.bufferSize = 0;           // Size of record and output buffer
+    this.bufferPosition = 0;       // Position of the next sample in buffer
+    this.bufferIncrement = 0;      // Sum of increments for the next buffer position
+    this.recordBuffer = null;      // Buffer where audio samples are being stored
+    this.outputBuffer = null;      // Buffer with audio samples ready to output
+    this.outputBufferFull = false; // Whether the output buffer is full
+
+    this.cpu = null;
   }
 
   connect(nes) {
@@ -31,12 +55,14 @@ export default class APU {
 
   reset() {
     log.info('Resetting APU');
-    this.clearFrameIRQ();
+
     this.pulse1.reset();
     this.pulse2.reset();
     this.triangle.reset();
     this.noise.reset();
     this.dmc.reset();
+
+    this.clearFrameIRQ();
     this.writeFrameCounter(0);
   }
 
@@ -46,9 +72,11 @@ export default class APU {
 
   setRegionParams(params) {
     log.info('Setting APU region parameters');
-    this.frameCounterMax4 = params.frameCounterMax4; // 4-step frame counter
-    this.frameCounterMax5 = params.frameCounterMax5; // 5-step frame counter
+
+    this.frameCounterMax4 = params.frameCounterMax4;
+    this.frameCounterMax5 = params.frameCounterMax5;
     this.cpuFrequency = params.cpuFrequency;
+
     this.noise.setRegionParams(params);
     this.dmc.setRegionParams(params);
   }
@@ -64,12 +92,12 @@ export default class APU {
 
   setBufferSize(size) {
     log.info(`Setting APU buffer size to ${formatSize(size)}`);
-    this.bufferSize = size;                     // Size of record and output buffer
-    this.bufferPosition = 0;                    // Position of the next sample in buffer
-    this.bufferIncrement = 0;                   // Sum of increments for the next buffer position
-    this.recordBuffer = new Float32Array(size); // Buffer where audio samples are being stored
-    this.outputBuffer = new Float32Array(size); // Buffer with audio samples ready to output
-    this.outputBufferFull = false;              // Whether the output buffer is full
+    this.bufferSize = size;
+    this.bufferPosition = 0;
+    this.bufferIncrement = 0;
+    this.recordBuffer = new Float32Array(size);
+    this.outputBuffer = new Float32Array(size);
+    this.outputBufferFull = false;
   }
 
   getBufferSize() {
@@ -78,8 +106,8 @@ export default class APU {
 
   setSampleRate(rate) {
     log.info(`Setting APU sampling rate to ${rate} Hz`);
-    this.sampleRate = rate;        // How often are samples taken (samples per second)
-    this.sampleRateAdjustment = 0; // Sample rate adjustment per 1 output value (buffer underflow/overflow prevention)
+    this.sampleRate = rate;
+    this.sampleRateAdjustment = 0;
   }
 
   getSampleRate() {
@@ -100,17 +128,20 @@ export default class APU {
   //=========================================================
 
   writeFrameCounter(value) {
-    this.frameCounterLast = value;                 // Used by CPU during reset
-    this.frameFiveStepMode = (value & 0x80) !== 0; // 0 - mode 4 (4-step counter) / 1 - mode 5 (5-step counter)
-    this.frameIrqDisabled = (value & 0x40) !== 0;  // IRQ generation is inhibited in mode 4
-    this.frameStep = 0;                            // Step of the frame counter
-    this.frameCounterResetDelay = 4;               // Counter should be reset after 3 or 4 CPU cycles
-    if (this.frameCounter == null) {
+    this.frameCounterLast = value;
+    this.frameFiveStepMode = (value & 0x80) !== 0;
+    this.frameIrqDisabled = (value & 0x40) !== 0;
+    this.frameCounterResetDelay = 4; // Reset after 3 or 4 CPU cycles
+    this.frameStep = 0;
+
+    if (this.frameCounter < 0) {
       this.frameCounter = this.getFrameCounterMax(); // Frame counter first initialization
     }
+
     if (this.frameIrqDisabled) {
       this.clearFrameIRQ(); // Disabling IRQ clears IRQ flag
     }
+
     if (this.frameFiveStepMode) {
       this.tickHalfFrame();
       this.tickQuarterFrame();
@@ -118,10 +149,11 @@ export default class APU {
   }
 
   getFrameCounterMax() {
-    if (this.frameFiveStepMode) {
-      return this.frameCounterMax5[this.frameStep];
-    }
-    return this.frameCounterMax4[this.frameStep];
+    const maxValues = this.frameFiveStepMode
+      ? this.frameCounterMax5
+      : this.frameCounterMax4;
+
+    return maxValues[this.frameStep];
   }
 
   activateFrameIRQ() {
@@ -256,11 +288,13 @@ export default class APU {
 
   tick() {
     this.tickFrameCounter();
+
     this.pulse1.tick();
     this.pulse2.tick();
     this.triangle.tick();
     this.noise.tick();
     this.dmc.tick();
+
     if (this.outputEnabled) {
       this.recordOutput();
     }
@@ -278,25 +312,31 @@ export default class APU {
   tickFrameStep() {
     this.frameStep = (this.frameStep + 1) % 6;
     this.frameCounter = this.getFrameCounterMax();
+
     switch (this.frameStep) {
       case 1:
         this.tickQuarterFrame();
         break;
+
       case 2:
         this.tickQuarterFrame();
         this.tickHalfFrame();
         break;
+
       case 3:
         this.tickQuarterFrame();
         break;
+
       case 4:
         this.tickFrameIRQ();
         break;
+
       case 5:
         this.tickQuarterFrame();
         this.tickHalfFrame();
         this.tickFrameIRQ();
         break;
+
       case 0: // 6
         this.tickFrameIRQ();
         break;
@@ -328,18 +368,23 @@ export default class APU {
   //=========================================================
 
   getOutput() {
+    let output = 0;
+
     const pulse1 = this.pulse1.getOutput();
     const pulse2 = this.pulse2.getOutput();
-    const triangle = this.triangle.getOutput();
-    const noise = this.noise.getOutput();
-    const dmc = this.dmc.getOutput();
-    let output = 0;
+
     if (pulse1 || pulse2) {
       output += 95.88 / ((8128 / (pulse1 + pulse2)) + 100);
     }
+
+    const triangle = this.triangle.getOutput();
+    const noise = this.noise.getOutput();
+    const dmc = this.dmc.getOutput();
+
     if (triangle || noise || dmc) {
       output += 159.79 / ((1 / ((triangle / 8227) + (noise / 12241) + (dmc / 22638))) + 100);
     }
+
     return output;
   }
 
@@ -349,10 +394,12 @@ export default class APU {
 
   recordOutput() {
     this.bufferIncrement += this.sampleRate / this.cpuFrequency;
+
     if (this.bufferIncrement >= 1) {
       let increment = ~~this.bufferIncrement;
       this.bufferIncrement -= increment;
       const output = this.getOutput();
+
       while (increment--) {
         if (this.bufferPosition === this.bufferSize) {
           if (this.outputBufferFull) {
@@ -360,6 +407,7 @@ export default class APU {
           }
           this.swapBuffers();
         }
+
         this.recordBuffer[this.bufferPosition++] = output;
         this.sampleRate += this.sampleRateAdjustment;
       }

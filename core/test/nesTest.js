@@ -104,8 +104,8 @@ describe('NES (no cartridge)', () => {
     expect(nes.isAudioEnabled()).to.be.false;
   });
 
-  it('has undefined audio buffer size by default', () => {
-    expect(nes.getAudioBufferSize()).to.be.undefined;
+  it('has zero audio buffer size by default', () => {
+    expect(nes.getAudioBufferSize()).to.equal(0);
   });
 
   it('changes audio buffer size', () => {
@@ -113,8 +113,8 @@ describe('NES (no cartridge)', () => {
     expect(nes.getAudioBufferSize()).to.equal(4096);
   });
 
-  it('has undefined audio sampling rate by default', () => {
-    expect(nes.getAudioSampleRate()).to.be.undefined;
+  it('has zero audio sampling rate by default', () => {
+    expect(nes.getAudioSampleRate()).to.equal(0);
   });
 
   it('changes audio sampling rate', () => {

@@ -5,7 +5,30 @@ export default class DMC {
 
   constructor() {
     log.info('Initializing DMC channel');
-    this.gain = 1;
+
+    this.enabled = false; // Channel enablement
+    this.output = 0;      // Output value
+    this.gain = 1;        // Output gain
+
+    this.timerCycle = 0;      // Timer counter value
+    this.timerPeriod = 0;     // Timer counter reset value
+    this.timerPeriods = null; // Array of possible timerPeriod values (values depend on region)
+
+    this.sampleAddress = 0;         // Starting address where samples are being read
+    this.sampleLength = 0;          // Total length of samples being read
+    this.sampleCurrentAddress = 0;  // Current address where sables are being read
+    this.sampleRemainingLength = 0; // Number of remaining samples to read
+    this.sampleLoop = false;        // Sample looping flag
+    this.sampleBuffer = -1;         // Buffered sample data from memory (negative value = data are not available)
+
+    this.shiftRegister = -1;     // Shift register for processing buffered sample data (negative value = output is silenced)
+    this.shiftRegisterBits = 0;  // Number of bits remaining in shift register
+    this.memoryAccessCycles = 0; // Number of cycles when memory access is restricted to DMC channel
+    this.irqEnabled = false;     // IWhether IRQ is enabled
+    this.irqActive = false;      // Whether IRQ is active
+
+    this.cpu = null;
+    this.cpuMemory = null;
   }
 
   connect(nes) {
@@ -16,12 +39,14 @@ export default class DMC {
 
   reset() {
     log.info('Resetting DMC channel');
+
+    this.timerCycle = 0;
+    this.sampleBuffer = -1;
+    this.shiftRegister = -1;
+    this.shiftRegisterBits = 0;
+    this.memoryAccessCycles = 0;
+
     this.setEnabled(false);
-    this.timerCycle = 0;         // Timer counter value
-    this.sampleBuffer = null;    // Buffered sample data from memory (null => data are not available)
-    this.shiftRegister = null;   // Shift register for processing buffered sample data (null => output is silenced)
-    this.shiftRegisterBits = 0;  // Number of bits remaining in shift register
-    this.memoryAccessCycles = 0; // Number of cycles when memory access is restricted to DMC channel
     this.writeFlagsTimer(0);
     this.writeOutputLevel(0);
     this.writeSampleAddress(0);
@@ -29,18 +54,30 @@ export default class DMC {
   }
 
   setEnabled(enabled) {
-    this.enabled = enabled;
-    if (!this.enabled) {
-      this.sampleRemainingLength = 0; // Disabling channel stops sample data reading
+    if (!enabled) {
+      // Disabling channel stops sample data reading
+      this.sampleRemainingLength = 0;
     } else if (this.sampleRemainingLength === 0) {
-      this.sampleCurrentAddress = this.sampleAddress; // Enabling channel starts sample data reading unless it's already in progress
+      // Enabling channel starts sample data reading unless it's already in progress
+      this.sampleCurrentAddress = this.sampleAddress;
       this.sampleRemainingLength = this.sampleLength;
     }
-    this.cpu.clearInterrupt(IRQ_DMC); // Changing enablement ($4015 write) clears IRQ flag
+    this.enabled = enabled;
+    this.clearIRQ(); // Changing enablement ($4015 write) clears IRQ flag
   }
 
   setRegionParams(params) {
     this.timerPeriods = params.dmcChannelTimerPeriods;
+  }
+
+  activateIRQ() {
+    this.irqActive = true;
+    this.cpu.activateInterrupt(IRQ_DMC);
+  }
+
+  clearIRQ() {
+    this.irqActive = false;
+    this.cpu.clearInterrupt(IRQ_DMC);
   }
 
   //=========================================================
@@ -48,24 +85,27 @@ export default class DMC {
   //=========================================================
 
   writeFlagsTimer(value) {
-    this.irqEnabled = (value & 0x80) !== 0; // IRQ enabled flag
-    this.sampleLoop = (value & 0x40) !== 0; // Sample looping flag
-    this.timerPeriod = this.timerPeriods[value & 0x0F]; // Timer counter reset value
+    this.irqEnabled = (value & 0x80) !== 0;
+    this.sampleLoop = (value & 0x40) !== 0;
+    this.timerPeriod = this.timerPeriods[value & 0x0F];
+
     if (!this.irqEnabled) {
-      this.cpu.clearInterrupt(IRQ_DMC); // Disabling IRQ clears IRQ flag
+      this.clearIRQ(); // Disabling IRQ clears IRQ flag
     }
   }
 
   writeOutputLevel(value) {
-    this.output = value & 0x7F; // Direct output level
+    this.output = value & 0x7F;
   }
 
   writeSampleAddress(value) {
-    this.sampleAddress = 0xC000 | ((value & 0xFF) << 6); // Address is constructed as 11AAAAAA.AA000000 where AAAAAAAA are bits of written value
+    // Address is constructed as 11AAAAAA.AA000000 where AAAAAAAA are bits of written value
+    this.sampleAddress = 0xC000 | ((value & 0xFF) << 6);
   }
 
   writeSampleLength(value) {
-    this.sampleLength = ((value & 0xFF) << 4) | 0x01; // Length is constructed as LLLL.LLLL0001 where LLLLLLLL are bits of written value
+    // Length is constructed as LLLL.LLLL0001 where LLLLLLLL are bits of written value
+    this.sampleLength = ((value & 0xFF) << 4) | 0x01;
   }
 
   //=========================================================
@@ -94,20 +134,22 @@ export default class DMC {
 
   updateSampleBuffer() {
     // Read the next sample into buffer when the buffer is empty and the read is requested
-    if (this.sampleBuffer === null && this.sampleRemainingLength > 0) {
+    if (this.sampleBuffer < 0 && this.sampleRemainingLength > 0) {
       this.sampleBuffer = this.cpuMemory.read(this.sampleCurrentAddress);
       this.memoryAccessCycles = 4; // DMC channel will access memory at most for 4 CPU cycles
+
       if (this.sampleCurrentAddress < 0xFFFF) {
         this.sampleCurrentAddress++;
       } else {
         this.sampleCurrentAddress = 0x8000; // Address increment wrap
       }
+
       if (--this.sampleRemainingLength <= 0) {
         if (this.sampleLoop) {
           this.sampleCurrentAddress = this.sampleAddress; // Re-read the same sample
           this.sampleRemainingLength = this.sampleLength;
         } else if (this.irqEnabled) {
-          this.cpu.activateInterrupt(IRQ_DMC); // Reading of sample was finished
+          this.activateIRQ(); // Reading of sample was finished
         }
       }
     }
@@ -118,13 +160,13 @@ export default class DMC {
     if (--this.shiftRegisterBits <= 0) {
       this.shiftRegisterBits = 8;
       this.shiftRegister = this.sampleBuffer;
-      this.sampleBuffer = null;
+      this.sampleBuffer = -1;
     }
   }
 
   updateOutput() {
     // Update output value from bit 0 of the shift register
-    if (this.shiftRegister !== null) {
+    if (this.shiftRegister >= 0) {
       if (this.shiftRegister & 1) {
         if (this.output <= 125) {
           this.output += 2; // Max. value is 127

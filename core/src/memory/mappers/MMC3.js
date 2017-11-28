@@ -14,9 +14,19 @@ export default class MMC3 extends Mapper {
   constructor(mapper) {
     super(mapper);
 
-    // MMC3A and non-Sharp MMC3B - alternate (old) behavior
-    // MMC3C and Sharp MMC3B     - normal (new) behavior
-    this.alternateMode = false; // TODO detection for normal/alternate behavior
+    // Registers
+    this.bankSelect = 0; // Bank selection
+    this.irqCounter = 0; // IRQ counter value
+    this.irqLatch = 0;   // IRQ counter reload value
+    this.irqReload = 0;  // IRQ counter reload flag
+    this.irqEnabled = 0; // IRQ counter enable flag
+    this.irqDelay = 0;   // Delay before checking A12 rising edge
+
+    // TODO implement detection for normal/alternate behavior
+    // Alternate mode flag
+    // false = normal (new) behavior (MMC3C and Sharp MMC3B)
+    // true = alternate (old) behavior (MMC3A and non-Sharp MMC3B)
+    this.alternateMode = false;
   }
 
   //=========================================================
@@ -36,12 +46,12 @@ export default class MMC3 extends Mapper {
   }
 
   resetRegisters() {
-    this.bankSelect = 0; // Bank selection
-    this.irqCounter = 0; // IRQ counter value
-    this.irqLatch = 0;   // IRQ counter reload value
-    this.irqReload = 0;  // IRQ counter reload flag
-    this.irqEnabled = 0; // IRQ counter enable flag
-    this.irqDelay = 0;   // Delay before checking A12 rising edge
+    this.bankSelect = 0;
+    this.irqCounter = 0;
+    this.irqLatch = 0;
+    this.irqReload = 0;
+    this.irqEnabled = 0;
+    this.irqDelay = 0;
   }
 
   //=========================================================
@@ -67,15 +77,18 @@ export default class MMC3 extends Mapper {
       case 1: // Select 2 KB CHR bank at $0800-$0FFF (or $1800-$1FFF)
         this.switchDoubleCHRROMBanks(value);
         break;
+
       case 2: // Select 1 KB CHR bank at $1000-$13FF (or $0000-$03FF)
       case 3: // Select 1 KB CHR bank at $1400-$17FF (or $0400-$07FF)
       case 4: // Select 1 KB CHR bank at $1800-$1BFF (or $0800-$0BFF)
       case 5: // Select 1 KB CHR bank at $1C00-$1FFF (or $0C00-$0FFF)
         this.switchSingleCHRROMBanks(value);
         break;
+
       case 6: // Select 8 KB PRG ROM bank at $8000-$9FFF (or $C000-$DFFF)
         this.switchPRGROMBanks0And2(value);
         break;
+
       case 7: // Select 8 KB PRG ROM bank at $A000-$BFFF
         this.switchPRGROMBank1(value);
         break;
