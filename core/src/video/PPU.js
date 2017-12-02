@@ -1,6 +1,6 @@
 import {log} from '../common';
 import {NMI} from '../proc/interrupts';
-import {VIDEO_WIDTH} from './params';
+import {VIDEO_WIDTH} from './constants';
 import {unpackColor, BLACK_COLOR} from './colors';
 import {createPaletteVariant} from './palettes';
 import * as Flag from './flags';
@@ -14,39 +14,40 @@ export default class PPU {
 
   constructor() {
     log.info('Initializing PPU');
-    this.basePalette = null;
-    this.colorEmphasis = 0; // Color palette BGR emphasis bits
-  }
 
-  connect(nes) {
-    log.info('Connecting PPU');
-    this.cpu = nes.cpu;
-    this.ppuMemory = nes.ppuMemory;
-  }
+    // State
+    this.scanline = 261;    // Current scanline - from total 262 scanlines (0..261)
+    this.cycle = 0;         // Current cycle - from total 341 cycles per scanline (0..340)
+    this.cycleFlags = 0;    // Flags for current cycle/scanline
+    this.oddFrame = false;  // Whether odd frame is being rendered
+    this.addressBus = 0;    // Current value of PPU address bus
+    this.clipTopBottom = false;    // Whether to clip 8  top/bottom visible scanlines (value depends on region)
+    this.vblankActive = false;     // Whether VBlank is active (not the same thing as VBlank flag)
+    this.vblankSuppressed = false; // Whether to suppress VBlank flag setting
+    this.nmiSuppressed = false;    // Whether to suppress NMI generation
+    this.nmiDelay = 0;             // Number of cycles after which NMI is generated
 
-  //=========================================================
-  // Reset
-  //=========================================================
+    // Frame buffer
+    this.frameBuffer = null;     // Frame buffer to write video output
+    this.frameAvailable = false; // Whether frame buffer was filled with data to render
+    this.framePosition = 0;      // Current position in frame buffer
 
-  reset() {
-    log.info('Resetting PPU');
-    this.resetOAM();
-    this.resetRegisters();
-    this.resetVariables();
-  }
+    // Palettes
+    this.basePalette = null;             // Base color palette
+    this.paletteVariants = new Array(8); // Palette for each combination of colors emphasis bits: BGR
+    this.palette = null;                 // Active palette
 
-  resetOAM() {
-    this.primaryOAM = new Uint8Array(0x100); // Sprite data - 256B (64 x 4B sprites)
+    // Sprites
+    this.spriteCount = 0;                        // Total number of sprites on current scanline
+    this.spriteNumber = 0;                       // Number of currently fetched sprite
+    this.spriteCache = new Array(261);           // Pre-processed sprite data for current scanline (cycle -> sprite rendered on this cycle)
+    this.spritePixelCache = new Uint8Array(261); // Pre-rendered sprite pixels for current scanline (cycle -> sprite pixel rendered on this cycle)
+
+    // Object attribute memory
+    this.primaryOAM = new Uint8Array(0x100); // Sprite data (256B = 64 x 4B sprites)
     this.secondaryOAM = new Array(8);        // Sprite data for rendered scanline (up to 8 sprites)
-    for (let i = 0; i < this.secondaryOAM.length; i++) {
-      this.secondaryOAM[i] = new Sprite;
-    }
-  }
 
-  resetRegisters() {
-    this.setControl(0);          //  8-bit PPUCTRL register
-    this.setMask(0);             //  8-bit PPUMASK register
-    this.setStatus(0);           //  8-bit PPUSTATUS register
+    // Registers
     this.oamAddress = 0;         // 15-bit OAMADDR register
     this.tempAddress = 0;        // 15-bit 'Loopy T' register
     this.vramAddress = 0;        // 15-bit 'Loopy V' register
@@ -63,20 +64,90 @@ export default class PPU {
     this.patternBufferNext1 = 0; // Next value for pattern (bit 1) shift buffer
     this.paletteLatchNext0 = 0;  // Next value for palette (bit 0) latch register
     this.paletteLatchNext1 = 0;  // Next value for palette (bit 1) latch register
+    this.patternRowAddress = 0;  // Address of current pattern row
+
+    // Bits of 8-bit PPUCTRL register
+    this.bigAddressIncrement = 0;   // C[2] VRAM address increment per CPU read/write of PPUDATA (1 / 32)
+    this.spPatternTableAddress = 0; // C[3] Sprite pattern table address for 8x8 sprites ($0000 / $1000)
+    this.bgPatternTableAddress = 0; // C[4] Background pattern table address-($0000 / $1000)
+    this.bigSprites = 0;            // C[5] Sprite size (8x8 / 8x16)
+    this.nmiEnabled = 0;            // C[7] Whether NMI is generated at the start of the VBlank
+
+    // Bits 8-bit PPUMASK register
+    this.monochromeMode = 0;     //  M[0]   Color / monochrome mode switch
+    this.backgroundClipping = 0; // !M[1]   Whether to hide background in leftmost 8 pixels of screen
+    this.spriteClipping = 0;     // !M[2]   Whether to hide sprites in leftmost 8 pixels of screen
+    this.backgroundVisible = 0;  //  M[3]   Whether background is visible
+    this.spritesVisible = 0;     //  M[4]   Whether sprites are visible
+    this.colorEmphasis = 0;      //  M[5-7] Color palette BGR emphasis bits
+
+    // Bits 8-bit PPUSTATUS register
+    this.spriteOverflow = 0; // S[5] Whether sprite overflow occurred during rendering
+    this.spriteZeroHit = 0;  // S[6] Whether a pixel of sprite #0 was rendered
+    this.vblankFlag = 0;     // S[7] Whether VBlank was entered
+
+    // Other units
+    this.cpu = null;
+    this.ppuMemory = null;
   }
 
-  resetVariables() {
-    this.scanline = 261;           // Current scanline - from total 262 scanlines (0..261)
-    this.cycle = 0;                // Current cycle - from total 341 cycles per scanline (0..340)
-    this.cycleFlags = 0;              // Flags for current cycle/scanline
-    this.vblankSuppressed = false; // Whether to suppress VBlank flag setting
-    this.nmiSuppressed = false;    // Whether to suppress NMI generation
-    this.nmiDelay = 0;             // Number of cycles after which NMI is generated
-    this.oddFrame = false;         // Whether odd frame is being rendered
-    this.spriteCount = 0;          // Total number of sprites on current scanline
-    this.spriteNumber = 0;         // Number of currently fetched sprite
-    this.spriteCache = new Array(261);           // Pre-processed sprite data for current scanline (cycle -> sprite rendered on this cycle)
-    this.spritePixelCache = new Uint8Array(261); // Pre-rendered sprite pixels for current scanline (cycle -> sprite pixel rendered on this cycle)
+  connect(nes) {
+    log.info('Connecting PPU');
+    this.cpu = nes.cpu;
+    this.ppuMemory = nes.ppuMemory;
+  }
+
+  //=========================================================
+  // Reset
+  //=========================================================
+
+  reset() {
+    log.info('Resetting PPU');
+    this.resetOAM();
+    this.resetRegisters();
+    this.resetState();
+  }
+
+  resetOAM() {
+    this.primaryOAM.fill(0);
+    for (let i = 0; i < this.secondaryOAM.length; i++) {
+      this.secondaryOAM[i] = new Sprite;
+    }
+  }
+
+  resetRegisters() {
+    this.setControl(0);
+    this.setMask(0);
+    this.setStatus(0);
+    this.oamAddress = 0;
+    this.tempAddress = 0;
+    this.vramAddress = 0;
+    this.vramReadBuffer = 0;
+    this.writeToggle = 0;
+    this.fineXScroll = 0;
+    this.patternBuffer0 = 0;
+    this.patternBuffer1 = 0;
+    this.paletteBuffer0 = 0;
+    this.paletteBuffer1 = 0;
+    this.paletteLatch0 = 0;
+    this.paletteLatch1 = 0;
+    this.patternBufferNext0 = 0;
+    this.patternBufferNext1 = 0;
+    this.paletteLatchNext0 = 0;
+    this.paletteLatchNext1 = 0;
+  }
+
+  resetState() {
+    this.scanline = 261;
+    this.cycle = 0;
+    this.cycleFlags = 0;
+    this.vblankSuppressed = false;
+    this.nmiSuppressed = false;
+    this.nmiDelay = 0;
+    this.oddFrame = false;
+    this.spriteCount = 0;
+    this.spriteNumber = 0;
+    this.clearSprites();
   }
 
   //=========================================================
@@ -104,7 +175,6 @@ export default class PPU {
   //=========================================================
 
   createPaletteVariants() {
-    this.paletteVariants = new Array(8); // Palette for each combination of colors emphasis bits: BGR
     for (let colorEmphasis = 0; colorEmphasis < this.paletteVariants.length; colorEmphasis++) {
       const rRatio = colorEmphasis & 6 ? 0.75 : 1.0; // Dim red when green or blue is emphasized
       const gRatio = colorEmphasis & 5 ? 0.75 : 1.0; // Dim green when red or blue is emphasized
@@ -123,19 +193,21 @@ export default class PPU {
 
   writeControl(value) {
     const nmiEnabledOld = this.nmiEnabled;
+
     this.setControl(value);
     this.tempAddress = (this.tempAddress & 0xF3FF) | ((value & 0x03) << 10); // T[11,10] = C[1,0]
+
     if (this.vblankFlag && !nmiEnabledOld && this.nmiEnabled && !(this.cycleFlags & Flag.VB_END)) {
       this.nmiDelay = 1; // Generate NMI after next instruction when its enabled (from 0 to 1) during VBlank
     }
   }
 
   setControl(value) {
-    this.bigAddressIncrement = (value >>> 2) & 1;       // C[2] VRAM address increment per CPU read/write of PPUDATA (1 / 32)
-    this.spPatternTableAddress = (value << 9) & 0x1000; // C[3] Sprite pattern table address for 8x8 sprites ($0000 / $1000)
-    this.bgPatternTableAddress = (value << 8) & 0x1000; // C[4] Background pattern table address-($0000 / $1000)
-    this.bigSprites = (value >>> 5) & 1;                // C[5] Sprite size (8x8 / 8x16)
-    this.nmiEnabled = value >>> 7;                      // C[7] Whether NMI is generated at the start of the VBlank
+    this.bigAddressIncrement = (value >>> 2) & 1;
+    this.spPatternTableAddress = (value << 9) & 0x1000;
+    this.bgPatternTableAddress = (value << 8) & 0x1000;
+    this.bigSprites = (value >>> 5) & 1;
+    this.nmiEnabled = value >>> 7;
   }
 
   //=========================================================
@@ -148,12 +220,12 @@ export default class PPU {
   }
 
   setMask(value) {
-    this.monochromeMode = value & 1;                //  M[0]   Color / monochrome mode switch
-    this.backgroundClipping = !((value >>> 1) & 1); // !M[1]   Whether to hide background in leftmost 8 pixels of screen
-    this.spriteClipping = !((value >>> 2) & 1);     // !M[2]   Whether to hide sprites in leftmost 8 pixels of screen
-    this.backgroundVisible = (value >>> 3) & 1;     //  M[3]   Whether background is visible
-    this.spritesVisible = (value >>> 4) & 1;        //  M[4]   Whether sprites are visible
-    this.colorEmphasis = (value >>> 5) & 7;         //  M[5-7] Color palette BGR emphasis bits
+    this.monochromeMode = value & 1;
+    this.backgroundClipping = ((~value >>> 1) & 1);
+    this.spriteClipping = ((~value >>> 2) & 1);
+    this.backgroundVisible = (value >>> 3) & 1;
+    this.spritesVisible = (value >>> 4) & 1;
+    this.colorEmphasis = (value >>> 5) & 7;
   }
 
   //=========================================================
@@ -162,27 +234,31 @@ export default class PPU {
 
   readStatus() {
     const value = this.getStatus();
+
     this.vblankFlag = 0; // Cleared by reading status
     this.writeToggle = 0; // Cleared by reading status
+
     if (this.cycleFlags & Flag.VB_START) {
       this.vblankSuppressed = true; // Reading just before VBlank disables VBlank flag setting
     }
+
     if (this.cycleFlags & Flag.VB_START2) {
       this.nmiSuppressed = true; // Reading just before VBlank and 2 cycles after disables NMI generation
     }
+
     return value;
   }
 
   getStatus() {
-    return (this.spriteOverflow << 5) // S[5]
-       | (this.spriteZeroHit << 6)    // S[6]
-       | (this.vblankFlag << 7);      // S[7]
+    return (this.spriteOverflow << 5)
+       | (this.spriteZeroHit << 6)
+       | (this.vblankFlag << 7);
   }
 
   setStatus(value) {
-    this.spriteOverflow = (value >>> 5) & 1; // S[5]
-    this.spriteZeroHit = (value >>> 6) & 1;  // S[6]
-    this.vblankFlag = value >>> 7;           // S[7]
+    this.spriteOverflow = (value >>> 5) & 1;
+    this.spriteZeroHit = (value >>> 6) & 1;
+    this.vblankFlag = value >>> 7;
   }
 
   //=========================================================
@@ -380,12 +456,12 @@ export default class PPU {
   }
 
   enterVBlank() {
-    this.vblankActive = true;
     if (!this.vblankSuppressed) {
       this.vblankFlag = 1;
     }
-    this.nmiDelay = 2;
+    this.vblankActive = true;
     this.frameAvailable = true;
+    this.nmiDelay = 2;
   }
 
   leaveVBlank() {
@@ -405,21 +481,27 @@ export default class PPU {
     if ((this.cycleFlags & Flag.SKIP) && this.oddFrame && this.isRenderingEnabled()) {
       this.cycle++; // One cycle skipped on odd frames
     }
+
     this.cycle++;
+
     if (this.cycle > 340) {
       this.incrementScanline();
     }
+
     this.cycleFlags = Flag.compute(this.scanline, this.cycle); // Update flags for the new scanline/cycle
   }
 
   incrementScanline() {
     this.cycle = 0;
     this.scanline++;
+
     if (this.scanline > 261) {
       this.incrementFrame();
     }
+
     if (this.scanline <= 239) {
       this.clearSprites();
+
       if (this.scanline > 0) {
         this.preRenderSprites(); // Sprites are not rendered on scanline 0
       }
@@ -511,22 +593,28 @@ export default class PPU {
   renderFramePixel() {
     const backgroundColorAddress = this.renderBackgroundPixel();
     const spriteColorAddress = this.renderSpritePixel();
+
     if (backgroundColorAddress & 0x03) {
       if (spriteColorAddress & 0x03) {
         const sprite = this.getRenderedSprite();
+
         if (sprite.zeroSprite && this.cycle !== 256) { // Sprite zero hit does not happen for (x = 255)
           this.spriteZeroHit = 1;
         }
+
         if (sprite.inFront) {
           return spriteColorAddress; // The sprite has priority over the background
         }
       }
+
       return backgroundColorAddress; // Only the background is visible or it has priority over the sprite
     }
+
     if (spriteColorAddress & 0x03) {
-      return spriteColorAddress;     // Only the sprite is visible
+      return spriteColorAddress; // Only the sprite is visible
     }
-    return 0;                        // Use backdrop color
+
+    return 0; // Use backdrop color
   }
 
   //=========================================================
@@ -590,19 +678,24 @@ export default class PPU {
 
   fetchNametable() {
     this.addressBus = 0x2000 | (this.vramAddress & 0x0FFF);
+
     const patternNumber = this.ppuMemory.readNametable(this.addressBus); // Nametable byte fetch
     const patternAddress = this.bgPatternTableAddress + (patternNumber << 4);
     const fineYScroll = (this.vramAddress >>> 12) & 0x07;
+
     this.patternRowAddress = patternAddress + fineYScroll;
   }
 
   fetchAttribute() {
     const attributeTableAddress = 0x23C0 | (this.vramAddress & 0x0C00);
     const attributeNumber = ((this.vramAddress >>> 4) & 0x38) | ((this.vramAddress >>> 2) & 0x07);
+
     this.addressBus = attributeTableAddress + attributeNumber;
+
     const attribute = this.ppuMemory.readNametable(this.addressBus); // Attribute byte fetch
     const areaNumber = ((this.vramAddress >>> 4) & 0x04) | (this.vramAddress & 0x02);
     const paletteNumber = (attribute >>> areaNumber) & 0x03;
+
     this.paletteLatchNext0 = paletteNumber & 1;
     this.paletteLatchNext1 = (paletteNumber >>> 1) & 1;
   }
@@ -673,6 +766,7 @@ export default class PPU {
 
     for (let address = 0; address < this.primaryOAM.length; address += 4) {
       const spriteY = this.primaryOAM[address] + 1;
+
       if (spriteY < topY || spriteY > bottomY) {
         continue;
       }
@@ -684,6 +778,7 @@ export default class PPU {
 
       let patternTableAddress = this.spPatternTableAddress;
       let patternNumber = this.primaryOAM[address + 1];
+
       if (this.bigSprites) {
         patternTableAddress = (patternNumber & 1) << 12;
         patternNumber &= 0xFE;
@@ -691,9 +786,11 @@ export default class PPU {
 
       const attributes = this.primaryOAM[address + 2];
       let rowNumber = bottomY - spriteY;
+
       if (attributes & 0x80) {
         rowNumber = height - rowNumber - 1; // Vertical flip
       }
+
       if (rowNumber >= 8) { // Overflow to the next (bottom) pattern
         rowNumber -= 8;
         patternNumber++;
@@ -708,6 +805,7 @@ export default class PPU {
 
       const patternAddress = patternTableAddress + (patternNumber << 4);
       sprite.patternRowAddress = patternAddress + rowNumber;
+
       this.spriteCount++;
     }
   }
@@ -733,27 +831,30 @@ export default class PPU {
   }
 
   clearSprites() {
-    for (let i = 0; i < this.spriteCache.length; i++) {
-      this.spriteCache[i] = null;
-      this.spritePixelCache[i] = 0;
-    }
+    this.spriteCache.fill(null);
+    this.spritePixelCache.fill(0);
   }
 
   preRenderSprites() {
     for (let i = 0; i < this.spriteCount; i++) {
       const sprite = this.secondaryOAM[i];
+
       for (let j = 0; j < 8; j++) {
         const cycle = sprite.x + j + 1;
+
         if (cycle > VIDEO_WIDTH) {
           break;
         }
+
         if (this.spriteCache[cycle]) {
           continue;
         }
+
         const columnNumber = sprite.horizontalFlip ? j : j ^ 0x07;
         const colorBit0 = (sprite.patternRow0 >>> columnNumber) & 1;
         const colorBit1 = ((sprite.patternRow1 >>> columnNumber) & 1) << 1;
         const colorNumber = colorBit1 | colorBit0;
+
         if (colorNumber) {
           this.spriteCache[cycle] = sprite;
           this.spritePixelCache[cycle] = sprite.paletteNumber | colorNumber;
@@ -789,9 +890,11 @@ export default class PPU {
   renderPatterns() {
     for (let tileY = 0; tileY < 16; tileY++) {
       const baseY = tileY << 3;
+
       for (let tileX = 0; tileX < 32; tileX++) {
         const baseX = tileX << 3;
         const address = (((tileX & 0x10) << 4) | (tileY << 4) | (tileX & 0x0F)) << 4;
+
         this.renderPatternTile(baseX, baseY, address);
       }
     }
@@ -802,12 +905,14 @@ export default class PPU {
       const y = baseY + rowNumber;
       const patternBuffer0 = this.ppuMemory.readPattern(address + rowNumber);
       const patternBuffer1 = this.ppuMemory.readPattern(address + rowNumber + 8);
+
       for (let columnNumber = 0; columnNumber < 8; columnNumber++) {
         const x = baseX + columnNumber;
         const bitPosition = columnNumber ^ 0x07;
         const colorBit0 = (patternBuffer0 >> bitPosition) & 0x01;
         const colorBit1 = ((patternBuffer1 >> bitPosition) & 0x01) << 1;
         const color = this.ppuMemory.readPalette(colorBit1 | colorBit0);
+
         this.setFramePixelOnPosition(x, y, color);
       }
     }
@@ -816,9 +921,11 @@ export default class PPU {
   renderPalettes() {
     for (let tileY = 0; tileY < 4; tileY++) {
       const baseY = (tileY * 28) + 128;
+
       for (let tileX = 0; tileX < 8; tileX++) {
         const baseX = tileX << 5;
         const color = this.ppuMemory.readPalette((tileY << 3) | tileX);
+
         this.renderPaletteTile(baseX, baseY, color);
       }
     }

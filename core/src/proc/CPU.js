@@ -19,7 +19,42 @@ export default class CPU {
 
   constructor() {
     log.info('Initializing CPU');
+
+    // Table of all CPU operations
+    this.operations = new Array(0xFF);
     this.initOperations();
+
+    // State
+    this.halted = false;       // Whether CPU was halter by KIL operation code
+    this.operationFlags = 0;   // Flags of the currently executed operation
+    this.activeInterrupts = 0; // Bitmap of active interrupts (each type of interrupt has its own bit)
+    this.irqDisabled = 0;      // Value that is read from the interrupt flag (see below) at the start of last cycle of each instruction
+    this.pageCrossed = 0;      // Whether page was crossed during address computation
+
+    // Registers
+    this.programCounter = 0; // 16-bit address of the next instruction to read
+    this.stackPointer = 0;   //  8-bit address of top of the stack
+    this.accumulator = 0;    //  8-bit accumulator register
+    this.registerX = 0;      //  8-bit X register
+    this.registerY = 0;      //  8-bit Y register
+
+    // Bits of 8-bit status register
+    // - S[4] and S[5] are not physically stored in status register
+    // - S[4] is written on stack as 1 during PHP/BRK instructions (break command flag)
+    // - S[5] is written on stack as 1 during PHP/BRK instructions and IRQ/NMI
+    this.carryFlag = 0;     // S[0] Carry bit of the last operation
+    this.zeroFlag = 0;      // S[1] Whether result of the last operation was zero
+    this.interruptFlag = 0; // S[2] Whether all IRQ are disabled (this does not affect NMI/reset)
+    this.decimalFlag = 0;   // S[3] NES CPU actually does not use this flag, but it's stored in status register and modified by CLD/SED instructions
+    this.overflowFlag = 0;  // S[6] Whether result of the last operation caused overflow
+    this.negativeFlag = 0;  // S[7] Whether result of the last operation was negative number (bit 7 of the result was 1)
+
+    // Other units
+    this.mapper = null;
+    this.cpuMemory = null;
+    this.dma = null;
+    this.ppu = null;
+    this.apu = null;
   }
 
   connect(nes) {
@@ -40,39 +75,41 @@ export default class CPU {
 
   reset() {
     log.info('Resetting CPU');
-    this.resetRegisters();
-    this.resetVariables();
+    this.resetState();
     this.resetMemory();
-    this.handleReset(); // Will appropriately initialize some CPU registers and $4015/$4017 registers (see bellow)
+    this.handleReset();
   }
 
-  resetRegisters() {
-    this.programCounter = 0; // 16-bit (will be initialized to value at address 0xFFFC during handleReset())
-    this.stackPointer = 0;   //  8-bit (will be set to 0x7D during handleReset())
-    this.accumulator = 0;    //  8-bit
-    this.registerX = 0;      //  8-bit
-    this.registerY = 0;      //  8-bit
-    this.setStatus(0);       //  8-bit (will be initialized to 0x34 during handleReset(); actually, only bit 2 will be set,
-    //                           because bits 4 and 5 are not physically stored in status register)
-  }
-
-  resetVariables() {
-    this.activeInterrupts = 0; // Bitmap of active interrupts (each type of interrupt has its own bit)
-    this.halted = false;       // Whether KIL opcode was read
+  resetState() {
+    this.activeInterrupts = 0;
+    this.halted = false;
+    // Program counter will be set to a value at address 0xFFFC during handleReset call
+    this.stackPointer = 0; // Will be set to 0x7D during handleReset call
+    this.accumulator = 0;
+    this.registerX = 0;
+    this.registerY = 0;
+    this.setStatus(0); // will be set to 0x34 during handleReset call
   }
 
   resetMemory() {
-    for (let i = 0x0000; i < 0x0800; i++) {
+    for (let i = 0x0000; i < 0x0008; i++) {
       this.cpuMemory.write(i, 0xFF);
     }
-    for (let i = 0x4000; i < 0x4010; i++) {
-      this.cpuMemory.write(i, 0x00);
-    }
+
     this.cpuMemory.write(0x0008, 0xF7);
     this.cpuMemory.write(0x0009, 0xEF);
     this.cpuMemory.write(0x000A, 0xDF);
     this.cpuMemory.write(0x000F, 0xBF);
-    // Writes to $4015 and $4017 are done during handleReset()
+
+    for (let i = 0x0010; i < 0x0800; i++) {
+      this.cpuMemory.write(i, 0xFF);
+    }
+
+    for (let i = 0x4000; i < 0x4010; i++) {
+      this.cpuMemory.write(i, 0x00);
+    }
+
+    // Writes to $4015 and $4017 are done during handleReset call
   }
 
   //=========================================================
@@ -250,27 +287,23 @@ export default class CPU {
   // Status register
   //=========================================================
 
-  // Bits 4 and 5 are not physically stored in status register
-  // - bit 4 is written on stack as 1 during PHP/BRK instructions (break command flag)
-  // - bit 5 is written on stack as 1 during PHP/BRK instructions and IRQ/NMI
-
   getStatus() {
-    return this.carryFlag          // S[0] - carry bit of the last operation
-       | (this.zeroFlag << 1)       // S[1] - whether result of the last operation was zero
-       | (this.interruptFlag << 2)  // S[2] - whether all IRQ are disabled (this does not affect NMI/reset)
-       | (this.decimalFlag << 3)    // S[3] - NES CPU actually does not use this flag, but it's stored in status register and modified by CLD/SED instructions
-       | (1 << 5)                   // S[5] - always 1, see comment above
-       | (this.overflowFlag << 6)   // S[6] - whether result of the last operation caused overflow
-       | (this.negativeFlag << 7);  // S[7] - whether result of the last operation was negative number (bit 7 of the result was 1)
+    return this.carryFlag
+       | (this.zeroFlag << 1)
+       | (this.interruptFlag << 2)
+       | (this.decimalFlag << 3)
+       | (1 << 5)
+       | (this.overflowFlag << 6)
+       | (this.negativeFlag << 7);
   }
 
   setStatus(value) {
-    this.carryFlag = value & 1;             // S[0]
-    this.zeroFlag = (value >>> 1) & 1;      // S[1]
-    this.interruptFlag = (value >>> 2) & 1; // S[2]
-    this.decimalFlag = (value >>> 3) & 1;   // S[3]
-    this.overflowFlag = (value >>> 6) & 1;  // S[6]
-    this.negativeFlag = value >>> 7;        // S[7]
+    this.carryFlag = value & 1;
+    this.zeroFlag = (value >>> 1) & 1;
+    this.interruptFlag = (value >>> 2) & 1;
+    this.decimalFlag = (value >>> 3) & 1;
+    this.overflowFlag = (value >>> 6) & 1;
+    this.negativeFlag = value >>> 7;
   }
 
   //=========================================================
@@ -578,7 +611,7 @@ export default class CPU {
 
   BIT(address) {
     const value = this.readByte(address);
-    this.zeroFlag = (this.accumulator & value) === 0;
+    this.zeroFlag = (!(this.accumulator & value)) | 0;
     this.overflowFlag = (value >>> 6) & 1;
     this.negativeFlag = value >>> 7;
   }
@@ -692,7 +725,7 @@ export default class CPU {
   //=========================================================
 
   BRK() {
-    this.moveProgramCounter(1);             // BRK is 2 byte instruction (skip the unused byte)
+    this.moveProgramCounter(1);  // BRK is 2 byte instruction (skip the unused byte)
     this.pushWord(this.programCounter);
     this.pushByte(this.getStatus() | 0x10); // Push status with bit 4 on (break command flag)
     this.irqDisabled = 1;   // Immediate change to IRQ disablement
@@ -882,7 +915,7 @@ export default class CPU {
   }
 
   updateZeroAndNegativeFlag(value) {
-    this.zeroFlag = (value & 0xFF) === 0;
+    this.zeroFlag = (!(value & 0xFF)) | 0;
     this.negativeFlag = (value >>> 7) & 1;
   }
 
@@ -891,8 +924,6 @@ export default class CPU {
   //=========================================================
 
   initOperations() {
-    this.operations = new Array(0xFF);
-
     //=========================================================
     // No operation instruction
     //=========================================================
