@@ -25,6 +25,7 @@ export {
   isPaletteName,
   packColor,
   unpackColor,
+  DEFAULT_PALETTE,
   BLACK_COLOR,
   VIDEO_WIDTH,
   VIDEO_HEIGHT,

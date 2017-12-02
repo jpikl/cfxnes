@@ -33,11 +33,13 @@ const palettes = {
 
 /* eslint-enable camelcase */
 
+export const DEFAULT_PALETTE = 'fceux';
+
 export function isPaletteName(name) {
   return name in palettes;
 }
 
-export function createPalette(name = 'fceux') {
+export function createPalette(name = DEFAULT_PALETTE) {
   const base64 = palettes[name];
   if (base64) {
     log.info(`Creating "${name}" palette`);

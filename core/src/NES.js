@@ -21,7 +21,7 @@ export default class NES {
     this.region = null;
 
     this.connectUnits();
-    this.updateRegionParams();
+    this.applyRegion();
   }
 
   //=========================================================
@@ -52,7 +52,7 @@ export default class NES {
 
   setRegion(region) {
     this.region = region;
-    this.updateRegionParams();
+    this.applyRegion();
   }
 
   getRegion() {
@@ -63,7 +63,7 @@ export default class NES {
     return this.region || (this.cartridge && this.cartridge.region) || Region.NTSC;
   }
 
-  updateRegionParams() {
+  applyRegion() {
     log.info('Updating region parameters');
     const region = this.getUsedRegion();
     const params = Region.getParams(region);
@@ -89,7 +89,7 @@ export default class NES {
       this.cartridge = cartridge;
       this.mapper = createMapper(cartridge);
       this.mapper.connect(this);
-      this.updateRegionParams();
+      this.applyRegion();
       this.power();
     }
   }
