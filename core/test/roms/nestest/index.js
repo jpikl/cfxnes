@@ -49,7 +49,7 @@ class NestestCPU extends CPU {
     this.programCounter = 0xC000; // Where the test starts
   }
 
-  executeOperation(operation) {
+  executeOperation([instruction, addressingMode]) {
     const A = byteAsHex(this.accumulator);
     const X = byteAsHex(this.registerX);
     const Y = byteAsHex(this.registerY);
@@ -57,15 +57,15 @@ class NestestCPU extends CPU {
     const SP = byteAsHex(this.stackPointer);
     const PC = this.programCounter - 1;
 
-    const addr = operation.addressingMode.call(this);
-    const instr = operation.instruction.name;
+    const addr = addressingMode.call(this);
+    const instr = instruction.name;
     const size = this.programCounter - PC;
 
     const data0 = byteAsHex(this.readByte(PC));
     const data1 = size > 1 ? byteAsHex(this.readByte((PC + 1) & 0xFFFF)) : '  ';
     const data2 = size > 2 ? byteAsHex(this.readByte((PC + 2) & 0xFFFF)) : '  ';
 
-    operation.instruction.call(this, addr);
+    instruction.call(this, addr);
 
     fs.writeSync(this.log, `${wordAsHex(PC)}  ${data0} ${data1} ${data2}  ${instr}  A:${A} X:${X} Y:${Y} P:${P} SP:${SP}\n`);
   }
