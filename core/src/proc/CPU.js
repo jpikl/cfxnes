@@ -185,17 +185,21 @@ export default class CPU {
   readAndExecuteOperation() {
     const operation = this.readOperation();
     if (operation) {
-      // The interrupt flag is checked at the start of last cycle of each instruction.
-      // RTI and BRK instructions set the flag before it's read, so the change is immediately visible.
-      // CLI, SEI and PLP instructions set the flag after it's read, so the change is delayed.
-      // Most of instructions do not modify the flag, so we set the read value for them here.
-      this.irqDisabled = this.interruptFlag;
-      this.operationFlags = operation.flags;
+      this.beforeOperation(operation);
       this.executeOperation(operation);
     } else {
       log.warn('CPU halted!');
       this.halted = true; // CPU halt (KIL operation code)
     }
+  }
+
+  beforeOperation(operation) {
+    // The interrupt flag is checked at the start of last cycle of each instruction.
+    // RTI and BRK instructions set the flag before it's read, so the change is immediately visible.
+    // CLI, SEI and PLP instructions set the flag after it's read, so the change is delayed.
+    // Most of instructions do not modify the flag, so we set the read value for them here.
+    this.irqDisabled = this.interruptFlag;
+    this.operationFlags = operation.flags;
   }
 
   executeOperation(operation) {
