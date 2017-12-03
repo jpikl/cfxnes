@@ -38,8 +38,8 @@ export default class PPU {
     this.palette = null;                 // Active palette
 
     // Sprites
-    this.spriteCount = 0;                        // Total number of sprites on current scanline
-    this.spriteNumber = 0;                       // Number of currently fetched sprite
+    this.spriteCount = 0;  // Total number of sprites on current scanline
+    this.spriteNumber = 0; // Number of currently fetched sprite
     this.spriteCache = new Array(261);           // Pre-processed sprite data for current scanline (cycle -> sprite rendered on this cycle)
     this.spritePixelCache = new Uint8Array(261); // Pre-rendered sprite pixels for current scanline (cycle -> sprite pixel rendered on this cycle)
 
@@ -52,7 +52,7 @@ export default class PPU {
     this.tempAddress = 0;        // 15-bit 'Loopy T' register
     this.vramAddress = 0;        // 15-bit 'Loopy V' register
     this.vramReadBuffer = 0;     //  8-bit VRAM read buffer
-    this.writeToggle = 0;        //  1-bit 'Loopy W' register
+    this.writeToggle = false;    //  1-bit 'Loopy W' register
     this.fineXScroll = 0;        //  3-bit 'Loopy X' register
     this.patternBuffer0 = 0;     // 16-bit pattern (bit 0) shift buffer
     this.patternBuffer1 = 0;     // 16-bit pattern (bit 1) shift buffer
@@ -123,7 +123,7 @@ export default class PPU {
     this.tempAddress = 0;
     this.vramAddress = 0;
     this.vramReadBuffer = 0;
-    this.writeToggle = 0;
+    this.writeToggle = false;
     this.fineXScroll = 0;
     this.patternBuffer0 = 0;
     this.patternBuffer1 = 0;
@@ -236,7 +236,7 @@ export default class PPU {
     const value = this.getStatus();
 
     this.vblankFlag = 0; // Cleared by reading status
-    this.writeToggle = 0; // Cleared by reading status
+    this.writeToggle = false; // Cleared by reading status
 
     if (this.cycleFlags & Flag.VB_START) {
       this.vblankSuppressed = true; // Reading just before VBlank disables VBlank flag setting

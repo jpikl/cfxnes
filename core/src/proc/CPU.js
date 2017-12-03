@@ -878,7 +878,7 @@ export default class CPU {
 
   compareRegisterAndOperand(register, operand) {
     const result = register - operand;
-    this.carryFlag = result >= 0; // Unsigned comparison (bit 8 is actually the result sign)
+    this.carryFlag = (result >= 0) | 0; // Unsigned comparison (bit 8 is actually the result sign)
     this.updateZeroAndNegativeFlag(result); // Not a signed comparison
     return result & 0xFF;
   }
