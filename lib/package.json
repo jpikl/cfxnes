@@ -51,7 +51,7 @@
     "core-js": "^2.5.1",
     "eslint": "^4.11.0",
     "eslint-plugin-import": "^2.8.0",
-    "google-closure-compiler": "^20171112.0.0",
+    "google-closure-compiler": "^20171203.0.0",
     "ip": "^1.1.5",
     "jszip": "^3.1.5",
     "karma": "^1.7.1",

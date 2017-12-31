@@ -1,1 +1,18 @@
-module.exports = require('./src');
+export {
+  NES,
+  Button,
+  Joypad,
+  Zapper,
+  createCartridge,
+  createPalette,
+  isPaletteName,
+  Region,
+  LogLevel,
+  log,
+  formatSize,
+  describe,
+  DEFAULT_PALETTE,
+  BLACK_COLOR,
+  VIDEO_WIDTH,
+  VIDEO_HEIGHT,
+} from './src';

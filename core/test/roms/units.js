@@ -9,7 +9,6 @@ import {
   createPalette,
   VIDEO_WIDTH,
   VIDEO_HEIGHT,
-  VIDEO_BUFFER_SIZE,
 } from '../../src';
 
 export {CPU, PPU, APU};
@@ -19,7 +18,7 @@ export class MemoryOutputPPU extends PPU {
   connect(nes) {
     super.connect(nes);
     this.setBasePalette(createPalette());
-    this.setFrameBuffer(new Uint32Array(VIDEO_BUFFER_SIZE));
+    this.setFrameBuffer(new Uint32Array(VIDEO_WIDTH * VIDEO_HEIGHT));
   }
 
   writeFrameToFile(file) {

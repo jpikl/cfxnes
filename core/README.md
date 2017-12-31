@@ -41,12 +41,12 @@ nes.setCartridge(cartridge2);
 Video output is rendered into provided `Uint32Array(256 * 240)` buffer. Color of each pixel is encoded as 32-bit unsigned integer in RGBA format. Their values are generated using specified `Uint32Array(64)` palette.
 
 ``` javascript
-import {createPalette, VIDEO_BUFFER_SIZE} from 'cfxnes-core';
+import {createPalette, VIDEO_WIDTH, VIDEO_HEIGHT} from 'cfxnes-core';
 
 const palette = createPalette('fceux'); // Predefined palette
 nes.setPalette(palette);
 
-const videoBuffer = new Uint32Array(VIDEO_BUFFER_SIZE);
+const videoBuffer = new Uint32Array(VIDEO_WIDTH * VIDEO_HEIGHT);
 while (running) {
     nes.renderFrame(videoBuffer);
     // Display video buffer

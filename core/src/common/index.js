@@ -11,6 +11,5 @@ export {
   detectEndianness,
   decodeBase64,
   formatSize,
-  roundUpToPow2,
   describe,
 } from './utils';

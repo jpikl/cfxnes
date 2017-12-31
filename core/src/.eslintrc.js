@@ -1,7 +1,4 @@
 module.exports = {
-  parserOptions: {
-    sourceType: 'module',
-  },
   env: {
     // The core should not generally depend on any browser or node API.
     // There are some exceptions:

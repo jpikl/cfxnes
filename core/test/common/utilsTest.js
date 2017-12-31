@@ -5,7 +5,6 @@ import {
   detectEndianness,
   decodeBase64,
   formatSize,
-  roundUpToPow2,
   describe,
 } from '../../src/common/utils';
 
@@ -38,13 +37,6 @@ describe('common/utils', () => {
     expect(formatSize(-3 * 1024)).to.equal('-3 KB');
     expect(formatSize(-7 * 1024 * 1024)).to.equal('-7 MB');
     expect(formatSize('not a number')).to.be.undefined;
-  });
-
-  it('rounds up numbers to a power of 2', () => {
-    expect(roundUpToPow2(0)).to.equal(1);
-    expect(roundUpToPow2(1)).to.equal(1);
-    expect(roundUpToPow2(513)).to.equal(1024);
-    expect(roundUpToPow2(1024)).to.equal(1024);
   });
 
   it('describes value', () => {

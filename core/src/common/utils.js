@@ -35,14 +35,6 @@ function roundSize(number) {
   return (~~(1000 * number)) / 1000;
 }
 
-export function roundUpToPow2(number) {
-  let result = 1;
-  while (result < number) {
-    result *= 2;
-  }
-  return result;
-}
-
 export function describe(value) {
   const type = typeof value;
   if (type === 'string') {
