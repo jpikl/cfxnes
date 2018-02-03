@@ -178,22 +178,6 @@ export default class NES {
   // Audio output
   //=========================================================
 
-  setAudioEnabled(enabled) {
-    this.apu.setOutputEnabled(enabled);
-  }
-
-  isAudioEnabled() {
-    return this.apu.isOutputEnabled();
-  }
-
-  setAudioBufferSize(size) {
-    this.apu.setBufferSize(size);
-  }
-
-  getAudioBufferSize() {
-    return this.apu.getBufferSize();
-  }
-
   setAudioSampleRate(rate) {
     this.apu.setSampleRate(rate);
   }
@@ -202,16 +186,20 @@ export default class NES {
     return this.apu.getSampleRate();
   }
 
+  setAudioCallback(callback) {
+    this.apu.setCallback(callback);
+  }
+
+  getAudioCallback() {
+    return this.apu.getCallback();
+  }
+
   setAudioVolume(channel, volume) {
     this.apu.setVolume(channel, volume);
   }
 
   getAudioVolume(channel) {
     return this.apu.getVolume(channel);
-  }
-
-  readAudioBuffer() {
-    return this.apu.readBuffer();
   }
 
   //=========================================================

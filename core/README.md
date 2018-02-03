@@ -56,17 +56,11 @@ while (running) {
 
 ## Audio Output
 
-Audio samples are automatically stored into internal `Float32Array`. This buffer should be periodically read and sent to sound card. To prevent buffer underflow/overflow, the initial sampling rate is being continuously adjusted.
+During the rendering loop, audio samples are generated at a specified rate. These samples are then passed to a provided callback function.
 
 ``` javascript
-nes.setAudioBufferSize(4096); // 4K audio buffer
 nes.setAudioSampleRate(44100); // 44.1 KHz sampling rate
-nes.setAudioEnabled(true); // Disabled by default
-
-function audioCallback() {
-    const audioBuffer = nes.readAudioBuffer();
-    // Supply audio samples to sound card
-}
+nes.setAudioCallback(audioSample => { /* Handle audio sample. */ });
 
 // Rendering loop
 ```

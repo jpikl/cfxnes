@@ -93,26 +93,6 @@ describe('NES (no cartridge)', () => {
     nes.renderDebugFrame(frameBuffer);
   });
 
-  it('has audio disabled by default', () => {
-    expect(nes.isAudioEnabled()).to.be.false;
-  });
-
-  it('enables/disables audio', () => {
-    nes.setAudioEnabled(true);
-    expect(nes.isAudioEnabled()).to.be.true;
-    nes.setAudioEnabled(false);
-    expect(nes.isAudioEnabled()).to.be.false;
-  });
-
-  it('has zero audio buffer size by default', () => {
-    expect(nes.getAudioBufferSize()).to.equal(0);
-  });
-
-  it('changes audio buffer size', () => {
-    nes.setAudioBufferSize(4096);
-    expect(nes.getAudioBufferSize()).to.equal(4096);
-  });
-
   it('has zero audio sampling rate by default', () => {
     expect(nes.getAudioSampleRate()).to.equal(0);
   });
@@ -120,6 +100,26 @@ describe('NES (no cartridge)', () => {
   it('changes audio sampling rate', () => {
     nes.setAudioSampleRate(44100);
     expect(nes.getAudioSampleRate()).to.equal(44100);
+  });
+
+  it('has no audio callback by default', () => {
+    expect(nes.getAudioCallback()).to.be.null;
+  });
+
+  it('changes audio callback', () => {
+    function callback() {}
+    nes.setAudioCallback(callback);
+    expect(nes.getAudioCallback()).to.equal(callback);
+    nes.setAudioCallback(null);
+    expect(nes.getAudioCallback()).to.be.null;
+  });
+
+  it('does not call audio callback during frame generation', () => {
+    let callbackCounter = 0;
+    nes.setAudioSampleRate(44100);
+    nes.setAudioCallback(() => { callbackCounter++; });
+    nes.renderFrame(frameBuffer);
+    expect(callbackCounter).to.equal(0);
   });
 
   for (const channel of channels) {
@@ -135,31 +135,19 @@ describe('NES (no cartridge)', () => {
     });
   }
 
-  it('reads empty audio buffer', () => {
-    nes.setAudioBufferSize(4096);
-    nes.setAudioSampleRate(44100);
-    expect(nes.readAudioBuffer()).to.deep.equal(new Float32Array(4096));
-  });
-
   it('returns null NVRAM', () => {
     expect(nes.getNVRAM()).to.be.null;
   });
 });
 
 describe('NES (cartridge set, no NVRAM)', () => {
-  let nes, cartridge, frameBuffer, palette, generateAudioOutput;
+  let nes, cartridge, frameBuffer, palette;
 
   before(() => {
     cartridge = readCartridge('./test/roms/nestest/nestest.nes');
     cartridge.region = Region.PAL;
     frameBuffer = new Uint32Array(256 * 240);
     palette = new Uint32Array(64);
-    let audioOutput = 0.5;
-    generateAudioOutput = () => {
-      const value = audioOutput;
-      audioOutput = -audioOutput;
-      return value;
-    };
   });
 
   beforeEach(() => {
@@ -204,24 +192,16 @@ describe('NES (cartridge set, no NVRAM)', () => {
     nes.renderDebugFrame(frameBuffer);
   });
 
-  it('fills audio buffer with constant value when audio is disabled', () => {
-    nes.setAudioBufferSize(4096);
+  it('calls audio callback during frame generation', () => {
+    let callbackCounter = 0;
     nes.setAudioSampleRate(44100);
-    nes.setAudioEnabled(false);
-    nes.apu.getOutput = generateAudioOutput;
+    nes.setAudioCallback(sample => {
+      expect(sample).to.be.at.least(0);
+      callbackCounter++;
+    });
     nes.setPalette(palette);
     nes.renderFrame(frameBuffer);
-    expect(nes.readAudioBuffer()).to.deep.equal(new Float32Array(4096).fill(0.5));
-  });
-
-  it('fills audio buffer with generated values when audio is enabled', () => {
-    nes.setAudioBufferSize(4096);
-    nes.setAudioSampleRate(44100);
-    nes.setAudioEnabled(true);
-    nes.apu.getOutput = generateAudioOutput;
-    nes.setPalette(palette);
-    nes.renderFrame(frameBuffer);
-    expect(nes.readAudioBuffer()).not.to.deep.equal(new Float32Array(4096).fill(0.5));
+    expect(callbackCounter).to.be.at.least(500);
   });
 
   it('returns null NVRAM', () => {

@@ -1,6 +1,8 @@
-import {log, formatSize} from '../common';
+import {log} from '../common';
 import {IRQ_APU} from '../proc/interrupts';
 import {Pulse, Triangle, Noise, DMC} from './channels';
+
+const TICKS_PER_FRAME = 29829.55; // Number of CPU ticks per one video frame
 
 export default class APU {
 
@@ -28,17 +30,10 @@ export default class APU {
     this.frameIrqActive = false;     // Whether frame IRQ is active
     this.frameIrqDisabled = false;   // Whether frame IRQ generation is inhibited
 
-    this.outputEnabled = false;    // Whether output is being generated
-    this.cpuFrequency = 0;         // CPU frequency (depends on region)
-    this.sampleRate = 0;           // How often are samples taken (samples per second [Hz])
-    this.sampleRateAdjustment = 0; // Sample rate adjustment per 1 output value (buffer underflow/overflow prevention)
-
-    this.bufferSize = 0;           // Size of record and output buffer
-    this.bufferPosition = 0;       // Position of the next sample in buffer
-    this.bufferIncrement = 0;      // Sum of increments for the next buffer position
-    this.recordBuffer = null;      // Buffer where audio samples are being stored
-    this.outputBuffer = null;      // Buffer with audio samples ready to output
-    this.outputBufferFull = false; // Whether the output buffer is full
+    this.sampleRate = 0;     // How often are samples taken (samples per second [Hz])
+    this.ticksToOutput = 0;  // Number of ticks before the next output value is generated
+    this.ticksPerSecond = 0; // Number of ticks per second
+    this.callback = null;    // Callback called when output buffer is full
 
     this.cpu = null;
   }
@@ -75,43 +70,28 @@ export default class APU {
 
     this.frameCounterMax4 = params.frameCounterMax4;
     this.frameCounterMax5 = params.frameCounterMax5;
-    this.cpuFrequency = params.cpuFrequency;
+    this.ticksPerSecond = TICKS_PER_FRAME * params.framesPerSecond;
 
     this.noise.setRegionParams(params);
     this.dmc.setRegionParams(params);
   }
 
-  setOutputEnabled(enabled) {
-    log.info(`APU output ${enabled ? 'on' : 'off'}`);
-    this.outputEnabled = enabled;
-  }
-
-  isOutputEnabled() {
-    return this.outputEnabled;
-  }
-
-  setBufferSize(size) {
-    log.info(`Setting APU buffer size to ${formatSize(size)}`);
-    this.bufferSize = size;
-    this.bufferPosition = 0;
-    this.bufferIncrement = 0;
-    this.recordBuffer = new Float32Array(size);
-    this.outputBuffer = new Float32Array(size);
-    this.outputBufferFull = false;
-  }
-
-  getBufferSize() {
-    return this.bufferSize;
-  }
-
   setSampleRate(rate) {
-    log.info(`Setting APU sampling rate to ${rate} Hz`);
+    // No log message here, this might get called quite frequently
     this.sampleRate = rate;
-    this.sampleRateAdjustment = 0;
   }
 
   getSampleRate() {
     return this.sampleRate;
+  }
+
+  setCallback(callback) {
+    log.info((callback ? 'Setting' : 'Removing') + ' APU callback');
+    this.callback = callback;
+  }
+
+  getCallback() {
+    return this.callback;
   }
 
   setVolume(id, volume) {
@@ -295,9 +275,7 @@ export default class APU {
     this.noise.tick();
     this.dmc.tick();
 
-    if (this.outputEnabled) {
-      this.recordOutput();
-    }
+    this.tickOutput();
   }
 
   tickFrameCounter() {
@@ -367,6 +345,13 @@ export default class APU {
   // Output
   //=========================================================
 
+  tickOutput() {
+    if (this.callback && --this.ticksToOutput <= 0) {
+      this.ticksToOutput += this.ticksPerSecond / this.sampleRate;
+      this.callback(this.getOutput());
+    }
+  }
+
   getOutput() {
     let output = 0;
 
@@ -386,55 +371,6 @@ export default class APU {
     }
 
     return output;
-  }
-
-  //=========================================================
-  // Recording
-  //=========================================================
-
-  recordOutput() {
-    this.bufferIncrement += this.sampleRate / this.cpuFrequency;
-
-    if (this.bufferIncrement >= 1) {
-      let increment = ~~this.bufferIncrement;
-      this.bufferIncrement -= increment;
-      const output = this.getOutput();
-
-      while (increment--) {
-        if (this.bufferPosition === this.bufferSize) {
-          if (this.outputBufferFull) {
-            break; // Buffer overflow
-          }
-          this.swapBuffers();
-        }
-
-        this.recordBuffer[this.bufferPosition++] = output;
-        this.sampleRate += this.sampleRateAdjustment;
-      }
-    }
-  }
-
-  swapBuffers() {
-    [this.recordBuffer, this.outputBuffer] = [this.outputBuffer, this.recordBuffer];
-    this.outputBufferFull = true;
-    this.bufferPosition = 0;
-  }
-
-  readBuffer() {
-    if (!this.outputBufferFull) {
-      const output = this.getOutput();
-      this.recordBuffer.fill(output, this.bufferPosition); // Buffer underflow
-      this.swapBuffers();
-    }
-    this.adjustSampleRate();
-    this.outputBufferFull = false;
-    return this.outputBuffer;
-  }
-
-  adjustSampleRate() {
-    // Our goal is to have right now about 50% of data in buffer
-    const percentageDifference = 0.5 - (this.bufferPosition / this.bufferSize); // Difference from the expected value
-    this.sampleRateAdjustment = 100 * percentageDifference / this.bufferSize; // Adjustment per 1 output value in buffer
   }
 
 }
