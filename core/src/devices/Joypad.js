@@ -1,5 +1,10 @@
 import {log} from '../common';
 
+/**
+ * Joypad button.
+ *
+ * @enum {number}
+*/
 export const Button = {
   A: 0,
   B: 1,
@@ -11,36 +16,70 @@ export const Button = {
   RIGHT: 7,
 };
 
+/**
+ * Standard controller aka Joypad.
+ */
 export default class Joypad {
 
+  /**
+   * Constructor.
+   */
   constructor() {
+    /** @type {!Uint8Array} memory containing state of all buttons */
     this.buttonStates = new Uint8Array(24);
     this.buttonStates[19] = 1;
+    /** @type {number} current reading position in joypad memory */
     this.readPosition = 0;
   }
 
+  /**
+   * Connects joypad to NES.
+   */
   connect() {
     log.info('Connecting joypad');
   }
 
+  /**
+   * Disconnects joypad from NES.
+   */
   disconnect() {
     log.info('Disconnecting joypad');
   }
 
+  /**
+   * Sends strobe signal to joypad.
+   */
   strobe() {
     this.readPosition = 0;
   }
 
+  /**
+   * Reads value from joypad.
+   *
+   * @returns {number} value
+   */
   read() {
     const state = this.buttonStates[this.readPosition];
     this.readPosition = (this.readPosition + 1) % this.buttonStates.length;
     return state;
   }
 
+  /**
+   * Sets state of a button.
+   *
+   * @param {Button} button - button
+   * @param {boolean} pressed - true if button is pressed, false otherwise
+   */
   setButtonPressed(button, pressed) {
     this.buttonStates[button] = pressed ? 1 : 0;
   }
 
+  /**
+   * Returns state of a button.
+   *
+   * @param {Button} button - button
+   * @returns {boolean} true if button is pressed, false otherwise
+   */
   isButtonPressed(button) {
     return this.buttonStates[button] === 1;
   }
