@@ -23,6 +23,12 @@ const palParams = {
   dmcChannelTimerPeriods: [398, 354, 316, 298, 276, 236, 210, 198, 176, 148, 132, 118, 98, 78, 66, 50],
 };
 
+/**
+ * Returns parameters of a region.
+ *
+ * @param {string} region - region
+ * @return {Object} region parameters
+ */
 export function getParams(region) {
   switch (region) {
     case NTSC: return ntscParams;

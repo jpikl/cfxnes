@@ -3,6 +3,7 @@
 import {describe} from './utils';
 import {OFF, ERROR, WARN, INFO} from './logLevels';
 
+// Priorities for each log level
 const OFF_PRIORITY = 0;
 const ERROR_PRIORITY = 1;
 const WARN_PRIORITY = 2;
@@ -15,14 +16,27 @@ const priorities = {
   [INFO]: INFO_PRIORITY,
 };
 
+/**
+ * Logging utility.
+ */
 export class Log {
 
+  /**
+   * Constructor
+   *
+   * @param {!Object} output - output interface with error, warn and info methods
+   */
   constructor(output) {
     this.output = output;
     this.priority = OFF_PRIORITY;
     this.level = OFF;
   }
 
+  /**
+   * Sets level of logging.
+   *
+   * @param {string} level - log level
+   */
   setLevel(level) {
     const priority = priorities[level];
     if (priority == null) {
@@ -32,22 +46,46 @@ export class Log {
     this.level = level;
   }
 
+  /**
+   * Returns the current level of logging.
+   *
+   * @returns {string} - log level
+   */
   getLevel() {
     return this.level;
   }
 
-  error(message, error = undefined) {
+  /**
+   * Logs an error message.
+   * Level must be at least 'error' for the message to be logged.
+   *
+   * @param {string} message - message to log
+   * @param {Error=} error - optional error to log
+   */
+  error(message, error) {
     if (this.priority >= ERROR_PRIORITY) {
       this.output[ERROR](message, error);
     }
   }
 
+  /**
+   * Logs a warning message.
+   * Level must be at least 'warn' for the message to be logged.
+   *
+   * @param {string} message - message to log
+   */
   warn(message) {
     if (this.priority >= WARN_PRIORITY) {
       this.output[WARN](message);
     }
   }
 
+  /**
+   * Logs an information message.
+   * Level must be at least 'info' for the message to be logged.
+   *
+   * @param {string} message - message to log
+   */
   info(message) {
     if (this.priority >= INFO_PRIORITY) {
       this.output[INFO](message);
@@ -56,4 +94,5 @@ export class Log {
 
 }
 
+// Default log connected to the console object
 export default new Log(console);

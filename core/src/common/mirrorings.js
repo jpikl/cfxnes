@@ -8,6 +8,7 @@ export const HORIZONTAL = 'H';
 export const VERTICAL = 'V';
 export const FOUR_SCREEN = '4S';
 
+// Mirrored areas
 const areas = {
   [SCREEN_0]: [0, 0, 0, 0],
   [SCREEN_1]: [1, 1, 1, 1],
@@ -18,6 +19,12 @@ const areas = {
   [FOUR_SCREEN]: [0, 1, 2, 3],
 };
 
+/**
+ * Returns areas of a mirroring.
+ *
+ * @param {string} mirroring - mirroring
+ * @return {Array<number>} - array of 4 area indices
+ */
 export function getAreas(mirroring) {
   const area = areas[mirroring];
   if (area) {
@@ -26,6 +33,12 @@ export function getAreas(mirroring) {
   throw new Error('Invalid mirroring: ' + describe(mirroring));
 }
 
-export function getSingle(screen) {
-  return 'S' + screen;
+/**
+ * Returns value of single-screen mirroring.
+ *
+ * @param {string} area - screen area index
+ * @returns {string} mirroring
+ */
+export function getSingle(area) {
+  return 'S' + area;
 }
