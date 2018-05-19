@@ -2,7 +2,7 @@ const path = require('path');
 const ip = require('ip');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const {mergeConfig, getLibFile} = require('../utils');
 
 module.exports = (env = {}) => {
@@ -26,7 +26,7 @@ module.exports = (env = {}) => {
     reduxDevToolsEnabled: false,
   };
 
-  if (!env.production && env.configured) {
+  if (!env.production && env.extDevConfig) {
     mergeConfig(devConfig, resolvePath('webpack.dev.js'));
   }
 
@@ -39,7 +39,6 @@ module.exports = (env = {}) => {
   const developmentEntry = [
     '../lib/polyfills.js',
     '../lib/polyfills-extra.js', // Needed when importing cfxnes directly from its source code, not as a bundled library
-    'react-hot-loader/patch',
     'whatwg-fetch',
     './src/client/index.js',
   ];
@@ -60,10 +59,11 @@ module.exports = (env = {}) => {
     ...commonRules,
     {
       test: /\.css$/,
-      loader: ExtractTextPlugin.extract([
-        'css-loader?importLoaders=1',
+      use: [
+        MiniCssExtractPlugin.loader,
+        'css-loader?importLoaders=1', // =1 means postcss-loader
         'postcss-loader',
-      ]),
+      ],
     },
   ];
 
@@ -78,7 +78,7 @@ module.exports = (env = {}) => {
       test: /\.css$/,
       use: [
         'style-loader',
-        'css-loader?importLoaders=1',
+        'css-loader?importLoaders=1', // =1 means postcss-loader
         'postcss-loader',
       ],
     },
@@ -100,33 +100,45 @@ module.exports = (env = {}) => {
 
   const productionPlugins = [
     ...commonPlugins,
-    new ExtractTextPlugin({filename: 'bundle.css'}),
+    new MiniCssExtractPlugin({filename: 'bundle.css'}),
   ];
 
   const developmentPlugins = [
     ...commonPlugins,
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NamedModulesPlugin(),
-    new webpack.NoEmitOnErrorsPlugin(),
   ];
 
   return {
+    mode: env.production ? 'production' : 'development',
     context: __dirname,
-    entry: env.production ? productionEntry : developmentEntry,
+    entry: env.production
+      ? productionEntry
+      : developmentEntry,
     output: {
       path: resolvePath('dist/static'),
       pathinfo: !env.production,
       filename: 'bundle.js',
     },
-    module: {rules: env.production ? productionRules : developmentRules},
+    module: {
+      rules: env.production ? productionRules : developmentRules,
+    },
     resolve: {
       extensions: ['.js', '.jsx'],
-      alias: {cfxnes: libFile},
+      alias: {
+        cfxnes: libFile,
+      },
     },
     plugins: env.production ? productionPlugins : developmentPlugins,
     devtool: env.production ? 'nosources-source-map' : 'eval-source-map',
-    performance: {hints: false},
+    watch: !env.production,
+    watchOptions: {
+      poll: 1000,
+    },
+    performance: {
+      hints: false,
+    },
     devServer: {
+      compress: true,
       historyApiFallback: true,
       host: '0.0.0.0',
       hot: true,
@@ -134,7 +146,9 @@ module.exports = (env = {}) => {
       open: true,
       openPage: '',
       port: devServerPort,
-      proxy: {'/api': `http://${myIpAddress}:${appServerPort}`},
+      proxy: {
+        '/api': `http://${myIpAddress}:${appServerPort}`,
+      },
       public: `${myIpAddress}:${devServerPort}`,
       useLocalIp: true,
     },
