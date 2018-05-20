@@ -5,6 +5,12 @@ All notable changes to the cfxnes application will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- No sound due to Chrome autoplay policy.
+
 ## [0.6.0] - 2017-11-22
 
 ### Fixed
