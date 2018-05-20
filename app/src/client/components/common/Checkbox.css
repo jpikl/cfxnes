@@ -37,7 +37,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  font-family: FontAwesome;
+  font-family: FontAwesome, sans-serif;
   font-size: 1rem;
   content: "\f00c";
   transform: translate(-50%, -50%);

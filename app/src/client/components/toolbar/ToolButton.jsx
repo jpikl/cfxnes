@@ -21,7 +21,7 @@ export default class ToolButton extends PureComponent {
     onClick: null,
   };
 
-  componentWillMount() {
+  componentDidMount() {
     addKeyDownListener(this.handleKeyDown);
   }
 

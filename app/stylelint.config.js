@@ -8,6 +8,7 @@ module.exports = {
       'ignoreAtRules': ['each', 'define-mixin', 'mixin'],
     }],
     'function-whitespace-after': null,
+    'no-descending-specificity': null,
     'order/order': [
       'custom-properties',
       'declarations',

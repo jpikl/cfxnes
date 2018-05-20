@@ -57,7 +57,7 @@
     position: absolute;
     top: var(--switch-icon-top);
     right: var(--switch-icon-indent);
-    font-family: FontAwesome;
+    font-family: FontAwesome, sans-serif;
     font-size: var(--switch-icon-font-size);
     cursor: pointer;
     content: "\f00d";

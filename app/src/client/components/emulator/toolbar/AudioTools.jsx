@@ -19,7 +19,7 @@ export default class AudioTools extends PureComponent {
     popupVisible: false,
   };
 
-  componentWillMount() {
+  componentDidMount() {
     addKeyDownListener(this.handleKeyDown);
   }
 

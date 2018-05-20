@@ -18,11 +18,11 @@ class Settings extends PureComponent {
     routePanelId: null,
   };
 
-  componentWillMount() {
+  componentDidMount() {
     this.handlePropsChange(this.props);
   }
 
-  componentWillReceiveProps(props) {
+  componentDidUpdate(props) {
     this.handlePropsChange(props);
   }
 

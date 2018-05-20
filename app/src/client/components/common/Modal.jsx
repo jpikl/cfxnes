@@ -21,14 +21,11 @@ export default class Modal extends PureComponent {
     children: null,
   };
 
-  componentWillMount() {
+  componentDidMount() {
     const {activeElement} = document;
     if (activeElement) {
       activeElement.blur();
     }
-  }
-
-  componentDidMount() {
     addEventListener('keydown', this.handleKeyDown);
   }
 

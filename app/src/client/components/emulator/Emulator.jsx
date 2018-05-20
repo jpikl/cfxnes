@@ -56,7 +56,7 @@ class Emulator extends PureComponent {
     element.addEventListener('drop', this.handleDrop);
   }
 
-  componentWillReceiveProps(props) {
+  componentDidUpdate(props) {
     const {romId, routeRomId, onRouteRedirect} = props;
     if (romId !== routeRomId) {
       onRouteRedirect(romId);

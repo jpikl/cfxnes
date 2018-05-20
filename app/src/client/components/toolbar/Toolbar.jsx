@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {Theme} from '../../enums';
-import {ButtonGroup} from '../common'
+import {ButtonGroup} from '../common';
 import ToolButton from './ToolButton';
 import connect from './connect';
 import './Toolbar.css';
