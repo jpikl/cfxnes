@@ -46,3 +46,12 @@ For custom thumbnails, add picture with identical name (e.g., **game.jpg** for *
 | `clean`            | Clean all generated files.                                    |
 
 Running one of the `dev*` scripts for the first time will generate `webpack.dev.js` configuration file that can be used to customize some webpack development parameters.
+
+## Troubleshooting
+
+### Emulation does not work when running app using `npm run dev`
+
+This seems to be a Chrome issue. There are two workarounds:
+
+1. Build the [cfxnes library](../lib) first. Then run `npm run dev`.
+2. Comment `this.vblankSuppressed = false;` line in `PPU` constructor in `PPU.js`.
