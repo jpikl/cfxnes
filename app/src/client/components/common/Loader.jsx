@@ -5,7 +5,7 @@ import Icon from './Icon';
 import './Loader.css';
 
 const Loader = ({className, inverse, children, ...attrs}) => (
-  <div className={classNames('loader', className, {inverse})} {...attrs}>
+  <div className={classNames('loader', className, {inverse})} {...attrs} aria-hidden="true">
     <Icon className="loader-icon" name="spinner" size="2x" spin pulse/>
     <span className="loader-text">{children}</span>
   </div>
