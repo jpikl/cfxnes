@@ -1,4 +1,5 @@
 import {nes} from '../common';
+import {ActionState} from '../enums';
 import {romsApi} from '../api';
 import {loadNVRAM, saveNVRAM} from '../nvram';
 
@@ -94,9 +95,19 @@ function executeROMLoad(romId, loader) {
       return loadNVRAM();
     }).then(() => {
       if (nes.video.output) {
-        dispatch(startEmulator());
+        // We want to start the emulator immediately after loading finishes.
+        // This, however, must be done only after an user interaction, because
+        // Chrome autoplay policy would disable sound otherwise.
+        // There are two cases when we can start the emulator:
+        //   1) ROM was loaded from file.
+        //   2) ROM was selected from the library page.
+        const {fetchState} = selectLibrary(getState());
+        if (romId == null || fetchState !== ActionState.NONE) {
+          dispatch(startEmulator());
+        }
       } else {
-        dispatch(createAction(SET_EMULATOR_SUSPENDED, true)); // User switched to a different view
+        // User switched to a different view while loading was in progress.
+        dispatch(createAction(SET_EMULATOR_SUSPENDED, true));
       }
     });
   };

@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Overlay for paused emulator.
 - Loading transition.
 
+### Changed
+
+- No autoplay when app is started directly from emulator page.
+
 ## [0.6.0] - 2017-11-22
 
 ### Fixed
