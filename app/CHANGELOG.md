@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 
+- Better colors of controls info panel for dark theme.
 - No autoplay when app is started directly from emulator page.
 
 ## [0.6.0] - 2017-11-22
