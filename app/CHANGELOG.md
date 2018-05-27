@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - No sound due to Chrome autoplay policy.
 
+### Added
+
+- Overlay for paused emulator.
+- Loading transition.
+
 ## [0.6.0] - 2017-11-22
 
 ### Fixed

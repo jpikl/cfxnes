@@ -3,43 +3,81 @@
 .emulator-output {
   position: relative;
   align-self: center;
+  border-style: solid;
+  border-width: 0.1rem;
+  box-sizing: content-box;
+
+  &:fullscreen {
+    width: 100% !important; /* Because of dynamic size in style attribute. */
+    height: 100% !important;
+    background: black;
+    border-style: none;
+    border-width: 0;
+  }
+
+  &.stopped {
+    cursor: pointer;
+  }
 
   &.crosshair {
     cursor: crosshair;
   }
 }
 
-.emulator-canvas {
-  border-style: solid;
-  border-width: 0.1rem;
-
-  @nest .emulator-output:fullscreen & {
-    border-style: none;
-    border-width: 0;
-  }
+.emulator-dim {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 50%);
 }
 
+.emulator-play,
 .emulator-cartridge,
 .emulator-loader {
   position: absolute;
   top: 50%;
   left: 50%;
+  pointer-events: none;
   transform: translate(-50%, -50%);
+}
+
+.emulator-play {
+  color: #ccc;
 }
 
 .emulator-cartridge {
   width: 8rem;
   height: auto;
-  opacity: 0;
-  transition: opacity 0.25s ease-in-out;
+}
 
-  @nest .drag-over & {
+.emulator-dim,
+.emulator-play,
+.emulator-loader,
+.emulator-cartridge {
+  opacity: 0;
+  transition-property: opacity;
+  transition-timing-function: ease-in-out;
+
+  &.visible {
     opacity: 1;
   }
 }
 
+.emulator-dim,
+.emulator-play,
+.emulator-cartridge {
+  transition-duration: 0.5s;
+}
+
+.emulator-loader {
+  transition-duration: 1s;
+}
+
 @each $theme in $themes {
-  .$theme .emulator-canvas {
+  .$theme .emulator-output {
     border-color: var(--$(theme)-canvas-border-color);
   }
 }

@@ -1,6 +1,5 @@
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import {ActionState} from '../../enums';
 import {Main} from '../common';
 import EmulatorControls, {controlsPropType} from './EmulatorControls';
@@ -15,6 +14,8 @@ class Emulator extends PureComponent {
     romId: PropTypes.string,
     routeRomId: PropTypes.string,
     loadState: PropTypes.oneOf(ActionState.values).isRequired,
+    videoScale: PropTypes.number.isRequired,
+    running: PropTypes.bool.isRequired,
     controls: controlsPropType.isRequired,
     controlsVisible: PropTypes.bool.isRequired,
     crosshairVisible: PropTypes.bool.isRequired,
@@ -26,6 +27,7 @@ class Emulator extends PureComponent {
     onRouteRedirect: PropTypes.func.isRequired,
     onControlsClose: PropTypes.func.isRequired,
     onErrorClose: PropTypes.func.isRequired,
+    onStart: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -106,20 +108,25 @@ class Emulator extends PureComponent {
   };
 
   render() {
+    const {
+      loadState, videoScale, running, controls, controlsVisible,
+      onControlsClose, crosshairVisible, error, onErrorClose, onStart,
+    } = this.props;
+
     const {dragOver} = this.state;
-    const {loadState, controls, controlsVisible, onControlsClose, crosshairVisible, error, onErrorClose} = this.props;
     const loading = loadState === ActionState.STARTED;
-    const fullClassName = classNames('emulator', {'drag-over': dragOver});
 
     return (
-      <Main className={fullClassName} refMain={this.setElement}>
+      <Main className="emulator" refMain={this.setElement}>
         {controlsVisible && (
           <EmulatorControls controls={controls} onClose={onControlsClose}/>
         )}
         {error && (
           <EmulatorError message={error} onClose={onErrorClose}/>
         )}
-        <EmulatorOutput loading={loading} crosshair={crosshairVisible} refCanvas={this.setCanvas}/>
+        <EmulatorOutput scale={videoScale} loading={loading} stopped={!running}
+                        crosshair={crosshairVisible} cartridge={dragOver}
+                        refCanvas={this.setCanvas} onStart={onStart}/>
       </Main>
     );
   }

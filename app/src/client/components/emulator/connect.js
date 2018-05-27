@@ -6,6 +6,7 @@ import {selectEmulator, selectSettingsValues} from '../../reducers';
 import {
   connectEmulator,
   disconnectEmulator,
+  startEmulator,
   loadROM,
   fetchAndLoadROM,
   setControlsVisible,
@@ -14,15 +15,18 @@ import {
 
 const mapStateToProps = (state, props) => {
   const routeRomId = props.match.params[ROM_ID] || null;
-  const {romId, loadState, error} = selectEmulator(state);
-  const {controls, controlsVisible} = selectSettingsValues(state);
+  const {romId, loadState, running, error} = selectEmulator(state);
+  const {videoScale, controls, controlsVisible} = selectSettingsValues(state);
 
   let crosshairVisible = false;
   if (Port.values.some(port => controls[port].device === Device.ZAPPER)) {
     ({crosshairVisible} = selectSettingsValues(state));
   }
 
-  return {romId, routeRomId, loadState, controls, controlsVisible, crosshairVisible, error};
+  return {
+    romId, routeRomId, loadState, videoScale, running,
+    controls, controlsVisible, crosshairVisible, error,
+  };
 };
 
 const mapDispatchToProps = (dispatch, props) => ({
@@ -33,6 +37,7 @@ const mapDispatchToProps = (dispatch, props) => ({
   onRouteRedirect: romId => props.history.replace(getEmulatorPath(romId)),
   onControlsClose: () => dispatch(setControlsVisible(false)),
   onErrorClose: () => dispatch(clearEmulatorError()),
+  onStart: () => dispatch(startEmulator()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps);
