@@ -3,6 +3,7 @@ const ip = require('ip');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {mergeConfig, getLibFile} = require('../utils');
 
 module.exports = (env = {}) => {
@@ -56,6 +57,10 @@ module.exports = (env = {}) => {
       test: /\.(svg|woff|woff2|eot|ttf)(\?\S*)?$/,
       loader: 'file-loader?name=[name].[ext]',
     },
+    {
+      test: /\.hbs$/,
+      loader: 'handlebars-loader',
+    },
   ];
 
   const productionRules = [
@@ -96,9 +101,15 @@ module.exports = (env = {}) => {
     }),
     new webpack.IgnorePlugin(/^fs$/), // cfxnes.debug.js contains unused required('fs') call
     new CopyPlugin([
-      {from: 'src/client/index.html'},
       {from: 'src/client/static'},
     ]),
+    new HtmlWebpackPlugin({
+      inject: false,
+      template: 'src/client/index.hbs',
+      templateParameters: {
+        production: Boolean(env.production),
+      },
+    }),
   ];
 
   const productionPlugins = [
