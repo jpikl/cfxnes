@@ -26,8 +26,8 @@ const palParams = {
 /**
  * Returns parameters of a region.
  *
- * @param {string} region - region
- * @return {Object} region parameters
+ * @param {string} region Region.
+ * @return {Object} Region parameters.
  */
 export function getParams(region) {
   switch (region) {

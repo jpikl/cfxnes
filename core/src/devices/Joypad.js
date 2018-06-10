@@ -25,10 +25,10 @@ export default class Joypad {
    * Constructor.
    */
   constructor() {
-    /** @type {!Uint8Array} memory containing state of all buttons */
+    /** @private @const {!Uint8Array} Memory containing state of all buttons. */
     this.buttonStates = new Uint8Array(24);
     this.buttonStates[19] = 1;
-    /** @type {number} current reading position in joypad memory */
+    /** @private {number} Current reading position in memory. */
     this.readPosition = 0;
   }
 
@@ -56,7 +56,7 @@ export default class Joypad {
   /**
    * Reads value from joypad.
    *
-   * @returns {number} value
+   * @returns {number} Value.
    */
   read() {
     const state = this.buttonStates[this.readPosition];
@@ -67,8 +67,8 @@ export default class Joypad {
   /**
    * Sets state of a button.
    *
-   * @param {Button} button - button
-   * @param {boolean} pressed - true if button is pressed, false otherwise
+   * @param {Button} button Button.
+   * @param {boolean} pressed True if button is pressed, false otherwise.
    */
   setButtonPressed(button, pressed) {
     this.buttonStates[button] = pressed ? 1 : 0;
@@ -77,8 +77,8 @@ export default class Joypad {
   /**
    * Returns state of a button.
    *
-   * @param {Button} button - button
-   * @returns {boolean} true if button is pressed, false otherwise
+   * @param {Button} button Button.
+   * @returns {boolean} True if button is pressed, false otherwise/
    */
   isButtonPressed(button) {
     return this.buttonStates[button] === 1;

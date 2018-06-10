@@ -3,7 +3,7 @@
 import {describe} from './utils';
 import {OFF, ERROR, WARN, INFO} from './logLevels';
 
-// Priorities for each log level
+// Priorities for each log level.
 const OFF_PRIORITY = 0;
 const ERROR_PRIORITY = 1;
 const WARN_PRIORITY = 2;
@@ -24,7 +24,7 @@ export class Log {
   /**
    * Constructor
    *
-   * @param {!Object} output - output interface with error, warn and info methods
+   * @param {!Object} output Output interface with error, warn and info methods.
    */
   constructor(output) {
     this.output = output;
@@ -35,7 +35,7 @@ export class Log {
   /**
    * Sets level of logging.
    *
-   * @param {string} level - log level
+   * @param {string} level Log level.
    */
   setLevel(level) {
     const priority = priorities[level];
@@ -49,7 +49,7 @@ export class Log {
   /**
    * Returns the current level of logging.
    *
-   * @returns {string} - log level
+   * @returns {string} Log level.
    */
   getLevel() {
     return this.level;
@@ -59,8 +59,8 @@ export class Log {
    * Logs an error message.
    * Level must be at least 'error' for the message to be logged.
    *
-   * @param {string} message - message to log
-   * @param {Error=} error - optional error to log
+   * @param {string} message Message to log.
+   * @param {Error=} error Optional error to log.
    */
   error(message, error) {
     if (this.priority >= ERROR_PRIORITY) {
@@ -72,7 +72,7 @@ export class Log {
    * Logs a warning message.
    * Level must be at least 'warn' for the message to be logged.
    *
-   * @param {string} message - message to log
+   * @param {string} message Message to log.
    */
   warn(message) {
     if (this.priority >= WARN_PRIORITY) {
@@ -84,7 +84,7 @@ export class Log {
    * Logs an information message.
    * Level must be at least 'info' for the message to be logged.
    *
-   * @param {string} message - message to log
+   * @param {string} message Message to log.
    */
   info(message) {
     if (this.priority >= INFO_PRIORITY) {
@@ -94,5 +94,5 @@ export class Log {
 
 }
 
-// Default log connected to the console object
+// Default log connected to the console object.
 export default new Log(console);

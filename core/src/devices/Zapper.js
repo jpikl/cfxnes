@@ -10,20 +10,20 @@ export default class Zapper {
    * Constructor.
    */
   constructor() {
-    /** @type {boolean} trigger button state */
+    /** @private {boolean} Trigger button state. */
     this.triggerPressed = false;
-    /** @type {number} beam X coordinate on screen */
+    /** @private {number} Beam X coordinate on screen. */
     this.beamX = -1;
-    /** @type {number} beam Y coordinate on screen */
+    /** @private {number} Beam Y coordinate on screen. */
     this.beamY = -1;
-    /** @type {?Object} PPU */
+    /** @private {?Object} PPU */
     this.ppu = null;
   }
 
   /**
    * Connects zapper to NES.
    *
-   * @param {!Object} nes - NES
+   * @param {!Object} nes NES.
    */
   connect(nes) {
     log.info('Connecting zapper');
@@ -48,7 +48,7 @@ export default class Zapper {
   /**
    * Reads value from zapper.
    *
-   * @returns {number} value
+   * @returns {number} Value.
    */
   read() {
     return (this.triggerPressed << 4) | (!this.isLightDetected() << 3);
@@ -57,7 +57,7 @@ export default class Zapper {
   /**
    * Checks whether zapper is detecting bright area on screen.
    *
-   * @returns {boolean} true if bright area is detected, false otherwise
+   * @returns {boolean} True if bright area is detected, false otherwise.
    */
   isLightDetected() {
     return this.beamX >= 0 && this.beamX < VIDEO_WIDTH
@@ -68,7 +68,7 @@ export default class Zapper {
   /**
    * Sets trigger button state.
    *
-   * @param {boolean} pressed - true if trigger is pressed, false otherwise
+   * @param {boolean} pressed True if trigger is pressed, false otherwise.
    */
   setTriggerPressed(pressed) {
     this.triggerPressed = pressed;
@@ -77,7 +77,7 @@ export default class Zapper {
   /**
    * Returns trigger button state.
    *
-   * @returns {boolean} - true if trigger is pressed, false otherwise
+   * @returns {boolean} True if trigger is pressed, false otherwise.
    */
   isTriggerPressed() {
     return this.triggerPressed;
@@ -86,8 +86,8 @@ export default class Zapper {
   /**
    * Sets beam position on screen.
    *
-   * @param {number} x - X coordinate
-   * @param {number} y - Y coordinate
+   * @param {number} x X coordinate.
+   * @param {number} y Y coordinate.
    */
   setBeamPosition(x, y) {
     this.beamX = x;
@@ -97,7 +97,7 @@ export default class Zapper {
   /**
    * Returns beam position on screen.
    *
-   * @returns {!Array<number>} array containing X and Y coordinate
+   * @returns {!Array<number>} Array containing X and Y coordinate.
    */
   getBeamPosition() {
     return [this.beamX, this.beamY];

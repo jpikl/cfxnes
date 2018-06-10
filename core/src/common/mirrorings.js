@@ -8,7 +8,7 @@ export const HORIZONTAL = 'H';
 export const VERTICAL = 'V';
 export const FOUR_SCREEN = '4S';
 
-// Mirrored areas
+// Mirrored areas.
 const areas = {
   [SCREEN_0]: [0, 0, 0, 0],
   [SCREEN_1]: [1, 1, 1, 1],
@@ -22,8 +22,8 @@ const areas = {
 /**
  * Returns areas of a mirroring.
  *
- * @param {string} mirroring - mirroring
- * @return {Array<number>} - array of 4 area indices
+ * @param {string} mirroring Mirroring.
+ * @return {Array<number>} Array of 4 area indices.
  */
 export function getAreas(mirroring) {
   const area = areas[mirroring];
@@ -34,10 +34,10 @@ export function getAreas(mirroring) {
 }
 
 /**
- * Returns value of single-screen mirroring.
+ * Returns value of a single-screen mirroring.
  *
- * @param {string} area - screen area index
- * @returns {string} mirroring
+ * @param {string} area Screen area index.
+ * @returns {string} Mirroring.
  */
 export function getSingle(area) {
   return 'S' + area;
