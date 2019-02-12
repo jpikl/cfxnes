@@ -10,7 +10,7 @@ const EmulatorOutput = ({scale, loading, stopped, crosshair, cartridge, refCanva
   <div className={classNames('emulator-output', {stopped, crosshair})}
        style={{width: scale * VIDEO_WIDTH, height: scale * VIDEO_HEIGHT}}
        onClick={stopped ? onStart : undefined}
-       title={stopped && !loading && 'Click to play'}>
+       title={stopped && !loading ? 'Click to play' : undefined}>
     <canvas className="emulator-canvas" ref={refCanvas}/>
     <div className={classNames('emulator-dim', {visible: loading || stopped})}/>
     <Icon className={classNames('emulator-play', {visible: stopped && !loading})}
