@@ -1,6 +1,6 @@
 {
   "name": "cfxnes-app",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "NES emulator running in web browser",
   "license": "MIT",
   "private": true,
