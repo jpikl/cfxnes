@@ -3,6 +3,14 @@ import React from 'react';
 export default () => (
   <div>
     <h2>Changelog</h2>
+    <h3>0.7.0 - <time>2019-04-04</time></h3>
+    <ul>
+      <li>Fixed no sound due to Chrome autoplay policy.</li>
+      <li>Added overlay for paused emulator.</li>
+      <li>Added loading transition.</li>
+      <li>Better colors of controls info panel for dark theme.</li>
+      <li>No autoplay when app is started directly from emulator page.</li>
+    </ul>
     <h3>0.6.0 - <time>2017-11-22</time></h3>
     <ul>
       <li>Fixed error when loading certain iNES ROMs (<i>Donkey Kong 3</i>) due to being detected as NES 2.0.</li>
