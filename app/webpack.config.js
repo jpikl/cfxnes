@@ -46,9 +46,6 @@ module.exports = (env = {}) => {
 
   const commonRules = [
     {
-      sideEffects: false,
-    },
-    {
       test: /\.(js|jsx)$/,
       exclude: /node_modules/,
       loader: 'babel-loader',
