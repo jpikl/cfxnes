@@ -3,6 +3,10 @@ import React from 'react';
 export default () => (
   <div>
     <h2>Changelog</h2>
+    <h3>Unreleased</h3>
+    <ul>
+      <li>Fixed unrecoverable state after ROM with unsupported mapper is loaded.</li>
+    </ul>
     <h3>0.7.0 - <time>2019-04-04</time></h3>
     <ul>
       <li>Fixed no sound due to Chrome autoplay policy.</li>

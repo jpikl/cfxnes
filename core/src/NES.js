@@ -80,8 +80,10 @@ export default class NES {
   setCartridge(cartridge) {
     if (this.cartridge) {
       log.info('Removing current cartridge');
-      this.mapper.disconnect();
-      this.mapper = null;
+      if (this.mapper) { // Does not have to be present in case of error during mapper creation.
+        this.mapper.disconnect();
+        this.mapper = null;
+      }
       this.cartridge = null;
     }
     if (cartridge) {
