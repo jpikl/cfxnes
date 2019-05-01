@@ -8,13 +8,11 @@ JavaScript NES emulator and emulation library.
 
 :information_source: [How to use cfxnes as a library](lib)
 
-The source code is licensed under the MIT License.
-See [LICENSE.txt](LICENSE.txt) for more details.
-
 ## Features
 
 - Supported ROM images: iNES, NES 2.0.
-- Supported mappers: NROM, MMC1, MMC3, UNROM, CNROM, AOROM, BNROM, NINA-001, Color Dreams.
+- Supported mappers: NROM, MMC1, MMC3, UNROM, CNROM, AOROM, BNROM,
+  NINA-001, Color Dreams.
 - ROM images can be loaded from ZIP archive.
 - Persistence of battery-backed RAM (game saves) in IndexedDB.
 - Rendering using WebGL (with canvas API fallback).
@@ -44,5 +42,13 @@ See [LICENSE.txt](LICENSE.txt) for more details.
 ## Project Structure
 
 - **[Core](core)** - [Readme](core/README.md)
-- **[Lib](lib)** - [Readme](lib/README.md) / [Changelog](lib/CHANGELOG.md) / [API](lib/API.md) / [Examples](lib/examples)
-- **[App](app)** - [Readme](app/README.md) / [Changelog](app/CHANGELOG.md)
+- **[Lib](lib)** - [Readme](lib/README.md)
+                 / [Changelog](lib/CHANGELOG.md)
+                 / [API](lib/API.md)
+                 / [Examples](lib/examples)
+- **[App](app)** - [Readme](app/README.md)
+                 / [Changelog](app/CHANGELOG.md)
+
+## License
+
+Cfxnes is licensed under the [MIT license](LICENSE.md).
