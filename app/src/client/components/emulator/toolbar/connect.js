@@ -3,7 +3,7 @@ import {AudioChannel} from '../../../enums';
 import {selectEmulator, selectSettingsValues} from '../../../reducers';
 
 import {
-  loadROM,
+  loadRom,
   resetEmulator,
   powerEmulator,
   startEmulator,
@@ -24,7 +24,7 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  onFileOpen: file => dispatch(loadROM(file)),
+  onFileOpen: file => dispatch(loadRom(file)),
   onPower: () => dispatch(powerEmulator()),
   onReset: () => dispatch(resetEmulator()),
   onStart: () => dispatch(startEmulator()),

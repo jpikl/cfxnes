@@ -1,6 +1,6 @@
-const HEX_CHARS = '0123456789abcdef'.split('');
-const EXTRA = [-2147483648, 8388608, 32768, 128];
-const SHIFT = [24, 16, 8, 0];
+const hexChars = '0123456789abcdef'.split('');
+const extra = [-2147483648, 8388608, 32768, 128];
+const shift = [24, 16, 8, 0];
 
 // Based on source code of js-sha1 v3.0 (https://github.com/emn178/js-sha1)
 
@@ -25,13 +25,13 @@ export default function sha1(data) {
     blocks.fill(0, 1, 17);
 
     for (i = start; index < length && i < 64; index++) {
-      blocks[i >> 2] |= data[index] << SHIFT[i++ & 3];
+      blocks[i >> 2] |= data[index] << shift[i++ & 3];
     }
 
     bytes += i - start;
     start = i - 64;
     if (index === length) {
-      blocks[i >> 2] |= EXTRA[i & 3];
+      blocks[i >> 2] |= extra[i & 3];
       index++;
     }
     block = blocks[16];
@@ -162,24 +162,24 @@ export default function sha1(data) {
     h4 = h4 + e << 0;
   } while (!end);
 
-  return HEX_CHARS[(h0 >> 28) & 0x0F] + HEX_CHARS[(h0 >> 24) & 0x0F]
-       + HEX_CHARS[(h0 >> 20) & 0x0F] + HEX_CHARS[(h0 >> 16) & 0x0F]
-       + HEX_CHARS[(h0 >> 12) & 0x0F] + HEX_CHARS[(h0 >> 8) & 0x0F]
-       + HEX_CHARS[(h0 >> 4) & 0x0F] + HEX_CHARS[h0 & 0x0F]
-       + HEX_CHARS[(h1 >> 28) & 0x0F] + HEX_CHARS[(h1 >> 24) & 0x0F]
-       + HEX_CHARS[(h1 >> 20) & 0x0F] + HEX_CHARS[(h1 >> 16) & 0x0F]
-       + HEX_CHARS[(h1 >> 12) & 0x0F] + HEX_CHARS[(h1 >> 8) & 0x0F]
-       + HEX_CHARS[(h1 >> 4) & 0x0F] + HEX_CHARS[h1 & 0x0F]
-       + HEX_CHARS[(h2 >> 28) & 0x0F] + HEX_CHARS[(h2 >> 24) & 0x0F]
-       + HEX_CHARS[(h2 >> 20) & 0x0F] + HEX_CHARS[(h2 >> 16) & 0x0F]
-       + HEX_CHARS[(h2 >> 12) & 0x0F] + HEX_CHARS[(h2 >> 8) & 0x0F]
-       + HEX_CHARS[(h2 >> 4) & 0x0F] + HEX_CHARS[h2 & 0x0F]
-       + HEX_CHARS[(h3 >> 28) & 0x0F] + HEX_CHARS[(h3 >> 24) & 0x0F]
-       + HEX_CHARS[(h3 >> 20) & 0x0F] + HEX_CHARS[(h3 >> 16) & 0x0F]
-       + HEX_CHARS[(h3 >> 12) & 0x0F] + HEX_CHARS[(h3 >> 8) & 0x0F]
-       + HEX_CHARS[(h3 >> 4) & 0x0F] + HEX_CHARS[h3 & 0x0F]
-       + HEX_CHARS[(h4 >> 28) & 0x0F] + HEX_CHARS[(h4 >> 24) & 0x0F]
-       + HEX_CHARS[(h4 >> 20) & 0x0F] + HEX_CHARS[(h4 >> 16) & 0x0F]
-       + HEX_CHARS[(h4 >> 12) & 0x0F] + HEX_CHARS[(h4 >> 8) & 0x0F]
-       + HEX_CHARS[(h4 >> 4) & 0x0F] + HEX_CHARS[h4 & 0x0F];
+  return hexChars[(h0 >> 28) & 0x0F] + hexChars[(h0 >> 24) & 0x0F]
+       + hexChars[(h0 >> 20) & 0x0F] + hexChars[(h0 >> 16) & 0x0F]
+       + hexChars[(h0 >> 12) & 0x0F] + hexChars[(h0 >> 8) & 0x0F]
+       + hexChars[(h0 >> 4) & 0x0F] + hexChars[h0 & 0x0F]
+       + hexChars[(h1 >> 28) & 0x0F] + hexChars[(h1 >> 24) & 0x0F]
+       + hexChars[(h1 >> 20) & 0x0F] + hexChars[(h1 >> 16) & 0x0F]
+       + hexChars[(h1 >> 12) & 0x0F] + hexChars[(h1 >> 8) & 0x0F]
+       + hexChars[(h1 >> 4) & 0x0F] + hexChars[h1 & 0x0F]
+       + hexChars[(h2 >> 28) & 0x0F] + hexChars[(h2 >> 24) & 0x0F]
+       + hexChars[(h2 >> 20) & 0x0F] + hexChars[(h2 >> 16) & 0x0F]
+       + hexChars[(h2 >> 12) & 0x0F] + hexChars[(h2 >> 8) & 0x0F]
+       + hexChars[(h2 >> 4) & 0x0F] + hexChars[h2 & 0x0F]
+       + hexChars[(h3 >> 28) & 0x0F] + hexChars[(h3 >> 24) & 0x0F]
+       + hexChars[(h3 >> 20) & 0x0F] + hexChars[(h3 >> 16) & 0x0F]
+       + hexChars[(h3 >> 12) & 0x0F] + hexChars[(h3 >> 8) & 0x0F]
+       + hexChars[(h3 >> 4) & 0x0F] + hexChars[h3 & 0x0F]
+       + hexChars[(h4 >> 28) & 0x0F] + hexChars[(h4 >> 24) & 0x0F]
+       + hexChars[(h4 >> 20) & 0x0F] + hexChars[(h4 >> 16) & 0x0F]
+       + hexChars[(h4 >> 12) & 0x0F] + hexChars[(h4 >> 8) & 0x0F]
+       + hexChars[(h4 >> 4) & 0x0F] + hexChars[h4 & 0x0F];
 }

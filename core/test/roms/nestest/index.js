@@ -4,13 +4,13 @@
 //=============================================================================
 
 import fs from 'fs';
-import {CPU, DisabledAPU, DisabledPPU} from '../units';
+import {Cpu, DisabledApu, DisabledPpu} from '../units';
 
 export const dir = './test/roms/nestest';
 export const file = 'nestest.nes';
 
 export function init() {
-  return {cpu: new NestestCPU, apu: new DisabledAPU, ppu: new DisabledPPU};
+  return {cpu: new NestestCpu, apu: new DisabledApu, ppu: new DisabledPpu};
 }
 
 export function execute(test) {
@@ -34,7 +34,7 @@ export function execute(test) {
   }
 }
 
-class NestestCPU extends CPU {
+class NestestCpu extends Cpu {
 
   openLog(path) {
     this.log = fs.openSync(path, 'w');
@@ -50,24 +50,24 @@ class NestestCPU extends CPU {
   }
 
   executeOperation([instruction, addressingMode]) {
-    const A = byteAsHex(this.accumulator);
-    const X = byteAsHex(this.registerX);
-    const Y = byteAsHex(this.registerY);
-    const P = byteAsHex(this.getStatus());
-    const SP = byteAsHex(this.stackPointer);
-    const PC = this.programCounter - 1;
+    const a = byteAsHex(this.accumulator);
+    const x = byteAsHex(this.registerX);
+    const y = byteAsHex(this.registerY);
+    const p = byteAsHex(this.getStatus());
+    const sp = byteAsHex(this.stackPointer);
+    const pc = this.programCounter - 1;
 
     const addr = addressingMode.call(this);
-    const instr = instruction.name;
-    const size = this.programCounter - PC;
+    const instr = instruction.name.toUpperCase();
+    const size = this.programCounter - pc;
 
-    const data0 = byteAsHex(this.readByte(PC));
-    const data1 = size > 1 ? byteAsHex(this.readByte((PC + 1) & 0xFFFF)) : '  ';
-    const data2 = size > 2 ? byteAsHex(this.readByte((PC + 2) & 0xFFFF)) : '  ';
+    const data0 = byteAsHex(this.readByte(pc));
+    const data1 = size > 1 ? byteAsHex(this.readByte((pc + 1) & 0xFFFF)) : '  ';
+    const data2 = size > 2 ? byteAsHex(this.readByte((pc + 2) & 0xFFFF)) : '  ';
 
     instruction.call(this, addr);
 
-    fs.writeSync(this.log, `${wordAsHex(PC)}  ${data0} ${data1} ${data2}  ${instr}  A:${A} X:${X} Y:${Y} P:${P} SP:${SP}\n`);
+    fs.writeSync(this.log, `${wordAsHex(pc)}  ${data0} ${data1} ${data2}  ${instr}  A:${a} X:${x} Y:${y} P:${p} SP:${sp}\n`);
   }
 
 }

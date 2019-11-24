@@ -10,7 +10,7 @@ import path from 'path';
 import mkdirp from 'mkdirp';
 import {assert, expect} from 'chai';
 
-import {NES, readCartridge} from '../../src';
+import {Nes, readCartridge} from '../../src';
 
 import * as nestest from './nestest';
 import * as instr_test from './instr_test';
@@ -73,7 +73,7 @@ function validate(test) {
 function execute(test) {
   // Setup emulator
   const cartridge = readCartridge(test.file);
-  const nes = new NES(test.init());
+  const nes = new Nes(test.init());
   nes.setCartridge(cartridge);
 
   // Prepare context

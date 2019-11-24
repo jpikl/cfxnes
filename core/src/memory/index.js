@@ -1,4 +1,4 @@
-export {default as CPUMemory} from './CPUMemory';
-export {default as PPUMemory} from './PPUMemory';
-export {default as DMA} from './DMA';
+export {default as CpuMemory} from './CpuMemory';
+export {default as PpuMemory} from './PpuMemory';
+export {default as Dma} from './Dma';
 export {createMapper} from './mappers';

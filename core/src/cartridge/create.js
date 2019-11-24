@@ -12,7 +12,7 @@ export default function createCartridge(data) {
     if (parser.supports(data)) {
       log.info(`Using "${parser.name}" parser`);
       const cartridge = parser.parse(data);
-      computeSHA1(cartridge);
+      computeSha1(cartridge);
       printInfo(cartridge);
       return cartridge;
     }
@@ -20,12 +20,12 @@ export default function createCartridge(data) {
   throw new Error('Unknown ROM image format');
 }
 
-function computeSHA1(cartridge) {
+function computeSha1(cartridge) {
   log.info('Computing SHA-1');
-  const buffer = new Uint8Array(cartridge.prgROMSize + cartridge.chrROMSize);
-  buffer.set(cartridge.prgROM);
-  if (cartridge.chrROM) {
-    buffer.set(cartridge.chrROM, cartridge.prgROMSize);
+  const buffer = new Uint8Array(cartridge.prgRomSize + cartridge.chrRomSize);
+  buffer.set(cartridge.prgRom);
+  if (cartridge.chrRom) {
+    buffer.set(cartridge.chrRom, cartridge.prgRomSize);
   }
   cartridge.sha1 = sha1(buffer);
 }
@@ -37,11 +37,11 @@ function printInfo(cartridge) {
   log.info('Submapper             : ' + cartridge.submapper);
   log.info('Region                : ' + cartridge.region);
   log.info('Mirroring             : ' + cartridge.mirroring);
-  log.info('PRG ROM size          : ' + formatSize(cartridge.prgROMSize));
-  log.info('PRG RAM size          : ' + formatSize(cartridge.prgRAMSize));
-  log.info('PRG RAM size (battery): ' + formatSize(cartridge.prgRAMSizeBattery));
-  log.info('CHR ROM size          : ' + formatSize(cartridge.chrROMSize));
-  log.info('CHR RAM size          : ' + formatSize(cartridge.chrRAMSize));
-  log.info('CHR RAM size (battery): ' + formatSize(cartridge.chrRAMSizeBattery));
+  log.info('PRG ROM size          : ' + formatSize(cartridge.prgRomSize));
+  log.info('PRG RAM size          : ' + formatSize(cartridge.prgRamSize));
+  log.info('PRG RAM size (battery): ' + formatSize(cartridge.prgRamSizeBattery));
+  log.info('CHR ROM size          : ' + formatSize(cartridge.chrRomSize));
+  log.info('CHR RAM size          : ' + formatSize(cartridge.chrRamSize));
+  log.info('CHR RAM size (battery): ' + formatSize(cartridge.chrRamSizeBattery));
   log.info('==========[Cartridge Info - End]==========');
 }

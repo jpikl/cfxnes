@@ -9,7 +9,7 @@ import {
 
 import {createAction, UNLOCK_TIMEOUT} from './utils';
 
-export function deleteNVRAMs() {
+export function deleteNVRams() {
   return dispatch => {
     dispatch(createAction(START_NVRAMS_DELETION));
     dispatch(createAction(FINISH_NVRAMS_DELETION, nvramStore.clear()))

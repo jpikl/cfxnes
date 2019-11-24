@@ -7,7 +7,7 @@ import connect from './connect';
 
 export const RESET = 'reset';
 
-const ResetSettings = ({active, settingsResetLocked, nvramsDeletionState, onActivate, onSettingsReset, onNVRAMsDelete}) => (
+const ResetSettings = ({active, settingsResetLocked, nvramsDeletionState, onActivate, onSettingsReset, onNVRamsDelete: onNVRamsDelete}) => (
   <SettingsPanel id={RESET} title="Reset" icon="trash-o" active={active} onActivate={onActivate}>
     <Reset icon="cog"
            action="Reset settings"
@@ -28,7 +28,7 @@ const ResetSettings = ({active, settingsResetLocked, nvramsDeletionState, onActi
            progressMessage="Deleting data..."
            failureMessage="Deletion failed"
            state={nvramsDeletionState}
-           onConfirm={onNVRAMsDelete}/>
+           onConfirm={onNVRamsDelete}/>
   </SettingsPanel>
 );
 
@@ -38,7 +38,7 @@ ResetSettings.propTypes = {
   nvramsDeletionState: PropTypes.oneOf(ActionState.values).isRequired,
   onActivate: PropTypes.func.isRequired,
   onSettingsReset: PropTypes.func.isRequired,
-  onNVRAMsDelete: PropTypes.func.isRequired,
+  onNVRamsDelete: PropTypes.func.isRequired,
 };
 
 export default connect(ResetSettings);

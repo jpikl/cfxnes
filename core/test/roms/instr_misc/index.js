@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/nes_instr_misc.zip
 //=============================================================================
 
-import {NoOutputPPU} from '../units';
+import {NoOutputPpu} from '../units';
 
 export const dir = './test/roms/instr_misc';
 
@@ -15,7 +15,7 @@ export const files = [
 ];
 
 export function init() {
-  return {ppu: new NoOutputPPU};
+  return {ppu: new NoOutputPpu};
 }
 
 export function execute(test) {

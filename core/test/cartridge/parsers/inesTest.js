@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import {Region, Mirroring, Mapper} from '../../../src/common';
 import {parse} from '../../../src/cartridge/parsers/ines';
-import {createINES as create} from '../utils';
+import {createINes as create} from '../utils';
 
 describe('cartridge/parsers/ines (iNES input)', () => {
   function test(params = {}) {
@@ -29,56 +29,56 @@ describe('cartridge/parsers/ines (iNES input)', () => {
   });
 
   it('throws error for zero PRG RAM', () => {
-    expect(() => test({prgROMUnits: 0})).to.throw('Invalid header: 0 PRG ROM units');
+    expect(() => test({prgRomUnits: 0})).to.throw('Invalid header: 0 PRG ROM units');
   });
 
   it('reads PRG ROM size', () => {
-    expect(test({prgROMUnits: 1}).prgROMSize).to.equal(0x4000);
-    expect(test({prgROMUnits: 2}).prgROMSize).to.equal(0x8000);
-    expect(test({prgROMUnits: 0xFF}).prgROMSize).to.equal(0x3FC000);
+    expect(test({prgRomUnits: 1}).prgRomSize).to.equal(0x4000);
+    expect(test({prgRomUnits: 2}).prgRomSize).to.equal(0x8000);
+    expect(test({prgRomUnits: 0xFF}).prgRomSize).to.equal(0x3FC000);
   });
 
   it('reads PRG ROM', () => {
-    expect(test({prgROMUnits: 1}).prgROM).to.deep.equal(new Uint8Array(0x4000).fill(1));
-    expect(test({prgROMUnits: 2}).prgROM).to.deep.equal(new Uint8Array(0x8000).fill(1));
+    expect(test({prgRomUnits: 1}).prgRom).to.deep.equal(new Uint8Array(0x4000).fill(1));
+    expect(test({prgRomUnits: 2}).prgRom).to.deep.equal(new Uint8Array(0x8000).fill(1));
   });
 
   it('reads PRG RAM size', () => {
-    expect(test({prgRAMUnits: 0}).prgRAMSize).to.equal(0x2000);
-    expect(test({prgRAMUnits: 1}).prgRAMSize).to.equal(0x2000);
-    expect(test({prgRAMUnits: 2}).prgRAMSize).to.equal(0x4000);
-    expect(test({prgRAMUnits: 0xFF}).prgRAMSize).to.equal(0x1FE000);
+    expect(test({prgRamUnits: 0}).prgRamSize).to.equal(0x2000);
+    expect(test({prgRamUnits: 1}).prgRamSize).to.equal(0x2000);
+    expect(test({prgRamUnits: 2}).prgRamSize).to.equal(0x4000);
+    expect(test({prgRamUnits: 0xFF}).prgRamSize).to.equal(0x1FE000);
   });
 
   it('reads battery-backed PRG RAM size as 0', () => {
-    expect(test().prgRAMSizeBattery).to.equal(0);
+    expect(test().prgRamSizeBattery).to.equal(0);
   });
 
   it('reads CHR ROM size', () => {
-    expect(test({chrROMUnits: 0}).chrROMSize).to.equal(0);
-    expect(test({chrROMUnits: 1}).chrROMSize).to.equal(0x2000);
-    expect(test({chrROMUnits: 2}).chrROMSize).to.equal(0x4000);
-    expect(test({chrROMUnits: 0xFF}).chrROMSize).to.equal(0x1FE000);
+    expect(test({chrRomUnits: 0}).chrRomSize).to.equal(0);
+    expect(test({chrRomUnits: 1}).chrRomSize).to.equal(0x2000);
+    expect(test({chrRomUnits: 2}).chrRomSize).to.equal(0x4000);
+    expect(test({chrRomUnits: 0xFF}).chrRomSize).to.equal(0x1FE000);
   });
 
   it('reads CHR ROM', () => {
-    expect(test({chrROMUnits: 0}).chrROM).to.be.undefined;
-    expect(test({chrROMUnits: 1}).chrROM).to.deep.equal(new Uint8Array(0x2000).fill(2));
-    expect(test({chrROMUnits: 2}).chrROM).to.deep.equal(new Uint8Array(0x4000).fill(2));
+    expect(test({chrRomUnits: 0}).chrRom).to.be.undefined;
+    expect(test({chrRomUnits: 1}).chrRom).to.deep.equal(new Uint8Array(0x2000).fill(2));
+    expect(test({chrRomUnits: 2}).chrRom).to.deep.equal(new Uint8Array(0x4000).fill(2));
   });
 
   it('reads CHR RAM size', () => {
-    expect(test({chrROMUnits: 0}).chrRAMSize).to.equal(0x2000);
-    expect(test({chrROMUnits: 1}).chrRAMSize).to.equal(0);
+    expect(test({chrRomUnits: 0}).chrRamSize).to.equal(0x2000);
+    expect(test({chrRomUnits: 1}).chrRamSize).to.equal(0);
   });
 
   it('reads battery-backed CHR RAM size as 0', () => {
-    expect(test().chrRAMSizeBattery).to.equal(0);
+    expect(test().chrRamSizeBattery).to.equal(0);
   });
 
   it('skips trainer', () => {
-    expect(test({hasTrainer: true}).prgROM).to.deep.equal(new Uint8Array(0x4000).fill(1));
-    expect(test({hasTrainer: true}).chrROM).to.deep.equal(new Uint8Array(0x2000).fill(2));
+    expect(test({hasTrainer: true}).prgRom).to.deep.equal(new Uint8Array(0x4000).fill(1));
+    expect(test({hasTrainer: true}).chrRom).to.deep.equal(new Uint8Array(0x2000).fill(2));
   });
 
   it('reads mirroring', () => {
@@ -101,8 +101,8 @@ describe('cartridge/parsers/ines (iNES input)', () => {
     expect(test({mapperId: 4}).mapper).to.equal(Mapper.MMC3);
     expect(test({mapperId: 7}).mapper).to.equal(Mapper.AOROM);
     expect(test({mapperId: 11}).mapper).to.equal(Mapper.COLOR_DREAMS);
-    expect(test({mapperId: 34, chrROMUnits: 0}).mapper).to.equal(Mapper.BNROM);
-    expect(test({mapperId: 34, chrROMUnits: 1}).mapper).to.equal(Mapper.NINA_001);
+    expect(test({mapperId: 34, chrRomUnits: 0}).mapper).to.equal(Mapper.BNROM);
+    expect(test({mapperId: 34, chrRomUnits: 1}).mapper).to.equal(Mapper.NINA_001);
   });
 
   it('reads unknown mapper ID as string', () => {

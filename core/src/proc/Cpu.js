@@ -13,7 +13,7 @@ const IRQ_ADDRESS = 0xFFFE;
 // Table of all CPU operations
 const operations = new Array(0xFF);
 
-export default class CPU {
+export default class Cpu {
 
   //=========================================================
   // Initialization
@@ -115,7 +115,7 @@ export default class CPU {
   //=========================================================
 
   step() {
-    const blocked = this.dma.isBlockingCPU() || this.apu.isBlockingCPU();
+    const blocked = this.dma.isBlockingCpu() || this.apu.isBlockingCpu();
     if (this.activeInterrupts && !blocked) {
       this.resolveInterrupt();
     }
@@ -134,11 +134,11 @@ export default class CPU {
     if (this.activeInterrupts & RESET) {
       this.handleReset();
     } else if (this.activeInterrupts & NMI) {
-      this.handleNMI();
+      this.handleNmi();
     } else if (this.irqDisabled) {
       return; // IRQ requested, but disabled
     } else {
-      this.handleIRQ();
+      this.handleIrq();
     }
     this.tick();
     this.tick(); // Each interrupt takes 7 cycles
@@ -154,13 +154,13 @@ export default class CPU {
     this.halted = false;
   }
 
-  handleNMI() {
+  handleNmi() {
     this.saveStateBeforeInterrupt();
     this.enterInterruptHandler(NMI_ADDRESS);
     this.clearInterrupt(NMI);
   }
 
-  handleIRQ() {
+  handleIrq() {
     this.saveStateBeforeInterrupt();
     this.enterInterruptHandler(IRQ_ADDRESS);
     // Unlike reset/NMI, the interrupt flag is not cleared
@@ -325,7 +325,7 @@ export default class CPU {
   //=========================================================
 
   tick() {
-    if (!this.apu.isBlockingDMA()) {
+    if (!this.apu.isBlockingDma()) {
       this.dma.tick();
       this.mapper.tick();
     }
@@ -432,7 +432,7 @@ export default class CPU {
   // No operation instruction
   //=========================================================
 
-  NOP() {
+  nop() {
     if (this.operationFlags & F_EXTRA_CYCLE) {
       this.tick();
     }
@@ -442,20 +442,20 @@ export default class CPU {
   // Clear flag instructions
   //=========================================================
 
-  CLC() {
+  clc() {
     this.carryFlag = 0;
   }
 
-  CLI() {
+  cli() {
     this.irqDisabled = this.interruptFlag; // Delayed change to IRQ disablement
     this.interruptFlag = 0;
   }
 
-  CLD() {
+  cld() {
     this.decimalFlag = 0;
   }
 
-  CLV() {
+  clv() {
     this.overflowFlag = 0;
   }
 
@@ -463,16 +463,16 @@ export default class CPU {
   // Set flag instructions
   //=========================================================
 
-  SEC() {
+  sec() {
     this.carryFlag = 1;
   }
 
-  SEI() {
+  sei() {
     this.irqDisabled = this.interruptFlag; // Delayed change to IRQ disablement
     this.interruptFlag = 1;
   }
 
-  SED() {
+  sed() {
     this.decimalFlag = 1;
   }
 
@@ -480,31 +480,31 @@ export default class CPU {
   // Memory write instructions
   //=========================================================
 
-  STA(address) {
+  sta(address) {
     this.writeByte(address, this.accumulator);
   }
 
-  STX(address) {
+  stx(address) {
     this.writeByte(address, this.registerX);
   }
 
-  SAX(address) {
+  sax(address) {
     this.writeByte(address, this.accumulator & this.registerX);
   }
 
-  STY(address) {
+  sty(address) {
     this.writeByte(address, this.registerY);
   }
 
-  SHA(address) { // Also known as AHX
+  sha(address) { // Also known as AHX
     this.storeHighAddressIntoMemory(address, this.accumulator & this.registerX);
   }
 
-  SHX(address) { // Also known as SXA
+  shx(address) { // Also known as SXA
     this.storeHighAddressIntoMemory(address, this.registerX);
   }
 
-  SHY(address) { // Also known as SYA
+  shy(address) { // Also known as SYA
     this.storeHighAddressIntoMemory(address, this.registerY);
   }
 
@@ -512,25 +512,25 @@ export default class CPU {
   // Memory read instructions
   //=========================================================
 
-  LDA(address) {
+  lda(address) {
     this.storeValueIntoAccumulator(this.readByte(address));
   }
 
-  LDX(address) {
+  ldx(address) {
     this.storeValueIntoRegisterX(this.readByte(address));
   }
 
-  LDY(address) {
+  ldy(address) {
     this.storeValueIntoRegisterY(this.readByte(address));
   }
 
-  LAX(address) {
+  lax(address) {
     const value = this.readByte(address);
     this.storeValueIntoAccumulator(value);
     this.storeValueIntoRegisterX(value);
   }
 
-  LAS(address) {
+  las(address) {
     this.stackPointer &= this.readByte(address);
     this.storeValueIntoAccumulator(this.stackPointer);
     this.storeValueIntoRegisterX(this.stackPointer);
@@ -540,27 +540,27 @@ export default class CPU {
   // Register transfer instructions
   //=========================================================
 
-  TAX() {
+  tax() {
     this.storeValueIntoRegisterX(this.accumulator);
   }
 
-  TAY() {
+  tay() {
     this.storeValueIntoRegisterY(this.accumulator);
   }
 
-  TXA() {
+  txa() {
     this.storeValueIntoAccumulator(this.registerX);
   }
 
-  TYA() {
+  tya() {
     this.storeValueIntoAccumulator(this.registerY);
   }
 
-  TSX() {
+  tsx() {
     this.storeValueIntoRegisterX(this.stackPointer);
   }
 
-  TXS() {
+  txs() {
     this.stackPointer = this.registerX;
   }
 
@@ -568,11 +568,11 @@ export default class CPU {
   // Stack push instructions
   //=========================================================
 
-  PHA() {
+  pha() {
     this.pushByte(this.accumulator);
   }
 
-  PHP() {
+  php() {
     this.pushByte(this.getStatus() | 0x10); // Push status with bit 4 on (break command flag)
   }
 
@@ -580,12 +580,12 @@ export default class CPU {
   // Stack pull instructions
   //=========================================================
 
-  PLA() {
+  pla() {
     this.tick();
     this.storeValueIntoAccumulator(this.popByte());
   }
 
-  PLP() {
+  plp() {
     this.tick();
     this.irqDisabled = this.interruptFlag; // Delayed change to IRQ disablement
     this.setStatus(this.popByte());
@@ -595,19 +595,19 @@ export default class CPU {
   // Accumulator bitwise instructions
   //=========================================================
 
-  AND(address) {
+  and(address) {
     return this.storeValueIntoAccumulator(this.accumulator & this.readByte(address));
   }
 
-  ORA(address) {
+  ora(address) {
     this.storeValueIntoAccumulator(this.accumulator | this.readByte(address));
   }
 
-  EOR(address) {
+  eor(address) {
     this.storeValueIntoAccumulator(this.accumulator ^ this.readByte(address));
   }
 
-  BIT(address) {
+  bit(address) {
     const value = this.readByte(address);
     this.zeroFlag = (!(this.accumulator & value)) | 0;
     this.overflowFlag = (value >>> 6) & 1;
@@ -618,15 +618,15 @@ export default class CPU {
   // Increment instructions
   //=========================================================
 
-  INC(address) {
+  inc(address) {
     return this.storeValueIntoMemory(address, (this.readWriteByte(address) + 1) & 0xFF);
   }
 
-  INX() {
+  inx() {
     this.storeValueIntoRegisterX((this.registerX + 1) & 0xFF);
   }
 
-  INY() {
+  iny() {
     this.storeValueIntoRegisterY((this.registerY + 1) & 0xFF);
   }
 
@@ -634,15 +634,15 @@ export default class CPU {
   // Decrement instructions
   //=========================================================
 
-  DEC(address) {
+  dec(address) {
     return this.storeValueIntoMemory(address, (this.readWriteByte(address) - 1) & 0xFF);
   }
 
-  DEX() {
+  dex() {
     this.storeValueIntoRegisterX((this.registerX - 1) & 0xFF);
   }
 
-  DEY() {
+  dey() {
     this.storeValueIntoRegisterY((this.registerY - 1) & 0xFF);
   }
 
@@ -650,15 +650,15 @@ export default class CPU {
   // Comparison instructions
   //=========================================================
 
-  CMP(address) {
+  cmp(address) {
     this.compareRegisterAndMemory(this.accumulator, address);
   }
 
-  CPX(address) {
+  cpx(address) {
     this.compareRegisterAndMemory(this.registerX, address);
   }
 
-  CPY(address) {
+  cpy(address) {
     this.compareRegisterAndMemory(this.registerY, address);
   }
 
@@ -666,35 +666,35 @@ export default class CPU {
   // Branching instructions
   //=========================================================
 
-  BCC(address) {
+  bcc(address) {
     this.branchIf(!this.carryFlag, address);
   }
 
-  BCS(address) {
+  bcs(address) {
     this.branchIf(this.carryFlag, address);
   }
 
-  BNE(address) {
+  bne(address) {
     this.branchIf(!this.zeroFlag, address);
   }
 
-  BEQ(address) {
+  beq(address) {
     this.branchIf(this.zeroFlag, address);
   }
 
-  BVC(address) {
+  bvc(address) {
     this.branchIf(!this.overflowFlag, address);
   }
 
-  BVS(address) {
+  bvs(address) {
     this.branchIf(this.overflowFlag, address);
   }
 
-  BPL(address) {
+  bpl(address) {
     this.branchIf(!this.negativeFlag, address);
   }
 
-  BMI(address) {
+  bmi(address) {
     this.branchIf(this.negativeFlag, address);
   }
 
@@ -702,17 +702,17 @@ export default class CPU {
   // Jump / subroutine instructions
   //=========================================================
 
-  JMP(address) {
+  jmp(address) {
     this.programCounter = address;
   }
 
-  JSR(address) {
+  jsr(address) {
     this.tick();
     this.pushWord((this.programCounter - 1) & 0xFFFF); // The pushed address must be the end of the current instruction
     this.programCounter = address;
   }
 
-  RTS() {
+  rts() {
     this.tick();
     this.tick();
     this.programCounter = (this.popWord() + 1) & 0xFFFF; // We decremented the address when pushing it during JSR
@@ -722,7 +722,7 @@ export default class CPU {
   // Interrupt control instructions
   //=========================================================
 
-  BRK() {
+  brk() {
     this.moveProgramCounter(1);  // BRK is 2 byte instruction (skip the unused byte)
     this.pushWord(this.programCounter);
     this.pushByte(this.getStatus() | 0x10); // Push status with bit 4 on (break command flag)
@@ -731,7 +731,7 @@ export default class CPU {
     this.programCounter = this.readWord(this.activeInterrupts & NMI ? NMI_ADDRESS : IRQ_ADDRESS); // Active NMI hijacks BRK
   }
 
-  RTI() {
+  rti() {
     this.tick();
     this.setStatus(this.popByte());
     this.irqDisabled = this.interruptFlag; // Immediate change to IRQ disablement
@@ -742,11 +742,11 @@ export default class CPU {
   // Addition / subtraction instructions
   //=========================================================
 
-  ADC(address) {
+  adc(address) {
     this.addValueToAccumulator(this.readByte(address));
   }
 
-  SBC(address) {
+  sbc(address) {
     this.addValueToAccumulator((this.readByte(address)) ^ 0xFF); // With internal carry increment makes negative operand
   }
 
@@ -754,19 +754,19 @@ export default class CPU {
   // Shifting / rotation instructions
   //=========================================================
 
-  ASL(address) {
+  asl(address) {
     return this.rotateAccumulatorOrMemory(address, this.rotateLeft, false);
   }
 
-  LSR(address) {
+  lsr(address) {
     return this.rotateAccumulatorOrMemory(address, this.rotateRight, false);
   }
 
-  ROL(address) {
+  rol(address) {
     return this.rotateAccumulatorOrMemory(address, this.rotateLeft, true);
   }
 
-  ROR(address) {
+  ror(address) {
     return this.rotateAccumulatorOrMemory(address, this.rotateRight, true);
   }
 
@@ -774,62 +774,58 @@ export default class CPU {
   // Hybrid instructions
   //=========================================================
 
-  /* eslint-disable new-cap */
-
-  DCP(address) {
-    this.compareRegisterAndOperand(this.accumulator, this.DEC(address));
+  dcp(address) {
+    this.compareRegisterAndOperand(this.accumulator, this.dec(address));
   }
 
-  ISB(address) {
-    this.addValueToAccumulator((this.INC(address)) ^ 0xFF); // With internal carry increment makes negative operand
+  isb(address) {
+    this.addValueToAccumulator((this.inc(address)) ^ 0xFF); // With internal carry increment makes negative operand
   }
 
-  SLO(address) {
-    this.storeValueIntoAccumulator(this.accumulator | this.ASL(address));
+  slo(address) {
+    this.storeValueIntoAccumulator(this.accumulator | this.asl(address));
   }
 
-  SRE(address) {
-    this.storeValueIntoAccumulator(this.accumulator ^ this.LSR(address));
+  sre(address) {
+    this.storeValueIntoAccumulator(this.accumulator ^ this.lsr(address));
   }
 
-  RLA(address) {
-    this.storeValueIntoAccumulator(this.accumulator & this.ROL(address));
+  rla(address) {
+    this.storeValueIntoAccumulator(this.accumulator & this.rol(address));
   }
 
-  XAA(address) { // Also known as ANE
-    this.storeValueIntoAccumulator(this.registerX & this.AND(address));
+  xaa(address) { // Also known as ANE
+    this.storeValueIntoAccumulator(this.registerX & this.and(address));
   }
 
-  RRA(address) {
-    this.addValueToAccumulator(this.ROR(address));
+  rra(address) {
+    this.addValueToAccumulator(this.ror(address));
   }
 
-  AXS(address) { // Also known as SBX
+  axs(address) { // Also known as SBX
     this.registerX = this.compareRegisterAndMemory(this.accumulator & this.registerX, address);
   }
 
-  ANC(address) {
-    this.rotateLeft(this.AND(address), false); // rotateLeft computes carry
+  anc(address) {
+    this.rotateLeft(this.and(address), false); // rotateLeft computes carry
   }
 
-  ALR(address) {
-    this.AND(address);
-    this.LSR(null);
+  alr(address) {
+    this.and(address);
+    this.lsr(null);
   }
 
-  ARR(address) {
-    this.AND(address);
-    this.ROR(null);
+  arr(address) {
+    this.and(address);
+    this.ror(null);
     this.carryFlag = (this.accumulator >>> 6) & 1;
     this.overflowFlag = ((this.accumulator >>> 5) & 1) ^ this.carryFlag;
   }
 
-  TAS(address) { // Also known as SHS
+  tas(address) { // Also known as SHS
     this.stackPointer = this.accumulator & this.registerX;
-    this.SHA(address);
+    this.sha(address);
   }
-
-  /* eslint-enable new-cap */
 
   //=========================================================
   // Instruction helpers
@@ -931,375 +927,375 @@ function isDifferentPage(address1, address2) {
 // Operation table initialization
 //=========================================================
 
-const proto = CPU.prototype;
+const proto = Cpu.prototype;
 
 //=========================================================
 // No operation instruction
 //=========================================================
 
-operations[0x1A] = [proto.NOP, proto.impliedMode, 0]; // 2 cycles
-operations[0x3A] = [proto.NOP, proto.impliedMode, 0]; // 2 cycles
-operations[0x5A] = [proto.NOP, proto.impliedMode, 0]; // 2 cycles
-operations[0x7A] = [proto.NOP, proto.impliedMode, 0]; // 2 cycles
-operations[0xDA] = [proto.NOP, proto.impliedMode, 0]; // 2 cycles
-operations[0xEA] = [proto.NOP, proto.impliedMode, 0]; // 2 cycles
-operations[0xFA] = [proto.NOP, proto.impliedMode, 0]; // 2 cycles
+operations[0x1A] = [proto.nop, proto.impliedMode, 0]; // 2 cycles
+operations[0x3A] = [proto.nop, proto.impliedMode, 0]; // 2 cycles
+operations[0x5A] = [proto.nop, proto.impliedMode, 0]; // 2 cycles
+operations[0x7A] = [proto.nop, proto.impliedMode, 0]; // 2 cycles
+operations[0xDA] = [proto.nop, proto.impliedMode, 0]; // 2 cycles
+operations[0xEA] = [proto.nop, proto.impliedMode, 0]; // 2 cycles
+operations[0xFA] = [proto.nop, proto.impliedMode, 0]; // 2 cycles
 
-operations[0x80] = [proto.NOP, proto.immediateMode, F_EXTRA_CYCLE]; // 2 cycles
-operations[0x82] = [proto.NOP, proto.immediateMode, F_EXTRA_CYCLE]; // 2 cycles
-operations[0x89] = [proto.NOP, proto.immediateMode, F_EXTRA_CYCLE]; // 2 cycles
-operations[0xC2] = [proto.NOP, proto.immediateMode, F_EXTRA_CYCLE]; // 2 cycles
-operations[0xE2] = [proto.NOP, proto.immediateMode, F_EXTRA_CYCLE]; // 2 cycles
+operations[0x80] = [proto.nop, proto.immediateMode, F_EXTRA_CYCLE]; // 2 cycles
+operations[0x82] = [proto.nop, proto.immediateMode, F_EXTRA_CYCLE]; // 2 cycles
+operations[0x89] = [proto.nop, proto.immediateMode, F_EXTRA_CYCLE]; // 2 cycles
+operations[0xC2] = [proto.nop, proto.immediateMode, F_EXTRA_CYCLE]; // 2 cycles
+operations[0xE2] = [proto.nop, proto.immediateMode, F_EXTRA_CYCLE]; // 2 cycles
 
-operations[0x04] = [proto.NOP, proto.zeroPageMode, F_EXTRA_CYCLE]; // 3 cycles
-operations[0x44] = [proto.NOP, proto.zeroPageMode, F_EXTRA_CYCLE]; // 3 cycles
-operations[0x64] = [proto.NOP, proto.zeroPageMode, F_EXTRA_CYCLE]; // 3 cycles
+operations[0x04] = [proto.nop, proto.zeroPageMode, F_EXTRA_CYCLE]; // 3 cycles
+operations[0x44] = [proto.nop, proto.zeroPageMode, F_EXTRA_CYCLE]; // 3 cycles
+operations[0x64] = [proto.nop, proto.zeroPageMode, F_EXTRA_CYCLE]; // 3 cycles
 
-operations[0x14] = [proto.NOP, proto.zeroPageXMode, F_EXTRA_CYCLE]; // 4 cycles
-operations[0x34] = [proto.NOP, proto.zeroPageXMode, F_EXTRA_CYCLE]; // 4 cycles
-operations[0x54] = [proto.NOP, proto.zeroPageXMode, F_EXTRA_CYCLE]; // 4 cycles
-operations[0x74] = [proto.NOP, proto.zeroPageXMode, F_EXTRA_CYCLE]; // 4 cycles
-operations[0xD4] = [proto.NOP, proto.zeroPageXMode, F_EXTRA_CYCLE]; // 4 cycles
-operations[0xF4] = [proto.NOP, proto.zeroPageXMode, F_EXTRA_CYCLE]; // 4 cycles
+operations[0x14] = [proto.nop, proto.zeroPageXMode, F_EXTRA_CYCLE]; // 4 cycles
+operations[0x34] = [proto.nop, proto.zeroPageXMode, F_EXTRA_CYCLE]; // 4 cycles
+operations[0x54] = [proto.nop, proto.zeroPageXMode, F_EXTRA_CYCLE]; // 4 cycles
+operations[0x74] = [proto.nop, proto.zeroPageXMode, F_EXTRA_CYCLE]; // 4 cycles
+operations[0xD4] = [proto.nop, proto.zeroPageXMode, F_EXTRA_CYCLE]; // 4 cycles
+operations[0xF4] = [proto.nop, proto.zeroPageXMode, F_EXTRA_CYCLE]; // 4 cycles
 
-operations[0x0C] = [proto.NOP, proto.absoluteMode, F_EXTRA_CYCLE]; // 4 cycles
+operations[0x0C] = [proto.nop, proto.absoluteMode, F_EXTRA_CYCLE]; // 4 cycles
 
-operations[0x1C] = [proto.NOP, proto.absoluteXMode, F_EXTRA_CYCLE]; // 4 cycles (+1 if page crossed)
-operations[0x3C] = [proto.NOP, proto.absoluteXMode, F_EXTRA_CYCLE]; // 4 cycles (+1 if page crossed)
-operations[0x5C] = [proto.NOP, proto.absoluteXMode, F_EXTRA_CYCLE]; // 4 cycles (+1 if page crossed)
-operations[0x7C] = [proto.NOP, proto.absoluteXMode, F_EXTRA_CYCLE]; // 4 cycles (+1 if page crossed)
-operations[0xDC] = [proto.NOP, proto.absoluteXMode, F_EXTRA_CYCLE]; // 4 cycles (+1 if page crossed)
-operations[0xFC] = [proto.NOP, proto.absoluteXMode, F_EXTRA_CYCLE]; // 4 cycles (+1 if page crossed)
+operations[0x1C] = [proto.nop, proto.absoluteXMode, F_EXTRA_CYCLE]; // 4 cycles (+1 if page crossed)
+operations[0x3C] = [proto.nop, proto.absoluteXMode, F_EXTRA_CYCLE]; // 4 cycles (+1 if page crossed)
+operations[0x5C] = [proto.nop, proto.absoluteXMode, F_EXTRA_CYCLE]; // 4 cycles (+1 if page crossed)
+operations[0x7C] = [proto.nop, proto.absoluteXMode, F_EXTRA_CYCLE]; // 4 cycles (+1 if page crossed)
+operations[0xDC] = [proto.nop, proto.absoluteXMode, F_EXTRA_CYCLE]; // 4 cycles (+1 if page crossed)
+operations[0xFC] = [proto.nop, proto.absoluteXMode, F_EXTRA_CYCLE]; // 4 cycles (+1 if page crossed)
 
 //=========================================================
 // Clear flag instructions
 //=========================================================
 
-operations[0x18] = [proto.CLC, proto.impliedMode, 0]; // 2 cycles
-operations[0x58] = [proto.CLI, proto.impliedMode, 0]; // 2 cycles
-operations[0xD8] = [proto.CLD, proto.impliedMode, 0]; // 2 cycles
-operations[0xB8] = [proto.CLV, proto.impliedMode, 0]; // 2 cycles
+operations[0x18] = [proto.clc, proto.impliedMode, 0]; // 2 cycles
+operations[0x58] = [proto.cli, proto.impliedMode, 0]; // 2 cycles
+operations[0xD8] = [proto.cld, proto.impliedMode, 0]; // 2 cycles
+operations[0xB8] = [proto.clv, proto.impliedMode, 0]; // 2 cycles
 
 //=========================================================
 // Set flag instructions
 //=========================================================
 
-operations[0x38] = [proto.SEC, proto.impliedMode, 0]; // 2 cycles
-operations[0x78] = [proto.SEI, proto.impliedMode, 0]; // 2 cycles
-operations[0xF8] = [proto.SED, proto.impliedMode, 0]; // 2 cycles
+operations[0x38] = [proto.sec, proto.impliedMode, 0]; // 2 cycles
+operations[0x78] = [proto.sei, proto.impliedMode, 0]; // 2 cycles
+operations[0xF8] = [proto.sed, proto.impliedMode, 0]; // 2 cycles
 
 //=========================================================
 // Memory write instructions
 //=========================================================
 
-operations[0x85] = [proto.STA, proto.zeroPageMode, 0];  // 3 cycles
-operations[0x95] = [proto.STA, proto.zeroPageXMode, 0]; // 4 cycles
-operations[0x8D] = [proto.STA, proto.absoluteMode, 0];  // 4 cycles
-operations[0x9D] = [proto.STA, proto.absoluteXMode, F_DOUBLE_READ]; // 5 cycles
-operations[0x99] = [proto.STA, proto.absoluteYMode, F_DOUBLE_READ]; // 5 cycles
-operations[0x81] = [proto.STA, proto.indirectXMode, 0]; // 6 cycles
-operations[0x91] = [proto.STA, proto.indirectYMode, F_DOUBLE_READ]; // 6 cycles
+operations[0x85] = [proto.sta, proto.zeroPageMode, 0];  // 3 cycles
+operations[0x95] = [proto.sta, proto.zeroPageXMode, 0]; // 4 cycles
+operations[0x8D] = [proto.sta, proto.absoluteMode, 0];  // 4 cycles
+operations[0x9D] = [proto.sta, proto.absoluteXMode, F_DOUBLE_READ]; // 5 cycles
+operations[0x99] = [proto.sta, proto.absoluteYMode, F_DOUBLE_READ]; // 5 cycles
+operations[0x81] = [proto.sta, proto.indirectXMode, 0]; // 6 cycles
+operations[0x91] = [proto.sta, proto.indirectYMode, F_DOUBLE_READ]; // 6 cycles
 
-operations[0x86] = [proto.STX, proto.zeroPageMode, 0];  // 3 cycles
-operations[0x96] = [proto.STX, proto.zeroPageYMode, 0]; // 4 cycles
-operations[0x8E] = [proto.STX, proto.absoluteMode, 0];  // 4 cycles
+operations[0x86] = [proto.stx, proto.zeroPageMode, 0];  // 3 cycles
+operations[0x96] = [proto.stx, proto.zeroPageYMode, 0]; // 4 cycles
+operations[0x8E] = [proto.stx, proto.absoluteMode, 0];  // 4 cycles
 
-operations[0x87] = [proto.SAX, proto.zeroPageMode, 0];  // 3 cycles
-operations[0x97] = [proto.SAX, proto.zeroPageYMode, 0]; // 4 cycles
-operations[0x8F] = [proto.SAX, proto.absoluteMode, 0];  // 4 cycles
-operations[0x83] = [proto.SAX, proto.indirectXMode, 0]; // 6 cycles
+operations[0x87] = [proto.sax, proto.zeroPageMode, 0];  // 3 cycles
+operations[0x97] = [proto.sax, proto.zeroPageYMode, 0]; // 4 cycles
+operations[0x8F] = [proto.sax, proto.absoluteMode, 0];  // 4 cycles
+operations[0x83] = [proto.sax, proto.indirectXMode, 0]; // 6 cycles
 
-operations[0x84] = [proto.STY, proto.zeroPageMode, 0];  // 3 cycles
-operations[0x94] = [proto.STY, proto.zeroPageXMode, 0]; // 4 cycles
-operations[0x8C] = [proto.STY, proto.absoluteMode, 0];  // 4 cycles
+operations[0x84] = [proto.sty, proto.zeroPageMode, 0];  // 3 cycles
+operations[0x94] = [proto.sty, proto.zeroPageXMode, 0]; // 4 cycles
+operations[0x8C] = [proto.sty, proto.absoluteMode, 0];  // 4 cycles
 
-operations[0x93] = [proto.SHA, proto.indirectYMode, F_DOUBLE_READ]; // 6 cycles
-operations[0x9F] = [proto.SHA, proto.absoluteYMode, F_DOUBLE_READ]; // 5 cycles
-operations[0x9E] = [proto.SHX, proto.absoluteYMode, F_DOUBLE_READ]; // 5 cycles
-operations[0x9C] = [proto.SHY, proto.absoluteXMode, F_DOUBLE_READ]; // 5 cycles
+operations[0x93] = [proto.sha, proto.indirectYMode, F_DOUBLE_READ]; // 6 cycles
+operations[0x9F] = [proto.sha, proto.absoluteYMode, F_DOUBLE_READ]; // 5 cycles
+operations[0x9E] = [proto.shx, proto.absoluteYMode, F_DOUBLE_READ]; // 5 cycles
+operations[0x9C] = [proto.shy, proto.absoluteXMode, F_DOUBLE_READ]; // 5 cycles
 
 //=========================================================
 // Memory read instructions
 //=========================================================
 
-operations[0xA9] = [proto.LDA, proto.immediateMode, 0]; // 2 cycles
-operations[0xA5] = [proto.LDA, proto.zeroPageMode, 0];  // 3 cycles
-operations[0xB5] = [proto.LDA, proto.zeroPageXMode, 0]; // 4 cycles
-operations[0xAD] = [proto.LDA, proto.absoluteMode, 0];  // 4 cycles
-operations[0xBD] = [proto.LDA, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0xB9] = [proto.LDA, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0xA1] = [proto.LDA, proto.indirectXMode, 0]; // 6 cycles
-operations[0xB1] = [proto.LDA, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
+operations[0xA9] = [proto.lda, proto.immediateMode, 0]; // 2 cycles
+operations[0xA5] = [proto.lda, proto.zeroPageMode, 0];  // 3 cycles
+operations[0xB5] = [proto.lda, proto.zeroPageXMode, 0]; // 4 cycles
+operations[0xAD] = [proto.lda, proto.absoluteMode, 0];  // 4 cycles
+operations[0xBD] = [proto.lda, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0xB9] = [proto.lda, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0xA1] = [proto.lda, proto.indirectXMode, 0]; // 6 cycles
+operations[0xB1] = [proto.lda, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
 
-operations[0xA2] = [proto.LDX, proto.immediateMode, 0]; // 2 cycles
-operations[0xA6] = [proto.LDX, proto.zeroPageMode, 0];  // 3 cycles
-operations[0xB6] = [proto.LDX, proto.zeroPageYMode, 0]; // 4 cycles
-operations[0xAE] = [proto.LDX, proto.absoluteMode, 0];  // 4 cycles
-operations[0xBE] = [proto.LDX, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0xA2] = [proto.ldx, proto.immediateMode, 0]; // 2 cycles
+operations[0xA6] = [proto.ldx, proto.zeroPageMode, 0];  // 3 cycles
+operations[0xB6] = [proto.ldx, proto.zeroPageYMode, 0]; // 4 cycles
+operations[0xAE] = [proto.ldx, proto.absoluteMode, 0];  // 4 cycles
+operations[0xBE] = [proto.ldx, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
 
-operations[0xA0] = [proto.LDY, proto.immediateMode, 0]; // 2 cycles
-operations[0xA4] = [proto.LDY, proto.zeroPageMode, 0];  // 3 cycles
-operations[0xB4] = [proto.LDY, proto.zeroPageXMode, 0]; // 4 cycles
-operations[0xAC] = [proto.LDY, proto.absoluteMode, 0];  // 4 cycles
-operations[0xBC] = [proto.LDY, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0xA0] = [proto.ldy, proto.immediateMode, 0]; // 2 cycles
+operations[0xA4] = [proto.ldy, proto.zeroPageMode, 0];  // 3 cycles
+operations[0xB4] = [proto.ldy, proto.zeroPageXMode, 0]; // 4 cycles
+operations[0xAC] = [proto.ldy, proto.absoluteMode, 0];  // 4 cycles
+operations[0xBC] = [proto.ldy, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
 
-operations[0xAB] = [proto.LAX, proto.immediateMode, 0]; // 2 cycles
-operations[0xA7] = [proto.LAX, proto.zeroPageMode, 0];  // 3 cycles
-operations[0xB7] = [proto.LAX, proto.zeroPageYMode, 0]; // 4 cycles
-operations[0xAF] = [proto.LAX, proto.absoluteMode, 0];  // 4 cycles
-operations[0xBF] = [proto.LAX, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0xA3] = [proto.LAX, proto.indirectXMode, 0]; // 6 cycles
-operations[0xB3] = [proto.LAX, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
+operations[0xAB] = [proto.lax, proto.immediateMode, 0]; // 2 cycles
+operations[0xA7] = [proto.lax, proto.zeroPageMode, 0];  // 3 cycles
+operations[0xB7] = [proto.lax, proto.zeroPageYMode, 0]; // 4 cycles
+operations[0xAF] = [proto.lax, proto.absoluteMode, 0];  // 4 cycles
+operations[0xBF] = [proto.lax, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0xA3] = [proto.lax, proto.indirectXMode, 0]; // 6 cycles
+operations[0xB3] = [proto.lax, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
 
-operations[0xBB] = [proto.LAS, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0xBB] = [proto.las, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
 
 //=========================================================
 // Register transfer instructions
 //=========================================================
 
-operations[0xAA] = [proto.TAX, proto.impliedMode, 0]; // 2 cycles
-operations[0xA8] = [proto.TAY, proto.impliedMode, 0]; // 2 cycles
-operations[0x8A] = [proto.TXA, proto.impliedMode, 0]; // 2 cycles
-operations[0x98] = [proto.TYA, proto.impliedMode, 0]; // 2 cycles
-operations[0x9A] = [proto.TXS, proto.impliedMode, 0]; // 2 cycles
-operations[0xBA] = [proto.TSX, proto.impliedMode, 0]; // 2 cycles
+operations[0xAA] = [proto.tax, proto.impliedMode, 0]; // 2 cycles
+operations[0xA8] = [proto.tay, proto.impliedMode, 0]; // 2 cycles
+operations[0x8A] = [proto.txa, proto.impliedMode, 0]; // 2 cycles
+operations[0x98] = [proto.tya, proto.impliedMode, 0]; // 2 cycles
+operations[0x9A] = [proto.txs, proto.impliedMode, 0]; // 2 cycles
+operations[0xBA] = [proto.tsx, proto.impliedMode, 0]; // 2 cycles
 
 //=========================================================
 // Stack push instructions
 //=========================================================
 
-operations[0x48] = [proto.PHA, proto.impliedMode, 0]; // 3 cycles
-operations[0x08] = [proto.PHP, proto.impliedMode, 0]; // 3 cycles
+operations[0x48] = [proto.pha, proto.impliedMode, 0]; // 3 cycles
+operations[0x08] = [proto.php, proto.impliedMode, 0]; // 3 cycles
 
 //=========================================================
 // Stack pull instructions
 //=========================================================
 
-operations[0x68] = [proto.PLA, proto.impliedMode, 0]; // 4 cycles
-operations[0x28] = [proto.PLP, proto.impliedMode, 0]; // 4 cycles
+operations[0x68] = [proto.pla, proto.impliedMode, 0]; // 4 cycles
+operations[0x28] = [proto.plp, proto.impliedMode, 0]; // 4 cycles
 
 //=========================================================
 // Accumulator bitwise instructions
 //=========================================================
 
-operations[0x29] = [proto.AND, proto.immediateMode, 0]; // 2 cycles
-operations[0x25] = [proto.AND, proto.zeroPageMode, 0];  // 3 cycles
-operations[0x35] = [proto.AND, proto.zeroPageXMode, 0]; // 4 cycles
-operations[0x2D] = [proto.AND, proto.absoluteMode, 0];  // 4 cycles
-operations[0x3D] = [proto.AND, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0x39] = [proto.AND, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0x21] = [proto.AND, proto.indirectXMode, 0]; // 6 cycles
-operations[0x31] = [proto.AND, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
+operations[0x29] = [proto.and, proto.immediateMode, 0]; // 2 cycles
+operations[0x25] = [proto.and, proto.zeroPageMode, 0];  // 3 cycles
+operations[0x35] = [proto.and, proto.zeroPageXMode, 0]; // 4 cycles
+operations[0x2D] = [proto.and, proto.absoluteMode, 0];  // 4 cycles
+operations[0x3D] = [proto.and, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0x39] = [proto.and, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0x21] = [proto.and, proto.indirectXMode, 0]; // 6 cycles
+operations[0x31] = [proto.and, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
 
-operations[0x09] = [proto.ORA, proto.immediateMode, 0]; // 2 cycles
-operations[0x05] = [proto.ORA, proto.zeroPageMode, 0];  // 3 cycles
-operations[0x15] = [proto.ORA, proto.zeroPageXMode, 0]; // 4 cycles
-operations[0x0D] = [proto.ORA, proto.absoluteMode, 0];  // 4 cycles
-operations[0x1D] = [proto.ORA, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0x19] = [proto.ORA, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0x01] = [proto.ORA, proto.indirectXMode, 0]; // 6 cycles
-operations[0x11] = [proto.ORA, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
+operations[0x09] = [proto.ora, proto.immediateMode, 0]; // 2 cycles
+operations[0x05] = [proto.ora, proto.zeroPageMode, 0];  // 3 cycles
+operations[0x15] = [proto.ora, proto.zeroPageXMode, 0]; // 4 cycles
+operations[0x0D] = [proto.ora, proto.absoluteMode, 0];  // 4 cycles
+operations[0x1D] = [proto.ora, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0x19] = [proto.ora, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0x01] = [proto.ora, proto.indirectXMode, 0]; // 6 cycles
+operations[0x11] = [proto.ora, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
 
-operations[0x49] = [proto.EOR, proto.immediateMode, 0]; // 2 cycles
-operations[0x45] = [proto.EOR, proto.zeroPageMode, 0];  // 3 cycles
-operations[0x55] = [proto.EOR, proto.zeroPageXMode, 0]; // 4 cycles
-operations[0x4D] = [proto.EOR, proto.absoluteMode, 0];  // 4 cycles
-operations[0x5D] = [proto.EOR, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0x59] = [proto.EOR, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0x41] = [proto.EOR, proto.indirectXMode, 0]; // 6 cycles
-operations[0x51] = [proto.EOR, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
+operations[0x49] = [proto.eor, proto.immediateMode, 0]; // 2 cycles
+operations[0x45] = [proto.eor, proto.zeroPageMode, 0];  // 3 cycles
+operations[0x55] = [proto.eor, proto.zeroPageXMode, 0]; // 4 cycles
+operations[0x4D] = [proto.eor, proto.absoluteMode, 0];  // 4 cycles
+operations[0x5D] = [proto.eor, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0x59] = [proto.eor, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0x41] = [proto.eor, proto.indirectXMode, 0]; // 6 cycles
+operations[0x51] = [proto.eor, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
 
-operations[0x24] = [proto.BIT, proto.zeroPageMode, 0]; // 3 cycles
-operations[0x2C] = [proto.BIT, proto.absoluteMode, 0]; // 4 cycles
+operations[0x24] = [proto.bit, proto.zeroPageMode, 0]; // 3 cycles
+operations[0x2C] = [proto.bit, proto.absoluteMode, 0]; // 4 cycles
 
 //=========================================================
 // Increment instructions
 //=========================================================
 
-operations[0xE6] = [proto.INC, proto.zeroPageMode, 0];  // 5 cycles
-operations[0xF6] = [proto.INC, proto.zeroPageXMode, 0]; // 6 cycles
-operations[0xEE] = [proto.INC, proto.absoluteMode, 0];  // 6 cycles
-operations[0xFE] = [proto.INC, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
+operations[0xE6] = [proto.inc, proto.zeroPageMode, 0];  // 5 cycles
+operations[0xF6] = [proto.inc, proto.zeroPageXMode, 0]; // 6 cycles
+operations[0xEE] = [proto.inc, proto.absoluteMode, 0];  // 6 cycles
+operations[0xFE] = [proto.inc, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
 
-operations[0xE8] = [proto.INX, proto.impliedMode, 0]; // 2 cycles
-operations[0xC8] = [proto.INY, proto.impliedMode, 0]; // 2 cycles
+operations[0xE8] = [proto.inx, proto.impliedMode, 0]; // 2 cycles
+operations[0xC8] = [proto.iny, proto.impliedMode, 0]; // 2 cycles
 
 //=========================================================
 // Decrement instructions
 //=========================================================
 
-operations[0xC6] = [proto.DEC, proto.zeroPageMode, 0];  // 5 cycles
-operations[0xD6] = [proto.DEC, proto.zeroPageXMode, 0]; // 6 cycles
-operations[0xCE] = [proto.DEC, proto.absoluteMode, 0];  // 6 cycles
-operations[0xDE] = [proto.DEC, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
+operations[0xC6] = [proto.dec, proto.zeroPageMode, 0];  // 5 cycles
+operations[0xD6] = [proto.dec, proto.zeroPageXMode, 0]; // 6 cycles
+operations[0xCE] = [proto.dec, proto.absoluteMode, 0];  // 6 cycles
+operations[0xDE] = [proto.dec, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
 
-operations[0xCA] = [proto.DEX, proto.impliedMode, 0]; // 2 cycles
-operations[0x88] = [proto.DEY, proto.impliedMode, 0]; // 2 cycles
+operations[0xCA] = [proto.dex, proto.impliedMode, 0]; // 2 cycles
+operations[0x88] = [proto.dey, proto.impliedMode, 0]; // 2 cycles
 
 //=========================================================
 // Comparison instructions
 //=========================================================
 
-operations[0xC9] = [proto.CMP, proto.immediateMode, 0]; // 2 cycles
-operations[0xC5] = [proto.CMP, proto.zeroPageMode, 0];  // 3 cycles
-operations[0xD5] = [proto.CMP, proto.zeroPageXMode, 0]; // 4 cycles
-operations[0xCD] = [proto.CMP, proto.absoluteMode, 0];  // 4 cycles
-operations[0xDD] = [proto.CMP, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0xD9] = [proto.CMP, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0xC1] = [proto.CMP, proto.indirectXMode, 0]; // 6 cycles
-operations[0xD1] = [proto.CMP, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
+operations[0xC9] = [proto.cmp, proto.immediateMode, 0]; // 2 cycles
+operations[0xC5] = [proto.cmp, proto.zeroPageMode, 0];  // 3 cycles
+operations[0xD5] = [proto.cmp, proto.zeroPageXMode, 0]; // 4 cycles
+operations[0xCD] = [proto.cmp, proto.absoluteMode, 0];  // 4 cycles
+operations[0xDD] = [proto.cmp, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0xD9] = [proto.cmp, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0xC1] = [proto.cmp, proto.indirectXMode, 0]; // 6 cycles
+operations[0xD1] = [proto.cmp, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
 
-operations[0xE0] = [proto.CPX, proto.immediateMode, 0]; // 2 cycles
-operations[0xE4] = [proto.CPX, proto.zeroPageMode, 0];  // 3 cycles
-operations[0xEC] = [proto.CPX, proto.absoluteMode, 0];  // 4 cycles
+operations[0xE0] = [proto.cpx, proto.immediateMode, 0]; // 2 cycles
+operations[0xE4] = [proto.cpx, proto.zeroPageMode, 0];  // 3 cycles
+operations[0xEC] = [proto.cpx, proto.absoluteMode, 0];  // 4 cycles
 
-operations[0xC0] = [proto.CPY, proto.immediateMode, 0]; // 2 cycles
-operations[0xC4] = [proto.CPY, proto.zeroPageMode, 0];  // 3 cycles
-operations[0xCC] = [proto.CPY, proto.absoluteMode, 0];  // 4 cycles
+operations[0xC0] = [proto.cpy, proto.immediateMode, 0]; // 2 cycles
+operations[0xC4] = [proto.cpy, proto.zeroPageMode, 0];  // 3 cycles
+operations[0xCC] = [proto.cpy, proto.absoluteMode, 0];  // 4 cycles
 
 //=========================================================
 // Branching instructions
 //=========================================================
 
-operations[0x90] = [proto.BCC, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
-operations[0xB0] = [proto.BCS, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
+operations[0x90] = [proto.bcc, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
+operations[0xB0] = [proto.bcs, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
 
-operations[0xD0] = [proto.BNE, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
-operations[0xF0] = [proto.BEQ, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
+operations[0xD0] = [proto.bne, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
+operations[0xF0] = [proto.beq, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
 
-operations[0x50] = [proto.BVC, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
-operations[0x70] = [proto.BVS, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
+operations[0x50] = [proto.bvc, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
+operations[0x70] = [proto.bvs, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
 
-operations[0x10] = [proto.BPL, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
-operations[0x30] = [proto.BMI, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
+operations[0x10] = [proto.bpl, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
+operations[0x30] = [proto.bmi, proto.relativeMode, 0]; // 2 cycles (+1 if branch succeeds +2 if to a new page)
 
 //=========================================================
 // Jump / subroutine instructions
 //=========================================================
 
-operations[0x4C] = [proto.JMP, proto.absoluteMode, 0]; // 3 cycles
-operations[0x6C] = [proto.JMP, proto.indirectMode, 0]; // 5 cycles
-operations[0x20] = [proto.JSR, proto.absoluteMode, 0]; // 6 cycles
-operations[0x60] = [proto.RTS, proto.impliedMode, 0];  // 6 cycles
+operations[0x4C] = [proto.jmp, proto.absoluteMode, 0]; // 3 cycles
+operations[0x6C] = [proto.jmp, proto.indirectMode, 0]; // 5 cycles
+operations[0x20] = [proto.jsr, proto.absoluteMode, 0]; // 6 cycles
+operations[0x60] = [proto.rts, proto.impliedMode, 0];  // 6 cycles
 
 //=========================================================
 // Interrupt control instructions
 //=========================================================
 
-operations[0x00] = [proto.BRK, proto.impliedMode, 0]; // 7 cycles
-operations[0x40] = [proto.RTI, proto.impliedMode, 0]; // 6 cycles
+operations[0x00] = [proto.brk, proto.impliedMode, 0]; // 7 cycles
+operations[0x40] = [proto.rti, proto.impliedMode, 0]; // 6 cycles
 
 //=========================================================
 // Addition / subtraction instructions
 //=========================================================
 
-operations[0x69] = [proto.ADC, proto.immediateMode, 0]; // 2 cycles
-operations[0x65] = [proto.ADC, proto.zeroPageMode, 0];  // 3 cycles
-operations[0x75] = [proto.ADC, proto.zeroPageXMode, 0]; // 4 cycles
-operations[0x6D] = [proto.ADC, proto.absoluteMode, 0];  // 4 cycles
-operations[0x7D] = [proto.ADC, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0x79] = [proto.ADC, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0x61] = [proto.ADC, proto.indirectXMode, 0]; // 6 cycles
-operations[0x71] = [proto.ADC, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
+operations[0x69] = [proto.adc, proto.immediateMode, 0]; // 2 cycles
+operations[0x65] = [proto.adc, proto.zeroPageMode, 0];  // 3 cycles
+operations[0x75] = [proto.adc, proto.zeroPageXMode, 0]; // 4 cycles
+operations[0x6D] = [proto.adc, proto.absoluteMode, 0];  // 4 cycles
+operations[0x7D] = [proto.adc, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0x79] = [proto.adc, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0x61] = [proto.adc, proto.indirectXMode, 0]; // 6 cycles
+operations[0x71] = [proto.adc, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
 
-operations[0xE9] = [proto.SBC, proto.immediateMode, 0]; // 2 cycles
-operations[0xEB] = [proto.SBC, proto.immediateMode, 0]; // 2 cycles
-operations[0xE5] = [proto.SBC, proto.zeroPageMode, 0];  // 3 cycles
-operations[0xF5] = [proto.SBC, proto.zeroPageXMode, 0]; // 4 cycles
-operations[0xED] = [proto.SBC, proto.absoluteMode, 0];  // 4 cycles
-operations[0xFD] = [proto.SBC, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0xF9] = [proto.SBC, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
-operations[0xE1] = [proto.SBC, proto.indirectXMode, 0]; // 6 cycles
-operations[0xF1] = [proto.SBC, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
+operations[0xE9] = [proto.sbc, proto.immediateMode, 0]; // 2 cycles
+operations[0xEB] = [proto.sbc, proto.immediateMode, 0]; // 2 cycles
+operations[0xE5] = [proto.sbc, proto.zeroPageMode, 0];  // 3 cycles
+operations[0xF5] = [proto.sbc, proto.zeroPageXMode, 0]; // 4 cycles
+operations[0xED] = [proto.sbc, proto.absoluteMode, 0];  // 4 cycles
+operations[0xFD] = [proto.sbc, proto.absoluteXMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0xF9] = [proto.sbc, proto.absoluteYMode, 0]; // 4 cycles (+1 if page crossed)
+operations[0xE1] = [proto.sbc, proto.indirectXMode, 0]; // 6 cycles
+operations[0xF1] = [proto.sbc, proto.indirectYMode, 0]; // 5 cycles (+1 if page crossed)
 
 //=========================================================
 // Shifting / rotation instructions
 //=========================================================
 
-operations[0x0A] = [proto.ASL, proto.accumulatorMode, 0]; // 2 cycles
-operations[0x06] = [proto.ASL, proto.zeroPageMode, 0];    // 5 cycles
-operations[0x16] = [proto.ASL, proto.zeroPageXMode, 0];   // 6 cycles
-operations[0x0E] = [proto.ASL, proto.absoluteMode, 0];    // 6 cycles
-operations[0x1E] = [proto.ASL, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
+operations[0x0A] = [proto.asl, proto.accumulatorMode, 0]; // 2 cycles
+operations[0x06] = [proto.asl, proto.zeroPageMode, 0];    // 5 cycles
+operations[0x16] = [proto.asl, proto.zeroPageXMode, 0];   // 6 cycles
+operations[0x0E] = [proto.asl, proto.absoluteMode, 0];    // 6 cycles
+operations[0x1E] = [proto.asl, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
 
-operations[0x4A] = [proto.LSR, proto.accumulatorMode, 0]; // 2 cycles
-operations[0x46] = [proto.LSR, proto.zeroPageMode, 0];    // 5 cycles
-operations[0x56] = [proto.LSR, proto.zeroPageXMode, 0];   // 6 cycles
-operations[0x4E] = [proto.LSR, proto.absoluteMode, 0];    // 6 cycles
-operations[0x5E] = [proto.LSR, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
+operations[0x4A] = [proto.lsr, proto.accumulatorMode, 0]; // 2 cycles
+operations[0x46] = [proto.lsr, proto.zeroPageMode, 0];    // 5 cycles
+operations[0x56] = [proto.lsr, proto.zeroPageXMode, 0];   // 6 cycles
+operations[0x4E] = [proto.lsr, proto.absoluteMode, 0];    // 6 cycles
+operations[0x5E] = [proto.lsr, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
 
-operations[0x2A] = [proto.ROL, proto.accumulatorMode, 0]; // 2 cycles
-operations[0x26] = [proto.ROL, proto.zeroPageMode, 0];    // 5 cycles
-operations[0x36] = [proto.ROL, proto.zeroPageXMode, 0];   // 6 cycles
-operations[0x2E] = [proto.ROL, proto.absoluteMode, 0];    // 6 cycles
-operations[0x3E] = [proto.ROL, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
+operations[0x2A] = [proto.rol, proto.accumulatorMode, 0]; // 2 cycles
+operations[0x26] = [proto.rol, proto.zeroPageMode, 0];    // 5 cycles
+operations[0x36] = [proto.rol, proto.zeroPageXMode, 0];   // 6 cycles
+operations[0x2E] = [proto.rol, proto.absoluteMode, 0];    // 6 cycles
+operations[0x3E] = [proto.rol, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
 
-operations[0x6A] = [proto.ROR, proto.accumulatorMode, 0]; // 2 cycles
-operations[0x66] = [proto.ROR, proto.zeroPageMode, 0];    // 5 cycles
-operations[0x76] = [proto.ROR, proto.zeroPageXMode, 0];   // 6 cycles
-operations[0x6E] = [proto.ROR, proto.absoluteMode, 0];    // 6 cycles
-operations[0x7E] = [proto.ROR, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
+operations[0x6A] = [proto.ror, proto.accumulatorMode, 0]; // 2 cycles
+operations[0x66] = [proto.ror, proto.zeroPageMode, 0];    // 5 cycles
+operations[0x76] = [proto.ror, proto.zeroPageXMode, 0];   // 6 cycles
+operations[0x6E] = [proto.ror, proto.absoluteMode, 0];    // 6 cycles
+operations[0x7E] = [proto.ror, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
 
 //=========================================================
 // Hybrid instructions
 //=========================================================
 
-operations[0xC7] = [proto.DCP, proto.zeroPageMode, 0];  // 5 cycles
-operations[0xD7] = [proto.DCP, proto.zeroPageXMode, 0]; // 6 cycles
-operations[0xCF] = [proto.DCP, proto.absoluteMode, 0];  // 6 cycles
-operations[0xDF] = [proto.DCP, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
-operations[0xDB] = [proto.DCP, proto.absoluteYMode, F_DOUBLE_READ]; // 7 cycles
-operations[0xC3] = [proto.DCP, proto.indirectXMode, 0]; // 8 cycles
-operations[0xD3] = [proto.DCP, proto.indirectYMode, F_DOUBLE_READ]; // 8 cycles
+operations[0xC7] = [proto.dcp, proto.zeroPageMode, 0];  // 5 cycles
+operations[0xD7] = [proto.dcp, proto.zeroPageXMode, 0]; // 6 cycles
+operations[0xCF] = [proto.dcp, proto.absoluteMode, 0];  // 6 cycles
+operations[0xDF] = [proto.dcp, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
+operations[0xDB] = [proto.dcp, proto.absoluteYMode, F_DOUBLE_READ]; // 7 cycles
+operations[0xC3] = [proto.dcp, proto.indirectXMode, 0]; // 8 cycles
+operations[0xD3] = [proto.dcp, proto.indirectYMode, F_DOUBLE_READ]; // 8 cycles
 
-operations[0xE7] = [proto.ISB, proto.zeroPageMode, 0];  // 5 cycles
-operations[0xF7] = [proto.ISB, proto.zeroPageXMode, 0]; // 6 cycles
-operations[0xEF] = [proto.ISB, proto.absoluteMode, 0];  // 6 cycles
-operations[0xFF] = [proto.ISB, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
-operations[0xFB] = [proto.ISB, proto.absoluteYMode, F_DOUBLE_READ]; // 7 cycles
-operations[0xE3] = [proto.ISB, proto.indirectXMode, 0]; // 8 cycles
-operations[0xF3] = [proto.ISB, proto.indirectYMode, F_DOUBLE_READ]; // 8 cycles
+operations[0xE7] = [proto.isb, proto.zeroPageMode, 0];  // 5 cycles
+operations[0xF7] = [proto.isb, proto.zeroPageXMode, 0]; // 6 cycles
+operations[0xEF] = [proto.isb, proto.absoluteMode, 0];  // 6 cycles
+operations[0xFF] = [proto.isb, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
+operations[0xFB] = [proto.isb, proto.absoluteYMode, F_DOUBLE_READ]; // 7 cycles
+operations[0xE3] = [proto.isb, proto.indirectXMode, 0]; // 8 cycles
+operations[0xF3] = [proto.isb, proto.indirectYMode, F_DOUBLE_READ]; // 8 cycles
 
-operations[0x07] = [proto.SLO, proto.zeroPageMode, 0];  // 5 cycles
-operations[0x17] = [proto.SLO, proto.zeroPageXMode, 0]; // 6 cycles
-operations[0x0F] = [proto.SLO, proto.absoluteMode, 0];  // 6 cycles
-operations[0x1F] = [proto.SLO, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
-operations[0x1B] = [proto.SLO, proto.absoluteYMode, F_DOUBLE_READ]; // 7 cycles
-operations[0x03] = [proto.SLO, proto.indirectXMode, 0]; // 8 cycles
-operations[0x13] = [proto.SLO, proto.indirectYMode, F_DOUBLE_READ]; // 8 cycles
+operations[0x07] = [proto.slo, proto.zeroPageMode, 0];  // 5 cycles
+operations[0x17] = [proto.slo, proto.zeroPageXMode, 0]; // 6 cycles
+operations[0x0F] = [proto.slo, proto.absoluteMode, 0];  // 6 cycles
+operations[0x1F] = [proto.slo, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
+operations[0x1B] = [proto.slo, proto.absoluteYMode, F_DOUBLE_READ]; // 7 cycles
+operations[0x03] = [proto.slo, proto.indirectXMode, 0]; // 8 cycles
+operations[0x13] = [proto.slo, proto.indirectYMode, F_DOUBLE_READ]; // 8 cycles
 
-operations[0x47] = [proto.SRE, proto.zeroPageMode, 0];  // 5 cycles
-operations[0x57] = [proto.SRE, proto.zeroPageXMode, 0]; // 6 cycles
-operations[0x4F] = [proto.SRE, proto.absoluteMode, 0];  // 6 cycles
-operations[0x5F] = [proto.SRE, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
-operations[0x5B] = [proto.SRE, proto.absoluteYMode, F_DOUBLE_READ]; // 7 cycles
-operations[0x43] = [proto.SRE, proto.indirectXMode, 0]; // 8 cycles
-operations[0x53] = [proto.SRE, proto.indirectYMode, F_DOUBLE_READ]; // 8 cycles
+operations[0x47] = [proto.sre, proto.zeroPageMode, 0];  // 5 cycles
+operations[0x57] = [proto.sre, proto.zeroPageXMode, 0]; // 6 cycles
+operations[0x4F] = [proto.sre, proto.absoluteMode, 0];  // 6 cycles
+operations[0x5F] = [proto.sre, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
+operations[0x5B] = [proto.sre, proto.absoluteYMode, F_DOUBLE_READ]; // 7 cycles
+operations[0x43] = [proto.sre, proto.indirectXMode, 0]; // 8 cycles
+operations[0x53] = [proto.sre, proto.indirectYMode, F_DOUBLE_READ]; // 8 cycles
 
-operations[0x27] = [proto.RLA, proto.zeroPageMode, 0];  // 5 cycles
-operations[0x37] = [proto.RLA, proto.zeroPageXMode, 0]; // 6 cycles
-operations[0x2F] = [proto.RLA, proto.absoluteMode, 0];  // 6 cycles
-operations[0x3F] = [proto.RLA, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
-operations[0x3B] = [proto.RLA, proto.absoluteYMode, F_DOUBLE_READ]; // 7 cycles
-operations[0x23] = [proto.RLA, proto.indirectXMode, 0]; // 8 cycles
-operations[0x33] = [proto.RLA, proto.indirectYMode, F_DOUBLE_READ]; // 8 cycles
+operations[0x27] = [proto.rla, proto.zeroPageMode, 0];  // 5 cycles
+operations[0x37] = [proto.rla, proto.zeroPageXMode, 0]; // 6 cycles
+operations[0x2F] = [proto.rla, proto.absoluteMode, 0];  // 6 cycles
+operations[0x3F] = [proto.rla, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
+operations[0x3B] = [proto.rla, proto.absoluteYMode, F_DOUBLE_READ]; // 7 cycles
+operations[0x23] = [proto.rla, proto.indirectXMode, 0]; // 8 cycles
+operations[0x33] = [proto.rla, proto.indirectYMode, F_DOUBLE_READ]; // 8 cycles
 
-operations[0x8B] = [proto.XAA, proto.immediateMode, 0]; // 2 cycles
+operations[0x8B] = [proto.xaa, proto.immediateMode, 0]; // 2 cycles
 
-operations[0x67] = [proto.RRA, proto.zeroPageMode, 0];  // 5 cycles
-operations[0x77] = [proto.RRA, proto.zeroPageXMode, 0]; // 6 cycles
-operations[0x6F] = [proto.RRA, proto.absoluteMode, 0];  // 6 cycles
-operations[0x7F] = [proto.RRA, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
-operations[0x7B] = [proto.RRA, proto.absoluteYMode, F_DOUBLE_READ]; // 7 cycles
-operations[0x63] = [proto.RRA, proto.indirectXMode, 0]; // 8 cycles
-operations[0x73] = [proto.RRA, proto.indirectYMode, F_DOUBLE_READ]; // 8 cycles
+operations[0x67] = [proto.rra, proto.zeroPageMode, 0];  // 5 cycles
+operations[0x77] = [proto.rra, proto.zeroPageXMode, 0]; // 6 cycles
+operations[0x6F] = [proto.rra, proto.absoluteMode, 0];  // 6 cycles
+operations[0x7F] = [proto.rra, proto.absoluteXMode, F_DOUBLE_READ]; // 7 cycles
+operations[0x7B] = [proto.rra, proto.absoluteYMode, F_DOUBLE_READ]; // 7 cycles
+operations[0x63] = [proto.rra, proto.indirectXMode, 0]; // 8 cycles
+operations[0x73] = [proto.rra, proto.indirectYMode, F_DOUBLE_READ]; // 8 cycles
 
-operations[0xCB] = [proto.AXS, proto.immediateMode, 0]; // 2 cycles
+operations[0xCB] = [proto.axs, proto.immediateMode, 0]; // 2 cycles
 
-operations[0x0B] = [proto.ANC, proto.immediateMode, 0]; // 2 cycles
-operations[0x2B] = [proto.ANC, proto.immediateMode, 0]; // 2 cycles
+operations[0x0B] = [proto.anc, proto.immediateMode, 0]; // 2 cycles
+operations[0x2B] = [proto.anc, proto.immediateMode, 0]; // 2 cycles
 
-operations[0x4B] = [proto.ALR, proto.immediateMode, 0]; // 2 cycles
-operations[0x6B] = [proto.ARR, proto.immediateMode, 0]; // 2 cycles
+operations[0x4B] = [proto.alr, proto.immediateMode, 0]; // 2 cycles
+operations[0x6B] = [proto.arr, proto.immediateMode, 0]; // 2 cycles
 
-operations[0x9B] = [proto.TAS, proto.absoluteYMode, F_DOUBLE_READ]; // 5 cycles
+operations[0x9B] = [proto.tas, proto.absoluteYMode, F_DOUBLE_READ]; // 5 cycles

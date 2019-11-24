@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/mmc3_test_2.zip
 //=============================================================================
 
-import {DisabledAPU, NoOutputPPU} from '../units';
+import {DisabledApu, NoOutputPpu} from '../units';
 
 export const dir = './test/roms/mmc3_test';
 
@@ -17,7 +17,7 @@ export const files = [
 ];
 
 export function init() {
-  return {apu: new DisabledAPU, ppu: new NoOutputPPU};
+  return {apu: new DisabledApu, ppu: new NoOutputPpu};
 }
 
 export function execute(test) {

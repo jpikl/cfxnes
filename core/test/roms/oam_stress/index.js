@@ -3,13 +3,13 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/oam_stress.zip
 //=============================================================================
 
-import {DisabledAPU, NoOutputPPU} from '../units';
+import {DisabledApu, NoOutputPpu} from '../units';
 
 export const dir = './test/roms/oam_stress';
 export const file = 'oam_stress.nes';
 
 export function init() {
-  return {apu: new DisabledAPU, ppu: new NoOutputPPU};
+  return {apu: new DisabledApu, ppu: new NoOutputPpu};
 }
 
 export function execute(test) {

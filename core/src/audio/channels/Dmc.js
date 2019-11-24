@@ -1,7 +1,7 @@
 import {log} from '../../common';
 import {IRQ_DMC} from '../../proc/interrupts';
 
-export default class DMC {
+export default class Dmc {
 
   constructor() {
     log.info('Initializing DMC channel');
@@ -63,19 +63,19 @@ export default class DMC {
       this.sampleRemainingLength = this.sampleLength;
     }
     this.enabled = enabled;
-    this.clearIRQ(); // Changing enablement ($4015 write) clears IRQ flag
+    this.clearIrq(); // Changing enablement ($4015 write) clears IRQ flag
   }
 
   setRegionParams(params) {
     this.timerPeriods = params.dmcChannelTimerPeriods;
   }
 
-  activateIRQ() {
+  activateIrq() {
     this.irqActive = true;
     this.cpu.activateInterrupt(IRQ_DMC);
   }
 
-  clearIRQ() {
+  clearIrq() {
     this.irqActive = false;
     this.cpu.clearInterrupt(IRQ_DMC);
   }
@@ -90,7 +90,7 @@ export default class DMC {
     this.timerPeriod = this.timerPeriods[value & 0x0F];
 
     if (!this.irqEnabled) {
-      this.clearIRQ(); // Disabling IRQ clears IRQ flag
+      this.clearIrq(); // Disabling IRQ clears IRQ flag
     }
   }
 
@@ -149,7 +149,7 @@ export default class DMC {
           this.sampleCurrentAddress = this.sampleAddress; // Re-read the same sample
           this.sampleRemainingLength = this.sampleLength;
         } else if (this.irqEnabled) {
-          this.activateIRQ(); // Reading of sample was finished
+          this.activateIrq(); // Reading of sample was finished
         }
       }
     }

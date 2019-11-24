@@ -2,7 +2,7 @@ import {log} from '../common';
 import {nes} from './common';
 import {nvramStore} from './database';
 
-export function loadNVRAM() {
+export function loadNVRam() {
   if (nes.nvram) {
     return nvramStore.get(nes.rom.sha1)
       .then(data => data && nes.nvram.set(data))
@@ -11,7 +11,7 @@ export function loadNVRAM() {
   return Promise.resolve();
 }
 
-export function saveNVRAM() {
+export function saveNVRam() {
   if (nes.nvram) {
     return nvramStore.put(nes.rom.sha1, nes.nvram)
       .catch(error => log.error('Failed to save NVRAM', error));

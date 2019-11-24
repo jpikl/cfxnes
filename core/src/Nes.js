@@ -1,20 +1,20 @@
 import {log, Region} from './common';
-import {CPUMemory, PPUMemory, DMA, createMapper} from './memory';
-import {PPU, packColor, BLACK_COLOR} from './video';
-import {CPU, Interrupt} from './proc';
-import {APU} from './audio';
+import {CpuMemory, PpuMemory, Dma, createMapper} from './memory';
+import {Ppu, packColor, BLACK_COLOR} from './video';
+import {Cpu, Interrupt} from './proc';
+import {Apu} from './audio';
 
-export default class NES {
+export default class Nes {
 
   constructor(units = {}) {
     log.info('Initializing NES');
 
-    this.cpu = units.cpu || new CPU;
-    this.ppu = units.ppu || new PPU;
-    this.apu = units.apu || new APU;
-    this.dma = units.dma || new DMA;
-    this.cpuMemory = units.cpuMemory || new CPUMemory;
-    this.ppuMemory = units.ppuMemory || new PPUMemory;
+    this.cpu = units.cpu || new Cpu;
+    this.ppu = units.ppu || new Ppu;
+    this.apu = units.apu || new Apu;
+    this.dma = units.dma || new Dma;
+    this.cpuMemory = units.cpuMemory || new CpuMemory;
+    this.ppuMemory = units.ppuMemory || new PpuMemory;
 
     this.cartridge = null;
     this.mapper = null;
@@ -208,8 +208,8 @@ export default class NES {
   // Non-volatile RAM
   //=========================================================
 
-  getNVRAM() {
-    return this.mapper ? this.mapper.getNVRAM() : null;
+  getNVRam() {
+    return this.mapper ? this.mapper.getNVRam() : null;
   }
 
 }

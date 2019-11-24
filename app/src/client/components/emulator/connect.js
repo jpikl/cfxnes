@@ -7,8 +7,8 @@ import {
   connectEmulator,
   disconnectEmulator,
   startEmulator,
-  loadROM,
-  fetchAndLoadROM,
+  loadRom,
+  fetchAndLoadRom,
   setControlsVisible,
   clearEmulatorError,
 } from '../../actions';
@@ -32,8 +32,8 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch, props) => ({
   onConnect: canvas => dispatch(connectEmulator(canvas)),
   onDisconnect: () => dispatch(disconnectEmulator()),
-  onLoad: file => dispatch(loadROM(file)),
-  onFetchAndLoad: romId => dispatch(fetchAndLoadROM(romId)),
+  onLoad: file => dispatch(loadRom(file)),
+  onFetchAndLoad: romId => dispatch(fetchAndLoadRom(romId)),
   onRouteRedirect: romId => props.history.replace(getEmulatorPath(romId)),
   onControlsClose: () => dispatch(setControlsVisible(false)),
   onErrorClose: () => dispatch(clearEmulatorError()),

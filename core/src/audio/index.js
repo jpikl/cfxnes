@@ -1,1 +1,1 @@
-export {default as APU} from './APU';
+export {default as Apu} from './Apu';

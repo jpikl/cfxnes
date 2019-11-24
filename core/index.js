@@ -1,5 +1,5 @@
 export {
-  NES,
+  Nes,
   Button,
   Joypad,
   Zapper,

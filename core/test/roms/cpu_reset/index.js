@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/cpu_reset.zip
 //=============================================================================
 
-import {DisabledAPU, DisabledPPU} from '../units';
+import {DisabledApu, DisabledPpu} from '../units';
 
 export const dir = './test/roms/cpu_reset';
 
@@ -13,7 +13,7 @@ export const files = [
 ];
 
 export function init() {
-  return {apu: new DisabledAPU, ppu: new DisabledPPU};
+  return {apu: new DisabledApu, ppu: new DisabledPpu};
 }
 
 export function execute(test) {

@@ -1,5 +1,5 @@
 import {connect} from 'react-redux';
-import {resetSettings, deleteNVRAMs} from '../../../actions';
+import {resetSettings, deleteNVRams} from '../../../actions';
 import {selectDatabase, selectSettings} from '../../../reducers';
 
 const mapStateToProps = state => {
@@ -10,7 +10,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
   onSettingsReset: () => dispatch(resetSettings()),
-  onNVRAMsDelete: () => dispatch(deleteNVRAMs()),
+  onNVRamsDelete: () => dispatch(deleteNVRams()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps);

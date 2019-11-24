@@ -1,37 +1,33 @@
-/* eslint-disable camelcase */
-
 import {log, decodeBase64, describe} from '../../common';
 import {packColor, unpackColor} from '../colors';
 
-import asq_real_a from './asq_real_a';
-import asq_real_b from './asq_real_b';
-import bmf_fin_r2 from './bmf_fin_r2';
-import bmf_fin_r3 from './bmf_fin_r3';
-import fceu_13 from './fceu_13';
-import fceu_15 from './fceu_15';
+import asqRealA from './asqRealA';
+import asqRealB from './asqRealB';
+import bmfFinR2 from './bmfFinR2';
+import bmfFinR3 from './bmfFinR3';
+import fceu13 from './fceu13';
+import fceu15 from './fceu15';
 import fceux from './fceux';
-import nestopia_rgb from './nestopia_rgb';
-import nestopia_yuv from './nestopia_yuv';
-import sony_cxa2025as from './sony_cxa2025as';
-import unsaturated_v6 from './unsaturated_v6';
+import nestopiaRgb from './nestopiaRgb';
+import nestopiaYuv from './nestopiaYuv';
+import sonyCxa2025as from './sonyCxa2025as';
+import unsaturatedV6 from './unsaturatedV6';
 
 const PALETTE_LENGTH = 64;
 
 const palettes = {
-  'asq-real-a': asq_real_a,
-  'asq-real-b': asq_real_b,
-  'bmf-fin-r2': bmf_fin_r2,
-  'bmf-fin-r3': bmf_fin_r3,
-  'fceu-13': fceu_13,
-  'fceu-15': fceu_15,
+  'asq-real-a': asqRealA,
+  'asq-real-b': asqRealB,
+  'bmf-fin-r2': bmfFinR2,
+  'bmf-fin-r3': bmfFinR3,
+  'fceu-13': fceu13,
+  'fceu-15': fceu15,
   'fceux': fceux,
-  'nestopia-rgb': nestopia_rgb,
-  'nestopia-yuv': nestopia_yuv,
-  'sony-cxa2025as': sony_cxa2025as,
-  'unsaturated-v6': unsaturated_v6,
+  'nestopia-rgb': nestopiaRgb,
+  'nestopia-yuv': nestopiaYuv,
+  'sony-cxa2025as': sonyCxa2025as,
+  'unsaturated-v6': unsaturatedV6,
 };
-
-/* eslint-enable camelcase */
 
 export const DEFAULT_PALETTE = 'fceux';
 

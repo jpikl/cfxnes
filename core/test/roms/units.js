@@ -2,18 +2,18 @@ import fs from 'fs';
 import {PNG} from 'node-png';
 
 import {
-  CPU,
-  PPU,
-  APU,
+  Cpu,
+  Ppu,
+  Apu,
   unpackColor,
   createPalette,
   VIDEO_WIDTH,
   VIDEO_HEIGHT,
 } from '../../src';
 
-export {CPU, PPU, APU};
+export {Cpu, Ppu, Apu};
 
-export class MemoryOutputPPU extends PPU {
+export class MemoryOutputPpu extends Ppu {
 
   connect(nes) {
     super.connect(nes);
@@ -39,7 +39,7 @@ export class MemoryOutputPPU extends PPU {
 
 }
 
-export class NoOutputPPU extends PPU {
+export class NoOutputPpu extends Ppu {
 
   constructor() {
     super();
@@ -57,7 +57,7 @@ export class NoOutputPPU extends PPU {
 
 }
 
-export class DisabledPPU extends PPU {
+export class DisabledPpu extends Ppu {
 
   tick() {
     // For faster execution when PPU is not needed
@@ -68,7 +68,7 @@ export class DisabledPPU extends PPU {
 
 }
 
-export class DisabledAPU extends APU {
+export class DisabledApu extends Apu {
 
   tick() {
     // For faster execution when APU is not needed

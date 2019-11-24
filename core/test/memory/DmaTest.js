@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import DMA from '../../src/memory/DMA';
+import Dma from '../../src/memory/Dma';
 
 describe('memory/DMA', () => {
   let dma, reads, writes;
@@ -12,24 +12,24 @@ describe('memory/DMA', () => {
   beforeEach(() => {
     reads = 0;
     writes = 0;
-    dma = new DMA;
+    dma = new Dma;
     dma.connect({cpuMemory});
     dma.reset();
   });
 
   it('does not block CPU by default', () => {
-    expect(dma.isBlockingCPU()).to.be.false;
+    expect(dma.isBlockingCpu()).to.be.false;
   });
 
   it('blocks CPU after address write', () => {
     dma.writeAddress(0);
-    expect(dma.isBlockingCPU()).to.be.true;
+    expect(dma.isBlockingCpu()).to.be.true;
   });
 
   it('transfers 256B of data during 512 cycles', () => {
     let cycles = 0;
     dma.writeAddress(0);
-    while (dma.isBlockingCPU()) {
+    while (dma.isBlockingCpu()) {
       dma.tick();
       cycles++;
     }

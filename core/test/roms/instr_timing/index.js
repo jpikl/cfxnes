@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/instr_timing.zip
 //=============================================================================
 
-import {DisabledPPU} from '../units';
+import {DisabledPpu} from '../units';
 
 export const dir = './test/roms/instr_timing';
 
@@ -13,7 +13,7 @@ export const files = [
 ];
 
 export function init() {
-  return {ppu: new DisabledPPU};
+  return {ppu: new DisabledPpu};
 }
 
 export function execute(test) {

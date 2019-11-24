@@ -3,7 +3,7 @@
 // Source: http://pics.pineight.com/nes/bntest.zip
 //=============================================================================
 
-import {MemoryOutputPPU} from '../units';
+import {MemoryOutputPpu} from '../units';
 
 export const dir = './test/roms/bntest';
 
@@ -14,7 +14,7 @@ export const files = [
 ];
 
 export function init() {
-  return {ppu: new MemoryOutputPPU};
+  return {ppu: new MemoryOutputPpu};
 }
 
 export function execute(test) {

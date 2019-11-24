@@ -10,30 +10,30 @@ export default class Mapper {
     log.info('Initializing mapper');
 
     this.mirroring = cartridge.mirroring;
-    this.prgROM = cartridge.prgROM;
-    this.chrROM = cartridge.chrROM;
-    this.prgROMSize = cartridge.prgROMSize;
-    this.chrROMSize = cartridge.chrROMSize;
+    this.prgRom = cartridge.prgRom;
+    this.chrRom = cartridge.chrRom;
+    this.prgRomSize = cartridge.prgRomSize;
+    this.chrRomSize = cartridge.chrRomSize;
 
-    const {prgRAMSize, prgRAMSizeBattery} = cartridge;
-    this.prgRAM = prgRAMSize ? new Uint8Array(prgRAMSize) : null;
-    this.prgRAMSize = prgRAMSize;
-    this.prgRAMSizeBattery = prgRAMSizeBattery;
-    this.canReadPRGRAM = prgRAMSize > 0; // PRG RAM read protection
-    this.canWritePRGRAM = prgRAMSize > 0; // PRG RAM write protection
-    this.hasPRGRAMRegisters = false; // Whether registers are mapped in PRG RAM address space
+    const {prgRamSize, prgRamSizeBattery} = cartridge;
+    this.prgRam = prgRamSize ? new Uint8Array(prgRamSize) : null;
+    this.prgRamSize = prgRamSize;
+    this.prgRamSizeBattery = prgRamSizeBattery;
+    this.canReadPrgRam = prgRamSize > 0; // PRG RAM read protection
+    this.canWritePrgRam = prgRamSize > 0; // PRG RAM write protection
+    this.hasPrgRamRegisters = false; // Whether registers are mapped in PRG RAM address space
 
-    const {chrRAMSize, chrRAMSizeBattery} = cartridge;
-    this.chrRAM = chrRAMSize ? new Uint8Array(chrRAMSize) : null;
-    this.chrRAMSize = chrRAMSize;
-    this.chrRAMSizeBattery = chrRAMSizeBattery;
+    const {chrRamSize, chrRamSizeBattery} = cartridge;
+    this.chrRam = chrRamSize ? new Uint8Array(chrRamSize) : null;
+    this.chrRamSize = chrRamSize;
+    this.chrRamSizeBattery = chrRamSizeBattery;
 
     // Either there is battery-backed PRG RAM or battery-backed CHR RAM.
     // Only known game using battery-backed CHR RAM is RacerMate Challenge II.
-    if (prgRAMSizeBattery) {
-      this.nvram = this.prgRAM.subarray(0, prgRAMSizeBattery);
-    } else if (chrRAMSizeBattery) {
-      this.nvram = this.chrRAM.subarray(0, chrRAMSizeBattery);
+    if (prgRamSizeBattery) {
+      this.nvram = this.prgRam.subarray(0, prgRamSizeBattery);
+    } else if (chrRamSizeBattery) {
+      this.nvram = this.chrRam.subarray(0, chrRamSizeBattery);
     } else {
       this.nvram = null;
     }
@@ -76,8 +76,8 @@ export default class Mapper {
 
   reset() {
     log.info('Resetting mapper');
-    this.resetPRGRAM();
-    this.resetCHRRAM();
+    this.resetPrgRam();
+    this.resetChrRam();
     this.resetState();
   }
 
@@ -98,18 +98,18 @@ export default class Mapper {
   // PRG ROM
   //=========================================================
 
-  mapPRGROMBank32K(srcBank, dstBank) {
-    this.mapPRGROMBank8K(srcBank * 4, dstBank * 4, 4);
+  mapPrgRomBank32K(srcBank, dstBank) {
+    this.mapPrgRomBank8K(srcBank * 4, dstBank * 4, 4);
   }
 
-  mapPRGROMBank16K(srcBank, dstBank) {
-    this.mapPRGROMBank8K(srcBank * 2, dstBank * 2, 2);
+  mapPrgRomBank16K(srcBank, dstBank) {
+    this.mapPrgRomBank8K(srcBank * 2, dstBank * 2, 2);
   }
 
-  mapPRGROMBank8K(srcBank, dstBank, count = 1) {
-    const maxBank = (this.prgROMSize - 1) >> 13;
+  mapPrgRomBank8K(srcBank, dstBank, count = 1) {
+    const maxBank = (this.prgRomSize - 1) >> 13;
     for (let i = 0; i < count; i++) {
-      this.cpuMemory.mapPRGROMBank(srcBank + i, (dstBank + i) & maxBank);
+      this.cpuMemory.mapPrgRomBank(srcBank + i, (dstBank + i) & maxBank);
     }
   }
 
@@ -117,41 +117,41 @@ export default class Mapper {
   // PRG RAM
   //=========================================================
 
-  resetPRGRAM() {
-    if (this.prgRAM) {
-      this.prgRAM.fill(0, this.prgRAMSizeBattery); // Keep battery-backed part of PRGRAM
+  resetPrgRam() {
+    if (this.prgRam) {
+      this.prgRam.fill(0, this.prgRamSizeBattery); // Keep battery-backed part of PRG RAM
     }
   }
 
-  mapPRGRAMBank8K(srcBank, dstBank) {
-    const maxBank = (this.prgRAMSize - 1) >> 13;
-    this.cpuMemory.mapPRGRAMBank(srcBank, dstBank & maxBank);
+  mapPrgRamBank8K(srcBank, dstBank) {
+    const maxBank = (this.prgRamSize - 1) >> 13;
+    this.cpuMemory.mapPrgRamBank(srcBank, dstBank & maxBank);
   }
 
   //=========================================================
   // CHR ROM/RAM
   //=========================================================
 
-  resetCHRRAM() {
-    if (this.chrRAM) {
-      this.chrRAM.fill(0, this.chrRAMSizeBattery); // Keep battery-backed part of CHRRAM
+  resetChrRam() {
+    if (this.chrRam) {
+      this.chrRam.fill(0, this.chrRamSizeBattery); // Keep battery-backed part of CHR RAM
     }
   }
 
-  mapCHRBank8K(srcBank, dstBank) {
-    this.mapCHRBank1K(srcBank * 8, dstBank * 8, 8);
+  mapChrBank8K(srcBank, dstBank) {
+    this.mapChrBank1K(srcBank * 8, dstBank * 8, 8);
   }
 
-  mapCHRBank4K(srcBank, dstBank) {
-    this.mapCHRBank1K(srcBank * 4, dstBank * 4, 4);
+  mapChrBank4K(srcBank, dstBank) {
+    this.mapChrBank1K(srcBank * 4, dstBank * 4, 4);
   }
 
-  mapCHRBank2K(srcBank, dstBank) {
-    this.mapCHRBank1K(srcBank * 2, dstBank * 2, 2);
+  mapChrBank2K(srcBank, dstBank) {
+    this.mapChrBank1K(srcBank * 2, dstBank * 2, 2);
   }
 
-  mapCHRBank1K(srcBank, dstBank, count = 1) {
-    const chrSize = this.chrROMSize || this.chrRAMSize;
+  mapChrBank1K(srcBank, dstBank, count = 1) {
+    const chrSize = this.chrRomSize || this.chrRamSize;
     const maxBank = (chrSize - 1) >> 10;
     for (let i = 0; i < count; i++) {
       this.ppuMemory.mapPatternsBank(srcBank + i, (dstBank + i) & maxBank);
@@ -162,7 +162,7 @@ export default class Mapper {
   // Non-volatile part of PRG/CHR RAM
   //=========================================================
 
-  getNVRAM() {
+  getNVRam() {
     return this.nvram;
   }
 

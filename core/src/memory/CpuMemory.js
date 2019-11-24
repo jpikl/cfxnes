@@ -24,7 +24,7 @@ import {log} from '../common';
 //        |        Zero page       |                   |
 //  $0000 +------------------------+-------------------+ $0000
 
-export default class CPUMemory {
+export default class CpuMemory {
 
   //=========================================================
   // Initialization
@@ -34,10 +34,10 @@ export default class CPUMemory {
     log.info('Initializing CPU memory');
 
     this.ram = new Uint8Array(0x800); // 2KB of RAM mirrored in $0800-$1FFF
-    this.prgROM = null; // PRG ROM (will be loaded from mapper)
-    this.prgRAM = null; // PRG RAM (will be loaded from mapper)
-    this.prgROMMapping = new Uint32Array(4); // Base addresses of each 8K PRG ROM bank
-    this.prgRAMMapping = 0; // Base address of 8K PRG RAM bank
+    this.prgRom = null; // PRG ROM (will be loaded from mapper)
+    this.prgRam = null; // PRG RAM (will be loaded from mapper)
+    this.prgRomMapping = new Uint32Array(4); // Base addresses of each 8K PRG ROM bank
+    this.prgRamMapping = 0; // Base address of 8K PRG RAM bank
 
     this.inputDevices = [null, null, null]; // Indices 1 and 2 are used as ports for devices
     this.inputStrobe = 0; // Strobe counter
@@ -57,8 +57,8 @@ export default class CPUMemory {
 
   setMapper(mapper) {
     this.mapper = mapper;
-    this.prgRAM = mapper && mapper.prgRAM;
-    this.prgROM = mapper && mapper.prgROM;
+    this.prgRam = mapper && mapper.prgRam;
+    this.prgRom = mapper && mapper.prgRom;
   }
 
   //=========================================================
@@ -67,10 +67,10 @@ export default class CPUMemory {
 
   reset() {
     log.info('Resetting CPU memory');
-    this.resetRAM();
+    this.resetRam();
     this.resetRegisters();
-    this.resetPRGRAM();
-    this.resetPRGROM();
+    this.resetPrgRam();
+    this.resetPrgRom();
   }
 
   //=========================================================
@@ -79,28 +79,28 @@ export default class CPUMemory {
 
   read(address) {
     if (address >= 0x8000) {
-      return this.readPRGROM(address);    // $8000-$FFFF
+      return this.readPrgRom(address);    // $8000-$FFFF
     } else if (address < 0x2000) {
-      return this.readRAM(address);       // $0000-$1FFF
+      return this.readRam(address);       // $0000-$1FFF
     } else if (address < 0x4020) {
       return this.readRegister(address); // $2000-$401F
     } else if (address >= 0x6000) {
-      return this.readPRGRAM(address);    // $6000-$7FFF
+      return this.readPrgRam(address);    // $6000-$7FFF
     }
-    return this.readEXROM(address);       // $4020-$5FFF
+    return this.readExRom(address);       // $4020-$5FFF
   }
 
   write(address, value) {
     if (address >= 0x8000) {
-      this.writePRGROM(address, value);    // $8000-$FFFF
+      this.writePrgRom(address, value);    // $8000-$FFFF
     } else if (address < 0x2000) {
-      this.writeRAM(address, value);       // $0000-$1FFF
+      this.writeRam(address, value);       // $0000-$1FFF
     } else if (address < 0x4020) {
       this.writeRegister(address, value); // $2000-$401F
     } else if (address >= 0x6000) {
-      this.writePRGRAM(address, value);    // $6000-$7FFF
+      this.writePrgRam(address, value);    // $6000-$7FFF
     } else {
-      this.writeEXROM(address, value);     // $4020-$5FFF
+      this.writeExRom(address, value);     // $4020-$5FFF
     }
   }
 
@@ -108,19 +108,19 @@ export default class CPUMemory {
   // RAM ($0000-$1FFF)
   //=========================================================
 
-  resetRAM() {
+  resetRam() {
     this.ram.fill(0);
   }
 
-  readRAM(address) {
-    return this.ram[this.mapRAMAddress(address)];
+  readRam(address) {
+    return this.ram[this.mapRamAddress(address)];
   }
 
-  writeRAM(address, value) {
-    this.ram[this.mapRAMAddress(address)] = value;
+  writeRam(address, value) {
+    this.ram[this.mapRamAddress(address)] = value;
   }
 
-  mapRAMAddress(address) {
+  mapRamAddress(address) {
     return address & 0x07FF; // Mirroring of $0000-$07FF in $0800-$1FFF
   }
 
@@ -135,7 +135,7 @@ export default class CPUMemory {
   readRegister(address) {
     switch (this.mapRegisterAddress(address)) {
       case 0x2002: return this.ppu.readStatus();
-      case 0x2004: return this.ppu.readOAMData();
+      case 0x2004: return this.ppu.readOamData();
       case 0x2007: return this.ppu.readData();
       case 0x4015: return this.apu.readStatus();
       case 0x4016: return this.readInputDevice(1);
@@ -148,8 +148,8 @@ export default class CPUMemory {
     switch (this.mapRegisterAddress(address)) {
       case 0x2000: this.ppu.writeControl(value); break;
       case 0x2001: this.ppu.writeMask(value); break;
-      case 0x2003: this.ppu.writeOAMAddress(value); break;
-      case 0x2004: this.ppu.writeOAMData(value); break;
+      case 0x2003: this.ppu.writeOamAddress(value); break;
+      case 0x2004: this.ppu.writeOamData(value); break;
       case 0x2005: this.ppu.writeScroll(value); break;
       case 0x2006: this.ppu.writeAddress(value); break;
       case 0x2007: this.ppu.writeData(value); break;
@@ -169,10 +169,10 @@ export default class CPUMemory {
       case 0x400C: this.apu.writeNoiseEnvelope(value); break;
       case 0x400E: this.apu.writeNoiseTimer(value); break;
       case 0x400F: this.apu.writeNoiseLengthCounter(value); break;
-      case 0x4010: this.apu.writeDMCFlagsTimer(value); break;
-      case 0x4011: this.apu.writeDMCOutputLevel(value); break;
-      case 0x4012: this.apu.writeDMCSampleAddress(value); break;
-      case 0x4013: this.apu.writeDMCSampleLength(value); break;
+      case 0x4010: this.apu.writeDmcFlagsTimer(value); break;
+      case 0x4011: this.apu.writeDmcOutputLevel(value); break;
+      case 0x4012: this.apu.writeDmcSampleAddress(value); break;
+      case 0x4013: this.apu.writeDmcSampleLength(value); break;
       case 0x4015: this.apu.writeStatus(value); break;
       case 0x4017:
         this.apu.writeFrameCounter(value);
@@ -226,11 +226,11 @@ export default class CPUMemory {
   // Expansion ROM ($4020-$5FFF)
   //=========================================================
 
-  readEXROM(address) { // eslint-disable-line no-unused-vars
+  readExRom(address) { // eslint-disable-line no-unused-vars
     return 0; // Not implemented
   }
 
-  writeEXROM(address, value) { // eslint-disable-line no-unused-vars
+  writeExRom(address, value) { // eslint-disable-line no-unused-vars
     // Not implemented
   }
 
@@ -238,56 +238,56 @@ export default class CPUMemory {
   // PRG RAM ($6000-$7FFF)
   //=========================================================
 
-  resetPRGRAM() {
-    this.prgRAMMapping = 0;
+  resetPrgRam() {
+    this.prgRamMapping = 0;
   }
 
-  readPRGRAM(address) {
-    if (this.prgRAM && this.mapper.canReadPRGRAM) {
-      return this.prgRAM[this.mapPRGRAMAddress(address)];
+  readPrgRam(address) {
+    if (this.prgRam && this.mapper.canReadPrgRam) {
+      return this.prgRam[this.mapPrgRamAddress(address)];
     }
     return 0;
   }
 
-  writePRGRAM(address, value) {
-    if (this.prgRAM && this.mapper.canWritePRGRAM) {
-      this.prgRAM[this.mapPRGRAMAddress(address)] = value;
-      if (this.mapper.hasPRGRAMRegisters) {
+  writePrgRam(address, value) {
+    if (this.prgRam && this.mapper.canWritePrgRam) {
+      this.prgRam[this.mapPrgRamAddress(address)] = value;
+      if (this.mapper.hasPrgRamRegisters) {
         this.mapper.write(address, value); // Some mappers have their registers mapped in PRG RAM address space
       }
     }
   }
 
-  mapPRGRAMAddress(address) {
-    return this.prgRAMMapping | (address & 0x1FFF);
+  mapPrgRamAddress(address) {
+    return this.prgRamMapping | (address & 0x1FFF);
   }
 
-  mapPRGRAMBank(srcBank, dstBank) {
-    this.prgRAMMapping = dstBank * 0x2000; // Only single 8 KB bank
+  mapPrgRamBank(srcBank, dstBank) {
+    this.prgRamMapping = dstBank * 0x2000; // Only single 8 KB bank
   }
 
   //=========================================================
   // PRG ROM ($8000-$FFFF)
   //=========================================================
 
-  resetPRGROM() {
-    this.prgROMMapping.fill(0);
+  resetPrgRom() {
+    this.prgRomMapping.fill(0);
   }
 
-  readPRGROM(address) {
-    return this.prgROM[this.mapPRGROMAddress(address)];
+  readPrgRom(address) {
+    return this.prgRom[this.mapPrgRomAddress(address)];
   }
 
-  writePRGROM(address, value) {
+  writePrgRom(address, value) {
     this.mapper.write(address, value); // Writing to mapper registers
   }
 
-  mapPRGROMAddress(address) {
-    return this.prgROMMapping[(address & 0x6000) >>> 13] | (address & 0x1FFF);
+  mapPrgRomAddress(address) {
+    return this.prgRomMapping[(address & 0x6000) >>> 13] | (address & 0x1FFF);
   }
 
-  mapPRGROMBank(srcBank, dstBank) {
-    this.prgROMMapping[srcBank] = dstBank * 0x2000; // 8 KB bank
+  mapPrgRomBank(srcBank, dstBank) {
+    this.prgRomMapping[srcBank] = dstBank * 0x2000; // 8 KB bank
   }
 
 }

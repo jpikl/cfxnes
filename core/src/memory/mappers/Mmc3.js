@@ -5,7 +5,7 @@ import Mapper from './Mapper';
 /**
  * @extends Mapper
  */
-export default class MMC3 extends Mapper {
+export default class Mmc3 extends Mapper {
 
   //=========================================================
   // Initialization
@@ -39,10 +39,10 @@ export default class MMC3 extends Mapper {
   }
 
   resetMapping() {
-    this.mapPRGROMBank16K(0, 0);  // Map first 16K PRG RAM bank to $8000
-    this.mapPRGROMBank16K(1, -1); // Map last 16K PRG RAM bank to $C000
-    this.mapPRGRAMBank8K(0, 0);   // Map 8K PRG RAM to $0000
-    this.mapCHRBank8K(0, 0);      // Map first 8K CHR bank to $0000
+    this.mapPrgRomBank16K(0, 0);  // Map first 16K PRG RAM bank to $8000
+    this.mapPrgRomBank16K(1, -1); // Map last 16K PRG RAM bank to $C000
+    this.mapPrgRamBank8K(0, 0);   // Map 8K PRG RAM to $0000
+    this.mapChrBank8K(0, 0);      // Map first 8K CHR bank to $0000
   }
 
   resetRegisters() {
@@ -63,11 +63,11 @@ export default class MMC3 extends Mapper {
       case 0x8000: this.bankSelect = value; break;       // $8000-$9FFE (100X), even address
       case 0x8001: this.writeBankData(value); break;     // $8001-$9FFF (100X), odd  address
       case 0xA000: this.writeMirroring(value); break;    // $A000-$BFFE (101X), even address
-      case 0xA001: this.writePRGRAMEnable(value); break; // $A001-$BFFF (101X), odd  address
+      case 0xA001: this.writePrgRamEnable(value); break; // $A001-$BFFF (101X), odd  address
       case 0xC000: this.irqLatch = value; break;         // $C000-$DFFE (110X), even address
-      case 0xC001: this.writeIRQReload(); break;         // $C001-$DFFF (110X), odd  address
-      case 0xE000: this.writeIRQEnable(false); break;    // $E000-$FFFE (111X), even address
-      case 0xE001: this.writeIRQEnable(true); break;     // $E001-$FFFF (111X), odd  address
+      case 0xC001: this.writeIrqReload(); break;         // $C001-$DFFF (110X), odd  address
+      case 0xE000: this.writeIrqEnable(false); break;    // $E000-$FFFE (111X), even address
+      case 0xE001: this.writeIrqEnable(true); break;     // $E001-$FFFF (111X), odd  address
     }
   }
 
@@ -75,22 +75,22 @@ export default class MMC3 extends Mapper {
     switch (this.bankSelect & 7) {
       case 0: // Select 2 KB CHR bank at $0000-$07FF (or $1000-$17FF)
       case 1: // Select 2 KB CHR bank at $0800-$0FFF (or $1800-$1FFF)
-        this.switchDoubleCHRROMBanks(value);
+        this.switchDoubleChrRomBanks(value);
         break;
 
       case 2: // Select 1 KB CHR bank at $1000-$13FF (or $0000-$03FF)
       case 3: // Select 1 KB CHR bank at $1400-$17FF (or $0400-$07FF)
       case 4: // Select 1 KB CHR bank at $1800-$1BFF (or $0800-$0BFF)
       case 5: // Select 1 KB CHR bank at $1C00-$1FFF (or $0C00-$0FFF)
-        this.switchSingleCHRROMBanks(value);
+        this.switchSingleChrRomBanks(value);
         break;
 
       case 6: // Select 8 KB PRG ROM bank at $8000-$9FFF (or $C000-$DFFF)
-        this.switchPRGROMBanks0And2(value);
+        this.switchPrgRamBanks0And2(value);
         break;
 
       case 7: // Select 8 KB PRG ROM bank at $A000-$BFFF
-        this.switchPRGROMBank1(value);
+        this.switchPrgRomBank1(value);
         break;
     }
   }
@@ -101,19 +101,19 @@ export default class MMC3 extends Mapper {
     }
   }
 
-  writePRGRAMEnable(value) {
-    this.canReadPRGRAM = (value & 0x80) === 0x80; // Chip must be enabled (bit 7 on)
-    this.canWritePRGRAM = (value & 0xC0) === 0x80; // Chip must be enabled (bit 7 on) and writes allowed (bit 6 off)
+  writePrgRamEnable(value) {
+    this.canReadPrgRam = (value & 0x80) === 0x80; // Chip must be enabled (bit 7 on)
+    this.canWritePrgRam = (value & 0xC0) === 0x80; // Chip must be enabled (bit 7 on) and writes allowed (bit 6 off)
   }
 
-  writeIRQReload() {
+  writeIrqReload() {
     if (this.alternateMode) {
       this.irqReload = true;
     }
     this.irqCounter = 0;
   }
 
-  writeIRQEnable(enabled) {
+  writeIrqEnable(enabled) {
     this.irqEnabled = enabled;
     if (!enabled) {
       this.cpu.clearInterrupt(IRQ_EXT); // Disabling IRQ clears IRQ flag
@@ -124,25 +124,25 @@ export default class MMC3 extends Mapper {
   // Bank switching
   //=========================================================
 
-  switchDoubleCHRROMBanks(target) {
+  switchDoubleChrRomBanks(target) {
     const source = ((this.bankSelect & 0x80) >>> 6) | (this.bankSelect & 0x01); // S[1,0] = C[7,0]
-    this.mapCHRBank2K(source, target >>> 1);
+    this.mapChrBank2K(source, target >>> 1);
   }
 
-  switchSingleCHRROMBanks(target) {
+  switchSingleChrRomBanks(target) {
     const source = ((~this.bankSelect & 0x80) >>> 5) | ((this.bankSelect - 2) & 0x03); // S[2,1,0] = (C-2)[!7,1,0]
-    this.mapCHRBank1K(source, target);
+    this.mapChrBank1K(source, target);
   }
 
-  switchPRGROMBanks0And2(target) {
+  switchPrgRamBanks0And2(target) {
     const sourceA = (this.bankSelect & 0x40) >>> 5;  // SA[1] = C[6]
     const sourceB = (~this.bankSelect & 0x40) >>> 5; // SB[1] = C[!6]
-    this.mapPRGROMBank8K(sourceA, target); // Map selected bank
-    this.mapPRGROMBank8K(sourceB, -2);     // Map second last bank
+    this.mapPrgRomBank8K(sourceA, target); // Map selected bank
+    this.mapPrgRomBank8K(sourceB, -2);     // Map second last bank
   }
 
-  switchPRGROMBank1(target) {
-    this.mapPRGROMBank8K(1, target);
+  switchPrgRomBank1(target) {
+    this.mapPrgRomBank8K(1, target);
   }
 
   switchMirroring(value) {
@@ -181,7 +181,7 @@ export default class MMC3 extends Mapper {
   tick() {
     if (this.ppu.addressBus & 0x1000) {
       if (!this.irqDelay) {
-        this.updateIRQCounter();
+        this.updateIrqCounter();
       }
       this.irqDelay = 7;
     } else if (this.irqDelay) {
@@ -189,7 +189,7 @@ export default class MMC3 extends Mapper {
     }
   }
 
-  updateIRQCounter() {
+  updateIrqCounter() {
     const irqCounterOld = this.irqCounter;
     if (!this.irqCounter || this.irqReload) {
       this.irqCounter = this.irqLatch;

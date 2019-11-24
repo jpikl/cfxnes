@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {NES, Region, Joypad, readCartridge} from '../src';
+import {Nes, Region, Joypad, readCartridge} from '../src';
 
 describe('NES (no cartridge)', () => {
   let nes, cartridge, joypad, frameBuffer, palette;
@@ -16,7 +16,7 @@ describe('NES (no cartridge)', () => {
   });
 
   beforeEach(() => {
-    nes = new NES;
+    nes = new Nes;
   });
 
   it('has region auto-detection set by default', () => {
@@ -136,7 +136,7 @@ describe('NES (no cartridge)', () => {
   }
 
   it('returns null NVRAM', () => {
-    expect(nes.getNVRAM()).to.be.null;
+    expect(nes.getNVRam()).to.be.null;
   });
 });
 
@@ -151,7 +151,7 @@ describe('NES (cartridge set, no NVRAM)', () => {
   });
 
   beforeEach(() => {
-    nes = new NES;
+    nes = new Nes;
     nes.setCartridge(cartridge);
   });
 
@@ -205,7 +205,7 @@ describe('NES (cartridge set, no NVRAM)', () => {
   });
 
   it('returns null NVRAM', () => {
-    expect(nes.getNVRAM()).to.be.null;
+    expect(nes.getNVRam()).to.be.null;
   });
 });
 
@@ -214,20 +214,20 @@ describe('NES (cartridge set, has NVRAM)', () => {
 
   before(() => {
     cartridge = readCartridge('./test/roms/nestest/nestest.nes');
-    cartridge.prgRAMSize = 0x4000;
-    cartridge.prgRAMSizeBattery = 0x2000;
+    cartridge.prgRamSize = 0x4000;
+    cartridge.prgRamSizeBattery = 0x2000;
   });
 
   beforeEach(() => {
-    nes = new NES;
+    nes = new Nes;
     nes.setCartridge(cartridge);
   });
 
   it('returns NVRAM of correct type and size', () => {
-    expect(nes.getNVRAM()).to.be.an('Uint8Array').with.lengthOf(0x2000);
+    expect(nes.getNVRam()).to.be.an('Uint8Array').with.lengthOf(0x2000);
   });
 
   it('returns the same NVRAM instance every time', () => {
-    expect(nes.getNVRAM()).to.equal(nes.getNVRAM());
+    expect(nes.getNVRam()).to.equal(nes.getNVRam());
   });
 });

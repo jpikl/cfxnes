@@ -1,7 +1,7 @@
 import {nes} from '../common';
 import {ActionState} from '../enums';
 import {romsApi} from '../api';
-import {loadNVRAM, saveNVRAM} from '../nvram';
+import {loadNVRam, saveNVRam} from '../nvram';
 
 import {
   START_ROM_LOAD,
@@ -71,28 +71,28 @@ export function resetEmulator() {
   return () => nes.reset();
 }
 
-export function fetchAndLoadROM(romId) {
-  return executeROMLoad(romId, getState => {
-    return fetchROM(romId, getState)
+export function fetchAndLoadRom(romId) {
+  return executeRomLoad(romId, getState => {
+    return fetchRom(romId, getState)
       .then(({file}) => nes.rom.load(file));
   });
 }
 
-export function loadROM(source) {
-  return executeROMLoad(null, () => nes.rom.load(source));
+export function loadRom(source) {
+  return executeRomLoad(null, () => nes.rom.load(source));
 }
 
-function executeROMLoad(romId, loader) {
+function executeRomLoad(romId, loader) {
   return (dispatch, getState) => {
     dispatch(clearEmulatorError());
     dispatch(stopEmulator());
-    return saveNVRAM().then(() => {
+    return saveNVRam().then(() => {
       nes.rom.unload();
       nes.video.clear();
       dispatch(createAction(START_ROM_LOAD, romId));
       return dispatch(createAction(FINISH_ROM_LOAD, loader(getState)));
     }).then(() => {
-      return loadNVRAM();
+      return loadNVRam();
     }).then(() => {
       if (nes.video.output) {
         // We want to start the emulator immediately after loading finishes.
@@ -113,7 +113,7 @@ function executeROMLoad(romId, loader) {
   };
 }
 
-function fetchROM(romId, getState) {
+function fetchRom(romId, getState) {
   return new Promise((resolve, reject) => {
     const {items} = selectLibrary(getState());
     const rom = items.find(({id}) => id === romId);

@@ -3,7 +3,7 @@
 // Source: http://pineight.com/nes/holydiverbatman-bin-0.01.7z
 //=============================================================================
 
-import {MemoryOutputPPU} from '../units';
+import {MemoryOutputPpu} from '../units';
 
 export const dir = './test/roms/holydiverbatman';
 
@@ -27,7 +27,7 @@ export const files = [
 ];
 
 export function init() {
-  return {ppu: new MemoryOutputPPU};
+  return {ppu: new MemoryOutputPpu};
 }
 
 const steps = [

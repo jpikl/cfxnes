@@ -6,7 +6,7 @@ import {createPaletteVariant} from './palettes';
 import * as Flag from './flags';
 import Sprite from './Sprite';
 
-export default class PPU {
+export default class Ppu {
 
   //=========================================================
   // Initialization
@@ -44,8 +44,8 @@ export default class PPU {
     this.spritePixelCache = new Uint8Array(261); // Pre-rendered sprite pixels for current scanline (cycle -> sprite pixel rendered on this cycle)
 
     // Object attribute memory
-    this.primaryOAM = new Uint8Array(0x100); // Sprite data (256B = 64 x 4B sprites)
-    this.secondaryOAM = new Array(8);        // Sprite data for rendered scanline (up to 8 sprites)
+    this.primaryOam = new Uint8Array(0x100); // Sprite data (256B = 64 x 4B sprites)
+    this.secondaryOam = new Array(8);        // Sprite data for rendered scanline (up to 8 sprites)
 
     // Registers
     this.oamAddress = 0;         // 15-bit OAMADDR register
@@ -103,15 +103,15 @@ export default class PPU {
 
   reset() {
     log.info('Resetting PPU');
-    this.resetOAM();
+    this.resetOam();
     this.resetRegisters();
     this.resetState();
   }
 
-  resetOAM() {
-    this.primaryOAM.fill(0);
-    for (let i = 0; i < this.secondaryOAM.length; i++) {
-      this.secondaryOAM[i] = new Sprite;
+  resetOam() {
+    this.primaryOam.fill(0);
+    for (let i = 0; i < this.secondaryOam.length; i++) {
+      this.secondaryOam[i] = new Sprite;
     }
   }
 
@@ -265,21 +265,21 @@ export default class PPU {
   // OAM access ($2003 - OAMADDR / $2004 - OAMDATA)
   //=========================================================
 
-  writeOAMAddress(address) {
+  writeOamAddress(address) {
     this.oamAddress = address;
   }
 
-  readOAMData() {
-    let value = this.primaryOAM[this.oamAddress]; // Read does not increment the address
+  readOamData() {
+    let value = this.primaryOam[this.oamAddress]; // Read does not increment the address
     if ((this.oamAddress & 0x03) === 2) {
       value &= 0xE3; // Clear bits 2-4 when reading byte 2 of a sprite (these bits are not stored in OAM)
     }
     return value;
   }
 
-  writeOAMData(value) {
+  writeOamData(value) {
     if (!this.isRenderingActive()) {
-      this.primaryOAM[this.oamAddress] = value;   // Disabled during rendering
+      this.primaryOam[this.oamAddress] = value;   // Disabled during rendering
     }
     this.oamAddress = (this.oamAddress + 1) & 0xFF; // Write always increments the address
   }
@@ -764,8 +764,8 @@ export default class PPU {
     const bottomY = this.scanline + 1;
     const topY = bottomY - height + 1;
 
-    for (let address = 0; address < this.primaryOAM.length; address += 4) {
-      const spriteY = this.primaryOAM[address] + 1;
+    for (let address = 0; address < this.primaryOam.length; address += 4) {
+      const spriteY = this.primaryOam[address] + 1;
 
       if (spriteY < topY || spriteY > bottomY) {
         continue;
@@ -777,14 +777,14 @@ export default class PPU {
       }
 
       let patternTableAddress = this.spPatternTableAddress;
-      let patternNumber = this.primaryOAM[address + 1];
+      let patternNumber = this.primaryOam[address + 1];
 
       if (this.bigSprites) {
         patternTableAddress = (patternNumber & 1) << 12;
         patternNumber &= 0xFE;
       }
 
-      const attributes = this.primaryOAM[address + 2];
+      const attributes = this.primaryOam[address + 2];
       let rowNumber = bottomY - spriteY;
 
       if (attributes & 0x80) {
@@ -796,8 +796,8 @@ export default class PPU {
         patternNumber++;
       }
 
-      const sprite = this.secondaryOAM[this.spriteCount];
-      sprite.x = this.primaryOAM[address + 3];
+      const sprite = this.secondaryOam[this.spriteCount];
+      sprite.x = this.primaryOam[address + 3];
       sprite.zeroSprite = address === 0;
       sprite.horizontalFlip = attributes & 0x40;
       sprite.paletteNumber = 0x10 | ((attributes & 0x03) << 2);
@@ -812,7 +812,7 @@ export default class PPU {
 
   fetchSpriteLow() {
     if (this.spriteNumber < this.spriteCount) {
-      const sprite = this.secondaryOAM[this.spriteNumber];
+      const sprite = this.secondaryOam[this.spriteNumber];
       this.addressBus = sprite.patternRowAddress;
       sprite.patternRow0 = this.ppuMemory.readPattern(this.addressBus);
     } else {
@@ -822,7 +822,7 @@ export default class PPU {
 
   fetchSpriteHigh() {
     if (this.spriteNumber < this.spriteCount) {
-      const sprite = this.secondaryOAM[this.spriteNumber++];
+      const sprite = this.secondaryOam[this.spriteNumber++];
       this.addressBus = sprite.patternRowAddress + 8;
       sprite.patternRow1 = this.ppuMemory.readPattern(this.addressBus);
     } else {
@@ -837,7 +837,7 @@ export default class PPU {
 
   preRenderSprites() {
     for (let i = 0; i < this.spriteCount; i++) {
-      const sprite = this.secondaryOAM[i];
+      const sprite = this.secondaryOam[i];
 
       for (let j = 0; j < 8; j++) {
         const cycle = sprite.x + j + 1;

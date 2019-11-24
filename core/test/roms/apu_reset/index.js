@@ -3,7 +3,7 @@
 // Source: http://blargg.8bitalley.com/parodius/nes-tests/apu_reset.zip
 //=============================================================================
 
-import {DisabledPPU} from '../units';
+import {DisabledPpu} from '../units';
 
 export const dir = './test/roms/apu_reset';
 
@@ -17,7 +17,7 @@ export const files = [
 ];
 
 export function init() {
-  return {ppu: new DisabledPPU};
+  return {ppu: new DisabledPpu};
 }
 
 export function execute(test) {

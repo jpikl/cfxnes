@@ -9,15 +9,15 @@ For better performance, these components can be compiled with [closure compiler]
 ## Initialization
 
 ``` javascript
-import {NES} from 'cfxnes-core';
+import {Nes} from 'cfxnes-core';
 
-const nes = new NES;
+const nes = new Nes;
 ```
 
-NES constructor allows to pass custom implementation of any internal unit (CPU, PPU, APU, DMA, CPUMemory, PPUMemory). This is mainly used for their mocking/customization in tests.
+Nes constructor allows to pass custom implementation of any internal unit (Cpu, Ppu, Apu, Dma, CpuMemory, PpuMemory). This is mainly used for their mocking/customization in tests.
 
 ``` javascript
-const nes = new NES({cpu: customCPU});
+const nes = new Nes({cpu: customCpu});
 ```
 
 ## ROM Images

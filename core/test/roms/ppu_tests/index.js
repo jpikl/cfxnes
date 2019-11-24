@@ -3,7 +3,7 @@
 // Source: http://www.slack.net/~ant/nes-tests/blargg_ppu_tests.zip
 //=============================================================================
 
-import {MemoryOutputPPU} from '../units';
+import {MemoryOutputPpu} from '../units';
 
 export const dir = './test/roms/ppu_tests';
 
@@ -16,7 +16,7 @@ export const files = [
 ];
 
 export function init() {
-  return {ppu: new MemoryOutputPPU};
+  return {ppu: new MemoryOutputPpu};
 }
 
 export function execute(test) {

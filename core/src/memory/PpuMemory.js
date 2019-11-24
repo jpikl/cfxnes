@@ -41,7 +41,7 @@ const INITIAL_PALETTES = [
 //        |         Pattern table 0          |                       |
 //  $0000 +----------------------------------+-----------------------+ $0000
 
-export default class PPUMemory {
+export default class PpuMemory {
 
   //=========================================================
   // Initialization
@@ -62,8 +62,8 @@ export default class PPUMemory {
 
   setMapper(mapper) {
     this.mapper = mapper;
-    this.patterns = mapper && (mapper.chrRAM || mapper.chrROM);
-    this.canWritePattern = mapper != null && mapper.chrRAM != null;
+    this.patterns = mapper && (mapper.chrRam || mapper.chrRom);
+    this.canWritePattern = mapper != null && mapper.chrRam != null;
   }
 
   //=========================================================

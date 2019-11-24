@@ -2,7 +2,7 @@ import {log} from '../common';
 
 const TOTAL_DMA_CYCLES = 512;
 
-export default class DMA {
+export default class Dma {
 
   constructor() {
     log.info('Initializing DMA');
@@ -27,7 +27,7 @@ export default class DMA {
   }
 
   tick() {
-    if (this.isBlockingCPU()) {
+    if (this.isBlockingCpu()) {
       this.cycle++;
       if (this.cycle & 1) {
         this.transferData(); // Each even cycle
@@ -35,7 +35,7 @@ export default class DMA {
     }
   }
 
-  isBlockingCPU() {
+  isBlockingCpu() {
     return this.cycle < TOTAL_DMA_CYCLES;
   }
 

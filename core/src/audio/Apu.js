@@ -1,10 +1,10 @@
 import {log} from '../common';
 import {IRQ_APU} from '../proc/interrupts';
-import {Pulse, Triangle, Noise, DMC} from './channels';
+import {Pulse, Triangle, Noise, Dmc} from './channels';
 
 const TICKS_PER_FRAME = 29829.55; // Number of CPU ticks per one video frame
 
-export default class APU {
+export default class Apu {
 
   //=========================================================
   // Initialization
@@ -17,7 +17,7 @@ export default class APU {
     this.pulse2 = new Pulse(2);
     this.triangle = new Triangle;
     this.noise = new Noise;
-    this.dmc = new DMC;
+    this.dmc = new Dmc;
     this.channels = [this.pulse1, this.pulse2, this.triangle, this.noise, this.dmc];
 
     this.frameCounter = -1;          // Frame counter (negative value = uninitialized)
@@ -57,7 +57,7 @@ export default class APU {
     this.noise.reset();
     this.dmc.reset();
 
-    this.clearFrameIRQ();
+    this.clearFrameIrq();
     this.writeFrameCounter(0);
   }
 
@@ -119,7 +119,7 @@ export default class APU {
     }
 
     if (this.frameIrqDisabled) {
-      this.clearFrameIRQ(); // Disabling IRQ clears IRQ flag
+      this.clearFrameIrq(); // Disabling IRQ clears IRQ flag
     }
 
     if (this.frameFiveStepMode) {
@@ -136,12 +136,12 @@ export default class APU {
     return maxValues[this.frameStep];
   }
 
-  activateFrameIRQ() {
+  activateFrameIrq() {
     this.frameIrqActive = true;
     this.cpu.activateInterrupt(IRQ_APU);
   }
 
-  clearFrameIRQ() {
+  clearFrameIrq() {
     this.frameIrqActive = false;
     this.cpu.clearInterrupt(IRQ_APU);
   }
@@ -206,19 +206,19 @@ export default class APU {
   // DMC channel registers
   //=========================================================
 
-  writeDMCFlagsTimer(value) {
+  writeDmcFlagsTimer(value) {
     this.dmc.writeFlagsTimer(value);
   }
 
-  writeDMCOutputLevel(value) {
+  writeDmcOutputLevel(value) {
     this.dmc.writeOutputLevel(value);
   }
 
-  writeDMCSampleAddress(value) {
+  writeDmcSampleAddress(value) {
     this.dmc.writeSampleAddress(value);
   }
 
-  writeDMCSampleLength(value) {
+  writeDmcSampleLength(value) {
     this.dmc.writeSampleLength(value);
   }
 
@@ -236,7 +236,7 @@ export default class APU {
 
   readStatus() {
     const value = this.getStatus();
-    this.clearFrameIRQ();
+    this.clearFrameIrq();
     return value;
   }
 
@@ -254,11 +254,11 @@ export default class APU {
   // CPU/DMA lock
   //=========================================================
 
-  isBlockingCPU() {
+  isBlockingCpu() {
     return this.dmc.memoryAccessCycles > 0;
   }
 
-  isBlockingDMA() {
+  isBlockingDma() {
     return this.dmc.memoryAccessCycles > 2;
   }
 
@@ -306,17 +306,17 @@ export default class APU {
         break;
 
       case 4:
-        this.tickFrameIRQ();
+        this.tickFrameIrq();
         break;
 
       case 5:
         this.tickQuarterFrame();
         this.tickHalfFrame();
-        this.tickFrameIRQ();
+        this.tickFrameIrq();
         break;
 
       case 0: // 6
-        this.tickFrameIRQ();
+        this.tickFrameIrq();
         break;
     }
   }
@@ -335,9 +335,9 @@ export default class APU {
     this.noise.tickHalfFrame();
   }
 
-  tickFrameIRQ() {
+  tickFrameIrq() {
     if (!this.frameIrqDisabled && !this.frameFiveStepMode) {
-      this.activateFrameIRQ();
+      this.activateFrameIrq();
     }
   }
 
