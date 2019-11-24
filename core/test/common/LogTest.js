@@ -1,8 +1,8 @@
 import {expect} from 'chai';
-import {Log} from '../../src/common/log';
-import {OFF, ERROR, WARN, INFO} from '../../src/common/logLevels';
+import Log from '../../src/common/Log';
+import LogLevel from '../../src/common/LogLevel';
 
-describe('common/log', () => {
+describe('common/Log', () => {
   let log, infos, warns, errors;
 
   beforeEach(() => {
@@ -17,12 +17,12 @@ describe('common/log', () => {
   });
 
   it('has "off" log level by default', () => {
-    expect(log.getLevel()).to.equal(OFF);
+    expect(log.getLevel()).to.equal(LogLevel.OFF);
   });
 
   it('changes log level', () => {
-    log.setLevel(INFO);
-    expect(log.getLevel()).to.equal(INFO);
+    log.setLevel(LogLevel.INFO);
+    expect(log.getLevel()).to.equal(LogLevel.INFO);
   });
 
   it('throws error when setting invalid log level', () => {
@@ -31,7 +31,7 @@ describe('common/log', () => {
   });
 
   it('logs nothing for "off" level', () => {
-    log.setLevel(OFF);
+    log.setLevel(LogLevel.OFF);
     log.error('foo', 'bar');
     log.warn('fooo', 'baar');
     log.info('foooo', 'baaar');
@@ -41,7 +41,7 @@ describe('common/log', () => {
   });
 
   it('logs errors for "error" level', () => {
-    log.setLevel(ERROR);
+    log.setLevel(LogLevel.ERROR);
     log.error('foo', 'bar');
     log.warn('fooo', 'baar');
     log.info('foooo', 'baaar');
@@ -51,7 +51,7 @@ describe('common/log', () => {
   });
 
   it('logs errors and warnings for "warn" level', () => {
-    log.setLevel(WARN);
+    log.setLevel(LogLevel.WARN);
     log.error('foo', 'bar');
     log.warn('fooo', 'baar');
     log.info('foooo', 'baaar');
@@ -61,7 +61,7 @@ describe('common/log', () => {
   });
 
   it('logs errors, warnings and infos for "info" level', () => {
-    log.setLevel(INFO);
+    log.setLevel(LogLevel.INFO);
     log.error('foo', 'bar');
     log.warn('fooo', 'baar');
     log.info('foooo', 'baaar');

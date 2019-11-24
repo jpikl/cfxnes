@@ -1,11 +1,11 @@
-import * as LogLevel from './logLevels';
 import * as Mirroring from './mirrorings';
 import * as Region from './regions';
 import * as Mapper from './mappers';
 import * as Submapper from './submappers';
 
-export {default as log} from './log';
-export {LogLevel, Mirroring, Region, Mapper, Submapper};
+export {Mirroring, Region, Mapper, Submapper};
+export {default as LogLevel} from './LogLevel';
+export {default as log} from './consoleLog';
 
 export {
   detectEndianness,
