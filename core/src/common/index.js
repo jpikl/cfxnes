@@ -1,3 +1,4 @@
+export {default as decodeBase64} from './decodeBase64';
 export {default as describe} from './describe';
 export {default as formatSize} from './formatSize';
 export {default as LogLevel} from './LogLevel';
@@ -9,5 +10,4 @@ export {default as SubmapperType} from './SubmapperType';
 
 export {
   detectEndianness,
-  decodeBase64,
 } from './utils';
