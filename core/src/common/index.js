@@ -1,10 +1,8 @@
-import * as Region from './regions';
-
-export {Region};
-export {default as log} from './consoleLog';
 export {default as LogLevel} from './LogLevel';
+export {default as log} from './consoleLog';
 export {default as MapperType} from './MapperType';
 export {default as Mirroring} from './Mirroring';
+export {default as Region} from './Region';
 export {default as SubmapperType} from './SubmapperType';
 
 export {

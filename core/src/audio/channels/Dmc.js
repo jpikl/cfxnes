@@ -67,7 +67,7 @@ export default class Dmc {
   }
 
   setRegionParams(params) {
-    this.timerPeriods = params.dmcChannelTimerPeriods;
+    this.timerPeriods = params.dmcTimerPeriods;
   }
 
   activateIrq() {

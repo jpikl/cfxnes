@@ -51,7 +51,7 @@ export default class Noise {
   }
 
   setRegionParams(params) {
-    this.timerPeriods = params.noiseChannelTimerPeriods;
+    this.timerPeriods = params.noiseTimerPeriods;
   }
 
   //=========================================================
