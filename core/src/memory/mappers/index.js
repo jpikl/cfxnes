@@ -1,4 +1,4 @@
-import {log, describe, Mapper as ID} from '../../common';
+import {log, describe, MapperType} from '../../common';
 
 import AoRom from './AoRom';
 import BnRom from './BnRom';
@@ -11,23 +11,23 @@ import NRom from './NRom';
 import UnRom from './UnRom';
 
 const mappers = {
-  [ID.AOROM]: AoRom,
-  [ID.BNROM]: BnRom,
-  [ID.CNROM]: CnRom,
-  [ID.COLOR_DREAMS]: ColorDreams,
-  [ID.MMC1]: Mmc1,
-  [ID.MMC3]: Mmc3,
-  [ID.NINA_001]: Nina001,
-  [ID.NROM]: NRom,
-  [ID.UNROM]: UnRom,
+  [MapperType.AOROM]: AoRom,
+  [MapperType.BNROM]: BnRom,
+  [MapperType.CNROM]: CnRom,
+  [MapperType.COLOR_DREAMS]: ColorDreams,
+  [MapperType.MMC1]: Mmc1,
+  [MapperType.MMC3]: Mmc3,
+  [MapperType.NINA_001]: Nina001,
+  [MapperType.NROM]: NRom,
+  [MapperType.UNROM]: UnRom,
 };
 
 export function createMapper(cartridge) {
-  const name = cartridge.mapper;
-  const Mapper = mappers[name];
+  const {mapper} = cartridge;
+  const Mapper = mappers[mapper];
   if (Mapper) {
-    log.info(`Creating "${name}" mapper`);
+    log.info(`Creating "${mapper}" mapper`);
     return new Mapper(cartridge);
   }
-  throw new Error('Invalid mapper: ' + describe(name));
+  throw new Error('Invalid mapper: ' + describe(mapper));
 }

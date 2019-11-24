@@ -8,7 +8,7 @@ export {
   log,
   LogLevel,
   Region,
-  Mapper,
+  MapperType,
   formatSize,
   describe,
 } from './common';

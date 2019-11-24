@@ -1,22 +1,22 @@
-import {log, Region, Mirroring, Mapper, Submapper, formatSize} from '../../common';
+import {log, Region, Mirroring, MapperType, SubmapperType, formatSize} from '../../common';
 
 export const name = 'iNES / NES 2.0';
 
 const mappers = {
-  0: Mapper.NROM,
-  1: Mapper.MMC1,
-  2: Mapper.UNROM,
-  3: Mapper.CNROM,
-  4: Mapper.MMC3,
-  7: Mapper.AOROM,
-  11: Mapper.COLOR_DREAMS,
-  34: Mapper.BNROM, // NINA-001 uses the same ID
+  0: MapperType.NROM,
+  1: MapperType.MMC1,
+  2: MapperType.UNROM,
+  3: MapperType.CNROM,
+  4: MapperType.MMC3,
+  7: MapperType.AOROM,
+  11: MapperType.COLOR_DREAMS,
+  34: MapperType.BNROM, // NINA-001 uses the same ID
 };
 
 const submappers = {
-  [joinMapperIds(1, 1)]: Submapper.SUROM, // MMC1 submapper
-  [joinMapperIds(1, 2)]: Submapper.SOROM, // MMC1 submapper
-  [joinMapperIds(1, 3)]: Submapper.SXROM, // MMC1 submapper
+  [joinMapperIds(1, 1)]: SubmapperType.SUROM, // MMC1 submapper
+  [joinMapperIds(1, 2)]: SubmapperType.SOROM, // MMC1 submapper
+  [joinMapperIds(1, 3)]: SubmapperType.SXROM, // MMC1 submapper
 };
 
 function joinMapperIds(mapperId, submapperId) {
@@ -90,8 +90,8 @@ export function parse(data) {
   const chrRomEnd = chrRomStart + chrRomSize;
 
   let mapper = mappers[mapperId] || mapperId.toString();
-  if (mapper === Mapper.BNROM && chrRomSize > 0) {
-    mapper = Mapper.NINA_001; // Uses the same ID as BNROM, but has CHR ROM instead of CHR RAM
+  if (mapper === MapperType.BNROM && chrRomSize > 0) {
+    mapper = MapperType.NINA_001; // Uses the same ID as BNROM, but has CHR ROM instead of CHR RAM
   }
 
   const submapper = submappers[joinMapperIds(mapperId, submapperId)];

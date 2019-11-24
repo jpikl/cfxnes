@@ -1,9 +1,0 @@
-export const AOROM = 'AOROM';
-export const BNROM = 'BNROM';
-export const CNROM = 'CNROM';
-export const COLOR_DREAMS = 'COLOR_DREAMS';
-export const MMC1 = 'MMC1';
-export const MMC3 = 'MMC3';
-export const NINA_001 = 'NINA_001';
-export const NROM = 'NROM';
-export const UNROM = 'UNROM';
