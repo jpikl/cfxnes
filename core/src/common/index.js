@@ -1,3 +1,4 @@
+export {default as describe} from './describe';
 export {default as LogLevel} from './LogLevel';
 export {default as log} from './consoleLog';
 export {default as MapperType} from './MapperType';
@@ -9,5 +10,4 @@ export {
   detectEndianness,
   decodeBase64,
   formatSize,
-  describe,
 } from './utils';

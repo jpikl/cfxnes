@@ -1,4 +1,4 @@
-import {describe} from './utils';
+import describe from './describe';
 import LogLevel from './LogLevel';
 
 const OFF_PRIORITY = 0;

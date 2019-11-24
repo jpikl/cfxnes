@@ -1,4 +1,4 @@
-import {describe} from './utils';
+import describe from './describe';
 
 /**
  * NES region.

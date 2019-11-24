@@ -5,7 +5,6 @@ import {
   detectEndianness,
   decodeBase64,
   formatSize,
-  describe,
 } from '../../src/common/utils';
 
 describe('common/utils', () => {
@@ -37,18 +36,5 @@ describe('common/utils', () => {
     expect(formatSize(-3 * 1024)).to.equal('-3 KB');
     expect(formatSize(-7 * 1024 * 1024)).to.equal('-7 MB');
     expect(formatSize('not a number')).to.be.undefined;
-  });
-
-  it('describes value', () => {
-    expect(describe(undefined)).to.equal('undefined');
-    expect(describe(null)).to.equal('null');
-    expect(describe(123)).to.equal('123');
-    expect(describe('abc')).to.equal('"abc"');
-    expect(describe('a'.repeat(100))).to.equal(`"${'a'.repeat(80)}..."`);
-    expect(describe(() => {})).to.equal('Function');
-    expect(describe(function foo() {})).to.equal('Function(foo)'); // eslint-disable-line prefer-arrow-callback
-    expect(describe({})).to.equal('Object');
-    expect(describe(Uint8Array.of(1, 2, 3))).to.equal('Uint8Array(3)');
-    expect(describe(Symbol('bar'))).to.equal('Symbol(bar)');
   });
 });

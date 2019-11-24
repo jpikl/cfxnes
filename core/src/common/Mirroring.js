@@ -1,4 +1,4 @@
-import {describe} from './utils';
+import describe from './describe';
 
 /**
  * Mirroring of PPU nametables.
@@ -17,7 +17,7 @@ const Mirroring = {
   HORIZONTAL: 'H',
   /** Mirror nametable 0 in screens 0, 2 and nametable 1 in areas 1, 3.  */
   VERTICAL: 'V',
-  /** Each area has it own nametable */
+  /** Each area has it own nametable. */
   FOUR_SCREEN: '4S',
 };
 
