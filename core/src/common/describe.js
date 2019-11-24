@@ -15,7 +15,7 @@ export default function describe(value) {
   }
   if (type === 'function') {
     const constructorName = getFunctionName(value.constructor);
-    const name = getFunctionName(value);
+    const name = getFunctionName(/** @type {!Function} */ (value));
     return name ? `${constructorName}(${name})` : constructorName;
   }
   if (value && type === 'object') {
