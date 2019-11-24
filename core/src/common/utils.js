@@ -15,20 +15,3 @@ export function decodeBase64(input) {
   }
   throw new Error('Unable to decode base64 string');
 }
-
-export function formatSize(size) {
-  if (typeof size !== 'number') {
-    return undefined;
-  }
-  if (Math.abs(size) < 1024) {
-    return size + ' B';
-  }
-  if (Math.abs(size) < 1024 * 1024) {
-    return roundSize(size / 1024) + ' KB';
-  }
-  return roundSize(size / (1024 * 1024)) + ' MB';
-}
-
-function roundSize(number) {
-  return (~~(1000 * number)) / 1000;
-}

@@ -4,7 +4,6 @@ import {expect} from 'chai';
 import {
   detectEndianness,
   decodeBase64,
-  formatSize,
 } from '../../src/common/utils';
 
 describe('common/utils', () => {
@@ -23,18 +22,5 @@ describe('common/utils', () => {
     } finally {
       global.window = undefined;
     }
-  });
-
-  it('formats size', () => {
-    expect(formatSize(0)).to.equal('0 B');
-    expect(formatSize(2)).to.equal('2 B');
-    expect(formatSize(4 * 1024)).to.equal('4 KB');
-    expect(formatSize(8 * 1024 * 1024)).to.equal('8 MB');
-    expect(formatSize(8.5 * 1024 * 1024)).to.equal('8.5 MB');
-    expect(formatSize(8.1234 * 1024 * 1024)).to.equal('8.123 MB');
-    expect(formatSize(-1)).to.equal('-1 B');
-    expect(formatSize(-3 * 1024)).to.equal('-3 KB');
-    expect(formatSize(-7 * 1024 * 1024)).to.equal('-7 MB');
-    expect(formatSize('not a number')).to.be.undefined;
   });
 });
