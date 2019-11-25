@@ -1,3 +1,4 @@
+export {default as computeSha1} from './computeSha1';
 export {default as decodeBase64} from './decodeBase64';
 export {default as describeValue} from './describeValue';
 export {default as formatSize} from './formatSize';

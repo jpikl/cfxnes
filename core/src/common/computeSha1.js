@@ -2,9 +2,13 @@ const hexChars = '0123456789abcdef'.split('');
 const extra = [-2147483648, 8388608, 32768, 128];
 const shift = [24, 16, 8, 0];
 
-// Based on source code of js-sha1 v3.0 (https://github.com/emn178/js-sha1)
-
-export default function sha1(data) {
+/**
+ * Computes SHA-1 hash of a byte array.
+ * Based on source code of [js-sha1 v3.0]{@link https://github.com/emn178/js-sha1}.
+ * @param {!Uint8Array} data Input data.
+ * @returns {string} SHA-1 hash of input data.
+ */
+export default function computeSha1(data) {
   const {length} = data;
   const blocks = new Array(17);
 

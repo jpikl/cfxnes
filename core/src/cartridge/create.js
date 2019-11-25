@@ -1,6 +1,5 @@
-import {log, formatSize, describeValue} from '../common';
+import {computeSha1, log, formatSize, describeValue} from '../common';
 import parsers from './parsers';
-import sha1 from './sha1';
 
 export default function createCartridge(data) {
   log.info('Creating cartridge from ROM image');
@@ -12,25 +11,25 @@ export default function createCartridge(data) {
     if (parser.supports(data)) {
       log.info(`Using "${parser.name}" parser`);
       const cartridge = parser.parse(data);
-      computeSha1(cartridge);
-      printInfo(cartridge);
+      computeCartridgeSha1(cartridge);
+      printCartridgeInfo(cartridge);
       return cartridge;
     }
   }
   throw new Error('Unknown ROM image format');
 }
 
-function computeSha1(cartridge) {
+function computeCartridgeSha1(cartridge) {
   log.info('Computing SHA-1');
   const buffer = new Uint8Array(cartridge.prgRomSize + cartridge.chrRomSize);
   buffer.set(cartridge.prgRom);
   if (cartridge.chrRom) {
     buffer.set(cartridge.chrRom, cartridge.prgRomSize);
   }
-  cartridge.sha1 = sha1(buffer);
+  cartridge.sha1 = computeSha1(buffer);
 }
 
-function printInfo(cartridge) {
+function printCartridgeInfo(cartridge) {
   log.info('==========[Cartridge Info - Start]==========');
   log.info('SHA-1                 : ' + cartridge.sha1);
   log.info('Mapper                : ' + cartridge.mapper);
