@@ -1,6 +1,6 @@
-import {detectEndianness} from '../common';
+import {isLittleEndian} from '../common';
 
-const le = detectEndianness() === 'LE';
+const le = isLittleEndian();
 
 export const packColor = le ? packColorLE : packColorBE;
 export const unpackColor = le ? unpackColorLE : unpackColorBE;
