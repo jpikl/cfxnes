@@ -1,3 +1,4 @@
+import {describe, it, beforeEach} from 'mocha';
 import {expect} from 'chai';
 import Dma from '../../src/memory/Dma';
 

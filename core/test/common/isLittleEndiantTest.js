@@ -1,4 +1,5 @@
 import os from 'os';
+import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import isLittleEndian from '../../src/common/isLittleEndian';
 

@@ -1,3 +1,4 @@
+import {describe, it, beforeEach} from 'mocha';
 import {expect} from 'chai';
 import Log from '../../src/common/Log';
 import LogLevel from '../../src/common/LogLevel';

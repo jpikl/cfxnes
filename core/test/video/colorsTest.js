@@ -1,3 +1,4 @@
+import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import {packColorLE, packColorBE, unpackColorLE, unpackColorBE} from '../../src/video/colors';
 

@@ -1,3 +1,4 @@
+import {describe, it, before, beforeEach} from 'mocha';
 import {expect} from 'chai';
 import {Nes, Region, Joypad, readCartridge} from '../src';
 

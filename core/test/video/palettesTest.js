@@ -1,3 +1,4 @@
+import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import {packColor, unpackColor} from '../../src/video/colors';
 import {isPaletteName, createPalette, createPaletteVariant} from '../../src/video/palettes';

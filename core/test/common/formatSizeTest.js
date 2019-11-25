@@ -1,3 +1,4 @@
+import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import formatSize from '../../src/common/formatSize';
 

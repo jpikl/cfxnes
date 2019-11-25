@@ -1,3 +1,4 @@
+import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import {Region, Mirroring, MapperType} from '../../../src/common';
 import {parse} from '../../../src/cartridge/parsers/ines';

@@ -8,6 +8,7 @@
 import fs from 'fs';
 import path from 'path';
 import mkdirp from 'mkdirp';
+import {describe, it} from 'mocha';
 import {assert, expect} from 'chai';
 
 import {Nes, readCartridge} from '../../src';

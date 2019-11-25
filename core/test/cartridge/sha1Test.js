@@ -1,4 +1,5 @@
 import fs from 'fs';
+import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import sha1 from '../../src/cartridge/sha1';
 
