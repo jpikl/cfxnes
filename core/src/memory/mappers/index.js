@@ -1,4 +1,4 @@
-import {log, describe, MapperType} from '../../common';
+import {log, describeValue, MapperType} from '../../common';
 
 import AoRom from './AoRom';
 import BnRom from './BnRom';
@@ -29,5 +29,5 @@ export function createMapper(cartridge) {
     log.info(`Creating "${mapper}" mapper`);
     return new Mapper(cartridge);
   }
-  throw new Error('Invalid mapper: ' + describe(mapper));
+  throw new Error('Invalid mapper: ' + describeValue(mapper));
 }

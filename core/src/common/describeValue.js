@@ -5,7 +5,7 @@ const MAX_STRING_LENGTH = 80;
  * @param {*} value Value of any type.
  * @returns {string} Text describing the value.
  */
-export default function describe(value) {
+export default function describeValue(value) {
   const type = typeof value;
   if (type === 'string') {
     if (value.length > MAX_STRING_LENGTH) {

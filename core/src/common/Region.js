@@ -1,4 +1,4 @@
-import describe from './describe';
+import describeValue from './describeValue';
 
 /**
  * NES region.
@@ -70,7 +70,7 @@ Region.getParams = region => {
   switch (region) {
     case Region.NTSC: return ntscParams;
     case Region.PAL: return palParams;
-    default: throw new Error('Invalid region: ' + describe(region));
+    default: throw new Error('Invalid region: ' + describeValue(region));
   }
 };
 

@@ -1,6 +1,6 @@
 import {describe, it} from 'mocha';
 import {expect} from 'chai';
-import describeValue from '../../src/common/describe';
+import describeValue from '../../src/common/describeValue';
 
 describe('common/describe', () => {
   it('describes undefined', () => {

@@ -1,4 +1,4 @@
-import describe from './describe';
+import describeValue from './describeValue';
 import LogLevel from './LogLevel';
 
 const OFF_PRIORITY = 0;
@@ -57,7 +57,7 @@ export default class Log {
   setLevel(level) {
     const priority = priorities[level];
     if (priority == null) {
-      throw new Error('Invalid log level: ' + describe(level));
+      throw new Error('Invalid log level: ' + describeValue(level));
     }
     this.level = level;
     this.priority = priority;

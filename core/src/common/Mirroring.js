@@ -1,4 +1,4 @@
-import describe from './describe';
+import describeValue from './describeValue';
 
 /**
  * Mirroring of PPU nametables.
@@ -65,7 +65,7 @@ Mirroring.getAreas = mirroring => {
   if (areas) {
     return areas;
   }
-  throw new Error('Invalid mirroring: ' + describe(mirroring));
+  throw new Error('Invalid mirroring: ' + describeValue(mirroring));
 };
 
 export default Mirroring;

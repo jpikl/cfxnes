@@ -10,7 +10,7 @@ export {
   LogLevel,
   log,
   formatSize,
-  describe,
+  describeValue,
   DEFAULT_PALETTE,
   BLACK_COLOR,
   VIDEO_WIDTH,

@@ -10,7 +10,7 @@ export {
   Region,
   MapperType,
   formatSize,
-  describe,
+  describeValue,
 } from './common';
 
 export {

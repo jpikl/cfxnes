@@ -1,11 +1,11 @@
-import {log, formatSize, describe} from '../common';
+import {log, formatSize, describeValue} from '../common';
 import parsers from './parsers';
 import sha1 from './sha1';
 
 export default function createCartridge(data) {
   log.info('Creating cartridge from ROM image');
   if (!(data instanceof Uint8Array)) {
-    throw new Error('Invalid ROM image: ' + describe(data));
+    throw new Error('Invalid ROM image: ' + describeValue(data));
   }
   log.info(`Parsing ${formatSize(data.length)} of data`);
   for (const parser of parsers) {

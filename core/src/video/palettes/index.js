@@ -1,4 +1,4 @@
-import {log, decodeBase64, describe} from '../../common';
+import {log, decodeBase64, describeValue} from '../../common';
 import {packColor, unpackColor} from '../colors';
 
 import asqRealA from './asqRealA';
@@ -41,7 +41,7 @@ export function createPalette(name = DEFAULT_PALETTE) {
     log.info(`Creating "${name}" palette`);
     return decodePalette(base64);
   }
-  throw new Error('Invalid palette: ' + describe(name));
+  throw new Error('Invalid palette: ' + describeValue(name));
 }
 
 function decodePalette(base64) {
