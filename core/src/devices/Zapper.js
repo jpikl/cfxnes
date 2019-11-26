@@ -41,8 +41,8 @@ export default class Zapper {
 
   /**
    * Connects zapper to bus.
-   *
-   * @param {!Bus} bus.
+   * @param {!Bus} bus Bus.
+   * @override
    */
   connect(bus) {
     log.info('Connecting zapper');
@@ -51,6 +51,7 @@ export default class Zapper {
 
   /**
    * Disconnects zapper from bus.
+   * @override
    */
   disconnect() {
     log.info('Disconnecting zapper');

@@ -8,7 +8,7 @@ export default class BusComponent {
 
   /**
    * Connects component to bus.
-   * @param {Bus} bus
+   * @param {!Bus} bus Bus.
    */
   connect(bus) { // eslint-disable-line no-unused-vars
   }

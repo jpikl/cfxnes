@@ -1,6 +1,7 @@
 import {log} from '../common';
 import {IRQ_APU} from '../proc/interrupts';
 import {Pulse, Triangle, Noise, Dmc} from './channels';
+import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
 import ApuInterface from './ApuInterface'; // eslint-disable-line no-unused-vars
 
 const TICKS_PER_FRAME = 29829.55; // Number of CPU ticks per one video frame
@@ -42,10 +43,25 @@ export default class Apu {
     this.cpu = null;
   }
 
-  connect(nes) {
+  /**
+   * Connects APU to bus.
+   * @param {!Bus} bus Bus.
+   * @override
+   */
+  connect(bus) {
     log.info('Connecting APU');
-    this.cpu = nes.cpu;
-    this.dmc.connect(nes);
+    this.cpu = bus.getCpu();
+    this.dmc.connect(bus);
+  }
+
+  /**
+   * Disconnects APU from bus.
+   * @override
+   */
+  disconnect() {
+    log.info('Disconnecting APU');
+    this.cpu = null;
+    this.dmc.disconnect();
   }
 
   //=========================================================

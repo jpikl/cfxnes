@@ -6,6 +6,7 @@ import {createPaletteVariant} from './palettes';
 import * as Flag from './flags';
 import Sprite from './Sprite';
 import PpuInterface from './PpuInterface'; // eslint-disable-line no-unused-vars
+import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
 
 /**
  * @implements {PpuInterface}
@@ -95,10 +96,25 @@ export default class Ppu {
     this.ppuMemory = null;
   }
 
-  connect(nes) {
+  /**
+   * Connects PPU to bus.
+   * @param {!Bus} bus Bus.
+   * @override
+   */
+  connect(bus) {
     log.info('Connecting PPU');
-    this.cpu = nes.cpu;
-    this.ppuMemory = nes.ppuMemory;
+    this.cpu = bus.getCpu();
+    this.ppuMemory = bus.getPpu();
+  }
+
+  /**
+   * Disconnects PPU from bus.
+   * @override
+   */
+  disconnect() {
+    log.info('Disonnecting PPU');
+    this.cpu = null;
+    this.ppuMemory = null;
   }
 
   //=========================================================

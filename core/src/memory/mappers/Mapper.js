@@ -1,5 +1,10 @@
 import {log, Mirroring} from '../../common';
+import Bus from '../../common/Bus'; // eslint-disable-line no-unused-vars
+import BusComponent from '../../common/BusComponent'; // eslint-disable-line no-unused-vars
 
+/**
+ * @implements {BusComponent}
+ */
 export default class Mapper {
 
   //=========================================================
@@ -44,19 +49,28 @@ export default class Mapper {
     this.ppuMemory = null;
   }
 
-  connect(nes) {
+  /**
+   * Connects mapper to bus.
+   * @param {!Bus} bus Bus.
+   * @override
+   */
+  connect(bus) {
     log.info('Connecting mapper');
 
-    this.cpu = nes.cpu;
-    this.ppu = nes.ppu;
-    this.cpuMemory = nes.cpuMemory;
-    this.ppuMemory = nes.ppuMemory;
+    this.cpu = bus.getCpu();
+    this.ppu = bus.getPpu();
+    this.cpuMemory = bus.getCpuMemory();
+    this.ppuMemory = bus.getPpuMemory();
 
     this.cpu.setMapper(this);
     this.cpuMemory.setMapper(this);
     this.ppuMemory.setMapper(this);
   }
 
+  /**
+   * Disconnects mapper from bus.
+   * @override
+   */
   disconnect() {
     log.info('Disconnecting mapper');
 

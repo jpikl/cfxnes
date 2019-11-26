@@ -1,4 +1,6 @@
 import {log} from '../common';
+import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
+import CpuMemoryInterface from './CpuMemoryInterface'; // eslint-disable-line no-unused-vars
 
 // $10000 +------------------------+-------------------+ $10000
 //        |   Upper PRG ROM bank   |                   |
@@ -24,6 +26,9 @@ import {log} from '../common';
 //        |        Zero page       |                   |
 //  $0000 +------------------------+-------------------+ $0000
 
+/**
+ * @implements {CpuMemoryInterface}
+ */
 export default class CpuMemory {
 
   //=========================================================
@@ -48,11 +53,27 @@ export default class CpuMemory {
     this.mapper = null;
   }
 
-  connect(nes) {
+  /**
+   * Connects CPU memory to bus.
+   * @param {!Bus} bus Bus.
+   * @override
+   */
+  connect(bus) {
     log.info('Connecting CPU memory');
-    this.ppu = nes.ppu;
-    this.apu = nes.apu;
-    this.dma = nes.dma;
+    this.ppu = bus.getPpu();
+    this.apu = bus.getApu();
+    this.dma = bus.getDma();
+  }
+
+  /**
+   * Disconnects CPU memory from bus.
+   * @override
+   */
+  disconnect() {
+    log.info('Disconnecting CPU memory');
+    this.ppu = null;
+    this.apu = null;
+    this.dma = null;
   }
 
   setMapper(mapper) {

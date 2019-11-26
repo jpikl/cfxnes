@@ -1,6 +1,11 @@
 import {log} from '../../common';
 import {IRQ_DMC} from '../../proc/interrupts';
+import Bus from '../../common/Bus'; // eslint-disable-line no-unused-vars
+import BusComponent from '../../common/BusComponent'; // eslint-disable-line no-unused-vars
 
+/**
+ * @implements {BusComponent}
+ */
 export default class Dmc {
 
   constructor() {
@@ -31,14 +36,29 @@ export default class Dmc {
     this.cpuMemory = null;
   }
 
-  connect(nes) {
-    log.info('Connecting DMC channel');
-    this.cpu = nes.cpu;
-    this.cpuMemory = nes.cpuMemory;
+  /**
+   * Connects DM channel to bus.
+   * @param {!Bus} bus Bus.
+   * @override
+   */
+  connect(bus) {
+    log.info('Connecting DM channel');
+    this.cpu = bus.getCpu();
+    this.cpuMemory = bus.getCpuMemory();
+  }
+
+  /**
+   * Disconnects DM channel from bus.
+   * @override
+   */
+  disconnect() {
+    log.info('Disconnecting DM channel');
+    this.cpu = null;
+    this.cpuMemory = null;
   }
 
   reset() {
-    log.info('Resetting DMC channel');
+    log.info('Resetting DM channel');
 
     this.timerCycle = 0;
     this.sampleBuffer = -1;

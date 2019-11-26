@@ -1,4 +1,5 @@
 import {log, Mirroring} from '../common';
+import PpuMemoryInterface from './PpuMemoryInterface'; // eslint-disable-line no-unused-vars
 
 const INITIAL_PALETTES = [
   0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D, // Background palettes 0, 1
@@ -41,6 +42,9 @@ const INITIAL_PALETTES = [
 //        |         Pattern table 0          |                       |
 //  $0000 +----------------------------------+-----------------------+ $0000
 
+/**
+ * @implements {PpuMemoryInterface}
+ */
 export default class PpuMemory {
 
   //=========================================================
@@ -58,6 +62,22 @@ export default class PpuMemory {
     this.palettes = new Uint8Array(0x20); // 8 x 4B palettes (background / sprite)
 
     this.mapper = null;
+  }
+
+  /**
+   * Connects PPU memory to bus.
+   * @override
+   */
+  connect() {
+    log.info('Connecting PPU memory');
+  }
+
+  /**
+   * Disconnects PPU memory from bus.
+   * @override
+   */
+  disconnect() {
+    log.info('Disconnecting PPU memory');
   }
 
   setMapper(mapper) {

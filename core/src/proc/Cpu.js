@@ -1,6 +1,7 @@
 import {log} from '../common';
 import CpuInterface from './CpuInterface'; // eslint-disable-line no-unused-vars
 import {RESET, NMI} from './interrupts';
+import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
 
 // CPU operation flags
 const F_EXTRA_CYCLE = 1 << 0; // Operation has +1 cycle
@@ -59,12 +60,29 @@ export default class Cpu {
     this.apu = null;
   }
 
-  connect(nes) {
+  /**
+   * Connects CPU to bus.
+   * @param {!Bus} bus Bus.
+   * @override
+   */
+  connect(bus) {
     log.info('Connecting CPU');
-    this.cpuMemory = nes.cpuMemory;
-    this.ppu = nes.ppu;
-    this.apu = nes.apu;
-    this.dma = nes.dma;
+    this.cpuMemory = bus.getCpuMemory();
+    this.ppu = bus.getPpu();
+    this.apu = bus.getApu();
+    this.dma = bus.getDma();
+  }
+
+  /**
+   * Disconnects CPU from bus.
+   * @override
+   */
+  disconnect() {
+    log.info('Connecting CPU');
+    this.cpuMemory = null;
+    this.ppu = null;
+    this.apu = null;
+    this.dma = null;
   }
 
   setMapper(mapper) {

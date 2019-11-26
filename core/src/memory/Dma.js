@@ -1,7 +1,12 @@
 import {log} from '../common';
+import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
+import DmaInterface from './DmaInterface'; // eslint-disable-line no-unused-vars
 
 const TOTAL_DMA_CYCLES = 512;
 
+/**
+ * @implements {DmaInterface}
+ */
 export default class Dma {
 
   constructor() {
@@ -11,9 +16,23 @@ export default class Dma {
     this.cpuMemory = null;
   }
 
-  connect(nes) {
+  /**
+   * Connects DMA to bus.
+   * @param {!Bus} bus Bus.
+   * @override
+   */
+  connect(bus) {
     log.info('Connecting DMA');
-    this.cpuMemory = nes.cpuMemory;
+    this.cpuMemory = bus.getCpuMemory();
+  }
+
+  /**
+   * Disconnects DMA from bus.
+   * @override
+   */
+  disconnect() {
+    log.info('Disconnecting DMA');
+    this.cpuMemory = null;
   }
 
   reset() {
