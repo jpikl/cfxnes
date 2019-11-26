@@ -29,23 +29,20 @@ export default class Log {
   constructor(output) {
     /**
      * Console-like object to write log to.
-     * @private
+     * @private {!Object}
      * @const
-     * @type {!Object}
      */
     this.output = output;
 
     /**
      * Level of logging.
-     * @private
-     * @type {LogLevel}
+     * @private {LogLevel}
      */
     this.level = LogLevel.OFF;
 
     /**
      * Priority for level of logging
-     * @private
-     * @type {number}
+     * @private {number}
      */
     this.priority = OFF_PRIORITY;
   }
