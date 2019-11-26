@@ -1,12 +1,12 @@
 import {log} from '../common';
 import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../video';
 import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
-import BusComponent from '../common/BusComponent'; // eslint-disable-line no-unused-vars
 import PpuInterface from '../video/PpuInterface'; // eslint-disable-line no-unused-vars
+import InputDevice from './InputDevice'; // eslint-disable-line no-unused-vars
 
 /**
  * Light gun controller - Zapper.
- * @implements {BusComponent}
+ * @implements {InputDevice}
  */
 export default class Zapper {
 
@@ -59,6 +59,7 @@ export default class Zapper {
 
   /**
    * Sends strobe signal to zapper.
+   * @override
    */
   strobe() {
     // Ignored
@@ -67,6 +68,7 @@ export default class Zapper {
   /**
    * Reads value from zapper.
    * @returns {number} Value.
+   * @override
    */
   read() {
     return (this.triggerPressed << 4) | (!this.isLightDetected() << 3);

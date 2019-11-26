@@ -1,10 +1,10 @@
 import {log} from '../common';
-import BusComponent from '../common/BusComponent'; // eslint-disable-line no-unused-vars
 import JoypadButton from './JoypadButton'; // eslint-disable-line no-unused-vars
+import InputDevice from './InputDevice'; // eslint-disable-line no-unused-vars
 
 /**
  * Standard controller - Joypad.
- * @implements {BusComponent}
+ * @implements {InputDevice}
  */
 export default class Joypad {
 
@@ -45,6 +45,7 @@ export default class Joypad {
 
   /**
    * Sends strobe signal to joypad.
+   * @override
    */
   strobe() {
     this.readPosition = 0;
@@ -53,6 +54,7 @@ export default class Joypad {
   /**
    * Reads value from joypad.
    * @returns {number} Value.
+   * @override
    */
   read() {
     const state = this.buttonStates[this.readPosition];
