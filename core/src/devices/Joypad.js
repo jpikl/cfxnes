@@ -1,8 +1,10 @@
 import {log} from '../common';
+import BusComponent from '../common/BusComponent'; // eslint-disable-line no-unused-vars
 import JoypadButton from './JoypadButton'; // eslint-disable-line no-unused-vars
 
 /**
  * Standard controller - Joypad.
+ * @implements {BusComponent}
  */
 export default class Joypad {
 
@@ -26,14 +28,16 @@ export default class Joypad {
   }
 
   /**
-   * Connects joypad to NES.
+   * Connects joypad to bus.
+   * @override
    */
   connect() {
     log.info('Connecting joypad');
   }
 
   /**
-   * Disconnects joypad from NES.
+   * Disconnects joypad from bus.
+   * @override
    */
   disconnect() {
     log.info('Disconnecting joypad');

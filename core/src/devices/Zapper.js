@@ -1,8 +1,12 @@
 import {log} from '../common';
 import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../video';
+import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
+import BusComponent from '../common/BusComponent'; // eslint-disable-line no-unused-vars
+import PpuInterface from '../video/PpuInterface'; // eslint-disable-line no-unused-vars
 
 /**
  * Light gun controller - Zapper.
+ * @implements {BusComponent}
  */
 export default class Zapper {
 
@@ -29,24 +33,24 @@ export default class Zapper {
     this.beamY = -1;
 
     /**
-     * PPU reference.
-     * @private {Object}
+     * PPU interface.
+     * @private {PpuInterface}
      */
     this.ppu = null;
   }
 
   /**
-   * Connects zapper to NES.
+   * Connects zapper to bus.
    *
-   * @param {!Object} nes NES.
+   * @param {!Bus} bus.
    */
-  connect(nes) {
+  connect(bus) {
     log.info('Connecting zapper');
-    this.ppu = nes.ppu;
+    this.ppu = bus.getPpu();
   }
 
   /**
-   * Disconnects zapper from NES.
+   * Disconnects zapper from bus.
    */
   disconnect() {
     log.info('Disconnecting zapper');

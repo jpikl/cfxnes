@@ -1,4 +1,5 @@
 import {log} from '../common';
+import CpuInterface from './CpuInterface'; // eslint-disable-line no-unused-vars
 import {RESET, NMI} from './interrupts';
 
 // CPU operation flags
@@ -13,6 +14,9 @@ const IRQ_ADDRESS = 0xFFFE;
 // Table of all CPU operations
 const operations = new Array(0xFF);
 
+/**
+ * @implements {CpuInterface}
+ */
 export default class Cpu {
 
   //=========================================================

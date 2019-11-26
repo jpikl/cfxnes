@@ -3,7 +3,11 @@ import {CpuMemory, PpuMemory, Dma, createMapper} from './memory';
 import {Ppu, packColor, BLACK_COLOR} from './video';
 import {Cpu, Interrupt} from './proc';
 import {Apu} from './audio';
+import Bus from './common/Bus'; // eslint-disable-line no-unused-vars
 
+/**
+ * @implements {Bus}
+ */
 export default class Nes {
 
   constructor(units = {}) {
@@ -44,6 +48,30 @@ export default class Nes {
     this.apu.reset();
     this.dma.reset();
     this.cpu.reset(); // Must be done last
+  }
+
+  getCpu() {
+    return this.cpu;
+  }
+
+  getCpuMemory() {
+    return this.cpuMemory;
+  }
+
+  getPpu() {
+    return this.ppu;
+  }
+
+  getPpuMemory() {
+    return this.ppuMemory;
+  }
+
+  getApu() {
+    return this.apu;
+  }
+
+  getDma() {
+    return this.dma;
   }
 
   //=========================================================

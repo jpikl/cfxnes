@@ -5,7 +5,11 @@ import {unpackColor, BLACK_COLOR} from './colors';
 import {createPaletteVariant} from './palettes';
 import * as Flag from './flags';
 import Sprite from './Sprite';
+import PpuInterface from './PpuInterface'; // eslint-disable-line no-unused-vars
 
+/**
+ * @implements {PpuInterface}
+ */
 export default class Ppu {
 
   //=========================================================

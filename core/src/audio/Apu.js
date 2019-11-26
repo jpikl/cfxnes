@@ -1,9 +1,13 @@
 import {log} from '../common';
 import {IRQ_APU} from '../proc/interrupts';
 import {Pulse, Triangle, Noise, Dmc} from './channels';
+import ApuInterface from './ApuInterface'; // eslint-disable-line no-unused-vars
 
 const TICKS_PER_FRAME = 29829.55; // Number of CPU ticks per one video frame
 
+/**
+ * @implements {ApuInterface}
+ */
 export default class Apu {
 
   //=========================================================
