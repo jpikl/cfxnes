@@ -1,7 +1,7 @@
 export {default as Nes} from './Nes';
 export {Apu} from './audio';
 export {Cpu} from './proc';
-export {Button, Joypad, Zapper} from './devices';
+export {Joypad, JoypadButton, Zapper} from './devices';
 export {createCartridge, readCartridge} from './cartridge';
 
 export {

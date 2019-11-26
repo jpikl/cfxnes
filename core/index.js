@@ -1,7 +1,7 @@
 export {
   Nes,
-  Button,
   Joypad,
+  JoypadButton,
   Zapper,
   createCartridge,
   createPalette,

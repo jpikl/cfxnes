@@ -1,16 +1,21 @@
 import {describe, it, beforeEach, afterEach} from 'mocha';
 import {expect} from 'chai';
-import Joypad, {Button} from '../../src/devices/Joypad';
+import Joypad from '../../src/devices/Joypad';
+import JoypadButton from '../../src/devices/JoypadButton';
 
 describe('devices/Joypad', () => {
   const nes = {};
   let joypad;
 
   const buttons = [
-    Button.A, Button.B,
-    Button.SELECT, Button.START,
-    Button.UP, Button.DOWN,
-    Button.LEFT, Button.RIGHT,
+    JoypadButton.A,
+    JoypadButton.B,
+    JoypadButton.SELECT,
+    JoypadButton.START,
+    JoypadButton.UP,
+    JoypadButton.DOWN,
+    JoypadButton.LEFT,
+    JoypadButton.RIGHT,
   ];
 
   beforeEach(() => {
@@ -49,13 +54,13 @@ describe('devices/Joypad', () => {
   }
 
   it('reads the same state repeatedly', () => {
-    joypad.setButtonPressed(Button.A, true);
+    joypad.setButtonPressed(JoypadButton.A, true);
     expect(read()).to.deep.equal(state(0));
     expect(read()).to.deep.equal(state(0));
   });
 
   it('strobes to reset read position', () => {
-    joypad.setButtonPressed(Button.A, true);
+    joypad.setButtonPressed(JoypadButton.A, true);
     expect(read(10)).to.deep.equal(state(0, 10));
     joypad.strobe();
     expect(read(10)).to.deep.equal(state(0, 10));

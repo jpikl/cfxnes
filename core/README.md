@@ -68,12 +68,12 @@ nes.setAudioCallback(audioSample => { /* Handle audio sample. */ });
 ## Input Devices
 
 ``` javascript
-import {Button, Joypad, Zapper} from 'cfxnes-core';
+import {Joypad, JoypadButton, Zapper} from 'cfxnes-core';
 
 // Standard NES controller
 const joypad = new Joypad;
 nes.setInputDevice(1, joypad); // Port #1
-joypad.setButtonPressed(Button.START, true);
+joypad.setButtonPressed(JoypadButton.START, true);
 
 // Zapper
 const zapper = new Zapper;
