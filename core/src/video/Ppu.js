@@ -1,12 +1,12 @@
 import {log} from '../common';
 import {NMI} from '../proc/interrupts';
+import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
 import {VIDEO_WIDTH} from './constants';
 import {unpackColor, BLACK_COLOR} from './colors';
 import {createPaletteVariant} from './palettes';
 import * as Flag from './flags';
 import Sprite from './Sprite';
 import PpuInterface from './PpuInterface'; // eslint-disable-line no-unused-vars
-import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
 
 /**
  * @implements {PpuInterface}

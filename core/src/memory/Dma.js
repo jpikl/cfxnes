@@ -1,18 +1,42 @@
 import {log} from '../common';
 import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
 import DmaInterface from './DmaInterface'; // eslint-disable-line no-unused-vars
+import CpuMemoryInterface from './CpuMemoryInterface'; // eslint-disable-line no-unused-vars
 
-const TOTAL_DMA_CYCLES = 512;
+// Total number of DMA cycles
+const TOTAL_CYCLES = 512;
 
 /**
+ * Circuit that executes data transfer of 256 bytes from CPU memory to PPU OAM (Object Attribute Memory).
+ * Transfer is done in 512 CPU cycles where 1 byte is transferred every even cycle.
+ * The base source address is a multiple of 256 and it is initialized at the start of transfer.
+ * The the desintation address is 0x2004 which is mapped to PPU OMADATA register.
  * @implements {DmaInterface}
  */
 export default class Dma {
 
+  /**
+   * Constructor.
+   */
   constructor() {
     log.info('Initializing DMA');
-    this.cycle = 0; // DMA cycle counter
-    this.baseAddress = 0; // Base of DMA source address
+
+    /**
+     * Remaining cycles of DMA transfer.
+     * @private {number}
+     */
+    this.cyclesLeft = 0;
+
+    /**
+     * Base source address from which data are copied.
+     * @private {number}
+     */
+    this.baseAddress = 0;
+
+    /**
+     * CPU memory interface.
+     * @type {CpuMemoryInterface}
+     */
     this.cpuMemory = null;
   }
 
@@ -35,33 +59,56 @@ export default class Dma {
     this.cpuMemory = null;
   }
 
+  /**
+   * Resets DMA state.
+   * @override
+   */
   reset() {
     log.info('Resetting DMA');
-    this.cycle = TOTAL_DMA_CYCLES;
+    this.cyclesLeft = 0;
   }
 
-  writeAddress(address) {
-    this.cycle = 0;
-    this.baseAddress = address << 8; // Source address multiplied by 0x100
+  /**
+   * Starts DMA transfer.
+   * @param {number} blockNumber Number (8-bit) of 256 B data block to transfer.
+   * @override
+   */
+  startTransfer(blockNumber) {
+    this.cyclesLeft = TOTAL_CYCLES;
+    this.baseAddress = blockNumber << 8; // Multiplied by block size (256)
   }
 
+  /**
+   * Executes DMA cycle.
+   * @override
+   */
   tick() {
-    if (this.isBlockingCpu()) {
-      this.cycle++;
-      if (this.cycle & 1) {
-        this.transferData(); // Each even cycle
+    if (this.cyclesLeft) {
+      this.cyclesLeft--;
+      if (this.cyclesLeft & 1) {
+        this.transferValue(); // Each even cycle
       }
     }
   }
 
-  isBlockingCpu() {
-    return this.cycle < TOTAL_DMA_CYCLES;
-  }
-
-  transferData() {
-    const address = this.baseAddress + (this.cycle >> 1);
+  /**
+   * Transfer 1 byte of data from CPU memory to PPU OAMDATA.
+   * @private
+   */
+  transferValue() {
+    const offset = (TOTAL_CYCLES - this.cyclesLeft) >> 1; // Ignore the least significant bit, transfer is done every even cycle.
+    const address = this.baseAddress + offset;
     const data = this.cpuMemory.read(address);
     this.cpuMemory.write(0x2004, data);
+  }
+
+  /**
+   * Returns whether DMA transfer is blocking CPU.
+   * @returns {boolean} True if CPU is being blocked, false otherwise.
+   * @override
+   */
+  isBlockingCpu() {
+    return this.cyclesLeft > 0;
   }
 
 }

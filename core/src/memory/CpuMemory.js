@@ -98,6 +98,12 @@ export default class CpuMemory {
   // Memory access
   //=========================================================
 
+  /**
+   * Reads value from an address.
+   * @param {number} address Address (16-bit).
+   * @returns {value} Read value (8-bit).
+   * @override
+   */
   read(address) {
     if (address >= 0x8000) {
       return this.readPrgRom(address);    // $8000-$FFFF
@@ -111,6 +117,12 @@ export default class CpuMemory {
     return this.readExRom(address);       // $4020-$5FFF
   }
 
+  /**
+   * Writes value to an address.
+   * @param {number} address Address (16-bit).
+   * @param {value} value Value to write (8-bit).
+   * @override
+   */
   write(address, value) {
     if (address >= 0x8000) {
       this.writePrgRom(address, value);    // $8000-$FFFF
@@ -174,7 +186,7 @@ export default class CpuMemory {
       case 0x2005: this.ppu.writeScroll(value); break;
       case 0x2006: this.ppu.writeAddress(value); break;
       case 0x2007: this.ppu.writeData(value); break;
-      case 0x4014: this.dma.writeAddress(value); break;
+      case 0x4014: this.dma.startTransfer(value); break;
       case 0x4016: this.writeInputDevice(value); break;
       case 0x4000: this.apu.writePulseDutyEnvelope(1, value); break;
       case 0x4001: this.apu.writePulseSweep(1, value); break;

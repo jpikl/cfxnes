@@ -23,13 +23,13 @@ describe('memory/DMA', () => {
   });
 
   it('blocks CPU after address write', () => {
-    dma.writeAddress(0);
+    dma.startTransfer(0);
     expect(dma.isBlockingCpu()).to.be.true;
   });
 
   it('transfers 256B of data during 512 cycles', () => {
     let cycles = 0;
-    dma.writeAddress(0);
+    dma.startTransfer(0);
     while (dma.isBlockingCpu()) {
       dma.tick();
       cycles++;

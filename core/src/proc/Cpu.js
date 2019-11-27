@@ -1,7 +1,7 @@
 import {log} from '../common';
+import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
 import CpuInterface from './CpuInterface'; // eslint-disable-line no-unused-vars
 import {RESET, NMI} from './interrupts';
-import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
 
 // CPU operation flags
 const F_EXTRA_CYCLE = 1 << 0; // Operation has +1 cycle
