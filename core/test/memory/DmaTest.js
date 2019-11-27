@@ -10,11 +10,15 @@ describe('memory/DMA', () => {
     write: () => writes++,
   };
 
+  const bus = {
+    getCpuMemory: () => cpuMemory,
+  };
+
   beforeEach(() => {
     reads = 0;
     writes = 0;
     dma = new Dma;
-    dma.connect({cpuMemory});
+    dma.connect(bus);
     dma.reset();
   });
 

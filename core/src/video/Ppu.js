@@ -104,7 +104,7 @@ export default class Ppu {
   connect(bus) {
     log.info('Connecting PPU');
     this.cpu = bus.getCpu();
-    this.ppuMemory = bus.getPpu();
+    this.ppuMemory = bus.getPpuMemory();
   }
 
   /**

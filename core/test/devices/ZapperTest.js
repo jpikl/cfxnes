@@ -3,16 +3,23 @@ import {expect} from 'chai';
 import Zapper from '../../src/devices/Zapper';
 
 describe('devices/Zapper', () => {
-  const nes = {ppu: {isBrightFramePixel(x, y) { return x > y; }}};
   let zapper;
+
+  const ppu = {
+    isBrightFramePixel: (x, y) => x > y,
+  };
+
+  const bus = {
+    getPpu: () => ppu,
+  };
 
   beforeEach(() => {
     zapper = new Zapper;
-    zapper.connect(nes);
+    zapper.connect(bus);
   });
 
   afterEach(() => {
-    zapper.disconnect(nes);
+    zapper.disconnect();
   });
 
   it('has trigger not pressed by default', () => {
