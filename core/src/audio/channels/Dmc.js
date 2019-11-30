@@ -1,10 +1,10 @@
 import {log} from '../../common';
 import {IRQ_DMC} from '../../proc/interrupts';
 import Bus from '../../common/Bus'; // eslint-disable-line no-unused-vars
-import BusComponent from '../../common/BusComponent'; // eslint-disable-line no-unused-vars
+import BusConnected from '../../common/BusConnected'; // eslint-disable-line no-unused-vars
 
 /**
- * @implements {BusComponent}
+ * @implements {BusConnected}
  */
 export default class Dmc {
 
@@ -41,8 +41,8 @@ export default class Dmc {
    * @param {!Bus} bus Bus.
    * @override
    */
-  connect(bus) {
-    log.info('Connecting DM channel');
+  connectToBus(bus) {
+    log.info('Connecting DM channel to bus');
     this.cpu = bus.getCpu();
     this.cpuMemory = bus.getCpuMemory();
   }
@@ -51,8 +51,8 @@ export default class Dmc {
    * Disconnects DM channel from bus.
    * @override
    */
-  disconnect() {
-    log.info('Disconnecting DM channel');
+  disconnectFromBus() {
+    log.info('Disconnecting DM channel from bus');
     this.cpu = null;
     this.cpuMemory = null;
   }

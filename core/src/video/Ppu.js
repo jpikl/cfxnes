@@ -101,8 +101,8 @@ export default class Ppu {
    * @param {!Bus} bus Bus.
    * @override
    */
-  connect(bus) {
-    log.info('Connecting PPU');
+  connectToBus(bus) {
+    log.info('Connecting PPU to bus');
     this.cpu = bus.getCpu();
     this.ppuMemory = bus.getPpuMemory();
   }
@@ -111,8 +111,8 @@ export default class Ppu {
    * Disconnects PPU from bus.
    * @override
    */
-  disconnect() {
-    log.info('Disonnecting PPU');
+  disconnectFromBus() {
+    log.info('Disonnecting PPU from bus');
     this.cpu = null;
     this.ppuMemory = null;
   }

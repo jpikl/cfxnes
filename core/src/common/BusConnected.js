@@ -4,19 +4,19 @@ import Bus from './Bus'; // eslint-disable-line no-unused-vars
  * NES component that can be connected to bus.
  * @interface
  */
-export default class BusComponent {
+export default class BusConnected {
 
   /**
    * Connects component to bus.
    * @param {!Bus} bus Bus.
    */
-  connect(bus) { // eslint-disable-line no-unused-vars
+  connectToBus(bus) { // eslint-disable-line no-unused-vars
   }
 
   /**
    * Disconnects component from bus.
    */
-  disconnect() {
+  disconnectFromBus() {
   }
 
 }

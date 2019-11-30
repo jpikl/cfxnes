@@ -15,8 +15,8 @@ export {Cpu, Ppu, Apu};
 
 export class MemoryOutputPpu extends Ppu {
 
-  connect(bus) {
-    super.connect(bus);
+  connectToBus(bus) {
+    super.connectToBus(bus);
     this.setBasePalette(createPalette());
     this.setFrameBuffer(new Uint32Array(VIDEO_WIDTH * VIDEO_HEIGHT));
   }

@@ -18,7 +18,7 @@ describe('memory/DMA', () => {
     reads = 0;
     writes = 0;
     dma = new Dma;
-    dma.connect(bus);
+    dma.connectToBus(bus);
     dma.reset();
   });
 

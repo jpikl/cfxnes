@@ -48,20 +48,20 @@ export default class Apu {
    * @param {!Bus} bus Bus.
    * @override
    */
-  connect(bus) {
-    log.info('Connecting APU');
+  connectToBus(bus) {
+    log.info('Connecting APU to bus');
     this.cpu = bus.getCpu();
-    this.dmc.connect(bus);
+    this.dmc.connectToBus(bus);
   }
 
   /**
    * Disconnects APU from bus.
    * @override
    */
-  disconnect() {
-    log.info('Disconnecting APU');
+  disconnectFromBus() {
+    log.info('Disconnecting APU from bus');
     this.cpu = null;
-    this.dmc.disconnect();
+    this.dmc.disconnectFromBus();
   }
 
   //=========================================================

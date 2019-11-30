@@ -4,7 +4,6 @@ import Joypad from '../../src/devices/Joypad';
 import JoypadButton from '../../src/devices/JoypadButton';
 
 describe('devices/Joypad', () => {
-  const nes = {};
   let joypad;
 
   const buttons = [
@@ -20,11 +19,11 @@ describe('devices/Joypad', () => {
 
   beforeEach(() => {
     joypad = new Joypad;
-    joypad.connect(nes);
+    joypad.connectToBus({});
   });
 
   afterEach(() => {
-    joypad.disconnect(nes);
+    joypad.disconnectFromBus();
   });
 
   for (const button of buttons) {

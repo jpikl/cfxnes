@@ -1,9 +1,11 @@
 import {log, Mirroring} from '../../common';
 import Bus from '../../common/Bus'; // eslint-disable-line no-unused-vars
-import BusComponent from '../../common/BusComponent'; // eslint-disable-line no-unused-vars
+import BusConnected from '../../common/BusConnected'; // eslint-disable-line no-unused-vars
+import MapperInterface from './MapperInterface'; // eslint-disable-line no-unused-vars
 
 /**
- * @implements {BusComponent}
+ * @implements {MapperInterface}
+ * @implements {BusConnected}
  */
 export default class Mapper {
 
@@ -54,29 +56,29 @@ export default class Mapper {
    * @param {!Bus} bus Bus.
    * @override
    */
-  connect(bus) {
-    log.info('Connecting mapper');
+  connectToBus(bus) {
+    log.info('Connecting mapper to bus');
 
     this.cpu = bus.getCpu();
     this.ppu = bus.getPpu();
     this.cpuMemory = bus.getCpuMemory();
     this.ppuMemory = bus.getPpuMemory();
 
-    this.cpu.setMapper(this);
-    this.cpuMemory.setMapper(this);
-    this.ppuMemory.setMapper(this);
+    this.cpu.connectToMapper(this);
+    this.cpuMemory.connectToMapper(this);
+    this.ppuMemory.connectToMapper(this);
   }
 
   /**
    * Disconnects mapper from bus.
    * @override
    */
-  disconnect() {
-    log.info('Disconnecting mapper');
+  disconnectFromBus() {
+    log.info('Disconnecting mapper from bus');
 
-    this.ppuMemory.setMapper(null);
-    this.cpuMemory.setMapper(null);
-    this.cpu.setMapper(null);
+    this.ppuMemory.disconnectFromMapper();
+    this.cpuMemory.disconnectFromMapper();
+    this.cpu.disconnectFromMapper();
 
     this.ppuMemory = null;
     this.cpuMemory = null;

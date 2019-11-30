@@ -1,9 +1,13 @@
-import BusComponent from '../common/BusComponent'; // eslint-disable-line no-unused-vars
+import BusConnected from '../common/BusConnected'; // eslint-disable-line no-unused-vars
+import Resettable from '../common/Resettable'; // eslint-disable-line no-unused-vars
+import Ticking from '../common/Ticking'; // eslint-disable-line no-unused-vars
 
 /**
  * PPU interface.
  * @interface
- * @extends {BusComponent}
+ * @extends {BusConnected}
+ * @extends {Resettable}
+ * @extends {Ticking}
  */
 export default class PpuInterface {
 
@@ -15,5 +19,55 @@ export default class PpuInterface {
    */
   isBrightFramePixel(x, y) { // eslint-disable-line no-unused-vars
   }
+
+  /*
+  isFrameAvailable() {
+  }
+
+  readData() {
+  }
+
+  readOamData() {
+  }
+
+  readStatus() {
+  }
+
+  renderDebugFrame() {
+  }
+
+  getBasePalette() {
+  }
+
+  setBasePalette() {
+  }
+
+  setFrameBuffer() {
+  }
+
+  setRegionParams() {
+  }
+
+  writeAddress() {
+  }
+
+  writeControl() {
+  }
+
+  writeData() {
+  }
+
+  writeMask() {
+  }
+
+  writeOamAddress() {
+  }
+
+  writeOamData() {
+  }
+
+  writeScroll() {
+  }
+  */
 
 }

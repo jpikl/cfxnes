@@ -45,8 +45,8 @@ export default class Dma {
    * @param {!Bus} bus Bus.
    * @override
    */
-  connect(bus) {
-    log.info('Connecting DMA');
+  connectToBus(bus) {
+    log.info('Connecting DMA to bus');
     this.cpuMemory = bus.getCpuMemory();
   }
 
@@ -54,8 +54,8 @@ export default class Dma {
    * Disconnects DMA from bus.
    * @override
    */
-  disconnect() {
-    log.info('Disconnecting DMA');
+  disconnectFromBus() {
+    log.info('Disconnecting DMA from bus');
     this.cpuMemory = null;
   }
 

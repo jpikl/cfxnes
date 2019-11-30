@@ -1,5 +1,6 @@
 import {log} from '../common';
 import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
+import MapperInterface from '../memory/mappers/MapperInterface'; // eslint-disable-line no-unused-vars
 import CpuMemoryInterface from './CpuMemoryInterface'; // eslint-disable-line no-unused-vars
 
 // $10000 +------------------------+-------------------+ $10000
@@ -58,8 +59,8 @@ export default class CpuMemory {
    * @param {!Bus} bus Bus.
    * @override
    */
-  connect(bus) {
-    log.info('Connecting CPU memory');
+  connectToBus(bus) {
+    log.info('Connecting CPU memory to bus');
     this.ppu = bus.getPpu();
     this.apu = bus.getApu();
     this.dma = bus.getDma();
@@ -69,17 +70,32 @@ export default class CpuMemory {
    * Disconnects CPU memory from bus.
    * @override
    */
-  disconnect() {
-    log.info('Disconnecting CPU memory');
+  disconnectFromBus() {
+    log.info('Disconnecting CPU memory from bus');
     this.ppu = null;
     this.apu = null;
     this.dma = null;
   }
 
-  setMapper(mapper) {
+  /**
+   * Connects CPU memory to memory mapper.
+   * @param {!MapperInterface} mapper Memory mapper.
+   */
+  connectToMapper(mapper) {
+    log.info('Connecting CPU memory to mapper');
     this.mapper = mapper;
-    this.prgRam = mapper && mapper.prgRam;
-    this.prgRom = mapper && mapper.prgRom;
+    this.prgRam = mapper.prgRam;
+    this.prgRom = mapper.prgRom;
+  }
+
+  /**
+   * Disconnects CPU memory from memory mapper.
+   */
+  disconnectFromMapper() {
+    log.info('Disconnecting CPU memory from mapper');
+    this.mapper = null;
+    this.prgRam = null;
+    this.prgRom = null;
   }
 
   //=========================================================
@@ -101,7 +117,7 @@ export default class CpuMemory {
   /**
    * Reads value from an address.
    * @param {number} address Address (16-bit).
-   * @returns {value} Read value (8-bit).
+   * @returns {number} Read value (8-bit).
    * @override
    */
   read(address) {
@@ -120,7 +136,7 @@ export default class CpuMemory {
   /**
    * Writes value to an address.
    * @param {number} address Address (16-bit).
-   * @param {value} value Value to write (8-bit).
+   * @param {number} value Value to write (8-bit).
    * @override
    */
   write(address, value) {

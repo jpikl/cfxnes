@@ -31,7 +31,7 @@ export default class Joypad {
    * Connects joypad to bus.
    * @override
    */
-  connect() {
+  connectToBus() {
     log.info('Connecting joypad');
   }
 
@@ -39,7 +39,7 @@ export default class Joypad {
    * Disconnects joypad from bus.
    * @override
    */
-  disconnect() {
+  disconnectFromBus() {
     log.info('Disconnecting joypad');
   }
 

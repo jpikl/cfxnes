@@ -1,9 +1,9 @@
-import BusComponent from '../common/BusComponent'; // eslint-disable-line no-unused-vars
+import BusConnected from '../common/BusConnected'; // eslint-disable-line no-unused-vars
 
 /**
  * Input device interface.
  * @interface
- * @extends {BusComponent}
+ * @extends {BusConnected}
  */
 export default class InputDevice {
 

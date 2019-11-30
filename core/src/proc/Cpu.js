@@ -1,5 +1,6 @@
 import {log} from '../common';
 import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
+import MapperInterface from '../memory/mappers/MapperInterface'; // eslint-disable-line no-unused-vars
 import CpuInterface from './CpuInterface'; // eslint-disable-line no-unused-vars
 import {RESET, NMI} from './interrupts';
 
@@ -65,8 +66,8 @@ export default class Cpu {
    * @param {!Bus} bus Bus.
    * @override
    */
-  connect(bus) {
-    log.info('Connecting CPU');
+  connectToBus(bus) {
+    log.info('Connecting CPU to bus');
     this.cpuMemory = bus.getCpuMemory();
     this.ppu = bus.getPpu();
     this.apu = bus.getApu();
@@ -77,16 +78,29 @@ export default class Cpu {
    * Disconnects CPU from bus.
    * @override
    */
-  disconnect() {
-    log.info('Connecting CPU');
+  disconnectFromBus() {
+    log.info('Connecting CPU from bus');
     this.cpuMemory = null;
     this.ppu = null;
     this.apu = null;
     this.dma = null;
   }
 
-  setMapper(mapper) {
+  /**
+   * Connects CPU to memory mapper.
+   * @param {!MapperInterface} mapper Memory mapper.
+   */
+  connectToMapper(mapper) {
+    log.info('Connecting CPU to mapper');
     this.mapper = mapper;
+  }
+
+  /**
+   * Disconnects CPU from memory mapper.
+   */
+  disconnectFromMapper() {
+    log.info('Disconnecting CPU from mapper');
+    this.mapper = null;
   }
 
   //=========================================================

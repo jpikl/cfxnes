@@ -1,5 +1,5 @@
 export {default as Bus} from './Bus';
-export {default as BusComponent} from './BusComponent';
+export {default as BusComponent} from './BusConnected';
 export {default as computeSha1} from './computeSha1';
 export {default as decodeBase64} from './decodeBase64';
 export {default as describeValue} from './describeValue';

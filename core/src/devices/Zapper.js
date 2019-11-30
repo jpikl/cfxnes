@@ -44,8 +44,8 @@ export default class Zapper {
    * @param {!Bus} bus Bus.
    * @override
    */
-  connect(bus) {
-    log.info('Connecting zapper');
+  connectToBus(bus) {
+    log.info('Connecting zapper to bus');
     this.ppu = bus.getPpu();
   }
 
@@ -53,8 +53,8 @@ export default class Zapper {
    * Disconnects zapper from bus.
    * @override
    */
-  disconnect() {
-    log.info('Disconnecting zapper');
+  disconnectFromBus() {
+    log.info('Disconnecting zapper from bus');
     this.ppu = null;
   }
 

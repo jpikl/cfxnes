@@ -15,11 +15,11 @@ describe('devices/Zapper', () => {
 
   beforeEach(() => {
     zapper = new Zapper;
-    zapper.connect(bus);
+    zapper.connectToBus(bus);
   });
 
   afterEach(() => {
-    zapper.disconnect();
+    zapper.disconnectFromBus();
   });
 
   it('has trigger not pressed by default', () => {

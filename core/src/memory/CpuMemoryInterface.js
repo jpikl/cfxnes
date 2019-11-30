@@ -1,16 +1,20 @@
-import BusComponent from '../common/BusComponent'; // eslint-disable-line no-unused-vars
+import BusConnected from '../common/BusConnected'; // eslint-disable-line no-unused-vars
+import MapperConnected from '../common/MapperConnected'; // eslint-disable-line no-unused-vars
+import Resettable from '../common/Resettable'; // eslint-disable-line no-unused-vars
 
 /**
  * CPU memory interface.
  * @interface
- * @extends {BusComponent}
+ * @extends {BusConnected}
+ * @extends {MapperConnected}
+ * @extends {Resettable}
  */
 export default class CpuMemoryInterface {
 
   /**
    * Reads value from an address.
    * @param {number} address Address (16-bit).
-   * @returns {value} Read value (8-bit).
+   * @returns {number} Read value (8-bit).
    */
   read(address) { // eslint-disable-line no-unused-vars
   }
@@ -18,9 +22,25 @@ export default class CpuMemoryInterface {
   /**
    * Writes value to an address.
    * @param {number} address Address (16-bit).
-   * @param {value} value Value to write (8-bit).
+   * @param {number} value Value to write (8-bit).
    */
   write(address, value) { // eslint-disable-line no-unused-vars
   }
+
+  /*
+  getInputDevice() {
+  }
+
+  setInputDevice() {
+  }
+
+  TODO move to mapper implementation
+  mapPrgRamBank() {
+  }
+
+  TODO move to mapper implementation
+  mapPrgRomBank() {
+  }
+  */
 
 }

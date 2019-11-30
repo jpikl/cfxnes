@@ -1,4 +1,5 @@
 import {log, Mirroring} from '../common';
+import MapperInterface from '../memory/mappers/MapperInterface'; // eslint-disable-line no-unused-vars
 import PpuMemoryInterface from './PpuMemoryInterface'; // eslint-disable-line no-unused-vars
 
 const INITIAL_PALETTES = [
@@ -68,7 +69,7 @@ export default class PpuMemory {
    * Connects PPU memory to bus.
    * @override
    */
-  connect() {
+  connectToBus() {
     log.info('Connecting PPU memory');
   }
 
@@ -76,14 +77,29 @@ export default class PpuMemory {
    * Disconnects PPU memory from bus.
    * @override
    */
-  disconnect() {
+  disconnectFromBus() {
     log.info('Disconnecting PPU memory');
   }
 
-  setMapper(mapper) {
+  /**
+   * Connects PPU memory to memory mapper.
+   * @param {!MapperInterface} mapper Memory mapper.
+   */
+  connectToMapper(mapper) {
+    log.info('Connecting PPU memory to mapper');
     this.mapper = mapper;
     this.patterns = mapper && (mapper.chrRam || mapper.chrRom);
     this.canWritePattern = mapper != null && mapper.chrRam != null;
+  }
+
+  /**
+   * Disconnects PPU memory from memory mapper.
+   */
+  disconnectFromMapper() {
+    log.info('Disconnecting PPU memory from mapper');
+    this.mapper = null;
+    this.patterns = null;
+    this.canWritePattern = false;
   }
 
   //=========================================================

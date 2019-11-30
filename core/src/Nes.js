@@ -20,6 +20,8 @@ export default class Nes {
     this.cpuMemory = units.cpuMemory || new CpuMemory;
     this.ppuMemory = units.ppuMemory || new PpuMemory;
 
+    // TODO array of units
+
     this.cartridge = null;
     this.mapper = null;
     this.region = null;
@@ -33,14 +35,16 @@ export default class Nes {
   //=========================================================
 
   connectUnits() {
-    this.cpu.connect(this);
-    this.ppu.connect(this);
-    this.apu.connect(this);
-    this.dma.connect(this);
-    this.cpuMemory.connect(this);
+    // TODO call interface methods using ducktyping on units array
+    this.cpu.connectToBus(this);
+    this.ppu.connectToBus(this);
+    this.apu.connectToBus(this);
+    this.dma.connectToBus(this);
+    this.cpuMemory.connectToBus(this);
   }
 
   resetUnits() {
+    // TODO call interface methods using ducktyping on units array
     this.cpuMemory.reset();
     this.ppuMemory.reset();
     this.mapper.reset(); // Must be done after memory
@@ -97,6 +101,7 @@ export default class Nes {
     const params = Region.getParams(region);
 
     log.info(`Detected region: "${region}"`);
+    // TODO call interface methods using ducktyping on units array
     this.ppu.setRegionParams(params);
     this.apu.setRegionParams(params);
   }
@@ -109,7 +114,7 @@ export default class Nes {
     if (this.cartridge) {
       log.info('Removing current cartridge');
       if (this.mapper) { // Does not have to be present in case of error during mapper creation.
-        this.mapper.disconnect();
+        this.mapper.disconnectFromBus();
         this.mapper = null;
       }
       this.cartridge = null;
@@ -118,7 +123,7 @@ export default class Nes {
       log.info('Inserting cartridge');
       this.cartridge = cartridge;
       this.mapper = createMapper(cartridge);
-      this.mapper.connect(this);
+      this.mapper.connectToBus(this);
       this.applyRegion();
       this.power();
     }
@@ -149,11 +154,11 @@ export default class Nes {
   setInputDevice(port, device) {
     const oldDevice = this.cpuMemory.getInputDevice(port);
     if (oldDevice) {
-      oldDevice.disconnect();
+      oldDevice.disconnectFromBus();
     }
     this.cpuMemory.setInputDevice(port, device);
     if (device) {
-      device.connect(this);
+      device.connectToBus(this);
     }
   }
 

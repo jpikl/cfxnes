@@ -1,13 +1,13 @@
-import BusComponent from '../common/BusComponent'; // eslint-disable-line no-unused-vars
-import ResettableComponent from '../common/ResettableComponent'; // eslint-disable-line no-unused-vars
-import TickingComponent from '../common/TickingComponent'; // eslint-disable-line no-unused-vars
+import BusConnected from '../common/BusConnected'; // eslint-disable-line no-unused-vars
+import Resettable from '../common/Resettable'; // eslint-disable-line no-unused-vars
+import Ticking from '../common/Ticking'; // eslint-disable-line no-unused-vars
 
 /**
  * DMA interface.
  * @interface
- * @extends {BusComponent}
- * @extends {ResettableComponent}
- * @extends {TickingComponent}
+ * @extends {BusConnected}
+ * @extends {Resettable}
+ * @extends {Ticking}
  */
 export default class DmaInterface {
 
