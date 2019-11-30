@@ -1,7 +1,5 @@
-import {log} from '../../common';
+import {Bus, BusConnected, log} from '../../common'; // eslint-disable-line no-unused-vars
 import {IRQ_DMC} from '../../proc/interrupts';
-import Bus from '../../common/Bus'; // eslint-disable-line no-unused-vars
-import BusConnected from '../../common/BusConnected'; // eslint-disable-line no-unused-vars
 
 /**
  * @implements {BusConnected}

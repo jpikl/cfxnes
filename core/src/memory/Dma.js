@@ -1,5 +1,4 @@
-import {log} from '../common';
-import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
+import {Bus, log} from '../common'; // eslint-disable-line no-unused-vars
 import DmaInterface from './DmaInterface'; // eslint-disable-line no-unused-vars
 import CpuMemoryInterface from './CpuMemoryInterface'; // eslint-disable-line no-unused-vars
 

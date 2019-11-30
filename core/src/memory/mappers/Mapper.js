@@ -1,6 +1,4 @@
-import {log, Mirroring} from '../../common';
-import Bus from '../../common/Bus'; // eslint-disable-line no-unused-vars
-import BusConnected from '../../common/BusConnected'; // eslint-disable-line no-unused-vars
+import {Bus, BusConnected, log, Mirroring} from '../../common'; // eslint-disable-line no-unused-vars
 import MapperInterface from './MapperInterface'; // eslint-disable-line no-unused-vars
 
 /**

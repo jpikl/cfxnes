@@ -1,5 +1,5 @@
 import {log, Mirroring} from '../common';
-import MapperInterface from '../memory/mappers/MapperInterface'; // eslint-disable-line no-unused-vars
+import {MapperInterface} from '../memory'; // eslint-disable-line no-unused-vars
 import PpuMemoryInterface from './PpuMemoryInterface'; // eslint-disable-line no-unused-vars
 
 const INITIAL_PALETTES = [

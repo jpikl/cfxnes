@@ -1,6 +1,4 @@
-import BusConnected from '../common/BusConnected'; // eslint-disable-line no-unused-vars
-import MapperConnected from '../common/MapperConnected'; // eslint-disable-line no-unused-vars
-import Resettable from '../common/Resettable'; // eslint-disable-line no-unused-vars
+import {BusConnected, MapperConnected, Resettable} from '../common'; // eslint-disable-line no-unused-vars
 
 /**
  * CPU memory interface.

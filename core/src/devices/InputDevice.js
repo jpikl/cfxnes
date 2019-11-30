@@ -1,4 +1,4 @@
-import BusConnected from '../common/BusConnected'; // eslint-disable-line no-unused-vars
+import {BusConnected} from '../common'; // eslint-disable-line no-unused-vars
 
 /**
  * Input device interface.

@@ -1,7 +1,5 @@
-import {log} from '../common';
-import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
-import MapperInterface from '../memory/mappers/MapperInterface'; // eslint-disable-line no-unused-vars
-import CpuMemoryInterface from './CpuMemoryInterface'; // eslint-disable-line no-unused-vars
+import {Bus, log} from '../common'; // eslint-disable-line no-unused-vars
+import {CpuMemoryInterface, MapperInterface} from '../memory'; // eslint-disable-line no-unused-vars
 
 // $10000 +------------------------+-------------------+ $10000
 //        |   Upper PRG ROM bank   |                   |

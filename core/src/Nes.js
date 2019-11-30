@@ -1,9 +1,8 @@
-import {log, Region} from './common';
+import {Bus, log, Region} from './common'; // eslint-disable-line no-unused-vars
 import {CpuMemory, PpuMemory, Dma, createMapper} from './memory';
 import {Ppu, packColor, BLACK_COLOR} from './video';
 import {Cpu, Interrupt} from './proc';
 import {Apu} from './audio';
-import Bus from './common/Bus'; // eslint-disable-line no-unused-vars
 
 /**
  * @implements {Bus}

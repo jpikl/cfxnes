@@ -1,7 +1,5 @@
-import {log} from '../common';
-import {VIDEO_WIDTH, VIDEO_HEIGHT} from '../video';
-import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
-import PpuInterface from '../video/PpuInterface'; // eslint-disable-line no-unused-vars
+import {Bus, log} from '../common'; // eslint-disable-line no-unused-vars
+import {VIDEO_WIDTH, VIDEO_HEIGHT, PpuInterface} from '../video'; // eslint-disable-line no-unused-vars
 import InputDevice from './InputDevice'; // eslint-disable-line no-unused-vars
 
 /**

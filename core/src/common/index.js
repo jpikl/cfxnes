@@ -1,5 +1,5 @@
+export {default as BusConnected} from './BusConnected';
 export {default as Bus} from './Bus';
-export {default as BusComponent} from './BusConnected';
 export {default as computeSha1} from './computeSha1';
 export {default as decodeBase64} from './decodeBase64';
 export {default as describeValue} from './describeValue';
@@ -7,7 +7,10 @@ export {default as formatSize} from './formatSize';
 export {default as isLittleEndian} from './isLittleEndian';
 export {default as LogLevel} from './LogLevel';
 export {default as log} from './consoleLog';
+export {default as MapperConnected} from './MapperConnected';
 export {default as MapperType} from './MapperType';
 export {default as Mirroring} from './Mirroring';
 export {default as Region} from './Region';
+export {default as Resettable} from './Resettable';
 export {default as SubmapperType} from './SubmapperType';
+export {default as Ticking} from './Ticking';

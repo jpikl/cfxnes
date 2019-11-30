@@ -1,6 +1,5 @@
-import {log} from '../common';
+import {Bus, log} from '../common'; // eslint-disable-line no-unused-vars
 import {IRQ_APU} from '../proc/interrupts';
-import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
 import {Pulse, Triangle, Noise, Dmc} from './channels';
 import ApuInterface from './ApuInterface'; // eslint-disable-line no-unused-vars
 

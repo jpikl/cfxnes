@@ -10,6 +10,8 @@ import Nina001 from './Nina001';
 import NRom from './NRom';
 import UnRom from './UnRom';
 
+export {default as MapperInterface} from './MapperInterface';
+
 const mappers = {
   [MapperType.AOROM]: AoRom,
   [MapperType.BNROM]: BnRom,

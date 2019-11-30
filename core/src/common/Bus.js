@@ -1,9 +1,7 @@
-import ApuInterface from '../audio/ApuInterface'; // eslint-disable-line no-unused-vars
-import CpuInterface from '../proc/CpuInterface'; // eslint-disable-line no-unused-vars
-import CpuMemoryInterface from '../memory/CpuMemoryInterface'; // eslint-disable-line no-unused-vars
-import DmaInterface from '../memory/DmaInterface'; // eslint-disable-line no-unused-vars
-import PpuInterface from '../video/PpuInterface'; // eslint-disable-line no-unused-vars
-import PpuMemoryInterface from '../memory/PpuMemoryInterface'; // eslint-disable-line no-unused-vars
+import {ApuInterface} from '../audio'; // eslint-disable-line no-unused-vars
+import {CpuInterface} from '../proc'; // eslint-disable-line no-unused-vars
+import {CpuMemoryInterface, DmaInterface, PpuMemoryInterface} from '../memory'; // eslint-disable-line no-unused-vars
+import {PpuInterface} from '../video'; // eslint-disable-line no-unused-vars
 
 /**
  * Bus connecting NES components.

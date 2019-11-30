@@ -1,6 +1,5 @@
-import {log} from '../common';
+import {Bus, log} from '../common'; // eslint-disable-line no-unused-vars
 import {NMI} from '../proc/interrupts';
-import Bus from '../common/Bus'; // eslint-disable-line no-unused-vars
 import {VIDEO_WIDTH} from './constants';
 import {unpackColor, BLACK_COLOR} from './colors';
 import {createPaletteVariant} from './palettes';
