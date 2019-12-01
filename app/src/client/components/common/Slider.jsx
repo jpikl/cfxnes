@@ -10,7 +10,7 @@ const getClassName = (className, vertical, marksFormat) => classNames(
   'slider',
   className,
   vertical ? 'vertical' : 'horizontal',
-  {marked: marksFormat != null}
+  {marked: marksFormat != null},
 );
 
 const getMarks = (min, max, step, format) => {

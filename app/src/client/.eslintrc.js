@@ -1,10 +1,9 @@
 module.exports = {
   parser: 'babel-eslint',
   parserOptions: {
-    ecmaVersion: 7,
+    ecmaVersion: 2018,
     sourceType: 'module',
     ecmaFeatures: {
-      experimentalObjectRestSpread: true,
       jsx: true,
     }
   },
@@ -18,6 +17,9 @@ module.exports = {
   ],
   settings: {
     'import/resolver': 'webpack',
+    react: {
+      version: 'detect',
+    },
   },
   globals: {
     __DEVELOPMENT__: true,

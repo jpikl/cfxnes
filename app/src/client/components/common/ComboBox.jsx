@@ -20,7 +20,7 @@ ComboBox.propTypes = {
   selectId: PropTypes.string,
   selectLabel: PropTypes.string,
   disabled: PropTypes.bool,
-  options: optionsPropType.isRequired, // eslint-disable-line react/no-typos
+  options: optionsPropType.isRequired,
   value: PropTypes.string,
   onChange: PropTypes.func,
 };

@@ -44,7 +44,7 @@ function getContainerClassName(className, hoverTrigger, activeTrigger) {
     {
       'hover-trigger': hoverTrigger,
       'active-trigger': activeTrigger,
-    }
+    },
   );
 }
 

@@ -10,6 +10,7 @@ module.exports = {
   plugins: [
     'import',
   ],
+  reportUnusedDisableDirectives: true,
   rules: {
     'array-bracket-spacing': 'warn',
     'array-callback-return': 'error',
