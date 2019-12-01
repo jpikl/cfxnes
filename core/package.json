@@ -37,6 +37,7 @@
     "chai": "^4.1.2",
     "eslint": "^6.7.2",
     "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsdoc": "^18.2.0",
     "mkdirp": "^0.5.1",
     "mocha": "^5.2.0",
     "node-png": "^0.4.3",
