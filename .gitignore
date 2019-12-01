@@ -1,5 +1,7 @@
+/.idea/
 /.vscode/
 /roms/
 /temp/
 /*.zip
 /*.html
+/*.iml
