@@ -1,6 +1,6 @@
-import {Bus, log} from '../common'; // eslint-disable-line no-unused-vars
-import DmaInterface from './DmaInterface'; // eslint-disable-line no-unused-vars
-import CpuMemoryInterface from './CpuMemoryInterface'; // eslint-disable-line no-unused-vars
+import {Bus, log} from '../common';
+import DmaInterface from './DmaInterface';
+import CpuMemoryInterface from './CpuMemoryInterface';
 
 // Total number of DMA cycles
 const TOTAL_CYCLES = 512;
@@ -103,7 +103,7 @@ export default class Dma {
 
   /**
    * Returns whether DMA transfer is blocking CPU.
-   * @returns {boolean} True if CPU is being blocked, false otherwise.
+   * @return {boolean} True if CPU is being blocked, false otherwise.
    * @override
    */
   isBlockingCpu() {

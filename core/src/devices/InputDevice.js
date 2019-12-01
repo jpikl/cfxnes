@@ -1,4 +1,4 @@
-import {BusConnected} from '../common'; // eslint-disable-line no-unused-vars
+import {BusConnected} from '../common';
 
 /**
  * Input device interface.
@@ -15,7 +15,7 @@ export default class InputDevice {
 
   /**
    * Reads value from device.
-   * @returns {number} Value.
+   * @return {number} Value.
    */
   read() {
   }

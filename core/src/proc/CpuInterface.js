@@ -1,4 +1,4 @@
-import {BusConnected, MapperConnected, Resettable, Ticking} from '../common'; // eslint-disable-line no-unused-vars
+import {BusConnected, MapperConnected, Resettable, Ticking} from '../common';
 
 /**
  * CPU interface.

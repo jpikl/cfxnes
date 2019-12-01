@@ -9,7 +9,7 @@ const LogLevel = {
   ERROR: 'error',
   /** Log errors and warnings. */
   WARN: 'warn',
-  /** Log errors, warnings and info messages */
+  /** Log errors, warnings and info messages. */
   INFO: 'info',
 };
 

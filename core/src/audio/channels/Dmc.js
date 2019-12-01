@@ -1,4 +1,4 @@
-import {Bus, BusConnected, log} from '../../common'; // eslint-disable-line no-unused-vars
+import {Bus, BusConnected, log} from '../../common';
 import {IRQ_DMC} from '../../proc/interrupts';
 
 /**

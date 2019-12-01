@@ -1,6 +1,6 @@
-import {Bus, log} from '../common'; // eslint-disable-line no-unused-vars
-import {VIDEO_WIDTH, VIDEO_HEIGHT, PpuInterface} from '../video'; // eslint-disable-line no-unused-vars
-import InputDevice from './InputDevice'; // eslint-disable-line no-unused-vars
+import {Bus, log} from '../common';
+import {VIDEO_WIDTH, VIDEO_HEIGHT, PpuInterface} from '../video';
+import InputDevice from './InputDevice';
 
 /**
  * Light gun controller - Zapper.
@@ -66,7 +66,7 @@ export default class Zapper {
 
   /**
    * Reads value from zapper.
-   * @returns {number} Value.
+   * @return {number} Value.
    * @override
    */
   read() {
@@ -75,7 +75,7 @@ export default class Zapper {
 
   /**
    * Returns whether zapper is detecting bright area on screen.
-   * @returns {boolean} True if bright area is detected, false otherwise.
+   * @return {boolean} True if bright area is detected, false otherwise.
    */
   isLightDetected() {
     return this.beamX >= 0 && this.beamX < VIDEO_WIDTH
@@ -93,7 +93,7 @@ export default class Zapper {
 
   /**
    * Returns trigger button state.
-   * @returns {boolean} True if trigger is pressed, false otherwise.
+   * @return {boolean} True if trigger is pressed, false otherwise.
    */
   isTriggerPressed() {
     return this.triggerPressed;
@@ -111,7 +111,7 @@ export default class Zapper {
 
   /**
    * Returns beam position on screen.
-   * @returns {!Array<number>} Array containing X and Y coordinate.
+   * @return {!Array<number>} Array containing X and Y coordinate.
    */
   getBeamPosition() {
     return [this.beamX, this.beamY];

@@ -1,6 +1,6 @@
-import {Bus, log} from '../common'; // eslint-disable-line no-unused-vars
-import {MapperInterface} from '../memory'; // eslint-disable-line no-unused-vars
-import CpuInterface from './CpuInterface'; // eslint-disable-line no-unused-vars
+import {Bus, log} from '../common';
+import {MapperInterface} from '../memory';
+import CpuInterface from './CpuInterface';
 import {RESET, NMI} from './interrupts';
 
 // CPU operation flags

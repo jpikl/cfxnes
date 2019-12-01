@@ -1,4 +1,4 @@
-import {BusConnected, Resettable, Ticking} from '../common'; // eslint-disable-line no-unused-vars
+import {BusConnected, Resettable, Ticking} from '../common';
 
 /**
  * DMA interface.
@@ -18,7 +18,7 @@ export default class DmaInterface {
 
   /**
    * Returns whether DMA transfer is blocking CPU.
-   * @returns {boolean} True if CPU is being blocked, false otherwise.
+   * @return {boolean} True if CPU is being blocked, false otherwise.
    */
   isBlockingCpu() {
   }

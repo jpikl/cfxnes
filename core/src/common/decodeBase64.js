@@ -2,9 +2,8 @@
 
 /**
  * Decodes Base64 string value.
- *
  * @param {string} input Encoded value.
- * @returns {string} Decoded value.
+ * @return {string} Decoded value.
  */
 export default function decodeBase64(input) {
   if (typeof window !== 'undefined' && typeof window.atob === 'function') {

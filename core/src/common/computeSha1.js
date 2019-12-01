@@ -6,7 +6,7 @@ const shift = [24, 16, 8, 0];
  * Computes SHA-1 hash of a byte array.
  * Based on source code of [js-sha1 v3.0]{@link https://github.com/emn178/js-sha1}.
  * @param {!Uint8Array} data Input data.
- * @returns {string} SHA-1 hash of input data.
+ * @return {string} SHA-1 hash of input data.
  */
 export default function computeSha1(data) {
   const {length} = data;

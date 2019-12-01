@@ -1,7 +1,7 @@
-import {ApuInterface} from '../audio'; // eslint-disable-line no-unused-vars
-import {CpuInterface} from '../proc'; // eslint-disable-line no-unused-vars
-import {CpuMemoryInterface, DmaInterface, PpuMemoryInterface} from '../memory'; // eslint-disable-line no-unused-vars
-import {PpuInterface} from '../video'; // eslint-disable-line no-unused-vars
+import {ApuInterface} from '../audio';
+import {CpuInterface} from '../proc';
+import {CpuMemoryInterface, DmaInterface, PpuMemoryInterface} from '../memory';
+import {PpuInterface} from '../video';
 
 /**
  * Bus connecting NES components.
@@ -11,42 +11,42 @@ export default class Bus {
 
   /**
    * Returns interface of CPU connected to the bus.
-   * @returns {!CpuInterface} CPU interface
+   * @return {!CpuInterface} CPU interface.
    */
   getCpu() {
   }
 
   /**
    * Returns interface of CPU memory connected to the bus.
-   * @returns {!CpuMemoryInterface} CPU memory
+   * @return {!CpuMemoryInterface} CPU memory.
    */
   getCpuMemory() {
   }
 
   /**
    * Returns interface of PPU connected to the bus.
-   * @returns {!PpuInterface} PPU interface
+   * @return {!PpuInterface} PPU interface.
    */
   getPpu() {
   }
 
   /**
    * Returns interface of PPU memory connected to the bus.
-   * @returns {!PpuMemoryInterface} PPU memory
+   * @return {!PpuMemoryInterface} PPU memory.
    */
   getPpuMemory() {
   }
 
   /**
    * Returns interface of APU connected to the bus.
-   * @returns {!ApuInterface} APU interface
+   * @return {!ApuInterface} APU interface.
    */
   getApu() {
   }
 
   /**
    * Returns interface of DMA connected to the bus.
-   * @returns {!DmaInterface} DMA interface
+   * @return {!DmaInterface} DMA interface.
    */
   getDma() {
   }

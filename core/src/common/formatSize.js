@@ -1,7 +1,7 @@
 /**
  * Returns size as formatted string with B, KB or MB units.
  * @param {number|undefined} size Size in bytes.
- * @returns {string|undefined} Formatted size when size is a number, undefined otherwise.
+ * @return {string|undefined} Formatted size when size is a number, undefined otherwise.
  */
 export default function formatSize(size) {
   if (typeof size !== 'number') {
@@ -19,7 +19,7 @@ export default function formatSize(size) {
 /**
  * Rounds size to 3 decimal digits.
  * @param {number} size Size.
- * @returns {number} Rounded size.
+ * @return {number} Rounded size.
  */
 function roundSize(size) {
   return (~~(1000 * size)) / 1000;

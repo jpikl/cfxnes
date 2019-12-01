@@ -1,4 +1,4 @@
-import Ticking from '../../common/Ticking'; // eslint-disable-line no-unused-vars
+import Ticking from '../../common/Ticking';
 
 /**
  * Memory mapper interface.

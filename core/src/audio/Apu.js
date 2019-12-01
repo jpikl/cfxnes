@@ -1,7 +1,7 @@
-import {Bus, log} from '../common'; // eslint-disable-line no-unused-vars
+import {Bus, log} from '../common';
 import {IRQ_APU} from '../proc/interrupts';
 import {Pulse, Triangle, Noise, Dmc} from './channels';
-import ApuInterface from './ApuInterface'; // eslint-disable-line no-unused-vars
+import ApuInterface from './ApuInterface';
 
 const TICKS_PER_FRAME = 29829.55; // Number of CPU ticks per one video frame
 

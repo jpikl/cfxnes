@@ -34,8 +34,8 @@ const singleMirrorings = [
 
 /**
  * Returns single-screen mirroring.
- * @param {number} area Area number (0-3);
- * @returns {Mirroring} Mirroring.
+ * @param {number} area Area number (0-3).
+ * @return {Mirroring} Mirroring.
  */
 Mirroring.getSingle = area => {
   return singleMirrorings[area];
@@ -58,7 +58,7 @@ const mirroringAreas = {
 /**
  * Returns mirrored area numbers.
  * @param {Mirroring} mirroring Mirroring.
- * @returns {!Array<number>} Area numbers.
+ * @return {!Array<number>} Area numbers.
  */
 Mirroring.getAreas = mirroring => {
   const areas = mirroringAreas[mirroring];

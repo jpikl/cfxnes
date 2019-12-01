@@ -1,6 +1,6 @@
 /**
  * Detects endianness.
- * @returns {boolean} true for little-endian, false for big-endian.
+ * @return {boolean} True for little-endian, false for big-endian.
  */
 export default function isLittleEndian() {
   const u16 = new Uint16Array([0x1234]);

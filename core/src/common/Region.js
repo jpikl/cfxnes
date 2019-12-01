@@ -11,16 +11,15 @@ const Region = {
   PAL: 'PAL',
 };
 
-/* eslint-disable no-unused-vars */
 /**
  * Parameters of NES region.
- *  - framesPerSecond - Screen refresh rate (Hz).
- *  - cpuFrequency - CPU frequency (Hz).
- *  - ppuClipTopBottom - Whether to clip 8 top/bottom pixels of PPU output.
- *  - frameCounterMax4 - Reset values for APU 4-step frame counter.
- *  - frameCounterMax5 - Reset values for APU 5-step frame counter.
- *  - noiseTimerPeriods - Timer periods of APU noise channel.
- *  - dmcTimerPeriods - Timer periods of APU DM channel.
+ * - framesPerSecond - Screen refresh rate (Hz).
+ * - cpuFrequency - CPU frequency (Hz).
+ * - ppuClipTopBottom - Whether to clip 8 top/bottom pixels of PPU output.
+ * - frameCounterMax4 - Reset values for APU 4-step frame counter.
+ * - frameCounterMax5 - Reset values for APU 5-step frame counter.
+ * - noiseTimerPeriods - Timer periods of APU noise channel.
+ * - dmcTimerPeriods - Timer periods of APU DM channel.
  * @typedef {{
  *   framesPerSecond: number,
  *   cpuFrequency: number,
@@ -64,7 +63,7 @@ const palParams = {
 /**
  * Return region parameters.
  * @param {Region} region Region.
- * @returns {RegionParams} Parameters.
+ * @return {RegionParams} Parameters.
  */
 Region.getParams = region => {
   switch (region) {

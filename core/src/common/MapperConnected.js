@@ -1,4 +1,4 @@
-import {MapperInterface} from '../memory'; // eslint-disable-line no-unused-vars
+import {MapperInterface} from '../memory';
 
 /**
  * NES component that can be connected to bus.

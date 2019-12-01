@@ -1,4 +1,4 @@
-import {BusConnected, MapperConnected, Resettable} from '../common'; // eslint-disable-line no-unused-vars
+import {BusConnected, MapperConnected, Resettable} from '../common';
 
 /**
  * PPU memory interface.

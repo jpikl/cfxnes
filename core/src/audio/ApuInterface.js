@@ -1,4 +1,4 @@
-import {BusConnected, Resettable, Ticking} from '../common'; // eslint-disable-line no-unused-vars
+import {BusConnected, Resettable, Ticking} from '../common';
 
 /**
  * APU interface.

@@ -1,6 +1,6 @@
 import {log, Mirroring} from '../common';
-import {MapperInterface} from '../memory'; // eslint-disable-line no-unused-vars
-import PpuMemoryInterface from './PpuMemoryInterface'; // eslint-disable-line no-unused-vars
+import {MapperInterface} from '../memory';
+import PpuMemoryInterface from './PpuMemoryInterface';
 
 const INITIAL_PALETTES = [
   0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D, // Background palettes 0, 1

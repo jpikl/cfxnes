@@ -1,5 +1,5 @@
-import {Bus, log} from '../common'; // eslint-disable-line no-unused-vars
-import {CpuMemoryInterface, MapperInterface} from '../memory'; // eslint-disable-line no-unused-vars
+import {Bus, log} from '../common';
+import {CpuMemoryInterface, MapperInterface} from '../memory';
 
 // $10000 +------------------------+-------------------+ $10000
 //        |   Upper PRG ROM bank   |                   |
@@ -115,7 +115,7 @@ export default class CpuMemory {
   /**
    * Reads value from an address.
    * @param {number} address Address (16-bit).
-   * @returns {number} Read value (8-bit).
+   * @return {number} Read value (8-bit).
    * @override
    */
   read(address) {

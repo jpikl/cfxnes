@@ -1,4 +1,4 @@
-import Bus from './Bus'; // eslint-disable-line no-unused-vars
+import Bus from './Bus';
 
 /**
  * NES component that can be connected to bus.

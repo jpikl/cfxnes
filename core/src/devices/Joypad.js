@@ -1,6 +1,6 @@
 import {log} from '../common';
-import JoypadButton from './JoypadButton'; // eslint-disable-line no-unused-vars
-import InputDevice from './InputDevice'; // eslint-disable-line no-unused-vars
+import JoypadButton from './JoypadButton';
+import InputDevice from './InputDevice';
 
 /**
  * Standard controller - Joypad.
@@ -53,7 +53,7 @@ export default class Joypad {
 
   /**
    * Reads value from joypad.
-   * @returns {number} Value.
+   * @return {number} Value.
    * @override
    */
   read() {
@@ -73,9 +73,8 @@ export default class Joypad {
 
   /**
    * Returns state of a button.
-   *
    * @param {JoypadButton} button Button.
-   * @returns {boolean} True if button is pressed, false otherwise/
+   * @return {boolean} True if button is pressed, false otherwise.
    */
   isButtonPressed(button) {
     return this.buttonStates[button] === 1;

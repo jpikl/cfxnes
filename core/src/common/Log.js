@@ -41,7 +41,7 @@ export default class Log {
     this.level = LogLevel.OFF;
 
     /**
-     * Priority for level of logging
+     * Priority for level of logging.
      * @private {number}
      */
     this.priority = OFF_PRIORITY;

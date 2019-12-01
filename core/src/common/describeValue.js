@@ -3,7 +3,7 @@ const MAX_STRING_LENGTH = 80;
 /**
  * Returns human-readable representation of a value.
  * @param {*} value Value of any type.
- * @returns {string} Text describing the value.
+ * @return {string} Text describing the value.
  */
 export default function describeValue(value) {
   const type = typeof value;
@@ -32,7 +32,7 @@ export default function describeValue(value) {
 /**
  * Returns name of a function.
  * @param {!Function} fn Function.
- * @returns {string} Function name.
+ * @return {string} Function name.
  */
 function getFunctionName(fn) {
   if (fn.name) {

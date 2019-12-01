@@ -1,4 +1,4 @@
-import {BusConnected, MapperConnected, Resettable} from '../common'; // eslint-disable-line no-unused-vars
+import {BusConnected, MapperConnected, Resettable} from '../common';
 
 /**
  * CPU memory interface.
@@ -12,7 +12,7 @@ export default class CpuMemoryInterface {
   /**
    * Reads value from an address.
    * @param {number} address Address (16-bit).
-   * @returns {number} Read value (8-bit).
+   * @return {number} Read value (8-bit).
    */
   read(address) { // eslint-disable-line no-unused-vars
   }
