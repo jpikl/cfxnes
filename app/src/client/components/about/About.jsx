@@ -24,7 +24,7 @@ export default class About extends PureComponent {
           <h1>cfxnes ({cfxnes.version})</h1>
           <p>JavaScript <abbr title="Nintendo Entertainment System">NES</abbr> emulator and emulation library.</p>
           <p>The source code is available at <a href="https://github.com/jpikl/cfxnes">github</a> and licensed under the MIT License.</p>
-          <p>Copyright © 2014-present Jan Pikl</p>
+          <p>Copyright © 2014 Jan Pikl</p>
           {this.state.changelogVisible
             ? <Changelog/>
             : <LinkButton onClick={this.handleShowChangelog}>Show change log</LinkButton>
