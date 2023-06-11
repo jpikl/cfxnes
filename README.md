@@ -4,7 +4,7 @@ JavaScript NES emulator and emulation library.
 
 ![cfxnes logo](logo.png)
 
-:video_game: [Live demo](https://cfxnes.herokuapp.com)
+:video_game: [Live demo](https://jpikl.github.io/cfxnes)
 
 :information_source: [How to use cfxnes as a library](lib)
 

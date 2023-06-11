@@ -7,13 +7,14 @@ import {isRomFile, getRomId, getRomName, compareRomsByName, findRomThumbFile, ge
 export default class RomDb {
 
   constructor(romsDir, options = {}) {
-    const {reloadDelay = 1000} = options;
+    const {reloadDelay = 1000, romsFilePath = ROMS_FILES_PATH} = options;
 
     log.info('Creating ROM database');
     log.info('  directory: %s', romsDir);
     log.info('  reload delay: %d', reloadDelay);
 
     this.romsDir = romsDir;
+    this.romsFilePath = romsFilePath;
     this.roms = [];
     this.romMap = {};
     this.fileMap = {};
@@ -74,7 +75,7 @@ export default class RomDb {
       const rom = {
         id: getRomId(romFileName),
         name: getRomName(romFileName),
-        file: `${ROMS_FILES_PATH}/${publicRomFileName}`,
+        file: `${this.romsFilePath}/${publicRomFileName}`,
       };
 
       roms.push(rom);
@@ -84,7 +85,7 @@ export default class RomDb {
       if (thumbFile) {
         const publicThumbFileName = getPublicFileName(thumbFile);
         fileMap[publicThumbFileName] = thumbFile;
-        rom.thumbnail = `${ROMS_FILES_PATH}/${publicThumbFileName}`;
+        rom.thumbnail = `${this.romsFilePath}/${publicThumbFileName}`;
       }
     }
 

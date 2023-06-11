@@ -92,6 +92,7 @@ module.exports = (env = {}) => {
   const commonPlugins = [
     new webpack.DefinePlugin({
       __DEVELOPMENT__: JSON.stringify(!env.production),
+      __STATIC_BUILD__: JSON.stringify(env.staticBuild),
       __REDUX_LOGGER_ENABLED__: devConfig.reduxLoggerEnabled,
       __REDUX_DEVTOOLS_ENABLED__: devConfig.reduxDevToolsEnabled,
       __LOG_LEVEL__: JSON.stringify(env.production ? 'warn' : devConfig.logLevel),
@@ -105,6 +106,7 @@ module.exports = (env = {}) => {
       template: 'src/client/index.hbs',
       templateParameters: {
         production: Boolean(env.production),
+        baseUrl: env.baseUrl,
       },
     }),
   ];

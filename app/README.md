@@ -2,7 +2,7 @@
 
 NES emulator running in web browser.
 
-A live demo is at [cfxnes.herokuapp.com](http://cfxnes.herokuapp.com).
+A live demo is at [jpikl.github.io/cfxnes](https://jpikl.github.io/cfxnes).
 
 ## Building and Running
 

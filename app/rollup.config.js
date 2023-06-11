@@ -1,9 +1,9 @@
 const nodeResolve = require('rollup-plugin-node-resolve');
 
 module.exports = {
-  input: 'src/server/index.js',
+  input: process.env.INPUT || 'src/server/index.js',
   output: {
-    file: 'dist/index.js',
+    file: process.env.OUTPUT || 'dist/index.js',
     format: 'cjs',
   },
   external: [

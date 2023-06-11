@@ -4,7 +4,7 @@
 
 VERSION=0.7.0
 RELEASE_FILE=cfxnes-$(VERSION).zip
-DEPLOY_DIR=../cfxnes-heroku
+DEPLOY_DIR=../jpikl.github.io/cfxnes
 BACKUP_FILE=cfxnes.zip
 TEMP_DIR=temp
 
@@ -19,12 +19,14 @@ help:
 	@echo "	lib					Build library"
 	@echo "	lib_dbg			Build library (debug version)"
 	@echo "	app					Build application"
+	@echo "	app_static	Build application (static version)"
 	@echo ""
-	@echo "	tag					Tag current version in git"
-	@echo "	version			Update version in package.json"
-	@echo "	deploy			Deploy application"
-	@echo "	release			Create release"
-	@echo "	backup			Backup project"
+	@echo "	tag							Tag current version in git"
+	@echo "	version					Update version in package.json"
+	@echo "	deploy					Deploy application"
+	@echo "	deploy_static		Deploy application (static version)"
+	@echo "	release					Create release"
+	@echo "	backup					Backup project"
 	@echo ""
 	@echo "	lint				Run linter"
 	@echo "	test				Run tests"
@@ -58,6 +60,9 @@ lib_dbg:
 app: lib
 	cd app && npm -s run build
 
+app_static: lib
+	cd app && npm -s run build-static
+
 ###############################################################################
 # Release
 ###############################################################################
@@ -78,6 +83,12 @@ deploy: clean lib app
 	cd app/dist && cp -r . ../../$(DEPLOY_DIR)/
 	cp app/package.json $(DEPLOY_DIR)/
 	cd $(DEPLOY_DIR) && npm install --production
+
+deploy_static: clean lib app_static
+	rm -rf $(DEPLOY_DIR)/*
+	mkdir -p $(DEPLOY_DIR)
+	cp -rt $(DEPLOY_DIR) app/dist/static/*
+	node ./app/dist/gen-roms.js $(DEPLOY_DIR)/.roms $(DEPLOY_DIR)/roms
 
 release: clean lib_dbg app
 	mkdir $(TEMP_DIR)
