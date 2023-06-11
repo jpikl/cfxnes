@@ -1,6 +1,6 @@
 import React from 'react';
 import {Provider} from 'react-redux';
-import {HashRouter, Switch, Route, Redirect} from 'react-router-dom';
+import {BrowserRouter, HashRouter, Switch, Route, Redirect} from 'react-router-dom';
 import {App, Home, Header, Toolbar, Emulator, EmulatorToolbar, Library, Settings, About} from './components';
 import {ROOT_PATH, ROOT_EXPR, NON_ROOT_EXPR, EMULATOR_EXPR, LIBRARY_EXPR, SETTINGS_EXPR, ABOUT_EXPR} from './routes';
 import store from './store';
@@ -19,9 +19,11 @@ const RootRedirect = () => (
   <Redirect to={ROOT_PATH}/>
 );
 
+const Router = __STATIC_SITE__ ? HashRouter : BrowserRouter;
+
 export default () => (
   <Provider store={store}>
-    <HashRouter>
+    <Router>
       <App>
         <Route path={NON_ROOT_EXPR} component={HeaderWithContent}/>
         <Switch>
@@ -33,6 +35,6 @@ export default () => (
           <Route component={RootRedirect}/>
         </Switch>
       </App>
-    </HashRouter>
+    </Router>
   </Provider>
 );

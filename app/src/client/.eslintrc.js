@@ -23,7 +23,7 @@ module.exports = {
   },
   globals: {
     __DEVELOPMENT__: true,
-    __STATIC_BUILD__: true,
+    __STATIC_SITE__: true,
     __REDUX_LOGGER_ENABLED__: true,
     __REDUX_DEVTOOLS_ENABLED__: true,
     __LOG_LEVEL__: true,

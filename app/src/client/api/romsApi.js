@@ -1,17 +1,15 @@
 import {fetchJson} from './utils';
 
-const BASE_URL = 'api/roms';
-
 export function getAll() {
-  return fetchJson(__STATIC_BUILD__ ? "roms/data.json" : "api/roms/");
+  return fetchJson(__STATIC_SITE__ ? 'roms/data.json' : 'api/roms/');
 }
 
 export function getOne(romId) {
-  if (__STATIC_BUILD__) {
+  if (__STATIC_SITE__) {
     return getAll().then(roms => {
-      const rom = roms.find(rom => rom.id === romId);
+      const rom = roms.find(item => item.id === romId);
       if (!rom) {
-        throw new Error("Could not find ROM!");
+        throw new Error(`ROM ${romId} not found.`);
       }
       return rom;
     });

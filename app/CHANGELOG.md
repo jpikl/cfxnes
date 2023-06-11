@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Unrecoverable state after ROM with unsupported mapper is loaded.
 
+### Added
+
+- App can be build as a static website without the need for Node.js server.
+
 ## [0.7.0] - 2019-04-04
 
 ### Fixed

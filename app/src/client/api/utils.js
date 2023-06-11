@@ -21,7 +21,7 @@ function fetchResource(url) {
         .catch(error => {
           log.error('Message retrieval from server response failed', error);
         })
-        .then(({message}) => {
+        .then(({message} = {}) => {
           if (!message) {
             message = `Failed to download data (${status} ${statusText})`;
           }
